@@ -5,6 +5,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.validation.base.ValidatorBase;
 import javafx.application.Platform;
@@ -19,6 +20,15 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.datetime.DateHelper;
+import org.jevis.commons.datetime.WorkDays;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
+import org.jevis.jeconfig.plugin.AnalysisRequest;
+import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 
@@ -126,7 +136,31 @@ public abstract class BasicEditor implements AttributeEditor {
                 hbox.getChildren().add(ubutton);
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Could not build unit field: " + ex);
+        }
+
+        if (att.getName().equals("Value") || att.getName().equals("value")) {
+            try {
+                DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
+                WorkDays workDays = new WorkDays(att.getObject());
+                dateHelper.setStartTime(workDays.getWorkdayStart());
+                dateHelper.setEndTime(workDays.getWorkdayEnd());
+
+                AnalysisRequest analysisRequest = new AnalysisRequest(att.getObject(),
+                        AggregationPeriod.NONE,
+                        ManipulationMode.NONE,
+                        new AnalysisTimeFrame(TimeFrame.TODAY),
+                        dateHelper.getStartDate(), dateHelper.getEndDate());
+                analysisRequest.setAttribute(att);
+
+                JFXButton button = new JFXButton("", JEConfig.getImage("1415314386_Graph.png", 20, 20));
+
+                hbox.getChildren().add(button);
+
+                button.setOnAction(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
+            } catch (Exception e) {
+                logger.error("Could not build analysis link button: " + e);
+            }
         }
 
         return hbox;

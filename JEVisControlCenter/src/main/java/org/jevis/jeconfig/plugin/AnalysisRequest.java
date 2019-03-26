@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin;
 
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -12,6 +13,7 @@ public class AnalysisRequest {
     private ManipulationMode manipulationMode;
     private AnalysisTimeFrame analysisTimeFrame;
     private JEVisObject object;
+    private JEVisAttribute attribute;
     private DateTime startDate;
     private DateTime endDate;
 
@@ -62,5 +64,13 @@ public class AnalysisRequest {
 
     public void setObject(JEVisObject object) {
         this.object = object;
+    }
+
+    public JEVisAttribute getAttribute() {
+        return attribute;
+    }
+
+    public void setAttribute(JEVisAttribute attribute) {
+        this.attribute = attribute;
     }
 }

@@ -39,15 +39,18 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
@@ -66,7 +69,9 @@ import org.joda.time.DateTime;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -567,33 +572,78 @@ public class GraphPluginView implements Plugin {
         try {
             if (object instanceof AnalysisRequest) {
                 AnalysisRequest analysisRequest = (AnalysisRequest) object;
-                dataModel.setCurrentAnalysis(analysisRequest.getObject());
-                dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
-                dataModel.setManipulationMode(analysisRequest.getManipulationMode());
-                dataModel.setGlobalAnalysisTimeFrame(analysisRequest.getAnalysisTimeFrame());
-                dataModel.getSelectedData().forEach(chartDataModel -> {
-                    System.out.println("SetTime: " + analysisRequest.getStartDate() + " - " + analysisRequest.getEndDate());
-                    chartDataModel.setSelectedStart(analysisRequest.getStartDate());
-                    chartDataModel.setSelectedEnd(analysisRequest.getEndDate());
-                });
-                dataModel.isGlobalAnalysisTimeFrame(true);
+                JEVisObject jeVisObject = analysisRequest.getObject();
+                if (jeVisObject.getJEVisClassName().equals("Analysis")) {
+                    dataModel.setCurrentAnalysis(jeVisObject);
+                    dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
+                    dataModel.setManipulationMode(analysisRequest.getManipulationMode());
+                    dataModel.setGlobalAnalysisTimeFrame(analysisRequest.getAnalysisTimeFrame());
+                    dataModel.getSelectedData().forEach(chartDataModel -> {
+                        chartDataModel.setSelectedStart(analysisRequest.getStartDate());
+                        chartDataModel.setSelectedEnd(analysisRequest.getEndDate());
+                    });
+                    dataModel.isGlobalAnalysisTimeFrame(true);
 
-                toolBarView.removeDateListener();
-                toolBarView.removeAnalysisComboBox();
-                toolBarView.select(analysisRequest.getObject());
-                toolBarView.getPresetDateBox().getSelectionModel().select(TimeFrame.CUSTOM);
-                DateTime startDate = analysisRequest.getStartDate();
-                DateTime endDate = analysisRequest.getEndDate();
-                toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth()));
-                toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(endDate.getYear(), endDate.getMonthOfYear(), endDate.getDayOfMonth()));
-                toolBarView.setupDateListener();
-                toolBarView.setupAnalysisComboBoxListener();
-                toolBarView.setDisableToolBarIcons(false);
+                    toolBarView.removeDateListener();
+                    toolBarView.removeAnalysisComboBox();
+                    toolBarView.select(analysisRequest.getObject());
+                    toolBarView.getPresetDateBox().getSelectionModel().select(TimeFrame.CUSTOM);
+                    DateTime startDate = analysisRequest.getStartDate();
+                    DateTime endDate = analysisRequest.getEndDate();
+                    toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth()));
+                    toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(endDate.getYear(), endDate.getMonthOfYear(), endDate.getDayOfMonth()));
+                    toolBarView.setupDateListener();
+                    toolBarView.setupAnalysisComboBoxListener();
+                    toolBarView.setDisableToolBarIcons(false);
 
-                dataModel.updateSamples();
-                dataModel.setCharts(dataModel.getCharts());
-                dataModel.setSelectedData(dataModel.getSelectedData());
-                //dataModel.update();
+                    dataModel.updateSamples();
+                    dataModel.setCharts(dataModel.getCharts());
+                    dataModel.setSelectedData(dataModel.getSelectedData());
+                } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
+                    ChartDataModel chartDataModel = new ChartDataModel(ds);
+
+                    try {
+                        if (jeVisObject.getJEVisClassName().equals("Data"))
+                            chartDataModel.setObject(jeVisObject);
+                        else if (jeVisObject.getJEVisClassName().equals("Clean Data")) {
+                            chartDataModel.setDataProcessor(jeVisObject);
+                            chartDataModel.setObject(jeVisObject.getParents().get(0));
+                        }
+                    } catch (JEVisException e) {
+
+                    }
+
+                    List<Integer> list = new ArrayList<>();
+                    list.add(0);
+                    chartDataModel.setSelectedCharts(list);
+                    chartDataModel.setAttribute(analysisRequest.getAttribute());
+                    chartDataModel.setColor(Color.BLUE);
+                    chartDataModel.setSomethingChanged(true);
+
+                    Set<ChartDataModel> chartDataModels = Collections.singleton(chartDataModel);
+
+                    ChartSettings chartSettings = new ChartSettings(chartDataModel.getObject().getName());
+                    chartSettings.setId(0);
+                    chartSettings.setChartType(ChartType.AREA);
+                    chartSettings.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.TODAY));
+                    List<ChartSettings> chartSettingsList = Collections.singletonList(chartSettings);
+
+                    dataModel.setCharts(chartSettingsList);
+                    dataModel.setData(chartDataModels);
+
+                    dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
+                    dataModel.setManipulationMode(analysisRequest.getManipulationMode());
+                    dataModel.setGlobalAnalysisTimeFrame(analysisRequest.getAnalysisTimeFrame());
+                    dataModel.getSelectedData().forEach(model -> {
+                        model.setSelectedStart(analysisRequest.getStartDate());
+                        model.setSelectedEnd(analysisRequest.getEndDate());
+                    });
+                    dataModel.isGlobalAnalysisTimeFrame(true);
+
+                    dataModel.updateSamples();
+                    dataModel.setCharts(dataModel.getCharts());
+                    dataModel.setSelectedData(dataModel.getSelectedData());
+                }
             }
 
 

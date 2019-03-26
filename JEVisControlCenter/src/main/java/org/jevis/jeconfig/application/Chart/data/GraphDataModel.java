@@ -106,6 +106,10 @@ public class GraphDataModel {
         update();
     }
 
+    public void setData(Set<ChartDataModel> data) {
+        this.selectedData = data;
+    }
+
     public void update() {
         final String loading = I18n.getInstance().getString("graph.progress.message");
         Service<Void> service = new Service<Void>() {
