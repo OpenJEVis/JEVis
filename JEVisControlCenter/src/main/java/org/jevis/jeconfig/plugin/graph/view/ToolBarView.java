@@ -802,6 +802,9 @@ public class ToolBarView {
                                        analysis, Set<ChartDataModel> selectedData, List<ChartSettings> chartSettings) {
         try {
             JEVisAttribute dataModel = analysis.getAttribute("Data Model");
+            JEVisAttribute charts = analysis.getAttribute("Charts");
+            JEVisAttribute noOfChartsPerScreenAttribute = analysis.getAttribute("Number of Charts per Screen");
+            Long noOfChartsPerScreen = model.getChartsPerScreen();
 
             JsonChartDataModel jsonChartDataModel = new JsonChartDataModel();
             List<JsonAnalysisDataRow> jsonDataModels = new ArrayList<>();
@@ -822,8 +825,6 @@ public class ToolBarView {
             }
             jsonChartDataModel.setListDataRows(jsonDataModels);
 
-
-            JEVisAttribute charts = analysis.getAttribute("Charts");
             List<JsonChartSettings> jsonChartSettings = new ArrayList<>();
             for (ChartSettings cset : chartSettings) {
                 JsonChartSettings set = new JsonChartSettings();
@@ -848,6 +849,11 @@ public class ToolBarView {
                 JEVisSample smp2 = charts.buildSample(now, jsonChartSettings.toString());
                 smp.commit();
                 smp2.commit();
+
+                if (noOfChartsPerScreen != null && !noOfChartsPerScreen.equals(0L) && !noOfChartsPerScreen.equals(2L)) {
+                    JEVisSample smp3 = noOfChartsPerScreenAttribute.buildSample(now, noOfChartsPerScreen);
+                    smp3.commit();
+                }
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));
                 alert.showAndWait();

@@ -175,7 +175,7 @@ public class PeriodAlignmentStep implements ProcessStep {
 
                     //logger.info("align {},last {}, sum {}, avg {}", cleanDataObject.getIsPeriodAligned(), last, sum, avg);
                     List<JEVisSample> currentRawSamples = currentInterval.getRawSamples();
-                    if (currentRawSamples.isEmpty()) {
+                    if (currentRawSamples.isEmpty() && rawSamplesMap.isEmpty()) {
                         continue;
                     }
 
@@ -226,21 +226,23 @@ public class PeriodAlignmentStep implements ProcessStep {
                             DateTime date = currentInterval.getDate();
                             currentValue = calcAvgSampleUpscale(date, rawSamplesMap);
                         }
-                        DateTime date = currentInterval.getDate();
-                        JEVisSample sample = new VirtualSample(date, currentValue);
-                        String note = "";
-                        try {
-                            note = currentRawSamples.get(currentRawSamples.size() - 1).getNote();
-                        } catch (Exception e) {
+                        if (currentValue != null) {
+                            DateTime date = currentInterval.getDate();
+                            JEVisSample sample = new VirtualSample(date, currentValue);
+                            String note = "";
+                            try {
+                                note = currentRawSamples.get(currentRawSamples.size() - 1).getNote();
+                            } catch (Exception e) {
+                            }
+                            if (note.equals("")) note += "alignment(yes," + currentRawSamples.size() + ",avg)";
+                            else note += ",alignment(yes," + currentRawSamples.size() + ",avg)";
+                            if (!notesMap.isEmpty()) {
+                                JEVisSample noteSample = notesMap.get(date);
+                                if (noteSample != null) note += ",userNotes";
+                            }
+                            sample.setNote(note);
+                            currentInterval.addTmpSample(sample);
                         }
-                        if (note.equals("")) note += "alignment(yes," + currentRawSamples.size() + ",avg)";
-                        else note += ",alignment(yes," + currentRawSamples.size() + ",avg)";
-                        if (!notesMap.isEmpty()) {
-                            JEVisSample noteSample = notesMap.get(date);
-                            if (noteSample != null) note += ",userNotes";
-                        }
-                        sample.setNote(note);
-                        currentInterval.addTmpSample(sample);
                     } else {
                         Double currentValue;
                         if (downSampling && !conversionDifferential)
@@ -308,12 +310,9 @@ public class PeriodAlignmentStep implements ProcessStep {
         return (value / currentRawSamples.size());
     }
 
-    private Double calcAvgSampleUpscale(DateTime date, Map<DateTime, JEVisSample> allRawSamples) throws Exception {
-        double value = 0.0;
-        /**
-         * TODO unfinished / testing
-         */
-        JEVisSample sample = allRawSamples.get(date);
+    private Double calcAvgSampleUpscale(DateTime date, Map<DateTime, JEVisSample> rawSamplesMap) throws Exception {
+        Double value = null;
+        JEVisSample sample = rawSamplesMap.get(date);
         if (sample != null) {
             value = sample.getValueAsDouble();
         }

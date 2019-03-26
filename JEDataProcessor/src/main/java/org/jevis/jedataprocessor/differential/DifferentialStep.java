@@ -79,19 +79,27 @@ public class DifferentialStep implements ProcessStep {
                 } else {
 //                    DateTime firstDate = cleanDataObject.getFirstDate();
                     rawSamples = cleanDataObject.getRawSamplesUp();
+                    if (!intervals.isEmpty()) {
+                        CleanInterval firstInterval = intervals.get(0);
+                        if (firstInterval != null && !firstInterval.getTmpSamples().isEmpty()) {
 
-                    Double firstIntervalValue = intervals.get(0).getTmpSamples().get(0).getValueAsDouble();
+                            JEVisSample firstTmpSample = firstInterval.getTmpSamples().get(0);
+                            if (firstTmpSample != null) {
 
-                    long millisClean = periodCleanData.toStandardDuration().getMillis();
-                    long millisRaw = periodRawData.toStandardDuration().getMillis();
+                                Double firstIntervalValue = firstTmpSample.getValueAsDouble();
 
-                    double stepsInPeriod = (double) millisRaw / (double) millisClean;
+                                long millisClean = periodCleanData.toStandardDuration().getMillis();
+                                long millisRaw = periodRawData.toStandardDuration().getMillis();
 
-                    double diffFirstTwoRawSamples = rawSamples.get(1).getValueAsDouble() - rawSamples.get(0).getValueAsDouble();
-                    double stepSize = diffFirstTwoRawSamples / stepsInPeriod;
+                                double stepsInPeriod = (double) millisRaw / (double) millisClean;
 
-                    lastDiffVal = firstIntervalValue - stepSize;
+                                double diffFirstTwoRawSamples = rawSamples.get(1).getValueAsDouble() - rawSamples.get(0).getValueAsDouble();
+                                double stepSize = diffFirstTwoRawSamples / stepsInPeriod;
 
+                                lastDiffVal = firstIntervalValue - stepSize;
+                            }
+                        }
+                    }
                 }
 
                 if (lastDiffVal == null) {
