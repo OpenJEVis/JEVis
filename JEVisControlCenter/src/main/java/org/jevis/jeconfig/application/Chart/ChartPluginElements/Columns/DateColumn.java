@@ -14,10 +14,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndTimePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartTimePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
@@ -73,16 +70,14 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
 
         List<ChartDataModel> singletonList = Collections.singletonList(data);
 
+        PickerCombo pickerCombo = new PickerCombo(getData(), singletonList);
+
         if (type == DATE_TYPE.START) {
-            datePicker = new StartDatePicker(ld);
-            timePicker = new StartTimePicker();
-            ((StartDatePicker) datePicker).initialize(getData(), singletonList, (StartTimePicker) timePicker, null, null);
-            ((StartTimePicker) timePicker).initialize(getData(), singletonList, (StartDatePicker) datePicker, null, null);
+            datePicker = pickerCombo.getStartDatePicker();
+            timePicker = pickerCombo.getStartTimePicker();
         } else {
-            datePicker = new EndDatePicker(ld);
-            timePicker = new EndTimePicker();
-            ((EndDatePicker) datePicker).initialize(getData(), singletonList, (EndTimePicker) timePicker, null, null);
-            ((EndTimePicker) timePicker).initialize(getData(), singletonList, (EndDatePicker) datePicker, null, null);
+            datePicker = pickerCombo.getEndDatePicker();
+            timePicker = pickerCombo.getEndTimePicker();
         }
 
         return datePicker;

@@ -55,6 +55,7 @@ import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
@@ -160,12 +161,16 @@ public class GraphPluginView implements Plugin {
 
             vBox.getChildren().addAll(loadAnalysis, newAnalysis);
 
-            newAnalysis.setOnAction(event -> newAnalysis());
+            newAnalysis.setOnAction(event -> {
+                toolBarView.getPickerCombo().stopUpdateListener();
+                newAnalysis();
+                toolBarView.getPickerCombo().startUpdateListener();
+            });
 
             loadAnalysis.setOnAction(event -> {
-                toolBarView.removeDateListener();
+                toolBarView.getPickerCombo().stopUpdateListener();
                 openDialog();
-                toolBarView.setupDateListener();
+                toolBarView.getPickerCombo().startUpdateListener();
             });
 
             border.setCenter(vBox);
@@ -584,16 +589,21 @@ public class GraphPluginView implements Plugin {
                     });
                     dataModel.isGlobalAnalysisTimeFrame(true);
 
-                    toolBarView.removeDateListener();
-                    toolBarView.removeAnalysisComboBox();
+                    toolBarView.removeAnalysisComboBoxListener();
+                    toolBarView.getPickerCombo().stopUpdateListener();
+                    toolBarView.getPickerCombo().stopDateListener();
+
                     toolBarView.select(analysisRequest.getObject());
                     toolBarView.getPresetDateBox().getSelectionModel().select(TimeFrame.CUSTOM);
                     DateTime startDate = analysisRequest.getStartDate();
                     DateTime endDate = analysisRequest.getEndDate();
                     toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth()));
                     toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(endDate.getYear(), endDate.getMonthOfYear(), endDate.getDayOfMonth()));
-                    toolBarView.setupDateListener();
+
                     toolBarView.setupAnalysisComboBoxListener();
+                    toolBarView.getPickerCombo().startUpdateListener();
+                    toolBarView.getPickerCombo().startDateListener();
+
                     toolBarView.setDisableToolBarIcons(false);
 
                     dataModel.updateSamples();
@@ -634,11 +644,23 @@ public class GraphPluginView implements Plugin {
                     dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
                     dataModel.setGlobalAnalysisTimeFrame(analysisRequest.getAnalysisTimeFrame());
+                    DateTime startDate = analysisRequest.getStartDate();
+                    DateTime endDate = analysisRequest.getEndDate();
                     dataModel.getSelectedData().forEach(model -> {
-                        model.setSelectedStart(analysisRequest.getStartDate());
-                        model.setSelectedEnd(analysisRequest.getEndDate());
+                        model.setSelectedStart(startDate);
+                        model.setSelectedEnd(endDate);
                     });
                     dataModel.isGlobalAnalysisTimeFrame(true);
+
+                    toolBarView.getPickerCombo().stopUpdateListener();
+                    toolBarView.getPickerCombo().stopDateListener();
+
+                    toolBarView.getPresetDateBox().getSelectionModel().select(TimeFrame.CUSTOM);
+                    toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth()));
+                    toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(endDate.getYear(), endDate.getMonthOfYear(), endDate.getDayOfMonth()));
+
+                    toolBarView.getPickerCombo().startUpdateListener();
+                    toolBarView.getPickerCombo().startDateListener();
 
                     dataModel.updateSamples();
                     dataModel.setCharts(dataModel.getCharts());
@@ -1063,9 +1085,11 @@ public class GraphPluginView implements Plugin {
 
             chartView.drawAreaChart(chartID, chartView.getSingleRow(), type);
 
-            chartView.getSingleRow().calcMinAndMax();
-            minValue = Math.min(minValue, chartView.getSingleRow().getMinValue());
-            maxValue = Math.max(maxValue, chartView.getSingleRow().getMaxValue());
+//            chartView.getSingleRow().calcMinAndMax();
+            double min = ((LogicalChart) chartView.getChart()).getMinValue();
+            double max = ((LogicalChart) chartView.getChart()).getMaxValue();
+            minValue = Math.min(minValue, min);
+            maxValue = Math.max(maxValue, max);
 
             if (firstChart) {
                 allEntries = chartView.getChart().getTableData();
@@ -1080,9 +1104,14 @@ public class GraphPluginView implements Plugin {
         if (!minValue.equals(Double.MAX_VALUE) && !maxValue.equals(-Double.MAX_VALUE)) {
             for (ChartView chartView : subCharts) {
                 ((MultiAxisChart) chartView.getChart().getChart()).getY1Axis().setAutoRanging(false);
+                ((MultiAxisChart) chartView.getChart().getChart()).getY2Axis().setAutoRanging(false);
                 ((NumberAxis) ((MultiAxisChart) chartView.getChart().getChart()).getY1Axis()).setLowerBound(minValue);
                 ((NumberAxis) ((MultiAxisChart) chartView.getChart().getChart()).getY1Axis()).setUpperBound(maxValue);
+                ((NumberAxis) ((MultiAxisChart) chartView.getChart().getChart()).getY2Axis()).setLowerBound(minValue);
+                ((NumberAxis) ((MultiAxisChart) chartView.getChart().getChart()).getY2Axis()).setUpperBound(maxValue);
                 ((MultiAxisChart) chartView.getChart().getChart()).getY1Axis().layout();
+                ((MultiAxisChart) chartView.getChart().getChart()).getY2Axis().layout();
+                chartView.getChart().getChart().layout();
             }
         }
 

@@ -25,10 +25,12 @@ public class WorkDays {
 
     public WorkDays(JEVisObject currentObject) {
         this.currentObject = currentObject;
-        try {
-            siteClass = currentObject.getDataSource().getJEVisClass("Building");
-        } catch (JEVisException e) {
-            logger.fatal("Could not get JEVisClass for Building");
+        if (currentObject != null) {
+            try {
+                siteClass = currentObject.getDataSource().getJEVisClass("Building");
+            } catch (JEVisException e) {
+                logger.fatal("Could not get JEVisClass for Building");
+            }
         }
 
         getWorkDays();

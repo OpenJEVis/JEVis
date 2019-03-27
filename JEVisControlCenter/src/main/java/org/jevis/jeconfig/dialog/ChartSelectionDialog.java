@@ -20,6 +20,8 @@
  */
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTimePicker;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -37,16 +39,12 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.commons.datetime.DateHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.PresetDateBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndTimePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartTimePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
@@ -287,11 +285,17 @@ public class ChartSelectionDialog {
         gridPane.setVgap(7);
         gridPane.setPadding(new Insets(4, 4, 4, 4));
 
-        final PresetDateBox presetDateBox = new PresetDateBox();
-        final StartDatePicker pickerDateStart = new StartDatePicker();
-        final StartTimePicker pickerTimeStart = new StartTimePicker();
-        final EndDatePicker pickerDateEnd = new EndDatePicker();
-        final EndTimePicker pickerTimeEnd = new EndTimePicker();
+        List<ChartDataModel> correspondingDataModels = new ArrayList<>();
+        data.getSelectedData().forEach(chartDataModel -> {
+            if (chartDataModel.getSelectedcharts().contains(cset.getId())) correspondingDataModels.add(chartDataModel);
+        });
+
+        PickerCombo pickerCombo = new PickerCombo(data, correspondingDataModels);
+        final ComboBox<TimeFrame> presetDateBox = pickerCombo.getPresetDateBox();
+        final JFXDatePicker pickerDateStart = pickerCombo.getStartDatePicker();
+        final JFXTimePicker pickerTimeStart = pickerCombo.getStartTimePicker();
+        final JFXDatePicker pickerDateEnd = pickerCombo.getEndDatePicker();
+        final JFXTimePicker pickerTimeEnd = pickerCombo.getEndTimePicker();
 
         final Label labelName = new Label(I18n.getInstance().getString("graph.tabs.tab.name"));
         final ChartNameTextField chartNameTextField = new ChartNameTextField(cset);
@@ -303,26 +307,6 @@ public class ChartSelectionDialog {
         final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
         final Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
         final Label presetDateBoxLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
-
-        List<ChartDataModel> correspondingDataModels = new ArrayList<>();
-        data.getSelectedData().forEach(chartDataModel -> {
-            if (chartDataModel.getSelectedcharts().contains(cset.getId())) correspondingDataModels.add(chartDataModel);
-        });
-
-        final Boolean[] programmaticallySetPresetDate = new Boolean[4];
-        programmaticallySetPresetDate[0] = false;
-        programmaticallySetPresetDate[1] = false;
-        programmaticallySetPresetDate[2] = false;
-        programmaticallySetPresetDate[3] = false;
-
-        pickerDateStart.initialize(data, correspondingDataModels, pickerTimeStart, programmaticallySetPresetDate, presetDateBox);
-        pickerTimeStart.initialize(data, correspondingDataModels, pickerDateStart, programmaticallySetPresetDate, presetDateBox);
-
-        pickerDateEnd.initialize(data, correspondingDataModels, pickerTimeEnd, programmaticallySetPresetDate, presetDateBox);
-        pickerTimeEnd.initialize(data, correspondingDataModels, pickerDateEnd, programmaticallySetPresetDate, presetDateBox);
-
-        presetDateBox.initialize(data, correspondingDataModels, new DateHelper(), pickerDateStart, pickerTimeStart,
-                pickerDateEnd, pickerTimeEnd, programmaticallySetPresetDate);
 
         int row = 0;
         gridPane.add(labelName, 0, row);
