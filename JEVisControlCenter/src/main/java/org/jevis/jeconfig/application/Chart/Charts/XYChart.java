@@ -58,6 +58,8 @@ public class XYChart implements Chart {
     Axis dateAxis = new DateValueAxis();
     List<ChartDataModel> chartDataModels;
     MultiAxisChart chart;
+    Double minValue = Double.MAX_VALUE;
+    Double maxValue = -Double.MAX_VALUE;
     boolean asDuration = false;
     private String chartName;
     private List<String> unitY1 = new ArrayList<>();
@@ -683,5 +685,21 @@ public class XYChart implements Chart {
     @Override
     public ChartPanManager getPanner() {
         return panner;
+    }
+
+    public Double getMinValue() {
+        return minValue;
+    }
+
+    public void setMinValue(Double minValue) {
+        this.minValue = minValue;
+    }
+
+    public Double getMaxValue() {
+        return maxValue;
+    }
+
+    public void setMaxValue(Double maxValue) {
+        this.maxValue = maxValue;
     }
 }

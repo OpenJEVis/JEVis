@@ -5,6 +5,8 @@
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
@@ -24,10 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndTimePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartTimePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.*;
@@ -268,19 +267,15 @@ public class ChartView implements Observer {
                 calendarIcon.getIcon().setPickOnBounds(false);
                 iconBox.setPadding(new Insets(4, 4, 4, 4));
                 iconBox.setPickOnBounds(false);
-                StartDatePicker startDatePicker = new StartDatePicker();
+                PickerCombo pickerCombo = new PickerCombo(dataModel, currentSelectedChartDataModels);
+                JFXDatePicker startDatePicker = pickerCombo.getStartDatePicker();
                 startDatePicker.setPickOnBounds(false);
-                StartTimePicker startTimePicker = new StartTimePicker();
+                JFXTimePicker startTimePicker = pickerCombo.getStartTimePicker();
                 startTimePicker.setPickOnBounds(false);
-                EndDatePicker endDatePicker = new EndDatePicker();
+                JFXDatePicker endDatePicker = pickerCombo.getEndDatePicker();
                 endDatePicker.setPickOnBounds(false);
-                EndTimePicker endTimePicker = new EndTimePicker();
+                JFXTimePicker endTimePicker = pickerCombo.getEndTimePicker();
                 endTimePicker.setPickOnBounds(false);
-
-                startDatePicker.initialize(dataModel, currentSelectedChartDataModels, startTimePicker, null, null);
-                startTimePicker.initialize(dataModel, currentSelectedChartDataModels, startDatePicker, null, null);
-                endDatePicker.initialize(dataModel, currentSelectedChartDataModels, endTimePicker, null, null);
-                endTimePicker.initialize(dataModel, currentSelectedChartDataModels, endDatePicker, null, null);
 
                 startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
                     updateChart();

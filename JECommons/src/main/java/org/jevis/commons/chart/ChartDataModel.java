@@ -160,7 +160,9 @@ public class ChartDataModel {
             }
 
             double finalTimeFactor = 1.0;
-            if (millisOutput != null) finalTimeFactor = millisInput / millisOutput;
+            if (millisOutput != null && millisOutput > 0 && millisInput > 0) {
+                finalTimeFactor = millisInput / millisOutput;
+            }
 
             double finalTimeFactor1 = finalTimeFactor;
             inputList.forEach(sample -> {

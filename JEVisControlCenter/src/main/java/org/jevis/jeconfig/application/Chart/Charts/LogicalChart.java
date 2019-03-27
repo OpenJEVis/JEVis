@@ -23,6 +23,8 @@ public class LogicalChart extends XYChart {
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
         XYLogicalChartSerie serie = new XYLogicalChartSerie(singleRow, hideShowIcons);
+        setMinValue(Math.min(minValue, serie.getMinValue()));
+        setMaxValue(Math.max(maxValue, serie.getMaxValue()));
 
         hexColors.add(singleRow.getColor());
         chart.getData().add(serie.getSerie());
@@ -69,7 +71,6 @@ public class LogicalChart extends XYChart {
     public void generateYAxis() {
         super.generateYAxis();
 
-//        y1Axis.setAutoRanging(true);
 //      y1Axis.setLowerBound(0d);
 //      y1Axis.setUpperBound(1d);
         y1Axis.setTickUnit(1d);
@@ -81,5 +82,4 @@ public class LogicalChart extends XYChart {
     public void generateXAxis(Boolean[] changedBoth) {
 
     }
-
 }
