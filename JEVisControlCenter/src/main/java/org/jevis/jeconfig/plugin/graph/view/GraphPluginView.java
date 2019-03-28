@@ -666,6 +666,8 @@ public class GraphPluginView implements Plugin {
                     dataModel.setCharts(dataModel.getCharts());
                     dataModel.setSelectedData(dataModel.getSelectedData());
                 }
+
+                toolBarView.setDisableToolBarIcons(false);
             }
 
 
