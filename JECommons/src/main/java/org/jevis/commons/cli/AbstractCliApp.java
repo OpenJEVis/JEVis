@@ -56,7 +56,9 @@ public abstract class AbstractCliApp {
     protected ForkJoinPool forkJoinPool;
     protected int cycleTime = 900000;
 
-    protected ConcurrentHashMap<String, String> runningJobs = new ConcurrentHashMap();
+    protected ConcurrentHashMap<Long, String> runningJobs = new ConcurrentHashMap();
+    protected ConcurrentHashMap<Long, String> plannedJobs = new ConcurrentHashMap();
+    private int threadCount = 4;
 
     /**
      * @param args start params
@@ -221,7 +223,7 @@ public abstract class AbstractCliApp {
      */
     protected void initializeThreadPool(String serviceClassName) {
 
-        int threadCount = 4;
+        threadCount = 4;
         try {
             JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
             List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
@@ -272,5 +274,9 @@ public abstract class AbstractCliApp {
 
         @Parameter(names = {"--driver-folder", "-df"}, description = "Sets the root folder for the driver structure")
         public String driverFolder;
+    }
+
+    public int getThreadCount() {
+        return threadCount;
     }
 }

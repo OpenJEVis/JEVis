@@ -70,7 +70,7 @@ public class LoadAnalysisDialog {
         this.toolBarView = toolBarView;
         this.ds = ds;
 
-        pickerCombo = new PickerCombo(graphDataModel, null);
+        pickerCombo = new PickerCombo(graphDataModel, null, true);
         presetDateBox = pickerCombo.getPresetDateBox();
         pickerDateStart = pickerCombo.getStartDatePicker();
         pickerTimeStart = pickerCombo.getStartTimePicker();
@@ -173,6 +173,7 @@ public class LoadAnalysisDialog {
             if (newValue != null && !newValue.equals(oldValue)) {
 
                 graphDataModel.setCurrentAnalysis(newValue);
+                pickerCombo.updateCellFactory();
                 graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
                 graphDataModel.setManipulationMode(ManipulationMode.NONE);
                 AnalysisTimeFrame preview = new AnalysisTimeFrame(TimeFrame.PREVIEW);
@@ -284,14 +285,19 @@ public class LoadAnalysisDialog {
             }
             graphDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
-            setSelectedStart(new DateTime(pickerDateStart.getValue().getYear(), pickerDateStart.getValue().getMonthValue(), pickerDateStart.getValue().getDayOfMonth(),
-                    pickerTimeStart.getValue().getHour(), pickerTimeStart.getValue().getMinute(), pickerTimeStart.getValue().getSecond()));
-            setSelectedEnd(new DateTime(pickerDateEnd.getValue().getYear(), pickerDateEnd.getValue().getMonthValue(), pickerDateEnd.getValue().getDayOfMonth(),
-                    pickerTimeEnd.getValue().getHour(), pickerTimeEnd.getValue().getMinute(), pickerTimeEnd.getValue().getSecond()));
+            DateTime start = new DateTime(pickerDateStart.getValue().getYear(), pickerDateStart.getValue().getMonthValue(), pickerDateStart.getValue().getDayOfMonth(),
+                    pickerTimeStart.getValue().getHour(), pickerTimeStart.getValue().getMinute(), pickerTimeStart.getValue().getSecond());
+            setSelectedStart(start);
+
+            DateTime end = new DateTime(pickerDateEnd.getValue().getYear(), pickerDateEnd.getValue().getMonthValue(), pickerDateEnd.getValue().getDayOfMonth(),
+                    pickerTimeEnd.getValue().getHour(), pickerTimeEnd.getValue().getMinute(), pickerTimeEnd.getValue().getSecond());
+            setSelectedEnd(end);
 
             toolBarView.getPresetDateBox().getSelectionModel().select(analysisTimeFrame.getTimeFrame());
             toolBarView.getPickerDateStart().valueProperty().setValue(pickerDateStart.getValue());
+            toolBarView.getPickerCombo().getStartTimePicker().valueProperty().setValue(pickerTimeStart.getValue());
             toolBarView.getPickerDateEnd().valueProperty().setValue(pickerDateEnd.getValue());
+            toolBarView.getPickerCombo().getEndTimePicker().valueProperty().setValue(pickerTimeEnd.getValue());
 
 //            if (cpo != null && comboBoxPresetDates.getSelectionModel().getSelectedItem().equals(TimeFrame.CUSTOM_START_END))
 //                graphDataModel.setAnalysisTimeFrame(new AnalysisTimeFrame(comboBoxPresetDates.getSelectionModel().getSelectedItem(), cpo.getObject().getID()));

@@ -4,10 +4,14 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.calculation.CalcJob;
+import org.jevis.commons.calculation.CalcJobFactory;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
@@ -36,6 +40,8 @@ public class ChartDataModel {
     private Integer axis;
     private Double minValue;
     private Double maxValue;
+    private Boolean isEnPI = false;
+    private JEVisObject calculationObject;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -71,44 +77,32 @@ public class ChartDataModel {
             if (getSelectedStart().isBefore(getSelectedEnd())) {
                 try {
 
-                    SampleGenerator sg;
-                    if (aggregationPeriod.equals(AggregationPeriod.NONE))
-                        sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
-                    else
-                        sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, ManipulationMode.TOTAL, aggregationPeriod);
+                    if (!isEnPI || aggregationPeriod.equals(AggregationPeriod.NONE)) {
+                        SampleGenerator sg;
+                        if (aggregationPeriod.equals(AggregationPeriod.NONE))
+                            sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
+                        else
+                            sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, ManipulationMode.TOTAL, aggregationPeriod);
 
-                    samples = sg.generateSamples();
-                    samples = sg.getAggregatedSamples(samples);
-                    samples = factorizeSamples(samples);
+                        samples = sg.generateSamples();
+                        samples = sg.getAggregatedSamples(samples);
+                        samples = factorizeSamples(samples);
+
+                        AddZerosForMissingValues();
+                    } else {
+                        CalcJobFactory calcJobCreator = new CalcJobFactory();
+
+                        CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                selectedStart, selectedEnd, aggregationPeriod);
+                        samples = calcJob.getResults();
+                    }
+
 
                     /**
                      * Checking for data inconsistencies
                      */
 
-                    if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE)) {
-                        Period displaySampleRate = getAttribute().getDisplaySampleRate();
-                        if (displaySampleRate != null && displaySampleRate != Period.ZERO && displaySampleRate.toStandardDuration().getMillis() > 0) {
-                            DateTime startTS = samples.get(0).getTimestamp();
-                            while (startTS.isAfter(selectedStart)) {
-                                startTS = startTS.minus(getAttribute().getDisplaySampleRate());
-                                if (startTS.isAfter(selectedStart)) {
-                                    JEVisSample smp = new VirtualSample(startTS, 0.0);
-                                    smp.setNote("Empty");
-                                    samples.add(0, smp);
-                                }
-                            }
 
-                            DateTime endTS = samples.get(samples.size() - 1).getTimestamp();
-                            while (endTS.isBefore(selectedEnd)) {
-                                endTS = endTS.plus(getAttribute().getDisplaySampleRate());
-                                if (endTS.isBefore(selectedEnd)) {
-                                    JEVisSample smp = new VirtualSample(endTS, 0.0);
-                                    smp.setNote("Empty");
-                                    samples.add(smp);
-                                }
-                            }
-                        }
-                    }
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
@@ -126,6 +120,33 @@ public class ChartDataModel {
         return samples;
     }
 
+    private void AddZerosForMissingValues() throws JEVisException {
+        if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE)) {
+            Period displaySampleRate = getAttribute().getDisplaySampleRate();
+            if (displaySampleRate != null && displaySampleRate != Period.ZERO && displaySampleRate.toStandardDuration().getMillis() > 0) {
+                DateTime startTS = samples.get(0).getTimestamp();
+                while (startTS.isAfter(selectedStart)) {
+                    startTS = startTS.minus(getAttribute().getDisplaySampleRate());
+                    if (startTS.isAfter(selectedStart)) {
+                        JEVisSample smp = new VirtualSample(startTS, 0.0);
+                        smp.setNote("Empty");
+                        samples.add(0, smp);
+                    }
+                }
+
+                DateTime endTS = samples.get(samples.size() - 1).getTimestamp();
+                while (endTS.isBefore(selectedEnd)) {
+                    endTS = endTS.plus(getAttribute().getDisplaySampleRate());
+                    if (endTS.isBefore(selectedEnd)) {
+                        JEVisSample smp = new VirtualSample(endTS, 0.0);
+                        smp.setNote("Empty");
+                        samples.add(smp);
+                    }
+                }
+            }
+        }
+    }
+
     public void setSamples(List<JEVisSample> samples) {
         this.samples = samples;
     }
@@ -141,28 +162,28 @@ public class ChartDataModel {
             ChartUnits cu = new ChartUnits();
             Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
 
-            Double millisInput = null;
-            Double millisOutput = null;
-            try {
-                if (inputList.size() > 1) {
-                    Period inputPeriod = attribute.getDisplaySampleRate();
-                    if (!inputPeriod.equals(Period.years(1)) || !inputPeriod.equals(Period.months(3)) || !inputPeriod.equals(Period.months(1))) {
-                        millisInput = (double) inputPeriod.toStandardDuration().getMillis();
-                    } else throw new Exception("Input Period is greater than days, could not calculate duration.");
-
-                    Period outputPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
-                    if (!outputPeriod.equals(Period.years(1)) || !outputPeriod.equals(Period.months(3)) || !outputPeriod.equals(Period.months(1))) {
-                        millisOutput = (double) outputPeriod.toStandardDuration().getMillis();
-                    } else throw new Exception("Output Period is greater than days, could not calculate duration.");
-                }
-            } catch (Exception e) {
-                logger.error("Could not get calculate time scaling factor: " + e);
-            }
+//            Double millisInput = null;
+//            Double millisOutput = null;
+//            try {
+//                if (inputList.size() > 1) {
+//                    Period inputPeriod = attribute.getDisplaySampleRate();
+//                    if (!inputPeriod.equals(Period.years(1)) || !inputPeriod.equals(Period.months(3)) || !inputPeriod.equals(Period.months(1))) {
+//                        millisInput = (double) inputPeriod.toStandardDuration().getMillis();
+//                    } else throw new Exception("Input Period is greater than days, could not calculate duration.");
+//
+//                    Period outputPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+//                    if (!outputPeriod.equals(Period.years(1)) || !outputPeriod.equals(Period.months(3)) || !outputPeriod.equals(Period.months(1))) {
+//                        millisOutput = (double) outputPeriod.toStandardDuration().getMillis();
+//                    } else throw new Exception("Output Period is greater than days, could not calculate duration.");
+//                }
+//            } catch (Exception e) {
+//                logger.error("Could not get calculate time scaling factor: " + e);
+//            }
 
             double finalTimeFactor = 1.0;
-            if (millisOutput != null && millisOutput > 0 && millisInput > 0) {
-                finalTimeFactor = millisInput / millisOutput;
-            }
+//            if (millisOutput != null && millisOutput > 0 && millisInput > 0) {
+//                finalTimeFactor = millisInput / millisOutput;
+//            }
 
             double finalTimeFactor1 = finalTimeFactor;
             inputList.forEach(sample -> {
@@ -373,5 +394,24 @@ public class ChartDataModel {
                 logger.error("Could not calculate min and max.");
             }
         });
+    }
+
+    public Boolean getEnPI() {
+        return isEnPI;
+    }
+
+    public void setEnPI(Boolean enPI) {
+        isEnPI = enPI;
+    }
+
+    public JEVisObject getCalculationObject() {
+        return calculationObject;
+    }
+
+    public void setCalculationObject(String calculationObject) {
+        TargetHelper th = new TargetHelper(dataSource, calculationObject);
+        if (th.getObject() != null && !th.getObject().isEmpty()) {
+            this.calculationObject = th.getObject().get(0);
+        }
     }
 }

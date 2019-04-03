@@ -95,7 +95,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
                 }
 
 
-                sampleMap.put((double) sample.getTimestamp().getMillis(), sample);
+                sampleMap.put(sample.getTimestamp(), sample);
                 serie.getData().add(data);
 
             } catch (JEVisException e) {

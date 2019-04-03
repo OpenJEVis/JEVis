@@ -3,17 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jecalc;
+package org.jevis.commons.calculation;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.jecalc.calculation.CalcTemplate;
-import org.jevis.jecalc.calculation.ResultCalculator;
-import org.jevis.jecalc.calculation.Sample;
-import org.jevis.jecalc.calculation.SampleMerger;
 import org.joda.time.DateTime;
 
 import java.util.HashMap;
@@ -23,7 +19,7 @@ import java.util.Map;
 /**
  * @author broder
  */
-class CalcJob {
+public class CalcJob {
 
     private static final Logger logger = LogManager.getLogger(CalcJob.class);
     private List<CalcInputObject> calcObjects;
@@ -35,7 +31,7 @@ class CalcJob {
     private Double allZeroValue;
     private String DIV0Handling = "";
 
-    CalcJob() {
+    public CalcJob() {
     }
 
     CalcJob(List<CalcInputObject> calcObjects, String expression, List<JEVisAttribute> outputObjects, long calcObjID) {
@@ -45,7 +41,7 @@ class CalcJob {
         this.calcObjID = calcObjID;
     }
 
-    void execute() {
+    public void execute() {
         SampleMerger sampleMerger = new SampleMerger();
         for (CalcInputObject calcObject : calcObjects) {
             sampleMerger.addSamples(calcObject.getSamples(), calcObject.getIdentifier(), calcObject.getInputType());
@@ -58,6 +54,20 @@ class CalcJob {
         logger.info("{} results calculated", calculateResult.size());
         saveToOutput(calculateResult);
 
+    }
+
+    public List<JEVisSample> getResults() {
+        SampleMerger sampleMerger = new SampleMerger();
+        for (CalcInputObject calcObject : calcObjects) {
+            sampleMerger.addSamples(calcObject.getSamples(), calcObject.getIdentifier(), calcObject.getInputType());
+            logger.debug("added {} samples with identifier {} to merger", calcObject.getSamples().size(), calcObject.getIdentifier());
+        }
+        Map<DateTime, List<Sample>> mergedSamples = sampleMerger.merge();
+        logger.debug("{} mergable calculations found", mergedSamples.size());
+        ResultCalculator resultCalc = new ResultCalculator(mergedSamples, new CalcTemplate(expression));
+        List<JEVisSample> calculateResult = resultCalc.calculateResult(DIV0Handling, staticValue, allZeroValue);
+        logger.info("{} results calculated", calculateResult.size());
+        return calculateResult;
     }
 
     private void saveToOutput(List<JEVisSample> calculateResult) {

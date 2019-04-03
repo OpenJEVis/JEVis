@@ -71,7 +71,7 @@ public class PeriodAlignmentStep implements ProcessStep {
                 long start = cleanInterval.getInterval().getStartMillis();
                 long end = cleanInterval.getInterval().getEndMillis();
                 long halfDiff = (end - start) / 2;
-                snapToGridStart = date.minus(halfDiff);
+                snapToGridStart = date.minus(halfDiff).minusMillis(1);
                 snapToGridEnd = date.plus(halfDiff);
 
                 while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
@@ -300,9 +300,6 @@ public class PeriodAlignmentStep implements ProcessStep {
 
     private Double calcAvgSample(List<JEVisSample> currentRawSamples) throws Exception {
         Double value = 0.0;
-        /**
-         * TODO unfinished / testing
-         */
         for (JEVisSample sample : currentRawSamples) {
             Double valueAsDouble = sample.getValueAsDouble();
             value += valueAsDouble;

@@ -70,7 +70,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
 
         List<ChartDataModel> singletonList = Collections.singletonList(data);
 
-        PickerCombo pickerCombo = new PickerCombo(getData(), singletonList);
+        PickerCombo pickerCombo = new PickerCombo(getData(), singletonList, false);
 
         if (type == DATE_TYPE.START) {
             datePicker = pickerCombo.getStartDatePicker();

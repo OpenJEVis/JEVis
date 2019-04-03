@@ -41,6 +41,8 @@ public class JsonAnalysisDataRow {
     private String unit;
     private String selectedCharts;
     private String axis;
+    private String isEnPI;
+    private String calculation;
 
     public JsonAnalysisDataRow() {
     }
@@ -130,5 +132,23 @@ public class JsonAnalysisDataRow {
 
     public void setAxis(String axis) {
         this.axis = axis;
+    }
+
+    @XmlElement(name = "isEnPI")
+    public String getIsEnPI() {
+        return isEnPI;
+    }
+
+    public void setIsEnPI(String isEnPI) {
+        this.isEnPI = isEnPI;
+    }
+
+    @XmlElement(name = "calculation")
+    public String getCalculation() {
+        return calculation;
+    }
+
+    public void setCalculation(String calculation) {
+        this.calculation = calculation;
     }
 }

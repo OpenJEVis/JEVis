@@ -163,14 +163,18 @@ public class GraphPluginView implements Plugin {
 
             newAnalysis.setOnAction(event -> {
                 toolBarView.getPickerCombo().stopUpdateListener();
+                toolBarView.getPickerCombo().stopDateListener();
                 newAnalysis();
                 toolBarView.getPickerCombo().startUpdateListener();
+                toolBarView.getPickerCombo().startDateListener();
             });
 
             loadAnalysis.setOnAction(event -> {
                 toolBarView.getPickerCombo().stopUpdateListener();
+                toolBarView.getPickerCombo().stopDateListener();
                 openDialog();
                 toolBarView.getPickerCombo().startUpdateListener();
+                toolBarView.getPickerCombo().startDateListener();
             });
 
             border.setCenter(vBox);
@@ -580,6 +584,7 @@ public class GraphPluginView implements Plugin {
                 JEVisObject jeVisObject = analysisRequest.getObject();
                 if (jeVisObject.getJEVisClassName().equals("Analysis")) {
                     dataModel.setCurrentAnalysis(jeVisObject);
+                    toolBarView.getPickerCombo().updateCellFactory();
                     dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
                     dataModel.setGlobalAnalysisTimeFrame(analysisRequest.getAnalysisTimeFrame());
@@ -640,6 +645,7 @@ public class GraphPluginView implements Plugin {
 
                     dataModel.setCharts(chartSettingsList);
                     dataModel.setData(chartDataModels);
+                    toolBarView.getPickerCombo().updateCellFactory();
 
                     dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());

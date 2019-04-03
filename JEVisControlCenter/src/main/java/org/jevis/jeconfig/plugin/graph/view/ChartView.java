@@ -10,6 +10,7 @@ import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -34,7 +35,9 @@ import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.application.tools.TableViewUntils;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static javafx.scene.control.TableView.UNCONSTRAINED_RESIZE_POLICY;
@@ -155,6 +158,13 @@ public class ChartView implements Observer {
         avgCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
         avgCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
+        TableColumn<TableEntry, String> enPICol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.enpi"));
+        enPICol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("enpi"));
+        enPICol.setStyle("-fx-alignment: CENTER-RIGHT");
+        enPICol.setSortable(false);
+        enPICol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+        enPICol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+
         TableColumn<TableEntry, String> sumCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.sum"));
         sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
         sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
@@ -167,7 +177,7 @@ public class ChartView implements Observer {
         tableData.add(tableEntry);
         tableView.setItems(tableData);
 
-        tableView.getColumns().addAll(colorCol, name, periodCol, value, dateCol, note, minCol, maxCol, avgCol, sumCol);
+        tableView.getColumns().addAll(colorCol, name, periodCol, value, dateCol, note, minCol, maxCol, avgCol, enPICol, sumCol);
 
         TableColumn[] maxSizeColumns = new TableColumn[]{name};
 
@@ -267,7 +277,7 @@ public class ChartView implements Observer {
                 calendarIcon.getIcon().setPickOnBounds(false);
                 iconBox.setPadding(new Insets(4, 4, 4, 4));
                 iconBox.setPickOnBounds(false);
-                PickerCombo pickerCombo = new PickerCombo(dataModel, currentSelectedChartDataModels);
+                PickerCombo pickerCombo = new PickerCombo(dataModel, currentSelectedChartDataModels, false);
                 JFXDatePicker startDatePicker = pickerCombo.getStartDatePicker();
                 startDatePicker.setPickOnBounds(false);
                 JFXTimePicker startTimePicker = pickerCombo.getStartTimePicker();
@@ -277,16 +287,13 @@ public class ChartView implements Observer {
                 JFXTimePicker endTimePicker = pickerCombo.getEndTimePicker();
                 endTimePicker.setPickOnBounds(false);
 
-                startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-                    updateChart();
+                ChangeListener<LocalDate> localDateChangeListener = (observable, oldValue, newValue) -> {
                     pickerBox.setVisible(false);
+                    dataModel.update();
                     iconBox.setVisible(true);
-                });
-                endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-                    updateChart();
-                    pickerBox.setVisible(false);
-                    iconBox.setVisible(true);
-                });
+                };
+                startDatePicker.valueProperty().addListener(localDateChangeListener);
+                endDatePicker.valueProperty().addListener(localDateChangeListener);
 
                 iconBox.getChildren().addAll(calendarIcon.getIcon());
                 iconBox.setAlignment(Pos.TOP_RIGHT);
@@ -345,10 +352,12 @@ public class ChartView implements Observer {
 
     private void generateChart(Integer chartId, ChartType chartType, List<ChartDataModel> chartDataModels) {
         this.chartType = chartType;
+        boolean containsEnPI = chartDataModels.stream().anyMatch(ChartDataModel::getEnPI);
         switch (chartType) {
             case AREA:
                 chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
+                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case LOGICAL:
                 chart = new LogicalChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
@@ -360,11 +369,13 @@ public class ChartView implements Observer {
                     tableView.getColumns().get(7).setVisible(false);
                     tableView.getColumns().get(8).setVisible(false);
                     tableView.getColumns().get(9).setVisible(false);
+                    tableView.getColumns().get(10).setVisible(false);
                 } else disableTable();
                 break;
             case LINE:
                 chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
+                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case BAR:
                 chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
@@ -375,10 +386,12 @@ public class ChartView implements Observer {
                 tableView.getColumns().get(7).setVisible(false);
                 tableView.getColumns().get(8).setVisible(false);
                 tableView.getColumns().get(9).setVisible(false);
+                tableView.getColumns().get(10).setVisible(false);
                 break;
             case COLUMN:
                 chart = new ColumnChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
                 setTableStandard();
+                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case BUBBLE:
                 chart = new BubbleChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
@@ -387,6 +400,7 @@ public class ChartView implements Observer {
             case SCATTER:
                 chart = new ScatterChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
+                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case PIE:
                 chart = new PieChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
@@ -402,15 +416,17 @@ public class ChartView implements Observer {
                 tableView.getColumns().get(7).setVisible(false);
                 tableView.getColumns().get(8).setVisible(false);
                 tableView.getColumns().get(9).setVisible(false);
+                tableView.getColumns().get(10).setVisible(false);
                 break;
             default:
                 chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
+                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
         }
     }
 
-    public void updateTablesSimultaneously(MouseEvent mouseEvent, Number valueForDisplay) {
+    public void updateTablesSimultaneously(MouseEvent mouseEvent, DateTime valueForDisplay) {
         chart.updateTable(mouseEvent, valueForDisplay);
     }
 
@@ -420,7 +436,7 @@ public class ChartView implements Observer {
     }
 
 
-    public Number getValueForDisplay() {
+    public DateTime getValueForDisplay() {
         return chart.getValueForDisplay();
     }
 

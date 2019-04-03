@@ -65,7 +65,7 @@ public class XYChart implements Chart {
     private List<String> unitY1 = new ArrayList<>();
     private List<String> unitY2 = new ArrayList<>();
     private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
-    private Number valueForDisplay;
+    private DateTime valueForDisplay;
     private Region areaChartRegion;
     private Period period;
     private ManipulationMode addSeriesOfType;
@@ -506,7 +506,7 @@ public class XYChart implements Chart {
     }
 
     @Override
-    public void updateTable(MouseEvent mouseEvent, Number valueForDisplay) {
+    public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
         Point2D mouseCoordinates = null;
         if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
         Double x = null;
@@ -514,12 +514,12 @@ public class XYChart implements Chart {
 
             x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
 
-            valueForDisplay = (Number) ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x);
+            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
         }
         if (valueForDisplay != null) {
             setValueForDisplay(valueForDisplay);
-            Number finalValueForDisplay = valueForDisplay;
+            DateTime finalValueForDisplay = valueForDisplay;
             NumberFormat nf = NumberFormat.getInstance();
             nf.setMinimumFractionDigits(2);
             nf.setMaximumFractionDigits(2);
@@ -527,20 +527,9 @@ public class XYChart implements Chart {
             xyChartSerieList.parallelStream().forEach(serie -> {
                 try {
                     TableEntry tableEntry = serie.getTableEntry();
-                    TreeMap<Double, JEVisSample> sampleTreeMap = serie.getSampleMap();
-                    Double higherKey = sampleTreeMap.higherKey(finalValueForDisplay.doubleValue());
-                    Double lowerKey = sampleTreeMap.lowerKey(finalValueForDisplay.doubleValue());
+                    TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
 
-                    Double nearest = higherKey;
-                    if (nearest == null) nearest = lowerKey;
-
-                    if (lowerKey != null && higherKey != null) {
-                        Double lower = Math.abs(lowerKey - finalValueForDisplay.doubleValue());
-                        Double higher = Math.abs(higherKey - finalValueForDisplay.doubleValue());
-                        if (lower < higher) {
-                            nearest = lowerKey;
-                        }
-                    }
+                    DateTime nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
                     Double valueAsDouble = sample.getValueAsDouble();
@@ -548,10 +537,10 @@ public class XYChart implements Chart {
                     String formattedDouble = nf.format(valueAsDouble);
 
                     if (!asDuration) {
-                        tableEntry.setDate(new DateTime(Math.round(nearest))
+                        tableEntry.setDate(nearest
                                 .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                     } else {
-                        tableEntry.setDate((new DateTime(Math.round(nearest)).getMillis() -
+                        tableEntry.setDate((nearest.getMillis() -
                                 timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
                     }
                     tableEntry.setNote(formattedNote.getNoteAsString());
@@ -578,23 +567,14 @@ public class XYChart implements Chart {
             double x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(mouseCoordinates).getX();
 
             Map<String, RowNote> map = new HashMap<>();
-            Number valueForDisplay = null;
-            valueForDisplay = (Number) ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x);
+            DateTime valueForDisplay = null;
+            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
             for (XYChartSerie serie : xyChartSerieList) {
                 try {
-                    Double higherKey = serie.getSampleMap().higherKey(valueForDisplay.doubleValue());
-                    Double lowerKey = serie.getSampleMap().lowerKey(valueForDisplay.doubleValue());
+                    DateTime nearest = serie.getSampleMap().lowerKey(valueForDisplay);
 
-                    Double nearest = higherKey;
-                    if (nearest == null) nearest = lowerKey;
-
-                    if (lowerKey != null && higherKey != null) {
-                        Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
-                        Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
-                        if (lower < higher) {
-                            nearest = lowerKey;
-                        }
+                    if (nearest != null) {
 
                         JEVisSample nearestSample = serie.getSampleMap().get(nearest);
 
@@ -647,12 +627,12 @@ public class XYChart implements Chart {
     }
 
     @Override
-    public Number getValueForDisplay() {
+    public DateTime getValueForDisplay() {
         return valueForDisplay;
     }
 
     @Override
-    public void setValueForDisplay(Number valueForDisplay) {
+    public void setValueForDisplay(DateTime valueForDisplay) {
         this.valueForDisplay = valueForDisplay;
     }
 

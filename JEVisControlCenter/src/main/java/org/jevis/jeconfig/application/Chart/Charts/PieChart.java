@@ -38,7 +38,7 @@ public class PieChart implements Chart {
     private ObservableList<javafx.scene.chart.PieChart.Data> series = FXCollections.observableArrayList();
     private javafx.scene.chart.PieChart pieChart;
     private List<Color> hexColors = new ArrayList<>();
-    private Number valueForDisplay;
+    private DateTime valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region pieChartRegion;
     private Period period;
@@ -158,7 +158,7 @@ public class PieChart implements Chart {
                         public void handle(MouseEvent e) {
                             caption.setTranslateX(e.getSceneX());
                             caption.setTranslateY(e.getSceneY());
-                            caption.setText(String.valueOf(data.getPieValue()) + "%");
+                            caption.setText(data.getPieValue() + "%");
                         }
                     });
         }
@@ -215,7 +215,7 @@ public class PieChart implements Chart {
     }
 
     @Override
-    public void updateTable(MouseEvent mouseEvent, Number valueForDisplay) {
+    public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
 
     }
 
@@ -251,12 +251,12 @@ public class PieChart implements Chart {
     }
 
     @Override
-    public Number getValueForDisplay() {
+    public DateTime getValueForDisplay() {
         return null;
     }
 
     @Override
-    public void setValueForDisplay(Number valueForDisplay) {
+    public void setValueForDisplay(DateTime valueForDisplay) {
         this.valueForDisplay = valueForDisplay;
     }
 
