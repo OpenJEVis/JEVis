@@ -20,8 +20,8 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.application.Chart.ChartElements.ColumnChartSerie;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
@@ -55,7 +55,7 @@ public class ColumnChart implements Chart {
     private MultiAxisBarChart columnChart;
     private ObservableList<MultiAxisBarChart.Series<String, Number>> series = FXCollections.observableArrayList();
     private List<Color> hexColors = new ArrayList<>();
-    private Number valueForDisplay;
+    private DateTime valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region barChartRegion;
     private Period period;
@@ -260,7 +260,7 @@ public class ColumnChart implements Chart {
     }
 
     @Override
-    public void updateTable(MouseEvent mouseEvent, Number valueForDisplay) {
+    public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
         Point2D mouseCoordinates = null;
         if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
         Double x = null;
@@ -269,43 +269,34 @@ public class ColumnChart implements Chart {
 
             x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
 
-            if (((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x) instanceof Number)
-                valueForDisplay = (Number) ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x);
-            else {
-                stringForDisplay = ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x).toString();
-                DateTime dt = JEVisDates.parseDefaultDate(stringForDisplay);
-                valueForDisplay = dt.getMillis();
-            }
+            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
         }
         if (valueForDisplay != null) {
             setValueForDisplay(valueForDisplay);
-            Number finalValueForDisplay = valueForDisplay;
+            DateTime finalValueForDisplay = valueForDisplay;
             columnChartSerieList.parallelStream().forEach(serie -> {
                 try {
                     TableEntry tableEntry = serie.getTableEntry();
                     TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
-                    DateTime dt = new DateTime(finalValueForDisplay);
-                    JEVisSample exactSample = sampleTreeMap.get(dt);
 
-                    if (exactSample == null) {
+                    DateTime nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
 
-                    }
+                    JEVisSample sample = sampleTreeMap.get(nearest);
 
-                    if (exactSample != null) {
+                    if (sample != null) {
                         NumberFormat nf = NumberFormat.getInstance();
                         nf.setMinimumFractionDigits(2);
                         nf.setMaximumFractionDigits(2);
-                        Double valueAsDouble = exactSample.getValueAsDouble();
-                        JEVisSample sample = exactSample;
+                        Double valueAsDouble = sample.getValueAsDouble();
                         Note formattedNote = new Note(sample);
                         String formattedDouble = nf.format(valueAsDouble);
 
                         if (!asDuration) {
-                            tableEntry.setDate(new DateTime(Math.round(dt.getMillis()))
+                            tableEntry.setDate(nearest
                                     .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                         } else {
-                            tableEntry.setDate((new DateTime(Math.round(dt.getMillis())).getMillis() -
+                            tableEntry.setDate((nearest.getMillis() -
                                     timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
                         }
                         tableEntry.setNote(formattedNote.getNoteAsString());
@@ -328,23 +319,16 @@ public class ColumnChart implements Chart {
             double x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(mouseCoordinates).getX();
 
             Map<String, RowNote> map = new HashMap<>();
-            Number valueForDisplay = null;
-            valueForDisplay = (Number) ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x);
+            DateTime valueForDisplay = null;
+            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
             for (ColumnChartSerie serie : columnChartSerieList) {
                 try {
-                    TableEntry tableEntry = serie.getTableEntry();
-                    TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
-                    DateTime dt = new DateTime(valueForDisplay);
-                    JEVisSample exactSample = sampleTreeMap.get(dt);
+                    DateTime nearest = serie.getSampleMap().lowerKey(valueForDisplay);
 
-                    if (exactSample == null) {
+                    if (nearest != null) {
 
-                    }
-
-                    if (exactSample != null) {
-
-                        JEVisSample nearestSample = exactSample;
+                        JEVisSample nearestSample = serie.getSampleMap().get(nearest);
 
                         String title = "";
                         title += serie.getSingleRow().getObject().getName();
@@ -387,12 +371,12 @@ public class ColumnChart implements Chart {
     }
 
     @Override
-    public Number getValueForDisplay() {
+    public DateTime getValueForDisplay() {
         return valueForDisplay;
     }
 
     @Override
-    public void setValueForDisplay(Number valueForDisplay) {
+    public void setValueForDisplay(DateTime valueForDisplay) {
         this.valueForDisplay = valueForDisplay;
     }
 

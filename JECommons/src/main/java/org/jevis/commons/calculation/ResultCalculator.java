@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jecalc.calculation;
+package org.jevis.commons.calculation;
 
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualSample;
@@ -63,11 +63,15 @@ public class ResultCalculator {
                     smp.setNote(note);
                     resultList.add(smp);
                 } else {
-                    resultList.add(new VirtualSample(entry.getKey(), evaluate));
+                    VirtualSample newSample = new VirtualSample(entry.getKey(), evaluate);
+                    newSample.setNote("");
+                    resultList.add(newSample);
                 }
 
             } else {
-                resultList.add(new VirtualSample(entry.getKey(), allZeroReplacementValue));
+                VirtualSample newSample = new VirtualSample(entry.getKey(), allZeroReplacementValue);
+                newSample.setNote("");
+                resultList.add(newSample);
             }
         }
         return resultList;

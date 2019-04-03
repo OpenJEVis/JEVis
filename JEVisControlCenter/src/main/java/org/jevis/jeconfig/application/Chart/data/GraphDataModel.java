@@ -75,7 +75,7 @@ public class GraphDataModel {
     private JEVisObject currentAnalysis = null;
     private Boolean multipleDirectories = false;
     private Long chartsPerScreen = 2L;
-    private Boolean isGlobalAnalysisTimeFrame = false;
+    private Boolean isGlobalAnalysisTimeFrame = true;
     private AnalysisTimeFrame globalAnalysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
 
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
@@ -163,6 +163,12 @@ public class GraphDataModel {
                     newData.setSelectedCharts(stringToList(mdl.getSelectedCharts()));
                     newData.setUnit(unit);
                     if (mdl.getAxis() != null) newData.setAxis(Integer.parseInt(mdl.getAxis()));
+
+                    if (mdl.getIsEnPI() != null) newData.setEnPI(Boolean.parseBoolean(mdl.getIsEnPI()));
+                    if (mdl.getCalculation() != null) {
+                        newData.setCalculationObject(mdl.getCalculation());
+                    }
+
                     data.put(obj.getID().toString(), newData);
                 } catch (JEVisException e) {
                     logger.error("Error: could not get chart data model", e);
@@ -694,17 +700,19 @@ public class GraphDataModel {
     public void setCurrentAnalysis(JEVisObject currentAnalysis) {
         this.currentAnalysis = currentAnalysis;
 
-        try {
-            ds.reloadAttribute(currentAnalysis.getAttribute(DATA_MODEL_ATTRIBUTE_NAME));
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
+        if (currentAnalysis != null) {
+            try {
+                ds.reloadAttribute(currentAnalysis.getAttribute(DATA_MODEL_ATTRIBUTE_NAME));
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
 
-        if (observableListAnalyses == null || observableListAnalyses.isEmpty()) updateListAnalyses();
+            if (observableListAnalyses == null || observableListAnalyses.isEmpty()) updateListAnalyses();
 //        if (listAnalysisModel == null) {
-        getListAnalysisModel();
-        updateSelectedData();
+            getListAnalysisModel();
+            updateSelectedData();
 //        }
+        }
     }
 
 

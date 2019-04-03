@@ -31,6 +31,23 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Data Source"
+    },
+    {
+      "name": "Last Run",
+      "primitiveType": 0,
+      "guiType": "Date Time",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Source"
+    },
+    {
+      "name": "Cycle Time",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Source"
     }
   ]
 }

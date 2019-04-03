@@ -20,10 +20,8 @@
 package org.jevis.jestatus;
 
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
+import org.joda.time.DateTime;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -119,9 +117,40 @@ public class AlarmHandler {
         if (alarm.isIgnoreFalse()) {
             //Do nothing then
         } else {
-            sendAlarm(_conf, alarm, sb.toString());
+            logToServiceObject(sb.toString());
+            if (isEMailEnabled()) {
+                sendAlarm(_conf, alarm, sb.toString());
+            }
+
         }
 
+    }
+
+    private void logToServiceObject(String log) throws JEVisException {
+        JEVisClass statusClass = _ds.getJEVisClass("JEStatus");
+        List<JEVisObject> statusObjects = _ds.getObjects(statusClass, true);
+        for (JEVisObject object : statusObjects) {
+
+            JEVisAttribute emailEnabledAttribute = object.getAttribute("Status Log");
+            JEVisSample newLog = emailEnabledAttribute.buildSample(DateTime.now(), log);
+            newLog.commit();
+        }
+    }
+
+    private boolean isEMailEnabled() throws JEVisException {
+        JEVisClass statusClass = _ds.getJEVisClass("JEStatus");
+        List<JEVisObject> statusObjects = _ds.getObjects(statusClass, true);
+        for (JEVisObject object : statusObjects) {
+
+            JEVisAttribute emailEnabledAttribute = object.getAttribute("Status E-Mail");
+            if (emailEnabledAttribute != null) {
+                JEVisSample lastSample = emailEnabledAttribute.getLatestSample();
+                if (lastSample != null) {
+                    return lastSample.getValueAsBoolean();
+                }
+            }
+        }
+        return false;
     }
 
     /**

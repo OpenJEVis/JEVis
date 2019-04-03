@@ -24,11 +24,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.commons.utils.JEVisDates;
-import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
-import org.jevis.jeconfig.application.Chart.ChartElements.Note;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
+import org.jevis.jeconfig.application.Chart.ChartElements.*;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
@@ -60,7 +56,7 @@ public class BarChart implements Chart {
     private javafx.scene.chart.BarChart barChart;
     private ObservableList<XYChart.Series<Number, String>> series = FXCollections.observableArrayList();
     private List<Color> hexColors = new ArrayList<>();
-    private Number valueForDisplay;
+    private DateTime valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region barChartRegion;
     private Period period;
@@ -293,7 +289,7 @@ public class BarChart implements Chart {
     }
 
     @Override
-    public void updateTable(MouseEvent mouseEvent, Number valueForDisplay) {
+    public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
         Point2D mouseCoordinates = null;
         if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
         Double x = null;
@@ -302,35 +298,18 @@ public class BarChart implements Chart {
 
             x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
 
-            if (((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x) instanceof Number)
-                valueForDisplay = (Number) ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x);
-            else {
-                stringForDisplay = ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x).toString();
-                DateTime dt = JEVisDates.parseDefaultDate(stringForDisplay);
-                valueForDisplay = dt.getMillis();
-            }
+            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
         }
         if (valueForDisplay != null) {
             setValueForDisplay(valueForDisplay);
-            Number finalValueForDisplay = valueForDisplay;
+            DateTime finalValueForDisplay = valueForDisplay;
             xyChartSerieList.parallelStream().forEach(serie -> {
                 try {
                     TableEntry tableEntry = serie.getTableEntry();
-                    TreeMap<Double, JEVisSample> sampleTreeMap = serie.getSampleMap();
-                    Double higherKey = sampleTreeMap.higherKey(finalValueForDisplay.doubleValue());
-                    Double lowerKey = sampleTreeMap.lowerKey(finalValueForDisplay.doubleValue());
+                    TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
 
-                    Double nearest = higherKey;
-                    if (nearest == null) nearest = lowerKey;
-
-                    if (lowerKey != null && higherKey != null) {
-                        Double lower = Math.abs(lowerKey - finalValueForDisplay.doubleValue());
-                        Double higher = Math.abs(higherKey - finalValueForDisplay.doubleValue());
-                        if (lower < higher) {
-                            nearest = lowerKey;
-                        }
-                    }
+                    DateTime nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
 
                     NumberFormat nf = NumberFormat.getInstance();
                     nf.setMinimumFractionDigits(2);
@@ -341,10 +320,10 @@ public class BarChart implements Chart {
                     String formattedDouble = nf.format(valueAsDouble);
 
                     if (!asDuration) {
-                        tableEntry.setDate(new DateTime(Math.round(nearest))
+                        tableEntry.setDate(nearest
                                 .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                     } else {
-                        tableEntry.setDate((new DateTime(Math.round(nearest)).getMillis() -
+                        tableEntry.setDate((nearest.getMillis() -
                                 timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
                     }
                     tableEntry.setNote(formattedNote.getNoteAsString());
@@ -366,23 +345,15 @@ public class BarChart implements Chart {
             double x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(mouseCoordinates).getX();
 
             Map<String, RowNote> map = new HashMap<>();
-            Number valueForDisplay = null;
-            valueForDisplay = (Number) ((MultiAxisChart) getChart()).getXAxis().getValueForDisplay(x);
+            DateTime valueForDisplay = null;
+            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
             for (XYChartSerie serie : xyChartSerieList) {
                 try {
-                    Double higherKey = serie.getSampleMap().higherKey(valueForDisplay.doubleValue());
-                    Double lowerKey = serie.getSampleMap().lowerKey(valueForDisplay.doubleValue());
 
-                    Double nearest = higherKey;
-                    if (nearest == null) nearest = lowerKey;
+                    DateTime nearest = serie.getSampleMap().lowerKey(valueForDisplay);
 
-                    if (lowerKey != null && higherKey != null) {
-                        Double lower = Math.abs(lowerKey - valueForDisplay.doubleValue());
-                        Double higher = Math.abs(higherKey - valueForDisplay.doubleValue());
-                        if (lower < higher) {
-                            nearest = lowerKey;
-                        }
+                    if (nearest != null) {
 
                         JEVisSample nearestSample = serie.getSampleMap().get(nearest);
 
@@ -427,12 +398,12 @@ public class BarChart implements Chart {
     }
 
     @Override
-    public Number getValueForDisplay() {
+    public DateTime getValueForDisplay() {
         return valueForDisplay;
     }
 
     @Override
-    public void setValueForDisplay(Number valueForDisplay) {
+    public void setValueForDisplay(DateTime valueForDisplay) {
         this.valueForDisplay = valueForDisplay;
     }
 

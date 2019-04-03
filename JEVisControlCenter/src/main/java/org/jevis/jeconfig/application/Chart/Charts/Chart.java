@@ -24,7 +24,7 @@ public interface Chart {
 
     Integer getChartId();
 
-    void updateTable(MouseEvent mouseEvent, Number valueForDisplay);
+    void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay);
 
     void showNote(MouseEvent mouseEvent);
 
@@ -151,9 +151,9 @@ public interface Chart {
         }
     }
 
-    Number getValueForDisplay();
+    DateTime getValueForDisplay();
 
-    void setValueForDisplay(Number valueForDisplay);
+    void setValueForDisplay(DateTime valueForDisplay);
 
     javafx.scene.chart.Chart getChart();
 

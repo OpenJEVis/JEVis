@@ -10,6 +10,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.calculation.CalcJob;
+import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.task.LogTaskManager;
@@ -72,16 +74,14 @@ public class CalcLauncher extends AbstractCliApp {
 
     private void executeCalcJobs(List<JEVisObject> enabledCalcObject) {
 
-        initializeThreadPool(APP_SERVICE_CLASS_NAME);
-
         logger.info("Number of Calc Jobs: " + enabledCalcObject.size());
 
         enabledCalcObject.parallelStream().forEach(object -> {
             forkJoinPool.submit(() -> {
-                if (!runningJobs.containsKey(object.getID().toString())) {
+                if (!runningJobs.containsKey(object.getID())) {
 
                     Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
-                    runningJobs.put(object.getID().toString(), "true");
+                    runningJobs.put(object.getID(), "true");
 
                     try {
                         LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
@@ -107,7 +107,15 @@ public class CalcLauncher extends AbstractCliApp {
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
                     }
 
-                    runningJobs.remove(object.getID().toString());
+                    runningJobs.remove(object.getID());
+                    plannedJobs.remove(object.getID());
+
+                    logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                    if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                        logger.info("Last job. Clearing cache.");
+                        ds.clearCache();
+                    }
 
                 } else {
                     logger.error("Still processing DataSource " + object.getName() + ":" + object.getID());
@@ -135,6 +143,9 @@ public class CalcLauncher extends AbstractCliApp {
             Boolean valueAsBoolean = sampleHandler.getLastSample(curObj, CalcJobFactory.Calculation.ENABLED.getName(), false);
             if (valueAsBoolean) {
                 enabledObjects.add(curObj);
+                if (!plannedJobs.containsKey(curObj.getID())) {
+                    plannedJobs.put(curObj.getID(), "true");
+                }
             }
         }
         return enabledObjects;
@@ -147,6 +158,7 @@ public class CalcLauncher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
+        initializeThreadPool(APP_SERVICE_CLASS_NAME);
     }
 
     @Override

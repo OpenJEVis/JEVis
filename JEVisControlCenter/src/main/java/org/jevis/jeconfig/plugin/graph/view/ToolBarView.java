@@ -158,6 +158,7 @@ public class ToolBarView {
             }
 
             model.setCurrentAnalysis(newValue);
+            pickerCombo.updateCellFactory();
             model.setCharts(null);
             model.updateSelectedData();
 
@@ -184,7 +185,7 @@ public class ToolBarView {
         this.ds = ds;
         this.graphPluginView = graphPluginView;
 
-        pickerCombo = new PickerCombo(model, null);
+        pickerCombo = new PickerCombo(model, null, true);
         presetDateBox = pickerCombo.getPresetDateBox();
         pickerDateStart = pickerCombo.getStartDatePicker();
         pickerTimeStart = pickerCombo.getStartTimePicker();
@@ -287,8 +288,10 @@ public class ToolBarView {
 
             loadNew.setOnAction(event -> {
                 pickerCombo.stopUpdateListener();
+                pickerCombo.stopDateListener();
                 loadNewDialog();
                 pickerCombo.startUpdateListener();
+                pickerCombo.startDateListener();
             });
 
             delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
@@ -381,9 +384,9 @@ public class ToolBarView {
              */
             toolBar.getItems().addAll(listAnalysesComboBox,
                     sep1, presetDateBox, pickerDateStart, pickerDateEnd,
-                    sep2, reload, runUpdateButton, zoomOut,
+                    sep2, reload, zoomOut,
                     sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                    sep4, disableIcons, autoResize);
+                    sep4, disableIcons, autoResize, runUpdateButton);
 
             setDisableToolBarIcons(true);
             _initialized = true;
@@ -707,6 +710,7 @@ public class ToolBarView {
                             saveDataModel(newAnalysisObject, model.getSelectedData(), model.getCharts());
 
                             model.setCurrentAnalysis(newAnalysisObject);
+                            pickerCombo.updateCellFactory();
                             model.updateListAnalyses();
                             listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
                         } else {
@@ -726,6 +730,7 @@ public class ToolBarView {
 
                                         model.updateListAnalyses();
                                         model.setCurrentAnalysis(currentAnalysis.get());
+                                        pickerCombo.updateCellFactory();
                                         listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
                                     }
                                 } else {
@@ -788,6 +793,9 @@ public class ToolBarView {
                     json.setUnit(mdl.getUnit().toJSON());
                     json.setSelectedCharts(listToString(mdl.getSelectedcharts()));
                     json.setAxis(mdl.getAxis().toString());
+                    json.setIsEnPI(mdl.getEnPI().toString());
+                    if (mdl.getCalculationObject() != null)
+                        json.setCalculation(mdl.getCalculationObject().getID().toString());
                     jsonDataModels.add(json);
                 }
             }
