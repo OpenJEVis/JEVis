@@ -60,6 +60,9 @@ public class Launcher extends AbstractCliApp {
     private void executeDataSources(List<JEVisObject> dataSources) {
 
         logger.info("Number of Requests: " + dataSources.size());
+        for (JEVisObject dataSource : dataSources) {
+            logger.info("obj: " + dataSource.getName() + ":" + dataSource.getID());
+        }
 
         dataSources.parallelStream().forEach(object -> {
             forkJoinPool.submit(() -> {
@@ -92,6 +95,14 @@ public class Launcher extends AbstractCliApp {
                         }
                     } else {
                         logger.error("Still waiting for next DataSource Cycle " + object.getName() + ":" + object.getID());
+
+                        plannedJobs.remove(object.getID());
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                            logger.info("Last job. Clearing cache.");
+                            ds.clearCache();
+                        }
                     }
 
                 } else {

@@ -83,7 +83,7 @@ public interface DataSource {
     }
 
     default DateTime getLastRun(JEVisObject object) {
-        DateTime dateTime = DateTime.now();
+        DateTime dateTime = new DateTime(2001, 1, 1, 0, 0, 0);
 
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
