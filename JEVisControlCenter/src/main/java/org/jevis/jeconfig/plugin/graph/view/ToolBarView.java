@@ -104,19 +104,7 @@ public class ToolBarView {
                     try {
                         TimeUnit.SECONDS.sleep(finalSeconds);
                         Platform.runLater(() -> {
-                            JEVisObject currentAnalysis = listAnalysesComboBox.getSelectionModel().getSelectedItem();
-                            select(null);
-                            try {
-                                ds.reloadAttributes();
-                            } catch (JEVisException e) {
-                                logger.error(e);
-                            }
-//                                    if (!model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)
-//                                            || !model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
-//                                        AnalysisTimeFrame oldTimeframe = model.getAnalysisTimeFrame();
-//                                        model.setAnalysisTimeFrame(oldTimeframe);
-//                                    }
-                            select(currentAnalysis);
+                            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
                         });
 
                     } catch (InterruptedException e) {

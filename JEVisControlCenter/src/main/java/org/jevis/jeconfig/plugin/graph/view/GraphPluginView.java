@@ -47,6 +47,8 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -323,14 +325,44 @@ public class GraphPluginView implements Plugin {
                 case Constants.Plugin.Command.NEW:
                     break;
                 case Constants.Plugin.Command.RELOAD:
-                    JEVisObject currentAnalysis = toolBarView.getListAnalysesComboBox().getSelectionModel().getSelectedItem();
-                    toolBarView.select(null);
-                    try {
-                        ds.reloadAttributes();
-                    } catch (JEVisException e) {
-                        logger.error(e);
+                    AggregationPeriod oldAggregationPeriod = dataModel.getAggregationPeriod();
+                    ManipulationMode oldManipulationMode = dataModel.getManipulationMode();
+
+                    AnalysisTimeFrame oldAnalysisTimeFrame;
+                    DateTime oldStart = null;
+                    DateTime oldEnd = null;
+                    boolean customTimeFrame = false;
+
+                    oldAnalysisTimeFrame = dataModel.getGlobalAnalysisTimeFrame();
+
+                    customTimeFrame = oldAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM);
+                    if (customTimeFrame) {
+                        for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
+                            oldStart = chartDataModel.getSelectedStart();
+                            oldEnd = chartDataModel.getSelectedEnd();
+                            break;
+                        }
+                    } else
+                        oldAnalysisTimeFrame = dataModel.getCharts().stream().findFirst().map(ChartSettings::getAnalysisTimeFrame).orElse(null);
+
+                    dataModel.setCharts(null);
+                    dataModel.updateSelectedData();
+
+                    dataModel.setManipulationMode(oldManipulationMode);
+                    dataModel.setAggregationPeriod(oldAggregationPeriod);
+                    dataModel.setAnalysisTimeFrameForAllModels(oldAnalysisTimeFrame);
+
+                    if (customTimeFrame) {
+                        for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
+                            chartDataModel.setSelectedStart(oldStart);
+                            chartDataModel.setSelectedEnd(oldEnd);
+                        }
                     }
-                    toolBarView.select(currentAnalysis);
+
+                    dataModel.updateSamples();
+
+                    dataModel.setCharts(dataModel.getCharts());
+                    dataModel.setSelectedData(dataModel.getSelectedData());
                     break;
                 case Constants.Plugin.Command.ADD_TABLE:
                     break;
