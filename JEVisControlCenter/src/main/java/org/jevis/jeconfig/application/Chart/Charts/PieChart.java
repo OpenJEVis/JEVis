@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
@@ -115,8 +116,13 @@ public class PieChart implements Chart {
         series.clear();
         for (String name : listTableEntryNames) {
             QuantityUnits qu = new QuantityUnits();
+            JEVisUnit currentUnit = chartDataModels.get(listTableEntryNames.indexOf(name)).getUnit();
+            String currentUnitString = "";
+            if (qu.isQuantityUnit(currentUnit)) currentUnitString = getUnit(currentUnit);
+            else currentUnitString = getUnit(qu.getSumUnit(currentUnit));
             String seriesName = name + " - " + nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
-                    + " " + qu.getSumUnit(chartDataModels.get(listTableEntryNames.indexOf(name)).getUnit()) + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + " %)";
+                    + " " + currentUnitString
+                    + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + " %)";
 
             javafx.scene.chart.PieChart.Data data = new javafx.scene.chart.PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
             series.add(data);
@@ -234,8 +240,6 @@ public class PieChart implements Chart {
             String preIdent = ".default-color" + i;
             Node node = pieChart.lookup(preIdent + ".chart-pie");
             node.setStyle("-fx-pie-color: " + hexColor + ";");
-
-            System.out.println(preIdent + ".chart-pie " + "-fx-pie-color: " + hexColor + ";" + " color: " + currentColor.toString());
         }
     }
 
@@ -273,6 +277,19 @@ public class PieChart implements Chart {
     @Override
     public void initializeZoom() {
 
+    }
+
+    public String getUnit(JEVisUnit jeVisUnit) {
+
+        String unit = "";
+        if (jeVisUnit != null) {
+            unit = UnitManager.getInstance().format(jeVisUnit);
+            if (unit.equals("")) unit = jeVisUnit.getLabel();
+        }
+
+        if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
+
+        return unit;
     }
 
     public void setLegendMode(boolean enable) {

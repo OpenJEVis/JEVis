@@ -475,6 +475,8 @@ public class ChartView implements Observer {
                 chart.setTitle(getChartName());
                 chart.setHideShowIcons(dataModel.getHideShowIcons());
                 chart.setDataModels(currentSelectedChartDataModels);
+                boolean containsEnPI = currentSelectedChartDataModels.stream().anyMatch(ChartDataModel::getEnPI);
+                tableView.getColumns().get(9).setVisible(containsEnPI);
 
                 chart.updateChart();
             } else {

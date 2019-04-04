@@ -152,7 +152,8 @@ public class ToolBarView {
                         oldEnd = chartDataModel.getSelectedEnd();
                         break;
                     }
-                }
+                } else
+                    oldAnalysisTimeFrame = model.getCharts().stream().findFirst().map(ChartSettings::getAnalysisTimeFrame).orElse(null);
             } else {
                 oldAnalysisTimeFrame = model.getCharts().stream().findFirst().map(ChartSettings::getAnalysisTimeFrame).orElse(null);
             }
