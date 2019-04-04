@@ -323,24 +323,14 @@ public class GraphPluginView implements Plugin {
                 case Constants.Plugin.Command.NEW:
                     break;
                 case Constants.Plugin.Command.RELOAD:
-                    AnalysisTimeFrame globalAnalysisTimeFrame = null;
-                    if (dataModel.isglobalAnalysisTimeFrame()) {
-                        globalAnalysisTimeFrame = dataModel.getGlobalAnalysisTimeFrame();
-
-                    }
-
+                    JEVisObject currentAnalysis = toolBarView.getListAnalysesComboBox().getSelectionModel().getSelectedItem();
+                    toolBarView.select(null);
                     try {
                         ds.reloadAttributes();
                     } catch (JEVisException e) {
                         logger.error(e);
                     }
-
-                    if (globalAnalysisTimeFrame != null) {
-                        dataModel.setAnalysisTimeFrameForAllModels(globalAnalysisTimeFrame);
-                    }
-
-                    dataModel.updateSamples();
-                    update(true);
+                    toolBarView.select(currentAnalysis);
                     break;
                 case Constants.Plugin.Command.ADD_TABLE:
                     break;
