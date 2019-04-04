@@ -323,16 +323,22 @@ public class GraphPluginView implements Plugin {
                 case Constants.Plugin.Command.NEW:
                     break;
                 case Constants.Plugin.Command.RELOAD:
+                    AnalysisTimeFrame globalAnalysisTimeFrame = null;
+                    if (dataModel.isglobalAnalysisTimeFrame()) {
+                        globalAnalysisTimeFrame = dataModel.getGlobalAnalysisTimeFrame();
+
+                    }
+
                     try {
                         ds.reloadAttributes();
                     } catch (JEVisException e) {
                         logger.error(e);
                     }
-//                    if (!dataModel.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)
-//                            && !dataModel.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
-//                        AnalysisTimeFrame oldTimeframe = dataModel.getAnalysisTimeFrame();
-//                        dataModel.setAnalysisTimeFrame(oldTimeframe);
-//                    }
+
+                    if (globalAnalysisTimeFrame != null) {
+                        dataModel.setAnalysisTimeFrameForAllModels(globalAnalysisTimeFrame);
+                    }
+
                     dataModel.updateSamples();
                     update(true);
                     break;

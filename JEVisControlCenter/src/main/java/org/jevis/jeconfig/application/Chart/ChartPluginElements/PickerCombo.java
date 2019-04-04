@@ -478,7 +478,7 @@ public class PickerCombo {
         if (wd.getWorkdayStart() != null) dateHelper.setStartTime(wd.getWorkdayStart());
         if (wd.getWorkdayEnd() != null) dateHelper.setEndTime(wd.getWorkdayEnd());
 
-        if (newValue != TimeFrame.PREVIEW && newValue != TimeFrame.CUSTOM) {
+        if (newValue != TimeFrame.PREVIEW) {
             if (chartDataModels == null) {
                 graphDataModel.isGlobalAnalysisTimeFrame(true);
                 graphDataModel.setAnalysisTimeFrameForAllModels(new AnalysisTimeFrame(newValue));
