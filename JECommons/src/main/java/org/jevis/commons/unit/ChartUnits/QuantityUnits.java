@@ -140,6 +140,22 @@ public class QuantityUnits {
             return kvah;
         } else if (unit.equals(kvar)) {
             return kvarh;
+        } else if (unit.equals(Wh)) {
+            return Wh;
+        } else if (unit.equals(kWh)) {
+            return kWh;
+        } else if (unit.equals(MWh)) {
+            return MWh;
+        } else if (unit.equals(GWh)) {
+            return GWh;
+        } else if (unit.equals(vah)) {
+            return vah;
+        } else if (unit.equals(varh)) {
+            return varh;
+        } else if (unit.equals(kvah)) {
+            return kvah;
+        } else if (unit.equals(kvarh)) {
+            return kvarh;
         } else return null;
     }
 }

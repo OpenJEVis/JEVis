@@ -125,7 +125,7 @@ public class PickerCombo {
             }
         }
     };
-    private Boolean isGlobalTimeFrame;
+    private final Boolean isGlobalTimeFrame;
     private final ChangeListener<TimeFrame> standardPresetDateBoxListener = new ChangeListener<TimeFrame>() {
         @Override
         public void changed(ObservableValue<? extends TimeFrame> observable, TimeFrame oldValue, TimeFrame newValue) {
@@ -478,10 +478,9 @@ public class PickerCombo {
         if (wd.getWorkdayStart() != null) dateHelper.setStartTime(wd.getWorkdayStart());
         if (wd.getWorkdayEnd() != null) dateHelper.setEndTime(wd.getWorkdayEnd());
 
-        graphDataModel.isGlobalAnalysisTimeFrame(isGlobalTimeFrame);
-
         if (newValue != TimeFrame.PREVIEW && newValue != TimeFrame.CUSTOM) {
             if (chartDataModels == null) {
+                graphDataModel.isGlobalAnalysisTimeFrame(true);
                 graphDataModel.setAnalysisTimeFrameForAllModels(new AnalysisTimeFrame(newValue));
             } else {
                 dateHelper.setMinMaxForDateHelper(chartDataModels);
