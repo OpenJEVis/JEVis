@@ -367,7 +367,8 @@ public class DateHelper {
             case LASTYEAR:
                 now = DateTime.now();
                 endDate = new DateTime(now.getYear(), 1, 1,
-                        endTime.getHour(), endTime.getMinute(), endTime.getSecond());
+                        endTime.getHour(), endTime.getMinute(), endTime.getSecond())
+                        .minusDays(1);
                 break;
             case CUSTOM_PERIOD:
                 if (Objects.nonNull(customPeriodObject)) {

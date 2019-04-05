@@ -701,6 +701,7 @@ public class ToolBarView {
                             model.setCurrentAnalysis(newAnalysisObject);
                             pickerCombo.updateCellFactory();
                             model.updateListAnalyses();
+                            model.isGlobalAnalysisTimeFrame(true);
                             listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
                         } else {
 
