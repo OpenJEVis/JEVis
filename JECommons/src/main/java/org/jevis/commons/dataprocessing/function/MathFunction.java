@@ -189,6 +189,7 @@ public class MathFunction implements ProcessFunction {
                     JEVisSample smp = null;
                     try {
                         smp = new VirtualSample(firstDate.plus(allSamples.indexOf(sample) * period.toStandardDuration().getMillis()), sample.getValueAsDouble());
+                        smp.setNote("math(" + mode.toString() + ")");
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }
