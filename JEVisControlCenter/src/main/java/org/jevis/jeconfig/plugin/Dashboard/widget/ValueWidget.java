@@ -57,7 +57,8 @@ public class ValueWidget extends Widget {
 
             //need setting
             label.setContentDisplay(ContentDisplay.CENTER);
-            nf.setMaximumFractionDigits(4);
+            nf.setMinimumFractionDigits(config.decimals.getValue());
+            nf.setMaximumFractionDigits(config.decimals.getValue());
         }
 
 

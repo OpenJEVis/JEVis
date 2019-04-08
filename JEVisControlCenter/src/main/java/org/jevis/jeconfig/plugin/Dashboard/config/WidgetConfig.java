@@ -41,6 +41,7 @@ public class WidgetConfig {
     public final DoubleProperty fontSize = new SimpleDoubleProperty(13);
     public final ObjectProperty<Pos> titlePosition = new SimpleObjectProperty<>(Pos.class, "Title Position", Pos.CENTER);
     public final BooleanProperty showShadow = new SimpleBooleanProperty(Boolean.class, "Show Shadows", true);
+    public final IntegerProperty decimals = new SimpleIntegerProperty(Integer.class, "Decimals", 2);
     private String type = "";
     private Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
     private List<WidgetConfigProperty> additionalSetting = new ArrayList<>();

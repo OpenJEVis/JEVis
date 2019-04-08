@@ -102,8 +102,8 @@ public class PieWidget extends Widget {
                         try {
                             value = chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble();
 
-                            nf.setMinimumFractionDigits(2);
-                            nf.setMaximumFractionDigits(2);
+                            nf.setMinimumFractionDigits(config.decimals.getValue());
+                            nf.setMaximumFractionDigits(config.decimals.getValue());
 
                         } catch (Exception ex) {
                             value = 0;
