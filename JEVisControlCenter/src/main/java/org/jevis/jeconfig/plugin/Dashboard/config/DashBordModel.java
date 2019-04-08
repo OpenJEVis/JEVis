@@ -178,34 +178,50 @@ public class DashBordModel {
         widgetList.add(config);
     }
 
+    /**
+     * This function will migrate an existing json string configuration into the new file format
+     * <p>
+     * Todo: remove this function later of every analysis was converted
+     */
+    private void migradeOldVersion(JEVisObject analysisObj) {
+        logger.info("Check configuration settings");
+
+        try {
+            if (analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).hasSample()) {
+                logger.info("is file format - return");
+                return;
+            } else {
+                /** convert **/
+                JEVisSample lastConfigSample = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).getLatestSample();
+                if (lastConfigSample == null) {
+                    logger.error("Missing Json configuration");
+                    String json = lastConfigSample.getValueAsString();
+
+                    return;
+                } else {
+
+                }
+
+            }
+
+
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+
+
+    }
+
     private void load() {
         try {
-            JEVisSample lastConfigSampleFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
-            if (lastConfigSampleFile == null) {
+            JEVisSample lastConfigSample = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
+            if (lastConfigSample == null) {
                 logger.error("Missing Json File configuration");
                 return;
             }
 
-            try {
-                JEVisFile file = lastConfigSampleFile.getValueAsFile();
-                JsonNode jsonNode2 = mapper.readTree(file.getBytes());
-
-                System.out.println("Value from Json file: " + jsonNode2.get(xGridInterval.getName()).asDouble(0.0));
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
-            /** --------------------------------- OLD ----------------------------------- **/
-
-            JEVisSample lastConfigSample = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).getLatestSample();
-            if (lastConfigSample == null) {
-                logger.error("Missing Json configuration");
-                return;
-            }
-
-            String json = lastConfigSample.getValueAsString();
-            JsonNode jsonNode = mapper.readTree(json);
-
+            JEVisFile file = lastConfigSample.getValueAsFile();
+            JsonNode jsonNode = mapper.readTree(file.getBytes());
 
             try {
                 Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
