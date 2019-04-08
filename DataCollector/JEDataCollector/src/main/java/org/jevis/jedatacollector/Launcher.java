@@ -59,29 +59,51 @@ public class Launcher extends AbstractCliApp {
      */
     private void executeDataSources(List<JEVisObject> dataSources) {
 
-        initializeThreadPool(APP_SERVICE_CLASS_NAME);
-
         logger.info("Number of Requests: " + dataSources.size());
-
+        for (JEVisObject dataSource : dataSources) {
+            logger.info("obj: " + dataSource.getName() + ":" + dataSource.getID());
+        }
 
         dataSources.parallelStream().forEach(object -> {
             forkJoinPool.submit(() -> {
-                if (!runningJobs.containsKey(object.getID().toString())) {
+                if (!runningJobs.containsKey(object.getID())) {
                     Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
 
-                    runningJobs.put(object.getID().toString(), "true");
-                    LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
-
-                    logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
-                    LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
                     DataSource dataSource = DataSourceFactory.getDataSource(object);
+                    if (dataSource.isReady(object)) {
+                        runningJobs.put(object.getID(), "true");
+                        LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
 
-                    dataSource.initialize(object);
-                    LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.RUNNING);
-                    dataSource.run();
+                        logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
 
-                    LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
-                    runningJobs.remove(object.getID().toString());
+                        dataSource.initialize(object);
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.RUNNING);
+                        dataSource.run();
+
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
+                        runningJobs.remove(object.getID());
+                        plannedJobs.remove(object.getID());
+                        dataSource.finishCurrentRun(object);
+                        logger.info("----------------Finished DataSource " + object.getName() + "-----------------");
+
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                            logger.info("Last job. Clearing cache.");
+                            ds.clearCache();
+                        }
+                    } else {
+                        logger.error("Still waiting for next DataSource Cycle " + object.getName() + ":" + object.getID());
+
+                        plannedJobs.remove(object.getID());
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                            logger.info("Last job. Clearing cache.");
+                            ds.clearCache();
+                        }
+                    }
 
                 } else {
                     logger.error("Still processing DataSource " + object.getName() + ":" + object.getID());
@@ -101,6 +123,7 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
+        initializeThreadPool(APP_SERVICE_CLASS_NAME);
         DriverHelper.loadDriver(ds, commands.driverFolder);
     }
 
@@ -177,6 +200,9 @@ public class Launcher extends AbstractCliApp {
                     Boolean enabled = sampleHandler.getLastSample(dataSource, DataCollectorTypes.DataSource.ENABLE, false);
                     if (enabled && DataSourceFactory.containDataSource(dataSource)) {
                         enabledDataSources.add(dataSource);
+                        if (!plannedJobs.containsKey(dataSource.getID())) {
+                            plannedJobs.put(dataSource.getID(), "true");
+                        }
                     }
                 } catch (Exception ex) {
                     logger.error("DataSource failed while checking enabled status:", ex);

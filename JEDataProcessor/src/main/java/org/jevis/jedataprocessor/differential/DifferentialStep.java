@@ -10,11 +10,13 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.workflow.ProcessStep;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,52 +39,66 @@ public class DifferentialStep implements ProcessStep {
 
             List<Interval> ctdList = getIntervalsFromConversionToDifferentialList(listConversionToDifferential);
 
+            boolean downSampling = true;
+            Period periodCleanData = cleanDataObject.getCleanDataPeriodAlignment();
+            Period periodRawData = cleanDataObject.getRawDataPeriodAlignment();
+
+            PeriodComparator periodComparator = new PeriodComparator();
+            int compare = periodComparator.compare(periodCleanData, periodRawData);
+            if (compare < 0) {
+                downSampling = false;
+            }
+
             if (intervals.size() > 0) {
                 Double lastDiffVal = null;
-                DateTime firstDate = cleanDataObject.getFirstDate()
-                        .minus(cleanDataObject.getCleanDataPeriodAlignment())
-                        .minus(cleanDataObject.getCleanDataPeriodAlignment());
-                List<JEVisSample> rawSamples = cleanDataObject.getRawAttribute().getSamples(firstDate, cleanDataObject.getLastRawDate());
+
+                List<JEVisSample> rawSamples = new ArrayList<>();
+
                 DateTime firstTS = cleanDataObject.getFirstDate();
                 boolean found = false;
 
-                JEVisSample lastSample = null;
-                for (JEVisSample smp : rawSamples) {
-                    DateTime timestamp = smp.getTimestamp();
-                    if (timestamp.equals(firstTS) && timeStampInIntervals(timestamp, ctdList)) {
-                        lastDiffVal = smp.getValueAsDouble();
-                        break;
-                    } else if (lastSample != null && timestamp.isAfter(firstTS) && timeStampInIntervals(timestamp, ctdList)) {
-//                        long diffToPrev = Math.abs(firstTS.getMillis() - lastSample.getTimestamp().getMillis());
-//                        long diffToNxt = Math.abs(firstTS.getMillis() - timestamp.getMillis());
-//
-//                        if (diffToPrev < diffToNxt) lastDiffVal = lastSample.getValueAsDouble();
-//                        else lastDiffVal = smp.getValueAsDouble();
-                        lastDiffVal = lastSample.getValueAsDouble();
-                        break;
-
-                    } else lastSample = smp;
-                }
-
-                if (lastDiffVal == null) {
+                if (downSampling) {
+                    rawSamples = cleanDataObject.getRawSamplesDown();
+                    JEVisSample lastSample = null;
                     for (JEVisSample smp : rawSamples) {
-                        DateTime ts = smp.getTimestamp();
+                        DateTime timestamp = smp.getTimestamp();
+                        if (lastSample != null && (timestamp.equals(firstTS) || timestamp.isAfter(firstTS)) && timeStampInIntervals(timestamp, ctdList)) {
+                            lastDiffVal = lastSample.getValueAsDouble();
+                            break;
+                        } else lastSample = smp;
+                    }
+                } else {
+//                    DateTime firstDate = cleanDataObject.getFirstDate();
+                    rawSamples = cleanDataObject.getRawSamplesUp();
+                    if (!intervals.isEmpty()) {
+                        CleanInterval firstInterval = intervals.get(0);
+                        if (firstInterval != null && !firstInterval.getTmpSamples().isEmpty()) {
 
-                        for (Interval interval : ctdList) {
-                            if (ts.equals(interval.getStart()) || (ts.isAfter(interval.getStart()) && ts.isBefore(interval.getEnd()))) {
-                                lastDiffVal = smp.getValueAsDouble();
-                                found = true;
-                                break;
+                            JEVisSample firstTmpSample = firstInterval.getTmpSamples().get(0);
+                            if (firstTmpSample != null) {
+
+                                Double firstIntervalValue = firstTmpSample.getValueAsDouble();
+
+                                long millisClean = periodCleanData.toStandardDuration().getMillis();
+                                long millisRaw = periodRawData.toStandardDuration().getMillis();
+
+                                double stepsInPeriod = (double) millisRaw / (double) millisClean;
+
+                                double diffFirstTwoRawSamples = rawSamples.get(1).getValueAsDouble() - rawSamples.get(0).getValueAsDouble();
+                                double stepSize = diffFirstTwoRawSamples / stepsInPeriod;
+
+                                lastDiffVal = firstIntervalValue - stepSize;
                             }
                         }
-
-                        if (found) break;
                     }
                 }
 
                 if (lastDiffVal == null) {
                     if (rawSamples.size() > 0) {
-                        lastDiffVal = rawSamples.get(0).getValueAsDouble();
+                        JEVisSample sample = rawSamples.get(0);
+                        if (sample != null) {
+                            lastDiffVal = sample.getValueAsDouble();
+                        }
                     } else {
                         throw new JEVisException("No raw samples!", 232134093);
                     }

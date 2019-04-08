@@ -1,7 +1,8 @@
-package org.jevis.jecalc.calculation;
+package org.jevis.commons.datetime;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import org.joda.time.Period;
 import org.joda.time.*;
 
 import java.util.Arrays;
@@ -33,7 +34,7 @@ public class PeriodArithmetic {
             .put(eras(), Long.MAX_VALUE)
             .build();
 
-    public static long periodsInAnInterval(Interval interval, Period period) {
+    public static long periodsInAnInterval(Interval interval, org.joda.time.Period period) {
         long averageMillis = toAverageMillis(period);
         int bestGuess;
         if (averageMillis > 0)
@@ -47,7 +48,7 @@ public class PeriodArithmetic {
         }
     }
 
-    private static long searchDownwards(Interval interval, Period period, int currentGuess) {
+    private static long searchDownwards(Interval interval, org.joda.time.Period period, int currentGuess) {
         if (startPlusScaledPeriodIsAfterEnd(interval, period, currentGuess)) {
             return searchDownwards(interval, period, currentGuess - 1);
         } else {
@@ -55,7 +56,7 @@ public class PeriodArithmetic {
         }
     }
 
-    private static long searchUpwards(Interval interval, Period period, int currentGuess) {
+    private static long searchUpwards(Interval interval, org.joda.time.Period period, int currentGuess) {
         if (!startPlusScaledPeriodIsAfterEnd(interval, period, currentGuess + 1)) {
             return searchUpwards(interval, period, currentGuess + 1);
         } else {
@@ -63,11 +64,11 @@ public class PeriodArithmetic {
         }
     }
 
-    private static boolean startPlusScaledPeriodIsAfterEnd(Interval interval, Period period, int scalar) {
+    private static boolean startPlusScaledPeriodIsAfterEnd(Interval interval, org.joda.time.Period period, int scalar) {
         return interval.getStart().plus(period.multipliedBy(scalar)).isAfter(interval.getEnd());
     }
 
-    private static long toAverageMillis(Period period) {
+    private static long toAverageMillis(org.joda.time.Period period) {
         final Iterable<Long> milliValues = Arrays.stream(period.getFieldTypes()).map(toAverageMillisForFieldType(period)).collect(Collectors.toList());
         return total(milliValues);
     }

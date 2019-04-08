@@ -58,7 +58,7 @@
         "en": "Define the method for the gap filling"
       },
       "names": {
-        "de": "Grenzwertkonfiguration",
+        "de": "Grenzwertkontrolle",
         "ru": "Limit Configuration",
         "en": "Limit Configuration"
       }
@@ -84,7 +84,7 @@
         "en": "Define the method for replacement values for data gaps"
       },
       "names": {
-        "de": "Ersatzwertbildungskonfiguration",
+        "de": "Ersatzwertbildung",
         "ru": "Gap filling configuration",
         "en": "Replacement value configuration"
       }

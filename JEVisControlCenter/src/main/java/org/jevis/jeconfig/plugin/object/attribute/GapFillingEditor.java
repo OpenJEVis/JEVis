@@ -302,7 +302,7 @@ public class GapFillingEditor implements AttributeEditor {
         JFXComboBox boundSpecificBox = new JFXComboBox(optionsBoundSpecifics);
         NumberSpinner referencePeriodCountText = new NumberSpinner(new BigDecimal(1), new BigDecimal(1));
         referencePeriodCountText.setMin(new BigDecimal(1));
-        referencePeriodCountText.setMax(new BigDecimal(5));
+        referencePeriodCountText.setMax(new BigDecimal(99));
         JFXTextField boundaryText = new JFXTextField();
         JFXTextField defaultValueText = new JFXTextField();
 

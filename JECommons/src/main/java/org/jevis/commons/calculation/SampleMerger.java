@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jecalc.calculation;
+package org.jevis.commons.calculation;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +45,7 @@ public class SampleMerger {
         periodConstants.add(samples);
     }
 
-    public void addSamples(List<JEVisSample> jevisSamples, String variable, InputType inputType) {
+    public void addSamples(List<JEVisSample> jevisSamples, String variable, CalcInputType inputType) {
         switch (inputType) {
             case PERIODIC:
                 addSamples(jevisSamples, variable);
@@ -121,9 +121,6 @@ public class SampleMerger {
         }
     }
 
-    public enum InputType {
 
-        STATIC, PERIODIC, NON_PERIODIC
-    }
 
 }

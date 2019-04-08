@@ -25,5 +25,5 @@ package org.jevis.commons.application;
  */
 public class Info {
 
-    public static LibraryInfo INFO = new LibraryInfo("JECommons", "3.22");
+    public static LibraryInfo INFO = new LibraryInfo("JECommons", "3.26");
 }

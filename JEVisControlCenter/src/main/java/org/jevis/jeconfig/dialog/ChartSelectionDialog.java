@@ -20,6 +20,10 @@
  */
 package org.jevis.jeconfig.dialog;
 
+import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTimePicker;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -32,26 +36,21 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.commons.datetime.DateHelper;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.PresetDateBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndTimePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartTimePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.TreePlugin;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
@@ -287,11 +286,17 @@ public class ChartSelectionDialog {
         gridPane.setVgap(7);
         gridPane.setPadding(new Insets(4, 4, 4, 4));
 
-        final PresetDateBox presetDateBox = new PresetDateBox();
-        final StartDatePicker pickerDateStart = new StartDatePicker();
-        final StartTimePicker pickerTimeStart = new StartTimePicker();
-        final EndDatePicker pickerDateEnd = new EndDatePicker();
-        final EndTimePicker pickerTimeEnd = new EndTimePicker();
+        List<ChartDataModel> correspondingDataModels = new ArrayList<>();
+        data.getSelectedData().forEach(chartDataModel -> {
+            if (chartDataModel.getSelectedcharts().contains(cset.getId())) correspondingDataModels.add(chartDataModel);
+        });
+
+        PickerCombo pickerCombo = new PickerCombo(data, correspondingDataModels, false);
+        final ComboBox<TimeFrame> presetDateBox = pickerCombo.getPresetDateBox();
+        final JFXDatePicker pickerDateStart = pickerCombo.getStartDatePicker();
+        final JFXTimePicker pickerTimeStart = pickerCombo.getStartTimePicker();
+        final JFXDatePicker pickerDateEnd = pickerCombo.getEndDatePicker();
+        final JFXTimePicker pickerTimeEnd = pickerCombo.getEndTimePicker();
 
         final Label labelName = new Label(I18n.getInstance().getString("graph.tabs.tab.name"));
         final ChartNameTextField chartNameTextField = new ChartNameTextField(cset);
@@ -304,25 +309,32 @@ public class ChartSelectionDialog {
         final Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
         final Label presetDateBoxLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
 
-        List<ChartDataModel> correspondingDataModels = new ArrayList<>();
-        data.getSelectedData().forEach(chartDataModel -> {
-            if (chartDataModel.getSelectedcharts().contains(cset.getId())) correspondingDataModels.add(chartDataModel);
-        });
+        HBox hbox = new HBox();
+        for (ChartDataModel model : correspondingDataModels) {
+            VBox vBox = new VBox();
+            final Label modelLabel = new Label(model.getObject().getName());
+            final Label isEnPILabel = new Label("is EnPI");
+            final Label calculationLabel = new Label("Calculation");
 
-        final Boolean[] programmaticallySetPresetDate = new Boolean[4];
-        programmaticallySetPresetDate[0] = false;
-        programmaticallySetPresetDate[1] = false;
-        programmaticallySetPresetDate[2] = false;
-        programmaticallySetPresetDate[3] = false;
+            SimpleStringProperty targetProperty = new SimpleStringProperty();
 
-        pickerDateStart.initialize(data, correspondingDataModels, pickerTimeStart, programmaticallySetPresetDate, presetDateBox);
-        pickerTimeStart.initialize(data, correspondingDataModels, pickerDateStart, programmaticallySetPresetDate, presetDateBox);
+            if (model.getCalculationObject() != null) {
+                targetProperty.set(model.getCalculationObject().getID().toString());
+            }
 
-        pickerDateEnd.initialize(data, correspondingDataModels, pickerTimeEnd, programmaticallySetPresetDate, presetDateBox);
-        pickerTimeEnd.initialize(data, correspondingDataModels, pickerDateEnd, programmaticallySetPresetDate, presetDateBox);
+            final JFXCheckBox isEnPI = new JFXCheckBox();
+            isEnPI.selectedProperty().setValue(model.getEnPI());
+            isEnPI.selectedProperty().addListener((observable, oldValue, newValue) -> model.setEnPI(isEnPI.isSelected()));
+            HBox targetSelector = getTargetSelector(targetProperty.get(), model);
 
-        presetDateBox.initialize(data, correspondingDataModels, new DateHelper(), pickerDateStart, pickerTimeStart,
-                pickerDateEnd, pickerTimeEnd, programmaticallySetPresetDate);
+            HBox enpi = new HBox();
+            enpi.getChildren().addAll(isEnPILabel, isEnPI);
+            HBox target = new HBox();
+            target.getChildren().addAll(calculationLabel, targetSelector);
+            vBox.getChildren().addAll(modelLabel, enpi, target);
+            hbox.getChildren().add(vBox);
+        }
+
 
         int row = 0;
         gridPane.add(labelName, 0, row);
@@ -345,6 +357,9 @@ public class ChartSelectionDialog {
 
         gridPane.add(presetDateBoxLabel, 0, row);
         gridPane.add(presetDateBox, 1, row);
+        row++;
+
+        gridPane.add(hbox, 0, row, 3, 2);
 
 
         newTab.setContent(gridPane);
@@ -365,5 +380,98 @@ public class ChartSelectionDialog {
         return chartPlugin;
     }
 
+    private HBox getTargetSelector(String value, ChartDataModel model) {
+        HBox limitDataBox = new HBox();
+        Button treeButton = new Button(I18n
+                .getInstance().getString("plugin.object.attribute.target.button"),
+                JEConfig.getImage("folders_explorer.png", 18, 18));
 
+        Button gotoButton = new Button(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
+                JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
+        gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
+
+        Region rightSpacer = new Region();
+        HBox.setHgrow(rightSpacer, Priority.ALWAYS);
+
+        limitDataBox.setSpacing(10);
+        limitDataBox.getChildren().setAll(treeButton, gotoButton, rightSpacer);
+
+        if (value != null && !value.equals("")) {
+            try {
+
+                TargetHelper th = new TargetHelper(_ds, value);
+
+                if (th.isValid() && th.targetAccessible()) {
+
+                    StringBuilder bText = new StringBuilder();
+
+                    for (JEVisObject obj : th.getObject()) {
+                        int index = th.getObject().indexOf(obj);
+                        if (index > 0) bText.append("; ");
+
+                        bText.append("[");
+                        bText.append(obj.getID());
+                        bText.append("] ");
+                        bText.append(obj.getName());
+
+                        if (th.hasAttribute()) {
+
+                            bText.append(" - ");
+                            bText.append(th.getAttribute().get(index).getName());
+
+                        }
+                    }
+
+                    treeButton.setText(bText.toString());
+                }
+
+            } catch (Exception ex) {
+                logger.catching(ex);
+            }
+        }
+
+        treeButton.setOnAction(event -> {
+            TargetHelper th = null;
+            if (value != null && !value.equals("")) {
+                th = new TargetHelper(_ds, value);
+            }
+
+            List<JEVisTreeFilter> allFilter = new ArrayList<>();
+            JEVisTreeFilter allDataFilter = SelectTargetDialog.buildClassFilter(_ds, "Calculation");
+            allFilter.add(allDataFilter);
+
+            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE);
+
+            List<UserSelection> openList = new ArrayList<>();
+            if (th != null && !th.getAttribute().isEmpty()) {
+                for (JEVisAttribute att : th.getAttribute())
+                    openList.add(new UserSelection(UserSelection.SelectionType.Attribute, att, null, null));
+            } else if (th != null && !th.getObject().isEmpty()) {
+                for (JEVisObject obj : th.getObject())
+                    openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
+            }
+
+            if (selectTargetDialog.show(
+                    _ds,
+                    I18n.getInstance().getString("dialog.target.data.title"),
+                    openList
+            ) == SelectTargetDialog.Response.OK) {
+                logger.trace("Selection Done");
+
+                StringBuilder newTarget = new StringBuilder();
+                List<UserSelection> selections = selectTargetDialog.getUserSelection();
+                for (UserSelection us : selections) {
+                    int index = selections.indexOf(us);
+                    if (index > 0) newTarget.append(";");
+
+                    newTarget.append(us.getSelectedObject().getID());
+                }
+
+                treeButton.setText(newTarget.toString());
+                model.setCalculationObject(newTarget.toString());
+            }
+
+        });
+        return limitDataBox;
+    }
 }

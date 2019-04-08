@@ -44,16 +44,14 @@ public class Launcher extends AbstractCliApp {
 
     private void executeProcesses(List<AlarmConfiguration> processes) {
 
-        initializeThreadPool(APP_SERVICE_CLASS_NAME);
-
         processes.parallelStream().forEach(alarmConfiguration -> {
             forkJoinPool.submit(new Runnable() {
 
                 @Override
                 public void run() {
-                    if (!runningJobs.containsKey(alarmConfiguration.getId().toString())) {
+                    if (!runningJobs.containsKey(alarmConfiguration.getId())) {
                         Thread.currentThread().setName(alarmConfiguration.getName() + ":" + alarmConfiguration.getId().toString());
-                        runningJobs.put(alarmConfiguration.getId().toString(), "true");
+                        runningJobs.put(alarmConfiguration.getId(), "true");
 
                         try {
                             LogTaskManager.getInstance().buildNewTask(alarmConfiguration.getId(), alarmConfiguration.getName());
@@ -68,7 +66,15 @@ public class Launcher extends AbstractCliApp {
                         }
 
                         LogTaskManager.getInstance().getTask(alarmConfiguration.getId()).setStatus(Task.Status.FINISHED);
-                        runningJobs.remove(alarmConfiguration.getId().toString());
+                        runningJobs.remove(alarmConfiguration.getId());
+                        plannedJobs.remove(alarmConfiguration.getId());
+
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                            logger.info("Last job. Clearing cache.");
+                            ds.clearCache();
+                        }
 
                     } else {
                         logger.error("Still processing Job " + alarmConfiguration.getName() + ":" + alarmConfiguration.getId());
@@ -88,7 +94,7 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
-
+        initializeThreadPool(APP_SERVICE_CLASS_NAME);
     }
 
     @Override
@@ -166,7 +172,12 @@ public class Launcher extends AbstractCliApp {
             logger.info("Total amount of Alarm Configuration Objects: " + alarmConfigs.size());
             alarmConfigs.forEach(jeVisObject -> {
                 AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, jeVisObject);
-                if (alarmConfiguration.isEnabled()) filteredObjects.add(alarmConfiguration);
+                if (alarmConfiguration.isEnabled()) {
+                    filteredObjects.add(alarmConfiguration);
+                    if (!plannedJobs.containsKey(jeVisObject.getID())) {
+                        plannedJobs.put(jeVisObject.getID(), "true");
+                    }
+                }
             });
             logger.info("Amount of enabled Alarm Configurations: " + filteredObjects.size());
         } catch (JEVisException ex) {

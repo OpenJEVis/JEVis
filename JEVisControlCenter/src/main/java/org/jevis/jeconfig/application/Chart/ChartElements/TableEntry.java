@@ -21,6 +21,7 @@ public class TableEntry {
     private final SimpleStringProperty min;
     private final SimpleStringProperty max;
     private final SimpleStringProperty avg;
+    private final SimpleStringProperty enpi;
     private final SimpleStringProperty sum;
     private final SimpleStringProperty note;
     private final SimpleStringProperty period;
@@ -33,6 +34,7 @@ public class TableEntry {
         this.color = new SimpleObjectProperty<>(Color.BLUE);
 
         this.avg = new SimpleStringProperty();
+        this.enpi = new SimpleStringProperty();
         this.min = new SimpleStringProperty();
         this.max = new SimpleStringProperty();
         this.sum = new SimpleStringProperty();
@@ -158,5 +160,17 @@ public class TableEntry {
 
     public SimpleObjectProperty<Color> colorProperty() {
         return color;
+    }
+
+    public String getEnpi() {
+        return enpi.get();
+    }
+
+    public void setEnpi(String enpi) {
+        this.enpi.set(enpi);
+    }
+
+    public SimpleStringProperty enpiProperty() {
+        return enpi;
     }
 }

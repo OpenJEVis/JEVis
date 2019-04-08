@@ -45,15 +45,13 @@ public class Launcher extends AbstractCliApp {
 
     private void executeProcesses(List<JEVisObject> processes) {
 
-        initializeThreadPool(APP_SERVICE_CLASS_NAME);
-
         logger.info("{} cleaning task found starting", processes.size());
 
         processes.parallelStream().forEach(currentCleanDataObject -> {
             forkJoinPool.submit(() -> {
-                if (!runningJobs.containsKey(currentCleanDataObject.getID().toString())) {
+                if (!runningJobs.containsKey(currentCleanDataObject.getID())) {
                     Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
-                    runningJobs.put(currentCleanDataObject.getID().toString(), "true");
+                    runningJobs.put(currentCleanDataObject.getID(), "true");
 
                     try {
                         LogTaskManager.getInstance().buildNewTask(currentCleanDataObject.getID(), currentCleanDataObject.getName());
@@ -68,7 +66,15 @@ public class Launcher extends AbstractCliApp {
                     }
 
                     LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
-                    runningJobs.remove(currentCleanDataObject.getID().toString());
+                    runningJobs.remove(currentCleanDataObject.getID());
+                    plannedJobs.remove(currentCleanDataObject.getID());
+
+                    logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                    if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                        logger.info("Last job. Clearing cache.");
+                        ds.clearCache();
+                    }
 
                 } else {
                     logger.error("Still processing Job " + currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID());
@@ -87,7 +93,7 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
-
+        initializeThreadPool(APP_SERVICE_CLASS_NAME);
     }
 
     @Override
@@ -107,10 +113,11 @@ public class Launcher extends AbstractCliApp {
         try {
             ds.clearCache();
             ds.preload();
-            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
         } catch (JEVisException e) {
-            logger.error(e);
+            logger.error("Could not preload.");
         }
+
+        getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
 
         if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
             try {
@@ -154,22 +161,27 @@ public class Launcher extends AbstractCliApp {
     }
 
     private List<JEVisObject> getAllCleaningObjects() throws Exception {
-        JEVisClass reportClass;
-        List<JEVisObject> reportObjects;
+        JEVisClass cleanDataClass;
+        List<JEVisObject> cleanDataObjects;
         List<JEVisObject> filteredObjects = new ArrayList<>();
 
         try {
-            reportClass = ds.getJEVisClass(CleanDataObject.CLASS_NAME);
-            reportObjects = ds.getObjects(reportClass, false);
-            logger.info("Total amount of Clean Data Objects: " + reportObjects.size());
-            reportObjects.forEach(jeVisObject -> {
-                if (isEnabled(jeVisObject)) filteredObjects.add(jeVisObject);
+            cleanDataClass = ds.getJEVisClass(CleanDataObject.CLASS_NAME);
+            cleanDataObjects = ds.getObjects(cleanDataClass, false);
+            logger.info("Total amount of Clean Data Objects: " + cleanDataObjects.size());
+            cleanDataObjects.forEach(jeVisObject -> {
+                if (isEnabled(jeVisObject)) {
+                    filteredObjects.add(jeVisObject);
+                    if (!plannedJobs.containsKey(jeVisObject.getID())) {
+                        plannedJobs.put(jeVisObject.getID(), "true");
+                    }
+                }
             });
-            logger.info("Amount of enabled Clean Data Objects: " + reportObjects.size());
+            logger.info("Amount of enabled Clean Data Objects: " + cleanDataObjects.size());
         } catch (JEVisException ex) {
             throw new Exception("Process classes missing", ex);
         }
-        logger.info("{} cleaning objects found", reportObjects.size());
+        logger.info("{} cleaning objects found", cleanDataObjects.size());
         return filteredObjects;
     }
 

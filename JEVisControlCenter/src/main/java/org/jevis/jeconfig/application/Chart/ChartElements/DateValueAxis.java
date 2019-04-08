@@ -190,6 +190,11 @@ public class DateValueAxis extends ValueAxis<Long> {
         setLabel(axisLabel);
     }
 
+    public DateTime getDateTimeForDisplay(double displayPosition) {
+        Number value = getValueForDisplay(displayPosition);
+        return new DateTime(value.longValue());
+    }
+
     public static void main(String[] args) {
         // Date construction test
         GregorianCalendar calendar = new GregorianCalendar(1900, 0, 1); // year, month, day

@@ -5,12 +5,13 @@
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -37,11 +38,7 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.PresetDateBox;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.EndTimePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.DateTimePicker.StartTimePicker;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
@@ -56,7 +53,6 @@ import org.joda.time.Period;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -87,27 +83,17 @@ public class ToolBarView {
     private ToggleButton select;
     private ToggleButton disableIcons;
     private ToggleButton zoomOut;
-    private PresetDateBox presetDateBox;
-    private StartDatePicker pickerDateStart;
-    private StartTimePicker pickerTimeStart;
-    private EndDatePicker pickerDateEnd;
-    private EndTimePicker pickerTimeEnd;
+    private PickerCombo pickerCombo;
+    private ComboBox<TimeFrame> presetDateBox;
+    private JFXDatePicker pickerDateStart;
+    private JFXTimePicker pickerTimeStart;
+    private JFXDatePicker pickerDateEnd;
+    private JFXTimePicker pickerTimeEnd;
     private DateHelper dateHelper = new DateHelper();
-    private Boolean[] programmaticallySetPresetDate = new Boolean[4];
     private SimpleBooleanProperty continuousUpdate = new SimpleBooleanProperty(false);
     private ToolBar toolBar;
-    private ChangeListener<LocalDate> dateChangeListener = new ChangeListener<LocalDate>() {
-        @Override
-        public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue, LocalDate newValue) {
-            model.update();
-        }
-    };
-    private ChangeListener<TimeFrame> timeFrameChangeListener = new ChangeListener<TimeFrame>() {
-        @Override
-        public void changed(ObservableValue<? extends TimeFrame> observable, TimeFrame oldValue, TimeFrame newValue) {
-            model.update();
-        }
-    };
+
+
     private Long finalSeconds = 60L;
     private Service<Void> service = new Service<Void>() {
         @Override
@@ -118,19 +104,7 @@ public class ToolBarView {
                     try {
                         TimeUnit.SECONDS.sleep(finalSeconds);
                         Platform.runLater(() -> {
-                            JEVisObject currentAnalysis = listAnalysesComboBox.getSelectionModel().getSelectedItem();
-                            select(null);
-                            try {
-                                ds.reloadAttributes();
-                            } catch (JEVisException e) {
-                                logger.error(e);
-                            }
-//                                    if (!model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM)
-//                                            || !model.getAnalysisTimeFrame().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
-//                                        AnalysisTimeFrame oldTimeframe = model.getAnalysisTimeFrame();
-//                                        model.setAnalysisTimeFrame(oldTimeframe);
-//                                    }
-                            select(currentAnalysis);
+                            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
                         });
 
                     } catch (InterruptedException e) {
@@ -166,12 +140,14 @@ public class ToolBarView {
                         oldEnd = chartDataModel.getSelectedEnd();
                         break;
                     }
-                }
+                } else
+                    oldAnalysisTimeFrame = model.getCharts().stream().findFirst().map(ChartSettings::getAnalysisTimeFrame).orElse(null);
             } else {
                 oldAnalysisTimeFrame = model.getCharts().stream().findFirst().map(ChartSettings::getAnalysisTimeFrame).orElse(null);
             }
 
             model.setCurrentAnalysis(newValue);
+            pickerCombo.updateCellFactory();
             model.setCharts(null);
             model.updateSelectedData();
 
@@ -198,12 +174,16 @@ public class ToolBarView {
         this.ds = ds;
         this.graphPluginView = graphPluginView;
 
-        programmaticallySetPresetDate[0] = false;
-        programmaticallySetPresetDate[1] = false;
-        programmaticallySetPresetDate[2] = false;
-        programmaticallySetPresetDate[3] = false;
+        pickerCombo = new PickerCombo(model, null, true);
+        presetDateBox = pickerCombo.getPresetDateBox();
+        pickerDateStart = pickerCombo.getStartDatePicker();
+        pickerTimeStart = pickerCombo.getStartTimePicker();
+        pickerDateEnd = pickerCombo.getEndDatePicker();
+        pickerTimeEnd = pickerCombo.getEndTimePicker();
 
+        pickerCombo.startUpdateListener();
     }
+
 
     public ToolBar getToolbar(JEVisDataSource ds) {
         if (toolBar == null) {
@@ -218,24 +198,12 @@ public class ToolBarView {
             listAnalysesComboBox.setPrefWidth(300);
             setCellFactoryForComboBox();
 
-            presetDateBox = new PresetDateBox();
-            pickerDateStart = new StartDatePicker();
-            pickerTimeStart = new StartTimePicker();
+            if (!listAnalysesComboBox.getItems().isEmpty()) {
+                model.updateWorkDaysFirstRun();
 
-            pickerDateEnd = new EndDatePicker();
-            pickerTimeEnd = new EndTimePicker();
-
-            pickerDateStart.initialize(model, null, pickerTimeStart, programmaticallySetPresetDate, presetDateBox);
-            pickerTimeStart.initialize(model, null, pickerDateStart, programmaticallySetPresetDate, presetDateBox);
-
-            pickerDateEnd.initialize(model, null, pickerTimeEnd, programmaticallySetPresetDate, presetDateBox);
-            pickerTimeEnd.initialize(model, null, pickerDateEnd, programmaticallySetPresetDate, presetDateBox);
-
-            presetDateBox.initialize(model, null, dateHelper, pickerDateStart, pickerTimeStart,
-                    pickerDateEnd, pickerTimeEnd, programmaticallySetPresetDate);
-
-            setupDateListener();
-            setupAnalysisComboBoxListener();
+                dateHelper.setStartTime(model.getWorkdayStart());
+                dateHelper.setEndTime(model.getWorkdayEnd());
+            }
 
             save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
@@ -307,7 +275,13 @@ public class ToolBarView {
                 saveCurrentAnalysis();
             });
 
-            loadNew.setOnAction(event -> loadNewDialog());
+            loadNew.setOnAction(event -> {
+                pickerCombo.stopUpdateListener();
+                pickerCombo.stopDateListener();
+                loadNewDialog();
+                pickerCombo.startUpdateListener();
+                pickerCombo.startDateListener();
+            });
 
             delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
             Tooltip deleteTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.delete"));
@@ -380,7 +354,11 @@ public class ToolBarView {
 
             zoomOut.setOnAction(event -> resetZoom());
 
-            select.setOnAction(event -> changeSettings());
+            select.setOnAction(event -> {
+                pickerCombo.stopUpdateListener();
+                changeSettings();
+                pickerCombo.startUpdateListener();
+            });
 
             delete.setOnAction(event -> deleteCurrentAnalysis());
 
@@ -395,35 +373,25 @@ public class ToolBarView {
              */
             toolBar.getItems().addAll(listAnalysesComboBox,
                     sep1, presetDateBox, pickerDateStart, pickerDateEnd,
-                    sep2, reload, runUpdateButton, zoomOut,
+                    sep2, reload, zoomOut,
                     sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                    sep4, disableIcons, autoResize);
+                    sep4, disableIcons, autoResize, runUpdateButton);
 
             setDisableToolBarIcons(true);
             _initialized = true;
 
+            setupAnalysisComboBoxListener();
         }
 
         return toolBar;
     }
 
-    public void setupDateListener() {
-        presetDateBox.getSelectionModel().selectedItemProperty().addListener(timeFrameChangeListener);
-        pickerDateStart.valueProperty().addListener(dateChangeListener);
-        pickerDateEnd.valueProperty().addListener(dateChangeListener);
-    }
-
-    public void removeDateListener() {
-        presetDateBox.getSelectionModel().selectedItemProperty().removeListener(timeFrameChangeListener);
-        pickerDateStart.valueProperty().removeListener(dateChangeListener);
-        pickerDateEnd.valueProperty().removeListener(dateChangeListener);
-    }
 
     public void setupAnalysisComboBoxListener() {
         listAnalysesComboBox.valueProperty().addListener(analysisComboBoxChangeListener);
     }
 
-    public void removeAnalysisComboBox() {
+    public void removeAnalysisComboBoxListener() {
         listAnalysesComboBox.valueProperty().removeListener(analysisComboBoxChangeListener);
     }
 
@@ -532,7 +500,6 @@ public class ToolBarView {
 
     private void loadNewDialog() {
 
-        removeDateListener();
         LoadAnalysisDialog dialog = new LoadAnalysisDialog(ds, model, this);
 
         dialog.show();
@@ -540,11 +507,6 @@ public class ToolBarView {
         if (dialog.getResponse() == Response.NEW) {
 
             GraphDataModel newModel = new GraphDataModel(ds, graphPluginView);
-
-//            AnalysisTimeFrame atf = new AnalysisTimeFrame();
-//            atf.setTimeFrame(TimeFrame.CUSTOM);
-//
-//            newModel.setAnalysisTimeFrame(atf);
 
             ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, newModel);
 
@@ -557,14 +519,12 @@ public class ToolBarView {
             }
         } else if (dialog.getResponse() == Response.LOAD) {
 
-            model.setGlobalAnalysisTimeFrame(model.getGlobalAnalysisTimeFrame());
             model.updateSamples();
             model.setCharts(model.getCharts());
             model.setSelectedData(model.getSelectedData());
 
         }
 
-        setupDateListener();
     }
 
     private void hideShowIconsInGraph() {
@@ -739,7 +699,9 @@ public class ToolBarView {
                             saveDataModel(newAnalysisObject, model.getSelectedData(), model.getCharts());
 
                             model.setCurrentAnalysis(newAnalysisObject);
+                            pickerCombo.updateCellFactory();
                             model.updateListAnalyses();
+                            model.isGlobalAnalysisTimeFrame(true);
                             listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
                         } else {
 
@@ -758,6 +720,7 @@ public class ToolBarView {
 
                                         model.updateListAnalyses();
                                         model.setCurrentAnalysis(currentAnalysis.get());
+                                        pickerCombo.updateCellFactory();
                                         listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
                                     }
                                 } else {
@@ -802,6 +765,9 @@ public class ToolBarView {
                                        analysis, Set<ChartDataModel> selectedData, List<ChartSettings> chartSettings) {
         try {
             JEVisAttribute dataModel = analysis.getAttribute("Data Model");
+            JEVisAttribute charts = analysis.getAttribute("Charts");
+            JEVisAttribute noOfChartsPerScreenAttribute = analysis.getAttribute("Number of Charts per Screen");
+            Long noOfChartsPerScreen = model.getChartsPerScreen();
 
             JsonChartDataModel jsonChartDataModel = new JsonChartDataModel();
             List<JsonAnalysisDataRow> jsonDataModels = new ArrayList<>();
@@ -817,13 +783,14 @@ public class ToolBarView {
                     json.setUnit(mdl.getUnit().toJSON());
                     json.setSelectedCharts(listToString(mdl.getSelectedcharts()));
                     json.setAxis(mdl.getAxis().toString());
+                    json.setIsEnPI(mdl.getEnPI().toString());
+                    if (mdl.getCalculationObject() != null)
+                        json.setCalculation(mdl.getCalculationObject().getID().toString());
                     jsonDataModels.add(json);
                 }
             }
             jsonChartDataModel.setListDataRows(jsonDataModels);
 
-
-            JEVisAttribute charts = analysis.getAttribute("Charts");
             List<JsonChartSettings> jsonChartSettings = new ArrayList<>();
             for (ChartSettings cset : chartSettings) {
                 JsonChartSettings set = new JsonChartSettings();
@@ -848,6 +815,11 @@ public class ToolBarView {
                 JEVisSample smp2 = charts.buildSample(now, jsonChartSettings.toString());
                 smp.commit();
                 smp2.commit();
+
+                if (noOfChartsPerScreen != null && !noOfChartsPerScreen.equals(0L) && !noOfChartsPerScreen.equals(2L)) {
+                    JEVisSample smp3 = noOfChartsPerScreenAttribute.buildSample(now, noOfChartsPerScreen);
+                    smp3.commit();
+                }
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));
                 alert.showAndWait();
@@ -899,6 +871,7 @@ public class ToolBarView {
         presetDateBox.setDisable(bool);
         pickerDateStart.setDisable(bool);
         pickerDateEnd.setDisable(bool);
+        pickerTimeStart.setDisable(bool);
         pickerTimeEnd.setDisable(bool);
     }
 
@@ -910,15 +883,19 @@ public class ToolBarView {
         this.borderPane = borderPane;
     }
 
-    public PresetDateBox getPresetDateBox() {
+    public ComboBox getPresetDateBox() {
         return presetDateBox;
     }
 
-    public StartDatePicker getPickerDateStart() {
+    public JFXDatePicker getPickerDateStart() {
         return pickerDateStart;
     }
 
-    public EndDatePicker getPickerDateEnd() {
+    public JFXDatePicker getPickerDateEnd() {
         return pickerDateEnd;
+    }
+
+    public PickerCombo getPickerCombo() {
+        return pickerCombo;
     }
 }

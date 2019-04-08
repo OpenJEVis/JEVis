@@ -59,16 +59,13 @@ public class ReportLauncher extends AbstractCliApp {
 
     private void executeReports(List<JEVisObject> reportObjects) {
 
-        initializeThreadPool(APP_SERVICE_CLASS_NAME);
-
         logger.info("Number of Reports: " + reportObjects.size());
-
 
         reportObjects.parallelStream().forEach(reportObject -> {
             forkJoinPool.submit(() -> {
-                if (!runningJobs.containsKey(reportObject.getID().toString())) {
+                if (!runningJobs.containsKey(reportObject.getID())) {
                     Thread.currentThread().setName(reportObject.getName() + ":" + reportObject.getID().toString());
-                    runningJobs.put(reportObject.getID().toString(), "true");
+                    runningJobs.put(reportObject.getID(), "true");
 
                     LogTaskManager.getInstance().buildNewTask(reportObject.getID(), reportObject.getName());
                     LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.STARTED);
@@ -99,7 +96,15 @@ public class ReportLauncher extends AbstractCliApp {
                     }
 
                     LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
-                    runningJobs.remove(reportObject.getID().toString());
+                    runningJobs.remove(reportObject.getID());
+                    plannedJobs.remove(reportObject.getID());
+
+                    logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                    if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                        logger.info("Last job. Clearing cache.");
+                        ds.clearCache();
+                    }
 
                 } else {
                     logger.error("Still processing Report " + reportObject.getName() + ":" + reportObject.getID());
@@ -117,7 +122,7 @@ public class ReportLauncher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
-
+        initializeThreadPool(APP_SERVICE_CLASS_NAME);
     }
 
     @Override
@@ -185,7 +190,12 @@ public class ReportLauncher extends AbstractCliApp {
         List<JEVisObject> enabledReports = new ArrayList<>();
         reportObjects.forEach(jeVisObject -> {
                     ReportPolicy reportPolicy = new ReportPolicy();
-                    if (reportPolicy.isReportEnabled(jeVisObject)) enabledReports.add(jeVisObject);
+            if (reportPolicy.isReportEnabled(jeVisObject)) {
+                enabledReports.add(jeVisObject);
+                if (!plannedJobs.containsKey(jeVisObject.getID())) {
+                    plannedJobs.put(jeVisObject.getID(), "true");
+                }
+            }
                 }
         );
         return enabledReports;

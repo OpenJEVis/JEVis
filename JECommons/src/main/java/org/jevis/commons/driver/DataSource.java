@@ -1,27 +1,34 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.commons.driver;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
+import org.joda.time.DateTime;
+
 import java.io.InputStream;
 import java.util.List;
-import org.jevis.api.JEVisObject;
 
 /**
  * The interface for the DataSource. Each DataSource object represents a data
@@ -33,10 +40,11 @@ import org.jevis.api.JEVisObject;
  *
  * @author Broder
  */
-public interface DataSource extends Runnable {
+public interface DataSource {
+    Logger logger = LogManager.getLogger(DataSource.class);
 
-    @Override
-    public void run();
+
+    void run();
 
     /**
      * Initialize the Data source. For the generic data sources all attributes
@@ -44,7 +52,7 @@ public interface DataSource extends Runnable {
      *
      * @param dataSourceJEVis
      */
-    public void initialize(JEVisObject dataSourceJEVis);
+    void initialize(JEVisObject dataSourceJEVis);
 
     /**
      * Sends the sample request to the data source and gets the data from the
@@ -53,19 +61,78 @@ public interface DataSource extends Runnable {
      * @param channel
      * @return
      */
-    public List<InputStream> sendSampleRequest(JEVisObject channel);
+    List<InputStream> sendSampleRequest(JEVisObject channel);
 
     /**
      * Parse the data from the input from the data source query. There
      *
      * @param input
      */
-    public void parse(List<InputStream> input);
+    void parse(List<InputStream> input);
 
     /**
      * Imports the results.
-     *
      */
-    public void importResult();
+    void importResult();
 
+    default boolean isReady(JEVisObject object) {
+        DateTime lastRun = getLastRun(object);
+        Long cycleTime = getCycleTime(object);
+        DateTime nextRun = lastRun.plusMillis(cycleTime.intValue());
+        return DateTime.now().equals(nextRun) || DateTime.now().isAfter(nextRun);
+    }
+
+    default DateTime getLastRun(JEVisObject object) {
+        DateTime dateTime = new DateTime(2001, 1, 1, 0, 0, 0);
+
+        try {
+            JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
+            if (lastRunAttribute != null) {
+                JEVisSample lastSample = lastRunAttribute.getLatestSample();
+                if (lastSample != null) {
+                    dateTime = new DateTime(lastSample.getValueAsString());
+                }
+            }
+
+        } catch (JEVisException e) {
+            logger.error("Could not get data source last run time: " + e);
+        }
+
+        return dateTime;
+    }
+
+    default Long getCycleTime(JEVisObject object) {
+        Long aLong = null;
+
+        try {
+            JEVisAttribute lastRunAttribute = object.getAttribute("Cycle Time");
+            if (lastRunAttribute != null) {
+                JEVisSample lastSample = lastRunAttribute.getLatestSample();
+                if (lastSample != null) {
+                    aLong = lastSample.getValueAsLong();
+                }
+            }
+
+        } catch (JEVisException e) {
+            logger.error("Could not get data source cycle time: " + e);
+        }
+
+        return aLong;
+    }
+
+    default void finishCurrentRun(JEVisObject object) {
+        Long cycleTime = getCycleTime(object);
+        DateTime lastRun = getLastRun(object);
+        try {
+            JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
+            if (lastRunAttribute != null) {
+                DateTime dateTime = lastRun.plusMillis(cycleTime.intValue());
+                JEVisSample newSample = lastRunAttribute.buildSample(DateTime.now(), dateTime);
+                newSample.commit();
+            }
+
+        } catch (JEVisException e) {
+            logger.error("Could not get data source last run time: " + e);
+        }
+    }
 }

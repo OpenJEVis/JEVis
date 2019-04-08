@@ -67,6 +67,8 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
+        initializeThreadPool(APP_SERVICE_CLASS_NAME);
+
         options.addOption(configFile);
         options.addOption(help);
         options.addOption(mode);

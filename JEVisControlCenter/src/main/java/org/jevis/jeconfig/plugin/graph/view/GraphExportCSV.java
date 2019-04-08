@@ -14,6 +14,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
@@ -23,6 +24,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import javax.measure.unit.Unit;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -180,10 +182,18 @@ public class GraphExportCSV {
         StringBuilder header = new StringBuilder("Date");
         for (ChartDataModel mdl : model.getSelectedData()) {
             String objectName = mdl.getObject().getName();
-            String dpName = "";
-            if (mdl.getDataProcessor() != null) dpName = mdl.getDataProcessor().getName();
+
             header.append(";").append(objectName);
-            if (mdl.getDataProcessor() != null) header.append(" (").append(dpName).append(")");
+            if (mdl.getDataProcessor() != null) {
+                String dpName = mdl.getDataProcessor().getName();
+                header.append(" (").append(dpName).append(")");
+            }
+            header.append(" in ");
+            String currentUnit = UnitManager.getInstance().format(mdl.getUnit());
+            if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
+                currentUnit = mdl.getUnit().getLabel();
+            }
+            header.append(currentUnit);
         }
         sb.append(header);
         sb.append(System.getProperty("line.separator"));
@@ -227,10 +237,19 @@ public class GraphExportCSV {
             for (ChartDataModel mdl : model.getSelectedData()) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     String objectName = mdl.getObject().getName();
-                    String dpName = "";
-                    if (mdl.getDataProcessor() != null) dpName = mdl.getDataProcessor().getName();
+
                     header.append(";").append(objectName);
-                    if (mdl.getDataProcessor() != null) header.append(" (").append(dpName).append(")");
+                    if (mdl.getDataProcessor() != null) {
+                        String dpName = mdl.getDataProcessor().getName();
+                        header.append(" (").append(dpName).append(")");
+                    }
+
+                    header.append(" in ");
+                    String currentUnit = UnitManager.getInstance().format(mdl.getUnit());
+                    if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
+                        currentUnit = mdl.getUnit().getLabel();
+                    }
+                    header.append(currentUnit);
                 }
             }
             header.append(";");

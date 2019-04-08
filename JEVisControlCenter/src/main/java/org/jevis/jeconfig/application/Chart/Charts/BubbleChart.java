@@ -39,7 +39,7 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public void updateTable(MouseEvent mouseEvent, Number valueForDisplay) {
+    public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
 
     }
 
@@ -99,12 +99,12 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public Number getValueForDisplay() {
+    public DateTime getValueForDisplay() {
         return null;
     }
 
     @Override
-    public void setValueForDisplay(Number valueForDisplay) {
+    public void setValueForDisplay(DateTime valueForDisplay) {
 
     }
 

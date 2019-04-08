@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.object.extension;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -24,10 +25,19 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.datetime.DateHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.plugin.AnalysisRequest;
+import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
 import org.jevis.jeconfig.tool.I18n;
@@ -319,6 +329,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         AttributeAdvSettingDialogButton advSettingDialogButtonValueMultiplier = new AttributeAdvSettingDialogButton(valueMultiplierAttribute);
         valueMultiplierTimeStampEditor = new TimeStampEditor(valueMultiplierAttribute);
         valueMultiplier = new JFXTextField();
+
         if (valueMultiplierLastSample != null) {
             valueMultiplier.setText(valueMultiplierLastSample.getValueAsDouble().toString());
         }
@@ -336,6 +347,23 @@ public class CleanDataExtension implements ObjectEditorExtension {
         valueTimeStamp.getEditor().setDisable(true);
         JFXTextField value = new JFXTextField();
         JFXTextField unitValue = new JFXTextField();
+        JFXButton valueInChartsButton = new JFXButton("", JEConfig.getImage("1415314386_Graph.png", 20, 20));
+        try {
+            DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
+            WorkDays workDays = new WorkDays(valueAttribute.getObject());
+            dateHelper.setStartTime(workDays.getWorkdayStart());
+            dateHelper.setEndTime(workDays.getWorkdayEnd());
+
+            AnalysisRequest analysisRequest = new AnalysisRequest(valueAttribute.getObject(),
+                    AggregationPeriod.NONE,
+                    ManipulationMode.NONE,
+                    new AnalysisTimeFrame(TimeFrame.TODAY),
+                    dateHelper.getStartDate(), dateHelper.getEndDate());
+            analysisRequest.setAttribute(valueAttribute);
+            valueInChartsButton.setOnAction(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
+        } catch (Exception e) {
+            logger.error("Could not create value in charts button: " + e);
+        }
         value.setDisable(true);
         if (valueLastSample != null) {
             value.setText(valueLastSample.getValueAsDouble().toString());
@@ -427,12 +455,13 @@ public class CleanDataExtension implements ObjectEditorExtension {
         gridPane.add(advSettingDialogButtonValue, 1, row);
         gridPane.add(value, 2, row);
         gridPane.add(unitValue, 3, row);
-        gridPane.add(valueTimeStamp.getEditor(), 4, row);
+        gridPane.add(valueInChartsButton, 4, row);
+        gridPane.add(valueTimeStamp.getEditor(), 5, row);
         row++;
         gridPane.add(nameValueMultiplier, 0, row);
         gridPane.add(advSettingDialogButtonValueMultiplier, 1, row);
         gridPane.add(valueMultiplier, 2, row);
-        gridPane.add(valueMultiplierTimeStampEditor.getEditor(), 4, row);
+        gridPane.add(valueMultiplierTimeStampEditor.getEditor(), 5, row);
 
         row++;
         gridPane.add(nameValueOffset, 0, row);
@@ -452,7 +481,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         gridPane.add(nameConversionToDifferential, 0, row);
         gridPane.add(advSettingDialogButtonConversionToDifferential, 1, row);
         gridPane.add(conversionToDifferential, 2, row);
-        gridPane.add(conversionToDifferentialTimeStampEditor.getEditor(), 4, row);
+        gridPane.add(conversionToDifferentialTimeStampEditor.getEditor(), 5, row);
 
         row++;
         gridPane.add(namePeriodAlignment, 0, row);
@@ -484,7 +513,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         gridPane.add(nameAlarmLog, 0, row);
         gridPane.add(advSettingDialogButtonAlarmLog, 1, row);
         gridPane.add(alarmLog, 2, row, colSpan, 1);
-        gridPane.add(alarmLogTimeStamp.getEditor(), 4, row);
+        gridPane.add(alarmLogTimeStamp.getEditor(), 5, row);
         row++;
 
 

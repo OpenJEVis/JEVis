@@ -1,17 +1,24 @@
 package org.jevis.jeconfig.plugin.Dashboard;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.jevis.jeconfig.plugin.Dashboard.timeframe.ToolBarIntervalSelector;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
@@ -24,12 +31,17 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.jevis.jeconfig.application.Chart.data.GraphDataModel.BUILDING_CLASS_NAME;
+import static org.jevis.jeconfig.application.Chart.data.GraphDataModel.ORGANIZATION_CLASS_NAME;
+
 public class DashBoardToolbar extends ToolBar {
 
-    private final ComboBox<JEVisObject> listAnalysesComboBox = new ComboBox();
+    private static final Logger logger = LogManager.getLogger(DashBoardToolbar.class);
+    private ComboBox<JEVisObject> listAnalysesComboBox;
     private final JEVisDataSource dataSource;
     private final DashBordPlugIn dashBordPlugIn;
     private double iconSize = 20;
@@ -38,53 +50,104 @@ public class DashBoardToolbar extends ToolBar {
     public DashBoardToolbar(JEVisDataSource dataSource, DashBordPlugIn dashBordPlugIn) {
         this.dataSource = dataSource;
         this.dashBordPlugIn = dashBordPlugIn;
-
-
-        listAnalysesComboBox.setPrefWidth(300);
-        listAnalysesComboBox.setMinWidth(300);
+        ObservableList<JEVisObject> observableList = FXCollections.emptyObservableList();
 
         try {
-            JEVisClass sadaAnalyses = dataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
-            List<JEVisObject> allAnalisis = dataSource.getObjects(sadaAnalyses, false);
-            listAnalysesComboBox.getItems().addAll(allAnalisis);
+            JEVisClass scadaAnalysis = dataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
+            List<JEVisObject> allAnalyses = dataSource.getObjects(scadaAnalysis, false);
+            observableList = FXCollections.observableList(allAnalyses);
+            List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
+            boolean multipleDirectories = false;
+
+            try {
+                JEVisClass analysesDirectory = dataSource.getJEVisClass(GraphDataModel.ANALYSES_DIRECTORY_CLASS_NAME);
+                listAnalysesDirectories = dataSource.getObjects(analysesDirectory, false);
+
+                if (listAnalysesDirectories.size() > 1) {
+                    multipleDirectories = true;
+                }
+            } catch (JEVisException e) {
+                logger.error("Error: could not get analyses directories", e);
+            }
+
+            AlphanumComparator ac = new AlphanumComparator();
+            if (!multipleDirectories) observableList.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+            else {
+                observableList.sort((o1, o2) -> {
+
+                    String prefix1 = "";
+                    String prefix2 = "";
+
+                    try {
+                        JEVisObject secondParent1 = o1.getParents().get(0).getParents().get(0);
+                        JEVisClass buildingClass = dataSource.getJEVisClass(BUILDING_CLASS_NAME);
+                        JEVisClass organisationClass = dataSource.getJEVisClass(ORGANIZATION_CLASS_NAME);
+
+                        if (secondParent1.getJEVisClass().equals(buildingClass)) {
+                            try {
+                                JEVisObject organisationParent = secondParent1.getParents().get(0).getParents().get(0);
+                                if (organisationParent.getJEVisClass().equals(organisationClass)) {
+
+                                    prefix1 += organisationParent.getName() + " / " + secondParent1.getName() + " / ";
+                                }
+                            } catch (JEVisException e) {
+                                logger.error("Could not get Organization parent of " + secondParent1.getName() + ":" + secondParent1.getID());
+
+                                prefix1 += secondParent1.getName() + " / ";
+                            }
+                        } else if (secondParent1.getJEVisClass().equals(organisationClass)) {
+
+                            prefix1 += secondParent1.getName() + " / ";
+
+                        }
+
+                    } catch (Exception e) {
+                    }
+                    prefix1 = prefix1 + o1.getName();
+
+                    try {
+                        JEVisObject secondParent2 = o2.getParents().get(0).getParents().get(0);
+                        JEVisClass buildingClass = dataSource.getJEVisClass(BUILDING_CLASS_NAME);
+                        JEVisClass organisationClass = dataSource.getJEVisClass(ORGANIZATION_CLASS_NAME);
+
+                        if (secondParent2.getJEVisClass().equals(buildingClass)) {
+                            try {
+                                JEVisObject organisationParent = secondParent2.getParents().get(0).getParents().get(0);
+                                if (organisationParent.getJEVisClass().equals(organisationClass)) {
+
+                                    prefix2 += organisationParent.getName() + " / " + secondParent2.getName() + " / ";
+                                }
+                            } catch (JEVisException e) {
+                                logger.error("Could not get Organization parent of " + secondParent2.getName() + ":" + secondParent2.getID());
+
+                                prefix2 += secondParent2.getName() + " / ";
+                            }
+                        } else if (secondParent2.getJEVisClass().equals(organisationClass)) {
+
+                            prefix2 += secondParent2.getName() + " / ";
+
+                        }
+
+                    } catch (Exception e) {
+                    }
+                    prefix2 = prefix2 + o2.getName();
+
+                    return ac.compare(prefix1, prefix2);
+                });
+            }
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-            @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                final ListCell<JEVisObject> cell = new ListCell<JEVisObject>() {
-
-//                    {
-//                        super.setPrefWidth(300);
-//                    }
-
-                    @Override
-                    protected void updateItem(JEVisObject item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            setText(item.getName());
-                            setGraphic(null);
-                            Tooltip tt = new Tooltip();
-                            tt.setText("ID: " + item.getID());
-                            setTooltip(tt);
-                        }
-
-
-                    }
-                };
-
-                return cell;
-            }
-        };
+        listAnalysesComboBox = new ComboBox<>(observableList);
+        listAnalysesComboBox.setPrefWidth(300);
+        listAnalysesComboBox.setMinWidth(300);
+        setCellFactoryForComboBox();
 
         ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(treeButton);
 
-        listAnalysesComboBox.setCellFactory(cellFactory);
-        listAnalysesComboBox.setButtonCell(cellFactory.call(null));
         listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 DashBordModel analysis = new DashBordModel(newValue);
@@ -100,6 +163,9 @@ public class DashBoardToolbar extends ToolBar {
         });
     }
 
+    public ComboBox<JEVisObject> getListAnalysesComboBox() {
+        return listAnalysesComboBox;
+    }
 
     public void updateToolbar(final DashBordModel analyses) {
         Label analysisLabel = new Label(I18n.getInstance().getString("plugin.scada.analysis"));
@@ -292,9 +358,61 @@ public class DashBoardToolbar extends ToolBar {
                 , sep1, zoomOut, zoomIn
                 , sep4, newButton, save, delete, newWidgetButton, settingsButton, backgroundButton, exportPDF
                 , sep2, runUpdateButton, unlockB);
-
-
     }
 
+    private void setCellFactoryForComboBox() {
+        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                return new ListCell<JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (empty || obj == null || obj.getName() == null) {
+                            setText("");
+                        } else {
+                            String prefix = "";
+                            try {
 
+                                JEVisObject secondParent = obj.getParents().get(0).getParents().get(0);
+                                JEVisClass buildingClass = dataSource.getJEVisClass("Building");
+                                JEVisClass organisationClass = dataSource.getJEVisClass("Organization");
+
+                                if (secondParent.getJEVisClass().equals(buildingClass)) {
+
+                                    try {
+                                        JEVisObject organisationParent = secondParent.getParents().get(0).getParents().get(0);
+
+                                        if (organisationParent.getJEVisClass().equals(organisationClass)) {
+
+                                            prefix += organisationParent.getName() + " / " + secondParent.getName() + " / ";
+                                        }
+                                    } catch (JEVisException e) {
+                                        logger.error("Could not get Organization parent of " + secondParent.getName() + ":" + secondParent.getID());
+
+                                        prefix += secondParent.getName() + " / ";
+                                    }
+                                } else if (secondParent.getJEVisClass().equals(organisationClass)) {
+
+                                    prefix += secondParent.getName() + " / ";
+
+                                }
+
+                            } catch (Exception e) {
+                            }
+                            setText(prefix + obj.getName());
+                        }
+
+                    }
+                };
+            }
+        };
+
+        listAnalysesComboBox.setCellFactory(cellFactory);
+        listAnalysesComboBox.setButtonCell(cellFactory.call(null));
+    }
+
+    public ToggleButton getBackgroundButton() {
+        return backgroundButton;
+    }
 }

@@ -9,7 +9,10 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.calculation.CalcJob;
+import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
@@ -29,9 +32,11 @@ public class XYChartSerie {
     TableEntry tableEntry;
     ChartDataModel singleRow;
     Boolean hideShowIcons;
-    TreeMap<Double, JEVisSample> sampleMap;
+    TreeMap<DateTime, JEVisSample> sampleMap;
     DateTime timeStampFromFirstSample = DateTime.now();
     DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
+    Double minValue = Double.MAX_VALUE;
+    Double maxValue = -Double.MAX_VALUE;
 
     public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
         this.singleRow = singleRow;
@@ -113,7 +118,7 @@ public class XYChartSerie {
 
                 serie.getData().add(data);
 
-                sampleMap.put(timestamp.doubleValue(), sample);
+                sampleMap.put(dateTime, sample);
 
             } catch (JEVisException e) {
 
@@ -133,7 +138,7 @@ public class XYChartSerie {
         if (min == Double.MAX_VALUE || samples.size() == 0) {
             tableEntry.setMin("- " + getUnit());
         } else {
-            tableEntry.setMin(nf_out.format(min) + " " + unit);
+            tableEntry.setMin(nf_out.format(min) + " " + getUnit());
         }
 
         if (max == Double.MIN_VALUE || samples.size() == 0) {
@@ -162,6 +167,20 @@ public class XYChartSerie {
                 } else {
                     tableEntry.setSum("- " + getUnit());
                 }
+            }
+        }
+
+        if (singleRow.getEnPI()) {
+            CalcJobFactory calcJobCreator = new CalcJobFactory();
+
+            CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), singleRow.getObject().getDataSource(), singleRow.getCalculationObject(),
+                    singleRow.getSelectedStart(), singleRow.getSelectedEnd(), true);
+            List<JEVisSample> results = calcJob.getResults();
+
+            if (results.size() == 1) {
+                tableEntry.setEnpi(nf_out.format(results.get(0).getValueAsDouble()) + " " + getUnit());
+            } else {
+                tableEntry.setEnpi("- " + getUnit());
             }
         }
     }
@@ -242,7 +261,7 @@ public class XYChartSerie {
         return unit;
     }
 
-    public TreeMap<Double, JEVisSample> getSampleMap() {
+    public TreeMap<DateTime, JEVisSample> getSampleMap() {
         return sampleMap;
     }
 
@@ -251,5 +270,21 @@ public class XYChartSerie {
                 (int) (color.getRed() * 255),
                 (int) (color.getGreen() * 255),
                 (int) (color.getBlue() * 255));
+    }
+
+    public Double getMinValue() {
+        return minValue;
+    }
+
+    public void setMinValue(Double minValue) {
+        this.minValue = minValue;
+    }
+
+    public Double getMaxValue() {
+        return maxValue;
+    }
+
+    public void setMaxValue(Double maxValue) {
+        this.maxValue = maxValue;
     }
 }

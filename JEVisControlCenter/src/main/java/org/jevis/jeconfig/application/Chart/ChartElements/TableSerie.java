@@ -63,7 +63,7 @@ public class TableSerie extends XYChartSerie {
 
                 serie.getData().add(data);
 
-                sampleMap.put(timestamp.doubleValue(), sample);
+                sampleMap.put(dateTime, sample);
 
             } catch (JEVisException e) {
 
@@ -120,7 +120,7 @@ public class TableSerie extends XYChartSerie {
         return "";
     }
 
-    public TreeMap<Double, JEVisSample> getSampleMap() {
+    public TreeMap<DateTime, JEVisSample> getSampleMap() {
         return sampleMap;
     }
 }

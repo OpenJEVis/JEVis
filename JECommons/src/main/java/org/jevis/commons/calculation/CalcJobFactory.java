@@ -3,15 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jecalc;
+package org.jevis.commons.calculation;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.datetime.PeriodArithmetic;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.jecalc.calculation.PeriodArithmetic;
-import org.jevis.jecalc.calculation.SampleMerger.InputType;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -23,18 +23,100 @@ import java.util.Objects;
 /**
  * @author broder
  */
-class CalcJobFactory {
+public class CalcJobFactory {
 
     private static final Logger logger = LogManager.getLogger(CalcJobFactory.class);
     private CalcJob calcJob;
     private List<JEVisObject> calcInputObjects;
     private DateTime lastEndTime;
 
-    CalcJobFactory() {
+    public CalcJobFactory() {
         this.calcJob = new CalcJob();
     }
 
-    CalcJob getCurrentCalcJob(SampleHandler sampleHandler, JEVisDataSource ds, JEVisObject jevisObject) {
+    public CalcJob getCalcJobForTimeFrame(SampleHandler sampleHandler, JEVisDataSource ds, JEVisObject jevisObject,
+                                          DateTime startTime, DateTime endTime, AggregationPeriod aggregationPeriod) {
+        this.calcInputObjects = null;
+        calcJob.setCalcInputObjects(null);
+        calcJob.setOutputAttributes(null);
+
+        logger.info("-------------------------------------------");
+        long calcObjID = jevisObject.getID();
+        logger.info("Create calc job for object with jevis id {}", calcObjID);
+
+        String expression = sampleHandler.getLastSample(jevisObject, Calculation.EXPRESSION.getName(), "");
+        List<JEVisAttribute> outputAttributes = getAllOutputAttributes(jevisObject);
+
+        logger.debug("start time is: " + startTime);
+
+        List<CalcInputObject> calcInputObjects = getInputDataObjects(jevisObject, ds, startTime, endTime, aggregationPeriod);
+        logger.debug("{} inputs found", calcInputObjects.size());
+        String div0Handling = null;
+        Double staticValue = null;
+        Double allZeroValue = null;
+        try {
+            div0Handling = sampleHandler.getLastSample(jevisObject, Calculation.DIV0_HANDLING.getName(), "");
+            staticValue = sampleHandler.getLastSample(jevisObject, Calculation.STATIC_VALUE.getName(), 0.0);
+            JEVisAttribute allZeroValueAtt = jevisObject.getAttribute(Calculation.ALL_ZERO_VALUE.getName());
+            if (allZeroValueAtt.hasSample())
+                allZeroValue = allZeroValueAtt.getLatestSample().getValueAsDouble();
+        } catch (Exception e) {
+
+        }
+
+        calcJob.setCalcInputObjects(calcInputObjects);
+        calcJob.setExpression(expression);
+        calcJob.setOutputAttributes(outputAttributes);
+        calcJob.setCalcObjID(calcObjID);
+        calcJob.setStaticValue(staticValue);
+        calcJob.setAllZeroValue(allZeroValue);
+        calcJob.setDIV0Handling(div0Handling);
+
+        return calcJob;
+    }
+
+    public CalcJob getCalcJobForTimeFrame(SampleHandler sampleHandler, JEVisDataSource ds, JEVisObject jevisObject,
+                                          DateTime startTime, DateTime endTime, Boolean absolute) {
+        this.calcInputObjects = null;
+        calcJob.setCalcInputObjects(null);
+        calcJob.setOutputAttributes(null);
+
+        logger.info("-------------------------------------------");
+        long calcObjID = jevisObject.getID();
+        logger.info("Create calc job for object with jevis id {}", calcObjID);
+
+        String expression = sampleHandler.getLastSample(jevisObject, Calculation.EXPRESSION.getName(), "");
+        List<JEVisAttribute> outputAttributes = getAllOutputAttributes(jevisObject);
+
+        logger.debug("start time is: " + startTime);
+
+        List<CalcInputObject> calcInputObjects = getInputDataObjects(jevisObject, ds, startTime, endTime, absolute);
+        logger.debug("{} inputs found", calcInputObjects.size());
+        String div0Handling = null;
+        Double staticValue = null;
+        Double allZeroValue = null;
+        try {
+            div0Handling = sampleHandler.getLastSample(jevisObject, Calculation.DIV0_HANDLING.getName(), "");
+            staticValue = sampleHandler.getLastSample(jevisObject, Calculation.STATIC_VALUE.getName(), 0.0);
+            JEVisAttribute allZeroValueAtt = jevisObject.getAttribute(Calculation.ALL_ZERO_VALUE.getName());
+            if (allZeroValueAtt.hasSample())
+                allZeroValue = allZeroValueAtt.getLatestSample().getValueAsDouble();
+        } catch (Exception e) {
+
+        }
+
+        calcJob.setCalcInputObjects(calcInputObjects);
+        calcJob.setExpression(expression);
+        calcJob.setOutputAttributes(outputAttributes);
+        calcJob.setCalcObjID(calcObjID);
+        calcJob.setStaticValue(staticValue);
+        calcJob.setAllZeroValue(allZeroValue);
+        calcJob.setDIV0Handling(div0Handling);
+
+        return calcJob;
+    }
+
+    public CalcJob getCurrentCalcJob(SampleHandler sampleHandler, JEVisDataSource ds, JEVisObject jevisObject) {
         this.calcInputObjects = null;
         calcJob.setCalcInputObjects(null);
         calcJob.setOutputAttributes(null);
@@ -214,12 +296,60 @@ class CalcJobFactory {
 
                 String identifier = child.getAttribute(Calculation.IDENTIFIER.getName()).getLatestSample().getValueAsString();
                 String inputTypeString = child.getAttribute(Calculation.INPUT_TYPE.getName()).getLatestSample().getValueAsString();
-                InputType inputType = InputType.valueOf(inputTypeString);
+                CalcInputType inputType = CalcInputType.valueOf(inputTypeString);
 
                 CalcInputObject calcObject = new CalcInputObject(identifier, inputType, valueAttribute);
                 calcObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, endTime);
                 logger.info("Got samples for id {}", calcObject.getIdentifier());
                 calcObjects.add(calcObject);
+            }
+        } catch (JEVisException ex) {
+            logger.fatal(ex);
+        }
+        return calcObjects;
+    }
+
+    private List<CalcInputObject> getInputDataObjects(JEVisObject jevisObject, JEVisDataSource ds, DateTime startTime, DateTime endTime, AggregationPeriod aggregationPeriod) {
+        List<CalcInputObject> calcObjects = new ArrayList<>();
+
+        try {
+            for (JEVisObject child : getCalcInputObjects(jevisObject)) { //Todo differenciate based on input type
+                JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
+                TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
+                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
+
+                String identifier = child.getAttribute(Calculation.IDENTIFIER.getName()).getLatestSample().getValueAsString();
+                String inputTypeString = child.getAttribute(Calculation.INPUT_TYPE.getName()).getLatestSample().getValueAsString();
+                CalcInputType inputType = CalcInputType.valueOf(inputTypeString);
+
+                CalcInputObject calcInputObject = new CalcInputObject(identifier, inputType, valueAttribute);
+                calcInputObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, endTime, aggregationPeriod);
+                logger.info("Got samples for id {}", calcInputObject.getIdentifier());
+                calcObjects.add(calcInputObject);
+            }
+        } catch (JEVisException ex) {
+            logger.fatal(ex);
+        }
+        return calcObjects;
+    }
+
+    private List<CalcInputObject> getInputDataObjects(JEVisObject jevisObject, JEVisDataSource ds, DateTime startTime, DateTime endTime, Boolean absolute) {
+        List<CalcInputObject> calcObjects = new ArrayList<>();
+
+        try {
+            for (JEVisObject child : getCalcInputObjects(jevisObject)) { //Todo differenciate based on input type
+                JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
+                TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
+                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
+
+                String identifier = child.getAttribute(Calculation.IDENTIFIER.getName()).getLatestSample().getValueAsString();
+                String inputTypeString = child.getAttribute(Calculation.INPUT_TYPE.getName()).getLatestSample().getValueAsString();
+                CalcInputType inputType = CalcInputType.valueOf(inputTypeString);
+
+                CalcInputObject calcInputObject = new CalcInputObject(identifier, inputType, valueAttribute);
+                calcInputObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, endTime, absolute);
+                logger.info("Got samples for id {}", calcInputObject.getIdentifier());
+                calcObjects.add(calcInputObject);
             }
         } catch (JEVisException ex) {
             logger.fatal(ex);
