@@ -43,8 +43,6 @@ import java.util.*;
  */
 public class DashBordModel {
     private static final Logger logger = LogManager.getLogger(DashBordModel.class);
-
-
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
     public final BooleanProperty updateIsRunningProperty = new SimpleBooleanProperty(Boolean.class, "run Updater", false);
     /**
@@ -112,13 +110,12 @@ public class DashBordModel {
      * Current displayed interval
      */
     public final ObjectProperty<Interval> displayedIntervalProperty = new SimpleObjectProperty(Interval.class, "Data Interval", new Interval(new DateTime(), new DateTime()));
-
-
     public final ObjectProperty<Size> pageSize = new SimpleObjectProperty<>(new Size(1080, 1600));
     public final ObjectProperty<Interval> intervalProperty = new SimpleObjectProperty<>();
     public final ObjectProperty<DateTime> dateTimereferrenzProperty = new SimpleObjectProperty<>(new DateTime());
     private final List<ChangeListener> changeListeners = new ArrayList<>();
     private final JEVisDataSource jeVisDataSource;
+    private ObjectMapper mapper = new ObjectMapper();
     private TimeFrames timeFrames = new TimeFrames();
     public final ObjectProperty<TimeFrameFactory> timeFrameProperty = new SimpleObjectProperty<>(timeFrames.day());
     private JEVisObject analysisObject;
@@ -183,15 +180,32 @@ public class DashBordModel {
 
     private void load() {
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            JEVisSample lastConfigSampleFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
+            if (lastConfigSampleFile == null) {
+                logger.error("Missing Json File configuration");
+                return;
+            }
+
+            try {
+                JEVisFile file = lastConfigSampleFile.getValueAsFile();
+                JsonNode jsonNode2 = mapper.readTree(file.getBytes());
+
+                System.out.println("Value from Json file: " + jsonNode2.get(xGridInterval.getName()).asDouble(0.0));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            /** --------------------------------- OLD ----------------------------------- **/
+
             JEVisSample lastConfigSample = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).getLatestSample();
             if (lastConfigSample == null) {
                 logger.error("Missing Json configuration");
                 return;
             }
-            String json = lastConfigSample.getValueAsString();
 
+            String json = lastConfigSample.getValueAsString();
             JsonNode jsonNode = mapper.readTree(json);
+
 
             try {
                 Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
