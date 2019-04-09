@@ -135,7 +135,7 @@ public class DashBoardPane extends Pane {
             }
         });
 
-        Timer timer = new Timer();
+        Timer timer = new Timer(true);
 
         analysis.updateIsRunningProperty.addListener((observable, oldValue, newValue) -> {
             if (updateTask != null) {
@@ -148,7 +148,8 @@ public class DashBoardPane extends Pane {
             updateTask = updateTask();
 
             if (newValue) {
-                timer.scheduleAtFixedRate(updateTask, 0, analysis.updateRate.getValue() * 1000);
+                logger.info("Start update scheduler: {} sec", analysis.updateRate.getValue());
+                timer.scheduleAtFixedRate(updateTask, 1000, analysis.updateRate.getValue() * 1000);
             }
         });
 
@@ -209,7 +210,7 @@ public class DashBoardPane extends Pane {
                 logger.info("Starting Update");
                 Interval interval = buildInterval();
                 widgetList.forEach(widget -> {
-                    logger.info("Update widget: {}", widget.getUUID());
+                    logger.info("Update widget: {}", widget.getConfig().title.get());
                     Platform.runLater(() -> {
                         try {
                             widget.update(interval);
@@ -219,6 +220,7 @@ public class DashBoardPane extends Pane {
                     });
 
                 });
+                logger.info("Update done");
             }
         };
     }
