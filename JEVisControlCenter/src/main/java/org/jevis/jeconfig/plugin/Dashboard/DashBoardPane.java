@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.Dashboard;
 
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -21,12 +20,15 @@ import org.joda.time.Interval;
 
 import javax.swing.event.ChangeEvent;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class DashBoardPane extends Pane {
 
     //    private GridLayer gridLayer = new GridLayer();
     private static final Logger logger = LogManager.getLogger(DashBoardPane.class);
     private final DashBordModel analysis;
+    private final ExecutorService executor = Executors.newFixedThreadPool(4);
     private ObservableList<Widget> widgetList = FXCollections.observableArrayList();
     private List<Double> xGrids = new ArrayList<>();
     private List<Double> yGrids = new ArrayList<>();
@@ -156,9 +158,10 @@ public class DashBoardPane extends Pane {
         analysis.displayedIntervalProperty.addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 widgetList.forEach(widget -> {
-                    Platform.runLater(() -> {
-                        widget.update(newValue);
-                    });
+                    addWidgetUpdateTask(widget, newValue);
+//                    Platform.runLater(() -> {
+//                        widget.update(newValue);
+//                    });
 
                 });
             }
@@ -166,6 +169,16 @@ public class DashBoardPane extends Pane {
         });
 
 
+    }
+
+    private void addWidgetUpdateTask(Widget widget, Interval interval) {
+        Runnable updateTask = new Runnable() {
+            @Override
+            public void run() {
+                widget.update(interval);
+            }
+        };
+        executor.execute(updateTask);
     }
 
     private void setBackground() {
@@ -188,19 +201,8 @@ public class DashBoardPane extends Pane {
 
 
     public Interval buildInterval() {
-//        Period period = analysis.dataPeriodProperty.getValue();
-//        DateTime now = new DateTime();
-//
-//        Interval interval = new Interval(now.minus(period), now);
-//
-//        //TODO: remove this dev test workaround
-//        DateTime fakeDate = new DateTime(2018, 02, 01, 0, 0).plusHours(now.getHourOfDay()).plusMinutes(now.getMinuteOfHour());
-//        interval = new Interval(
-//                fakeDate.minusHours(6),
-//                fakeDate);
         analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().getInterval(DateTime.now()));
         return analysis.intervalProperty.getValue();
-//        return interval;
     }
 
     public TimerTask updateTask() {
@@ -208,16 +210,24 @@ public class DashBoardPane extends Pane {
             @Override
             public void run() {
                 logger.info("Starting Update");
+
+
                 Interval interval = buildInterval();
                 widgetList.forEach(widget -> {
                     logger.info("Update widget: {}", widget.getConfig().title.get());
-                    Platform.runLater(() -> {
-                        try {
-                            widget.update(interval);
-                        } catch (Exception ex) {
-                            logger.error(ex);
-                        }
-                    });
+
+                    addWidgetUpdateTask(widget, interval);
+//                    executor.execute(() -> {
+//                        widget.update(interval);
+//                    });
+
+//                            Platform.runLater(() -> {
+//                        try {
+//                            widget.update(interval);
+//                        } catch (Exception ex) {
+//                            logger.error(ex);
+//                        }
+//                    });
 
                 });
                 logger.info("Update done");

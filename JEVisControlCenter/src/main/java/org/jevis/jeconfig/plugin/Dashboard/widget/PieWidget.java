@@ -59,11 +59,9 @@ public class PieWidget extends Widget {
         sampleHandler.setInterval(interval);
         sampleHandler.update();
 
-        //if config changed
-        legend.getItems().clear();
-
 
         ObservableList<PieChart.Data> series = FXCollections.observableArrayList();
+        List<Legend.LegendItem> legendItemList = new ArrayList<>();
         List<Color> colors = new ArrayList<>();
         if (config.hasChanged("")) {
 
@@ -81,89 +79,87 @@ public class PieWidget extends Widget {
             nf.setMaximumFractionDigits(0);
 
 
-            AtomicDouble total = new AtomicDouble(0);
-            sampleHandler.getDataModel().forEach(chartDataModel -> {
-                try {
-                    if (!chartDataModel.getSamples().isEmpty()) {
-//                        System.out.println("Pie Sample: " + chartDataModel.getSamples());
-                        total.set(total.get() + chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble());
-                    }
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
+            Platform.runLater(() -> {
+                //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
+                legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+
+
             });
+        }
 
-//            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
-            legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-
-
-            sampleHandler.getDataModel().forEach(chartDataModel -> {
-                try {
-
-                    String dataName = chartDataModel.getObject().getName();
-                    double value = 0;
-
-
-                    if (!chartDataModel.getSamples().isEmpty()) {
-                        logger.error("Samples: ({}) {}", dataName, chartDataModel.getSamples());
-                        try {
-                            value = chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble();
-
-
-                        } catch (Exception ex) {
-                            value = 0;
-                        }
-                    } else {
-                        logger.warn("Empty Samples for: {}", config.title.get());
-                        value = 0;
-                    }
-
-                    double proC = (value / total.get()) * 100;
-                    if (Double.isInfinite(proC)) proC = 100;
-                    if (Double.isNaN(proC)) proC = 0;
-
-//                    String textValue = nf.format(proC) + "%" + " ( " + nf.format(value) + " " + chartDataModel.getUnit() + ")";
-//                    String textValue = nf.format(proC) + "% \n test";
-                    String textValue = nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnit()) + "\n" + nf.format(proC) + "%";
-
-                    legend.getItems().add(legend.buildLegendItem(dataName, chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
-//                    legend.getItems().add(buildLegendItem(
-//                            dataName + " " + textValue
-//                            , chartDataModel.getColor(), config.fontColor.getValue()));
-
-
-//                    javafx.scene.chart.PieChart.Data pieData = new javafx.scene.chart.PieChart.Data(dataName + "\n" + textValue, value);
-                    javafx.scene.chart.PieChart.Data pieData = new javafx.scene.chart.PieChart.Data(textValue, value);
-                    series.add(pieData);
-                    colors.add(chartDataModel.getColor());
-
-
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-            });
-
+        /** data Update **/
+        AtomicDouble total = new AtomicDouble(0);
+        sampleHandler.getDataModel().forEach(chartDataModel -> {
             try {
-                GraphAnalysisLinkerNode dataModelNode = mapper.treeToValue(config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE), GraphAnalysisLinkerNode.class);
-                graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), dataModelNode);
-                graphAnalysisLinker.applyConfig(openAnalysisButton, sampleHandler.getDataModel(), interval);
+                if (!chartDataModel.getSamples().isEmpty()) {
+//                        System.out.println("Pie Sample: " + chartDataModel.getSamples());
+                    total.set(total.get() + chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble());
+                }
             } catch (Exception ex) {
                 logger.error(ex);
             }
+        });
+
+        sampleHandler.getDataModel().forEach(chartDataModel -> {
+            try {
+
+                String dataName = chartDataModel.getObject().getName();
+                double value = 0;
 
 
-//            chart.layout();
+                if (!chartDataModel.getSamples().isEmpty()) {
+                    logger.debug("Samples: ({}) {}", dataName, chartDataModel.getSamples());
+                    try {
+                        value = chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble();
+
+
+                    } catch (Exception ex) {
+                        value = 0;
+                    }
+                } else {
+                    logger.warn("Empty Samples for: {}", config.title.get());
+                    value = 0;
+                }
+
+                double proC = (value / total.get()) * 100;
+                if (Double.isInfinite(proC)) proC = 100;
+                if (Double.isNaN(proC)) proC = 0;
+
+                String textValue = nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnit()) + "\n" + nf.format(proC) + "%";
+
+//                    legend.getItems().add(legend.buildLegendItem(dataName, chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
+                legendItemList.add(legend.buildLegendItem(dataName, chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
+
+                javafx.scene.chart.PieChart.Data pieData = new javafx.scene.chart.PieChart.Data(textValue, value);
+                series.add(pieData);
+                colors.add(chartDataModel.getColor());
+
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        });
+
+
+        try {
+            GraphAnalysisLinkerNode dataModelNode = mapper.treeToValue(config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE), GraphAnalysisLinkerNode.class);
+            graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), dataModelNode);
+            graphAnalysisLinker.applyConfig(openAnalysisButton, sampleHandler.getDataModel(), interval);
+        } catch (Exception ex) {
+            logger.error(ex);
         }
 
 
+        /** redrawing **/
         Platform.runLater(() -> {
+            legend.getItems().setAll(legendItemList);
+
             chart.setData(series);
             applyColors(colors);
 
             legendPane.getChildren().setAll(legend);
             borderPane.setCenter(chart);
             borderPane.setRight(legendPane);
-
 
             chart.layout();
         });

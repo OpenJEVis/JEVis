@@ -54,13 +54,14 @@ public class ValueWidget extends Widget {
 
         //if config changed
         if (config.hasChanged("")) {
-            Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
-            label.setBackground(bgColor);
-            label.setTextFill(config.fontColor.getValue());
-//            label.setText(config.title.getValue());
+            Platform.runLater(() -> {
+                Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
+                label.setBackground(bgColor);
+                label.setTextFill(config.fontColor.getValue());
 
-            //need setting
-            label.setContentDisplay(ContentDisplay.CENTER);
+                label.setContentDisplay(ContentDisplay.CENTER);
+            });
+
             nf.setMinimumFractionDigits(config.decimals.getValue());
             nf.setMaximumFractionDigits(config.decimals.getValue());
         }

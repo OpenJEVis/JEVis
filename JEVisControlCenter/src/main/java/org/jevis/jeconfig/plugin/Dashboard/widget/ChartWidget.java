@@ -61,11 +61,12 @@ public class ChartWidget extends Widget {
 
             });
 
+            Platform.runLater(() -> {
+                setChartLabel((MultiAxisLineChart) lineChart.getChart(), config.fontColor.get());
+                legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+                //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
+            });
 
-            setChartLabel((MultiAxisLineChart) lineChart.getChart(), config.fontColor.get());
-
-//            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
-            legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
 
             try {
                 GraphAnalysisLinkerNode dataModelNode = mapper.treeToValue(config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE), GraphAnalysisLinkerNode.class);
@@ -81,18 +82,18 @@ public class ChartWidget extends Widget {
         sampleHandler.setInterval(interval);
         sampleHandler.update();
 
-        legend.getItems().clear();
-        sampleHandler.getDataModel().forEach(chartDataModel -> {
-            try {
-                String dataName = chartDataModel.getObject().getName();
-                legend.getItems().add(legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
-        });
-
 
         Platform.runLater(() -> {
+            legend.getItems().clear();
+            sampleHandler.getDataModel().forEach(chartDataModel -> {
+                try {
+                    String dataName = chartDataModel.getObject().getName();
+                    legend.getItems().add(legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            });
+
             lineChart.updateChart();
             lineChart.getChart().layout();
         });

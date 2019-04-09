@@ -75,7 +75,9 @@ public class ToolBarIntervalSelector extends FlowPane {
         analysis.intervalProperty.addListener((observable, oldValue, newValue) -> {
             try {
                 if (analysis.timeFrameProperty.getValue() != null) {
-                    dateButton.setText(analysis.timeFrameProperty.getValue().format(analysis.intervalProperty.getValue()));
+                    Platform.runLater(() -> {
+                        dateButton.setText(analysis.timeFrameProperty.getValue().format(analysis.intervalProperty.getValue()));
+                    });
                 }
 
 //                dateButton.setText(timeFrameBox.valueProperty().getValue().format(analysis.intervalProperty.getValue()));

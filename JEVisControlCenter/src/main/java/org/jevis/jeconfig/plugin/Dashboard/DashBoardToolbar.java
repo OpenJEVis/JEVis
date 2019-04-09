@@ -41,9 +41,9 @@ import static org.jevis.jeconfig.application.Chart.data.GraphDataModel.ORGANIZAT
 public class DashBoardToolbar extends ToolBar {
 
     private static final Logger logger = LogManager.getLogger(DashBoardToolbar.class);
-    private ComboBox<JEVisObject> listAnalysesComboBox;
     private final JEVisDataSource dataSource;
     private final DashBordPlugIn dashBordPlugIn;
+    private ComboBox<JEVisObject> listAnalysesComboBox;
     private double iconSize = 20;
     ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", iconSize, iconSize));
 
@@ -273,11 +273,14 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(runUpdateButton);
 
         analyses.updateIsRunningProperty.addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                runUpdateButton.setGraphic(pauseIcon);
-            } else {
-                runUpdateButton.setGraphic(playIcon);
-            }
+            Platform.runLater(() -> {
+                if (newValue) {
+                    runUpdateButton.setGraphic(pauseIcon);
+                } else {
+                    runUpdateButton.setGraphic(playIcon);
+                }
+            });
+
         });
 
         runUpdateButton.setOnAction(event -> {
