@@ -18,6 +18,7 @@ import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
@@ -68,17 +69,23 @@ public class PieWidget extends Widget {
 
             borderPane.setMaxWidth(config.size.getValue().getWidth());
             chart.setLabelsVisible(true);
-            chart.setLabelLineLength(10);
+            chart.setLabelLineLength(8);
             chart.setLegendVisible(false);
-            chart.setAnimated(true);
+            chart.setAnimated(false);
             chart.setMinWidth(320d);/** tmp solution for an unified look**/
             chart.setMaxWidth(320d);
+
+//            nf.setMinimumFractionDigits(config.decimals.getValue());
+//            nf.setMaximumFractionDigits(config.decimals.getValue());
+            nf.setMinimumFractionDigits(0);/** tmp solution**/
+            nf.setMaximumFractionDigits(0);
+
 
             AtomicDouble total = new AtomicDouble(0);
             sampleHandler.getDataModel().forEach(chartDataModel -> {
                 try {
                     if (!chartDataModel.getSamples().isEmpty()) {
-                        System.out.println("Pie Sample: " + chartDataModel.getSamples());
+//                        System.out.println("Pie Sample: " + chartDataModel.getSamples());
                         total.set(total.get() + chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble());
                     }
                 } catch (Exception ex) {
@@ -102,8 +109,6 @@ public class PieWidget extends Widget {
                         try {
                             value = chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble();
 
-                            nf.setMinimumFractionDigits(config.decimals.getValue());
-                            nf.setMaximumFractionDigits(config.decimals.getValue());
 
                         } catch (Exception ex) {
                             value = 0;
@@ -118,7 +123,9 @@ public class PieWidget extends Widget {
                     if (Double.isNaN(proC)) proC = 0;
 
 //                    String textValue = nf.format(proC) + "%" + " ( " + nf.format(value) + " " + chartDataModel.getUnit() + ")";
-                    String textValue = nf.format(proC) + "%";
+//                    String textValue = nf.format(proC) + "% \n test";
+                    String textValue = nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnit()) + "\n" + nf.format(proC) + "%";
+
                     legend.getItems().add(legend.buildLegendItem(dataName, chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
 //                    legend.getItems().add(buildLegendItem(
 //                            dataName + " " + textValue

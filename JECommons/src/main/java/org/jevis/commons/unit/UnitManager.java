@@ -601,6 +601,7 @@ public class UnitManager {
             //.replace("·", "");
             uString = uString.replace("(", "");
             uString = uString.replace(")", "");
+            uString = uString.replace("·", "");
             //uString = uString.replace("/", "");
             String withPrefix = getPrefixChar(junit.getPrefix()) + uString;
             return withPrefix;
