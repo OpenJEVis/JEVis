@@ -100,8 +100,8 @@ public class ToolBarIntervalSelector extends FlowPane {
         timeFrameBox.setCellFactory(cellFactory);
         timeFrameBox.setButtonCell(cellFactory.call(null));
         timeFrameBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            analysis.intervalProperty.setValue(newValue.getInterval(new DateTime()));
             analysis.timeFrameProperty.setValue(newValue);
+            analysis.intervalProperty.setValue(newValue.getInterval(new DateTime()));
         });
 
 
