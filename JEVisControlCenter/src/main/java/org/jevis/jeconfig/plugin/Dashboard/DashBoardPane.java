@@ -47,7 +47,7 @@ public class DashBoardPane extends Pane {
         this.analysis.getWidgets().forEach(widgetConfig -> {
             Widget widget = createWidget(widgetConfig);
             if (widget != null) {
-                logger.info("Add widget: {}-{}", widget.typeID(), widget.getConfig().title);
+                logger.debug("Add widget: {}-{}", widget.typeID(), widget.getConfig().title);
                 addNode(widget);
             } else {
                 logger.error("Found no widget for config: {}", widgetConfig);

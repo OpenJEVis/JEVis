@@ -61,6 +61,7 @@ public class ChartWidget extends Widget {
 
             });
 
+
             setChartLabel((MultiAxisLineChart) lineChart.getChart(), config.fontColor.get());
 
 //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));

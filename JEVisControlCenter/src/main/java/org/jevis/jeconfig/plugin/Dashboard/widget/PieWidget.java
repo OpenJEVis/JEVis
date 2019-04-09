@@ -54,7 +54,7 @@ public class PieWidget extends Widget {
 
     @Override
     public void update(Interval interval) {
-        logger.info("Pie.Update: {}", interval);
+        logger.debug("Pie.Update: {}", interval);
         chart = new PieChart();
         sampleHandler.setInterval(interval);
         sampleHandler.update();
@@ -114,7 +114,7 @@ public class PieWidget extends Widget {
                             value = 0;
                         }
                     } else {
-                        logger.error("Empty Samples");
+                        logger.warn("Empty Samples for: {}", config.title.get());
                         value = 0;
                     }
 

@@ -48,22 +48,23 @@ public class DashBordModel {
     /**
      * Update rage in seconds
      */
-    public final IntegerProperty updateRate = new SimpleIntegerProperty(new Integer(0), "Update Rate", 60) {
-        @Override
-        public void set(int newValue) {
-            if (newValue < 900) {
-                newValue = 900;
-            }
-            super.set(newValue);
-        }
-
-        @Override
-        public void setValue(Number v) {
-            if (v.intValue() < 900) {
-                v = 900;
-            }
-            super.setValue(v);
-        }
+    public final IntegerProperty updateRate = new SimpleIntegerProperty(new Integer(0), "Update Rate", 900) {
+        /** disabled the 900 min limit because its not transparent for the user in the current UI **/
+//        @Override
+//        public void set(int newValue) {
+//            if (newValue < 900) {
+//                newValue = 900;
+//            }
+//            super.set(newValue);
+//        }
+//
+//        @Override
+//        public void setValue(Number v) {
+//            if (v.intValue() < 900) {
+//                v = 900;
+//            }
+//            super.setValue(v);
+//        }
     };
     /**
      * Interval between each x axis grid line
@@ -131,6 +132,7 @@ public class DashBordModel {
      * 1.5 is 150% of the original size
      */
     public final DoubleProperty zoomFactor = new SimpleDoubleProperty(Double.class, "Zoom Factor", 1.0d) {
+
         @Override
         public void set(double value) {
 
@@ -442,7 +444,7 @@ public class DashBordModel {
             snapToGridProperty.setValue((boolean) userConfig.get(snapToGridProperty.getName()).getObject());
             xGridInterval.setValue((Double) userConfig.get(xGridInterval.getName()).getObject());
             yGridInterval.setValue((Double) userConfig.get(yGridInterval.getName()).getObject());
-
+            updateRate.setValue((Integer) userConfig.get(updateRate.getName()).getObject());
             changeListeners.forEach(listener -> {
                 listener.stateChanged(new ChangeEvent(this));
             });

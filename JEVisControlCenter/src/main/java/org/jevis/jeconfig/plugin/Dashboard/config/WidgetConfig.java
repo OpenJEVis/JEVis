@@ -112,7 +112,7 @@ public class WidgetConfig {
 //                System.out.println("DATA_HANDLER_NODE: " + dataHandlerJson);
 //                dataHandlerNode = jsonNode.get(DATA_HANDLER_NODE);
             } else {
-                logger.error("------ missing json node: {}", DATA_HANDLER_NODE);
+                logger.debug("------ missing json node: {}", DATA_HANDLER_NODE);
             }
 
             if (jsonNode.get(WIDGET_SETTINGS_NODE) != null) {
