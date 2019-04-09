@@ -47,32 +47,43 @@ public class FTPDataSource implements DataSource {
 
     @Override
     public void run() {
-
+        logger.debug("Run FTp DataSource");
         for (JEVisObject channel : _channels) {
-
+            logger.debug("Start Channel: [{}] {}", channel.getID(), channel.getName());
             try {
                 _result = new ArrayList<Result>();
+
                 JEVisClass parserJevisClass = channel.getDataSource().getJEVisClass(DataCollectorTypes.Parser.NAME);
+                logger.debug("parser.class: ", parserJevisClass.getName());
                 JEVisObject parser = channel.getChildren(parserJevisClass, true).get(0);
+                logger.debug("parser.object: ", parser.getID());
 
                 _parser = ParserFactory.getParser(parser);
                 _parser.initialize(parser);
 
+                logger.debug("Parser.initialize");
+
+                logger.debug("sending request");
                 List<InputStream> input = this.sendSampleRequest(channel);
 
+                logger.debug("sending request - done");
                 if (!input.isEmpty()) {
+                    logger.debug("input is not empty: {}, start parsing", input.size());
                     this.parse(input);
+                    logger.debug("parsing - done");
                 }
 
                 if (!_result.isEmpty()) {
-
+                    logger.debug("result is not empty {}, start import", _result.size());
 //                    this.importResult();
 //
 //                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
                     JEVisImporterAdapter.importResults(_result, _importer, channel);
+                    logger.debug("import done");
                 }
             } catch (Exception ex) {
                 logger.error(ex);
+                ex.printStackTrace();
             }
         }
     }
