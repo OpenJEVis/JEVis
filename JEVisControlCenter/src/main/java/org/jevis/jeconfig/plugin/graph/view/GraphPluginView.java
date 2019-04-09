@@ -608,6 +608,7 @@ public class GraphPluginView implements Plugin {
     public void openObject(Object object) {
         try {
             if (object instanceof AnalysisRequest) {
+                this.dataModel = new GraphDataModel(ds, this);
                 AnalysisRequest analysisRequest = (AnalysisRequest) object;
                 JEVisObject jeVisObject = analysisRequest.getObject();
                 if (jeVisObject.getJEVisClassName().equals("Analysis")) {
