@@ -13,6 +13,24 @@ public class DataPointNode {
     private AggregationPeriod aggregationPeriod;
     private Color color;
 
+    private boolean enpi = false;
+    private Long calculationID;
+
+    public boolean isEnpi() {
+        return enpi;
+    }
+
+    public void setEnpi(boolean enpi) {
+        this.enpi = enpi;
+    }
+
+    public Long getCalculationID() {
+        return calculationID;
+    }
+
+    public void setCalculationID(Long calculationID) {
+        this.calculationID = calculationID;
+    }
 
     public Long getObjectID() {
         return objectID;

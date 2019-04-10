@@ -73,7 +73,7 @@ import java.util.prefs.Preferences;
 public class JEConfig extends Application {
 
     /*
-    TODO: Make the config into an singelton
+    TODO: Make the config into an singleton
      */
     private final static Configuration _config = new Configuration();
     private static final Logger logger = LogManager.getLogger(JEConfig.class);
@@ -82,7 +82,7 @@ public class JEConfig extends Application {
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
      */
     public static String userpassword;
-    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.7.4");
+    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.7.5");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
@@ -117,7 +117,7 @@ public class JEConfig extends Application {
     }
 
     /**
-     * Set the last path the user selected for an file opration
+     * Set the last path the user selected for an file operation
      *
      * @param file
      * @deprecated Will be moved into the Configuration -> user settings

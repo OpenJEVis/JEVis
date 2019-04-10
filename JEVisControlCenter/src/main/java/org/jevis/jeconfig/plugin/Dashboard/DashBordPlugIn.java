@@ -40,7 +40,7 @@ import java.io.FileOutputStream;
 public class DashBordPlugIn implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(DashBordPlugIn.class);
-    public static String CLASS_ANALYSIS = "Dashboard Analysis", CLASS_ANALYSIS_DIR = "Analyses Directory", ATTRIBUTE_DATA_MODEL = "Data Model", ATTRIBUTE_BACKGROUND = "Background";
+    public static String CLASS_ANALYSIS = "Dashboard Analysis", CLASS_ANALYSIS_DIR = "Analyses Directory", ATTRIBUTE_DATA_MODEL_FILE = "Data Model File", ATTRIBUTE_DATA_MODEL = "Data Model", ATTRIBUTE_BACKGROUND = "Background";
     public static String PLUGIN_NAME = "Dashboard Plugin";
     private final DashBoardToolbar toolBar;
     private StringProperty nameProperty = new SimpleStringProperty("Dashboard");

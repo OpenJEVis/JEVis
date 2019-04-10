@@ -13,7 +13,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.calculation.CalcJob;
+import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
@@ -22,6 +25,7 @@ import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ValueWidget extends Widget {
@@ -43,31 +47,48 @@ public class ValueWidget extends Widget {
 
     @Override
     public void update(Interval interval) {
-        logger.info("Value.Update: {}", interval);
+        logger.debug("Value.Update: {}", interval);
 
         sampleHandler.setInterval(interval);
         sampleHandler.update();
 
         //if config changed
         if (config.hasChanged("")) {
-            Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
-            label.setBackground(bgColor);
-            label.setTextFill(config.fontColor.getValue());
-//            label.setText(config.title.getValue());
+            Platform.runLater(() -> {
+                Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
+                label.setBackground(bgColor);
+                label.setTextFill(config.fontColor.getValue());
 
-            //need setting
-            label.setContentDisplay(ContentDisplay.CENTER);
-            nf.setMaximumFractionDigits(4);
+                label.setContentDisplay(ContentDisplay.CENTER);
+            });
+
+            nf.setMinimumFractionDigits(config.decimals.getValue());
+            nf.setMaximumFractionDigits(config.decimals.getValue());
         }
 
 
         Platform.runLater(() -> {
             try {
                 ChartDataModel dataModel = sampleHandler.getDataModel().get(0);
-                List<JEVisSample> sampleList = dataModel.getSamples();
-                if (!sampleList.isEmpty()) {
-                    label.setText(nf.format(sampleList.get(sampleList.size() - 1).getValueAsDouble()) + " " + UnitManager.getInstance().format(dataModel.getUnit()));
+                List<JEVisSample> results = new ArrayList<>();
+                String unit = UnitManager.getInstance().format(dataModel.getUnit());
+
+                if (dataModel.getEnPI()) {
+                    CalcJobFactory calcJobCreator = new CalcJobFactory();
+
+                    CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataModel.getObject().getDataSource(), dataModel.getCalculationObject(),
+                            dataModel.getSelectedStart(), dataModel.getSelectedEnd(), true);
+
+                    results = calcJob.getResults();
+
+                } else {
+                    results = dataModel.getSamples();
                 }
+
+                if (!results.isEmpty()) {
+                    label.setText(nf.format(results.get(results.size() - 1).getValueAsDouble()) + " " + unit);
+                }
+
 
             } catch (Exception ex) {
                 label.setText("-");

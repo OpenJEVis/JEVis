@@ -43,29 +43,28 @@ import java.util.*;
  */
 public class DashBordModel {
     private static final Logger logger = LogManager.getLogger(DashBordModel.class);
-
-
     private final static String GENERAL_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupgeneral"), UPPER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.groupupperlimitl"), LOWER_LIMIT_GROUP = I18n.getInstance().getString("plugin.scada.element.setting.label.grouplowerlimit");
     public final BooleanProperty updateIsRunningProperty = new SimpleBooleanProperty(Boolean.class, "run Updater", false);
     /**
      * Update rage in seconds
      */
-    public final IntegerProperty updateRate = new SimpleIntegerProperty(new Integer(0), "Update Rate", 60) {
-        @Override
-        public void set(int newValue) {
-            if (newValue < 900) {
-                newValue = 900;
-            }
-            super.set(newValue);
-        }
-
-        @Override
-        public void setValue(Number v) {
-            if (v.intValue() < 900) {
-                v = 900;
-            }
-            super.setValue(v);
-        }
+    public final IntegerProperty updateRate = new SimpleIntegerProperty(new Integer(0), "Update Rate", 900) {
+        /** disabled the 900 min limit because its not transparent for the user in the current UI **/
+//        @Override
+//        public void set(int newValue) {
+//            if (newValue < 900) {
+//                newValue = 900;
+//            }
+//            super.set(newValue);
+//        }
+//
+//        @Override
+//        public void setValue(Number v) {
+//            if (v.intValue() < 900) {
+//                v = 900;
+//            }
+//            super.setValue(v);
+//        }
     };
     /**
      * Interval between each x axis grid line
@@ -112,13 +111,12 @@ public class DashBordModel {
      * Current displayed interval
      */
     public final ObjectProperty<Interval> displayedIntervalProperty = new SimpleObjectProperty(Interval.class, "Data Interval", new Interval(new DateTime(), new DateTime()));
-
-
     public final ObjectProperty<Size> pageSize = new SimpleObjectProperty<>(new Size(1080, 1600));
     public final ObjectProperty<Interval> intervalProperty = new SimpleObjectProperty<>();
     public final ObjectProperty<DateTime> dateTimereferrenzProperty = new SimpleObjectProperty<>(new DateTime());
     private final List<ChangeListener> changeListeners = new ArrayList<>();
     private final JEVisDataSource jeVisDataSource;
+    private ObjectMapper mapper = new ObjectMapper();
     private TimeFrames timeFrames = new TimeFrames();
     public final ObjectProperty<TimeFrameFactory> timeFrameProperty = new SimpleObjectProperty<>(timeFrames.day());
     private JEVisObject analysisObject;
@@ -134,6 +132,7 @@ public class DashBordModel {
      * 1.5 is 150% of the original size
      */
     public final DoubleProperty zoomFactor = new SimpleDoubleProperty(Double.class, "Zoom Factor", 1.0d) {
+
         @Override
         public void set(double value) {
 
@@ -181,17 +180,50 @@ public class DashBordModel {
         widgetList.add(config);
     }
 
+    /**
+     * This function will migrate an existing json string configuration into the new file format
+     * <p>
+     * Todo: remove this function later of every analysis was converted
+     */
+    private void migradeOldVersion(JEVisObject analysisObj) {
+        logger.info("Check configuration settings");
+
+        try {
+            if (analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).hasSample()) {
+                logger.info("is file format - return");
+                return;
+            } else {
+                /** convert **/
+                JEVisSample lastConfigSample = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).getLatestSample();
+                if (lastConfigSample == null) {
+                    logger.error("Missing Json configuration");
+                    String json = lastConfigSample.getValueAsString();
+
+                    return;
+                } else {
+
+                }
+
+            }
+
+
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+
+
+    }
+
     private void load() {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            JEVisSample lastConfigSample = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).getLatestSample();
+            JEVisSample lastConfigSample = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
             if (lastConfigSample == null) {
-                logger.error("Missing Json configuration");
+                logger.error("Missing Json File configuration");
                 return;
             }
-            String json = lastConfigSample.getValueAsString();
 
-            JsonNode jsonNode = mapper.readTree(json);
+            JEVisFile file = lastConfigSample.getValueAsFile();
+            JsonNode jsonNode = mapper.readTree(file.getBytes());
 
             try {
                 Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
@@ -412,7 +444,7 @@ public class DashBordModel {
             snapToGridProperty.setValue((boolean) userConfig.get(snapToGridProperty.getName()).getObject());
             xGridInterval.setValue((Double) userConfig.get(xGridInterval.getName()).getObject());
             yGridInterval.setValue((Double) userConfig.get(yGridInterval.getName()).getObject());
-
+            updateRate.setValue((Integer) userConfig.get(updateRate.getName()).getObject());
             changeListeners.forEach(listener -> {
                 listener.stateChanged(new ChangeEvent(this));
             });

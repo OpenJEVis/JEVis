@@ -20,6 +20,15 @@
       "jevisClass": "Dashboard Analysis"
     },
     {
+      "name": "Data Model File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Dashboard Analysis"
+    },
+    {
       "name": "Background",
       "primitiveType": 3,
       "guiType": "File Selector",

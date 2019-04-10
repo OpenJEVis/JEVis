@@ -155,7 +155,7 @@ public class TimeFrames {
 
             @Override
             public String format(Interval interval) {
-                return DateTimeFormat.forPattern("MMMM yy").print(interval.getEnd());
+                return DateTimeFormat.forPattern("MMMM yyyy").print(interval.getEnd());
             }
 
             @Override

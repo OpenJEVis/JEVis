@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.Dashboard.datahandler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -32,19 +31,21 @@ import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DataModelDataHandler {
+
     public final static String TYPE = "SimpleDataHandler";
     private static final Logger logger = LogManager.getLogger(DataModelDataHandler.class);
     private final JEVisDataSource jeVisDataSource;
     public ObjectProperty<DateTime> lastUpdate = new SimpleObjectProperty<>();
-    public UUID uuid = UUID.randomUUID();
     Map<String, JEVisAttribute> attributeMap = new HashMap<>();
     private BooleanProperty enableMultiSelect = new SimpleBooleanProperty(false);
     private StringProperty unitProperty = new SimpleStringProperty("");
     private SimpleTargetPlugin simpleTargetPlugin = new SimpleTargetPlugin();
-    private ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
     private List<ChartDataModel> chartDataModels = new ArrayList<>();
     private ObjectProperty<Interval> durationProperty = new SimpleObjectProperty<>();
     private DataModelNode dataModelNode = new DataModelNode();
@@ -101,15 +102,23 @@ public class DataModelDataHandler {
 
 
                         attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
+
+//                        logger.info("Is Enpi: {}, calcID: {}", dataPointNode.isEnpi(), dataPointNode.getCalculationID());
+                        if (dataPointNode.isEnpi()) {
+                            chartDataModel.setEnPI(dataPointNode.isEnpi());
+                            chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
+                        }
+
                     } else {
                         logger.error("Attribute does not exist: {}", dataPointNode.getAttribute());
                     }
+
 
                 } else {
                     logger.error("Object not found: {}", dataPointNode.getObjectID());
                 }
             } catch (Exception ex) {
-                logger.error(ex);
+                logger.error("Error in line {}: ", ex.getStackTrace()[0].getLineNumber(), ex.getStackTrace()[0]);
             }
 
         });
