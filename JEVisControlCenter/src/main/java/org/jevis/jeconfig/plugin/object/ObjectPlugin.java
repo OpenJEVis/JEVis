@@ -94,12 +94,13 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
-//        if (tree.getSelectionModel().getSelectedItem() == null) {
         try {
+
             if (tree.getSelectionModel().getSelectedItem() == null) {
                 Platform.runLater(() -> {
                     try {
-                        tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
+                        /** disabled for now, nils dont like it if the analisis folder is open every time **/
+//                        tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
                         tree.getSelectionModel().selectFirst();
                     } catch (Exception ex) {
                     }
