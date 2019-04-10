@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -22,6 +23,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -92,6 +94,7 @@ public class XYChartSerie {
         double avg = 0.0;
         Double sum = 0.0;
 
+        List<MultiAxisChart.Data<Number, Number>> dataList = new ArrayList<>();
         for (JEVisSample sample : samples) {
             try {
 //                int index = samples.indexOf(sample);
@@ -105,7 +108,6 @@ public class XYChartSerie {
 
                 Long timestamp = dateTime.getMillis();
 
-//                MultiAxisChart.Data<Number, Number> data = serie.getData().get(index);
                 MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>();
                 data.setXValue(timestamp);
                 data.setYValue(currentValue);
@@ -115,15 +117,18 @@ public class XYChartSerie {
                 data.setNode(generateNode(sample));
 
                 setDataNodeColor(data);
-
-                serie.getData().add(data);
+                dataList.add(data);
 
                 sampleMap.put(dateTime, sample);
 
-            } catch (JEVisException e) {
-
+            } catch (Exception ex) {
+                logger.error(ex);
             }
         }
+        Platform.runLater(() -> {
+            serie.getData().setAll(dataList);
+        });
+
 
         QuantityUnits qu = new QuantityUnits();
         boolean isQuantity = qu.isQuantityUnit(unit);
