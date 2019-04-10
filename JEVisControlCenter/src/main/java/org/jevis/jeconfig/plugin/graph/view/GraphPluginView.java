@@ -608,19 +608,25 @@ public class GraphPluginView implements Plugin {
     public void openObject(Object object) {
         try {
             if (object instanceof AnalysisRequest) {
-                this.dataModel = new GraphDataModel(ds, this);
+
+
                 AnalysisRequest analysisRequest = (AnalysisRequest) object;
                 JEVisObject jeVisObject = analysisRequest.getObject();
                 if (jeVisObject.getJEVisClassName().equals("Analysis")) {
+
                     dataModel.setCurrentAnalysis(jeVisObject);
                     toolBarView.getPickerCombo().updateCellFactory();
                     dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
                     dataModel.setGlobalAnalysisTimeFrame(analysisRequest.getAnalysisTimeFrame());
+                    dataModel.setCharts(dataModel.getCharts());
+
                     dataModel.getSelectedData().forEach(chartDataModel -> {
                         chartDataModel.setSelectedStart(analysisRequest.getStartDate());
                         chartDataModel.setSelectedEnd(analysisRequest.getEndDate());
                     });
+                    dataModel.updateSamples();
+
                     dataModel.isGlobalAnalysisTimeFrame(true);
 
                     toolBarView.removeAnalysisComboBoxListener();
@@ -640,9 +646,10 @@ public class GraphPluginView implements Plugin {
 
                     toolBarView.setDisableToolBarIcons(false);
 
-                    dataModel.updateSamples();
-                    dataModel.setCharts(dataModel.getCharts());
                     dataModel.setSelectedData(dataModel.getSelectedData());
+
+//                    handleRequest(Constants.Plugin.Command.RELOAD);
+
                 } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
                     ChartDataModel chartDataModel = new ChartDataModel(ds);
 

@@ -54,7 +54,9 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * @author fs
+ * Collection of commen JEVisTree operations
+ *
+ * @author florian.simon@envidatec.com
  */
 public class TreeHelper {
 
