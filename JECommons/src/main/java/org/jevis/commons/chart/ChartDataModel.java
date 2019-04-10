@@ -120,6 +120,10 @@ public class ChartDataModel {
         return samples;
     }
 
+    public void setSamples(List<JEVisSample> samples) {
+        this.samples = samples;
+    }
+
     private void AddZerosForMissingValues() throws JEVisException {
         if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE)) {
             Period displaySampleRate = getAttribute().getDisplaySampleRate();
@@ -145,10 +149,6 @@ public class ChartDataModel {
                 }
             }
         }
-    }
-
-    public void setSamples(List<JEVisSample> samples) {
-        this.samples = samples;
     }
 
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) throws JEVisException {
