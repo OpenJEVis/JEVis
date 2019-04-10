@@ -189,7 +189,6 @@ public class PluginManager {
 
 
             try {
-                System.out.println("Order: " + _plugins);
                 Comparator<Plugin> pluginComparator = new Comparator<Plugin>() {
                     @Override
                     public int compare(Plugin o1, Plugin o2) {
@@ -204,7 +203,6 @@ public class PluginManager {
                     }
                 };
                 Collections.sort(_plugins, pluginComparator);
-                System.out.println("Order: " + _plugins);
 
 //                        Collections.swap(_plugins, 0, 1);
             } catch (Exception e) {
