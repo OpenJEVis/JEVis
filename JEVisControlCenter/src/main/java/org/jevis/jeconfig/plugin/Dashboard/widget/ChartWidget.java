@@ -67,21 +67,26 @@ public class ChartWidget extends Widget {
                 //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
             });
 
-
-            try {
-                GraphAnalysisLinkerNode dataModelNode = mapper.treeToValue(config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE), GraphAnalysisLinkerNode.class);
-                graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), dataModelNode);
-                graphAnalysisLinker.applyConfig(openAnalysisButton, sampleHandler.getDataModel(), interval);
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
-
         }
 
 
         sampleHandler.setInterval(interval);
         sampleHandler.update();
 
+
+        try {
+            if (config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE) != null) {
+                GraphAnalysisLinkerNode dataModelNode = mapper.treeToValue(config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE), GraphAnalysisLinkerNode.class);
+                graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), dataModelNode);
+                graphAnalysisLinker.applyConfig(openAnalysisButton, sampleHandler.getDataModel(), interval);
+            } else {
+                openAnalysisButton.setVisible(false);
+                logger.warn("no linker set");
+            }
+
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
 
         Platform.runLater(() -> {
             legend.getItems().clear();

@@ -291,11 +291,14 @@ public class DashBordModel {
                 JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
                 if (bgFile != null && bgFile.hasSample()) {
                     JEVisSample backgroundImage = bgFile.getLatestSample();
-                    JEVisFile imageFile = backgroundImage.getValueAsFile();
-                    InputStream in = new ByteArrayInputStream(imageFile.getBytes());
+                    if (backgroundImage != null) {
+                        JEVisFile imageFile = backgroundImage.getValueAsFile();
+                        InputStream in = new ByteArrayInputStream(imageFile.getBytes());
 //                    BufferedImage image = ImageIO.read(in);
-                    imageBoardBackground.setValue(new Image(in));
-                    logger.info("Done loading image");
+                        imageBoardBackground.setValue(new Image(in));
+                        logger.info("Done loading image");
+                    }
+
                 } else {
                     logger.info("No image set");
                 }
