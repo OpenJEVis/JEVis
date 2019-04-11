@@ -522,9 +522,6 @@ public class SQLDataSource {
                 }
             });
 
-            System.out.println("-result: " + result.size());
-
-
             return result;
         } catch (Exception ex) {
             logger.error("Error while loading AllAttributes", ex);

@@ -607,6 +607,7 @@ public class GraphPluginView implements Plugin {
     @Override
     public void openObject(Object object) {
         try {
+            firstStart = false;
             if (object instanceof AnalysisRequest) {
 
 

@@ -20,7 +20,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.Dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
@@ -67,7 +66,7 @@ public class PieWidget extends Widget {
 
             borderPane.setMaxWidth(config.size.getValue().getWidth());
             chart.setLabelsVisible(true);
-            chart.setLabelLineLength(8);
+            chart.setLabelLineLength(10);
             chart.setLegendVisible(false);
             chart.setAnimated(false);
             chart.setMinWidth(320d);/** tmp solution for an unified look**/
@@ -125,7 +124,8 @@ public class PieWidget extends Widget {
                 if (Double.isInfinite(proC)) proC = 100;
                 if (Double.isNaN(proC)) proC = 0;
 
-                String textValue = nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnit()) + "\n" + nf.format(proC) + "%";
+//                String textValue = nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnit()) + "\n" + nf.format(proC) + "%";
+                String textValue = nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + nf.format(proC) + "%";
 
 //                    legend.getItems().add(legend.buildLegendItem(dataName, chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
                 legendItemList.add(legend.buildLegendItem(dataName, chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
@@ -141,13 +141,13 @@ public class PieWidget extends Widget {
         });
 
 
-        try {
-            GraphAnalysisLinkerNode dataModelNode = mapper.treeToValue(config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE), GraphAnalysisLinkerNode.class);
-            graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), dataModelNode);
-            graphAnalysisLinker.applyConfig(openAnalysisButton, sampleHandler.getDataModel(), interval);
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
+//        try {
+//            GraphAnalysisLinkerNode dataModelNode = mapper.treeToValue(config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE), GraphAnalysisLinkerNode.class);
+//            graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), dataModelNode);
+//            graphAnalysisLinker.applyConfig(openAnalysisButton, sampleHandler.getDataModel(), interval);
+//        } catch (Exception ex) {
+//            logger.error(ex);
+//        }
 
 
         /** redrawing **/
@@ -186,8 +186,8 @@ public class PieWidget extends Widget {
         series.add(new javafx.scene.chart.PieChart.Data("C", 1));
         series.add(new javafx.scene.chart.PieChart.Data("D", 1));
 
-        graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), null);
-        openAnalysisButton = graphAnalysisLinker.buildLinkerButton();
+//        graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), null);
+//        openAnalysisButton = graphAnalysisLinker.buildLinkerButton();
 
         legendPane.setPadding(new Insets(10, 5, 5, 0));
 

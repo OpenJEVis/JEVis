@@ -17,7 +17,6 @@ import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.SampleHandler;
-import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
@@ -25,7 +24,6 @@ import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ValueWidget extends Widget {
@@ -70,8 +68,10 @@ public class ValueWidget extends Widget {
         Platform.runLater(() -> {
             try {
                 ChartDataModel dataModel = sampleHandler.getDataModel().get(0);
-                List<JEVisSample> results = new ArrayList<>();
-                String unit = UnitManager.getInstance().format(dataModel.getUnit());
+                List<JEVisSample> results;
+
+                String unit = dataModel.getUnitLabel();
+
 
                 if (dataModel.getEnPI()) {
                     CalcJobFactory calcJobCreator = new CalcJobFactory();

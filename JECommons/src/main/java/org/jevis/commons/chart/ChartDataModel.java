@@ -47,6 +47,19 @@ public class ChartDataModel {
         this.dataSource = dataSource;
     }
 
+    public String getUnitLabel() {
+        JEVisUnit jUnit = getUnit();
+
+        String unit = UnitManager.getInstance().format(jUnit);
+        if (jUnit.getLabel() != null && !jUnit.getLabel().isEmpty()) {
+            unit = UnitManager.getInstance().format(jUnit.getLabel());
+
+        }
+
+
+        return unit;
+    }
+
     public JEVisUnit getUnit() {
         try {
             if (unit == null) {
@@ -73,7 +86,6 @@ public class ChartDataModel {
             somethingChanged = false;
 
             setSamples(new ArrayList<>());
-
             if (getSelectedStart().isBefore(getSelectedEnd())) {
                 try {
 
@@ -87,7 +99,6 @@ public class ChartDataModel {
                         samples = sg.generateSamples();
                         samples = sg.getAggregatedSamples(samples);
                         samples = factorizeSamples(samples);
-
                         AddZerosForMissingValues();
                     } else {
                         CalcJobFactory calcJobCreator = new CalcJobFactory();
@@ -120,6 +131,10 @@ public class ChartDataModel {
         return samples;
     }
 
+    public void setSamples(List<JEVisSample> samples) {
+        this.samples = samples;
+    }
+
     private void AddZerosForMissingValues() throws JEVisException {
         if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE)) {
             Period displaySampleRate = getAttribute().getDisplaySampleRate();
@@ -145,10 +160,6 @@ public class ChartDataModel {
                 }
             }
         }
-    }
-
-    public void setSamples(List<JEVisSample> samples) {
-        this.samples = samples;
     }
 
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) throws JEVisException {

@@ -175,7 +175,7 @@ public class UserRightManagerForWS {
             }
         });
 
-        System.out.println("relationships after filter: " + list.size());
+//        System.out.println("relationships after filter: " + list.size());
         return list;
     }
 

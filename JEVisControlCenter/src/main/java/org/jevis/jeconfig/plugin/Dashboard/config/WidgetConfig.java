@@ -131,11 +131,15 @@ public class WidgetConfig {
     }
 
     public String getDataHandlerJson() {
-
         return dataHandlerJson;
     }
 
     public JsonNode getConfigNode(String name) {
+//        System.out.println("getConfigNode");
+//        jsonNode.fields().forEachRemaining(stringJsonNodeEntry -> {
+//            System.out.println("node: " + stringJsonNodeEntry.getKey() + ": " + stringJsonNodeEntry.getValue());
+//        });
+
         return jsonNode.get(name);
     }
 
