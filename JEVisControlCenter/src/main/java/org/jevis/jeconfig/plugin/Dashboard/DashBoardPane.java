@@ -139,6 +139,10 @@ public class DashBoardPane extends Pane {
 
         Timer timer = new Timer(true);
 
+        analysis.intervalProperty.addListener((observable, oldValue, newValue) -> {
+            logger.debug("New Interval: {}", newValue);
+        });
+
         analysis.updateIsRunningProperty.addListener((observable, oldValue, newValue) -> {
             if (updateTask != null) {
                 try {
@@ -202,6 +206,8 @@ public class DashBoardPane extends Pane {
 
     public Interval buildInterval() {
         analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().getInterval(DateTime.now()));
+//        logger.error("New Interval: " + analysis.intervalProperty.getValue());
+
         return analysis.intervalProperty.getValue();
     }
 

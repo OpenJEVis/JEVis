@@ -134,7 +134,7 @@ public class TimeFrames {
         return new TimeFrameFactory() {
             @Override
             public String getID() {
-                return TimeFrameType.YEAR.toString();
+                return TimeFrameType.MONTH.toString();
             }
 
             @Override
@@ -160,8 +160,15 @@ public class TimeFrames {
 
             @Override
             public Interval getInterval(DateTime dateTime) {
-                DateTime start = dateTime.withDayOfMonth(1).withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                DateTime end = dateTime.withDayOfMonth(dateTime.dayOfMonth().getMaximumValue()).withDayOfWeek(7).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
+                int lastDayInMonth = dateTime.dayOfMonth().getMaximumValue();
+                DateTime start = dateTime.withDayOfMonth(1)
+                        .withDayOfWeek(1)
+                        .withHourOfDay(0)
+                        .withMinuteOfHour(0)
+                        .withSecondOfMinute(0)
+                        .withMillisOfSecond(0);
+                DateTime end = new DateTime(dateTime.getYear(), dateTime.getMonthOfYear(), lastDayInMonth, 23, 59, 59, 999);
+
                 return new Interval(start, end);
             }
         };
@@ -198,7 +205,9 @@ public class TimeFrames {
             @Override
             public Interval getInterval(DateTime dateTime) {
                 DateTime start = dateTime.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-                DateTime end = dateTime.withMonthOfYear(12).withDayOfMonth(dateTime.dayOfMonth().getMaximumValue()).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
+//                DateTime end = dateTime.withMonthOfYear(12).withDayOfMonth(dateTime.dayOfMonth().getMaximumValue()).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
+                DateTime end = new DateTime(dateTime.getYear(), 12, 31, 23, 59, 59, 999);
+
                 return new Interval(start, end);
             }
         };
