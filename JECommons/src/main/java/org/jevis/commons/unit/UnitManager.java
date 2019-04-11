@@ -595,14 +595,20 @@ public class UnitManager {
         return nonSI;
     }
 
+    public String format(String uString) {
+        uString = uString.replace("(", "");
+        uString = uString.replace(")", "");
+        uString = uString.replace("·", "");
+        return uString;
+    }
+
     public String format(JEVisUnit junit) {
         if (junit != null && junit.getFormula() != null) {
             String uString = junit.getFormula();
-            //.replace("·", "");
-            uString = uString.replace("(", "");
-            uString = uString.replace(")", "");
-            uString = uString.replace("·", "");
-            //uString = uString.replace("/", "");
+            uString = format(uString);
+//            uString = uString.replace("(", "");
+//            uString = uString.replace(")", "");
+//            uString = uString.replace("·", "");
             String withPrefix = getPrefixChar(junit.getPrefix()) + uString;
             return withPrefix;
         } else {
