@@ -274,7 +274,11 @@ public class XYChart implements Chart {
 
         String overall = "-";
         if (changedBoth[0] || changedBoth[1]) {
-            Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
+            /** FS, works for Dashboard but not diagrams. This and the old Solution does not work for diagrams but i guess
+             * its not in problem in this function by somewhere else **/
+            Period samplePeriod = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
+            Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get().plus(samplePeriod));
+//            Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get());//old
             period = period.minusSeconds(period.getSeconds());
             period = period.minusMillis(period.getMillis());
             overall = period.toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
