@@ -31,13 +31,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.*;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-@Path("/api/rest/cleanup")
+@Path("/api/rest/manage")
 public class ResourceHidden {
 
     @GET
+    @Path("cleanup")
     public Response cleanup(@Context HttpHeaders httpHeaders,
                             @Context Request request,
                             @Context UriInfo url) {
@@ -46,11 +46,11 @@ public class ResourceHidden {
             ds = new SQLDataSource(httpHeaders, request, url);
             ds.getProfiler().addEvent("AttributeResource", "Start");
 
-            if(ds.getUserManager().isSysAdmin()){
+            if (ds.getUserManager().isSysAdmin()) {
                 Service service = new Service(ds);
                 service.cleanup();
                 return Response.ok().build();
-            }else{
+            } else {
                 throw new AuthenticationException("No sysadmin");
             }
 
@@ -63,4 +63,33 @@ public class ResourceHidden {
         }
 
     }
+
+    @GET
+    @Path("gc")
+    public Response gc(@Context HttpHeaders httpHeaders,
+                       @Context Request request,
+                       @Context UriInfo url) {
+        SQLDataSource ds = null;
+        try {
+            ds = new SQLDataSource(httpHeaders, request, url);
+            ds.getProfiler().addEvent("AttributeResource", "Start");
+
+            if (ds.getUserManager().isSysAdmin()) {
+                System.gc();
+
+                return Response.ok().build();
+            } else {
+                throw new AuthenticationException("No sysadmin");
+            }
+
+        } catch (JEVisException jex) {
+            return Response.serverError().entity(ExceptionUtils.getStackTrace(jex)).build();
+        } catch (AuthenticationException ex) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+        } finally {
+            Config.CloseDS(ds);
+        }
+
+    }
+
 }

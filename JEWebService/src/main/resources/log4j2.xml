@@ -6,24 +6,28 @@
             <PatternLayout pattern="[%logger{1}.%M|%L] - %msg%n"/>
         </Console>
     </Appenders>
+    <appender name="async" class="org.apache.log4j.AsyncAppender">
+        <param name="BufferSize" value="128"/>
+        <appender-ref ref="Console"/>
+    </appender>
     <Loggers>
         <Logger name="org.jevis.api.sql" level="error" additivity="false">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="async"/>
         </Logger>
         <Logger name="org.jevis.jeconfig.application" level="error" additivity="false">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="async"/>
         </Logger>
         <Logger name="org.jevis.jeconfig" level="error" additivity="false">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="async"/>
         </Logger>
         <Logger name="org.jevis.jeapi.ws" level="info" additivity="false">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="async"/>
         </Logger>
-        <Logger name="org.jevis.rest" level="debug" additivity="false">
-            <AppenderRef ref="Console"/>
+        <Logger name="org.jevis.rest" level="error" additivity="false">
+            <AppenderRef ref="async"/>
         </Logger>
         <Logger name="org.jevis.sql.internal" level="error" additivity="false">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="async"/>
         </Logger>
         <!--
         <Root level="trace">
