@@ -47,6 +47,19 @@ public class ChartDataModel {
         this.dataSource = dataSource;
     }
 
+    public String getUnitLabel() {
+        JEVisUnit jUnit = getUnit();
+
+        String unit = UnitManager.getInstance().format(jUnit);
+        if (jUnit.getLabel() != null && !jUnit.getLabel().isEmpty()) {
+            unit = UnitManager.getInstance().format(jUnit.getLabel());
+
+        }
+
+
+        return unit;
+    }
+
     public JEVisUnit getUnit() {
         try {
             if (unit == null) {
@@ -73,7 +86,6 @@ public class ChartDataModel {
             somethingChanged = false;
 
             setSamples(new ArrayList<>());
-
             if (getSelectedStart().isBefore(getSelectedEnd())) {
                 try {
 
@@ -87,7 +99,6 @@ public class ChartDataModel {
                         samples = sg.generateSamples();
                         samples = sg.getAggregatedSamples(samples);
                         samples = factorizeSamples(samples);
-
                         AddZerosForMissingValues();
                     } else {
                         CalcJobFactory calcJobCreator = new CalcJobFactory();
