@@ -1,15 +1,18 @@
 package org.jevis.jeconfig.plugin.Dashboard;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Cursor;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Line;
 import javafx.scene.transform.Scale;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Size;
@@ -37,6 +40,7 @@ public class DashBoardPane extends Pane {
 
     public DashBoardPane(DashBordModel analysis) {
         super();
+        showLoading(true);
 
         this.analysis = analysis;
 
@@ -76,6 +80,23 @@ public class DashBoardPane extends Pane {
         this.analysis.pageSize.addListener((observable, oldValue, newValue) -> {
             setSize(newValue);
         });
+
+
+        showLoading(false);
+
+    }
+
+    private void showLoading(boolean isLoading) {
+
+        if (isLoading) {
+            Platform.runLater(() -> {
+                JEConfig.getStage().getScene().setCursor(Cursor.WAIT);
+            });
+        } else {
+            Platform.runLater(() -> {
+                JEConfig.getStage().getScene().setCursor(Cursor.DEFAULT);
+            });
+        }
 
 
     }
@@ -179,7 +200,10 @@ public class DashBoardPane extends Pane {
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
+
+                widget.showProgressIndicator(true);
                 widget.update(interval);
+                widget.showProgressIndicator(false);
             }
         };
         executor.execute(updateTask);
@@ -217,25 +241,16 @@ public class DashBoardPane extends Pane {
             public void run() {
                 logger.info("Starting Update");
 
+                showLoading(true);
 
                 Interval interval = buildInterval();
                 widgetList.forEach(widget -> {
                     logger.info("Update widget: {}", widget.getConfig().title.get());
 
                     addWidgetUpdateTask(widget, interval);
-//                    executor.execute(() -> {
-//                        widget.update(interval);
-//                    });
-
-//                            Platform.runLater(() -> {
-//                        try {
-//                            widget.update(interval);
-//                        } catch (Exception ex) {
-//                            logger.error(ex);
-//                        }
-//                    });
 
                 });
+                showLoading(false);
                 logger.info("Update done");
             }
         };
@@ -335,7 +350,6 @@ public class DashBoardPane extends Pane {
         logger.debug("UpdateChildren");
         getChildren().clear();
         setGrid(analysis.xGridInterval.get(), analysis.yGridInterval.get());
-
 
         widgetList.forEach(node -> {
             getChildren().add(node);

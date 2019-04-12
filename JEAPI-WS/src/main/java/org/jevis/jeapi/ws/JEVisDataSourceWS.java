@@ -499,6 +499,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public void reloadAttribute(JEVisAttribute attribute) {
         try {
+            if (attribute == null) {
+                logger.error("Cannot reload null attribute");
+                return;
+            }
             logger.debug("Reload Attribute: {}", attribute);
             getAttributesFromWS(attribute.getObjectID());
         } catch (Exception ex) {

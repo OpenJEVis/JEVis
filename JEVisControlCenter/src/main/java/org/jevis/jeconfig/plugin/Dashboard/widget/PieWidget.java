@@ -66,7 +66,7 @@ public class PieWidget extends Widget {
 
             borderPane.setMaxWidth(config.size.getValue().getWidth());
             chart.setLabelsVisible(true);
-            chart.setLabelLineLength(10);
+            chart.setLabelLineLength(12);
             chart.setLegendVisible(false);
             chart.setAnimated(false);
             chart.setMinWidth(320d);/** tmp solution for an unified look**/

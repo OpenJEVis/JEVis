@@ -129,13 +129,6 @@ public class ChartWidget extends Widget {
 
             BorderPane borderPane = new BorderPane();
 
-//            borderPane.setCache(true);
-//            borderPane.setCacheHint(CalinescheHint.SPEED);
-
-//        HBox hBox = new HBox();
-//        hBox.setPadding(new Insets(5, 8, 5, 8));
-//        hBox.getChildren().add(legend);
-
             BorderPane bottomBorderPane = new BorderPane();
             bottomBorderPane.setCenter(legend);
             bottomBorderPane.setRight(openAnalysisButton);
