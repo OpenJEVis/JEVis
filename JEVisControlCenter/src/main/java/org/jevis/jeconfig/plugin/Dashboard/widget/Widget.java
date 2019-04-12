@@ -4,6 +4,7 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
@@ -33,6 +34,7 @@ public abstract class Widget extends Group {
     private AnchorPane contentRoot = new AnchorPane();
     private AnchorPane editPane = new AnchorPane();
     private UUID uuid = UUID.randomUUID();
+    private ProgressIndicator progressIndicator = new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS);
 
     public Widget(JEVisDataSource jeVisDataSource) {
         super();
@@ -210,6 +212,23 @@ public abstract class Widget extends Group {
         contentRoot.setMaxHeight(height);
         contentRoot.setMinHeight(height);
         contentRoot.setPrefHeight(height);
+    }
+
+    public void showProgressIndicator(boolean show) {
+//        ProgressIndicator progressIndicator = new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS);
+//        AnchorPane.setTopAnchor(progressIndicator, contentRoot.getHeight() / 2);
+//        AnchorPane.setLeftAnchor(progressIndicator, contentRoot.getWidth() / 2);
+//
+//
+//        if (show) {
+//
+//
+//            contentRoot.getChildren().add(progressIndicator);
+//
+//        } else {
+//            contentRoot.getChildren().remove(progressIndicator);
+//        }
+
     }
 
     public void setGraphic(Node node) {

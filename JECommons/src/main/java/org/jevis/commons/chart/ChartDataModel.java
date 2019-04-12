@@ -51,7 +51,7 @@ public class ChartDataModel {
         JEVisUnit jUnit = getUnit();
 
         String unit = UnitManager.getInstance().format(jUnit);
-        if (jUnit.getLabel() != null && !jUnit.getLabel().isEmpty()) {
+        if (jUnit != null && jUnit.getLabel() != null && !jUnit.getLabel().isEmpty()) {
             unit = UnitManager.getInstance().format(jUnit.getLabel());
 
         }
@@ -86,6 +86,10 @@ public class ChartDataModel {
             somethingChanged = false;
 
             setSamples(new ArrayList<>());
+            if (getSelectedStart() == null || getSelectedEnd() == null) {
+                return samples;
+            }
+
             if (getSelectedStart().isBefore(getSelectedEnd())) {
                 try {
 

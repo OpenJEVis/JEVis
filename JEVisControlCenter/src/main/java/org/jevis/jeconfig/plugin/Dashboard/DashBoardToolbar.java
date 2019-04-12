@@ -205,6 +205,10 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(enlarge);
 
 
+        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
+        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
+
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
 
         ToggleButton newWidgetButton = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
@@ -225,6 +229,11 @@ public class DashBoardToolbar extends ToolBar {
                     unlockB.setGraphic(lockIcon);
                 }
             }
+
+        });
+
+
+        reload.setOnAction(event -> {
 
         });
 

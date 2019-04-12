@@ -311,6 +311,7 @@ public class DashBordModel {
 
         } catch (Exception ex) {
             logger.error(ex);
+            ex.printStackTrace();
         }
     }
 
