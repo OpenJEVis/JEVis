@@ -822,7 +822,8 @@ public class FXLogin extends AnchorPane {
         logger.info(app.toString());
         Label coypLeft = new Label(app.getName() + " " + app.getVersion());//©Envidatec GmbH 2014-2016");
         Label java = new Label("Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
-        Label javafxlabel = new Label("JavaFX: " + com.sun.javafx.runtime.VersionInfo.getRuntimeVersion());
+        Label javafxlabel = new Label("JavaFX: " + System.getProperties().get("javafx.runtime.version"));
+
 
         coypLeft.setTextFill(javafx.scene.paint.Color.WHITE);
         java.setTextFill(javafx.scene.paint.Color.WHITE);
