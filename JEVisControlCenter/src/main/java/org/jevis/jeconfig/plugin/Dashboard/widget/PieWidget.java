@@ -106,28 +106,44 @@ public class PieWidget extends Widget {
                 double value = 0;
 
 
-                if (!chartDataModel.getSamples().isEmpty()) {
+                boolean hasNoData = chartDataModel.getSamples().isEmpty();
+
+                String textValue = "";
+
+
+                if (!hasNoData) {
                     logger.debug("Samples: ({}) {}", dataName, chartDataModel.getSamples());
                     try {
                         value = chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble();
 
+                        double proC = (value / total.get()) * 100;
+                        if (Double.isInfinite(proC)) proC = 100;
+                        if (Double.isNaN(proC)) proC = 0;
+
+
+                        textValue = nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + nf.format(proC) + "%";
+
 
                     } catch (Exception ex) {
-                        value = 0;
+//                        value = 1;/** pie pease will be missing if its 0 **/
+//                        textValue = "n.a. ";
+                        logger.error(ex);
                     }
                 } else {
                     logger.warn("Empty Samples for: {}", config.title.get());
-                    value = 0;
+                    value = 1;
+                    textValue = "n.a.  " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + nf.format(0) + "%";
+
                 }
 
-                double proC = (value / total.get()) * 100;
-                if (Double.isInfinite(proC)) proC = 100;
-                if (Double.isNaN(proC)) proC = 0;
 
-//                String textValue = nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnit()) + "\n" + nf.format(proC) + "%";
-                String textValue = nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + nf.format(proC) + "%";
+//                if (hasNoData) {
+//                    textValue = "n.a. ";
+//                } else {
+//                    textValue = nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + nf.format(proC) + "%";
+//                }
 
-//                    legend.getItems().add(legend.buildLegendItem(dataName, chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
+
                 legendItemList.add(legend.buildLegendItem(dataName, chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
 
                 javafx.scene.chart.PieChart.Data pieData = new javafx.scene.chart.PieChart.Data(textValue, value);

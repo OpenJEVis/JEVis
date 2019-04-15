@@ -5,6 +5,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.scene.Cursor;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
@@ -13,6 +14,7 @@ import javafx.scene.transform.Scale;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.application.WorkIndicatorDialog;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Size;
@@ -37,9 +39,14 @@ public class DashBoardPane extends Pane {
     private List<Double> yGrids = new ArrayList<>();
     private Scale scale = new Scale();
     private TimerTask updateTask;
+    private WorkIndicatorDialog workIndicatorDialog = new WorkIndicatorDialog(JEConfig.getStage().getScene().getWindow(), "Aktualisiere...");
+    private Task<Integer> loadingTask;
+    private int jopsDone = 0;
 
     public DashBoardPane(DashBordModel analysis) {
         super();
+
+
         showLoading(true);
 
         this.analysis = analysis;
@@ -88,10 +95,13 @@ public class DashBoardPane extends Pane {
 
     private void showLoading(boolean isLoading) {
 
+
         if (isLoading) {
             Platform.runLater(() -> {
                 JEConfig.getStage().getScene().setCursor(Cursor.WAIT);
             });
+
+
         } else {
             Platform.runLater(() -> {
                 JEConfig.getStage().getScene().setCursor(Cursor.DEFAULT);
@@ -182,13 +192,13 @@ public class DashBoardPane extends Pane {
 
         analysis.displayedIntervalProperty.addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
-                widgetList.forEach(widget -> {
-                    addWidgetUpdateTask(widget, newValue);
-//                    Platform.runLater(() -> {
-//                        widget.update(newValue);
-//                    });
+                showLoading(true);
 
+                widgetList.forEach(widget -> {
+
+                    addWidgetUpdateTask(widget, newValue);
                 });
+                showLoading(false);
             }
 
         });

@@ -127,6 +127,8 @@ public class TableWidget extends Widget {
                         JEVisSample sample = results.get(results.size() - 1);
                         return new SimpleStringProperty(nf.format(sample.getValueAsDouble()));
 
+                    } else {
+                        return new SimpleStringProperty("n.a.");
                     }
                 } catch (Exception ex) {
                     logger.error(ex);
