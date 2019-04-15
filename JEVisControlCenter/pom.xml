@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.7.6</version>
+    <version>3.7.7</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -15,6 +15,7 @@
         <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
         <additionalparam>-Xdoclint:none</additionalparam>
         <skipjnlp>none</skipjnlp>
+        <openfx.version>11.0.2</openfx.version>
     </properties>
 
     <organization>
@@ -28,11 +29,6 @@
         <version>3.4</version>
     </parent>
     <dependencies>
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itextpdf</artifactId>
-            <version>5.5.13</version>
-        </dependency>
         <dependency>
             <groupId>eu.hansolo</groupId>
             <artifactId>tilesfx</artifactId>
@@ -109,6 +105,44 @@
 
     <build>
         <plugins>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifestEntries>
+                            <Permissions>all-permissions</Permissions>
+                            <JavaFX-Version>8.0</JavaFX-Version>
+                            <url>${project.parent.url}</url>
+                            <implementation-vendor>Envidatec GmbH</implementation-vendor>
+                            <implementation-title>JEVis Control Center</implementation-title>
+                            <implementation-version>${project.parent.version}</implementation-version>
+
+                            <Application-Name>JEVis Control Center</Application-Name>
+                        </manifestEntries>
+                        <manifest>
+                            <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
+                        </manifest>
+                    </archive>
+
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -116,199 +150,9 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <!--
-                    <compilerArguments>
-                        <bootclasspath>${sun.boot.class.path}${path.separator}${java.home}/lib/jfxrt.jar</bootclasspath>
-                    </compilerArguments>
-                    -->
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Permissions>all-permissions</Permissions>
-                            <JavaFX-Version>8.0</JavaFX-Version>
-                            <url>${project.parent.url}</url>
-                        </manifestEntries>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
-                    <arguments>
-                        <argument></argument>
-                    </arguments>
-                    <systemProperties>
-                        <systemProperty>
-                            <key>myproperty</key>
-                            <value>myvalue</value>
-                        </systemProperty>
-                    </systemProperties>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.1</version>
-                <configuration>
-                    <transformers>
-                        <transformer
-                                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
-                        </transformer>
-                    </transformers>
-                    <filters>
-                        <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                                <exclude>META-INF/*.SF</exclude>
-                                <exclude>META-INF/*.DSA</exclude>
-                                <exclude>META-INF/*.RSA</exclude>
-                            </excludes>
-                        </filter>
-                    </filters>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!--
-            <plugin>
-                <groupId>com.zenjava</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>8.6.0</version>
-                <configuration>
-                    <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
-                    <verbose>true</verbose>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>create-jfxjar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>build-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>webstart-maven-plugin</artifactId>
-                <version>1.0-beta-7</version>
-                <executions>
-                    <execution>
-                        <phase>${skipjnlp}</phase>
-                        <goals>
-                            <goal>jnlp</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <skip>true</skip>
-                    <excludeTransitive>false</excludeTransitive>
-                    <dependencies>
-                    </dependencies>
-                    <jnlp>
-                        <outputFile>jeviscc.jnlp</outputFile>
-                        <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
-                    </jnlp>
-
-                    <sign>
-                        <keystore>key.jks</keystore>
-                        <keypass></keypass>
-                        <storepass>storepass</storepass>
-                        <alias>alias</alias>
-
-                        <keystoreConfig>
-                            <delete>false</delete>
-                            <gen>false</gen>
-                        </keystoreConfig>
-                    </sign>
-
-
-                    <pack200>
-                        <enabled>false</enabled>
-                    </pack200>
-                    <gzip>false</gzip>
-                    <outputJarVersions>true</outputJarVersions>
-                    <verbose>true</verbose>
-
-                </configuration>
-            </plugin>
-
-
-            <!--
-            <plugin>
-                <artifactId>maven-jarsigner-plugin</artifactId>
-                <version>1.4</version>
-                <executions>
-                    <execution>
-                        <id>sign</id>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <keystore>${project.parent.basedir}/etc/keystore.jks</keystore>
-                    <alias>jevis</alias>
-                    <storepass>${store.password}</storepass>
-                    <keypass>${key.password}</keypass>
-                    <skip>${jar.sign.skip}</skip>
-
-                </configuration>
-            </plugin>
-            -->
 
         </plugins>
     </build>
-    <!--
-    <repositories>
-        <repository>
-            <id>ossrh</id>
-            <name>OSSRH Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </repository>
-    </repositories>
-    -->
-
-
 </project>
