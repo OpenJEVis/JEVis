@@ -333,11 +333,34 @@ public class CalcJobFactory {
         return calcObjects;
     }
 
+
     private List<CalcInputObject> getInputDataObjects(JEVisObject jevisObject, JEVisDataSource ds, DateTime startTime, DateTime endTime, Boolean absolute) {
         List<CalcInputObject> calcObjects = new ArrayList<>();
 
         try {
-            for (JEVisObject child : getCalcInputObjects(jevisObject)) { //Todo differenciate based on input type
+            /**
+             * find the combined end interval
+             * hotfix to calculate inputs with different time range
+             */
+            List<JEVisObject> inputObjectList = getCalcInputObjects(jevisObject);
+            List<DateTime> lastSampleList = new ArrayList<>();
+            DateTime combinedEndTime = endTime;
+            for (JEVisObject child : inputObjectList) {
+                JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
+                TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
+                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
+                if (valueAttribute != null && valueAttribute.hasSample()) {
+                    lastSampleList.add(valueAttribute.getTimestampFromLastSample());
+                }
+            }
+            for (DateTime ts : lastSampleList) {
+                if (ts.isBefore(combinedEndTime)) {
+                    combinedEndTime = ts;
+                }
+            }
+
+
+            for (JEVisObject child : inputObjectList) { //Todo differenciate based on input type
                 JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                 JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
@@ -347,7 +370,7 @@ public class CalcJobFactory {
                 CalcInputType inputType = CalcInputType.valueOf(inputTypeString);
 
                 CalcInputObject calcInputObject = new CalcInputObject(identifier, inputType, valueAttribute);
-                calcInputObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, endTime, absolute);
+                calcInputObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, combinedEndTime, absolute);
                 logger.info("Got samples for id {}", calcInputObject.getIdentifier());
                 calcObjects.add(calcInputObject);
             }
