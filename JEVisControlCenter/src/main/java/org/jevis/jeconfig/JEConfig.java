@@ -82,7 +82,7 @@ public class JEConfig extends Application {
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
      */
     public static String userpassword;
-    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", "3.7.7");
+    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", JEConfig.class.getPackage().getImplementationVersion());//can be ignored
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
@@ -271,7 +271,7 @@ public class JEConfig extends Application {
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
         I18n.getInstance().loadBundel(Locale.getDefault());
-        JEConfig.PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
+        PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
 
