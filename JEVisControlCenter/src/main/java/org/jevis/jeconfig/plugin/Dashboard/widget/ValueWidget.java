@@ -76,7 +76,8 @@ public class ValueWidget extends Widget {
                 if (dataModel.getEnPI()) {
                     CalcJobFactory calcJobCreator = new CalcJobFactory();
 
-                    CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataModel.getObject().getDataSource(), dataModel.getCalculationObject(),
+                    CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(
+                            new SampleHandler(), dataModel.getObject().getDataSource(), dataModel.getCalculationObject(),
                             dataModel.getSelectedStart(), dataModel.getSelectedEnd(), true);
 
                     results = calcJob.getResults();
