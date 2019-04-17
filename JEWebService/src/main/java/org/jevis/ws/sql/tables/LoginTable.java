@@ -23,7 +23,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisExceptionCodes;
-import org.jevis.api.JEVisObject;
 import org.jevis.ws.sql.JEVisUserNew;
 import org.jevis.ws.sql.PasswordHash;
 import org.jevis.ws.sql.SQLDataSource;
@@ -33,7 +32,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- *
  * @author Florian Simon<florian.simon@envidatec.com>
  */
 public class LoginTable {
@@ -44,62 +42,47 @@ public class LoginTable {
     public final static String COLUMN_PASSWORD = "password";
     public final static String COLUMN_ENABLED = "enabled";
     public final static String COLUMN_SYS_ADMIN = "sysadmin";
-
-    private SQLDataSource _connection;
     private static final Logger logger = LogManager.getLogger(LoginTable.class);
+    private SQLDataSource _connection;
 
     public LoginTable(SQLDataSource ds) {
         _connection = ds;
     }
 
     public JEVisUserNew loginUser(String name, String pw) throws JEVisException {
-        logger.debug("Login {} {}",name,pw);
-        String sqlUser = "select * from " + TABLE
-                + " where " + COLUMN_LOGIN + "=?"
-                + " and " + COLUMN_ENABLED + " =?"
-                + " limit 1";
+        logger.debug("Login {} {}", name, pw);
+        String sqlUser = String.format("select * from %s where %s=? and %s =? limit 1", TABLE, COLUMN_LOGIN, COLUMN_ENABLED);
 
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        JEVisObject object = null;
-        JEVisUserNew user = null;
-
-        try {
-            //First get the use by name, the create User securs the there is only one user per name
-            ps = _connection.getConnection().prepareStatement(sqlUser);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sqlUser)) {
             ps.setString(1, name);
-//            ps.setString(2, pw);
             ps.setBoolean(2, true);
 
             logger.debug("SQL: {}", ps.toString());
             _connection.addQuery("Login.loginUser()", ps.toString());
-            rs = ps.executeQuery();
+            ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                if (PasswordHash.validatePassword(pw, rs.getString(COLUMN_PASSWORD))) {
-                    logger.debug("Login OK");
-                    user = new JEVisUserNew(_connection, rs.getString(COLUMN_LOGIN), rs.getLong(COLUMN_OBJECT), rs.getBoolean(COLUMN_SYS_ADMIN), rs.getBoolean(COLUMN_ENABLED));
-                    
-                    return user;
-                } else {
+                try {
+                    if (PasswordHash.validatePassword(pw, rs.getString(COLUMN_PASSWORD))) {
+                        logger.debug("Login OK");
+                        return new JEVisUserNew(_connection, rs.getString(COLUMN_LOGIN), rs.getLong(COLUMN_OBJECT), rs.getBoolean(COLUMN_SYS_ADMIN), rs.getBoolean(COLUMN_ENABLED));
+
+                    } else {
+                        logger.debug("Login NOK");
+                        throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
+                    }
+                } catch (Exception ex) {
                     logger.debug("Login NOK");
                     throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
                 }
             }
             throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
-//            return user;
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
             throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException ex) {
-                    logger.debug("Error while closing DB connection: {}. ", ex);
-                }
-            }
         }
+
+
     }
 
 }

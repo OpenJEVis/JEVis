@@ -29,7 +29,6 @@ import org.jevis.ws.sql.SQLtoJsonFactory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,13 +49,11 @@ public class RelationshipTable {
     }
 
     public List<JsonRelationship> selectByType(int type) {
-        String sql = "select * from " + TABLE
-                + " where " + COLUMN_TYPE + "=?";
+        String sql = String.format("select * from %s where %s=?", TABLE, COLUMN_TYPE);
 
-        PreparedStatement ps = null;
+
         List<JsonRelationship> relations = new LinkedList<>();
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setInt(1, type);
 
             logger.trace("SQL: {}", ps);
@@ -64,20 +61,16 @@ public class RelationshipTable {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                relations.add(SQLtoJsonFactory.buildRelationship(rs));
-            }
-
-        } catch (Exception ex) {
-            logger.error("Error while selecting relationships from DB: {}", ex);
-        } finally {
-            if (ps != null) {
                 try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
+                    relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
                 }
             }
+        } catch (SQLException ex) {
+            logger.error(ex);
         }
+
         return relations;
     }
 
@@ -86,16 +79,11 @@ public class RelationshipTable {
      * @return
      */
     public List<JsonRelationship> selectForObject(long id) {
-        String sql = "select * from " + TABLE
-                + " where " + COLUMN_START + "=? "
-                + " or " + COLUMN_END + "=?";
+        String sql = String.format("select * from %s where %s=?  or %s=?", TABLE, COLUMN_START, COLUMN_END);
 
-        PreparedStatement ps = null;
         List<JsonRelationship> relations = new LinkedList<>();
 
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
-
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, id);
             ps.setLong(2, id);
 
@@ -104,24 +92,18 @@ public class RelationshipTable {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                relations.add(SQLtoJsonFactory.buildRelationship(rs));
-            }
-
-        } catch (Exception ex) {
-            logger.error("Error while selecting relationships from DB: {}", ex);
-        } finally {
-            if (ps != null) {
                 try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
+                    relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
                 }
             }
+        } catch (SQLException ex) {
+            logger.error(ex);
         }
+
         return relations;
     }
-
-    //todo: implemet the return save and performant
 
     /**
      * @param start
@@ -132,14 +114,9 @@ public class RelationshipTable {
      */
     public JsonRelationship insert(long start, long end, int type) throws JEVisException {
 
-        String sql = "insert into " + TABLE
-                + " (" + COLUMN_START + "," + COLUMN_END + "," + COLUMN_TYPE + ")"
-                + " values (?,?,?)";
+        String sql = String.format("insert into %s (%s,%s,%s) values (?,?,?)", TABLE, COLUMN_START, COLUMN_END, COLUMN_TYPE);
 
-        PreparedStatement ps = null;
-
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, start);
             ps.setLong(2, end);
             ps.setInt(3, type);
@@ -156,18 +133,9 @@ public class RelationshipTable {
             } else {
                 throw new JEVisException("Could not create the relationship", 1964823);
             }
-
-        } catch (Exception ex) {
-            logger.error("Error while inserting relationship into DB: {}", ex.getMessage());
+        } catch (SQLException ex) {
+            logger.error(ex);
             throw new JEVisException("Could not create the relationship", 1964824, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
     }
 
@@ -178,15 +146,10 @@ public class RelationshipTable {
 
     public boolean delete(long start, long end, int type) {
 
-        String sql = "delete from " + TABLE
-                + " where " + COLUMN_START + "=?"
-                + " and " + COLUMN_END + "=?"
-                + " and " + COLUMN_TYPE + "=?";
+        String sql = String.format("delete from %s where %s=? and %s=? and %s=?", TABLE, COLUMN_START, COLUMN_END, COLUMN_TYPE);
 
-        PreparedStatement ps = null;
 
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, start);
             ps.setLong(2, end);
             ps.setInt(3, type);
@@ -198,112 +161,75 @@ public class RelationshipTable {
             } else {
                 return true;//delete is allways true
             }
-
-        } catch (Exception ex) {
-            logger.error("Error while deleting relationship from DB: {}", ex);
+        } catch (SQLException ex) {
             logger.error(ex);
             return false;
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
     }
 
-    public boolean deleteAll(long id) {
-        return deleteAll(new LinkedList<Long>(Arrays.asList(id)));
-    }
 
     public boolean deleteAll(List<Long> ids) {
-        //      logger.info("delete rel for: " + Arrays.toString(ids.toArray()));
-        //TODO make it save with a prepared or so
-        PreparedStatement ps = null;
-
-        try {
-            String in = " IN(";
-            for (int i = 0; i < ids.size(); i++) {
-                in += ids.get(i);
-                if (i != ids.size() - 1) {
-                    in += ",";
-                }
+        String in = " IN(";
+        for (int i = 0; i < ids.size(); i++) {
+            in += ids.get(i);
+            if (i != ids.size() - 1) {
+                in += ",";
             }
-            in += ")";
+        }
+        in += ")";
 
-            String sql = "delete from " + TABLE
-                    + " where " + COLUMN_START + in
-                    + " or " + COLUMN_END + in;
+        String sql = String.format("delete from %s where %s%s or %s%s", TABLE, COLUMN_START, in, COLUMN_END, in);
+
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             logger.trace("SQL: {}", ps);
-            ps = _connection.getConnection().prepareStatement(sql);
 
             _connection.addQuery("Relationship.deleteAll()", ps.toString());
             int count = ps.executeUpdate();
 
             return count == 1;
 
-        } catch (Exception ex) {
-            logger.error("Error while deleting relationship from DB: {}", ex.getMessage());
+
+        } catch (SQLException ex) {
             logger.error(ex);
             return false;
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
+
     }
 
     public List<JsonRelationship> getAllForObject(long object) {
-        logger.trace("getSingel Relationship");
-        PreparedStatement ps = null;
         List<JsonRelationship> relations = new LinkedList<>();
 
-        try {
-            String sql = "select * from " + TABLE
-                    + " where " + COLUMN_END + "=?"
-                    + " or " + COLUMN_START + "=?";
 
-            ps = _connection.getConnection().prepareStatement(sql);
+        String sql = String.format("select * from %s where %s=? or %s=?", TABLE, COLUMN_END, COLUMN_START);
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, object);
             ps.setLong(2, object);
             logger.trace("SQL: {}", ps);
             _connection.addQuery("Relationship.getAllForObject()", ps.toString());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                relations.add(SQLtoJsonFactory.buildRelationship(rs));
-            }
-
-        } catch (Exception ex) {
-            logger.error("Error while selecting relationships from DB: {}", ex);
-        } finally {
-            if (ps != null) {
                 try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
+                    relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
                 }
             }
+
+        } catch (SQLException ex) {
+            logger.error(ex);
         }
+
         return relations;
     }
 
 
     public List<JsonRelationship> getAll() {
-        logger.trace("getAll Relationship");
-        PreparedStatement ps = null;
         List<JsonRelationship> relations = new LinkedList<>();
+        String sql = String.format("select * from %s", TABLE);
 
-        try {
-            String sql = "select * from " + TABLE;
-
-            ps = _connection.getConnection().prepareStatement(sql);
-
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             logger.trace("SQL: {}", ps);
             _connection.addQuery("Relationship.getAll()", ps.toString());
             ResultSet rs = ps.executeQuery();
@@ -314,69 +240,55 @@ public class RelationshipTable {
                     logger.error(ex);
                 }
             }
-
-        } catch (Exception ex) {
-            logger.error("Error while selecting relationships from DB: {}", ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
+        } catch (SQLException ex) {
+            logger.error(ex);
         }
+
         return relations;
     }
 
     public List<JsonRelationship> getAll(List<Integer> types) {
 
-        PreparedStatement ps = null;
         List<JsonRelationship> relations = new LinkedList<>();
 
-        try {
-            String in = " IN(";
-            boolean first = true;
-            for (int i : types) {
-                if (!first) {
-                    in += ",";
-                }
-                in += i;
-                if (first) {
-                    first = false;
-                }
+        String in = " IN(";
+        boolean first = true;
+        for (int i : types) {
+            if (!first) {
+                in += ",";
             }
+            in += i;
+            if (first) {
+                first = false;
+            }
+        }
 
-            in += ")";
+        in += ")";
 
-            String sql = "select * from " + TABLE
-                    + " where " + COLUMN_TYPE + in;
+        String sql = String.format("select * from %s where %s%s", TABLE, COLUMN_TYPE, in);
 
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             int pos = 0;
             for (int type : types) {
                 ps.setInt(++pos, type);
             }
-
             logger.trace("SQL: {}", ps);
             _connection.addQuery("Relationship.getAll(List<int>)", ps.toString());
+
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                relations.add(SQLtoJsonFactory.buildRelationship(rs));
-            }
-
-        } catch (Exception ex) {
-            logger.error("Error while selecting relationships from DB: {}", ex);
-        } finally {
-            if (ps != null) {
                 try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
+                    relations.add(SQLtoJsonFactory.buildRelationship(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
                 }
             }
+        } catch (SQLException ex) {
+            logger.error(ex);
         }
+
+
         return relations;
     }
 }

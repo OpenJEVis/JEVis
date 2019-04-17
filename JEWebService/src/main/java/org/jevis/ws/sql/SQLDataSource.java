@@ -51,18 +51,14 @@ public class SQLDataSource {
     private RelationshipTable rTable;
 
     private List<JsonRelationship> allRelationships = Collections.synchronizedList(new LinkedList<>());
-    //    private List<JsonClassRelationship> allClassRelationships = new LinkedList<>();
-//    private List<JsonJEVisClass> allClasses = new LinkedList<>();
     private List<JsonObject> allObjects = Collections.synchronizedList(new LinkedList<>());
     private Map<String, List<JsonType>> allTypes = new HashMap<>();
     private UserRightManagerForWS um;
     private Profiler pf = new Profiler();
-    private List<String> sqlLog = new ArrayList<>();
 
     public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url) throws AuthenticationException, JEVisException {
 
         try {
-            pf.setSQLList(sqlLog);
             pf.addEvent(String.format("Methode: %s URL: %s ", request.getMethod(), url.getRequestUri()), "");
             ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
 
@@ -82,8 +78,15 @@ public class SQLDataSource {
 
             }
         } catch (SQLException se) {
-            throw new JEVisException("Database connection errror", 5438, se);
+            throw new JEVisException("Database connection error", 5438, se);
         }
+    }
+
+    public Connection getConnection() throws SQLException {
+        return dbConn;
+    }
+
+    public void addQuery(String tdsf, String gsdf) {
 
     }
 
@@ -196,13 +199,6 @@ public class SQLDataSource {
         return aTable;
     }
 
-    public void addQuery(String id, String sql) {
-        sqlLog.add(id + ": " + sql);
-    }
-
-    public Connection getConnection() {
-        return dbConn;
-    }
 
     public List<JsonObject> filterObjectByClass(List<JsonObject> objects, String jclass) {
         List<JsonObject> filterd = new ArrayList<>();

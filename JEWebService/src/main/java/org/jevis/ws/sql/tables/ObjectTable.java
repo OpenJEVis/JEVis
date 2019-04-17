@@ -23,13 +23,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisExceptionCodes;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.ws.sql.SQLDataSource;
 import org.jevis.ws.sql.SQLtoJsonFactory;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -48,8 +50,8 @@ public class ObjectTable {
     public final static String COLUMN_LINK = "link";
     public final static String COLUMN_DELETE = "deletets";
     public final static String COLUMN_GROUP = "groupid";//remove ID from name
-    private SQLDataSource _connection;
     private static final Logger logger = LogManager.getLogger(ObjectTable.class);
+    private SQLDataSource _connection;
 
     public ObjectTable(SQLDataSource ds) {
         _connection = ds;
@@ -98,13 +100,10 @@ public class ObjectTable {
      * @throws JEVisException
      */
     public JsonObject insertObject(String name, String jclass, long parent, boolean isPublic) throws JEVisException {
-        String sql = "insert into " + TABLE
-                + "(" + COLUMN_NAME + "," + COLUMN_CLASS + ", " + COLUMN_PUBLIC + ")"
-                + " values(?,?,?)";
-        PreparedStatement ps = null;
+        String sql = String.format("insert into %s(%s,%s, %s) values(?,?,?)", TABLE, COLUMN_NAME, COLUMN_CLASS, COLUMN_PUBLIC);
 
-        try {
-            ps = _connection.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, name);
             ps.setString(2, jclass);
             ps.setBoolean(3, isPublic);
@@ -124,44 +123,28 @@ public class ObjectTable {
                         }
                     }
 
-                    //and parenshiop or NESTEDT_CLASS depending on the Class
                     int relType = JEVisConstants.ObjectRelationship.PARENT;//not very save
                     _connection.getRelationshipTable().insert(rs.getLong(1), parent, relType);
 
                     return getObject(rs.getLong(1));
                 } else {
-                    throw new JEVisException("Error selecting insertedt object", 234235);//ToDo real number
+                    throw new JEVisException("Error selecting inserted object", 234235);
                 }
             } else {
-                throw new JEVisException("Error while inserting object", 234236);//ToDo real number
+                throw new JEVisException("Error while inserting object", 234236);
             }
-
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
-            throw new JEVisException("Error while inserting object", 234234, ex);//ToDo real number
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException ex) {
-                    logger.debug("Error while closing DB connection: {}. ", ex);
-                }
-            }
+            throw new JEVisException("Error while inserting object", 234237);
         }
+
 
     }
 
     public JsonObject updateObject(long id, String newname, boolean ispublic) throws JEVisException {
-        String sql = "update " + TABLE
-                + " set " + COLUMN_NAME + "=?,"
-                + COLUMN_PUBLIC + "=?"
-                + " where " + COLUMN_ID + "=?";
+        String sql = String.format("update %s set %s=?,%s=? where %s=?", TABLE, COLUMN_NAME, COLUMN_PUBLIC, COLUMN_ID);
 
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, newname);
             ps.setBoolean(2, ispublic);
             ps.setLong(3, id);
@@ -174,31 +157,19 @@ public class ObjectTable {
             } else {
                 throw new JEVisException("Error while updating object", 234236);//ToDo real number
             }
-
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
             throw new JEVisException("Error while updating object", 234234, ex);//ToDo real number
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException ex) {
-                    logger.debug("Error while closing DB connection: {}. ", ex);
-                }
-            }
         }
+
 
     }
 
     public JsonObject insertLink(String name, JsonObject linkParent, JsonObject linkedObject) throws JEVisException {
-        String sql = "insert into " + TABLE
-                + "(" + COLUMN_NAME + "," + COLUMN_GROUP + "," + COLUMN_LINK + "," + COLUMN_CLASS + ")"
-                + " values(?,?,?,?)";
+        String sql = String.format("insert into %s(%s,%s,%s,%s) values(?,?,?,?)", TABLE, COLUMN_NAME, COLUMN_GROUP, COLUMN_LINK, COLUMN_CLASS);
         JsonObject newObject = null;
 
-        try {
-            PreparedStatement ps = _connection.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-//            PreparedStatement ps = _connection.prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, name);
             ps.setLong(2, 0);//TODO replace this is not needet anymore
             ps.setLong(3, linkedObject.getId());
@@ -218,28 +189,20 @@ public class ObjectTable {
                 newObject = getObject(rs.getLong(1));
             }
 
-            ps.close();//not save
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
             throw new JEVisException("Error while creating object link", 234234, ex);//ToDo real number
         }
-
         return newObject;
+
     }
 
     public JsonObject getObject(Long id) throws JEVisException {
         logger.trace("getObject: {} ", id);
 
-        String sql = "select o.*"
-                + " from " + TABLE + " o"
-                + " where  o." + COLUMN_ID + "=?"
-                + " and o." + COLUMN_DELETE + " is null"
-                + " limit 1 ";
+        String sql = String.format("select o.* from %s o where  o.%s=? and o.%s is null limit 1 ", TABLE, COLUMN_ID, COLUMN_DELETE);
 
-        PreparedStatement ps = null;
-
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, id);
 
             logger.trace("getObject.sql: {} ", ps);
@@ -250,24 +213,10 @@ public class ObjectTable {
             while (rs.next()) {
                 return SQLtoJsonFactory.buildObject(rs);
             }
-
         } catch (SQLException ex) {
-            logger.error("Error while selecting Object: {} ", ex.getMessage());
-            throw new JEVisException("Error while selecting Object", JEVisExceptionCodes.DATASOURCE_FAILD_MYSQL, ex);
-        } catch (Exception ex) {
             logger.error(ex);
-            logger.error("Error while selecting Object: {} ", ex);
-            throw new JEVisException("Error while selecting Object", JEVisExceptionCodes.DATASOURCE_FAILD_MYSQL, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
-        }
 
+        }
         return null;
     }
 
@@ -281,9 +230,7 @@ public class ObjectTable {
     public List<JsonObject> getAllObject(List<Long> ids) throws JEVisException {
         logger.trace("getAllObject: {} ", ids.size());
 
-        String sql = "select distinct o.*"
-                + " from " + TABLE + " o"
-                + " where  o." + COLUMN_ID + " in (";
+        String sql = String.format("select distinct o.* from %s o where  o.%s in (", TABLE, COLUMN_ID);
 
         String idString = "";
         boolean first = true;
@@ -298,15 +245,10 @@ public class ObjectTable {
             }
 
         }
-        sql += idString
-                + ") and o." + COLUMN_DELETE + " is null";
-
-        PreparedStatement ps = null;
+        sql += idString + ") and o." + COLUMN_DELETE + " is null";
         List<JsonObject> objects = new ArrayList<>();
 
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
-
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             logger.trace("getObject.sql: {} ", ps);
             _connection.addQuery("Object.get(List<long>)", ps.toString());
             logger.trace("Query.lenght: {}", (ps.toString().length() - 47));
@@ -314,25 +256,16 @@ public class ObjectTable {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                objects.add(SQLtoJsonFactory.buildObject(rs));
-            }
-
-        } catch (SQLException ex) {
-            logger.error("Error while selecting Object: {} ", ex.getMessage());
-            throw new JEVisException("Error while selecting Object", JEVisExceptionCodes.DATASOURCE_FAILD_MYSQL, ex);
-        } catch (Exception ex) {
-            logger.error(ex);
-            logger.error("Error while selecting Object: {} ", ex);
-            throw new JEVisException("Error while selecting Object", JEVisExceptionCodes.DATASOURCE_FAILD_MYSQL, ex);
-        } finally {
-            if (ps != null) {
                 try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
+                    objects.add(SQLtoJsonFactory.buildObject(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
                 }
             }
+        } catch (SQLException ex) {
+            logger.error(ex);
         }
+
 
         return objects;
     }
@@ -340,16 +273,12 @@ public class ObjectTable {
     public List<JsonObject> getAllPublicObjects() throws JEVisException {
         logger.trace("getPublicObjects");
 
-        String sql = "select *"
-                + " from " + TABLE
-                + " where " + COLUMN_DELETE + " is null"
-                + " and " + COLUMN_PUBLIC + "=1";
+        String sql = String.format("select * from %s where %s is null and %s=1", TABLE, COLUMN_DELETE, COLUMN_PUBLIC);
 
-        PreparedStatement ps = null;
+
         List<JsonObject> objects = new ArrayList<>();
 
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             _connection.addQuery("Object.getAll()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
@@ -360,39 +289,20 @@ public class ObjectTable {
                     logger.error("Cound not load Object: " + ex.getMessage());
                 }
             }
-
         } catch (SQLException ex) {
-            logger.error("Error while selecting Object: {} ", ex.getMessage());
-            throw new JEVisException("Error while selecting Object", JEVisExceptionCodes.DATASOURCE_FAILD_MYSQL, ex);
-        } catch (Exception ex) {
             logger.error(ex);
-            logger.error("Error while selecting Object: {} ", ex);
-            throw new JEVisException("Error while selecting Object", JEVisExceptionCodes.DATASOURCE_FAILD_MYSQL, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
-        logger.debug("getObjects.size: {}", objects.size());
+
         return objects;
     }
 
     public List<JsonObject> getAllObjects() throws JEVisException {
-        logger.trace("getAllObject v2: ");
 
-        String sql = "select *"
-                + " from " + TABLE
-                + " where " + COLUMN_DELETE + " is null";
+        String sql = String.format("select * from %s where %s is null", TABLE, COLUMN_DELETE);
 
-        PreparedStatement ps = null;
         List<JsonObject> objects = new ArrayList<>();
 
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             _connection.addQuery("Object.getAll()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
@@ -403,24 +313,10 @@ public class ObjectTable {
                     logger.error("Cound not load Object: " + ex.getMessage());
                 }
             }
-
         } catch (SQLException ex) {
-            logger.error("Error while selecting Object: {} ", ex.getMessage());
-            throw new JEVisException("Error while selecting Object", JEVisExceptionCodes.DATASOURCE_FAILD_MYSQL, ex);
-        } catch (Exception ex) {
             logger.error(ex);
-            logger.error("Error while selecting Object: {} ", ex);
-            throw new JEVisException("Error while selecting Object", JEVisExceptionCodes.DATASOURCE_FAILD_MYSQL, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
-        logger.debug("getObjects.size: {}", objects.size());
+
         return objects;
     }
 
@@ -448,37 +344,28 @@ public class ObjectTable {
     }
 
     public boolean deleteObject(JsonObject obj) {
-        String sql = "update " + TABLE
-                + " set " + COLUMN_DELETE + "=?"
-                + " where " + COLUMN_ID + " IN(";
-        PreparedStatement ps = null;
+        String sql = String.format("update %s set %s=? where %s IN(", TABLE, COLUMN_DELETE, COLUMN_ID);
 
-        try {
+        List<JsonObject> children = new ArrayList<>();
+        children.add(obj);
+        getAllChildren(children, obj);
 
-            List<JsonObject> children = new ArrayList<>();
-            children.add(obj);
-            getAllChildren(children, obj);
-
-            //           for (JsonObject o : children) {
-            //             logger.info("deleteIDs: " + o.getId());
-            //       }
-
-            boolean first = true;
-            for (JsonObject ch : children) {
-                if (first) {
-                    sql += "?";
-                    first = false;
-                } else {
-                    sql += ",?";
-                }
-
+        boolean first = true;
+        for (JsonObject ch : children) {
+            if (first) {
+                sql += "?";
+                first = false;
+            } else {
+                sql += ",?";
             }
 
-            sql += ")";
-            //           logger.info("pSql: " + sql);
+        }
+
+        sql += ")";
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+
             Calendar now = new GregorianCalendar();
-            ps = _connection.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-//            ps = _connection.getConnection().prepareStatement(sql);
             ps.setTimestamp(1, new Timestamp(now.getTimeInMillis()));
 
             int raw = 2;
@@ -499,60 +386,14 @@ public class ObjectTable {
                 _connection.getRelationshipTable().deleteAll(ids);
 
                 return true;
-            } else {
-                return false;
             }
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
-//            logger.error(ex);
-            //TODO throw JEVisExeption?!
-            return false;
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
-        }
-    }
-
-    public boolean isUserUnique(String name) {
-        String sql = "select " + COLUMN_ID + " from " + TABLE
-                + " where " + COLUMN_NAME + "=?";
-        PreparedStatement ps = null;
-
-        try {
-
-            ps = _connection.getConnection().prepareStatement(sql);
-            ps.setString(1, name);
-
-            logger.trace("SQL.isUserUnique: {}", ps);
-            _connection.addQuery("Object.isUserUnique()", ps.toString());
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                logger.trace("SQL.isUserUnique: false");
-                return false;
-            } else {
-                logger.trace("SQL.isUserUnique: true");
-                return true;
-            }
-
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
-            //TODO throw JEVisExeption?!
-            return false;
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
+
+        return false;
+
     }
+
 }
