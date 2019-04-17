@@ -58,7 +58,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- *
  * @author fs
  */
 public class ExceptionDialog {
@@ -69,6 +68,7 @@ public class ExceptionDialog {
 
     private static String MAIL_TO = "info@envidatec.com";
     private static String MAIL_SUBJECT = "Error Report";
+    private Response response = Response.CANCEL;
 
     public Response show(String title, String titleLong, String message, final Exception ex, final ApplicationInfo info) {
         final Stage stage = new Stage();
@@ -202,8 +202,6 @@ public class ExceptionDialog {
 
         return response;
     }
-
-    private Response response = Response.CANCEL;
 
     public Response show(Stage owner, String title, String titleLong, Exception ex, ApplicationInfo info) {
         return show(title, titleLong, ex.toString(), ex, info);
@@ -340,16 +338,11 @@ public class ExceptionDialog {
         return sw.toString();
     }
 
-    public enum Response {
-
-        RETRY, CANCEL
-    }
-
     private String getMessage(final ApplicationInfo info, final Exception ex) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         String message = String.format("%s\nDate: %s\nOS: %s\nJAVA: %s\nException:\n\n%s",
-                info.toString(),
+//                info.toString(),
                 sdf.format(new Date()),
                 System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"),
                 System.getProperty("java.vendor") + " " + System.getProperty("java.version"),
@@ -358,6 +351,11 @@ public class ExceptionDialog {
 
         return message;
 
+    }
+
+    public enum Response {
+
+        RETRY, CANCEL
     }
 
 }

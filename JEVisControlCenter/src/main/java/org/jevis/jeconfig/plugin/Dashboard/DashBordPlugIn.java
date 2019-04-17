@@ -203,9 +203,13 @@ public class DashBordPlugIn implements Plugin {
 
     public Widget createWidget(WidgetConfig widget) {
         for (Widget availableWidget : Widgets.getAvabableWidgets(getDataSource(), widget)) {
-            if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
-                availableWidget.init();
-                return availableWidget;
+            try {
+                if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
+                    availableWidget.init();
+                    return availableWidget;
+                }
+            } catch (Exception ex) {
+                logger.error(ex);
             }
         }
 

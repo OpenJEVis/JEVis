@@ -26,7 +26,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisFile;
-import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.ws.json.JsonFactory;
 import org.jevis.commons.ws.json.JsonSample;
@@ -36,6 +35,8 @@ import org.jevis.ws.sql.SQLtoJsonFactory;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -57,15 +58,15 @@ public class SampleTable {
     public final static String COLUMN_NOTE = "note";
     public final static String COLUMN_FILE = "file";
     public final static String COLUMN_FILE_NAME = "filename";
-    private SQLDataSource _connection;
     private static final Logger logger = LogManager.getLogger(SampleTable.class);
+    private SQLDataSource _connection;
 
     public SampleTable(SQLDataSource ds) {
         _connection = ds;
     }
 
     public int insertSamples(long object, String attribute, int priType, List<JsonSample> samples) throws JEVisException {
-        int perChunk = 100000;// care if value is bigger sql has a limit per transaktion. 1mio is teste only with small ints
+        int perChunk = 100000;// careful, if value is bigger sql has a limit per transaction. 1mio is test only with small ints
         int count = 0;
         for (int i = 0; i < samples.size(); i += perChunk) {
             if ((i + perChunk) < samples.size()) {
@@ -77,8 +78,7 @@ public class SampleTable {
                 break;
             }
         }
-//        _ds.getAttributeTable().updateAttributeTS(attribute);
-
+        samples.clear();
         return count;
     }
 
@@ -91,35 +91,29 @@ public class SampleTable {
      * @param samples
      */
     private int insertSamplesChunk(long object, String attribute, int priType, List<JsonSample> samples) throws JEVisException {
-        String sql = "INSERT IGNORE into " + TABLE
-                + "(" + COLUMN_OBJECT + "," + COLUMN_ATTRIBUTE + "," + COLUMN_TIMESTAMP
-                + "," + COLUMN_VALUE + "," + COLUMN_MANID + "," + COLUMN_NOTE + "," + COLUMN_INSERT_TIMESTAMP
-                + ") VALUES";
+        String sql = String.format("INSERT IGNORE into %s(%s,%s,%s,%s,%s,%s,%s) VALUES",
+                TABLE, COLUMN_OBJECT, COLUMN_ATTRIBUTE, COLUMN_TIMESTAMP, COLUMN_VALUE, COLUMN_MANID, COLUMN_NOTE, COLUMN_INSERT_TIMESTAMP);
 
-//        logger.info("SQL raw: "+sql);
-        PreparedStatement ps = null;
         int count = 0;
 
-        try {
-            StringBuilder build = new StringBuilder(sql);
+        StringBuilder build = new StringBuilder(sql);
 
-            for (int i = 0; i < samples.size(); i++) {
-                build.append("(?,?,?,?,?,?,?)");
-                if (i < samples.size() - 1) {
-                    build.append(", ");
-                } else {
+        for (int i = 0; i < samples.size(); i++) {
+            build.append("(?,?,?,?,?,?,?)");
+            if (i < samples.size() - 1) {
+                build.append(", ");
+            } else {
 //                    build.append(";");
-                }
             }
+        }
 
-            String sqlWithUpdate = build.toString();
-            sqlWithUpdate = sqlWithUpdate += " ON DUPLICATE KEY UPDATE "
-                    + COLUMN_VALUE + "=VALUES(" + COLUMN_VALUE + "), "
-                    + COLUMN_NOTE + "=VALUES(" + COLUMN_NOTE + "), "
-                    + COLUMN_MANID + "=VALUES(" + COLUMN_MANID + ") ";
+        String sqlWithUpdate = build.toString();
+        sqlWithUpdate = sqlWithUpdate += " ON DUPLICATE KEY UPDATE "
+                + COLUMN_VALUE + "=VALUES(" + COLUMN_VALUE + "), "
+                + COLUMN_NOTE + "=VALUES(" + COLUMN_NOTE + "), "
+                + COLUMN_MANID + "=VALUES(" + COLUMN_MANID + ") ";
 
-            ps = _connection.getConnection().prepareStatement(sqlWithUpdate);
-
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sqlWithUpdate)) {
             Calendar cal = Calendar.getInstance();//care tor TZ?
             long now = cal.getTimeInMillis();
             DoubleValidator dv = DoubleValidator.getInstance();
@@ -177,38 +171,29 @@ public class SampleTable {
             _connection.getAttributeTable().updateMinMaxTS(object, attribute);
 
             return count;
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
             throw new JEVisException("Error while inserting Sample ", 4234, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw new JEVisException("Error while inserting Sample ", 4235, e);
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+            throw new JEVisException("Error while inserting Sample ", 4235, e);
         }
 
     }
 
     public boolean insertFile(long object, String att, DateTime from, JEVisFile file) throws JEVisException {
-        String sql = "INSERT IGNORE into " + TABLE
-                + "(" + COLUMN_OBJECT + "," + COLUMN_ATTRIBUTE + "," + COLUMN_TIMESTAMP + "," + COLUMN_INSERT_TIMESTAMP
-                + "," + COLUMN_FILE_NAME + "," + COLUMN_FILE
-                + ") VALUES (?,?,?,?,?,?)";
+        String sql = String.format("INSERT IGNORE into %s(%s,%s,%s,%s,%s,%s) VALUES (?,?,?,?,?,?)",
+                TABLE, COLUMN_OBJECT, COLUMN_ATTRIBUTE, COLUMN_TIMESTAMP, COLUMN_INSERT_TIMESTAMP, COLUMN_FILE_NAME, COLUMN_FILE);
 
-        PreparedStatement ps = null;
         int count = 0;
 
-        try {
-
-            sql = sql += " ON DUPLICATE KEY UPDATE "
-                    + COLUMN_FILE_NAME + "=VALUES(" + COLUMN_FILE_NAME + "), "
-                    + COLUMN_FILE + "=VALUES(" + COLUMN_FILE + ")";
-
-            ps = _connection.getConnection().prepareStatement(sql);
-
+        sql += " ON DUPLICATE KEY UPDATE "
+                + COLUMN_FILE_NAME + "=VALUES(" + COLUMN_FILE_NAME + "), "
+                + COLUMN_FILE + "=VALUES(" + COLUMN_FILE + ")";
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             Calendar cal = Calendar.getInstance();//care tor TZ?
             long now = cal.getTimeInMillis();
             ps.setLong(1, object);
@@ -220,7 +205,6 @@ public class SampleTable {
             ByteArrayInputStream bis = new ByteArrayInputStream(file.getBytes());
             ps.setBlob(6, bis);
 
-//            logger.info("SamplDB.putSample SQL: \n" + ps);
             logger.trace("SQL: {}", ps);
             _connection.addQuery("Sample.setFile()", ps.toString());
             count = ps.executeUpdate();
@@ -228,39 +212,26 @@ public class SampleTable {
             _connection.getAttributeTable().updateMinMaxTS(object, att);
 
             return count > 0;
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
             throw new JEVisException("Error while inserting Sample ", 4234, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
+
 
     }
 
     public JEVisFile getFileSample(long object, String att, DateTime from) throws JEVisException {
 
-        String sql = "select " + COLUMN_FILE + "," + COLUMN_FILE_NAME + " from " + TABLE
-                + " where " + COLUMN_OBJECT + "=?"
-                + " and " + COLUMN_ATTRIBUTE + "=?"
-                + " " + COLUMN_TIMESTAMP + "=?";
+        String sql = String.format("select %s,%s from %s where %s=? and %s=? %s=?",
+                COLUMN_FILE, COLUMN_FILE_NAME, TABLE, COLUMN_OBJECT, COLUMN_ATTRIBUTE, COLUMN_TIMESTAMP);
 
-        PreparedStatement ps = null;
+        if (from != null) {
+            sql += " " + COLUMN_TIMESTAMP + "=?";
+        } else {
+            sql += "order by " + COLUMN_TIMESTAMP + " limit 1";
+        }
 
-        try {
-
-            if (from != null) {
-                sql += " " + COLUMN_TIMESTAMP + "=?";
-            } else {
-                sql += "order by " + COLUMN_TIMESTAMP + " limit 1";
-            }
-
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             int pos = 1;
 
             ps.setLong(pos++, object);
@@ -289,18 +260,8 @@ public class SampleTable {
                 }
 
             }
-
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
-            throw new JEVisException("Error while select samples", 723547, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
         return null;
     }
@@ -308,9 +269,8 @@ public class SampleTable {
     public List<JsonSample> getSamples(long object, String att, DateTime from, DateTime until, long limit) throws JEVisException {
         List<JsonSample> samples = new ArrayList<>();
 
-        String sql = "select * from " + TABLE
-                + " where " + COLUMN_OBJECT + "=?"
-                + " and " + COLUMN_ATTRIBUTE + "=?";
+        String sql = String.format("select * from %s where %s=? and %s=?",
+                TABLE, COLUMN_OBJECT, COLUMN_ATTRIBUTE);
 
         if (from != null) {
             sql += " and " + COLUMN_TIMESTAMP + ">=?";
@@ -320,11 +280,7 @@ public class SampleTable {
         }
         sql += " order by " + COLUMN_TIMESTAMP + " limit " + limit;
 
-        PreparedStatement ps = null;
-
-        try {
-
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             int pos = 1;
 
             ps.setLong(pos++, object);
@@ -341,33 +297,24 @@ public class SampleTable {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                samples.add(SQLtoJsonFactory.buildSample(rs));
-            }
-
-        } catch (Exception ex) {
-            logger.error(ex);
-            throw new JEVisException("Error while select samples", 723547, ex);
-        } finally {
-            if (ps != null) {
                 try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
+                    samples.add(SQLtoJsonFactory.buildSample(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
                 }
             }
+        } catch (SQLException ex) {
+            logger.error(ex);
         }
+
         return samples;
+
     }
 
     public boolean deleteAllSamples(long object, String att) {
-        String sql = "delete from " + TABLE
-                + " where " + COLUMN_ATTRIBUTE + "=?"
-                + " and " + COLUMN_OBJECT + "=?";
+        String sql = String.format("delete from %s where %s=? and %s=?", TABLE, COLUMN_ATTRIBUTE, COLUMN_OBJECT);
 
-        PreparedStatement ps = null;
-
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, att);
             ps.setLong(2, object);
             logger.trace("SQL: {}", ps);
@@ -378,26 +325,15 @@ public class SampleTable {
             } else {
                 return false;
             }
-
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
-            //TODO throw JEVisExeption?!
             return false;
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
+
     }
 
     public boolean deleteSamples(long object, String att, DateTime from, DateTime until) {
-        String sql = "delete from " + TABLE
-                + " where " + COLUMN_ATTRIBUTE + "=?"
-                + " and " + COLUMN_OBJECT + "=?";
+        String sql = String.format("delete from %s where %s=? and %s=?", TABLE, COLUMN_ATTRIBUTE, COLUMN_OBJECT);
 
 
         if (from != null && until == null) {
@@ -409,10 +345,7 @@ public class SampleTable {
                     + " and " + COLUMN_TIMESTAMP + "<=?";
         }
 
-        PreparedStatement ps = null;
-
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, att);
             ps.setLong(2, object);
 
@@ -434,41 +367,39 @@ public class SampleTable {
                 return false;
             }
 
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
-            //TODO throw JEVisExeption?!
             return false;
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
+
     }
 
     public List<JsonSample> getAll(long object, String att) throws SQLException {
-//        logger.info("SampleTable.getAll");
         List<JsonSample> samples = new ArrayList<>();
 
-        String sql = "select * from " + TABLE
-                + " where " + COLUMN_OBJECT + "=?"
-                + " and " + COLUMN_ATTRIBUTE + "=?"
-                + " order by " + COLUMN_TIMESTAMP;
+        String sql = String.format("select * from %s where %s=? and %s=? order by %s",
+                TABLE, COLUMN_OBJECT, COLUMN_ATTRIBUTE, COLUMN_TIMESTAMP);
 
-        PreparedStatement ps = _connection.getConnection().prepareStatement(sql);
-        ps.setLong(1, object);
-        ps.setString(2, att);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            ps.setLong(1, object);
+            ps.setString(2, att);
 
-        logger.trace("SQL: {}", ps);
-        _connection.addQuery("Sample.getAll()", ps.toString());
-        ResultSet rs = ps.executeQuery();
+            logger.trace("SQL: {}", ps);
+            _connection.addQuery("Sample.getAll()", ps.toString());
+            ResultSet rs = ps.executeQuery();
 
-        while (rs.next()) {
-            samples.add(SQLtoJsonFactory.buildSample(rs));
+            while (rs.next()) {
+                try {
+                    samples.add(SQLtoJsonFactory.buildSample(rs));
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            }
+
+        } catch (SQLException ex) {
+            logger.error(ex);
         }
+
 
         return samples;
     }
@@ -481,18 +412,10 @@ public class SampleTable {
      * @return
      */
     public boolean hasSamples(long objectID, String attribute) throws Exception {
-        String sql = "" +
-                "select " + COLUMN_OBJECT + " from " + TABLE
-                + " where " + COLUMN_OBJECT + "=?"
-                + " and " + COLUMN_ATTRIBUTE + "=?"
-                + " limit 1";
+        String sql = String.format("select %s from %s where %s=? and %s=? limit 1",
+                COLUMN_OBJECT, TABLE, COLUMN_OBJECT, COLUMN_ATTRIBUTE);
 
-        PreparedStatement ps = null;
-
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
-
-            //insert
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, objectID);
             ps.setString(2, attribute);
 
@@ -504,36 +427,20 @@ public class SampleTable {
                 hasSamples = true;
             }
             return hasSamples;
-
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
-            ex.printStackTrace();
             throw ex;
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
+
     }
 
     public JsonSample getLatest(long object, String att) throws JEVisException {
-        JEVisSample sample = null;
-        PreparedStatement ps = null;
-        try {
-            String sql = "select * from " + TABLE
-                    + " where " + COLUMN_OBJECT + "=?"
-                    + " and " + COLUMN_ATTRIBUTE + "=?"
-                    + " order by " + COLUMN_TIMESTAMP + " DESC"
-                    + " limit 1";
+        String sql = String.format("select * from %s where %s=? and %s=? order by %s DESC limit 1",
+                TABLE, COLUMN_OBJECT, COLUMN_ATTRIBUTE, COLUMN_TIMESTAMP);
 
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, object);
             ps.setString(2, att);
-//        ps.setTimestamp(3, new Timestamp(att.getTimestampFromLastSample().getMillis()));
 
             logger.trace("SQL: {}", ps);
             _connection.addQuery("Sample.getLastes()", ps.toString());
@@ -543,17 +450,10 @@ public class SampleTable {
                 return SQLtoJsonFactory.buildSample(rs);
             }
             return null;
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
             throw new JEVisException("Error while inserting object", 234234, ex);//ToDo real number
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException ex) {
-                    logger.debug("Error while closing DB connection: {}. ", ex);
-                }
-            }
         }
+
     }
 }

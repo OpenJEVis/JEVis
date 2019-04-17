@@ -133,11 +133,11 @@ public class SampleExportExtension implements SampleEditorExtension {
             } catch (FileNotFoundException ex) {
                 logger.fatal(ex);
                 ExceptionDialog errDia = new ExceptionDialog();
-                errDia.show("Error", "Error while exporting", "Could not write to file", ex, JEConfig.PROGRAM_INFO);
+                errDia.show("Error", "Error while exporting", "Could not write to file", ex, null);
             } catch (UnsupportedEncodingException ex) {
                 logger.fatal(ex);
                 ExceptionDialog errDia = new ExceptionDialog();
-                errDia.show("Error", "Error while exporting", "Unsupported encoding", ex, JEConfig.PROGRAM_INFO);
+                errDia.show("Error", "Error while exporting", "Unsupported encoding", ex, null);
             }
         }
 

@@ -341,10 +341,11 @@ public class CalcJobFactory {
             /**
              * find the combined end interval
              * hotfix to calculate inputs with different time range
+             * Discussion: we we handel the error here or do we throw an error and the caller has to take care of this?
              */
             List<JEVisObject> inputObjectList = getCalcInputObjects(jevisObject);
             List<DateTime> lastSampleList = new ArrayList<>();
-            DateTime combinedEndTime = endTime;
+            DateTime combinedEndTime = startTime;
             for (JEVisObject child : inputObjectList) {
                 JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
@@ -354,7 +355,7 @@ public class CalcJobFactory {
                 }
             }
             for (DateTime ts : lastSampleList) {
-                if (ts.isBefore(combinedEndTime)) {
+                if (ts.isBefore(combinedEndTime) && ts.isAfter(startTime)) {
                     combinedEndTime = ts;
                 }
             }

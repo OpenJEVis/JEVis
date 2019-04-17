@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
@@ -8,7 +10,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -18,7 +19,6 @@ import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
@@ -33,6 +33,7 @@ public class ValueWidget extends Widget {
     private final Label label = new Label();
     private NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
+    private StringProperty labelText = new SimpleStringProperty("n.a.");
 
     public ValueWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
@@ -64,51 +65,42 @@ public class ValueWidget extends Widget {
             nf.setMaximumFractionDigits(config.decimals.getValue());
         }
 
+        labelText.setValue("n.a.");
 
-        Platform.runLater(() -> {
-            try {
-                ChartDataModel dataModel = sampleHandler.getDataModel().get(0);
-                List<JEVisSample> results;
+        try {
+            ChartDataModel dataModel = sampleHandler.getDataModel().get(0);
+            List<JEVisSample> results;
 
-                String unit = dataModel.getUnitLabel();
-
-
-                if (dataModel.getEnPI()) {
-                    CalcJobFactory calcJobCreator = new CalcJobFactory();
-
-                    CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(
-                            new SampleHandler(), dataModel.getObject().getDataSource(), dataModel.getCalculationObject(),
-                            dataModel.getSelectedStart(), dataModel.getSelectedEnd(), true);
-
-                    results = calcJob.getResults();
-
-                } else {
-                    results = dataModel.getSamples();
-                }
-
-                if (!results.isEmpty()) {
-                    label.setText(nf.format(results.get(results.size() - 1).getValueAsDouble()) + " " + unit);
-                } else {
-                    label.setText("n.a.");
-                }
+            String unit = dataModel.getUnitLabel();
 
 
-            } catch (Exception ex) {
-                label.setText("-");
-                logger.error(ex);
-//                ex.printStackTrace();
+            if (dataModel.getEnPI()) {
+                CalcJobFactory calcJobCreator = new CalcJobFactory();
+
+                CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(
+                        new SampleHandler(), dataModel.getObject().getDataSource(), dataModel.getCalculationObject(),
+                        dataModel.getSelectedStart(), dataModel.getSelectedEnd(), true);
+
+                results = calcJob.getResults();
+
+            } else {
+                results = dataModel.getSamples();
             }
 
+            if (!results.isEmpty()) {
+                labelText.setValue(nf.format(results.get(results.size() - 1).getValueAsDouble()) + " " + unit);
+            }
+
+
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+
+        Platform.runLater(() -> {
+            label.setText(labelText.getValue());
         });
 
-    }
 
-    private void setChartLabel(MultiAxisLineChart chart, Color newValue) {
-        chart.getY1Axis().setTickLabelFill(newValue);
-        chart.getXAxis().setTickLabelFill(newValue);
-
-        chart.getXAxis().setLabel("");
-        chart.getY1Axis().setLabel("");
     }
 
 

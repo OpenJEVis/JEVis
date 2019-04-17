@@ -122,11 +122,15 @@ public class DashBoardPane extends Pane {
 
     public Widget createWidget(WidgetConfig widget) {
         for (Widget availableWidget : Widgets.getAvabableWidgets(analysis.getDataSource(), widget)) {
-            if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
-                widget.setType(availableWidget.getId());
-                availableWidget.init();
+            try {
+                if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
+                    widget.setType(availableWidget.getId());
+                    availableWidget.init();
 
-                return availableWidget;
+                    return availableWidget;
+                }
+            } catch (Exception ex) {
+                logger.error(ex);
             }
         }
 
@@ -210,10 +214,13 @@ public class DashBoardPane extends Pane {
         Runnable updateTask = new Runnable() {
             @Override
             public void run() {
-
-                widget.showProgressIndicator(true);
-                widget.update(interval);
-                widget.showProgressIndicator(false);
+                try {
+                    widget.showProgressIndicator(true);
+                    widget.update(interval);
+                    widget.showProgressIndicator(false);
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
             }
         };
         executor.execute(updateTask);

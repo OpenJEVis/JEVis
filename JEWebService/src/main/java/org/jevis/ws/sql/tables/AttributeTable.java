@@ -47,15 +47,11 @@ public class AttributeTable {
     public final static String COLUMN_NAME = "name";
     public final static String COLUMN_MIN_TS = "mints";
     public final static String COLUMN_MAX_TS = "maxts";
-    //    public final static String COLUMN_PERIOD = "period";//depricated
-//    public final static String COLUMN_UNIT = "unit";//depricated
     public final static String COLUMN_COUNT = "samplecount";
     public final static String COLUMN_INPUT_UNIT = "inputunit";
-    //    public final static String COLUMN_ALT_SYMBOL = "altsymbol";
     public final static String COLUMN_INPUT_RATE = "inputrate";
     public final static String COLUMN_DISPLAY_UNIT = "displayunit";
     public final static String COLUMN_DISPLAY_RATE = "displayrate";
-    public final static String COLUMN_OPTION = "opt";//option and options are already sql keywords
     private static final Logger logger = LogManager.getLogger(AttributeTable.class);
     private final SQLDataSource _connection;
 
@@ -65,35 +61,34 @@ public class AttributeTable {
 
     //TODO: try-catch-finally
     public void insert(JEVisType type, JEVisObject obj) {
-//        logger.info("AttributeTable.insert");
-        String sql = "insert into " + TABLE
-                + " (" + COLUMN_OBJECT + "," + COLUMN_NAME
-                + "," + COLUMN_DISPLAY_UNIT + "," + COLUMN_INPUT_UNIT
-                + ") values(?,?,?,?)";
+        String sql = String.format("insert into %s (%s,%s,%s,%s) values(?,?,?,?)",
+                TABLE, COLUMN_OBJECT, COLUMN_NAME, COLUMN_DISPLAY_UNIT, COLUMN_INPUT_UNIT);
 
-        try {
-            PreparedStatement ps = _connection.getConnection().prepareStatement(sql);
-
-            ps.setLong(1, obj.getID());
-            ps.setString(2, type.getName());
-
-            String unitJSON = "";
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             try {
-                unitJSON = type.getUnit().toJSON();
-            } catch (Exception ex) {
+                ps.setLong(1, obj.getID());
+                ps.setString(2, type.getName());
 
+                String unitJSON = "";
+                try {
+                    unitJSON = type.getUnit().toJSON();
+                } catch (Exception ex) {
+
+                }
+
+                //DisplayUnit
+                ps.setString(3, unitJSON);
+                ps.setString(4, unitJSON);
+
+                int count = ps.executeUpdate();
+            } catch (JEVisException jex) {
+                logger.error(jex);
             }
-
-            //DisplayUnit
-            ps.setString(3, unitJSON);
-            ps.setString(4, unitJSON);
-
-            _connection.addQuery("Attribute.insert()", ps.toString());
-            int count = ps.executeUpdate();
-
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
         }
+
+
     }
 
     //TODO: try-catch-finally
@@ -110,21 +105,16 @@ public class AttributeTable {
         logger.trace("getAttributes ");
         List<JsonAttribute> attributes = new ArrayList<>();
 
-        String sql = "select o.type,a.*,s.*"
-                + " FROM attribute a"
-                + " left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts )"
-                + " left join object o on (o.id=a.object)"
-                + " where a.object=?;";
+        String sql = String.format("select o.type,a.*,s.* " +
+                "FROM attribute a " +
+                "left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts ) " +
+                "left join object o on (o.id=a.object) where a.object=?;");
 
 
-        try {
-            PreparedStatement ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setLong(1, object);
 
-//            logger.info("SQL: " + ps);
             logger.trace("SQL {}", ps);
-            _connection.addQuery("Attribute.get(long)", ps.toString());
-            //logger.info("SQL: " + ps);
             ResultSet rs = ps.executeQuery();
 
 
@@ -138,13 +128,13 @@ public class AttributeTable {
                 } catch (Exception ex) {
                     logger.trace(ex);
                 }
-            }
-        } catch (Exception ex) {
-            logger.error(ex);
-            throw new JEVisException("Error while fetching Attributes ", 85675, ex);
 
+            }
+
+        } catch (SQLException ex) {
+            logger.error(ex);
         }
-//        Collections.sort(attributes);
+
 
         return attributes;
     }
@@ -153,22 +143,15 @@ public class AttributeTable {
         logger.trace("getAllAttributes ");
         List<JsonAttribute> attributes = new ArrayList<>();
 
-        String sql = "select o.type,a.*,s.*"
-                + " FROM attribute a"
-                + " left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts )"
-                + " left join object o on (o.id=a.object)";
+        String sql = String.format("select o.type,a.*,s.* " +
+                "FROM attribute a " +
+                "left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts ) " +
+                "left join object o on (o.id=a.object)");
 
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
 
-        try {
-            PreparedStatement ps = _connection.getConnection().prepareStatement(sql);
-
-//            logger.info("SQL: " + ps);
             logger.trace("SQL {}", ps);
-            _connection.addQuery("Attribute.get(long)", ps.toString());
-            //logger.info("SQL: " + ps);
             ResultSet rs = ps.executeQuery();
-
-
             while (rs.next()) {
                 try {
                     JsonAttribute att = SQLtoJsonFactory.buildAttributeThisLastValue(rs);
@@ -180,12 +163,11 @@ public class AttributeTable {
                     logger.trace(ex);
                 }
             }
-        } catch (Exception ex) {
-            logger.error(ex);
-            throw new JEVisException("Error while fetching Attributes ", 85675, ex);
 
+        } catch (SQLException ex) {
+            logger.error(ex);
         }
-//        Collections.sort(attributes);
+
 
         return attributes;
     }
@@ -197,18 +179,12 @@ public class AttributeTable {
      * @param objectID
      * @param attribute
      */
-    public void delteMinMaxTS(long objectID, String attribute) {
-        String sql = "" +
-                "delete from " + TABLE
-                + " where " + COLUMN_OBJECT + "=?,"
-                + " and " + COLUMN_NAME + "=?";
+    public void deleteMinMaxTS(long objectID, String attribute) {
+        String sql = String.format("delete from %s where %s=?, and %s=?", TABLE, COLUMN_OBJECT, COLUMN_NAME);
 
-        PreparedStatement ps = null;
 
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
 
-            //insert
             ps.setLong(1, objectID);
             ps.setString(2, attribute);
 
@@ -216,17 +192,10 @@ public class AttributeTable {
             logger.debug("SQL: {}", ps);
             ps.executeUpdate();
 
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
+
     }
 
 
@@ -234,48 +203,26 @@ public class AttributeTable {
 
         try {
             if (!_connection.getSampleTable().hasSamples(objectID, attribute)) {
-                delteMinMaxTS(objectID, attribute);
+                deleteMinMaxTS(objectID, attribute);
             }//else continue
         } catch (Exception ex) {
             logger.error("Error while checking if attribute has data", ex);
         }
 
-        /* Possible trigger to haldle the update on the DB side but i fear the performace for an "for each"+"3 sub selects" and big inserts(100k+ rows)
-        --
-        DELIMITER $$
+        String sql = String.format("insert into %s( %s,%s,%s,%s,%s) " +
+                        "select min(%s), max(%s), count(*), object, attribute  " +
+                        "from sample where object=? and attribute=?  " +
+                        "ON DUPLICATE KEY UPDATE   %s=(select min(%s) from %s where %s=?  and %s=?),   %s=(select max(%s) " +
+                        "from %s where %s=?  and %s=?), %s=(select count(*) from %s where %s=?  and %s=?)",
+                TABLE, COLUMN_MIN_TS, COLUMN_MAX_TS, COLUMN_COUNT, COLUMN_OBJECT, COLUMN_NAME,
+                SampleTable.COLUMN_TIMESTAMP, SampleTable.COLUMN_TIMESTAMP, COLUMN_MIN_TS,
+                SampleTable.COLUMN_TIMESTAMP, SampleTable.TABLE, SampleTable.COLUMN_OBJECT,
+                SampleTable.COLUMN_ATTRIBUTE, COLUMN_MAX_TS, SampleTable.COLUMN_TIMESTAMP,
+                SampleTable.TABLE, SampleTable.COLUMN_OBJECT, SampleTable.COLUMN_ATTRIBUTE,
+                COLUMN_COUNT, SampleTable.TABLE, SampleTable.COLUMN_OBJECT, SampleTable.COLUMN_ATTRIBUTE);
 
-        CREATE TRIGGER `sample_after_insert` AFTER INSERT on `sample`
-        for each row
-        BEGIN
-                insert into attribute (mints,maxts,samplecount,name,object)
-                        select min(timestamp), max(timestamp), count(*),attribute,object from sample where object=new.object and attribute=new.attribute
-                on DUPLICATE KEY UPDATE
-                        mints=(select min(timestamp) from sample where object=new.object and attribute=new.attribute),
-                        maxts=(select max(timestamp) from sample where object=new.object and attribute=new.attribute),
-                        samplecount=(select count(*) from sample where object=new.object and attribute=new.attribute);
-        END
-        $$
-        --
-         */
-        String sql = "insert into " + TABLE
-                + "( "
-                + COLUMN_MIN_TS + ","
-                + COLUMN_MAX_TS + ","
-                + COLUMN_COUNT + ","
-                + COLUMN_OBJECT + ","
-                + COLUMN_NAME
-                + ")"
-                + " select min(" + SampleTable.COLUMN_TIMESTAMP + "), max(" + SampleTable.COLUMN_TIMESTAMP + "), count(*), object, attribute "
-                + " from sample where object=? and attribute=? "
-                + " ON DUPLICATE KEY UPDATE"
-                + "   " + COLUMN_MIN_TS + "=(select min(" + SampleTable.COLUMN_TIMESTAMP + ") from " + SampleTable.TABLE + " where " + SampleTable.COLUMN_OBJECT + "=?  and " + SampleTable.COLUMN_ATTRIBUTE + "=?),"
-                + "   " + COLUMN_MAX_TS + "=(select max(" + SampleTable.COLUMN_TIMESTAMP + ") from " + SampleTable.TABLE + " where " + SampleTable.COLUMN_OBJECT + "=?  and " + SampleTable.COLUMN_ATTRIBUTE + "=?),"
-                + "   " + COLUMN_COUNT + "=(select count(*) from " + SampleTable.TABLE + " where " + SampleTable.COLUMN_OBJECT + "=?  and " + SampleTable.COLUMN_ATTRIBUTE + "=?)";
 
-        PreparedStatement ps = null;
-
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
 
             //insert
             ps.setLong(1, objectID);
@@ -294,19 +241,10 @@ public class AttributeTable {
             ps.setString(8, attribute);
 
             logger.debug("SQL: {}", ps);
-            _connection.addQuery("Attribute.updateMinMax()", ps.toString());
             ps.executeUpdate();
 
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
 
     }
@@ -318,34 +256,10 @@ public class AttributeTable {
      */
     public void updateAttribute(long object, JsonAttribute att) throws JEVisException {
 
-        /*
-        INSERT INTO AggregatedData (datenum,Timestamp)
-            VALUES ("734152.979166667","2010-01-14 23:30:00.000")
-            ON DUPLICATE KEY UPDATE
-            Timestamp=VALUES(Timestamp)
+        String sql = String.format("insert into %s( %s,%s,%s,%s,%s,%s) Values ( ?,?,?,?,?,?)  ON DUPLICATE KEY UPDATE %s=?,%s=?,%s=?,%s=?", TABLE, COLUMN_DISPLAY_UNIT, COLUMN_INPUT_UNIT, COLUMN_DISPLAY_RATE, COLUMN_INPUT_RATE, COLUMN_OBJECT, COLUMN_NAME, COLUMN_DISPLAY_UNIT, COLUMN_INPUT_UNIT, COLUMN_DISPLAY_RATE, COLUMN_INPUT_RATE);
 
-         */
-        String sql = "insert into " + TABLE
-                + "( "
-                + COLUMN_DISPLAY_UNIT + ","
-                + COLUMN_INPUT_UNIT + ","
-                + COLUMN_DISPLAY_RATE + ","
-                + COLUMN_INPUT_RATE + ","
-                + COLUMN_OBJECT + ","
-                + COLUMN_NAME
-                + ")"
-                + " Values ( ?,?,?,?,?,?) "
-                + " ON DUPLICATE KEY UPDATE "
-                + COLUMN_DISPLAY_UNIT + "=?,"
-                + COLUMN_INPUT_UNIT + "=?,"
-                + COLUMN_DISPLAY_RATE + "=?,"
-                + COLUMN_INPUT_RATE + "=?";
-
-        PreparedStatement ps = null;
-        Gson gson = new Gson();
-        try {
-            ps = _connection.getConnection().prepareStatement(sql);
-
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            Gson gson = new Gson();
             JEVisUnit fallbackUnit = new JEVisUnitImp(Unit.ONE);
 
             if (att.getDisplayUnit() != null && att.getDisplayUnit() != null) {
@@ -390,22 +304,12 @@ public class AttributeTable {
             }
 
             logger.debug("SQL: {}", ps);
-            _connection.addQuery("Attribute.update()", ps.toString());
 
             ps.executeUpdate();
-
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
-            throw new JEVisException("Error while updateing attribute ", 4233, ex);
-        } finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    /*ignored*/
-                }
-            }
         }
+
 
     }
 }

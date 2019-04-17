@@ -115,6 +115,14 @@ public class ResourceSample {
                         endDate = fmt.parseDateTime(end);
                     }
 
+                    /** simple security measure, somehow the client ask for the dates like '1000-01-01.." which is not
+                     *  an really unease now. This will crate a lot of problems on the server-
+                     */
+                    if (endDate.getYear() < 1980 || endDate.getYear() < 1980) {
+                        Response.ok(new ArrayList<JsonSample>()).build();
+                    }
+
+
                     if (onlyLatest == true) {
                         logger.trace("Lastsample mode");
 
@@ -385,8 +393,8 @@ public class ResourceSample {
                 ds.getUserManager().canWrite(object);//can throw exception
             }
 
-            if(object.getJevisClass().equals("User") && !ds.getUserManager().isSysAdmin()){
-                if(attribute.equals("Sys Admin")){
+            if (object.getJevisClass().equals("User") && !ds.getUserManager().isSysAdmin()) {
+                if (attribute.equals("Sys Admin")) {
                     throw new JEVisException("permission denied", 3023);
                 }
             }

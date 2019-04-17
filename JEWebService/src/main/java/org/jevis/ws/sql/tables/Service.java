@@ -24,9 +24,9 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.ws.sql.SQLDataSource;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
- *
  * @author florian.simon@envidatec.com
  */
 public class Service {
@@ -55,13 +55,12 @@ public class Service {
                 + "delete from classrelationship where startclass not in (select name from\n"
                 + "objectclass) or endclass not in (select name from objectclass);";
 
-        try {
-            PreparedStatement ps = _connection.getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.executeQuery();
-
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             logger.error(ex);
         }
+
     }
 
 }

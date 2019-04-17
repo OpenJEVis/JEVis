@@ -1,22 +1,18 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
-import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
-import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
@@ -32,17 +28,17 @@ public class TableWidget extends Widget {
     public static String WIDGET_ID = "Table";
     private NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
-    private TableView<ChartDataModel> table;
+    private TableView<TableData> table;
 
 
     public TableWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
     }
 
+
     public TableWidget(JEVisDataSource jeVisDataSource, WidgetConfig config) {
         super(jeVisDataSource, config);
     }
-
 
     @Override
     public void update(Interval interval) {
@@ -65,15 +61,53 @@ public class TableWidget extends Widget {
             nf.setMaximumFractionDigits(config.decimals.getValue());
         }
 
+        ObservableList<TableData> tableDatas = FXCollections.observableArrayList();
+        sampleHandler.getDataModel().forEach(chartDataModel -> {
+            try {
+                List<JEVisSample> results;
+                if (chartDataModel.getEnPI()) {
+                    CalcJobFactory calcJobCreator = new CalcJobFactory();
+
+                    CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(
+                            new SampleHandler(), chartDataModel.getObject().getDataSource(),
+                            chartDataModel.getCalculationObject(), chartDataModel.getSelectedStart(),
+                            chartDataModel.getSelectedEnd(), true);
+
+                    results = calcJob.getResults();
+
+                } else {
+                    results = chartDataModel.getSamples();
+                }
+
+                if (!results.isEmpty()) {
+                    JEVisSample sample = results.get(results.size() - 1);
+                    tableDatas.add(new TableData(
+                            chartDataModel.getObject().getName(),
+                            nf.format(sample.getValueAsDouble()),
+                            chartDataModel.getUnitLabel()));
+
+
+                } else {
+                    tableDatas.add(new TableData(
+                            chartDataModel.getObject().getName(),
+                            "n.a.",
+                            chartDataModel.getUnitLabel()));
+                }
+            } catch (Exception ex) {
+                logger.error(ex);
+                ex.printStackTrace();
+                tableDatas.add(new TableData("", "", ""));
+            }
+        });
+
         Platform.runLater(() -> {
             table.getItems().clear();
-            table.setItems(FXCollections.observableArrayList(sampleHandler.getDataModel()));
+            table.setItems(tableDatas);
 
         });
 
 
     }
-
 
     @Override
     public void init() {
@@ -81,113 +115,33 @@ public class TableWidget extends Widget {
         sampleHandler = new DataModelDataHandler(getDataSource(), config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         sampleHandler.setMultiSelect(false);
 
-        table = new TableView<ChartDataModel>();
+        table = new TableView<TableData>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        TableColumn<ChartDataModel, String> nameCol = new TableColumn<ChartDataModel, String>("Name");
+        TableColumn<TableData, String> nameCol = new TableColumn<TableData, String>("Name");
         nameCol.setMinWidth(225);
-        nameCol.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ChartDataModel, String>, ObservableValue<String>>() {
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<ChartDataModel, String> p) {
-                try {
-                    ChartDataModel chartDataModel = p.getValue();
-                    if (chartDataModel.getObject() != null) {
-                        return new SimpleStringProperty(chartDataModel.getObject().getName());
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-                return new SimpleStringProperty("");
-            }
-        });
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-        TableColumn<ChartDataModel, String> valueCol = new TableColumn<ChartDataModel, String>("Wert");
+
+        TableColumn<TableData, String> valueCol = new TableColumn<TableData, String>("Wert");
         valueCol.setPrefWidth(150);
         valueCol.setStyle("-fx-alignment: CENTER-RIGHT;");
-        valueCol.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ChartDataModel, String>, ObservableValue<String>>() {
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<ChartDataModel, String> p) {
-                try {
-
-                    ChartDataModel chartDataModel = p.getValue();
-                    List<JEVisSample> results;
-                    if (chartDataModel.getEnPI()) {
-                        CalcJobFactory calcJobCreator = new CalcJobFactory();
-
-                        CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(
-                                new SampleHandler(), chartDataModel.getObject().getDataSource(),
-                                chartDataModel.getCalculationObject(), chartDataModel.getSelectedStart(),
-                                chartDataModel.getSelectedEnd(), true);
-
-                        results = calcJob.getResults();
-
-                    } else {
-                        results = chartDataModel.getSamples();
-                    }
-
-                    if (!results.isEmpty()) {
-                        JEVisSample sample = results.get(results.size() - 1);
-                        return new SimpleStringProperty(nf.format(sample.getValueAsDouble()));
-
-                    } else {
-                        return new SimpleStringProperty("n.a.");
-                    }
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-                return new SimpleStringProperty("");
-            }
-        });
+        valueCol.setCellValueFactory(new PropertyValueFactory<>("value"));
 
 
-        TableColumn<ChartDataModel, String> unitCol = new TableColumn<ChartDataModel, String>("Einheit");
-        unitCol.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ChartDataModel, String>, ObservableValue<String>>() {
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<ChartDataModel, String> p) {
-                try {
-                    ChartDataModel chartDataModel = p.getValue();
-                    if (chartDataModel.getUnitLabel() != null) {
-                        return new SimpleStringProperty(chartDataModel.getUnitLabel());
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-                return new SimpleStringProperty("");
-            }
-        });
-
+        TableColumn<TableData, String> unitCol = new TableColumn<TableData, String>("Einheit");
+        unitCol.setCellValueFactory(new PropertyValueFactory<>("unit"));
 
         table.getColumns().setAll(nameCol, valueCol, unitCol);
 
-        ChartDataModel emtyModel = new ChartDataModel(getDataSource());
-        table.setItems(FXCollections.observableArrayList(emtyModel));
+        TableData dummy = new TableData("", "", "");
+
+        table.setItems(FXCollections.observableArrayList(dummy));
         setGraphic(table);
 
 
     }
 
-//    private void autoreiszeColumn(TableView tableView, TableColumn tableColumn) {
-//        try {
-//
-////            Class clazz = column.getClass();
-//            Method columnToFitMethod = TableColumnHeader.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
-//            columnToFitMethod.setAccessible(true);
-//
-//
-//            columnToFitMethod.invoke(tableView.getSkin(), tableColumn, -1);
-//
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//    }
-
-    private ReadOnlyObjectWrapper buildValueColumn() {
-        return new ReadOnlyObjectWrapper<String>() {
-            @Override
-            public ReadOnlyObjectProperty<String> getReadOnlyProperty() {
-
-
-                return super.getReadOnlyProperty();
-            }
-        };
-    }
 
     @Override
     public String typeID() {
@@ -198,4 +152,45 @@ public class TableWidget extends Widget {
     public ImageView getImagePreview() {
         return JEConfig.getImage("widget/ValueWidget.png", previewSize.getHeight(), previewSize.getWidth());
     }
+
+    /**
+     * Pojo container for the table data
+     */
+    public class TableData {
+        String name = "";
+        String value = "";
+        String unit = "";
+
+        public TableData(String name, String value, String unit) {
+            this.name = name;
+            this.value = value;
+            this.unit = unit;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public String getUnit() {
+            return unit;
+        }
+
+        public void setUnit(String unit) {
+            this.unit = unit;
+        }
+    }
+
+
 }
