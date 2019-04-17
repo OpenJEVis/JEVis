@@ -41,7 +41,6 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
 import org.jevis.jeconfig.Constants;
-import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.type.GUIConstants;
@@ -55,7 +54,7 @@ import org.jevis.jeconfig.tool.I18n;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jevis.jeconfig.JEConfig.PROGRAM_INFO;
+//import static org.jevis.jeconfig.JEConfig.PROGRAM_INFO;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -165,13 +164,13 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             } catch (Exception ex) {
                 logger.catching(ex);
                 ExceptionDialog dia = new ExceptionDialog();
-                ExceptionDialog.Response re = dia.show(JEConfig.getStage(),
-                        I18n.getInstance().getString("dialog.error.title"),
-                        I18n.getInstance().getString("dialog.error.servercommit"), ex, PROGRAM_INFO);
-                if (re == ExceptionDialog.Response.CANCEL) {
-                    return false;
-                }
-
+//                ExceptionDialog.Response re = dia.show(JEConfig.getStage(),
+//                        I18n.getInstance().getString("dialog.error.title"),
+//                        I18n.getInstance().getString("dialog.error.servercommit"), ex, PROGRAM_INFO);
+//                if (re == ExceptionDialog.Response.CANCEL) {
+//                    return false;
+//                }
+                return false;
             }
 
         }

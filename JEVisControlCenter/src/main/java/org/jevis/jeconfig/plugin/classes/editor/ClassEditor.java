@@ -63,7 +63,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.jevis.jeconfig.JEConfig.PROGRAM_INFO;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -177,7 +176,7 @@ public class ClassEditor {
                 } catch (JEVisException ex) {
                     ExceptionDialog dia = new ExceptionDialog();
                     dia.show(JEConfig.getStage(), I18n.getInstance().getString("dialog.error.title"),
-                            I18n.getInstance().getString("dialog.error.servercommit"), ex, PROGRAM_INFO);
+                            I18n.getInstance().getString("dialog.error.servercommit"), ex, null);
                 }
 
                 fIcon.setOnAction(new EventHandler<ActionEvent>() {
@@ -215,7 +214,7 @@ public class ClassEditor {
                                 logger.catching(ex);
                                 ExceptionDialog dia = new ExceptionDialog();
                                 dia.show(I18n.getInstance().getString("dialog.error.title"),
-                                        I18n.getInstance().getString("plugin.classes.editor.error.icon.message"), ex.getMessage(), ex, JEConfig.PROGRAM_INFO);
+                                        I18n.getInstance().getString("plugin.classes.editor.error.icon.message"), ex.getMessage(), ex, null);
                             }
                         }
                     }
@@ -641,7 +640,7 @@ public class ClassEditor {
 
             ExceptionDialog dia = new ExceptionDialog();
             dia.show(JEConfig.getStage(), I18n.getInstance().getString("plugin.classes.editor.type.alert.openfile.title"),
-                    I18n.getInstance().getString("plugin.classes.editor.type.alert.openfile.message"), ex, PROGRAM_INFO);
+                    I18n.getInstance().getString("plugin.classes.editor.type.alert.openfile.message"), ex, null);
 
         }
     }
@@ -679,7 +678,7 @@ public class ClassEditor {
             logger.catching(ex);
             ExceptionDialog dia = new ExceptionDialog();
             dia.show(I18n.getInstance().getString("plugin.classes.editor.type.alert.save.title"),
-                    I18n.getInstance().getString("plugin.classes.editor.type.alert.save.message"), ex.getLocalizedMessage(), ex, JEConfig.PROGRAM_INFO);
+                    I18n.getInstance().getString("plugin.classes.editor.type.alert.save.message"), ex.getLocalizedMessage(), ex, null);
         }
     }
 
@@ -694,7 +693,7 @@ public class ClassEditor {
             logger.catching(ex);
 
             ExceptionDialog dia = new ExceptionDialog();
-            dia.show(JEConfig.getStage(), "Error", "Could not  rollback changes", ex, PROGRAM_INFO);
+            dia.show(JEConfig.getStage(), "Error", "Could not  rollback changes", ex, null);
         }
     }
 
