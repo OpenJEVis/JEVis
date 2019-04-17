@@ -91,7 +91,7 @@ public class ChartDataModel {
                 return samples;
             }
 
-            if (getSelectedStart().isBefore(getSelectedEnd())) {
+            if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                 try {
 
                     if (!isEnPI || aggregationPeriod.equals(AggregationPeriod.NONE)) {
