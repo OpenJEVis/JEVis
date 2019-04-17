@@ -81,7 +81,8 @@ public class ChartDataModel {
     public List<JEVisSample> getSamples() {
         if (somethingChanged) {
             getAttribute();
-            dataSource.reloadAttribute(attribute);
+            /** i thing we will not need to reload the attribute, because we dont use getMin/Max-TS **/
+            //dataSource.reloadAttribute(attribute);
 
             somethingChanged = false;
 
