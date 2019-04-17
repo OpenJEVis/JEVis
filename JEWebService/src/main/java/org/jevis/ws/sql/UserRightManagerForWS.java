@@ -74,25 +74,6 @@ public class UserRightManagerForWS {
                     break;
             }
         }
-//        for (JsonRelationship rel : userRel) {
-//            switch (rel.getType()) {
-//                case JEVisConstants.ObjectRelationship.MEMBER_READ:
-//                    readGIDS.add(rel.getTo());
-//                    break;
-//                case JEVisConstants.ObjectRelationship.MEMBER_WRITE:
-//                    writeGIDS.add(rel.getTo());
-//                    break;
-//                case JEVisConstants.ObjectRelationship.MEMBER_DELETE:
-//                    deleteGIDS.add(rel.getTo());
-//                    break;
-//                case JEVisConstants.ObjectRelationship.MEMBER_EXECUTE:
-//                    exeGIDS.add(rel.getTo());
-//                    break;
-//                case JEVisConstants.ObjectRelationship.MEMBER_CREATE:
-//                    createGIDS.add(rel.getTo());
-//                    break;
-//            }
-//        }
     }
 
     /**
@@ -131,20 +112,6 @@ public class UserRightManagerForWS {
 
             }
 
-
-//            /**
-//             * Add the memberships also
-//             */
-//            if (rel.getType() >= JEVisConstants.ObjectRelationship.MEMBER_READ
-//                    && rel.getType() <= JEVisConstants.ObjectRelationship.MEMBER_DELETE) {
-//                if (readGIDS.contains(rel.getTo())
-//                        || writeGIDS.contains(rel.getTo())
-//                        || exeGIDS.contains(rel.getTo())
-//                        || deleteGIDS.contains(rel.getTo())
-//                        || createGIDS.contains(rel.getTo())) {
-//                    list.add(rel);
-//                }
-//            }
         });
 
 
@@ -394,6 +361,14 @@ public class UserRightManagerForWS {
 
     public boolean canDeleteClass(String jclass) {
         return user.isSysAdmin();
+    }
+
+    public void clear(){
+        readGIDS.clear();
+        deleteGIDS.clear();
+        exeGIDS.clear();
+        writeGIDS.clear();
+        createGIDS.clear();
     }
 
 }
