@@ -16,6 +16,7 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
@@ -38,6 +39,8 @@ public class ChartWidget extends Widget {
     private ObjectMapper mapper = new ObjectMapper();
     private GraphAnalysisLinker graphAnalysisLinker;
 
+    private boolean autoAggregation = true;
+
     public ChartWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
     }
@@ -50,6 +53,34 @@ public class ChartWidget extends Widget {
     @Override
     public void update(Interval interval) {
         logger.info("Update: {}", interval);
+
+
+        sampleHandler.getDataModel().forEach(chartDataModel -> {
+            AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
+            if (autoAggregation) {
+                /** less then an week take original **/
+                if (interval.toDuration().getStandardDays() < 6) {
+                    aggregationPeriod = AggregationPeriod.NONE;
+                }
+                /** less then an month take hour **/
+                else if (interval.toDuration().getStandardDays() < 29) {
+                    aggregationPeriod = AggregationPeriod.HOURLY;
+                }
+                /** less than year take day **/
+                else if (interval.toDuration().getStandardDays() < 364) {
+                    aggregationPeriod = AggregationPeriod.DAILY;
+                }
+                /** more than an year take week **/
+                else {
+                    aggregationPeriod = AggregationPeriod.WEEKLY;
+                }
+                chartDataModel.setAggregationPeriod(aggregationPeriod);
+            }
+
+
+        });
+
+
         //if config changed
         if (config.hasChanged("")) {
             lineChart.setChartSettings(chart1 -> {
@@ -153,6 +184,19 @@ public class ChartWidget extends Widget {
         return JEConfig.getImage("widget/ChartWidget.png", previewSize.getHeight(), previewSize.getWidth());
     }
 
+    /**
+     * Set if the date in the interval will use the auto aggregation
+     * [if -> then]
+     * Day -> Display Interval
+     * Week -> Hourly
+     * Month -> Daily
+     * Year -> Weekly
+     *
+     * @param enable
+     */
+    public void setAutoAggrigation(boolean enable) {
+        autoAggregation = enable;
+    }
 
     public class ConfigNode {
         private Long graphAnalysisObject = 7904L;
