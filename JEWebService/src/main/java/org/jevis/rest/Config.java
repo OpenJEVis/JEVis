@@ -244,8 +244,10 @@ public class Config {
     public static void CloseDS(SQLDataSource ds) {
         try {
             if (ds != null) {
-                ds.getProfiler().printLog();
+//                ds.getProfiler().printLog();
                 ds.disconnect();
+                ds.clear();
+                ds=null;
             }
         } catch (Exception ex) {
             logger.catching(org.apache.logging.log4j.Level.TRACE, ex);

@@ -52,14 +52,13 @@ public class SQLDataSource {
 
     private List<JsonRelationship> allRelationships = Collections.synchronizedList(new LinkedList<>());
     private List<JsonObject> allObjects = Collections.synchronizedList(new LinkedList<>());
-    private Map<String, List<JsonType>> allTypes = new HashMap<>();
     private UserRightManagerForWS um;
     private Profiler pf = new Profiler();
 
     public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url) throws AuthenticationException, JEVisException {
 
         try {
-            pf.addEvent(String.format("Methode: %s URL: %s ", request.getMethod(), url.getRequestUri()), "");
+            pf.addEvent(String.format("Method: %s URL: %s ", request.getMethod(), url.getRequestUri()), "");
             ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
 
             dbConn = ConnectionFactory.getInstance().getConnection();
@@ -466,6 +465,7 @@ public class SQLDataSource {
         if (dbConn != null) {
             try {
                 dbConn.close();
+                dbConn=null;
                 return true;
             } catch (SQLException se) {
                 throw new JEVisException("Error while closing DB connection", 6492, se);
@@ -673,6 +673,22 @@ public class SQLDataSource {
         return getRelationshipTable().delete(fromObject, toObject, type);
     }
 
+
+    /**
+     * Let us try to help the garbage collector to clean up
+     */
+    public void clear(){
+        um.clear();
+        lTable=null;
+        oTable=null;
+        aTable=null;
+        sTable=null;
+        rTable=null;
+        lTable=null;
+
+        allRelationships.clear();
+        allObjects.clear();
+    }
 
     public enum PRELOAD {
         ALL_REL, ALL_CLASSES, ALL_OBJECT
