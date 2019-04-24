@@ -341,7 +341,7 @@ public class CalcJobFactory {
             /**
              * find the combined end interval
              * hotfix to calculate inputs with different time range
-             * Discussion: we we handel the error here or do we throw an error and the caller has to take care of this?
+             * Discussion: we we handle the error here or do we throw an error and the caller has to take care of this?
              */
             List<JEVisObject> inputObjectList = getCalcInputObjects(jevisObject);
             List<DateTime> lastSampleList = new ArrayList<>();

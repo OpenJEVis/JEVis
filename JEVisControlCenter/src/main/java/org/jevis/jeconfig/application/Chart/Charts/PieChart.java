@@ -70,40 +70,42 @@ public class PieChart implements Chart {
         }
 
         hexColors.clear();
-        chartDataModels.forEach(singleRow -> {
-            if (!singleRow.getSelectedcharts().isEmpty()) {
-                Double sumPiePiece = 0d;
-                QuantityUnits qu = new QuantityUnits();
-                boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
+        if (chartDataModels != null) {
+            for (ChartDataModel singleRow : chartDataModels) {
+                if (!singleRow.getSelectedcharts().isEmpty()) {
+                    Double sumPiePiece = 0d;
+                    QuantityUnits qu = new QuantityUnits();
+                    boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
 
-                List<JEVisSample> samples = singleRow.getSamples();
-                int samplecount = samples.size();
-                for (JEVisSample sample : samples) {
-                    try {
-                        sumPiePiece += sample.getValueAsDouble();
-                    } catch (JEVisException e) {
-                        logger.error(e);
+                    List<JEVisSample> samples = singleRow.getSamples();
+                    int samplecount = samples.size();
+                    for (JEVisSample sample : samples) {
+                        try {
+                            sumPiePiece += sample.getValueAsDouble();
+                        } catch (JEVisException e) {
+                            logger.error(e);
+                        }
                     }
-                }
 
-                if (qu.isSumCalculable(singleRow.getUnit()) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
-                    try {
-                        Period p = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
-                        double factor = Period.hours(1).toStandardDuration().getMillis() / p.toStandardDuration().getMillis();
-                        sumPiePiece = sumPiePiece / factor;
-                    } catch (Exception e) {
-                        logger.error("Couldn't calculate periods");
-                        sumPiePiece = 0d;
+                    if (qu.isSumCalculable(singleRow.getUnit()) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
+                        try {
+                            Period p = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                            double factor = Period.hours(1).toStandardDuration().getMillis() / p.toStandardDuration().getMillis();
+                            sumPiePiece = sumPiePiece / factor;
+                        } catch (Exception e) {
+                            logger.error("Couldn't calculate periods");
+                            sumPiePiece = 0d;
+                        }
+                    } else if (!isQuantity) {
+                        sumPiePiece = sumPiePiece / samplecount;
                     }
-                } else {
-                    sumPiePiece = sumPiePiece / samplecount;
-                }
 
-                listSumsPiePieces.add(sumPiePiece);
-                listTableEntryNames.add(singleRow.getObject().getName());
-                hexColors.add(singleRow.getColor());
+                    listSumsPiePieces.add(sumPiePiece);
+                    listTableEntryNames.add(singleRow.getObject().getName());
+                    hexColors.add(singleRow.getColor());
+                }
             }
-        });
+        }
 
         Double whole = 0d;
         List<Double> listPercentages = new ArrayList<>();

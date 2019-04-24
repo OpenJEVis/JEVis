@@ -120,7 +120,7 @@ public class QuantityUnits {
     }
 
     public boolean isSumCalculable(JEVisUnit unit) {
-        return energyUnits.contains(unit);
+        return energyUnits.contains(unit) || jeVisUnitArrayList.contains(unit);
     }
 
     public JEVisUnit getSumUnit(JEVisUnit unit) {

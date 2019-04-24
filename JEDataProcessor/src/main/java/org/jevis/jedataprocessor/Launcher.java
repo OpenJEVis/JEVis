@@ -100,7 +100,8 @@ public class Launcher extends AbstractCliApp {
     protected void runSingle(Long id) {
 
         try {
-            ProcessManager currentProcess = new ProcessManager(ds.getObject(id), new ObjectHandler(ds));
+            JEVisObject object = ds.getObject(id);
+            ProcessManager currentProcess = new ProcessManager(object, new ObjectHandler(ds));
             currentProcess.start();
         } catch (Exception e) {
             e.printStackTrace();
