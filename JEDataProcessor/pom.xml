@@ -68,13 +68,11 @@
         <dependency>
             <groupId>org.jevis.api</groupId>
             <artifactId>jeapi</artifactId>
-            <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.jevis</groupId>
             <artifactId>JEAPI-WS</artifactId>
-            <type>jar</type>
         </dependency>
 
         <dependency>
