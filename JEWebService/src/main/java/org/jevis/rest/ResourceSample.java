@@ -107,16 +107,15 @@ public class ResourceSample {
                     DateTime endDate = null;
                     if (start != null) {
                         startDate = fmt.parseDateTime(start);
+                        if (startDate.getYear() < 1980) {
+                            Response.ok(new ArrayList<JsonSample>()).build();
+                        }
                     }
                     if (end != null) {
                         endDate = fmt.parseDateTime(end);
-                    }
-
-                    /** simple security measure, somehow the client ask for the dates like '1000-01-01.." which is not
-                     *  an really unease now. This will crate a lot of problems on the server-
-                     */
-                    if (endDate.getYear() < 1980 || endDate.getYear() < 1980) {
-                        Response.ok(new ArrayList<JsonSample>()).build();
+                        if (endDate.getYear() < 1980) {
+                            Response.ok(new ArrayList<JsonSample>()).build();
+                        }
                     }
 
 
@@ -358,6 +357,9 @@ public class ResourceSample {
                     }.getType());
                     JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
                     int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
+                    samples.clear();
+                    samples = null;
+
                     return Response.status(Status.CREATED).build();
                 }
             }
