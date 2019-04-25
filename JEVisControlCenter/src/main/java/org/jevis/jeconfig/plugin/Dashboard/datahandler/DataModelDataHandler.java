@@ -50,6 +50,7 @@ public class DataModelDataHandler {
     private ObjectProperty<Interval> durationProperty = new SimpleObjectProperty<>();
     private DataModelNode dataModelNode = new DataModelNode();
 
+
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {
         this.jeVisDataSource = jeVisDataSource;
 
@@ -87,6 +88,8 @@ public class DataModelDataHandler {
 
                         chartDataModel.setManipulationMode(dataPointNode.getManipulationMode());
                         chartDataModel.setAggregationPeriod(dataPointNode.getAggregationPeriod());
+
+
 
 //                        chartDataModel.setManipulationMode(ManipulationMode.TOTAL);
 //                        chartDataModel.setAggregationPeriod(AggregationPeriod.HOURLY);
@@ -127,6 +130,8 @@ public class DataModelDataHandler {
     public static String generateValueKey(JEVisAttribute attribute) {
         return attribute.getObjectID() + ":" + attribute.getName();
     }
+
+
 
     public void setInterval(Interval interval) {
         this.durationProperty.setValue(interval);

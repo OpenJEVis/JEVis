@@ -2,12 +2,21 @@ package org.jevis.jeconfig.plugin.Dashboard.timeframe;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.jevis.api.JEVisObject;
+import org.jevis.commons.datetime.WorkDays;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
 public class TimeFrames {
+
+    private WorkDays workDays = new WorkDays(null);
+    final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
+    final String keyHourly = I18n.getInstance().getString("plugin.graph.interval.hourly");
+    final String keyQuarterly = I18n.getInstance().getString("plugin.graph.interval.quarterly");
+    final String keyYearly = I18n.getInstance().getString("plugin.graph.interval.yearly");
 
     public ObservableList<TimeFrameFactory> getAll() {
         ObservableList<TimeFrameFactory> list = FXCollections.observableArrayList();
@@ -19,6 +28,15 @@ public class TimeFrames {
 
         return list;
     }
+
+    /**
+     * Enable workdays support by given an object (Clean/Raw) form which we get the corresponding
+     * building and its workday settings.
+     */
+    public void setWorkdays(JEVisObject object) {
+        workDays = new WorkDays(object);
+    }
+
 
     public TimeFrameFactory custom() {
         return new TimeFrameFactory() {
@@ -66,7 +84,7 @@ public class TimeFrames {
 
             @Override
             public String getListName() {
-                return "Tag";
+                return I18n.getInstance().getString("plugin.graph.interval.daily");
             }
 
             @Override
@@ -88,9 +106,22 @@ public class TimeFrames {
             public Interval getInterval(DateTime dateTime) {
                 DateTime start = dateTime.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 DateTime end = dateTime.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
-                return new Interval(start, end);
+//                return new Interval(start, end);
+                return getWorkdayInterval(start, end);
             }
         };
+    }
+
+    private Interval getWorkdayInterval(DateTime start, DateTime end) {
+
+        DateTime workStart = start;
+        if (workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd())) {
+            workStart = start.minusDays(1);
+        }
+        workStart = workStart.withHourOfDay(workDays.getWorkdayStart().getHour()).withMinuteOfHour(workDays.getWorkdayStart().getMinute());
+        DateTime workEnd = end.withHourOfDay(workDays.getWorkdayEnd().getHour()).withMinuteOfHour(workDays.getWorkdayEnd().getMinute());
+        return new Interval(workStart, workEnd);
+
     }
 
     public TimeFrameFactory week() {
@@ -102,7 +133,7 @@ public class TimeFrames {
 
             @Override
             public String getListName() {
-                return "Woche";
+                return I18n.getInstance().getString("plugin.graph.interval.weekly");
             }
 
             @Override
@@ -125,7 +156,8 @@ public class TimeFrames {
             public Interval getInterval(DateTime dateTime) {
                 DateTime start = dateTime.withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 DateTime end = dateTime.withDayOfWeek(7).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
-                return new Interval(start, end);
+                //                return new Interval(start, end);
+                return getWorkdayInterval(start, end);
             }
         };
     }
@@ -139,7 +171,7 @@ public class TimeFrames {
 
             @Override
             public String getListName() {
-                return "Monat";
+                return I18n.getInstance().getString("plugin.graph.interval.monthly");
             }
 
             @Override
@@ -169,7 +201,8 @@ public class TimeFrames {
                         .withMillisOfSecond(0);
                 DateTime end = new DateTime(dateTime.getYear(), dateTime.getMonthOfYear(), lastDayInMonth, 23, 59, 59, 999);
 
-                return new Interval(start, end);
+                //                return new Interval(start, end);
+                return getWorkdayInterval(start, end);
             }
         };
     }
@@ -183,7 +216,7 @@ public class TimeFrames {
 
             @Override
             public String getListName() {
-                return "Jahr";
+                return I18n.getInstance().getString("plugin.graph.interval.yearly");
             }
 
             @Override
@@ -208,7 +241,8 @@ public class TimeFrames {
 //                DateTime end = dateTime.withMonthOfYear(12).withDayOfMonth(dateTime.dayOfMonth().getMaximumValue()).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
                 DateTime end = new DateTime(dateTime.getYear(), 12, 31, 23, 59, 59, 999);
 
-                return new Interval(start, end);
+                //                return new Interval(start, end);
+                return getWorkdayInterval(start, end);
             }
         };
     }
