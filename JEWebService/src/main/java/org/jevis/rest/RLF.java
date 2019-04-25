@@ -7,6 +7,7 @@ package org.jevis.rest;
 
 import com.google.gson.Gson;
 import org.apache.commons.net.util.Base64;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.glassfish.jersey.message.internal.ReaderWriter;
 import org.joda.time.DateTime;
@@ -21,7 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 /**
- *
  * @author fs
  */
 @Logged
@@ -37,63 +37,66 @@ public class RLF implements ContainerRequestFilter, ContainerResponseFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
-        try {
-            String username = getUserName(requestContext.getHeaderString("authorization"));
-            DateTime now = new DateTime();
-            DateTime start = (DateTime) requestContext.getProperty("StartTime");
-            logger.debug("[{}][{}][{}][{} ms] {}",
-                    username,
-                    requestContext.getRequest().getMethod(),
-                    responseContext.getStatus(),
-                    now.getMillis() - start.getMillis(),
-                    requestContext.getUriInfo().getRequestUri()
-            );
+        if (logger.getLevel().equals(Level.TRACE)) {
+            try {
+                String username = getUserName(requestContext.getHeaderString("authorization"));
+                DateTime now = new DateTime();
+                DateTime start = (DateTime) requestContext.getProperty("StartTime");
+                logger.debug("[{}][{}][{}][{} ms] {}",
+                        username,
+                        requestContext.getRequest().getMethod(),
+                        responseContext.getStatus(),
+                        now.getMillis() - start.getMillis(),
+                        requestContext.getUriInfo().getRequestUri()
+                );
 
-            if (requestContext.getMediaType()!=null && requestContext.getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)) {
-                logger.trace("Payload: \n{}",
-                        entityToString(requestContext.getEntityStream())
-                );
+                if (requestContext.getMediaType() != null && requestContext.getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)) {
+                    logger.trace("Payload: \n{}",
+                            entityToString(requestContext.getEntityStream())
+                    );
+                }
+                if (responseContext.getMediaType() != null && responseContext.getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)) {
+                    logger.trace("Payload: \n{}",
+                            (new Gson()).toJson(responseContext.getEntity())
+                    );
+
+                }
+
+            } catch (Exception ex) {
+                logger.trace("Logger error: ", ex);
             }
-            if (responseContext.getMediaType()!=null && responseContext.getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)){
-                logger.trace("Payload: \n{}",
-                        (new Gson()).toJson(responseContext.getEntity())
-                );
-                
-            }
-            
-        } catch (Exception ex) {
-            logger.error("Logger error: ",ex);
         }
-
     }
 
     private String entityToString(InputStream input) {
-        try{
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        final StringBuilder b = new StringBuilder();
         try {
-            ReaderWriter.writeTo(input, out);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            final StringBuilder b = new StringBuilder();
+            try {
+                ReaderWriter.writeTo(input, out);
 
-            byte[] requestEnttity = out.toByteArray();
-            if (requestEnttity.length == 0) {
-                b.append("\n");
+                byte[] requestEntity = out.toByteArray();
+                if (requestEntity.length == 0) {
+                    b.append("\n");
+                } else {
+                    b.append(new String(requestEntity));//charset?
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            } finally {
+                out.close();
+            }
+            //trim
+            if (b.length() > 200) {
+                return b.substring(0, 200) + " ... " + (b.length() - 200) + " more chars";
             } else {
-                b.append(new String(requestEnttity));//charset?
+                return b.toString();
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        //trim
-        if (b.length() > 200) {
-            return b.substring(0, 200) + " ... " + (b.length() - 200) + " more chars";
-        } else {
-            return b.toString();
-        }
-        }catch(Exception ex){
             logger.error(ex);
             return "- can not convert stream to string";
         }
-        
+
 
     }
 

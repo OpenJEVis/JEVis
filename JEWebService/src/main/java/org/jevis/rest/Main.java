@@ -65,6 +65,7 @@ public class Main {
                     logger.info("Database Connection is working");
                 } else {
                     logger.info("Database Connection is NOT working");
+                    System.exit(1);
                 }
             }
         }

@@ -44,7 +44,6 @@ public class ResourceHidden {
         SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("AttributeResource", "Start");
 
             if (ds.getUserManager().isSysAdmin()) {
                 Service service = new Service(ds);
@@ -71,8 +70,10 @@ public class ResourceHidden {
                        @Context UriInfo url) {
         SQLDataSource ds = null;
         try {
+            System.out.println("manage.gc");
+            System.gc();
+
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("AttributeResource", "Start");
 
             if (ds.getUserManager().isSysAdmin()) {
                 System.gc();

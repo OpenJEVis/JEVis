@@ -23,9 +23,9 @@ package org.jevis.rest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
-import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.ws.sql.SQLDataSource;
 
+import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -41,6 +41,7 @@ import javax.ws.rs.core.*;
 public class ResourceUser {
 
     private static final Logger logger = LogManager.getLogger(ResourceUser.class);
+    private SQLDataSource ds;
 
     @GET
     @Logged
@@ -50,13 +51,12 @@ public class ResourceUser {
             @Context Request request,
             @Context UriInfo url) {
 
-        SQLDataSource ds = null;
+
         try {
-            ds = new SQLDataSource(httpHeaders,request,url);
-            
-            JsonObject userobj = ds.getCurrentUser().getUserObject();
-            return Response.ok(userobj).build();
-          
+            ds = new SQLDataSource(httpHeaders, request, url);
+
+            return Response.ok(ds.getCurrentUser().getUserObject()).build();
+
         } catch (JEVisException jex) {
             logger.catching(jex);
             return Response.serverError().build();
@@ -66,6 +66,14 @@ public class ResourceUser {
             Config.CloseDS(ds);
         }
 
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        if (ds != null) {
+            ds.clear();
+            ds = null;
+        }
     }
 
 }

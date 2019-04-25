@@ -28,10 +28,10 @@ import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.ws.sql.SQLDataSource;
 
+import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,13 +44,12 @@ import java.util.List;
 public class ResourceAttribute {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceAttribute.class);
-    private Date start = new Date();
-
+    private SQLDataSource ds = null;
+    private List<JsonAttribute> attributes;
 
     /**
      * Returns an list of all attributes under the given object
      *
-     * @param context
      * @param httpHeaders
      * @param id
      * @return
@@ -65,10 +64,8 @@ public class ResourceAttribute {
             @Context UriInfo url,
             @PathParam("id") long id) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("AttributeResource", "Start");
 
             JsonObject obj = ds.getObject(id);
             if (obj == null) {
@@ -77,9 +74,8 @@ public class ResourceAttribute {
             }
 
             if (ds.getUserManager().canRead(obj)) {
-                List<JsonAttribute> atts = ds.getAttributes(id);
-                ds.getProfiler().addEvent("AttributeResource", "done");
-                return Response.ok(atts).build();
+                attributes = ds.getAttributes(id);
+                return Response.ok(attributes).build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
@@ -96,7 +92,6 @@ public class ResourceAttribute {
     /**
      * Returns an specific attribute
      *
-     * @param context
      * @param httpHeaders
      * @param id
      * @param attribute
@@ -113,7 +108,6 @@ public class ResourceAttribute {
             @PathParam("id") long id,
             @PathParam("attribute") String attribute) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
             JsonObject obj = ds.getObject(id);
@@ -124,8 +118,8 @@ public class ResourceAttribute {
             logger.debug("Found Object: {}", id);
 
             if (ds.getUserManager().canRead(obj)) {
-                List<JsonAttribute> atts = ds.getAttributes(id);
-                for (JsonAttribute att : atts) {
+                attributes = ds.getAttributes(id);
+                for (JsonAttribute att : attributes) {
                     if (att.getType().equals(attribute)) {
                         return Response.ok(att).build();
                     }
@@ -156,7 +150,6 @@ public class ResourceAttribute {
             @PathParam("attribute") String attribute,
             String payload) {
 
-        SQLDataSource ds = null;
         try {
 
             ds = new SQLDataSource(httpHeaders, request, url);
@@ -182,5 +175,17 @@ public class ResourceAttribute {
             Config.CloseDS(ds);
         }
 
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        if (attributes != null) {
+            attributes.clear();
+            attributes = null;
+        }
+        if (ds != null) {
+            ds.clear();
+            ds = null;
+        }
     }
 }

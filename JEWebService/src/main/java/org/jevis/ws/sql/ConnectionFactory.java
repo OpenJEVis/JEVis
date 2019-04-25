@@ -36,6 +36,10 @@ public class ConnectionFactory {
             ds.setUsername(dbUser);
             ds.setPassword(dbPW);
             ds.setMaxTotal(100);
+            ds.setMinIdle(5);
+            ds.setMaxIdle(10);
+
+
         }
 
     }

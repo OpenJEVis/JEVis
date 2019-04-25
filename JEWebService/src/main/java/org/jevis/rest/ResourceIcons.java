@@ -8,6 +8,7 @@ package org.jevis.rest;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.ws.sql.SQLDataSource;
 
+import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -30,8 +31,8 @@ public class ResourceIcons {
 
     public final static String TEMPDIR = "JEWebService";
     public final static String TEMPFILE = "allIcons.zip";
+    private SQLDataSource ds = null;
 
-    //    /tmpAdministration
     @GET
     @Logged
     @Produces({"application/zip"})
@@ -40,14 +41,12 @@ public class ResourceIcons {
             @Context Request request,
             @Context UriInfo url) {
 
-        SQLDataSource ds = null;
+
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("ResourceIcons", "get");
 
             File tmpZipFile = new File(FileCache.CLASS_ICON_FILE);
             if (tmpZipFile.exists()) {
-                ds.getProfiler().addEvent("ResourceIcons", "done cache");
                 return Response.ok(new FileInputStream(tmpZipFile), MediaType.valueOf("application/zip")).build();
             } else {
                 tmpZipFile.getParentFile().mkdirs();
@@ -83,7 +82,6 @@ public class ResourceIcons {
 
             Response re = Response.ok(new FileInputStream(tmpZipFile), MediaType.valueOf("application/zip")).build();
 
-            ds.getProfiler().addEvent("ResourceIcons", "done");
             return re;
 
         } catch (AuthenticationException ex) {
@@ -93,6 +91,15 @@ public class ResourceIcons {
             return Response.serverError().build();
         } finally {
             Config.CloseDS(ds);
+        }
+
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        if (ds != null) {
+            ds.clear();
+            ds = null;
         }
 
     }
