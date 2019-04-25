@@ -81,9 +81,6 @@ public class SQLDataSource {
         return dbConn;
     }
 
-    public void addQuery(String tdsf, String gsdf) {
-
-    }
 
     public List<JsonClassRelationship> getClassRelationships() {
         List<JsonJEVisClass> list = new ArrayList<>(Config.getClassCache().values());

@@ -149,6 +149,8 @@ public class SQLtoJsonFactory {
         json.setFrom(rs.getLong(RelationshipTable.COLUMN_START));
         json.setTo(rs.getLong(RelationshipTable.COLUMN_END));
         json.setType(rs.getInt(RelationshipTable.COLUMN_TYPE));
+        
+
         return json;
     }
 

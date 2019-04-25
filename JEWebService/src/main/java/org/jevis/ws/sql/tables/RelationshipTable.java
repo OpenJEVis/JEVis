@@ -57,7 +57,6 @@ public class RelationshipTable {
             ps.setInt(1, type);
 
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Relationship.byTypeg(int)", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -88,7 +87,6 @@ public class RelationshipTable {
             ps.setLong(2, id);
 
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Relationship.selectForObject(long)", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -121,7 +119,6 @@ public class RelationshipTable {
             ps.setLong(2, end);
             ps.setInt(3, type);
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Relationship.insert()", ps.toString());
             int count = ps.executeUpdate();
             if (count == 1) {
                 JsonRelationship json = new JsonRelationship();
@@ -154,7 +151,6 @@ public class RelationshipTable {
             ps.setLong(2, end);
             ps.setInt(3, type);
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Relationship.delete()", ps.toString());
             int count = ps.executeUpdate();
             if (count == 1) {
                 return true;
@@ -184,7 +180,6 @@ public class RelationshipTable {
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             logger.trace("SQL: {}", ps);
 
-            _connection.addQuery("Relationship.deleteAll()", ps.toString());
             int count = ps.executeUpdate();
 
             return count == 1;
@@ -207,7 +202,6 @@ public class RelationshipTable {
             ps.setLong(1, object);
             ps.setLong(2, object);
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Relationship.getAllForObject()", ps.toString());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 try {
@@ -231,7 +225,6 @@ public class RelationshipTable {
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Relationship.getAll()", ps.toString());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 try {
@@ -273,7 +266,6 @@ public class RelationshipTable {
                 ps.setInt(++pos, type);
             }
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Relationship.getAll(List<int>)", ps.toString());
 
             ResultSet rs = ps.executeQuery();
 

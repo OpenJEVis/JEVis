@@ -67,11 +67,9 @@ public class ObjectTable {
         ResultSet rs = null;
 
         try {
-            //First get the use by name, the create User securs the there is only one uesr per name
             ps = _connection.getConnection().prepareStatement(charVarsSQL);
 
             logger.debug("SQL: {}", ps.toString());
-            _connection.addQuery("Object.debug()", ps.toString());
 
             rs = ps.executeQuery();
 
@@ -109,7 +107,6 @@ public class ObjectTable {
             ps.setBoolean(3, isPublic);
 
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Object.insert()", ps.toString());
             int count = ps.executeUpdate();
             if (count == 1) {
                 ResultSet rs = ps.getGeneratedKeys();
@@ -150,7 +147,6 @@ public class ObjectTable {
             ps.setLong(3, id);
 
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Object.update()", ps.toString());
             int count = ps.executeUpdate();
             if (count == 1) {
                 return getObject(id);
@@ -183,7 +179,6 @@ public class ObjectTable {
             }
 
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Object.insertLink()", ps.toString());
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 newObject = getObject(rs.getLong(1));
@@ -206,21 +201,20 @@ public class ObjectTable {
             ps.setLong(1, id);
 
             logger.trace("getObject.sql: {} ", ps);
-            _connection.addQuery("Object.get(long)", ps.toString());
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                JsonObject obj =SQLtoJsonFactory.buildObject(rs);
-                List<JsonRelationship> relationships= _connection.getRelationships(obj.getId());
+                JsonObject obj = SQLtoJsonFactory.buildObject(rs);
+                List<JsonRelationship> relationships = _connection.getRelationships(obj.getId());
                 relationships.forEach(jsonRelationship -> {
-                    if(jsonRelationship.getType()==JEVisConstants.ObjectRelationship.PARENT && jsonRelationship.getFrom()==obj.getId()){
+                    if (jsonRelationship.getType() == JEVisConstants.ObjectRelationship.PARENT && jsonRelationship.getFrom() == obj.getId()) {
                         //child -> parent
                         obj.setParent(jsonRelationship.getTo());
                     }
                 });
 
-                return obj ;
+                return obj;
             }
         } catch (SQLException ex) {
             logger.error(ex);
@@ -239,7 +233,6 @@ public class ObjectTable {
         List<JsonObject> objects = new ArrayList<>();
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
-            _connection.addQuery("Object.getAll()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -263,7 +256,6 @@ public class ObjectTable {
         List<JsonObject> objects = new ArrayList<>();
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
-            _connection.addQuery("Object.getAll()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -334,9 +326,7 @@ public class ObjectTable {
                 raw++;
             }
 
-            //        logger.info("ps: " + ps);
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Object.delete()", ps.toString());
             int count = ps.executeUpdate();
             if (count > 0) {
                 List<Long> ids = new ArrayList<>();

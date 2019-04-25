@@ -58,7 +58,6 @@ public class LoginTable {
             ps.setBoolean(2, true);
 
             logger.debug("SQL: {}", ps.toString());
-            _connection.addQuery("Login.loginUser()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
