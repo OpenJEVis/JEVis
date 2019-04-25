@@ -70,7 +70,9 @@ public class ToolBarIntervalSelector extends FlowPane {
             }
         };
         TimeFrames timeFrames = new TimeFrames();
+        timeFrames.setWorkdays(analysis.getAnalysisObject());
         timeFrameBox.setItems(timeFrames.getAll());
+
 
         analysis.intervalProperty.addListener((observable, oldValue, newValue) -> {
             try {

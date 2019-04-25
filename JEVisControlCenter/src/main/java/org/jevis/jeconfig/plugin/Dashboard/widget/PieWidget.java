@@ -54,7 +54,7 @@ public class PieWidget extends Widget {
     @Override
     public void update(Interval interval) {
         logger.debug("Pie.Update: {}", interval);
-        chart = new PieChart();
+//        chart = new PieChart();
         sampleHandler.setInterval(interval);
         sampleHandler.update();
 
@@ -130,18 +130,11 @@ public class PieWidget extends Widget {
                         logger.error(ex);
                     }
                 } else {
-                    logger.warn("Empty Samples for: {}", config.title.get());
+                    logger.debug("Empty Samples for: {}", config.title.get());
                     value = 1;
                     textValue = "n.a.  " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + nf.format(0) + "%";
 
                 }
-
-
-//                if (hasNoData) {
-//                    textValue = "n.a. ";
-//                } else {
-//                    textValue = nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + nf.format(proC) + "%";
-//                }
 
 
                 legendItemList.add(legend.buildLegendItem(dataName, chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
@@ -157,27 +150,17 @@ public class PieWidget extends Widget {
         });
 
 
-//        try {
-//            GraphAnalysisLinkerNode dataModelNode = mapper.treeToValue(config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE), GraphAnalysisLinkerNode.class);
-//            graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), dataModelNode);
-//            graphAnalysisLinker.applyConfig(openAnalysisButton, sampleHandler.getDataModel(), interval);
-//        } catch (Exception ex) {
-//            logger.error(ex);
-//        }
-
-
         /** redrawing **/
         Platform.runLater(() -> {
             legend.getItems().setAll(legendItemList);
-
             chart.setData(series);
             applyColors(colors);
 
-            legendPane.getChildren().setAll(legend);
-            borderPane.setCenter(chart);
-            borderPane.setRight(legendPane);
-
-            chart.layout();
+//            legendPane.getChildren().setAll(legend);
+//            borderPane.setCenter(chart);
+//            borderPane.setRight(legendPane);
+//////
+//            chart.layout();
         });
     }
 
@@ -215,8 +198,12 @@ public class PieWidget extends Widget {
 //        borderPane.setCenter(chart);
 //        borderPane.setRight(legendPane);
 
-
-        setGraphic(borderPane);
+        Platform.runLater(() -> {
+            legendPane.getChildren().setAll(legend);
+            borderPane.setCenter(chart);
+            borderPane.setRight(legendPane);
+            setGraphic(borderPane);
+        });
 
 
     }
