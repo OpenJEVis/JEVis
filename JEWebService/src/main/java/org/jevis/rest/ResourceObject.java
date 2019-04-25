@@ -28,6 +28,7 @@ import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.ws.sql.SQLDataSource;
 
+import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -41,6 +42,9 @@ import java.util.List;
  */
 @Path("/JEWebService/v1/objects")
 public class ResourceObject {
+
+    private SQLDataSource ds = null;
+    private List<JsonObject> returnList;
 
     private static final Logger logger = LogManager.getLogger(ResourceObject.class);
 
@@ -79,13 +83,10 @@ public class ResourceObject {
             @QueryParam("parent") long parent,
             @QueryParam("child") long child) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("ObjectResource", "getObject");
             ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
             ds.preload(SQLDataSource.PRELOAD.ALL_REL);
-            List<JsonObject> returnList;
 
 
             if (root) {
@@ -106,8 +107,7 @@ public class ResourceObject {
                 //TODO
             }
 
-            //TODO add attributes if needet
-            ds.getProfiler().addEvent("ObjectResource", "done");
+            //TODO add attributes if needed
             return Response.ok(returnList).build();
 
         } catch (AuthenticationException ex) {
@@ -119,8 +119,8 @@ public class ResourceObject {
         } finally {
             Config.CloseDS(ds);
         }
-
     }
+
 
     /**
      * @param id
@@ -136,10 +136,8 @@ public class ResourceObject {
             @Context UriInfo url,
             @Context HttpHeaders httpHeaders) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("ObjectResource", "getRelationship");
 
             List<JsonRelationship> list = new LinkedList<JsonRelationship>();
 
@@ -147,7 +145,6 @@ public class ResourceObject {
                 list = ds.getUserManager().filterReadRelationships(ds.getRelationships(id));
             }
 
-            ds.getProfiler().addEvent("ObjectResource", "done");
             return Response.ok(list).build();
 
         } catch (JEVisException jex) {
@@ -170,17 +167,14 @@ public class ResourceObject {
             @Context UriInfo url,
             @PathParam("id") long id) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("ObjectResource", "deleteObject");
 
             JsonObject obj = ds.getObject(id);
             if (ds.getUserManager().canDelete(obj)) {
                 ds.deleteObject(obj);
             }
 
-            ds.getProfiler().addEvent("ObjectResource", "done");
             return Response.status(Response.Status.OK).build();
 
         } catch (JEVisException jex) {
@@ -205,11 +199,8 @@ public class ResourceObject {
             @DefaultValue("-999") @QueryParam("copy") long copyObject,
             String object) {
 
-        SQLDataSource ds = null;
         try {
-            System.out.println("Build OBject: " + object);
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("ObjectResource", "postObject");
 
             JsonObject json = (new Gson()).fromJson(object, JsonObject.class);
             if (ds.getJEVisClass(json.getJevisClass()) == null) {
@@ -231,14 +222,9 @@ public class ResourceObject {
                         return Response.status(Response.Status.UNAUTHORIZED).build();
                     }
                 } else {
-                    System.out.println("Build object: [" + json.getId() + "]" + json.getName() + " under: " + parentObj.getId());
                     JsonObject newObj = ds.buildObject(json, parentObj.getId());
-                    System.out.println("New Object: [" + newObj.getId() + "]" + newObj.getName() + " under: " + parentObj.getId());
                     return Response.ok(newObj).build();
                 }
-
-
-                //normal create object function
 
             } else {
                 return Response.status(Response.Status.NOT_FOUND).entity("Parent not found").build();
@@ -267,25 +253,19 @@ public class ResourceObject {
             @PathParam("id") long id,
             String object) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("ObjectResource", "updateObject");
 
             JsonObject json = (new Gson()).fromJson(object, JsonObject.class);
             JsonObject existingObj = ds.getObject(id);
             if (existingObj != null && ds.getUserManager().canWrite(json)) {
                 if (existingObj.getisPublic() != json.getisPublic()) {
                     if (ds.getUserManager().isSysAdmin()) {
-                        ds.getProfiler().addEvent("ObjectResource", "done");
                         return Response.ok(ds.updateObject(id, json.getName(), json.getisPublic())).build();
                     } else {
-                        //@TODO: Throw exeption??
-                        ds.getProfiler().addEvent("ObjectResource", "done");
                         return Response.ok(ds.updateObject(id, json.getName(), existingObj.getisPublic())).build();
                     }
                 } else {
-                    ds.getProfiler().addEvent("ObjectResource", "done");
                     return Response.ok(ds.updateObject(id, json.getName(), existingObj.getisPublic())).build();
                 }
             } else {
@@ -323,17 +303,14 @@ public class ResourceObject {
             @DefaultValue("false") @QueryParam("includeChildren") boolean includeChildren,
             @DefaultValue("-99999") @PathParam("id") long id) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("ObjectResource", "getObject");
 
             if (id == -999) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing id path parameter").build();
             }
             JsonObject existingObj = ds.getObject(id, includeChildren);
             if (existingObj != null || ds.getUserManager().canRead(existingObj)) {
-                ds.getProfiler().addEvent("ObjectResource", "done");
                 return Response.ok(existingObj).build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -347,7 +324,24 @@ public class ResourceObject {
         } finally {
             Config.CloseDS(ds);
         }
-
     }
+
+    @PostConstruct
+    public void postConstruct() {
+        if (returnList != null) {
+            returnList.clear();
+            returnList = null;
+        }
+        if (ds != null) {
+            ds.clear();
+            ds = null;
+        }
+    }
+
+//    @PreDestroy
+//    public void preDestroy() {
+//        System.out.println("PerRequest @PreDestroy invoked!");
+//
+//    }
 
 }

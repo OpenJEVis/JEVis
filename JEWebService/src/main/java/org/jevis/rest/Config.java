@@ -148,7 +148,7 @@ public class Config {
         try {
             return config.getString(key);
         } catch (NullPointerException nex) {
-            logger.error("Missing parameter in config file: '" + key + "' using default value: '" + defaultValue + "'");
+            logger.error("Missing parameter in config file: '{}' using default value: '{}'", key, defaultValue);
             return defaultValue;
         }
     }
@@ -157,7 +157,7 @@ public class Config {
         try {
             return config.getLong(key);
         } catch (NullPointerException nex) {
-            logger.error("Missing parameter in config file: '" + key + "' using default value: '" + defaultValue + "'");
+            logger.error("Missing parameter in config file: '{}' using default value: '{}'", key, defaultValue);
             return defaultValue;
         }
     }
@@ -246,12 +246,13 @@ public class Config {
             if (ds != null) {
 //                ds.getProfiler().printLog();
                 ds.disconnect();
-                ds.clear();
-                ds=null;
+//                ds.clear();
+//                ds = null;
             }
         } catch (Exception ex) {
             logger.catching(org.apache.logging.log4j.Level.TRACE, ex);
         }
     }
+
 
 }

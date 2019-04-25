@@ -28,6 +28,7 @@ import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.ws.sql.SQLDataSource;
 
+import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -42,6 +43,8 @@ import java.util.List;
 public class ResourceRelationship {
 
     private static final Logger logger = LogManager.getLogger(ResourceRelationship.class);
+    private SQLDataSource ds = null;
+    private List<JsonRelationship> jsonRelationships;
 
     @GET
     @Logged
@@ -51,13 +54,11 @@ public class ResourceRelationship {
             @Context Request request,
             @Context UriInfo url) {
 
-        SQLDataSource ds = null;
+
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("ResourceRelationship", "getRelationships");
-            List<JsonRelationship> rels = ds.getUserManager().filterRelationships(ds.getRelationships());
-            ds.getProfiler().addEvent("ResourceRelationship", "done");
-            return Response.ok(rels).build();
+            jsonRelationships = ds.getUserManager().filterRelationships(ds.getRelationships());
+            return Response.ok(jsonRelationships).build();
 
         } catch (JEVisException jex) {
             jex.printStackTrace();
@@ -80,10 +81,8 @@ public class ResourceRelationship {
             @Context UriInfo url,
             String input) throws Exception {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("ResourceRelationship", "post");
             JsonRelationship json = (new Gson()).fromJson(input, JsonRelationship.class);
             JsonObject fromObj = ds.getObject(json.getFrom());
             JsonObject toObj = ds.getObject(json.getTo());
@@ -92,14 +91,12 @@ public class ResourceRelationship {
             ds.getUserManager().canWrite(toObj);
 
             JsonRelationship newJSON = ds.setRelationships(json);
-            ds.getProfiler().addEvent("ResourceRelationship", "done");
             return Response.ok(newJSON).build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } finally {
             Config.CloseDS(ds);
         }
-
     }
 
     /**
@@ -121,10 +118,8 @@ public class ResourceRelationship {
             @DefaultValue("-1") @QueryParam("to") Long to,
             @DefaultValue("-1") @QueryParam("type") int type) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("ResourceRelationship", "delete");
 
             if (from == -1 || to == -1 || type == -1) {
                 return Response.status(Response.Status.BAD_REQUEST).build();
@@ -137,7 +132,6 @@ public class ResourceRelationship {
 
             boolean delete = ds.deleteRelationship(from, to, type);
             if (delete) {
-                ds.getProfiler().addEvent("ResourceRelationship", "done");
                 return Response.ok().build();
             } else {
                 return Response.notModified().build();
@@ -154,4 +148,15 @@ public class ResourceRelationship {
 
     }
 
+    @PostConstruct
+    public void postConstruct() {
+        if (jsonRelationships != null) {
+            jsonRelationships.clear();
+            jsonRelationships = null;
+        }
+        if (ds != null) {
+            ds.clear();
+            ds = null;
+        }
+    }
 }

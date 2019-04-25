@@ -53,30 +53,26 @@ public class SQLDataSource {
     private List<JsonRelationship> allRelationships = Collections.synchronizedList(new LinkedList<>());
     private List<JsonObject> allObjects = Collections.synchronizedList(new LinkedList<>());
     private UserRightManagerForWS um;
-    private Profiler pf = new Profiler();
 
     public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url) throws AuthenticationException, JEVisException {
 
         try {
-            pf.addEvent(String.format("Method: %s URL: %s ", request.getMethod(), url.getRequestUri()), "");
             ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
 
             dbConn = ConnectionFactory.getInstance().getConnection();
 
             if (dbConn.isValid(2000)) {
-                pf.addEvent("DS", "Connection established");
                 lTable = new LoginTable(this);
                 jevisLogin(httpHeaders);
-                pf.addEvent("DS", "JEVis user login done");
                 oTable = new ObjectTable(this);
                 aTable = new AttributeTable(this);
                 sTable = new SampleTable(this);
                 rTable = new RelationshipTable(this);
                 um = new UserRightManagerForWS(this);
-                pf.addEvent("DS", "URM done loading");
 
             }
         } catch (SQLException se) {
+            logger.error(se);
             throw new JEVisException("Database connection error", 5438, se);
         }
     }
@@ -85,9 +81,6 @@ public class SQLDataSource {
         return dbConn;
     }
 
-    public void addQuery(String tdsf, String gsdf) {
-
-    }
 
     public List<JsonClassRelationship> getClassRelationships() {
         List<JsonJEVisClass> list = new ArrayList<>(Config.getClassCache().values());
@@ -151,9 +144,6 @@ public class SQLDataSource {
         return new ArrayList<>(Config.getClassCache().values());
     }
 
-    public Profiler getProfiler() {
-        return pf;
-    }
 
     public UserRightManagerForWS getUserManager() {
         return um;
@@ -165,16 +155,13 @@ public class SQLDataSource {
             switch (preload) {
                 case ALL_REL:
                     allRelationships = getRelationshipTable().getAll();
-                    getProfiler().addEvent("DS", "done reloading Relationships");
                     break;
                 case ALL_CLASSES:
                     Config.getClassCache();
 //                    allTypes = getTypeTable().//todo
-                    getProfiler().addEvent("DS", "done reloading Classes-/Relationships");
                     break;
                 case ALL_OBJECT:
                     allObjects = getObjectTable().getAllObjects();
-                    getProfiler().addEvent("DS", "done reloading Objects");
                     break;
             }
         } catch (Exception sx) {
@@ -232,7 +219,6 @@ public class SQLDataSource {
                     String password = dauth[1];
                     try {
                         user = lTable.loginUser(username, password);
-                        getProfiler().setUser(username);
 
                     } catch (JEVisException ex) {
                         ex.printStackTrace();
@@ -346,7 +332,6 @@ public class SQLDataSource {
     }
 
     public void addRelationhsipsToObjects(List<JsonObject> objs, List<JsonRelationship> rels) {
-        getProfiler().addEvent("DS", "addRelationhsipsToObjects");
         for (JsonObject ob : objs) {
             for (JsonRelationship rel : rels) {
                 try {
@@ -355,13 +340,17 @@ public class SQLDataSource {
                             ob.setRelationships(new ArrayList<JsonRelationship>());
                         }
                         ob.getRelationships().add(rel);
+                        if (rel.getType() == JEVisConstants.ObjectRelationship.PARENT && rel.getFrom() == ob.getId()) {
+                            //child -> parent
+                            ob.setParent(rel.getTo());
+                        }
+
                     }
                 } catch (Exception ex) {
                     logger.error("Error with relationship: {}", rel);
                 }
             }
         }
-        getProfiler().addEvent("DS", "done");
     }
 
     public JsonObject updateObject(long id, String newname, boolean ispublic) throws JEVisException {
@@ -465,7 +454,7 @@ public class SQLDataSource {
         if (dbConn != null) {
             try {
                 dbConn.close();
-                dbConn=null;
+//                dbConn=null;
                 return true;
             } catch (SQLException se) {
                 throw new JEVisException("Error while closing DB connection", 6492, se);
@@ -677,17 +666,21 @@ public class SQLDataSource {
     /**
      * Let us try to help the garbage collector to clean up
      */
-    public void clear(){
+    public void clear() {
         um.clear();
-        lTable=null;
-        oTable=null;
-        aTable=null;
-        sTable=null;
-        rTable=null;
-        lTable=null;
+        um = null;
+
+        lTable = null;
+        oTable = null;
+        aTable = null;
+        sTable = null;
+        rTable = null;
+        lTable = null;
 
         allRelationships.clear();
+        allRelationships = null;
         allObjects.clear();
+        allObjects = null;
     }
 
     public enum PRELOAD {

@@ -59,42 +59,6 @@ public class SQLtoJsonFactory {
     private static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
     private static final Gson gson = new Gson();
 
-    //    public static JsonAttribute buildAttribute(ResultSet rs) throws JEVisException, SQLException {
-//        JsonAttribute jatt = new JsonAttribute();
-//
-//        Long sampleCount = rs.getLong(AttributeTable.COLUMN_COUNT);
-//
-//        if (sampleCount > 0) {
-//            jatt.setBegins(attDTF.print(new DateTime(rs.getTimestamp(AttributeTable.COLUMN_MIN_TS))));
-//            jatt.setEnds(attDTF.print(new DateTime(rs.getTimestamp(AttributeTable.COLUMN_MAX_TS))));
-//            jatt.setSampleCount(sampleCount);
-//        }
-//
-//        String name = rs.getString(AttributeTable.COLUMN_NAME);
-//        Long objectID = rs.getLong(AttributeTable.COLUMN_OBJECT);
-//        String imputSRate = rs.getString(AttributeTable.COLUMN_INPUT_RATE);
-//        String displayRate = rs.getString(AttributeTable.COLUMN_DISPLAY_RATE);
-//
-//        jatt.setInputSampleRate(imputSRate);
-//        jatt.setDisplaySampleRate(displayRate);
-//        jatt.setType(name);
-//
-//        try {
-//            JEVisUnitImp imputUnit = new JEVisUnitImp(gson.fromJson(rs.getString(AttributeTable.COLUMN_INPUT_UNIT), JsonUnit.class));
-//            jatt.setInputUnit(JsonFactory.buildUnit(imputUnit));
-//        } catch (Exception ex) {
-//
-//        }
-//
-//        try {
-//            JEVisUnitImp displayUnit = new JEVisUnitImp(gson.fromJson(rs.getString(AttributeTable.COLUMN_DISPLAY_UNIT), JsonUnit.class));
-//            jatt.setDisplayUnit(JsonFactory.buildUnit(displayUnit));
-//        } catch (Exception ex) {
-//
-//        }
-//
-//        return jatt;
-//    }
     public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws SQLException {
         JsonType type = JEVisClassHelper.getType(rs.getString(ObjectTable.COLUMN_CLASS), rs.getString(AttributeTable.COLUMN_NAME));
         if (type == null) {
@@ -185,6 +149,8 @@ public class SQLtoJsonFactory {
         json.setFrom(rs.getLong(RelationshipTable.COLUMN_START));
         json.setTo(rs.getLong(RelationshipTable.COLUMN_END));
         json.setType(rs.getInt(RelationshipTable.COLUMN_TYPE));
+        
+
         return json;
     }
 

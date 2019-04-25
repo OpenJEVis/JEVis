@@ -30,6 +30,7 @@ import org.jevis.commons.ws.json.JsonJEVisClass;
 import org.jevis.ws.sql.JEVisClassHelper;
 import org.jevis.ws.sql.SQLDataSource;
 
+import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
@@ -49,6 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ResourceClasses {
 
     private static final Logger logger = LogManager.getLogger(ResourceClasses.class);
+    private SQLDataSource ds = null;
 
     /**
      * Returns an List of JEVisClasses as Json
@@ -63,10 +65,8 @@ public class ResourceClasses {
             @Context HttpHeaders httpHeaders,
             @Context Request request,
             @Context UriInfo url) {
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-
 
             return getClassResponse(null);
         } catch (JEVisException jex) {
@@ -97,7 +97,6 @@ public class ResourceClasses {
             @Context UriInfo url,
             @PathParam("name") String name) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 
@@ -123,7 +122,6 @@ public class ResourceClasses {
             @Context UriInfo url,
             @PathParam("name") String name) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 
@@ -172,7 +170,6 @@ public class ResourceClasses {
             @PathParam("name") String name,
             String input) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 
@@ -199,7 +196,6 @@ public class ResourceClasses {
         } finally {
             Config.CloseDS(ds);
         }
-
     }
 
     /**
@@ -219,7 +215,6 @@ public class ResourceClasses {
             @Context UriInfo url,
             @PathParam("name") String name
     ) {
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 
@@ -296,41 +291,6 @@ public class ResourceClasses {
         }
 
         JEVisClassHelper.completeClasses(classMap);
-
-//        Map<String, JsonClassRelationship> clRelationships = new HashMap<>();
-//        //Add cross relationships
-//        for (Map.Entry<String, JsonJEVisClass> jc : classMap.entrySet()) {
-//            try {
-//                for (JsonClassRelationship rel : jc.getValue().getRelationships()) {
-//                    try {
-//                        String relKey = rel.getStart() + ":" + rel.getEnd() + ":" + rel.getType();
-//                        clRelationships.put(relKey, rel);
-//                    } catch (Exception ex) {
-//                        logger.error("Error while listing classes relationships[" + jc.getKey() + "]", ex);
-//                    }
-//                }
-//            } catch (Exception ex) {
-//                logger.error("Error while listing classes[" + jc.getKey() + "]", ex);
-//            }
-//        }
-//
-//        for (Map.Entry<String, JsonClassRelationship> rel : clRelationships.entrySet()) {
-//            try {
-//                JsonJEVisClass startClass = classMap.get(rel.getValue().getStart());
-//                JsonJEVisClass endClass = classMap.get(rel.getValue().getEnd());
-//
-//                if (!startClass.getRelationships().contains(rel.getValue())) {
-//                    startClass.getRelationships().add(rel.getValue());
-//                }
-//
-//                if (!endClass.getRelationships().contains(rel.getValue())) {
-//                    endClass.getRelationships().add(rel.getValue());
-//                }
-//            } catch (Exception ex) {
-//                logger.error("Error while mapping class relationships[" + rel.getKey() + "]", ex);
-//            }
-//        }
-
         return classMap;
     }
 
@@ -350,16 +310,12 @@ public class ResourceClasses {
             @Context UriInfo url,
             @PathParam("name") String name, byte[] imageBytes) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("ResourceClasses", "putClassIcon");
-
 
             if (!ds.getUserManager().isSysAdmin()) {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
-
 
             try {
                 File newFile = new File(Config.getClassDir().getAbsoluteFile() + "/" + name + ".png");
@@ -374,6 +330,8 @@ public class ResourceClasses {
                 return Response.status(Response.Status.OK).build();
             } catch (IOException ioex) {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ioex.getMessage()).build();
+            } finally {
+                Config.CloseDS(ds);
             }
 
 
@@ -383,10 +341,19 @@ public class ResourceClasses {
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } catch (Exception ex) {
-            logger.error("Error while uploadign classicon {}", ex);
+            logger.error("Error while uploading class icon {}", ex);
             return Response.serverError().entity(ex).build();
         } finally {
             Config.CloseDS(ds);
+        }
+
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        if (ds != null) {
+            ds.clear();
+            ds = null;
         }
 
     }

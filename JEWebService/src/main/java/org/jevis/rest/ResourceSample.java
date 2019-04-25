@@ -23,9 +23,7 @@ package org.jevis.rest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
 import org.jevis.commons.ws.json.*;
 import org.jevis.ws.sql.JEVisClassHelper;
 import org.jevis.ws.sql.SQLDataSource;
@@ -34,6 +32,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -41,7 +40,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -54,6 +52,8 @@ public class ResourceSample {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceSample.class);
     private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
+    private SQLDataSource ds = null;
+    private List<JsonSample> list;
 
     /**
      * Get the samples from an object/Attribute
@@ -81,10 +81,8 @@ public class ResourceSample {
             @DefaultValue("false") @QueryParam("onlyLatest") boolean onlyLatest
     ) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("SampleResource", "Start");
 
             JsonObject obj = ds.getObject(id);
             if (obj == null) {
@@ -105,21 +103,19 @@ public class ResourceSample {
             List<JsonAttribute> atts = ds.getAttributes(id);
             for (JsonAttribute att : atts) {
                 if (att.getType().equals(attribute)) {
-                    ds.getProfiler().addEvent("AttributeResource", "got attribute");
                     DateTime startDate = null;
                     DateTime endDate = null;
                     if (start != null) {
                         startDate = fmt.parseDateTime(start);
+                        if (startDate.getYear() < 1980) {
+                            Response.ok(new ArrayList<JsonSample>()).build();
+                        }
                     }
                     if (end != null) {
                         endDate = fmt.parseDateTime(end);
-                    }
-
-                    /** simple security measure, somehow the client ask for the dates like '1000-01-01.." which is not
-                     *  an really unease now. This will crate a lot of problems on the server-
-                     */
-                    if (endDate.getYear() < 1980 || endDate.getYear() < 1980) {
-                        Response.ok(new ArrayList<JsonSample>()).build();
+                        if (endDate.getYear() < 1980) {
+                            Response.ok(new ArrayList<JsonSample>()).build();
+                        }
                     }
 
 
@@ -127,7 +123,6 @@ public class ResourceSample {
                         logger.trace("Lastsample mode");
 
                         JsonSample sample = ds.getLastSample(id, attribute);
-                        ds.getProfiler().addEvent("AttributeResource", "getlastsample");
                         if (sample != null) {
                             return Response.ok(sample).build();
                         } else {
@@ -135,9 +130,7 @@ public class ResourceSample {
                         }
 
                     }
-                    List<JsonSample> list = ds.getSamples(id, attribute, startDate, endDate, limit);
-                    ds.getProfiler().addEvent("AttributeResource", "get  " + list.size() + "  samples ");
-//                        JsonSample[] returnList = list.toArray(new JsonSample[list.size()]);
+                    list = ds.getSamples(id, attribute, startDate, endDate, limit);
 
                     return Response.ok(list).build();
 
@@ -175,7 +168,6 @@ public class ResourceSample {
             //            @DefaultValue("file.file") @QueryParam("filename") String filename,
             InputStream payload
     ) {
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 
@@ -197,16 +189,7 @@ public class ResourceSample {
                 timestamp = fmt.print(new DateTime());
             }
 
-            DateTime ts = fmt.parseDateTime(timestamp).withZone(DateTimeZone.UTC);
-
-            //TODO: check size an type
-//            byte[] bytes = IOUtils.toByteArray(payload);
-
-            JsonAttribute att = ds.getAttribute(obj.getId(), attribute);
-
-
             ds.getUserManager().canWrite(obj);//can throw exception
-
 
             //Your local disk path where you want to store the file
             String uploadedFileLocation = createFilePattern(id, attribute, filename, fmt.parseDateTime(timestamp));
@@ -233,7 +216,7 @@ public class ResourceSample {
             JsonType type = JEVisClassHelper.getType(obj.getJevisClass(), attribute);
 
             int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
-
+            samples.clear();
             return Response.status(200).build();
 
         } catch (AuthenticationException ex) {
@@ -273,7 +256,6 @@ public class ResourceSample {
             out.flush();
             out.close();
         } catch (IOException e) {
-
             e.printStackTrace();
         }
     }
@@ -290,7 +272,6 @@ public class ResourceSample {
             @PathParam("attribute") String attribute,
             @DefaultValue("latest") @PathParam("timestamp") String timestamp
     ) {
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 
@@ -339,35 +320,6 @@ public class ResourceSample {
     }
 
 
-    /**
-     * Get all Samples between the given time-range
-     *
-     * @param att
-     * @param start
-     * @param end
-     * @return
-     * @throws JEVisException
-     */
-    private List<JsonSample> getInBetween(JEVisAttribute att, DateTime start, DateTime end) throws JEVisException {
-        List<JsonSample> samples = new LinkedList<JsonSample>();
-        int primitivType = att.getPrimitiveType();
-        for (JEVisSample sample : att.getSamples(start, end)) {
-            samples.add(JsonFactory.buildSample(sample, primitivType));
-        }
-        return samples;
-    }
-
-    /**
-     * Get all Samples for a JEVisAttribute
-     *
-     * @param att
-     * @return
-     * @throws JEVisException
-     */
-    private List<JsonSample> getAll(JEVisAttribute att) throws JEVisException {
-        return getInBetween(att, null, null);
-    }
-
     @POST
     @Logged
     @Consumes(MediaType.APPLICATION_JSON)
@@ -379,7 +331,6 @@ public class ResourceSample {
             @PathParam("attribute") String attribute,
             String input) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 
@@ -406,6 +357,9 @@ public class ResourceSample {
                     }.getType());
                     JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
                     int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
+                    samples.clear();
+                    samples = null;
+
                     return Response.status(Status.CREATED).build();
                 }
             }
@@ -420,7 +374,6 @@ public class ResourceSample {
         } finally {
             Config.CloseDS(ds);
         }
-
     }
 
     @DELETE
@@ -435,7 +388,6 @@ public class ResourceSample {
             @QueryParam("until") String end,
             @DefaultValue("false") @QueryParam("onlyLatest") boolean onlyLatest) {
 
-        SQLDataSource ds = null;
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
 
@@ -481,7 +433,19 @@ public class ResourceSample {
         } finally {
             Config.CloseDS(ds);
         }
+    }
 
+    @PostConstruct
+    public void postConstruct() {
+        if (list != null) {
+            list.clear();
+            list = null;
+        }
+
+        if (ds != null) {
+            ds.clear();
+            ds = null;
+        }
     }
 
 }

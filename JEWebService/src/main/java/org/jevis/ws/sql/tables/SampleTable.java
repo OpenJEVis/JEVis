@@ -36,7 +36,6 @@ import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
 import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -108,7 +107,7 @@ public class SampleTable {
         }
 
         String sqlWithUpdate = build.toString();
-        sqlWithUpdate = sqlWithUpdate += " ON DUPLICATE KEY UPDATE "
+        sqlWithUpdate += " ON DUPLICATE KEY UPDATE "
                 + COLUMN_VALUE + "=VALUES(" + COLUMN_VALUE + "), "
                 + COLUMN_NOTE + "=VALUES(" + COLUMN_NOTE + "), "
                 + COLUMN_MANID + "=VALUES(" + COLUMN_MANID + ") ";
@@ -120,6 +119,7 @@ public class SampleTable {
 
             int p = 0;
             for (int i = 0; i < samples.size(); i++) {
+
                 JsonSample sample = samples.get(i);
                 ps.setLong(++p, object);
                 ps.setString(++p, attribute);
@@ -162,10 +162,9 @@ public class SampleTable {
                 ps.setString(++p, sample.getNote());
                 ps.setTimestamp(++p, new Timestamp(now));
 
+
             }
-//            logger.info("SamplDB.putSample SQL: \n" + ps);
-            logger.info("SQL: {}", ps);
-            _connection.addQuery("Sample.insert()", ps.toString());
+            logger.trace("SQL: {}", ps);
             count = ps.executeUpdate();
 
             _connection.getAttributeTable().updateMinMaxTS(object, attribute);
@@ -177,7 +176,7 @@ public class SampleTable {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw new JEVisException("Error while inserting Sample ", 4235, e);
-        } catch (InvalidKeySpecException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw new JEVisException("Error while inserting Sample ", 4235, e);
         }
@@ -206,7 +205,6 @@ public class SampleTable {
             ps.setBlob(6, bis);
 
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Sample.setFile()", ps.toString());
             count = ps.executeUpdate();
 
             _connection.getAttributeTable().updateMinMaxTS(object, att);
@@ -241,7 +239,6 @@ public class SampleTable {
             }
 
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Sample.getFile()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -293,7 +290,6 @@ public class SampleTable {
             }
 
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Sample.get()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -318,7 +314,6 @@ public class SampleTable {
             ps.setString(1, att);
             ps.setLong(2, object);
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Sample.deleteAll()", ps.toString());
             if (ps.executeUpdate() > 0) {
                 _connection.getAttributeTable().updateMinMaxTS(object, att);
                 return true;
@@ -359,7 +354,6 @@ public class SampleTable {
             }
 
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Sample.delete(fom,to)", ps.toString());
             if (ps.executeUpdate() > 0) {
                 _connection.getAttributeTable().updateMinMaxTS(object, att);
                 return true;
@@ -385,7 +379,6 @@ public class SampleTable {
             ps.setString(2, att);
 
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Sample.getAll()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -443,7 +436,6 @@ public class SampleTable {
             ps.setString(2, att);
 
             logger.trace("SQL: {}", ps);
-            _connection.addQuery("Sample.getLastes()", ps.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {

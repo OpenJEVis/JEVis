@@ -26,6 +26,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.ws.sql.SQLDataSource;
 
+import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,16 +35,16 @@ import javax.ws.rs.core.*;
 import java.util.List;
 
 /**
- * This Class handels all request for JEVisAttributes
+ * This Class handles all request for JEVisAttributes
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-//@Path("/objects/{id}/attributes/{attribute}")
 @Path("/JEWebService/v1/attributes")
 public class ResourceAllAttribute {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceAllAttribute.class);
-
+    private SQLDataSource ds = null;
+    private List<JsonAttribute> attributes;
 
     @GET
     @Logged
@@ -53,15 +54,13 @@ public class ResourceAllAttribute {
             @Context Request request,
             @Context UriInfo url) {
 
-        SQLDataSource ds = null;
+
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            ds.getProfiler().addEvent("AllAttributeResource", "Start");
             ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
             ds.preload(SQLDataSource.PRELOAD.ALL_REL);
 
-            List<JsonAttribute> attributes = ds.getAttributes();
-            ds.getProfiler().addEvent("AttributeResource", "done");
+            attributes = ds.getAttributes();
             logger.debug("Total amount of attributes: {}", attributes.size());
             return Response.ok(attributes).build();
 
@@ -73,6 +72,19 @@ public class ResourceAllAttribute {
         } finally {
             Config.CloseDS(ds);
         }
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        if (attributes != null) {
+            attributes.clear();
+            attributes = null;
+        }
+        if (ds != null) {
+            ds.clear();
+            ds = null;
+        }
+
     }
 
 }
