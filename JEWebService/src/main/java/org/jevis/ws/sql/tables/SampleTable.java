@@ -351,13 +351,8 @@ public class SampleTable {
             }
 
             logger.trace("SQL: {}", ps);
-            if (ps.executeUpdate() > 0) {
-                _connection.getAttributeTable().updateMinMaxTS(object, att);
-                return true;
-            } else {
-                return false;
-            }
-
+            _connection.getAttributeTable().updateMinMaxTS(object, att);
+            return true;
         } catch (SQLException ex) {
             logger.error(ex);
             return false;
