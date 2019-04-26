@@ -313,7 +313,7 @@ public class SampleTable {
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, att);
             ps.setLong(2, object);
-            logger.error("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
             ps.executeUpdate();
             _connection.getAttributeTable().updateMinMaxTS(object, att);
             return true;
