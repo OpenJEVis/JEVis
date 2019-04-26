@@ -21,7 +21,7 @@ import java.sql.SQLException;
  * Main class.
  */
 public class Main {
-    public static final String VERSION = "JEWebService Version 2019-04-17";
+    public static final String VERSION = "JEWebService Version 1.8 2019-04-26";
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     /**

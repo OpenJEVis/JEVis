@@ -313,13 +313,10 @@ public class SampleTable {
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, att);
             ps.setLong(2, object);
-            logger.trace("SQL: {}", ps);
-            if (ps.executeUpdate() > 0) {
-                _connection.getAttributeTable().updateMinMaxTS(object, att);
-                return true;
-            } else {
-                return false;
-            }
+            logger.error("SQL: {}", ps);
+            ps.executeUpdate();
+            _connection.getAttributeTable().updateMinMaxTS(object, att);
+            return true;
         } catch (SQLException ex) {
             logger.error(ex);
             return false;
@@ -397,35 +394,6 @@ public class SampleTable {
         return samples;
     }
 
-    /**
-     * Check if this attribute has samples
-     *
-     * @param objectID
-     * @param attribute
-     * @return
-     */
-    public boolean hasSamples(long objectID, String attribute) throws Exception {
-        String sql = String.format("select %s from %s where %s=? and %s=? limit 1",
-                COLUMN_OBJECT, TABLE, COLUMN_OBJECT, COLUMN_ATTRIBUTE);
-
-        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
-            ps.setLong(1, objectID);
-            ps.setString(2, attribute);
-
-
-            logger.debug("SQL.hasSamples: {}", ps);
-            ResultSet rs = ps.executeQuery();
-            boolean hasSamples = false;
-            while (rs.next()) {
-                hasSamples = true;
-            }
-            return hasSamples;
-        } catch (SQLException ex) {
-            logger.error(ex);
-            throw ex;
-        }
-
-    }
 
     public JsonSample getLatest(long object, String att) throws JEVisException {
         String sql = String.format("select * from %s where %s=? and %s=? order by %s DESC limit 1",
