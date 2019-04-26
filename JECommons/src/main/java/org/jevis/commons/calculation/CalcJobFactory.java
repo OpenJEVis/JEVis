@@ -193,13 +193,16 @@ public class CalcJobFactory {
             //if a attribute is without date -> start whole calculation
             DateTime ts = null;
             try {
-                List<JEVisSample> sampleList = valueAttribute.getAllSamples();
-                if (sampleList.size() > 0) {
-                    JEVisSample smp = sampleList.get(sampleList.size() - 1);
+                if (valueAttribute.hasSample()) {
+                    JEVisSample smp = valueAttribute.getLatestSample();
 
-                    if (startTime == null) ts = smp.getTimestamp().plus(valueAttribute.getInputSampleRate());
+                    if (startTime == null) {
+                        ts = smp.getTimestamp().plus(valueAttribute.getInputSampleRate());
+                    }
 
-                    if (!Objects.requireNonNull(ts).equals(ultimateStart)) startTime = ts;
+                    if (ts != null && !ts.equals(ultimateStart)) {
+                        startTime = ts;
+                    }
                 } else {
                     if (startTime == null) {
                         startTime = ultimateStart;

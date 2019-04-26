@@ -76,8 +76,15 @@ public class CalcJob {
             for (JEVisAttribute output : outputs) {
                 boolean hasSamples = output.hasSample();
                 Map<DateTime, JEVisSample> listOldSamples = new HashMap<>();
-                for (JEVisSample jeVisSample : output.getAllSamples()) {
-                    listOldSamples.put(jeVisSample.getTimestamp(), jeVisSample);
+                DateTime firstDateTimeOfResults = null;
+                DateTime lastDateTimeOfResults = null;
+                if (!calculateResult.isEmpty()) {
+                    firstDateTimeOfResults = calculateResult.get(0).getTimestamp();
+                    lastDateTimeOfResults = calculateResult.get(calculateResult.size() - 1).getTimestamp();
+
+                    for (JEVisSample jeVisSample : output.getSamples(firstDateTimeOfResults, lastDateTimeOfResults)) {
+                        listOldSamples.put(jeVisSample.getTimestamp(), jeVisSample);
+                    }
                 }
 
                 for (JEVisSample sample : calculateResult) {

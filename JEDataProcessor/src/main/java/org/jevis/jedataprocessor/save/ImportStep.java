@@ -49,8 +49,15 @@ public class ImportStep implements ProcessStep {
 
         boolean hasSamples = attribute.hasSample();
         Map<DateTime, JEVisSample> listOldSamples = new HashMap<>();
-        for (JEVisSample jeVisSample : attribute.getAllSamples()) {
-            listOldSamples.put(jeVisSample.getTimestamp(), jeVisSample);
+        DateTime firstDateTimeOfResults = null;
+        DateTime lastDateTimeOfResults = null;
+        if (!resourceManager.getIntervals().isEmpty()) {
+            firstDateTimeOfResults = resourceManager.getIntervals().get(0).getInterval().getStart();
+            lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
+
+            for (JEVisSample jeVisSample : attribute.getSamples(firstDateTimeOfResults, lastDateTimeOfResults)) {
+                listOldSamples.put(jeVisSample.getTimestamp(), jeVisSample);
+            }
         }
 
         List<JEVisSample> cleanSamples = new ArrayList<>();
