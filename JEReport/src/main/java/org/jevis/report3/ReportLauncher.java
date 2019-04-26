@@ -146,21 +146,26 @@ public class ReportLauncher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
-        try {
-            ds.clearCache();
-            ds.preload();
-            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-        } catch (JEVisException e) {
-        }
 
-        if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-            List<JEVisObject> reports = getEnabledReports();
-            executeReports(reports);
+        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+            try {
+                ds.clearCache();
+                ds.preload();
+                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+            } catch (JEVisException e) {
+            }
 
-            logger.info("Queued all report objects, entering sleep mode for " + cycleTime + " ms.");
+            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                List<JEVisObject> reports = getEnabledReports();
+                executeReports(reports);
 
+                logger.info("Queued all report objects, entering sleep mode for " + cycleTime + " ms.");
+
+            } else {
+                logger.info("Service was disabled.");
+            }
         } else {
-            logger.info("Service was disabled.");
+            logger.info("Still running queue. Going to sleep again.");
         }
 
         try {

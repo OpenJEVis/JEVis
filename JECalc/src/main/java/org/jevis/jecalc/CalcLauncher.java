@@ -46,21 +46,26 @@ public class CalcLauncher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
-        try {
-            ds.clearCache();
-            ds.preload();
-            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-        } catch (JEVisException e) {
-            logger.error(e);
+        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+            try {
+                ds.clearCache();
+                ds.preload();
+                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+            } catch (JEVisException e) {
+                logger.error(e);
+            }
+
+            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                logger.info("Service is enabled.");
+                List<JEVisObject> dataSources = getEnabledCalcObjects();
+                executeCalcJobs(dataSources);
+            } else {
+                logger.info("Service is disabled.");
+            }
+        } else {
+            logger.info("Still running queue. Going to sleep again.");
         }
 
-        if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-            logger.info("Service is enabled.");
-            List<JEVisObject> dataSources = getEnabledCalcObjects();
-            executeCalcJobs(dataSources);
-        } else {
-            logger.info("Service is disabled.");
-        }
         try {
             logger.info("Entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);

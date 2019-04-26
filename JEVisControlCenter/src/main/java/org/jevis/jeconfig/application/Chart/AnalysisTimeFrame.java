@@ -1,10 +1,14 @@
 package org.jevis.jeconfig.application.Chart;
 
+import org.joda.time.DateTime;
+
 public class AnalysisTimeFrame {
 
     private TimeFrame timeFrame = TimeFrame.TODAY;
 
     private long id = 0l;
+    private DateTime start;
+    private DateTime end;
 
     public AnalysisTimeFrame() {
     }
@@ -32,6 +36,22 @@ public class AnalysisTimeFrame {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public DateTime getStart() {
+        return start;
+    }
+
+    public void setStart(DateTime start) {
+        this.start = start;
+    }
+
+    public DateTime getEnd() {
+        return end;
+    }
+
+    public void setEnd(DateTime end) {
+        this.end = end;
     }
 
     public TimeFrame parseTimeFrameFromString(String s) {

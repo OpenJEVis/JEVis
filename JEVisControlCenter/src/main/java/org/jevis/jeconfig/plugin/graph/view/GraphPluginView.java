@@ -75,7 +75,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -97,7 +96,6 @@ public class GraphPluginView implements Plugin {
     private ToolBar toolBar;
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
-    private List<ChartView> listChartViews;
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
         this.dataModel = new GraphDataModel(ds, this);
@@ -415,13 +413,13 @@ public class GraphPluginView implements Plugin {
             Long chartsPerScreen = dataModel.getChartsPerScreen();
 
             if (getNewChartViews) {
-                listChartViews = null;
-                listChartViews = getChartViews();
+                charts.clear();
+                getChartViews();
             }
 
             AlphanumComparator ac = new AlphanumComparator();
             try {
-                listChartViews.sort((s1, s2) -> ac.compare(s1.getChartName(), s2.getChartName()));
+                charts.sort((s1, s2) -> ac.compare(s1.getChartName(), s2.getChartName()));
             } catch (Exception e) {
             }
 
@@ -433,8 +431,8 @@ public class GraphPluginView implements Plugin {
             sp.setFitToWidth(true);
             sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-            for (ChartView cv : listChartViews) {
-                final Integer index = listChartViews.indexOf(cv);
+            for (ChartView cv : charts) {
+                final Integer index = charts.indexOf(cv);
                 if (cv.getChartType().equals(ChartType.LOGICAL)) {
                     autoMinSize = autoMinSizeLogical;
                 } else {
@@ -482,26 +480,28 @@ public class GraphPluginView implements Plugin {
 
                 if (cv.getShowTable()) {
                     if (!cv.getChartType().equals(ChartType.TABLE)) {
-                        bp.setTop(cv.getLegend());
+                        Platform.runLater(() -> bp.setTop(cv.getLegend()));
                     } else {
                         TableChart chart = (TableChart) cv.getChart();
 
-
-                        bp.setTop(chart.getTopPicker());
+                        Platform.runLater(() -> bp.setTop(chart.getTopPicker()));
                     }
                 } else {
                     bp.setTop(null);
                 }
 
                 if (!cv.getChartType().equals(ChartType.TABLE)) {
-                    bp.setCenter(cv.getChartRegion());
+                    Platform.runLater(() -> bp.setCenter(cv.getChartRegion()));
                 } else {
-                    ScrollPane scrollPane = new ScrollPane(cv.getLegend());
-                    scrollPane.setFitToHeight(true);
-                    scrollPane.setFitToWidth(true);
-                    scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
-                    scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-                    bp.setCenter(scrollPane);
+                    ScrollPane scrollPane = new ScrollPane();
+                    Platform.runLater(() -> {
+                        scrollPane.setContent(cv.getLegend());
+                        scrollPane.setFitToHeight(true);
+                        scrollPane.setFitToWidth(true);
+                        scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.NEVER);
+                        scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+                        bp.setCenter(scrollPane);
+                    });
                 }
                 bp.setBottom(null);
 
@@ -520,7 +520,7 @@ public class GraphPluginView implements Plugin {
                     }
                 });
 
-                List<ChartView> notActive = FXCollections.observableArrayList(listChartViews);
+                List<ChartView> notActive = FXCollections.observableArrayList(charts);
                 notActive.remove(cv);
                 ChartType chartType = cv.getChartType();
 
@@ -610,23 +610,32 @@ public class GraphPluginView implements Plugin {
             firstStart = false;
             if (object instanceof AnalysisRequest) {
 
+                /**
+                 * clear old model
+                 */
+                dataModel.setCharts(null);
+                dataModel.setData(null);
+                charts.clear();
+
 
                 AnalysisRequest analysisRequest = (AnalysisRequest) object;
                 JEVisObject jeVisObject = analysisRequest.getObject();
                 if (jeVisObject.getJEVisClassName().equals("Analysis")) {
 
-                    dataModel.setCurrentAnalysis(jeVisObject);
-                    toolBarView.getPickerCombo().updateCellFactory();
-                    dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
-                    dataModel.setManipulationMode(analysisRequest.getManipulationMode());
-                    dataModel.setGlobalAnalysisTimeFrame(analysisRequest.getAnalysisTimeFrame());
-                    dataModel.setCharts(dataModel.getCharts());
+                    dataModel.setCurrentAnalysis(analysisRequest.getObject());
+                    dataModel.setCharts(null);
+                    dataModel.updateSelectedData();
 
-                    dataModel.getSelectedData().forEach(chartDataModel -> {
-                        chartDataModel.setSelectedStart(analysisRequest.getStartDate());
-                        chartDataModel.setSelectedEnd(analysisRequest.getEndDate());
-                    });
+                    dataModel.setManipulationMode(analysisRequest.getManipulationMode());
+                    dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                    analysisTimeFrame.setStart(analysisRequest.getStartDate());
+                    analysisTimeFrame.setEnd(analysisRequest.getEndDate());
+                    dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
+
                     dataModel.updateSamples();
+
+                    toolBarView.getPickerCombo().updateCellFactory();
 
                     dataModel.isGlobalAnalysisTimeFrame(true);
 
@@ -636,22 +645,18 @@ public class GraphPluginView implements Plugin {
 
                     toolBarView.select(analysisRequest.getObject());
                     toolBarView.getPresetDateBox().getSelectionModel().select(TimeFrame.CUSTOM);
-                    DateTime startDate = analysisRequest.getStartDate();
-                    DateTime endDate = analysisRequest.getEndDate();
-                    toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth()));
-                    toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(endDate.getYear(), endDate.getMonthOfYear(), endDate.getDayOfMonth()));
+                    toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(analysisRequest.getStartDate().getYear(), analysisRequest.getStartDate().getMonthOfYear(), analysisRequest.getStartDate().getDayOfMonth()));
+                    toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(analysisRequest.getEndDate().getYear(), analysisRequest.getEndDate().getMonthOfYear(), analysisRequest.getEndDate().getDayOfMonth()));
 
                     toolBarView.setupAnalysisComboBoxListener();
                     toolBarView.getPickerCombo().startUpdateListener();
                     toolBarView.getPickerCombo().startDateListener();
 
-                    toolBarView.setDisableToolBarIcons(false);
-
+                    dataModel.setCharts(dataModel.getCharts());
                     dataModel.setSelectedData(dataModel.getSelectedData());
 
-//                    handleRequest(Constants.Plugin.Command.RELOAD);
-
                 } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
+
                     ChartDataModel chartDataModel = new ChartDataModel(ds);
 
                     try {
@@ -677,7 +682,10 @@ public class GraphPluginView implements Plugin {
                     ChartSettings chartSettings = new ChartSettings(chartDataModel.getObject().getName());
                     chartSettings.setId(0);
                     chartSettings.setChartType(ChartType.AREA);
-                    chartSettings.setAnalysisTimeFrame(new AnalysisTimeFrame(TimeFrame.TODAY));
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
+                    analysisTimeFrame.setStart(analysisRequest.getStartDate());
+                    analysisTimeFrame.setEnd(analysisRequest.getEndDate());
+                    chartSettings.setAnalysisTimeFrame(analysisTimeFrame);
                     List<ChartSettings> chartSettingsList = Collections.singletonList(chartSettings);
 
                     dataModel.setCharts(chartSettingsList);
@@ -687,27 +695,22 @@ public class GraphPluginView implements Plugin {
                     dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
                     dataModel.setGlobalAnalysisTimeFrame(analysisRequest.getAnalysisTimeFrame());
-                    DateTime startDate = analysisRequest.getStartDate();
-                    DateTime endDate = analysisRequest.getEndDate();
-                    dataModel.getSelectedData().forEach(model -> {
-                        model.setSelectedStart(startDate);
-                        model.setSelectedEnd(endDate);
-                    });
+
                     dataModel.isGlobalAnalysisTimeFrame(true);
 
                     toolBarView.getPickerCombo().stopUpdateListener();
                     toolBarView.getPickerCombo().stopDateListener();
 
                     toolBarView.getPresetDateBox().getSelectionModel().select(TimeFrame.CUSTOM);
-                    toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(startDate.getYear(), startDate.getMonthOfYear(), startDate.getDayOfMonth()));
-                    toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(endDate.getYear(), endDate.getMonthOfYear(), endDate.getDayOfMonth()));
+                    toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(analysisRequest.getStartDate().getYear(), analysisRequest.getStartDate().getMonthOfYear(), analysisRequest.getStartDate().getDayOfMonth()));
+                    toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(analysisRequest.getEndDate().getYear(), analysisRequest.getEndDate().getMonthOfYear(), analysisRequest.getEndDate().getDayOfMonth()));
 
                     toolBarView.getPickerCombo().startUpdateListener();
                     toolBarView.getPickerCombo().startDateListener();
 
                     dataModel.updateSamples();
-                    dataModel.setCharts(dataModel.getCharts());
-                    dataModel.setSelectedData(dataModel.getSelectedData());
+
+                    Platform.runLater(() -> update(true));
                 }
 
                 toolBarView.setDisableToolBarIcons(false);
@@ -1000,85 +1003,85 @@ public class GraphPluginView implements Plugin {
         return totalPrefHight;
     }
 
-    private List<ChartView> getChartViews() {
+    private void getChartViews() {
 
-        if (charts.isEmpty() || hasLogicalCharts() || dataModelHasLogicalCharts()) {
-            charts.clear();
+//        if (charts.isEmpty() || hasLogicalCharts() || dataModelHasLogicalCharts()) {
+        charts.clear();
 
-            dataModel.getCharts().forEach(chart -> {
-                int chartID = chart.getId();
-                ChartType type = chart.getChartType();
+        dataModel.getCharts().forEach(chart -> {
+            int chartID = chart.getId();
+            ChartType type = chart.getChartType();
 
-                if (!type.equals(ChartType.LOGICAL)) {
-                    ChartView view = new ChartView(dataModel);
-                    view.drawAreaChart(chart.getId(), type);
-                    charts.add(view);
-                } else {
-                    createLogicalChart(chart, chartID, type);
-                }
-            });
-        } else {
-            if (dataModel.getCharts().size() < charts.size()) {
-
-                if (!hasLogicalCharts() && dataModel.getCharts().size() < charts.size()) {
-
-                    charts.subList(dataModel.getCharts().size(), charts.size()).clear();
-                }
-
-                if (hasLogicalCharts()) {
-                    charts.removeAll(charts.stream().filter(chartView -> chartView.getChartType().equals(ChartType.LOGICAL)).collect(Collectors.toList()));
-                    dataModel.getCharts().forEach(chart -> {
-                        int chartID = chart.getId();
-                        ChartType type = chart.getChartType();
-
-                        if (type.equals(ChartType.LOGICAL)) {
-                            createLogicalChart(chart, chartID, type);
-                        }
-                    });
-                } else {
-                    charts.forEach(chart -> {
-                        if (!chart.getChartType().equals(ChartType.LOGICAL)) {
-                            int newChartIndex = charts.indexOf(chart);
-                            chart.setType(dataModel.getCharts().get(newChartIndex).getChartType());
-                            chart.setChartId(newChartIndex);
-                            chart.updateChart();
-                        }
-                    });
-
-                    charts.removeAll(charts.stream().filter(chartView -> chartView.getChartType().equals(ChartType.LOGICAL)).collect(Collectors.toList()));
-                    dataModel.getCharts().forEach(chart -> {
-                        int chartID = chart.getId();
-                        ChartType type = chart.getChartType();
-
-                        if (type.equals(ChartType.LOGICAL)) {
-                            createLogicalChart(chart, chartID, type);
-                        }
-                    });
-                }
+            if (!type.equals(ChartType.LOGICAL)) {
+                ChartView view = new ChartView(dataModel);
+                view.drawAreaChart(chart.getId(), type);
+                charts.add(view);
             } else {
-
-                for (ChartView chartView : charts) {
-                    chartView.setType(dataModel.getCharts().get(charts.indexOf(chartView)).getChartType());
-                    chartView.updateChart();
-                }
-
-                if (dataModel.getCharts().size() > charts.size()) {
-                    for (int i = charts.size(); i < dataModel.getCharts().size(); i++) {
-                        ChartView view = new ChartView(dataModel);
-
-                        ChartType type = dataModel.getCharts().get(i).getChartType();
-
-                        view.drawAreaChart(dataModel.getCharts().get(i).getId(), type);
-
-                        charts.add(view);
-                    }
-                }
-
+                createLogicalChart(chart, chartID, type);
             }
+        });
+//        } else {
+//            if (dataModel.getCharts().size() < charts.size()) {
+//
+//                if (!hasLogicalCharts() && dataModel.getCharts().size() < charts.size()) {
+//
+//                    charts.subList(dataModel.getCharts().size(), charts.size()).clear();
+//                }
+//
+//                if (hasLogicalCharts()) {
+//                    charts.removeAll(charts.stream().filter(chartView -> chartView.getChartType().equals(ChartType.LOGICAL)).collect(Collectors.toList()));
+//                    dataModel.getCharts().forEach(chart -> {
+//                        int chartID = chart.getId();
+//                        ChartType type = chart.getChartType();
+//
+//                        if (type.equals(ChartType.LOGICAL)) {
+//                            createLogicalChart(chart, chartID, type);
+//                        }
+//                    });
+//                } else {
+//                    charts.forEach(chart -> {
+//                        if (!chart.getChartType().equals(ChartType.LOGICAL)) {
+//                            int newChartIndex = charts.indexOf(chart);
+//                            chart.setType(dataModel.getCharts().get(newChartIndex).getChartType());
+//                            chart.setChartId(newChartIndex);
+//                            chart.updateChart();
+//                        }
+//                    });
+//
+//                    charts.removeAll(charts.stream().filter(chartView -> chartView.getChartType().equals(ChartType.LOGICAL)).collect(Collectors.toList()));
+//                    dataModel.getCharts().forEach(chart -> {
+//                        int chartID = chart.getId();
+//                        ChartType type = chart.getChartType();
+//
+//                        if (type.equals(ChartType.LOGICAL)) {
+//                            createLogicalChart(chart, chartID, type);
+//                        }
+//                    });
+//                }
+//            } else {
+//
+//                for (ChartView chartView : charts) {
+//                    chartView.setType(dataModel.getCharts().get(charts.indexOf(chartView)).getChartType());
+//                    chartView.updateChart();
+//                }
+//
+//                if (dataModel.getCharts().size() > charts.size()) {
+//                    for (int i = charts.size(); i < dataModel.getCharts().size(); i++) {
+//                        ChartView view = new ChartView(dataModel);
+//
+//                        ChartType type = dataModel.getCharts().get(i).getChartType();
+//
+//                        view.drawAreaChart(dataModel.getCharts().get(i).getId(), type);
+//
+//                        charts.add(view);
+//                    }
+//                }
+//
+//            }
 
-        }
+//        }
 
-        return charts;
+//        return charts;
     }
 
     private boolean dataModelHasLogicalCharts() {

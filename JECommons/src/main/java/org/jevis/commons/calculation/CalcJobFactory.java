@@ -180,7 +180,7 @@ public class CalcJobFactory {
                     outputAttributes.add(valueAttribute);
                 }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.fatal(ex);
         }
         return outputAttributes;
@@ -196,12 +196,20 @@ public class CalcJobFactory {
                 if (valueAttribute.hasSample()) {
                     JEVisSample smp = valueAttribute.getLatestSample();
 
-                    if (startTime == null) {
+                    if (startTime == null && smp != null) {
                         ts = smp.getTimestamp().plus(valueAttribute.getInputSampleRate());
                     }
 
                     if (ts != null && !ts.equals(ultimateStart)) {
                         startTime = ts;
+                    }
+
+                    /**
+                     * should never happen but we will make sure...
+                     */
+                    if (startTime == null) {
+                        startTime = ultimateStart;
+                        break;
                     }
                 } else {
                     if (startTime == null) {

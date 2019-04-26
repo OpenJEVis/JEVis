@@ -111,25 +111,30 @@ public class Launcher extends AbstractCliApp {
     @Override
     protected void runServiceHelp() {
         List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
-        try {
-            ds.clearCache();
-            ds.preload();
-        } catch (JEVisException e) {
-            logger.error("Could not preload.");
-        }
 
-        getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-
-        if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
             try {
-                enabledCleanDataObjects = getAllCleaningObjects();
-            } catch (Exception e) {
-                logger.error("Could not get cleaning objects. " + e);
+                ds.clearCache();
+                ds.preload();
+            } catch (JEVisException e) {
+                logger.error("Could not preload.");
             }
 
-            this.executeProcesses(enabledCleanDataObjects);
+            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+
+            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                try {
+                    enabledCleanDataObjects = getAllCleaningObjects();
+                } catch (Exception e) {
+                    logger.error("Could not get cleaning objects. " + e);
+                }
+
+                this.executeProcesses(enabledCleanDataObjects);
+            } else {
+                logger.info("Service is disabled.");
+            }
         } else {
-            logger.info("Service is disabled.");
+            logger.info("Still running queue. Going to sleep again.");
         }
 
         try {

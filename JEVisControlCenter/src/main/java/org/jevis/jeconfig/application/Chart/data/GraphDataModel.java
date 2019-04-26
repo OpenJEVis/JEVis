@@ -193,7 +193,7 @@ public class GraphDataModel {
     }
 
     public List<ChartSettings> getCharts() {
-        if (charts == null) updateCharts();
+        if (charts == null || charts.isEmpty()) updateCharts();
 
 //        if (selectedData != null && !selectedData.isEmpty() && listAnalysisModel != null) {
 //
@@ -393,6 +393,12 @@ public class GraphDataModel {
             switch (analysisTimeFrame.getTimeFrame()) {
                 //Custom
                 case CUSTOM:
+                    if (analysisTimeFrame.getStart() != null && analysisTimeFrame.getEnd() != null) {
+                        for (ChartDataModel model : chartDataModels) {
+                            model.setSelectedStart(analysisTimeFrame.getStart());
+                            model.setSelectedEnd(analysisTimeFrame.getEnd());
+                        }
+                    }
                     break;
                 //today
                 case TODAY:
