@@ -144,7 +144,7 @@ public class AttributeTable {
      * @param attribute
      */
     public void updateMinMaxTS(long objectID, String attribute) {
-
+        logger.debug("updateMinMaxTS: {}:{}", objectID, attribute);
         String selectSQL = String.format("select min(%s) as min,max(%s) as max,count(%s) as count " +
                         "from %s where object=? and attribute=?  ",
                 SampleTable.COLUMN_TIMESTAMP, SampleTable.COLUMN_TIMESTAMP, SampleTable.COLUMN_TIMESTAMP, SampleTable.TABLE);
@@ -169,6 +169,7 @@ public class AttributeTable {
                 Timestamp mindate = rs.getTimestamp("min");
                 Timestamp maxdate = rs.getTimestamp("max");
                 long count = rs.getLong("count");
+                logger.debug("count: {},min: {}", count, mindate);
 
                 try (PreparedStatement psUpdate = _connection.getConnection().prepareStatement(sqlUpdate)) {
                     /** values */
@@ -186,7 +187,7 @@ public class AttributeTable {
                     psUpdate.setLong(4, objectID);
                     psUpdate.setString(5, attribute);
 
-                    logger.trace("SQL: {}", psUpdate);
+                    logger.debug("SQL: {}", psUpdate);
                     psUpdate.executeUpdate();
 
                 } catch (SQLException ex) {
@@ -197,7 +198,6 @@ public class AttributeTable {
             }
 
         } catch (SQLException ex) {
-
             logger.error(ex);
             ex.printStackTrace();
         }
