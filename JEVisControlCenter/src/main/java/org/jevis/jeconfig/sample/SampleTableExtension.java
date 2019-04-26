@@ -28,7 +28,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
@@ -66,6 +65,7 @@ public class SampleTableExtension implements SampleEditorExtension {
     public SampleTableExtension(JEVisAttribute att, Window owner) {
         _att = att;
         this.owner = owner;
+        buildGui(att, new ArrayList<>());
     }
 
     private void buildGui(final JEVisAttribute att, final List<JEVisSample> samples) {
@@ -73,9 +73,7 @@ public class SampleTableExtension implements SampleEditorExtension {
         box.setAlignment(Pos.CENTER);
 
         final SampleTable table = new SampleTable(att, samples);
-//        final SampleTableView table = new SampleTableView(samples);
-        table.setPrefSize(1000, 1000);
-
+        table.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
         Button deleteAll = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"));
 
@@ -200,18 +198,7 @@ public class SampleTableExtension implements SampleEditorExtension {
                                     return null;
                                 }
                             });
-
-
                         }
-
-
-//                                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-//                                alert.setTitle(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.error.title"));
-//                                alert.setHeaderText(null);
-//                                alert.setContentText(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteinbetween.error.message"));
-//
-//                                alert.showAndWait();
-
 
                     } catch (Exception ex) {
                         logger.fatal(ex);
@@ -220,33 +207,15 @@ public class SampleTableExtension implements SampleEditorExtension {
                 }
         );
 
-//        disableEditing.addListener((observable, oldValue, newValue) -> {
-//            System.out.println("Disable tree: " + newValue);
-//            table.setEditable(!newValue);
-//            addNewSample.setDisable(newValue);
-//        });
-
         box.getChildren()
                 .setAll(addNewSample, deleteAll, deleteSelected, deleteInBetween, saveButton);
 
-        GridPane gp = new GridPane();
 
-        gp.setStyle(
-                "-fx-background-color: transparent;");
-//        gp.setStyle("-fx-background-color: #E2E2E2;");
-        gp.setPadding(new Insets(0, 0, 10, 0));
-        gp.setHgap(7);
-        gp.setVgap(7);
+        _view.setPadding(new Insets(10, 0, 10, 0));
+        box.setPadding(new Insets(10, 0, 10, 0));
 
-        int y = 0;
-
-        gp.add(table, 0, y);
-        gp.add(box, 0, ++y);
-
-//        box.getChildren().setAll(table, deleteAll);
-        _view.setCenter(gp);
-//        _view.setCenter(box);
-//        _view.setCenter(table);
+        _view.setCenter(table);
+        _view.setBottom(box);
     }
 
     public void taskWithAnimation(Task<Void> task) {
