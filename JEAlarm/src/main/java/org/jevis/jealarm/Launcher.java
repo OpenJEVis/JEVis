@@ -112,24 +112,29 @@ public class Launcher extends AbstractCliApp {
     @Override
     protected void runServiceHelp() {
         List<AlarmConfiguration> enabledAlarmConfigurations = new ArrayList<>();
-        try {
-            ds.clearCache();
-            ds.preload();
-            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-        } catch (JEVisException e) {
-            logger.error(e);
-        }
 
-        if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
             try {
-                enabledAlarmConfigurations = getAllAlarmObjects();
-            } catch (Exception e) {
-                logger.error("Could not get cleaning objects. " + e);
+                ds.clearCache();
+                ds.preload();
+                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+            } catch (JEVisException e) {
+                logger.error(e);
             }
 
-            this.executeProcesses(enabledAlarmConfigurations);
+            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                try {
+                    enabledAlarmConfigurations = getAllAlarmObjects();
+                } catch (Exception e) {
+                    logger.error("Could not get cleaning objects. " + e);
+                }
+
+                this.executeProcesses(enabledAlarmConfigurations);
+            } else {
+                logger.info("Service is disabled.");
+            }
         } else {
-            logger.info("Service is disabled.");
+            logger.info("Still running queue. Going to sleep again.");
         }
 
         try {

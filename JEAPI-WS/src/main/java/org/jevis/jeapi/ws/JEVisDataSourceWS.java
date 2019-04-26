@@ -368,7 +368,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     objectRelMapCache.get(startID).add(re);
                     objectRelMapCache.get(endID).add(re);
                 } catch (Exception ex) {
-                    logger.error("incorrect relationship: {}", re);
+                    logger.error("incorrect relationship: {}\n{}", re, ex);
                 }
             });
 

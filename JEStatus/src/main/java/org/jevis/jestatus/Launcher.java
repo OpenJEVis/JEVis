@@ -114,27 +114,33 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
-        try {
-            ds.clearCache();
-            ds.preload();
-            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-        } catch (JEVisException e) {
-            logger.error(e);
-        }
 
-        if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-            logger.info("Service is enabled.");
+        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
             try {
-                AlarmHandler ah = new AlarmHandler(config, ds);
-                for (Alarm alarm : Objects.requireNonNull(config).getAlarms()) {
-                    ah.checkAlarm(alarm);
+                ds.clearCache();
+                ds.preload();
+                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+            } catch (JEVisException e) {
+                logger.error(e);
+            }
+
+            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                logger.info("Service is enabled.");
+                try {
+                    AlarmHandler ah = new AlarmHandler(config, ds);
+                    for (Alarm alarm : Objects.requireNonNull(config).getAlarms()) {
+                        ah.checkAlarm(alarm);
+                    }
+                } catch (JEVisException ex) {
+                    logger.fatal(ex);
                 }
-            } catch (JEVisException ex) {
-                logger.fatal(ex);
+            } else {
+                logger.info("Service is disabled.");
             }
         } else {
-            logger.info("Service is disabled.");
+            logger.info("Still running queue. Going to sleep again.");
         }
+
         try {
             logger.info("Entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);
