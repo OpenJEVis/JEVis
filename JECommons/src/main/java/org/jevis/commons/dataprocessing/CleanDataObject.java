@@ -146,6 +146,7 @@ public class CleanDataObject {
             });
             String exception = String.format("[%s] Error in configuration, stopping: %s", getCleanObject().getID(), stringBuilder.toString().replace("\n", ""));
             LogTaskManager.getInstance().getTask(getCleanObject().getID()).setException(new Exception(exception));
+
             throw new Exception(exception);
         }
 
