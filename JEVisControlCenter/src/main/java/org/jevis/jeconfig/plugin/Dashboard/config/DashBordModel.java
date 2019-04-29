@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.*;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -180,49 +181,23 @@ public class DashBordModel {
         widgetList.add(config);
     }
 
-    /**
-     * This function will migrate an existing json string configuration into the new file format
-     * <p>
-     * Todo: remove this function later of every analysis was converted
-     */
-    private void migradeOldVersion(JEVisObject analysisObj) {
-        logger.info("Check configuration settings");
-
-        try {
-            if (analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).hasSample()) {
-                logger.info("is file format - return");
-                return;
-            } else {
-                /** convert **/
-                JEVisSample lastConfigSample = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL).getLatestSample();
-                if (lastConfigSample == null) {
-                    logger.error("Missing Json configuration");
-                    String json = lastConfigSample.getValueAsString();
-
-                    return;
-                } else {
-
-                }
-
-            }
-
-
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
-
-
-    }
 
     private void load() {
         try {
             JEVisSample lastConfigSample = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
-            if (lastConfigSample == null) {
+            if (lastConfigSample == null || lastConfigSample.getValueAsFile() == null || lastConfigSample.getValueAsFile().getBytes() == null) {
                 logger.error("Missing Json File configuration");
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText(I18n.getInstance().getString("plugin.dashboard.load.error.file.header"));
+                alert.setContentText(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
+
+                alert.showAndWait();
                 return;
             }
 
             JEVisFile file = lastConfigSample.getValueAsFile();
+            System.out.println("file: " + file);
             JsonNode jsonNode = mapper.readTree(file.getBytes());
 
             try {
@@ -379,7 +354,6 @@ public class DashBordModel {
                 backgroundImage.commit();
             }
             this.analysisObject = analysisObject;
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }
