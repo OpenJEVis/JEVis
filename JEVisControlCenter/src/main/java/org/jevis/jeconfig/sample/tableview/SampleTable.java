@@ -43,10 +43,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.text.NumberFormat;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.function.UnaryOperator;
 
 /**
@@ -97,6 +94,27 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         TableColumn<TableSample, DateTime> timeStampColumn = createTimeStampColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.time"));
         TableColumn<TableSample, Object> valueCol = createValueColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.value"));
         TableColumn<TableSample, String> noteColumn = createNoteColumn(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.note"));
+
+        try {
+            if (attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE || attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.LONG) {
+                valueCol.comparatorProperty().setValue(new Comparator<Object>() {
+                    @Override
+                    public int compare(Object o1, Object o2) {
+                        try {
+                            Double d1 = Double.parseDouble((String) o1);
+                            Double d2 = Double.parseDouble((String) o2);
+
+                            return d1.compareTo(d2);
+                        } catch (Exception ex) {
+                            logger.error(ex);
+                        }
+                        return 0;
+                    }
+                });
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
 
 
         /**
@@ -575,6 +593,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             setGraphic(null);
                         } else {
                             TableSample tableSample = (TableSample) getTableRow().getItem();
+
                             TextField textField = new TextField(tableSample.getValue().toString());
 //                            textField.setDisable(!SampleTable.this.isEditable());
 //                            this.disableProperty().bind(textField.disableProperty());
