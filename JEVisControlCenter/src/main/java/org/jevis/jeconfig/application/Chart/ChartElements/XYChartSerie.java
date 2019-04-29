@@ -162,9 +162,17 @@ public class XYChartSerie {
             } else {
                 if (qu.isSumCalculable(unit) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
                     try {
-                        Period p = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
-                        double factor = Period.hours(1).toStandardDuration().getMillis() / p.toStandardDuration().getMillis();
-                        tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
+                        Period period = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                        if (period.getMonths() < 1) {
+                            long periodMillis = period.toStandardDuration().getMillis();
+                            long hourMillis = Period.hours(1).toStandardDuration().getMillis();
+                            Double factor = (double) hourMillis / (double) periodMillis;
+                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
+                        } else {
+                            /**
+                             * TODO: for aggregation bigger then 1 month
+                             */
+                        }
                     } catch (Exception e) {
                         logger.error("Couldn't calculate periods");
                         tableEntry.setSum("- " + getUnit());
