@@ -125,23 +125,14 @@ public class ToolBarView {
             AggregationPeriod oldAggregationPeriod = model.getAggregationPeriod();
             ManipulationMode oldManipulationMode = model.getManipulationMode();
 
-            AnalysisTimeFrame oldAnalysisTimeFrame;
-            DateTime oldStart = null;
-            DateTime oldEnd = null;
-            boolean customTimeFrame = false;
+            AnalysisTimeFrame oldAnalysisTimeFrame = model.getGlobalAnalysisTimeFrame();
 
-            if (model.isglobalAnalysisTimeFrame()) {
-                oldAnalysisTimeFrame = model.getGlobalAnalysisTimeFrame();
-
-                customTimeFrame = oldAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM);
-                if (customTimeFrame) {
-                    for (ChartDataModel chartDataModel : model.getSelectedData()) {
-                        oldStart = chartDataModel.getSelectedStart();
-                        oldEnd = chartDataModel.getSelectedEnd();
-                        break;
-                    }
-                } else
-                    oldAnalysisTimeFrame = model.getCharts().stream().findFirst().map(ChartSettings::getAnalysisTimeFrame).orElse(null);
+            if (oldAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM)) {
+                for (ChartDataModel chartDataModel : model.getSelectedData()) {
+                    oldAnalysisTimeFrame.setStart(chartDataModel.getSelectedStart());
+                    oldAnalysisTimeFrame.setEnd(chartDataModel.getSelectedEnd());
+                    break;
+                }
             } else {
                 oldAnalysisTimeFrame = model.getCharts().stream().findFirst().map(ChartSettings::getAnalysisTimeFrame).orElse(null);
             }
@@ -154,13 +145,6 @@ public class ToolBarView {
             model.setManipulationMode(oldManipulationMode);
             model.setAggregationPeriod(oldAggregationPeriod);
             model.setAnalysisTimeFrameForAllModels(oldAnalysisTimeFrame);
-
-            if (customTimeFrame) {
-                for (ChartDataModel chartDataModel : model.getSelectedData()) {
-                    chartDataModel.setSelectedStart(oldStart);
-                    chartDataModel.setSelectedEnd(oldEnd);
-                }
-            }
 
             model.updateSamples();
 
