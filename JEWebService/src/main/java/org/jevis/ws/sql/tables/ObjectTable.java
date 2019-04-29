@@ -28,10 +28,7 @@ import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.ws.sql.SQLDataSource;
 import org.jevis.ws.sql.SQLtoJsonFactory;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -101,7 +98,7 @@ public class ObjectTable {
         String sql = String.format("insert into %s(%s,%s, %s) values(?,?,?)", TABLE, COLUMN_NAME, COLUMN_CLASS, COLUMN_PUBLIC);
 
 
-        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, name);
             ps.setString(2, jclass);
             ps.setBoolean(3, isPublic);
@@ -160,38 +157,7 @@ public class ObjectTable {
 
 
     }
-
-    public JsonObject insertLink(String name, JsonObject linkParent, JsonObject linkedObject) throws JEVisException {
-        String sql = String.format("insert into %s(%s,%s,%s,%s) values(?,?,?,?)", TABLE, COLUMN_NAME, COLUMN_GROUP, COLUMN_LINK, COLUMN_CLASS);
-        JsonObject newObject = null;
-
-        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
-            ps.setString(1, name);
-            ps.setLong(2, 0);//TODO replace this is not needet anymore
-            ps.setLong(3, linkedObject.getId());
-            ps.setString(4, "Link");
-
-//            logger.info("putObjectLink.sql: " + ps);
-            int count = ps.executeUpdate();
-            if (count == 0) {
-                //TODO throw error?!
-                logger.error("Failed to create Link");
-            }
-
-            logger.trace("SQL: {}", ps);
-            ResultSet rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                newObject = getObject(rs.getLong(1));
-            }
-
-        } catch (SQLException ex) {
-            logger.error(ex);
-            throw new JEVisException("Error while creating object link", 234234, ex);//ToDo real number
-        }
-        return newObject;
-
-    }
-
+    
     public JsonObject getObject(Long id) throws JEVisException {
         logger.trace("getObject: {} ", id);
 

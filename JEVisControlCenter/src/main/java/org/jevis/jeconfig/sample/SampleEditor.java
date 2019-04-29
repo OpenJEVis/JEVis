@@ -34,10 +34,7 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.SampleGenerator;
@@ -172,7 +169,14 @@ public class SampleEditor {
 
 
         extensions.add(new SampleTableExtension(attribute, stage));
-        extensions.add(new SampleGraphExtension(attribute));
+        try {
+            if (attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.LONG || attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE) {
+                extensions.add(new SampleGraphExtension(attribute));
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+
         extensions.add(new AttributeStatesExtension(attribute));
         extensions.add(new SampleExportExtension(attribute));
         extensions.add(new AttributeUnitExtension(attribute));
