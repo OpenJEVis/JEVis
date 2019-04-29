@@ -71,6 +71,7 @@ public class SampleEditor {
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private DateTime _from;
     private DateTime _until;
+    private boolean initial = true;
 
     /**
      * @param owner
@@ -134,7 +135,6 @@ public class SampleEditor {
 
                 startDate.valueProperty().set(LocalDate.of(_from.getYear(), _from.getMonthOfYear(), _from.getDayOfMonth()));
                 endDate.valueProperty().set(LocalDate.of(_until.getYear(), _until.getMonthOfYear(), _until.getDayOfMonth()));
-
 
                 WorkDays wd = new WorkDays(attribute.getObject());
                 if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
@@ -381,14 +381,17 @@ public class SampleEditor {
 
         try {
 
+            if (!initial) {
+                _from = new DateTime(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth(),
+                        workdayStart.getHour(), workdayStart.getMinute(), workdayStart.getSecond(), workdayStart.getNano());
+                _until = new DateTime(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth(),
+                        workdayEnd.getHour(), workdayEnd.getMinute(), workdayEnd.getSecond(), workdayEnd.getNano() / 1000000);
 
-            _from = new DateTime(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth(),
-                    workdayStart.getHour(), workdayStart.getMinute(), workdayStart.getSecond(), workdayStart.getNano());
-            _until = new DateTime(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth(),
-                    workdayEnd.getHour(), workdayEnd.getMinute(), workdayEnd.getSecond(), workdayEnd.getNano() / 1000000);
-
-            if (workdayStart.isAfter(workdayEnd)) {
-                _from = _from.minusDays(1);
+                if (workdayStart.isAfter(workdayEnd)) {
+                    _from = _from.minusDays(1);
+                }
+            } else {
+                initial = false;
             }
 
             SampleGenerator sg;

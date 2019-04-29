@@ -141,7 +141,7 @@ public class ChartDataModel {
     }
 
     private void AddZerosForMissingValues() throws JEVisException {
-        if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE)) {
+        if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE) && aggregationPeriod.equals(AggregationPeriod.NONE)) {
             Period displaySampleRate = getAttribute().getDisplaySampleRate();
             if (displaySampleRate != null && displaySampleRate != Period.ZERO && displaySampleRate.toStandardDuration().getMillis() > 0) {
                 DateTime startTS = samples.get(0).getTimestamp();
@@ -177,29 +177,42 @@ public class ChartDataModel {
 
             ChartUnits cu = new ChartUnits();
             Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
-
-//            Double millisInput = null;
-//            Double millisOutput = null;
-//            try {
-//                if (inputList.size() > 1) {
-//                    Period inputPeriod = attribute.getDisplaySampleRate();
-//                    if (!inputPeriod.equals(Period.years(1)) || !inputPeriod.equals(Period.months(3)) || !inputPeriod.equals(Period.months(1))) {
-//                        millisInput = (double) inputPeriod.toStandardDuration().getMillis();
-//                    } else throw new Exception("Input Period is greater than days, could not calculate duration.");
-//
-//                    Period outputPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
-//                    if (!outputPeriod.equals(Period.years(1)) || !outputPeriod.equals(Period.months(3)) || !outputPeriod.equals(Period.months(1))) {
-//                        millisOutput = (double) outputPeriod.toStandardDuration().getMillis();
-//                    } else throw new Exception("Output Period is greater than days, could not calculate duration.");
-//                }
-//            } catch (Exception e) {
-//                logger.error("Could not get calculate time scaling factor: " + e);
-//            }
-
             double finalTimeFactor = 1.0;
-//            if (millisOutput != null && millisOutput > 0 && millisInput > 0) {
-//                finalTimeFactor = millisInput / millisOutput;
-//            }
+
+            Double millisInput = null;
+            Double millisOutput = null;
+            try {
+                if (inputList.size() > 1 && !finalFactor.equals(1d)) {
+                    Period inputPeriod = attribute.getDisplaySampleRate();
+                    if (inputPeriod.getYears() != 1 && inputPeriod.getMonths() != 3 && inputPeriod.getMonths() != 1) {
+                        millisInput = (double) inputPeriod.toStandardDuration().getMillis();
+                    } else if (inputPeriod.getMonths() == 1) {
+                        millisInput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
+                    } else if (inputPeriod.getMonths() == 3) {
+                        millisInput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 3;
+                    } else if (inputPeriod.getYears() == 1) {
+                        millisInput = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
+                    }
+
+                    Period outputPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+
+                    if (outputPeriod.getYears() != 1 && outputPeriod.getMonths() != 3 && outputPeriod.getMonths() != 1) {
+                        millisOutput = (double) outputPeriod.toStandardDuration().getMillis();
+                    } else if (outputPeriod.getMonths() == 1) {
+                        millisOutput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
+                    } else if (outputPeriod.getMonths() == 3) {
+                        millisOutput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 3;
+                    } else if (outputPeriod.getYears() == 1) {
+                        millisOutput = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
+                    }
+
+                    if (millisOutput != null && millisOutput > 0 && millisInput > 0) {
+                        finalTimeFactor = millisInput / millisOutput;
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Could not get calculate time scaling factor: ", e);
+            }
 
             double finalTimeFactor1 = finalTimeFactor;
             inputList.forEach(sample -> {
