@@ -14,7 +14,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.tool.I18n;
@@ -224,12 +223,12 @@ public class PickerCombo {
 
         startTimePicker.setPrefWidth(100d);
         startTimePicker.setMaxWidth(100d);
-        startTimePicker.setIs24HourView(true);
+        startTimePicker.set24HourView(true);
         startTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         endTimePicker.setPrefWidth(100d);
         endTimePicker.setMaxWidth(100d);
-        endTimePicker.setIs24HourView(true);
+        endTimePicker.set24HourView(true);
         endTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         startStandardPresetDateBoxListener();
@@ -490,15 +489,15 @@ public class PickerCombo {
         }
 
 
-        if (newValue != TimeFrame.PREVIEW) {
-            if (chartDataModels == null) {
-                graphDataModel.isGlobalAnalysisTimeFrame(true);
-                graphDataModel.setAnalysisTimeFrameForAllModels(new AnalysisTimeFrame(newValue));
-            } else {
-                dateHelper.setMinMaxForDateHelper(chartDataModels);
-                graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, dateHelper, new AnalysisTimeFrame(newValue));
-            }
-        }
+//        if (newValue != TimeFrame.PREVIEW) {
+//            if (chartDataModels == null) {
+//                graphDataModel.isGlobalAnalysisTimeFrame(true);
+//                graphDataModel.setAnalysisTimeFrameForAllModels(new AnalysisTimeFrame(newValue));
+//            } else {
+//                dateHelper.setMinMaxForDateHelper(chartDataModels);
+//                graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, dateHelper, new AnalysisTimeFrame(newValue));
+//            }
+//        }
 
         switch (newValue) {
             //Custom
@@ -506,25 +505,25 @@ public class PickerCombo {
                 for (int i = 0; i < 4; i++) {
                     programmaticallySetPresetDate[i] = false;
                 }
-                DateTime start = null;
-                DateTime end = null;
-                if (chartDataModels == null) {
-                    for (ChartDataModel model : graphDataModel.getSelectedData()) {
-
-                        start = model.getSelectedStart();
-                        end = model.getSelectedEnd();
-
-                        if (start != null && end != null) break;
-                    }
-                } else {
-                    for (ChartDataModel model : chartDataModels) {
-
-                        start = model.getSelectedStart();
-                        end = model.getSelectedEnd();
-
-                        if (start != null && end != null) break;
-                    }
-                }
+//                DateTime start = null;
+//                DateTime end = null;
+//                if (chartDataModels == null) {
+//                    for (ChartDataModel model : graphDataModel.getSelectedData()) {
+//
+//                        start = model.getSelectedStart();
+//                        end = model.getSelectedEnd();
+//
+//                        if (start != null && end != null) break;
+//                    }
+//                } else {
+//                    for (ChartDataModel model : chartDataModels) {
+//
+//                        start = model.getSelectedStart();
+//                        end = model.getSelectedEnd();
+//
+//                        if (start != null && end != null) break;
+//                    }
+//                }
 
 //                setPicker(start, end);
 

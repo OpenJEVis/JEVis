@@ -128,7 +128,7 @@ public class AggregatorFunction implements ProcessFunction {
 
                 for (int i = lastPos; i < samples.size(); i++) {
                     try {
-                        if (interval.contains(samples.get(i).getTimestamp().minusMillis(1))) {
+                        if (interval.contains(samples.get(i).getTimestamp().plusMillis(1))) {
                             //logger.info("add sample: " + samples.get(i));
                             samplesInPeriod.add(samples.get(i));
                         } else if (samples.get(i).getTimestamp().isAfter(interval.getEnd())) {

@@ -633,27 +633,35 @@ public class GraphPluginView implements Plugin {
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
                     dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
-                    dataModel.updateSamples();
+//                    dataModel.updateSamples();
 
                     toolBarView.getPickerCombo().updateCellFactory();
 
                     dataModel.isGlobalAnalysisTimeFrame(true);
 
-                    toolBarView.removeAnalysisComboBoxListener();
-                    toolBarView.getPickerCombo().stopUpdateListener();
-                    toolBarView.getPickerCombo().stopDateListener();
+                    Platform.runLater(() -> {
+                        toolBarView.removeAnalysisComboBoxListener();
+                        toolBarView.getPickerCombo().stopUpdateListener();
+                        toolBarView.getPickerCombo().stopDateListener();
 
-                    toolBarView.select(analysisRequest.getObject());
-                    toolBarView.getPresetDateBox().getSelectionModel().select(TimeFrame.CUSTOM);
-                    toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(analysisRequest.getStartDate().getYear(), analysisRequest.getStartDate().getMonthOfYear(), analysisRequest.getStartDate().getDayOfMonth()));
-                    toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(analysisRequest.getEndDate().getYear(), analysisRequest.getEndDate().getMonthOfYear(), analysisRequest.getEndDate().getDayOfMonth()));
+                        toolBarView.getPresetDateBox().getSelectionModel().select(TimeFrame.CUSTOM);
 
-                    toolBarView.setupAnalysisComboBoxListener();
-                    toolBarView.getPickerCombo().startUpdateListener();
-                    toolBarView.getPickerCombo().startDateListener();
+                        toolBarView.select(analysisRequest.getObject());
+                        toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(analysisRequest.getStartDate().getYear(), analysisRequest.getStartDate().getMonthOfYear(), analysisRequest.getStartDate().getDayOfMonth()));
+                        toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(analysisRequest.getEndDate().getYear(), analysisRequest.getEndDate().getMonthOfYear(), analysisRequest.getEndDate().getDayOfMonth()));
 
-                    dataModel.setCharts(dataModel.getCharts());
-                    dataModel.setSelectedData(dataModel.getSelectedData());
+                        toolBarView.setupAnalysisComboBoxListener();
+                        toolBarView.getPickerCombo().startUpdateListener();
+                        toolBarView.getPickerCombo().startDateListener();
+                    });
+
+
+//                    dataModel.setCharts(dataModel.getCharts());
+//                    dataModel.setSelectedData(dataModel.getSelectedData());
+
+                    dataModel.updateSamples();
+
+                    Platform.runLater(() -> update(true));
 
                 } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
 

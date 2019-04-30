@@ -111,7 +111,7 @@ public class TimeStampEditor implements AttributeEditor {
 
         pickerDate.setPrefWidth(120d);
         pickerTime.setPrefWidth(110d);
-        pickerTime.setIs24HourView(true);
+        pickerTime.set24HourView(true);
         pickerTime.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
 
         if (originalSample != null) {

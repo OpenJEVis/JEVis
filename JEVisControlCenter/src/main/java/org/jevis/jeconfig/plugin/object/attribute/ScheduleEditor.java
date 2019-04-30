@@ -207,7 +207,7 @@ public class ScheduleEditor implements AttributeEditor {
 
     private JFXTimePicker buildEndPicker(JsonSchedulerRule rule) {
         JFXTimePicker end = new JFXTimePicker();
-        end.setIs24HourView(true);
+        end.set24HourView(true);
         end.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
         LocalTime endTime = null;
         if (rule.getEndTimeHours() != null && rule.getEndTimeMinutes() != null) {
@@ -228,7 +228,7 @@ public class ScheduleEditor implements AttributeEditor {
 
     private JFXTimePicker buildStartPicker(JsonSchedulerRule rule) {
         JFXTimePicker start = new JFXTimePicker();
-        start.setIs24HourView(true);
+        start.set24HourView(true);
         start.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
         LocalTime startTime = null;
         if (rule.getStartTimeHours() != null && rule.getStartTimeMinutes() != null) {

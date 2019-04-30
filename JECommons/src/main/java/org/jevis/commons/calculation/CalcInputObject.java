@@ -138,7 +138,7 @@ public class CalcInputObject {
                         if (!isQuantity) {
                             sum = sum / tempList.size();
                         }
-                        VirtualSample virtualSample = new VirtualSample(tempList.get(tempList.size() - 1).getTimestamp(), sum);
+                        VirtualSample virtualSample = new VirtualSample(startTime, sum);
                         virtualSample.setNote("");
                         returnSamples.add(virtualSample);
                     }

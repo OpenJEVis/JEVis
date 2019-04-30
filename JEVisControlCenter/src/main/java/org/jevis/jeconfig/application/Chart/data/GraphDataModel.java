@@ -395,8 +395,7 @@ public class GraphDataModel {
                 case CUSTOM:
                     if (analysisTimeFrame.getStart() != null && analysisTimeFrame.getEnd() != null) {
                         for (ChartDataModel model : chartDataModels) {
-                            model.setSelectedStart(analysisTimeFrame.getStart());
-                            model.setSelectedEnd(analysisTimeFrame.getEnd());
+                            setChartDataModelStartAndEnd(model, analysisTimeFrame.getStart(), analysisTimeFrame.getEnd());
                         }
                     }
                     break;
@@ -475,9 +474,7 @@ public class GraphDataModel {
 
                         for (ChartDataModel chartDataModel : chartDataModels) {
                             if (!chartDataModel.getSelectedcharts().isEmpty()) {
-                                chartDataModel.setSelectedStart(start.get());
-                                chartDataModel.setSelectedEnd(end.get());
-                                chartDataModel.setSomethingChanged(true);
+                                setChartDataModelStartAndEnd(chartDataModel, start.get(), end.get());
                             }
                         }
 
@@ -489,15 +486,19 @@ public class GraphDataModel {
         }
     }
 
+    private void setChartDataModelStartAndEnd(ChartDataModel model, DateTime start, DateTime end) {
+        model.setSelectedStart(start);
+        model.setSelectedEnd(end);
+        model.setSomethingChanged(true);
+    }
+
     private void updateStartEndToDataModel(List<ChartDataModel> chartDataModels, DateHelper dh) {
         DateTime start = dh.getStartDate();
         DateTime end = dh.getEndDate();
 
         for (ChartDataModel chartDataModel : chartDataModels) {
             if (!chartDataModel.getSelectedcharts().isEmpty()) {
-                chartDataModel.setSelectedStart(start);
-                chartDataModel.setSelectedEnd(end);
-                chartDataModel.setSomethingChanged(true);
+                setChartDataModelStartAndEnd(chartDataModel, start, end);
             }
         }
     }

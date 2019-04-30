@@ -55,6 +55,7 @@ public class SampleGenerator {
 
         BasicProcess aggregate = new BasicProcess();
         aggregate.setJEVisDataSource(ds);
+        aggregate.setObject(attribute.getObject());
 
         BasicProcess input = new BasicProcess();
         input.setJEVisDataSource(ds);

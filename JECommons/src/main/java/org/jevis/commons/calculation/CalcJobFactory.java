@@ -355,21 +355,21 @@ public class CalcJobFactory {
              * Discussion: we we handle the error here or do we throw an error and the caller has to take care of this?
              */
             List<JEVisObject> inputObjectList = getCalcInputObjects(jevisObject);
-            List<DateTime> lastSampleList = new ArrayList<>();
-            DateTime combinedEndTime = startTime;
-            for (JEVisObject child : inputObjectList) {
-                JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
-                TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
-                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
-                if (valueAttribute != null && valueAttribute.hasSample()) {
-                    lastSampleList.add(valueAttribute.getTimestampFromLastSample());
-                }
-            }
-            for (DateTime ts : lastSampleList) {
-                if (ts.isBefore(combinedEndTime) && ts.isAfter(startTime)) {
-                    combinedEndTime = ts;
-                }
-            }
+//            List<DateTime> lastSampleList = new ArrayList<>();
+//            DateTime combinedEndTime = startTime;
+//            for (JEVisObject child : inputObjectList) {
+//                JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
+//                TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
+//                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
+//                if (valueAttribute != null && valueAttribute.hasSample()) {
+//                    lastSampleList.add(valueAttribute.getTimestampFromLastSample());
+//                }
+//            }
+//            for (DateTime ts : lastSampleList) {
+//                if (ts.isBefore(combinedEndTime) && ts.isAfter(startTime)) {
+//                    combinedEndTime = ts;
+//                }
+//            }
 
 
             for (JEVisObject child : inputObjectList) { //Todo differenciate based on input type
@@ -382,7 +382,7 @@ public class CalcJobFactory {
                 CalcInputType inputType = CalcInputType.valueOf(inputTypeString);
 
                 CalcInputObject calcInputObject = new CalcInputObject(identifier, inputType, valueAttribute);
-                calcInputObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, combinedEndTime, absolute);
+                calcInputObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, endTime, absolute);
                 logger.info("Got samples for id {}", calcInputObject.getIdentifier());
                 calcObjects.add(calcInputObject);
             }
