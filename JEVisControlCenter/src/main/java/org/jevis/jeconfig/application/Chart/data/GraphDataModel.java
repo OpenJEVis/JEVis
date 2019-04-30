@@ -502,37 +502,6 @@ public class GraphDataModel {
         }
     }
 
-
-    public void updateWorkDaysFirstRun() {
-        try {
-            JEVisObject site = observableListAnalyses.get(0).getParents().get(0).getParents().get(0);
-            LocalTime start = null;
-            LocalTime end = null;
-            try {
-                JEVisAttribute attStart = site.getAttribute(WORKDAY_BEGINNING_ATTRIBUTE_NAME);
-                JEVisAttribute attEnd = site.getAttribute(WORKDAY_END_ATTRIBUTE_NAME);
-                if (attStart.hasSample()) {
-                    String startStr = attStart.getLatestSample().getValueAsString();
-                    DateTime dtStart = DateTime.parse(startStr);
-                    start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), 0, 0);
-                }
-                if (attEnd.hasSample()) {
-                    String endStr = attEnd.getLatestSample().getValueAsString();
-                    DateTime dtEnd = DateTime.parse(endStr);
-                    end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
-                }
-            } catch (Exception e) {
-            }
-
-            if (start != null && end != null) {
-                workdayStart = start;
-                workdayEnd = end;
-            }
-        } catch (Exception e) {
-
-        }
-    }
-
     public void updateListAnalyses() {
         List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
 
@@ -542,6 +511,12 @@ public class GraphDataModel {
 
             if (listAnalysesDirectories.size() > 1) {
                 multipleDirectories = true;
+            }
+
+            if (listAnalysesDirectories.size() > 0
+                    && workdayStart.equals(LocalTime.of(0, 0, 0, 0))
+                    && workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999))) {
+                updateWorkdayTimesFromJEVisObject(listAnalysesDirectories.get(0));
             }
         } catch (JEVisException e) {
             logger.error("Error: could not get analyses directories", e);
@@ -672,9 +647,7 @@ public class GraphDataModel {
                         }
                     }
                 }
-                WorkDays wd = new WorkDays(getCurrentAnalysis());
-                if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
-                if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
+                updateWorkdayTimesFromJEVisObject(getCurrentAnalysis());
             }
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis model", e);
@@ -685,16 +658,34 @@ public class GraphDataModel {
         return listAnalysisModel;
     }
 
+    private void updateWorkdayTimesFromJEVisObject(JEVisObject jeVisObject) {
+        WorkDays wd = new WorkDays(jeVisObject);
+        if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
+            workdayStart = wd.getWorkdayStart();
+            workdayEnd = wd.getWorkdayEnd();
+        }
+    }
+
     public ObservableList<JEVisObject> getObservableListAnalyses() {
         if (observableListAnalyses.isEmpty()) updateListAnalyses();
         return observableListAnalyses;
     }
 
     public LocalTime getWorkdayStart() {
+        if (observableListAnalyses.size() > 0
+                && workdayStart.equals(LocalTime.of(0, 0, 0, 0))
+                && workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999))) {
+            updateWorkdayTimesFromJEVisObject(observableListAnalyses.get(0));
+        }
         return workdayStart;
     }
 
     public LocalTime getWorkdayEnd() {
+        if (observableListAnalyses.size() > 0
+                && workdayStart.equals(LocalTime.of(0, 0, 0, 0))
+                && workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999))) {
+            updateWorkdayTimesFromJEVisObject(observableListAnalyses.get(0));
+        }
         return workdayEnd;
     }
 

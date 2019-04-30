@@ -183,7 +183,6 @@ public class ToolBarView {
             setCellFactoryForComboBox();
 
             if (!listAnalysesComboBox.getItems().isEmpty()) {
-                model.updateWorkDaysFirstRun();
 
                 dateHelper.setStartTime(model.getWorkdayStart());
                 dateHelper.setEndTime(model.getWorkdayEnd());

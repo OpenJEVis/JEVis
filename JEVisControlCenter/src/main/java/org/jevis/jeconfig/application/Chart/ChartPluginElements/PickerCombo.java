@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
@@ -473,10 +474,21 @@ public class PickerCombo {
     }
 
     private void applySelectedDatePresetToDataModel(TimeFrame newValue) {
+        JEVisObject forCustomTime = graphDataModel.getCurrentAnalysis();
+        if (forCustomTime != null) {
+            WorkDays wd = new WorkDays(graphDataModel.getCurrentAnalysis());
+            if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
+                dateHelper.setStartTime(wd.getWorkdayStart());
+                dateHelper.setEndTime(wd.getWorkdayEnd());
+            }
+        } else if (!graphDataModel.getObservableListAnalyses().isEmpty()) {
+            WorkDays wd = new WorkDays(graphDataModel.getObservableListAnalyses().get(0));
+            if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
+                dateHelper.setStartTime(wd.getWorkdayStart());
+                dateHelper.setEndTime(wd.getWorkdayEnd());
+            }
+        }
 
-        WorkDays wd = new WorkDays(graphDataModel.getCurrentAnalysis());
-        if (wd.getWorkdayStart() != null) dateHelper.setStartTime(wd.getWorkdayStart());
-        if (wd.getWorkdayEnd() != null) dateHelper.setEndTime(wd.getWorkdayEnd());
 
         if (newValue != TimeFrame.PREVIEW) {
             if (chartDataModels == null) {

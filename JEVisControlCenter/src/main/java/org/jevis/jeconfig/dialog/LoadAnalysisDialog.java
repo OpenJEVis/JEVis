@@ -145,8 +145,6 @@ public class LoadAnalysisDialog {
         });
 
         if (!analysisListView.getItems().isEmpty()) {
-            graphDataModel.updateWorkDaysFirstRun();
-
             dateHelper.setStartTime(graphDataModel.getWorkdayStart());
             dateHelper.setEndTime(graphDataModel.getWorkdayEnd());
         }
