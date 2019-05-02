@@ -8,6 +8,7 @@ package org.jevis.jeconfig.application.Chart.data;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
@@ -76,11 +77,28 @@ public class GraphDataModel {
     private Boolean multipleDirectories = false;
     private Long chartsPerScreen = 2L;
     private Boolean isGlobalAnalysisTimeFrame = true;
-    private AnalysisTimeFrame globalAnalysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
+    private AnalysisTimeFrame globalAnalysisTimeFrame;
+    private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
 
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
         this.graphPluginView = graphPluginView;
+        this.globalAnalysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
+        DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
+        if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
+        if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
+        this.globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());
+        this.globalAnalysisTimeFrame.setEnd(dateHelper.getEndDate());
+
+        changed.addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue && newValue) {
+                changed.set(false);
+                selectedData = null;
+                charts = null;
+                getSelectedData();
+                update();
+            }
+        });
     }
 
     public Set<ChartDataModel> getSelectedData() {
@@ -167,6 +185,10 @@ public class GraphDataModel {
                     if (mdl.getIsEnPI() != null) newData.setEnPI(Boolean.parseBoolean(mdl.getIsEnPI()));
                     if (mdl.getCalculation() != null) {
                         newData.setCalculationObject(mdl.getCalculation());
+                    }
+                    if (isGlobalAnalysisTimeFrame) {
+                        newData.setSelectedStart(globalAnalysisTimeFrame.getStart());
+                        newData.setSelectedEnd(globalAnalysisTimeFrame.getEnd());
                     }
 
                     data.put(obj.getID().toString(), newData);
@@ -381,6 +403,7 @@ public class GraphDataModel {
 
         globalAnalysisTimeFrame = analysisTimeFrame;
         isGlobalAnalysisTimeFrame(true);
+        changed.set(true);
     }
 
     public void setAnalysisTimeFrameForModels(List<ChartDataModel> chartDataModels, DateHelper dateHelper, AnalysisTimeFrame analysisTimeFrame) {
@@ -403,41 +426,57 @@ public class GraphDataModel {
                 case TODAY:
                     dateHelper.setType(DateHelper.TransformType.TODAY);
                     updateStartEndToDataModel(chartDataModels, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
                     break;
                 //yesterday
                 case YESTERDAY:
                     dateHelper.setType(DateHelper.TransformType.YESTERDAY);
                     updateStartEndToDataModel(chartDataModels, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
                     break;
                 //last 7 days
                 case LAST_7_DAYS:
                     dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
                     updateStartEndToDataModel(chartDataModels, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
                     break;
                 //last Week days
                 case LAST_WEEK:
                     dateHelper.setType(DateHelper.TransformType.LASTWEEK);
                     updateStartEndToDataModel(chartDataModels, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
                     break;
                 //last 30 days
                 case LAST_30_DAYS:
                     dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
                     updateStartEndToDataModel(chartDataModels, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
                     break;
                 case LAST_MONTH:
                     //last Month
                     dateHelper.setType(DateHelper.TransformType.LASTMONTH);
                     updateStartEndToDataModel(chartDataModels, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
                     break;
                 case THIS_YEAR:
                     //last Month
                     dateHelper.setType(DateHelper.TransformType.THISYEAR);
                     updateStartEndToDataModel(chartDataModels, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
                     break;
                 case LAST_YEAR:
                     //last Month
                     dateHelper.setType(DateHelper.TransformType.LASTYEAR);
                     updateStartEndToDataModel(chartDataModels, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
                     break;
                 case CUSTOM_START_END:
                     if (analysisTimeFrame.getId() != 0L) {
@@ -447,6 +486,8 @@ public class GraphDataModel {
                             dateHelper.setCustomPeriodObject(cpo);
 
                             updateStartEndToDataModel(chartDataModels, dateHelper);
+                            analysisTimeFrame.setStart(dateHelper.getStartDate());
+                            analysisTimeFrame.setEnd(dateHelper.getEndDate());
                         } catch (Exception e) {
                             logger.error("Error getting custom period object: " + e);
                         }
@@ -477,6 +518,8 @@ public class GraphDataModel {
                                 setChartDataModelStartAndEnd(chartDataModel, start.get(), end.get());
                             }
                         }
+                        analysisTimeFrame.setStart(start.get());
+                        analysisTimeFrame.setEnd(end.get());
 
                     } catch (Exception e) {
                         logger.error("Error: " + e);
@@ -821,6 +864,25 @@ public class GraphDataModel {
 
     public void setGlobalAnalysisTimeFrame(AnalysisTimeFrame globalAnalysisTimeFrame) {
         this.globalAnalysisTimeFrame = globalAnalysisTimeFrame;
+        changed.set(true);
     }
 
+    public void setGlobalAnalysisTimeFrameNOEVENT(AnalysisTimeFrame globalAnalysisTimeFrame) {
+        this.globalAnalysisTimeFrame = globalAnalysisTimeFrame;
+    }
+
+    public boolean isChanged() {
+        return changed.get();
+    }
+
+    public void setChanged(boolean changed) {
+        this.changed.set(changed);
+    }
+
+    public SimpleBooleanProperty changedProperty() {
+        return changed;
+    }
+
+
 }
+

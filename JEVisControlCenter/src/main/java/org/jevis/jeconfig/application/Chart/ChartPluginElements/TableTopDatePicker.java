@@ -27,7 +27,7 @@ public class TableTopDatePicker extends HBox {
     public void initialize(List<ChartDataModel> chartDataModels, DateTime date) {
         setPadding(new Insets(4, 4, 4, 4));
         LocalDate ld = LocalDate.of(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth());
-        PickerCombo pickerCombo = new PickerCombo(null, chartDataModels, false);
+        PickerCombo pickerCombo = new PickerCombo(null, chartDataModels);
         datePicker = pickerCombo.getStartDatePicker();
 
         leftImage = JEConfig.getImage("left.png", 20, 20);

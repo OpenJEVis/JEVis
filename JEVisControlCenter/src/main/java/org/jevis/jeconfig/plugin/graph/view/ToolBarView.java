@@ -26,7 +26,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.json.JsonAnalysisDataRow;
@@ -36,7 +35,6 @@ import org.jevis.commons.json.JsonChartTimeFrame;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
@@ -122,34 +120,37 @@ public class ToolBarView {
     private ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
-            AggregationPeriod oldAggregationPeriod = model.getAggregationPeriod();
-            ManipulationMode oldManipulationMode = model.getManipulationMode();
-
-            AnalysisTimeFrame oldAnalysisTimeFrame = model.getGlobalAnalysisTimeFrame();
-
-            if (oldAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM)) {
-                for (ChartDataModel chartDataModel : model.getSelectedData()) {
-                    oldAnalysisTimeFrame.setStart(chartDataModel.getSelectedStart());
-                    oldAnalysisTimeFrame.setEnd(chartDataModel.getSelectedEnd());
-                    break;
-                }
-            } else {
-                oldAnalysisTimeFrame = model.getCharts().stream().findFirst().map(ChartSettings::getAnalysisTimeFrame).orElse(null);
-            }
+//            AggregationPeriod oldAggregationPeriod = model.getAggregationPeriod();
+//            ManipulationMode oldManipulationMode = model.getManipulationMode();
+//
+//            AnalysisTimeFrame oldAnalysisTimeFrame = model.getGlobalAnalysisTimeFrame();
+//
+//            if (oldAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM)) {
+//                for (ChartDataModel chartDataModel : model.getSelectedData()) {
+//                    oldAnalysisTimeFrame.setStart(chartDataModel.getSelectedStart());
+//                    oldAnalysisTimeFrame.setEnd(chartDataModel.getSelectedEnd());
+//                    break;
+//                }
+//            } else {
+//                oldAnalysisTimeFrame = model.getCharts().stream().findFirst().map(ChartSettings::getAnalysisTimeFrame).orElse(null);
+//            }
+//
+//            model.setCurrentAnalysis(newValue);
+//            pickerCombo.updateCellFactory();
+//            model.setCharts(null);
+//            model.updateSelectedData();
+//
+//            model.setManipulationMode(oldManipulationMode);
+//            model.setAggregationPeriod(oldAggregationPeriod);
+//            model.setAnalysisTimeFrameForAllModels(oldAnalysisTimeFrame);
+//
+//            model.updateSamples();
+//
+//            model.setCharts(model.getCharts());
+//            model.setSelectedData(model.getSelectedData());
 
             model.setCurrentAnalysis(newValue);
-            pickerCombo.updateCellFactory();
-            model.setCharts(null);
-            model.updateSelectedData();
-
-            model.setManipulationMode(oldManipulationMode);
-            model.setAggregationPeriod(oldAggregationPeriod);
-            model.setAnalysisTimeFrameForAllModels(oldAnalysisTimeFrame);
-
-            model.updateSamples();
-
-            model.setCharts(model.getCharts());
-            model.setSelectedData(model.getSelectedData());
+            model.setGlobalAnalysisTimeFrame(model.getGlobalAnalysisTimeFrame());
         }
     };
 
@@ -158,20 +159,19 @@ public class ToolBarView {
         this.ds = ds;
         this.graphPluginView = graphPluginView;
 
-        pickerCombo = new PickerCombo(model, null, true);
-        presetDateBox = pickerCombo.getPresetDateBox();
-        pickerDateStart = pickerCombo.getStartDatePicker();
-        pickerTimeStart = pickerCombo.getStartTimePicker();
-        pickerDateEnd = pickerCombo.getEndDatePicker();
-        pickerTimeEnd = pickerCombo.getEndTimePicker();
-
-        pickerCombo.startUpdateListener();
     }
 
 
     public ToolBar getToolbar(JEVisDataSource ds) {
         if (toolBar == null) {
             toolBar = new ToolBar();
+            pickerCombo = new PickerCombo(model, null);
+            presetDateBox = pickerCombo.getPresetDateBox();
+            pickerDateStart = pickerCombo.getStartDatePicker();
+            pickerTimeStart = pickerCombo.getStartTimePicker();
+            pickerDateEnd = pickerCombo.getEndDatePicker();
+            pickerTimeEnd = pickerCombo.getEndTimePicker();
+            pickerCombo.addListener();
 
             toolBar.setId("ObjectPlugin.Toolbar");
 
@@ -259,11 +259,7 @@ public class ToolBarView {
             });
 
             loadNew.setOnAction(event -> {
-                pickerCombo.stopUpdateListener();
-                pickerCombo.stopDateListener();
                 loadNewDialog();
-                pickerCombo.startUpdateListener();
-                pickerCombo.startDateListener();
             });
 
             delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
@@ -338,9 +334,7 @@ public class ToolBarView {
             zoomOut.setOnAction(event -> resetZoom());
 
             select.setOnAction(event -> {
-                pickerCombo.stopUpdateListener();
                 changeSettings();
-                pickerCombo.startUpdateListener();
             });
 
             delete.setOnAction(event -> deleteCurrentAnalysis());
@@ -483,7 +477,7 @@ public class ToolBarView {
 
     private void loadNewDialog() {
 
-        LoadAnalysisDialog dialog = new LoadAnalysisDialog(ds, model, this);
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(ds, model);
 
         dialog.show();
 
@@ -502,9 +496,9 @@ public class ToolBarView {
             }
         } else if (dialog.getResponse() == Response.LOAD) {
 
-            model.updateSamples();
-            model.setCharts(model.getCharts());
-            model.setSelectedData(model.getSelectedData());
+//            model.updateSamples();
+//            model.setCharts(model.getCharts());
+//            model.setSelectedData(model.getSelectedData());
 
         }
 
@@ -880,5 +874,42 @@ public class ToolBarView {
 
     public PickerCombo getPickerCombo() {
         return pickerCombo;
+    }
+
+    public void update() {
+        listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
+        listAnalysesComboBox.setPrefWidth(300);
+        if (model.getCurrentAnalysis() != null) {
+            listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
+        }
+        setCellFactoryForComboBox();
+
+        setupAnalysisComboBoxListener();
+
+        if (!listAnalysesComboBox.getItems().isEmpty()) {
+
+            dateHelper.setStartTime(model.getWorkdayStart());
+            dateHelper.setEndTime(model.getWorkdayEnd());
+        }
+
+        toolBar.getItems().clear();
+        pickerCombo = new PickerCombo(model, null);
+        presetDateBox = pickerCombo.getPresetDateBox();
+        pickerDateStart = pickerCombo.getStartDatePicker();
+        pickerTimeStart = pickerCombo.getStartTimePicker();
+        pickerDateEnd = pickerCombo.getEndDatePicker();
+        pickerTimeEnd = pickerCombo.getEndTimePicker();
+        pickerCombo.addListener();
+
+        Separator sep1 = new Separator();
+        Separator sep2 = new Separator();
+        Separator sep3 = new Separator();
+        Separator sep4 = new Separator();
+
+        toolBar.getItems().addAll(listAnalysesComboBox,
+                sep1, presetDateBox, pickerDateStart, pickerDateEnd,
+                sep2, reload, zoomOut,
+                sep3, loadNew, save, delete, select, exportCSV, exportImage,
+                sep4, disableIcons, autoResize, runUpdateButton);
     }
 }

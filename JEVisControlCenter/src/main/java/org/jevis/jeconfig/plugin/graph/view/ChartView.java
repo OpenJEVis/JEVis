@@ -5,16 +5,12 @@
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -27,7 +23,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.*;
@@ -37,7 +32,6 @@ import org.jevis.jeconfig.application.tools.TableViewUntils;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
-import java.time.LocalDate;
 import java.util.*;
 
 import static javafx.scene.control.TableView.UNCONSTRAINED_RESIZE_POLICY;
@@ -266,48 +260,52 @@ public class ChartView implements Observer {
                 stackPane.getChildren().add(chart.getChart());
             }
 
-            if (!getChartType().equals(ChartType.LOGICAL)) {
 
-                HBox pickerBox = new HBox();
-                CalendarIcon calendarIcon = new CalendarIcon();
-                HBox iconBox = new HBox();
+            /**
+             * disabled
+             */
+//            if (!getChartType().equals(ChartType.LOGICAL)) {
 
-                pickerBox.setPadding(new Insets(2, 2, 2, 2));
-                pickerBox.setPickOnBounds(false);
-                calendarIcon.getIcon().setPickOnBounds(false);
-                iconBox.setPadding(new Insets(4, 4, 4, 4));
-                iconBox.setPickOnBounds(false);
-                PickerCombo pickerCombo = new PickerCombo(dataModel, currentSelectedChartDataModels, false);
-                JFXDatePicker startDatePicker = pickerCombo.getStartDatePicker();
-                startDatePicker.setPickOnBounds(false);
-                JFXTimePicker startTimePicker = pickerCombo.getStartTimePicker();
-                startTimePicker.setPickOnBounds(false);
-                JFXDatePicker endDatePicker = pickerCombo.getEndDatePicker();
-                endDatePicker.setPickOnBounds(false);
-                JFXTimePicker endTimePicker = pickerCombo.getEndTimePicker();
-                endTimePicker.setPickOnBounds(false);
-
-                ChangeListener<LocalDate> localDateChangeListener = (observable, oldValue, newValue) -> {
-                    pickerBox.setVisible(false);
-                    dataModel.update();
-                    iconBox.setVisible(true);
-                };
-                startDatePicker.valueProperty().addListener(localDateChangeListener);
-                endDatePicker.valueProperty().addListener(localDateChangeListener);
-
-                iconBox.getChildren().addAll(calendarIcon.getIcon());
-                iconBox.setAlignment(Pos.TOP_RIGHT);
-                iconBox.setOnMouseClicked(event -> {
-                    pickerBox.setVisible(true);
-                    iconBox.setVisible(false);
-                });
-
-                pickerBox.getChildren().addAll(startDatePicker, endDatePicker);
-                pickerBox.setAlignment(Pos.TOP_RIGHT);
-                pickerBox.setVisible(false);
-
-                stackPane.getChildren().addAll(pickerBox, iconBox);
-            }
+//                HBox pickerBox = new HBox();
+//                CalendarIcon calendarIcon = new CalendarIcon();
+//                HBox iconBox = new HBox();
+//
+//                pickerBox.setPadding(new Insets(2, 2, 2, 2));
+//                pickerBox.setPickOnBounds(false);
+//                calendarIcon.getIcon().setPickOnBounds(false);
+//                iconBox.setPadding(new Insets(4, 4, 4, 4));
+//                iconBox.setPickOnBounds(false);
+//                PickerCombo pickerCombo = new PickerCombo(dataModel, currentSelectedChartDataModels);
+//                JFXDatePicker startDatePicker = pickerCombo.getStartDatePicker();
+//                startDatePicker.setPickOnBounds(false);
+//                JFXTimePicker startTimePicker = pickerCombo.getStartTimePicker();
+//                startTimePicker.setPickOnBounds(false);
+//                JFXDatePicker endDatePicker = pickerCombo.getEndDatePicker();
+//                endDatePicker.setPickOnBounds(false);
+//                JFXTimePicker endTimePicker = pickerCombo.getEndTimePicker();
+//                endTimePicker.setPickOnBounds(false);
+//
+//                ChangeListener<LocalDate> localDateChangeListener = (observable, oldValue, newValue) -> {
+//                    pickerBox.setVisible(false);
+//                    dataModel.update();
+//                    iconBox.setVisible(true);
+//                };
+//                startDatePicker.valueProperty().addListener(localDateChangeListener);
+//                endDatePicker.valueProperty().addListener(localDateChangeListener);
+//
+//                iconBox.getChildren().addAll(calendarIcon.getIcon());
+//                iconBox.setAlignment(Pos.TOP_RIGHT);
+//                iconBox.setOnMouseClicked(event -> {
+//                    pickerBox.setVisible(true);
+//                    iconBox.setVisible(false);
+//                });
+//
+//                pickerBox.getChildren().addAll(startDatePicker, endDatePicker);
+//                pickerBox.setAlignment(Pos.TOP_RIGHT);
+//                pickerBox.setVisible(false);
+//
+//                stackPane.getChildren().addAll(pickerBox, iconBox);
+//            }
 
             return stackPane;
         } else return null;
