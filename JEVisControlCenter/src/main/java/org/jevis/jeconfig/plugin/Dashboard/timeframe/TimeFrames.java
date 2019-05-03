@@ -194,7 +194,7 @@ public class TimeFrames {
             public Interval getInterval(DateTime dateTime) {
                 int lastDayInMonth = dateTime.dayOfMonth().getMaximumValue();
                 DateTime start = dateTime.withDayOfMonth(1)
-                        .withDayOfWeek(1)
+//                        .withDayOfWeek(1)
                         .withHourOfDay(0)
                         .withMinuteOfHour(0)
                         .withSecondOfMinute(0)
