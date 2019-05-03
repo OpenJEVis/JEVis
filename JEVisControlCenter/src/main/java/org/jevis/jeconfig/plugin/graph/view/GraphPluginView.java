@@ -70,7 +70,6 @@ import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -162,19 +161,11 @@ public class GraphPluginView implements Plugin {
             vBox.getChildren().addAll(loadAnalysis, newAnalysis);
 
             newAnalysis.setOnAction(event -> {
-                toolBarView.getPickerCombo().stopUpdateListener();
-                toolBarView.getPickerCombo().stopDateListener();
                 newAnalysis();
-                toolBarView.getPickerCombo().startUpdateListener();
-                toolBarView.getPickerCombo().startDateListener();
             });
 
             loadAnalysis.setOnAction(event -> {
-                toolBarView.getPickerCombo().stopUpdateListener();
-                toolBarView.getPickerCombo().stopDateListener();
                 openDialog();
-                toolBarView.getPickerCombo().startUpdateListener();
-                toolBarView.getPickerCombo().startDateListener();
             });
 
             border.setCenter(vBox);
@@ -183,7 +174,7 @@ public class GraphPluginView implements Plugin {
 
     private void openDialog() {
 
-        LoadAnalysisDialog dialog = new LoadAnalysisDialog(ds, dataModel, toolBarView);
+        LoadAnalysisDialog dialog = new LoadAnalysisDialog(ds, dataModel);
         toolBarView.setDisableToolBarIcons(false);
 
         dialog.show();
@@ -194,10 +185,10 @@ public class GraphPluginView implements Plugin {
 
         } else if (dialog.getResponse() == Response.LOAD) {
 
-            dataModel.setGlobalAnalysisTimeFrame(dataModel.getGlobalAnalysisTimeFrame());
-            dataModel.updateSamples();
-            dataModel.setCharts(dataModel.getCharts());
-            dataModel.setSelectedData(dataModel.getSelectedData());
+//            dataModel.setGlobalAnalysisTimeFrame(dataModel.getGlobalAnalysisTimeFrame());
+//            dataModel.updateSamples();
+//            dataModel.setCharts(dataModel.getCharts());
+//            dataModel.setSelectedData(dataModel.getSelectedData());
         }
     }
 
@@ -540,8 +531,11 @@ public class GraphPluginView implements Plugin {
             border.setCenter(sp);
             border.setBottom(null);
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-            toolBarView.setBorderPane(border);
 
+            toolBarView.setBorderPane(border);
+            Platform.runLater(() -> {
+                toolBarView.update();
+            });
 
             autoSize(autoMinSize, maxHeight, chartsPerScreen, vBox);
         }
@@ -631,29 +625,11 @@ public class GraphPluginView implements Plugin {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     analysisTimeFrame.setStart(analysisRequest.getStartDate());
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
-                    dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
-
-                    dataModel.updateSamples();
-
-                    toolBarView.getPickerCombo().updateCellFactory();
 
                     dataModel.isGlobalAnalysisTimeFrame(true);
 
-                    toolBarView.removeAnalysisComboBoxListener();
-                    toolBarView.getPickerCombo().stopUpdateListener();
-                    toolBarView.getPickerCombo().stopDateListener();
+                    dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
-                    toolBarView.select(analysisRequest.getObject());
-                    toolBarView.getPresetDateBox().getSelectionModel().select(TimeFrame.CUSTOM);
-                    toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(analysisRequest.getStartDate().getYear(), analysisRequest.getStartDate().getMonthOfYear(), analysisRequest.getStartDate().getDayOfMonth()));
-                    toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(analysisRequest.getEndDate().getYear(), analysisRequest.getEndDate().getMonthOfYear(), analysisRequest.getEndDate().getDayOfMonth()));
-
-                    toolBarView.setupAnalysisComboBoxListener();
-                    toolBarView.getPickerCombo().startUpdateListener();
-                    toolBarView.getPickerCombo().startDateListener();
-
-                    dataModel.setCharts(dataModel.getCharts());
-                    dataModel.setSelectedData(dataModel.getSelectedData());
 
                 } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
 
@@ -694,23 +670,10 @@ public class GraphPluginView implements Plugin {
 
                     dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
+                    dataModel.isGlobalAnalysisTimeFrame(true);
+                    dataModel.updateSamples();
                     dataModel.setGlobalAnalysisTimeFrame(analysisRequest.getAnalysisTimeFrame());
 
-                    dataModel.isGlobalAnalysisTimeFrame(true);
-
-                    toolBarView.getPickerCombo().stopUpdateListener();
-                    toolBarView.getPickerCombo().stopDateListener();
-
-                    toolBarView.getPresetDateBox().getSelectionModel().select(TimeFrame.CUSTOM);
-                    toolBarView.getPickerDateStart().valueProperty().setValue(LocalDate.of(analysisRequest.getStartDate().getYear(), analysisRequest.getStartDate().getMonthOfYear(), analysisRequest.getStartDate().getDayOfMonth()));
-                    toolBarView.getPickerDateEnd().valueProperty().setValue(LocalDate.of(analysisRequest.getEndDate().getYear(), analysisRequest.getEndDate().getMonthOfYear(), analysisRequest.getEndDate().getDayOfMonth()));
-
-                    toolBarView.getPickerCombo().startUpdateListener();
-                    toolBarView.getPickerCombo().startDateListener();
-
-                    dataModel.updateSamples();
-
-                    Platform.runLater(() -> update(true));
                 }
 
                 toolBarView.setDisableToolBarIcons(false);

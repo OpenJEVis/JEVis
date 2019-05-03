@@ -26,6 +26,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.config.Options;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.utils.JEVisDates;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -178,17 +179,17 @@ public class ProcessOptions {
     public static DateTime findFirstDuration(DateTime date, Period period, DateTime offset) {
 //        logger.info("findFirstDuration: " + date + "   p: " + period);
         DateTime startD = new DateTime();
-        DateTime fistPeriod = offset;
+        DateTime firstPeriod = offset;
 //        logger.info("week: " + date.getWeekOfWeekyear());
 //
-        while (fistPeriod.isBefore(date) || fistPeriod.isEqual(date)) {
-            fistPeriod = fistPeriod.plus(period);
+        while (firstPeriod.isBefore(date) || firstPeriod.isEqual(date)) {
+            firstPeriod = firstPeriod.plus(period);
         }
-        fistPeriod = fistPeriod.minus(period);
+        firstPeriod = firstPeriod.minus(period);
 
         logger.info("finding date in: " + ((new DateTime()).getMillis() - startD.getMillis()) + "ms");
-        logger.info("first offset date: offset:" + offset + "   for period: " + period + "   input date: " + date + "  fistPeriod: " + fistPeriod);
-        return fistPeriod;
+        logger.info("first offset date: offset:" + offset + "   for period: " + period + "   input date: " + date + "  fistPeriod: " + firstPeriod);
+        return firstPeriod;
     }
 
     /**
@@ -269,14 +270,25 @@ public class ProcessOptions {
      */
     public static List<Interval> getIntervals(Process task, DateTime from, DateTime until) {
         Period period = Period.days(1);
-        DateTime offset = new DateTime(2001, 01, 01, 00, 00, 00);
+        DateTime offset = new DateTime(2001, 1, 1, 0, 0, 0);
 
         if (!ContainsOption(task, PERIOD)) {
             logger.warn("Error missing period option");
         }
         if (!ContainsOption(task, OFFSET)) {
             logger.warn("Error missing offset option");
-            task.getOptions().add(new BasicProcessOption(OFFSET, "2001-01-01 00:00:00"));
+            WorkDays wd = new WorkDays(task.getObject());
+            if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
+                task.getOptions().add(new BasicProcessOption(OFFSET, "2001-01-01 " +
+                        wd.getWorkdayStart().getHour()
+                        + ":" +
+                        wd.getWorkdayStart().getMinute()
+                        + ":" +
+                        wd.getWorkdayStart().getSecond()));
+            } else {
+                task.getOptions().add(new BasicProcessOption(OFFSET, "2001-01-01 00:00:00"));
+            }
+
         }
 
         for (ProcessOption option : task.getOptions()) {

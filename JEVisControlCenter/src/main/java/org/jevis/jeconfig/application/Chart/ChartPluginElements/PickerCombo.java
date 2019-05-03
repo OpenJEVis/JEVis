@@ -2,14 +2,12 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
@@ -25,8 +23,6 @@ import java.time.format.FormatStyle;
 import java.util.List;
 
 public class PickerCombo {
-    private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
-    private Boolean programmaticallyChanged = Boolean.FALSE;
 
     private ComboBox<TimeFrame> presetDateBox = new ComboBox<>();
     private JFXDatePicker startDatePicker = new JFXDatePicker();
@@ -37,120 +33,17 @@ public class PickerCombo {
     private GraphDataModel graphDataModel;
     private List<ChartDataModel> chartDataModels;
 
-    private Boolean[] programmaticallySetPresetDate = new Boolean[4];
-    private final ChangeListener<LocalTime> startTimeChangeListener = new ChangeListener<LocalTime>() {
-        @Override
-        public void changed(ObservableValue<? extends LocalTime> observable, LocalTime oldValue, LocalTime newValue) {
-            if (newValue != null && !newValue.equals(oldValue)) {
-                LocalDate ld = startDatePicker.valueProperty().getValue();
-                LocalTime lt = startTimePicker.valueProperty().getValue();
-                if (ld != null && lt != null) {
-                    PickerCombo.this.setSelectedStart(new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
-                            lt.getHour(), lt.getMinute(), lt.getSecond()));
-                }
-                if (!programmaticallySetPresetDate[1]) presetDateBox.getSelectionModel().select(TimeFrame.CUSTOM);
-                programmaticallySetPresetDate[1] = false;
-            }
-        }
-    };
+
     private DateHelper dateHelper;
     private LocalDate minDate;
     private LocalDate maxDate;
-    private final ChangeListener<LocalTime> endTimeChangeListener = new ChangeListener<LocalTime>() {
-        @Override
-        public void changed(ObservableValue<? extends LocalTime> observable, LocalTime oldValue, LocalTime newValue) {
-            if (newValue != null && !newValue.equals(oldValue)) {
-                LocalDate ld = endDatePicker.valueProperty().getValue();
-                LocalTime lt = endTimePicker.valueProperty().getValue();
-                if (ld != null && lt != null) {
-                    PickerCombo.this.setSelectedEnd(new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
-                            lt.getHour(), lt.getMinute(), lt.getSecond()));
-                }
-                if (!programmaticallySetPresetDate[3]) presetDateBox.getSelectionModel().select(TimeFrame.CUSTOM);
-                programmaticallySetPresetDate[3] = false;
-            }
-        }
-    };
-    private ChangeListener<LocalDate> startDateChangeListener = new ChangeListener<LocalDate>() {
-        @Override
-        public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue, LocalDate newValue) {
-            if (newValue != null && !newValue.equals(oldValue)) {
-                LocalDate ld = startDatePicker.valueProperty().getValue();
-                LocalTime lt = startTimePicker.valueProperty().getValue();
-                if (ld != null && lt != null) {
-                    PickerCombo.this.setSelectedStart(new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
-                            lt.getHour(), lt.getMinute(), lt.getSecond()));
-                }
-                if (!programmaticallySetPresetDate[0]) presetDateBox.getSelectionModel().select(TimeFrame.CUSTOM);
-                programmaticallySetPresetDate[0] = false;
-            }
-        }
-    };
-    private boolean activeDateListener;
-    private ChangeListener<LocalDate> startDateUpdateListener = new ChangeListener<LocalDate>() {
-        @Override
-        public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue, LocalDate newValue) {
-            graphDataModel.update();
-        }
-    };
-    private ChangeListener<LocalDate> endDateUpdateListener = new ChangeListener<LocalDate>() {
-        @Override
-        public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue, LocalDate newValue) {
-            graphDataModel.update();
-        }
-    };
-    private ChangeListener<TimeFrame> timeFrameChangeListener = new ChangeListener<TimeFrame>() {
-        @Override
-        public void changed(ObservableValue<? extends TimeFrame> observable, TimeFrame oldValue, TimeFrame newValue) {
 
-            startDatePicker.valueProperty().removeListener(startDateUpdateListener);
-            endDatePicker.valueProperty().removeListener(endDateUpdateListener);
-            graphDataModel.update();
-            startDatePicker.valueProperty().addListener(startDateUpdateListener);
-            endDatePicker.valueProperty().addListener(endDateUpdateListener);
-        }
-    };
-    private ChangeListener<LocalDate> endDateChangeListener = new ChangeListener<LocalDate>() {
-        @Override
-        public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue, LocalDate newValue) {
-            if (newValue != null && !newValue.equals(oldValue)) {
-                LocalDate ld = endDatePicker.valueProperty().getValue();
-                LocalTime lt = endTimePicker.valueProperty().getValue();
-                if (ld != null && lt != null) {
-                    PickerCombo.this.setSelectedEnd(new DateTime(ld.getYear(), ld.getMonth().getValue(), ld.getDayOfMonth(),
-                            lt.getHour(), lt.getMinute(), lt.getSecond()));
-                }
-                if (!programmaticallySetPresetDate[2]) presetDateBox.getSelectionModel().select(TimeFrame.CUSTOM);
-                programmaticallySetPresetDate[2] = false;
-            }
-        }
-    };
-    private final Boolean isGlobalTimeFrame;
-    private final ChangeListener<TimeFrame> standardPresetDateBoxListener = new ChangeListener<TimeFrame>() {
-        @Override
-        public void changed(ObservableValue<? extends TimeFrame> observable, TimeFrame oldValue, TimeFrame newValue) {
-            if (newValue != oldValue) {
-                PickerCombo.this.stopDateListener();
-                boolean b = PickerCombo.this.hasActiveDateListener();
-                if (b) PickerCombo.this.stopUpdateListener();
-                PickerCombo.this.applySelectedDatePresetToDataModel(newValue);
-                PickerCombo.this.startDateListener();
-                if (b) PickerCombo.this.startUpdateListener();
-            }
-//            else if (newValue == TimeFrame.CUSTOM){
-//                applySelectedDatePresetToDataModel(newValue);
-//            }
-        }
-    };
+    public PickerCombo(GraphDataModel graphDataModel, List<ChartDataModel> chartDataModels) {
 
-    public PickerCombo(GraphDataModel graphDataModel, List<ChartDataModel> chartDataModels, Boolean isGlobalTimeFrame) {
         this.graphDataModel = graphDataModel;
         this.chartDataModels = chartDataModels;
-        this.isGlobalTimeFrame = isGlobalTimeFrame;
+
         this.dateHelper = new DateHelper();
-        for (int i = 0; i < 4; i++) {
-            programmaticallySetPresetDate[i] = false;
-        }
 
         final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
         final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
@@ -223,15 +116,13 @@ public class PickerCombo {
 
         startTimePicker.setPrefWidth(100d);
         startTimePicker.setMaxWidth(100d);
-        startTimePicker.setIs24HourView(true);
+        startTimePicker.set24HourView(true);
         startTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         endTimePicker.setPrefWidth(100d);
         endTimePicker.setMaxWidth(100d);
-        endTimePicker.setIs24HourView(true);
+        endTimePicker.set24HourView(true);
         endTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
-
-        startStandardPresetDateBoxListener();
 
         if (chartDataModels != null && !chartDataModels.isEmpty()) {
             if (graphDataModel != null && !graphDataModel.getCharts().isEmpty()) {
@@ -241,14 +132,9 @@ public class PickerCombo {
                             presetDateBox.getSelectionModel().select(chartSettings.getAnalysisTimeFrame().getTimeFrame());
 
                             DateTime start = model.getSelectedStart();
-                            startDatePicker.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
-
-                            startTimePicker.valueProperty().setValue(LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour(), start.getSecondOfMinute()));
-
                             DateTime end = model.getSelectedEnd();
-                            endDatePicker.valueProperty().setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
 
-                            endTimePicker.valueProperty().setValue(LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour(), end.getSecondOfMinute(), 999999999));
+                            setPicker(start, end);
                         }
                     }
                 });
@@ -258,6 +144,10 @@ public class PickerCombo {
             if (graphDataModel.isglobalAnalysisTimeFrame()) {
                 presetDateBox.getSelectionModel().select(graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame());
 
+                DateTime start = graphDataModel.getGlobalAnalysisTimeFrame().getStart();
+                DateTime end = graphDataModel.getGlobalAnalysisTimeFrame().getEnd();
+                setPicker(start, end);
+
             } else {
                 graphDataModel.getCharts().forEach(chartSettings -> {
                     for (ChartDataModel model : graphDataModel.getSelectedData()) {
@@ -265,67 +155,84 @@ public class PickerCombo {
                             presetDateBox.getSelectionModel().select(chartSettings.getAnalysisTimeFrame().getTimeFrame());
 
                             DateTime start = model.getSelectedStart();
-                            startDatePicker.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
-
-                            startTimePicker.valueProperty().setValue(LocalTime.of(start.getHourOfDay(), start.getMinuteOfHour(), start.getSecondOfMinute()));
-
                             DateTime end = model.getSelectedEnd();
-                            endDatePicker.valueProperty().setValue(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
 
-                            endTimePicker.valueProperty().setValue(LocalTime.of(end.getHourOfDay(), end.getMinuteOfHour(), end.getSecondOfMinute(), 999999999));
+                            setPicker(start, end);
                         }
                     }
                 });
             }
         }
-
-        startDateListener();
     }
 
-    private void startStandardPresetDateBoxListener() {
-        presetDateBox.getSelectionModel().selectedItemProperty().addListener(standardPresetDateBoxListener);
+    public void addListener() {
+        presetDateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                if (chartDataModels == null && graphDataModel != null) {
+                    if (newValue != TimeFrame.CUSTOM && newValue != TimeFrame.CUSTOM_START_END) {
+                        graphDataModel.setAnalysisTimeFrameForAllModels(new AnalysisTimeFrame(newValue));
+                    }
+                } else if (graphDataModel != null && chartDataModels != null) {
+                    if (newValue != TimeFrame.CUSTOM && newValue != TimeFrame.CUSTOM_START_END) {
+                        graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, new DateHelper(), new AnalysisTimeFrame(newValue));
+                    }
+                }
+            }
+        });
+
+        startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                if (chartDataModels == null && graphDataModel != null) {
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                    DateTime startDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
+                            graphDataModel.getGlobalAnalysisTimeFrame().getStart().getHourOfDay(), graphDataModel.getGlobalAnalysisTimeFrame().getStart().getMinuteOfHour(),
+                            graphDataModel.getGlobalAnalysisTimeFrame().getStart().getSecondOfMinute());
+                    analysisTimeFrame.setStart(startDate);
+                    analysisTimeFrame.setEnd(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
+                    if (graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM && graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM_START_END) {
+                        graphDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
+                    }
+                } else if (graphDataModel != null && chartDataModels != null) {
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                    DateTime startDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
+                            graphDataModel.getGlobalAnalysisTimeFrame().getStart().getHourOfDay(), graphDataModel.getGlobalAnalysisTimeFrame().getStart().getMinuteOfHour(),
+                            graphDataModel.getGlobalAnalysisTimeFrame().getStart().getSecondOfMinute());
+                    analysisTimeFrame.setStart(startDate);
+                    analysisTimeFrame.setEnd(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
+                    if (graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM && graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM_START_END) {
+                        graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, new DateHelper(), analysisTimeFrame);
+                    }
+                }
+            }
+        });
+
+        endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                if (chartDataModels == null && graphDataModel != null) {
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                    DateTime endDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
+                            graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getHourOfDay(), graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getMinuteOfHour(),
+                            graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getSecondOfMinute());
+                    analysisTimeFrame.setEnd(endDate);
+                    analysisTimeFrame.setEnd(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
+                    if (graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM && graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM_START_END) {
+                        graphDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
+                    }
+                } else if (graphDataModel != null && chartDataModels != null) {
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                    DateTime endDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
+                            graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getHourOfDay(), graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getMinuteOfHour(),
+                            graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getSecondOfMinute());
+                    analysisTimeFrame.setEnd(endDate);
+                    analysisTimeFrame.setEnd(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
+                    if (graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM && graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM_START_END) {
+                        graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, new DateHelper(), analysisTimeFrame);
+                    }
+                }
+            }
+        });
     }
 
-    private void stopStandardPresetDateBoxListener() {
-        presetDateBox.getSelectionModel().selectedItemProperty().removeListener(standardPresetDateBoxListener);
-    }
-
-    public void startDateListener() {
-        startDatePicker.valueProperty().addListener(startDateChangeListener);
-        endDatePicker.valueProperty().addListener(endDateChangeListener);
-        startTimePicker.valueProperty().addListener(startTimeChangeListener);
-        endTimePicker.valueProperty().addListener(endTimeChangeListener);
-    }
-
-    public void stopDateListener() {
-        startDatePicker.valueProperty().removeListener(startDateChangeListener);
-        endDatePicker.valueProperty().removeListener(endDateChangeListener);
-        startTimePicker.valueProperty().removeListener(startTimeChangeListener);
-        endTimePicker.valueProperty().removeListener(endTimeChangeListener);
-
-    }
-
-    public void startUpdateListener() {
-        hasActiveDateListener(true);
-        presetDateBox.getSelectionModel().selectedItemProperty().addListener(timeFrameChangeListener);
-        startDatePicker.valueProperty().addListener(startDateUpdateListener);
-        endDatePicker.valueProperty().addListener(endDateUpdateListener);
-    }
-
-    public void stopUpdateListener() {
-        hasActiveDateListener(false);
-        presetDateBox.getSelectionModel().selectedItemProperty().removeListener(timeFrameChangeListener);
-        startDatePicker.valueProperty().removeListener(startDateUpdateListener);
-        endDatePicker.valueProperty().removeListener(endDateUpdateListener);
-    }
-
-    private void hasActiveDateListener(boolean b) {
-        activeDateListener = b;
-    }
-
-    private boolean hasActiveDateListener() {
-        return activeDateListener;
-    }
 
     private void updateMinMax() {
         minDate = null;
@@ -410,18 +317,6 @@ public class PickerCombo {
         this.chartDataModels = chartDataModels;
     }
 
-    public boolean isChanged() {
-        return changed.get();
-    }
-
-    public void setChanged(boolean changed) {
-        this.changed.set(changed);
-    }
-
-    public SimpleBooleanProperty changedProperty() {
-        return changed;
-    }
-
     public JFXDatePicker getStartDatePicker() {
         return startDatePicker;
     }
@@ -473,118 +368,80 @@ public class PickerCombo {
     }
 
     private void applySelectedDatePresetToDataModel(TimeFrame newValue) {
-
-        WorkDays wd = new WorkDays(graphDataModel.getCurrentAnalysis());
-        if (wd.getWorkdayStart() != null) dateHelper.setStartTime(wd.getWorkdayStart());
-        if (wd.getWorkdayEnd() != null) dateHelper.setEndTime(wd.getWorkdayEnd());
-
-        if (newValue != TimeFrame.PREVIEW) {
-            if (chartDataModels == null) {
-                graphDataModel.isGlobalAnalysisTimeFrame(true);
-                graphDataModel.setAnalysisTimeFrameForAllModels(new AnalysisTimeFrame(newValue));
-            } else {
-                dateHelper.setMinMaxForDateHelper(chartDataModels);
-                graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, dateHelper, new AnalysisTimeFrame(newValue));
+        JEVisObject forCustomTime = graphDataModel.getCurrentAnalysis();
+        if (forCustomTime != null) {
+            WorkDays wd = new WorkDays(graphDataModel.getCurrentAnalysis());
+            if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
+                dateHelper.setStartTime(wd.getWorkdayStart());
+                dateHelper.setEndTime(wd.getWorkdayEnd());
+            }
+        } else if (!graphDataModel.getObservableListAnalyses().isEmpty()) {
+            WorkDays wd = new WorkDays(graphDataModel.getObservableListAnalyses().get(0));
+            if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
+                dateHelper.setStartTime(wd.getWorkdayStart());
+                dateHelper.setEndTime(wd.getWorkdayEnd());
             }
         }
+
+
+//        if (newValue != TimeFrame.PREVIEW) {
+//            if (chartDataModels == null) {
+//                graphDataModel.isGlobalAnalysisTimeFrame(true);
+//                graphDataModel.setAnalysisTimeFrameForAllModels(new AnalysisTimeFrame(newValue));
+//            } else {
+//                dateHelper.setMinMaxForDateHelper(chartDataModels);
+//                graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, dateHelper, new AnalysisTimeFrame(newValue));
+//            }
+//        }
 
         switch (newValue) {
             //Custom
             case CUSTOM:
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = false;
-                }
-                DateTime start = null;
-                DateTime end = null;
-                if (chartDataModels == null) {
-                    for (ChartDataModel model : graphDataModel.getSelectedData()) {
 
-                        start = model.getSelectedStart();
-                        end = model.getSelectedEnd();
-
-                        if (start != null && end != null) break;
-                    }
-                } else {
-                    for (ChartDataModel model : chartDataModels) {
-
-                        start = model.getSelectedStart();
-                        end = model.getSelectedEnd();
-
-                        if (start != null && end != null) break;
-                    }
-                }
-
-//                setPicker(start, end);
 
                 break;
             //today
             case TODAY:
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
+
                 dateHelper.setType(DateHelper.TransformType.TODAY);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             //yesterday
             case YESTERDAY:
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
                 dateHelper.setType(DateHelper.TransformType.YESTERDAY);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             //last 7 days
             case LAST_7_DAYS:
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
                 dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             //last Week
             case LAST_WEEK:
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
                 dateHelper.setType(DateHelper.TransformType.LASTWEEK);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             //last 30 days
             case LAST_30_DAYS:
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
                 dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             case LAST_MONTH:
                 //last Month
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
                 dateHelper.setType(DateHelper.TransformType.LASTMONTH);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             case THIS_YEAR:
                 //this Year
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
                 dateHelper.setType(DateHelper.TransformType.THISYEAR);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             case LAST_YEAR:
                 //last Year
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
                 dateHelper.setType(DateHelper.TransformType.LASTYEAR);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             case CUSTOM_START_END:
-                for (int i = 0; i < 4; i++) {
-                    programmaticallySetPresetDate[i] = true;
-                }
                 break;
             default:
                 break;
@@ -592,7 +449,7 @@ public class PickerCombo {
     }
 
 
-    private void setPicker(DateTime start, DateTime end) {
+    public void setPicker(DateTime start, DateTime end) {
 
         if (start != null && end != null) {
             startDatePicker.valueProperty().setValue(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));

@@ -98,7 +98,7 @@ public class TimeEditor implements AttributeEditor {
 
         pickerTime.setPrefWidth(110d);
 //        pickerTime._24HourViewProperty().setValue(Boolean.TRUE);
-        pickerTime.setIs24HourView(true);
+        pickerTime.set24HourView(true);
         pickerTime.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
 //        pickerTime.setConverter(new StringConverter<LocalTime>() {
 //            @Override

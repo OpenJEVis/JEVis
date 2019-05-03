@@ -187,6 +187,9 @@ public class ChartDataModel {
                     if (inputPeriod.getYears() != 1 && inputPeriod.getMonths() != 3 && inputPeriod.getMonths() != 1) {
                         millisInput = (double) inputPeriod.toStandardDuration().getMillis();
                     } else if (inputPeriod.getMonths() == 1) {
+                        /**
+                         * TODO: change to on the fly duration of current month for exact values
+                         */
                         millisInput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
                     } else if (inputPeriod.getMonths() == 3) {
                         millisInput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 3;
@@ -199,6 +202,9 @@ public class ChartDataModel {
                     if (outputPeriod.getYears() != 1 && outputPeriod.getMonths() != 3 && outputPeriod.getMonths() != 1) {
                         millisOutput = (double) outputPeriod.toStandardDuration().getMillis();
                     } else if (outputPeriod.getMonths() == 1) {
+                        /**
+                         * TODO: change to on the fly duration of current month for exact values
+                         */
                         millisOutput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
                     } else if (outputPeriod.getMonths() == 3) {
                         millisOutput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 3;

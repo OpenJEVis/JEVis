@@ -291,7 +291,7 @@ public class ChartSelectionDialog {
             if (chartDataModel.getSelectedcharts().contains(cset.getId())) correspondingDataModels.add(chartDataModel);
         });
 
-        PickerCombo pickerCombo = new PickerCombo(data, correspondingDataModels, false);
+        PickerCombo pickerCombo = new PickerCombo(data, correspondingDataModels);
         final ComboBox<TimeFrame> presetDateBox = pickerCombo.getPresetDateBox();
         final JFXDatePicker pickerDateStart = pickerCombo.getStartDatePicker();
         final JFXTimePicker pickerTimeStart = pickerCombo.getStartTimePicker();
