@@ -176,7 +176,7 @@ public class DataModelDataHandler {
                     aggregationPeriod = AggregationPeriod.NONE;
                 }
                 /** less then an month take hour **/
-                else if (interval.toDuration().getStandardDays() < 29) {
+                else if (interval.toDuration().getStandardDays() < 32) {
                     aggregationPeriod = AggregationPeriod.HOURLY;
                     manipulationMode = ManipulationMode.TOTAL;
                 }
