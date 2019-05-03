@@ -120,35 +120,6 @@ public class ToolBarView {
     private ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
-//            AggregationPeriod oldAggregationPeriod = model.getAggregationPeriod();
-//            ManipulationMode oldManipulationMode = model.getManipulationMode();
-//
-//            AnalysisTimeFrame oldAnalysisTimeFrame = model.getGlobalAnalysisTimeFrame();
-//
-//            if (oldAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM)) {
-//                for (ChartDataModel chartDataModel : model.getSelectedData()) {
-//                    oldAnalysisTimeFrame.setStart(chartDataModel.getSelectedStart());
-//                    oldAnalysisTimeFrame.setEnd(chartDataModel.getSelectedEnd());
-//                    break;
-//                }
-//            } else {
-//                oldAnalysisTimeFrame = model.getCharts().stream().findFirst().map(ChartSettings::getAnalysisTimeFrame).orElse(null);
-//            }
-//
-//            model.setCurrentAnalysis(newValue);
-//            pickerCombo.updateCellFactory();
-//            model.setCharts(null);
-//            model.updateSelectedData();
-//
-//            model.setManipulationMode(oldManipulationMode);
-//            model.setAggregationPeriod(oldAggregationPeriod);
-//            model.setAnalysisTimeFrameForAllModels(oldAnalysisTimeFrame);
-//
-//            model.updateSamples();
-//
-//            model.setCharts(model.getCharts());
-//            model.setSelectedData(model.getSelectedData());
-
             model.setCurrentAnalysis(newValue);
             model.setGlobalAnalysisTimeFrame(model.getGlobalAnalysisTimeFrame());
         }
@@ -876,40 +847,44 @@ public class ToolBarView {
         return pickerCombo;
     }
 
-    public void update() {
-        listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
-        listAnalysesComboBox.setPrefWidth(300);
-        if (model.getCurrentAnalysis() != null) {
-            listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
-        }
-        setCellFactoryForComboBox();
+    public void updateLayout() {
+        Platform.runLater(() -> {
 
-        setupAnalysisComboBoxListener();
+            listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
+            listAnalysesComboBox.setPrefWidth(300);
+            if (model.getCurrentAnalysis() != null) {
+                listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
+            }
+            setCellFactoryForComboBox();
 
-        if (!listAnalysesComboBox.getItems().isEmpty()) {
+            setupAnalysisComboBoxListener();
 
-            dateHelper.setStartTime(model.getWorkdayStart());
-            dateHelper.setEndTime(model.getWorkdayEnd());
-        }
+            if (!listAnalysesComboBox.getItems().isEmpty()) {
 
-        toolBar.getItems().clear();
-        pickerCombo = new PickerCombo(model, null);
-        presetDateBox = pickerCombo.getPresetDateBox();
-        pickerDateStart = pickerCombo.getStartDatePicker();
-        pickerTimeStart = pickerCombo.getStartTimePicker();
-        pickerDateEnd = pickerCombo.getEndDatePicker();
-        pickerTimeEnd = pickerCombo.getEndTimePicker();
-        pickerCombo.addListener();
+                dateHelper.setStartTime(model.getWorkdayStart());
+                dateHelper.setEndTime(model.getWorkdayEnd());
+            }
 
-        Separator sep1 = new Separator();
-        Separator sep2 = new Separator();
-        Separator sep3 = new Separator();
-        Separator sep4 = new Separator();
+            toolBar.getItems().clear();
+            pickerCombo = new PickerCombo(model, null);
+            presetDateBox = pickerCombo.getPresetDateBox();
+            pickerDateStart = pickerCombo.getStartDatePicker();
+            pickerTimeStart = pickerCombo.getStartTimePicker();
+            pickerDateEnd = pickerCombo.getEndDatePicker();
+            pickerTimeEnd = pickerCombo.getEndTimePicker();
+            pickerCombo.addListener();
 
-        toolBar.getItems().addAll(listAnalysesComboBox,
-                sep1, presetDateBox, pickerDateStart, pickerDateEnd,
-                sep2, reload, zoomOut,
-                sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                sep4, disableIcons, autoResize, runUpdateButton);
+            Separator sep1 = new Separator();
+            Separator sep2 = new Separator();
+            Separator sep3 = new Separator();
+            Separator sep4 = new Separator();
+
+            toolBar.getItems().addAll(listAnalysesComboBox,
+                    sep1, presetDateBox, pickerDateStart, pickerDateEnd,
+                    sep2, reload, zoomOut,
+                    sep3, loadNew, save, delete, select, exportCSV, exportImage,
+                    sep4, disableIcons, autoResize, runUpdateButton);
+
+        });
     }
 }
