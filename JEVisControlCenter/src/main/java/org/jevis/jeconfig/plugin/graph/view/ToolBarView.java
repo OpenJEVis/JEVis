@@ -218,10 +218,14 @@ public class ToolBarView {
 
             exportImage.setOnAction(action -> {
                 GraphExportImage ge = new GraphExportImage(model);
-                try {
-                    ge.export(getBorderPane());
-                } catch (IOException e) {
-                    logger.error("Error: could not export to file.", e);
+
+                if (ge.getDestinationFile() != null) {
+                    try {
+                        ge.export(getBorderPane());
+
+                    } catch (IOException e) {
+                        logger.error("Error: could not export to file.", e);
+                    }
                 }
             });
 
