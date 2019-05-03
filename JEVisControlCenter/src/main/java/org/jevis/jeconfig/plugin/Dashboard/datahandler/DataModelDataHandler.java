@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
@@ -17,7 +18,10 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.jevistree.Finder;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
@@ -27,6 +31,7 @@ import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.Dashboard.config.DataModelNode;
 import org.jevis.jeconfig.plugin.Dashboard.wizzard.Page;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -42,13 +47,14 @@ public class DataModelDataHandler {
     private static final Logger logger = LogManager.getLogger(DataModelDataHandler.class);
     private final JEVisDataSource jeVisDataSource;
     public ObjectProperty<DateTime> lastUpdate = new SimpleObjectProperty<>();
-    Map<String, JEVisAttribute> attributeMap = new HashMap<>();
+    private Map<String, JEVisAttribute> attributeMap = new HashMap<>();
     private BooleanProperty enableMultiSelect = new SimpleBooleanProperty(false);
     private StringProperty unitProperty = new SimpleStringProperty("");
     private SimpleTargetPlugin simpleTargetPlugin = new SimpleTargetPlugin();
     private List<ChartDataModel> chartDataModels = new ArrayList<>();
     private ObjectProperty<Interval> durationProperty = new SimpleObjectProperty<>();
     private DataModelNode dataModelNode = new DataModelNode();
+    private boolean autoAggregation = true;
 
 
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {
@@ -90,7 +96,6 @@ public class DataModelDataHandler {
                         chartDataModel.setAggregationPeriod(dataPointNode.getAggregationPeriod());
 
 
-
 //                        chartDataModel.setManipulationMode(ManipulationMode.TOTAL);
 //                        chartDataModel.setAggregationPeriod(AggregationPeriod.HOURLY);
 
@@ -127,14 +132,70 @@ public class DataModelDataHandler {
         });
     }
 
+    /**
+     * Set if the date in the interval will use the auto aggregation
+     * [if -> then]
+     * Day -> Display Interval
+     * Week -> Hourly
+     * Month -> Daily
+     * Year -> Weekly
+     *
+     * @param enable
+     */
+    public void setAutoAggrigation(boolean enable) {
+        autoAggregation = enable;
+    }
+
     public static String generateValueKey(JEVisAttribute attribute) {
         return attribute.getObjectID() + ":" + attribute.getName();
     }
 
 
+    public Tab getConfigTab() {
+        Tab tab = new Tab(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
+
+
+        JEVisTree tree = JEVisTreeFactory.buildDefaultWidgetTree(jeVisDataSource);
+
+        tab.setContent(tree);
+
+
+        return tab;
+
+    }
 
     public void setInterval(Interval interval) {
         this.durationProperty.setValue(interval);
+        getDataModel().forEach(chartDataModel -> {
+            AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
+            ManipulationMode manipulationMode = ManipulationMode.NONE;
+            if (autoAggregation) {
+
+                /** less then an week take original **/
+                if (interval.toDuration().getStandardDays() < 6) {
+                    aggregationPeriod = AggregationPeriod.NONE;
+                }
+                /** less then an month take hour **/
+                else if (interval.toDuration().getStandardDays() < 29) {
+                    aggregationPeriod = AggregationPeriod.HOURLY;
+                    manipulationMode = ManipulationMode.TOTAL;
+                }
+                /** less than year take day **/
+                else if (interval.toDuration().getStandardDays() < 364) {
+                    aggregationPeriod = AggregationPeriod.DAILY;
+                    manipulationMode = ManipulationMode.TOTAL;
+                }
+                /** more than an year take week **/
+                else {
+                    aggregationPeriod = AggregationPeriod.WEEKLY;
+                    manipulationMode = ManipulationMode.TOTAL;
+                }
+                chartDataModel.setAggregationPeriod(aggregationPeriod);
+                chartDataModel.setManipulationMode(manipulationMode);
+            }
+
+
+        });
     }
 
     public JsonNode toJsonNode() {
@@ -236,5 +297,19 @@ public class DataModelDataHandler {
         };
 
         return page;
+    }
+
+    public static Double getTotal(List<JEVisSample> samples) {
+        Double total = 0d;
+        for (JEVisSample jeVisSample : samples) {
+            try {
+                total += jeVisSample.getValueAsDouble();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return total;
+
     }
 }

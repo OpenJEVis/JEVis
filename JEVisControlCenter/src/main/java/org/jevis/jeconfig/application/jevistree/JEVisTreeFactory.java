@@ -38,6 +38,7 @@ import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.jevistree.plugin.MapPlugin;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.WidgetTreePlugin;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
@@ -148,6 +149,36 @@ public class JEVisTreeFactory {
         }
 
         addDefaultKeys(tree);
+
+        return tree;
+    }
+
+    public static JEVisTree buildDefaultWidgetTree(JEVisDataSource ds) {
+        TreeTableColumn<JEVisTreeRow, String> nameCol = ColumnFactory.buildName();
+        nameCol.setPrefWidth(500);
+        nameCol.setMinWidth(250);
+
+        BasicCellFilter cellFilter = new BasicCellFilter("Data");
+        ObjectAttributeFilter dataFilter = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
+
+        cellFilter.addItemFilter(dataFilter);
+
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN, dataFilter);
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_SELECTED, dataFilter);
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_COLOR, dataFilter);
+
+        JEVisTree tree = new JEVisTree(ds, cellFilter);
+
+        List<JEVisTreeFilter> allFilter = new ArrayList<>();
+        allFilter.add(cellFilter);
+
+        WidgetTreePlugin widgetTreePlugin = new WidgetTreePlugin();
+        tree.getColumns().addAll(nameCol);
+        tree.getPlugins().add(widgetTreePlugin);
+
+        Finder finder = new Finder(tree);
+        SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder);
+        tree.setSearchFilterBar(searchBar);
 
         return tree;
     }

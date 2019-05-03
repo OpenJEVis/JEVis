@@ -10,11 +10,9 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
-import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -24,7 +22,6 @@ import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
 
-import java.lang.reflect.Field;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +51,9 @@ public class PieWidget extends Widget {
     @Override
     public void update(Interval interval) {
         logger.debug("Pie.Update: {}", interval);
-//        chart = new PieChart();
+
+        sampleHandler.setAutoAggrigation(true);
+
         sampleHandler.setInterval(interval);
         sampleHandler.update();
 
@@ -90,10 +89,8 @@ public class PieWidget extends Widget {
         AtomicDouble total = new AtomicDouble(0);
         sampleHandler.getDataModel().forEach(chartDataModel -> {
             try {
-                if (!chartDataModel.getSamples().isEmpty()) {
-//                        System.out.println("Pie Sample: " + chartDataModel.getSamples());
-                    total.set(total.get() + chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble());
-                }
+                Double dataModelTotal = DataModelDataHandler.getTotal(chartDataModel.getSamples());
+                total.set(total.get() + dataModelTotal);
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -101,6 +98,7 @@ public class PieWidget extends Widget {
 
         sampleHandler.getDataModel().forEach(chartDataModel -> {
             try {
+                double dpSum = 0d;
 
                 String dataName = chartDataModel.getObject().getName();
                 double value = 0;
@@ -114,7 +112,7 @@ public class PieWidget extends Widget {
                 if (!hasNoData) {
                     logger.debug("Samples: ({}) {}", dataName, chartDataModel.getSamples());
                     try {
-                        value = chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble();
+                        value = DataModelDataHandler.getTotal(chartDataModel.getSamples());
 
                         double proC = (value / total.get()) * 100;
                         if (Double.isInfinite(proC)) proC = 100;
@@ -125,8 +123,6 @@ public class PieWidget extends Widget {
 
 
                     } catch (Exception ex) {
-//                        value = 1;/** pie pease will be missing if its 0 **/
-//                        textValue = "n.a. ";
                         logger.error(ex);
                     }
                 } else {
@@ -155,12 +151,6 @@ public class PieWidget extends Widget {
             legend.getItems().setAll(legendItemList);
             chart.setData(series);
             applyColors(colors);
-
-//            legendPane.getChildren().setAll(legend);
-//            borderPane.setCenter(chart);
-//            borderPane.setRight(legendPane);
-//////
-//            chart.layout();
         });
     }
 
@@ -209,31 +199,14 @@ public class PieWidget extends Widget {
     }
 
 
-    private Legend.LegendItem buildLegendItem(String name, Color color, Color fontColor) {
-        Rectangle r = new Rectangle();
-        r.setX(0);
-        r.setY(0);
-        r.setWidth(12);
-        r.setHeight(12);
-        r.setArcWidth(20);
-        r.setArcHeight(20);
-        r.setStroke(color);
-        r.setFill(color);
-        /**
-         * TODO: replace this hack with an own implementation of an legend
-         */
-        Legend.LegendItem item = new Legend.LegendItem(name, r);
-        try {
-            Field privateStringField = Legend.LegendItem.class.
-                    getDeclaredField("label");
-            privateStringField.setAccessible(true);
-            Label label = (Label) privateStringField.get(item);
-            label.setTextFill(fontColor);
+    @Override
+    public void openConfig() {
+//        WidgetConfigEditor widgetConfigEditor = new WidgetConfigEditor(config);
+//
+//        widgetConfigEditor.addTab(sampleHandler.getConfigTab());
+//
+//        widgetConfigEditor.show();
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return item;
     }
 
     @Override
