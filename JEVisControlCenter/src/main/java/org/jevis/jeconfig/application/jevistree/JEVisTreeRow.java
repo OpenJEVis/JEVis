@@ -23,6 +23,9 @@ package org.jevis.jeconfig.application.jevistree;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -32,6 +35,7 @@ public class JEVisTreeRow {
     private Boolean selected = false;
     private final TYPE type;
     private final JEVisAttribute attribute;
+    private Map<String, Object> additinalData;
 
     public JEVisTreeRow(JEVisObject object) {
         this.jevisObject = object;
@@ -112,6 +116,21 @@ public class JEVisTreeRow {
 
         }
         return objectName;
+    }
+
+    public void clearData() {
+        additinalData.clear();
+        additinalData = null;
+    }
+
+    public Object getDataObject(String key, Object defaultObject) {
+        if (additinalData == null) additinalData = new HashMap<>();
+        return additinalData.getOrDefault(key, defaultObject);
+    }
+
+    public void setDataObject(String key, Object object) {
+        if (additinalData == null) additinalData = new HashMap<>();
+        additinalData.put(key, object);
     }
 
     public enum TYPE {

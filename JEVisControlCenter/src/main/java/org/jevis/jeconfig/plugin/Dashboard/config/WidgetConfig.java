@@ -42,6 +42,7 @@ public class WidgetConfig {
     public final ObjectProperty<Pos> titlePosition = new SimpleObjectProperty<>(Pos.class, "Title Position", Pos.CENTER);
     public final BooleanProperty showShadow = new SimpleBooleanProperty(Boolean.class, "Show Shadows", true);
     public final IntegerProperty decimals = new SimpleIntegerProperty(Integer.class, "Decimals", 2);
+
     private String type = "";
     private Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
     private List<WidgetConfigProperty> additionalSetting = new ArrayList<>();
@@ -130,16 +131,7 @@ public class WidgetConfig {
         return true;
     }
 
-    public String getDataHandlerJson() {
-        return dataHandlerJson;
-    }
-
     public JsonNode getConfigNode(String name) {
-//        System.out.println("getConfigNode");
-//        jsonNode.fields().forEachRemaining(stringJsonNodeEntry -> {
-//            System.out.println("node: " + stringJsonNodeEntry.getKey() + ": " + stringJsonNodeEntry.getValue());
-//        });
-
         return jsonNode.get(name);
     }
 
@@ -161,6 +153,10 @@ public class WidgetConfig {
      * @return
      */
     public PropertySheet getConfigSheet() {
+        WidgetConfigEditor widgetConfigEditor = new WidgetConfigEditor(this);
+        widgetConfigEditor.show();
+
+
         userConfig.clear();
         userConfig.put(title.getName(), new ConfigSheet.Property("Title", GENERAL_GROUP, title.getValue(), "Help"));
         userConfig.put(unit.getName(), new ConfigSheet.Property("Unit", GENERAL_GROUP, unit.getValue(), "Help"));
