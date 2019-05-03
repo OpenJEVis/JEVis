@@ -213,8 +213,8 @@ public class PickerCombo {
                     DateTime endDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
                             graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getHourOfDay(), graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getMinuteOfHour(),
                             graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getSecondOfMinute());
+                    analysisTimeFrame.setStart(graphDataModel.getGlobalAnalysisTimeFrame().getStart());
                     analysisTimeFrame.setEnd(endDate);
-                    analysisTimeFrame.setEnd(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
                     if (graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM && graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM_START_END) {
                         graphDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
                     }
@@ -223,8 +223,8 @@ public class PickerCombo {
                     DateTime endDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
                             graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getHourOfDay(), graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getMinuteOfHour(),
                             graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getSecondOfMinute());
+                    analysisTimeFrame.setStart(graphDataModel.getGlobalAnalysisTimeFrame().getStart());
                     analysisTimeFrame.setEnd(endDate);
-                    analysisTimeFrame.setEnd(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
                     if (graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM && graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM_START_END) {
                         graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, new DateHelper(), analysisTimeFrame);
                     }
