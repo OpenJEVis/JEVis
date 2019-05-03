@@ -267,6 +267,20 @@ public class LoadAnalysisDialog {
             }
         });
 
+        mathBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                graphDataModel.setManipulationMode(newValue);
+                updateGridLayout();
+            }
+        });
+
+        aggregationBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                graphDataModel.setAggregationPeriod(newValue);
+                updateGridLayout();
+            }
+        });
+
         loadButton.setOnAction(event -> {
             response = Response.LOAD;
 

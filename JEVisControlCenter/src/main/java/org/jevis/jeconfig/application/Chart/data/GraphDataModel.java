@@ -151,61 +151,7 @@ public class GraphDataModel {
         service.start();
     }
 
-    public void updateSelectedData() {
-        Set<ChartDataModel> selectedData = new HashSet<>();
-
-        JsonChartDataModel jsonChartDataModel = getListAnalysisModel();
-
-        if (jsonChartDataModel != null) {
-            Map<String, ChartDataModel> data = new HashMap<>();
-
-            for (JsonAnalysisDataRow mdl : jsonChartDataModel.getListAnalyses()) {
-                ChartDataModel newData = new ChartDataModel(ds);
-
-                try {
-                    Long id = Long.parseLong(mdl.getObject());
-                    Long id_dp = null;
-                    if (mdl.getDataProcessorObject() != null) id_dp = Long.parseLong(mdl.getDataProcessorObject());
-                    JEVisObject obj = ds.getObject(id);
-                    JEVisObject obj_dp = null;
-                    if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
-                    JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
-                    newData.setObject(obj);
-
-                    newData.setColor(Color.valueOf(mdl.getColor()));
-                    newData.setTitle(mdl.getName());
-                    if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
-                    newData.getAttribute();
-                    newData.setAggregationPeriod(AggregationPeriod.parseAggregation(mdl.getAggregation()));
-                    newData.setSomethingChanged(true);
-                    newData.setSelectedCharts(stringToList(mdl.getSelectedCharts()));
-                    newData.setUnit(unit);
-                    if (mdl.getAxis() != null) newData.setAxis(Integer.parseInt(mdl.getAxis()));
-
-                    if (mdl.getIsEnPI() != null) newData.setEnPI(Boolean.parseBoolean(mdl.getIsEnPI()));
-                    if (mdl.getCalculation() != null) {
-                        newData.setCalculationObject(mdl.getCalculation());
-                    }
-                    if (isGlobalAnalysisTimeFrame) {
-                        newData.setSelectedStart(globalAnalysisTimeFrame.getStart());
-                        newData.setSelectedEnd(globalAnalysisTimeFrame.getEnd());
-                    }
-
-                    data.put(obj.getID().toString(), newData);
-                } catch (JEVisException e) {
-                    logger.error("Error: could not get chart data model", e);
-                }
-            }
-
-            for (Map.Entry<String, ChartDataModel> entrySet : data.entrySet()) {
-                ChartDataModel value = entrySet.getValue();
-                if (!value.getSelectedcharts().isEmpty()) {
-                    selectedData.add(value);
-                }
-            }
-        }
-        this.selectedData = selectedData;
-    }
+    private AggregationPeriod globalAggregationPeriod = AggregationPeriod.NONE;
 
     public void updateSamples() {
         selectedData.forEach(chartDataModel -> {
@@ -790,33 +736,94 @@ public class GraphDataModel {
         });
     }
 
-    public AggregationPeriod getAggregationPeriod() {
-        if (getSelectedData() != null && !getSelectedData().isEmpty()) {
-            for (ChartDataModel chartDataModel : getSelectedData()) {
-                return chartDataModel.getAggregationPeriod();
+    private ManipulationMode globalManipulationMode = ManipulationMode.NONE;
+
+    public void updateSelectedData() {
+        Set<ChartDataModel> selectedData = new HashSet<>();
+
+        JsonChartDataModel jsonChartDataModel = getListAnalysisModel();
+
+        if (jsonChartDataModel != null) {
+            Map<String, ChartDataModel> data = new HashMap<>();
+
+            for (JsonAnalysisDataRow mdl : jsonChartDataModel.getListAnalyses()) {
+                ChartDataModel newData = new ChartDataModel(ds);
+
+                try {
+                    Long id = Long.parseLong(mdl.getObject());
+                    Long id_dp = null;
+                    if (mdl.getDataProcessorObject() != null) id_dp = Long.parseLong(mdl.getDataProcessorObject());
+                    JEVisObject obj = ds.getObject(id);
+                    JEVisObject obj_dp = null;
+                    if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
+                    JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
+                    newData.setObject(obj);
+
+                    newData.setColor(Color.valueOf(mdl.getColor()));
+                    newData.setTitle(mdl.getName());
+                    if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
+                    newData.getAttribute();
+                    if (getAggregationPeriod() != null) {
+                        newData.setAggregationPeriod(getAggregationPeriod());
+                    } else {
+                        newData.setAggregationPeriod(AggregationPeriod.parseAggregation(mdl.getAggregation()));
+                    }
+                    if (getManipulationMode() != null) {
+                        newData.setManipulationMode(getManipulationMode());
+                    } else {
+                        /**
+                         * implement in json
+                         */
+                    }
+                    newData.setSomethingChanged(true);
+                    newData.setSelectedCharts(stringToList(mdl.getSelectedCharts()));
+                    newData.setUnit(unit);
+                    if (mdl.getAxis() != null) newData.setAxis(Integer.parseInt(mdl.getAxis()));
+
+                    if (mdl.getIsEnPI() != null) newData.setEnPI(Boolean.parseBoolean(mdl.getIsEnPI()));
+                    if (mdl.getCalculation() != null) {
+                        newData.setCalculationObject(mdl.getCalculation());
+                    }
+                    if (isGlobalAnalysisTimeFrame) {
+                        newData.setSelectedStart(globalAnalysisTimeFrame.getStart());
+                        newData.setSelectedEnd(globalAnalysisTimeFrame.getEnd());
+                    }
+
+                    data.put(obj.getID().toString(), newData);
+                } catch (JEVisException e) {
+                    logger.error("Error: could not get chart data model", e);
+                }
+            }
+
+            for (Map.Entry<String, ChartDataModel> entrySet : data.entrySet()) {
+                ChartDataModel value = entrySet.getValue();
+                if (!value.getSelectedcharts().isEmpty()) {
+                    selectedData.add(value);
+                }
             }
         }
-        return AggregationPeriod.NONE;
+        this.selectedData = selectedData;
+    }
+
+    public AggregationPeriod getAggregationPeriod() {
+        return globalAggregationPeriod;
     }
 
     public void setAggregationPeriod(AggregationPeriod aggregationPeriod) {
-        if (getSelectedData() != null && !getSelectedData().isEmpty()) {
-            getSelectedData().forEach(chartDataModel -> chartDataModel.setAggregationPeriod(aggregationPeriod));
+        this.globalAggregationPeriod = aggregationPeriod;
+        if (selectedData != null && !selectedData.isEmpty()) {
+            selectedData.forEach(chartDataModel -> chartDataModel.setAggregationPeriod(aggregationPeriod));
         }
     }
 
     public ManipulationMode getManipulationMode() {
-        if (getSelectedData() != null && !getSelectedData().isEmpty()) {
-            for (ChartDataModel chartDataModel : getSelectedData()) {
-                return chartDataModel.getManipulationMode();
-            }
-        }
-        return ManipulationMode.NONE;
+        return globalManipulationMode;
     }
 
     public void setManipulationMode(ManipulationMode manipulationMode) {
-        if (getSelectedData() != null && !getSelectedData().isEmpty()) {
-            getSelectedData().forEach(chartDataModel -> chartDataModel.setManipulationMode(manipulationMode));
+        this.globalManipulationMode = manipulationMode;
+        if (selectedData != null && !selectedData.isEmpty()) {
+            selectedData.forEach(chartDataModel -> chartDataModel.setManipulationMode(manipulationMode));
         }
     }
 
