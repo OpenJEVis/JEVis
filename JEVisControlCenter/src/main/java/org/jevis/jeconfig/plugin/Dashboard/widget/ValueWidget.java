@@ -88,7 +88,7 @@ public class ValueWidget extends Widget {
             }
 
             if (!results.isEmpty()) {
-                labelText.setValue(nf.format(results.get(results.size() - 1).getValueAsDouble()) + " " + unit);
+                labelText.setValue((nf.format(DataModelDataHandler.getTotal(results))) + " " + unit);
             }
 
 

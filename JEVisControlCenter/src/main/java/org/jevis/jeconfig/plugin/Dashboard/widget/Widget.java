@@ -19,6 +19,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.DashBoardPane;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfigEditor;
 import org.joda.time.Interval;
 
 import java.util.UUID;
@@ -76,8 +77,11 @@ public abstract class Widget extends Group {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(deleteButton);
 
         configButton.setOnAction(event -> {
-            config.openConfig();
+//            config.openConfig();
+            this.openConfig();
         });
+
+
         Tooltip tooltip = new Tooltip(config.title.getValue());
         configButton.setTooltip(tooltip);
 
@@ -258,6 +262,11 @@ public abstract class Widget extends Group {
      * Unique ID of this Widget
      */
     public abstract String typeID();
+
+    public void openConfig() {
+        WidgetConfigEditor widgetConfigEditor = new WidgetConfigEditor(config);
+//        widgetConfigEditor.show();
+    }
 
 
 }

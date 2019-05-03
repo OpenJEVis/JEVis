@@ -63,6 +63,10 @@ public class ObjectAttributeFilter {
     }
 
     public boolean showCell(JEVisTreeRow row) throws JEVisException {
+        if (row.getType() == null) {
+            return false;
+        }
+
         if (row.getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
             return showAttribute(row.getJEVisAttribute());
         } else if (row.getType() == JEVisTreeRow.TYPE.OBJECT) {
