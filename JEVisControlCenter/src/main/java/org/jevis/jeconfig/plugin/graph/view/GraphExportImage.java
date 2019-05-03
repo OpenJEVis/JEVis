@@ -64,4 +64,8 @@ public class GraphExportImage {
             if (maxDate == null || endNow.isAfter(maxDate)) maxDate = endNow;
         }
     }
+
+    public File getDestinationFile() {
+        return destinationFile;
+    }
 }
