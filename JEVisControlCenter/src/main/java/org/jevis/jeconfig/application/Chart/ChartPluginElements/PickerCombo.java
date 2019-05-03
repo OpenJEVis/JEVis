@@ -189,9 +189,9 @@ public class PickerCombo {
                             graphDataModel.getGlobalAnalysisTimeFrame().getStart().getSecondOfMinute());
                     analysisTimeFrame.setStart(startDate);
                     analysisTimeFrame.setEnd(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
-                    if (graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM && graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM_START_END) {
-                        graphDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
-                    }
+
+                    graphDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
+
                 } else if (graphDataModel != null && chartDataModels != null) {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     DateTime startDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
@@ -199,9 +199,9 @@ public class PickerCombo {
                             graphDataModel.getGlobalAnalysisTimeFrame().getStart().getSecondOfMinute());
                     analysisTimeFrame.setStart(startDate);
                     analysisTimeFrame.setEnd(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
-                    if (graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM && graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM_START_END) {
-                        graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, new DateHelper(), analysisTimeFrame);
-                    }
+
+                    graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, new DateHelper(), analysisTimeFrame);
+
                 }
             }
         });
@@ -215,9 +215,9 @@ public class PickerCombo {
                             graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getSecondOfMinute());
                     analysisTimeFrame.setStart(graphDataModel.getGlobalAnalysisTimeFrame().getStart());
                     analysisTimeFrame.setEnd(endDate);
-                    if (graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM && graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM_START_END) {
-                        graphDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
-                    }
+
+                    graphDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
+
                 } else if (graphDataModel != null && chartDataModels != null) {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     DateTime endDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
@@ -225,9 +225,9 @@ public class PickerCombo {
                             graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getSecondOfMinute());
                     analysisTimeFrame.setStart(graphDataModel.getGlobalAnalysisTimeFrame().getStart());
                     analysisTimeFrame.setEnd(endDate);
-                    if (graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM && graphDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() != TimeFrame.CUSTOM_START_END) {
-                        graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, new DateHelper(), analysisTimeFrame);
-                    }
+
+                    graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, new DateHelper(), analysisTimeFrame);
+
                 }
             }
         });

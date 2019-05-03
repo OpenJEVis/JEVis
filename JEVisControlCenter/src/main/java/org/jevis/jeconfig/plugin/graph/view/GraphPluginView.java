@@ -533,9 +533,9 @@ public class GraphPluginView implements Plugin {
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
             toolBarView.setBorderPane(border);
-            Platform.runLater(() -> {
-                toolBarView.update();
-            });
+
+            toolBarView.updateLayout();
+
 
             autoSize(autoMinSize, maxHeight, chartsPerScreen, vBox);
         }

@@ -254,6 +254,22 @@ public class LoadAnalysisDialog {
             }
         });
 
+        pickerTimeStart.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                DateTime startDate = new DateTime(
+                        graphDataModel.getGlobalAnalysisTimeFrame().getStart().getYear(),
+                        graphDataModel.getGlobalAnalysisTimeFrame().getStart().getMonthOfYear(),
+                        graphDataModel.getGlobalAnalysisTimeFrame().getStart().getDayOfMonth(),
+                        newValue.getHour(), newValue.getMinute(),
+                        graphDataModel.getGlobalAnalysisTimeFrame().getStart().getSecondOfMinute());
+                AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                analysisTimeFrame.setStart(startDate);
+                analysisTimeFrame.setEnd(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
+                graphDataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisTimeFrame);
+                updateGridLayout();
+            }
+        });
+
         pickerDateEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
                 DateTime endDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
@@ -262,6 +278,22 @@ public class LoadAnalysisDialog {
                 AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                 analysisTimeFrame.setStart(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
                 analysisTimeFrame.setEnd(endDate);
+                graphDataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisTimeFrame);
+                updateGridLayout();
+            }
+        });
+
+        pickerTimeEnd.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                DateTime endDate = new DateTime(
+                        graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getYear(),
+                        graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getMonthOfYear(),
+                        graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getDayOfMonth(),
+                        newValue.getHour(), newValue.getMinute(),
+                        graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getSecondOfMinute());
+                AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                analysisTimeFrame.setEnd(endDate);
+                analysisTimeFrame.setEnd(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
                 graphDataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisTimeFrame);
                 updateGridLayout();
             }
