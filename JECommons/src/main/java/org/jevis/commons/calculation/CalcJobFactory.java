@@ -42,10 +42,13 @@ public class CalcJobFactory {
 
         logger.info("-------------------------------------------");
         long calcObjID = jevisObject.getID();
-        logger.info("Create calc job for object with jevis id {}", calcObjID);
+        logger.info("Create calc job for object with JEVis id {}", calcObjID);
 
         String expression = sampleHandler.getLastSample(jevisObject, Calculation.EXPRESSION.getName(), "");
         List<JEVisAttribute> outputAttributes = getAllOutputAttributes(jevisObject);
+        if (outputAttributes.isEmpty()) {
+            throw new RuntimeException("No output target");
+        }
 
         logger.debug("start time is: " + startTime);
 
@@ -61,7 +64,7 @@ public class CalcJobFactory {
             if (allZeroValueAtt.hasSample())
                 allZeroValue = allZeroValueAtt.getLatestSample().getValueAsDouble();
         } catch (Exception e) {
-
+            logger.error(e);
         }
 
         calcJob.setCalcInputObjects(calcInputObjects);
@@ -172,13 +175,18 @@ public class CalcJobFactory {
             for (JEVisObject output : outputs) {
                 JEVisAttribute targetAttr = output.getAttribute(Calculation.OUTPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(output.getDataSource(), targetAttr);
-                JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
-                if (valueAttribute == null) {
-                    logger.error("Cant find output for id {}, using fallback 'Value' Attribute ", output.getID());
-                    outputAttributes.add(targetHelper.getObject().get(0).getAttribute("Value"));
+                if (!targetHelper.getAttribute().isEmpty()) {
+                    JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
+                    if (valueAttribute == null) {
+                        logger.error("Cant find output for id {}, using fallback 'Value' Attribute ", output.getID());
+                        outputAttributes.add(targetHelper.getObject().get(0).getAttribute("Value"));
+                    } else {
+                        outputAttributes.add(valueAttribute);
+                    }
                 } else {
-                    outputAttributes.add(valueAttribute);
+                    logger.error("No output configure for id {}", output.getID());
                 }
+
             }
         } catch (Exception ex) {
             logger.fatal(ex);
