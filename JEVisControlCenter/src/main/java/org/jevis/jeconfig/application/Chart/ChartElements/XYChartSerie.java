@@ -156,7 +156,22 @@ public class XYChartSerie {
             tableEntry.setAvg("- " + getUnit());
             tableEntry.setSum("- " + getUnit());
         } else {
-            tableEntry.setAvg(nf_out.format(avg) + " " + getUnit());
+            if (!singleRow.getEnPI()) {
+                tableEntry.setAvg(nf_out.format(avg) + " " + getUnit());
+            } else {
+                CalcJobFactory calcJobCreator = new CalcJobFactory();
+
+                CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), singleRow.getObject().getDataSource(), singleRow.getCalculationObject(),
+                        singleRow.getSelectedStart(), singleRow.getSelectedEnd(), true);
+                List<JEVisSample> results = calcJob.getResults();
+
+                if (results.size() == 1) {
+                    tableEntry.setAvg(nf_out.format(results.get(0).getValueAsDouble()) + " " + getUnit());
+                } else {
+                    tableEntry.setAvg("- " + getUnit());
+                }
+                tableEntry.setEnpi(nf_out.format(avg) + " " + getUnit());
+            }
             if (isQuantity) {
                 tableEntry.setSum(nf_out.format(sum) + " " + getUnit());
             } else {
@@ -193,19 +208,6 @@ public class XYChartSerie {
             }
         }
 
-        if (singleRow.getEnPI()) {
-            CalcJobFactory calcJobCreator = new CalcJobFactory();
-
-            CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), singleRow.getObject().getDataSource(), singleRow.getCalculationObject(),
-                    singleRow.getSelectedStart(), singleRow.getSelectedEnd(), true);
-            List<JEVisSample> results = calcJob.getResults();
-
-            if (results.size() == 1) {
-                tableEntry.setEnpi(nf_out.format(results.get(0).getValueAsDouble()) + " " + getUnit());
-            } else {
-                tableEntry.setEnpi("- " + getUnit());
-            }
-        }
     }
 
     public void setDataNodeColor(MultiAxisChart.Data<Number, Number> data) {
