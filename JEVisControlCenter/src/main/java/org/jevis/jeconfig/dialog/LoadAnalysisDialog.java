@@ -276,7 +276,7 @@ public class LoadAnalysisDialog {
                         graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getHourOfDay(), graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getMinuteOfHour(),
                         graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getSecondOfMinute());
                 AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
-                analysisTimeFrame.setStart(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
+                analysisTimeFrame.setStart(graphDataModel.getGlobalAnalysisTimeFrame().getStart());
                 analysisTimeFrame.setEnd(endDate);
                 graphDataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisTimeFrame);
                 updateGridLayout();
@@ -292,8 +292,8 @@ public class LoadAnalysisDialog {
                         newValue.getHour(), newValue.getMinute(),
                         graphDataModel.getGlobalAnalysisTimeFrame().getEnd().getSecondOfMinute());
                 AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                analysisTimeFrame.setStart(graphDataModel.getGlobalAnalysisTimeFrame().getStart());
                 analysisTimeFrame.setEnd(endDate);
-                analysisTimeFrame.setEnd(graphDataModel.getGlobalAnalysisTimeFrame().getEnd());
                 graphDataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisTimeFrame);
                 updateGridLayout();
             }

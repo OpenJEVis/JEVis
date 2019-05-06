@@ -838,6 +838,7 @@ public class ToolBarView {
 
             toolBar.getItems().clear();
             pickerCombo = new PickerCombo(model, null);
+            pickerCombo.updateCellFactory();
             presetDateBox = pickerCombo.getPresetDateBox();
             pickerDateStart = pickerCombo.getStartDatePicker();
             pickerTimeStart = pickerCombo.getStartTimePicker();
