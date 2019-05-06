@@ -231,7 +231,7 @@ public class ChartView implements Observer {
     }
 
     private TableColumn<TableEntry, Color> buildColorColumn() {
-        TableColumn<TableEntry, Color> column = new TableColumn<>("");
+        TableColumn<TableEntry, Color> column = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.color"));
 
 
         column.setCellValueFactory(param -> {
