@@ -220,7 +220,6 @@ public class ToolBarView {
 
                     ge.export(graphPluginView.getvBox());
 
-
                 }
 
             });
