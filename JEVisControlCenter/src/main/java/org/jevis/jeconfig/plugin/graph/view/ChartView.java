@@ -88,7 +88,6 @@ public class ChartView implements Observer {
         tableView.getStylesheets().add
                 (ChartView.class.getResource("/styles/ScrolllesTable.css").toExternalForm());
         tableView.sortPolicyProperty().set(param -> {
-
             Comparator<TableEntry> comparator = (t1, t2) -> getAlphanumComparator().compare(t1.getName(), t2.getName());
             FXCollections.sort(getTableView().getItems(), comparator);
             return true;
