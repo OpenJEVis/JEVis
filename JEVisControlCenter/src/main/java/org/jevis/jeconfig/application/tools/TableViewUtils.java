@@ -14,17 +14,17 @@ import javafx.util.Callback;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class TableViewUntils {
+public class TableViewUtils {
 
     /**
      * Workaround Offset, this will be added to an column header name if we calculate the width before it was rendered
      * TODO: somehow calculate this value
      */
-    public static double COLUM_OFFSET_WIDTH = 35;
+    public static double COLUMN_OFFSET_WIDTH = 35;
 
 
     /**
-     * This function will set the column size so its minimum based on the header text
+     * This function will set the column size so its minimum is based on the header text
      *
      * @param col
      */
@@ -33,33 +33,35 @@ public class TableViewUntils {
         text.setFont(new Label().getFont());
         double textWidth = text.getBoundsInLocal().getWidth();
 //        System.out.println("Text.width: " + textWidth + " or " + text.getLayoutBounds().getWidth());
-        col.setPrefWidth(textWidth + COLUM_OFFSET_WIDTH);
+        col.setPrefWidth(textWidth + COLUMN_OFFSET_WIDTH);
     }
 
     public static void setColumnMinSize(List<TableColumn> columns) {
-        columns.forEach(tableColumn -> {
-            setColumnMinSize(tableColumn);
-        });
+        columns.forEach(TableViewUtils::setColumnMinSize);
     }
 
     public static void growColumns(TableView<?> view, List<TableColumn<?, ?>> columns) {
         double expectedColWidth = 0;
         for (int i = 0; i < view.getColumns().size(); i++) {
             TableColumn<?, ?> col = view.getColumns().get(i);
-            expectedColWidth += col.getPrefWidth();
+            if (col.isVisible()) {
+                expectedColWidth += col.getPrefWidth();
+            }
         }
 
         if (expectedColWidth < view.getWidth() && !columns.isEmpty()) {
             double freePart = (view.getWidth() - expectedColWidth) / columns.size();
 //            System.out.println("freePart: " + freePart);
-            for (int i = 0; i < columns.size(); i++) {
-                TableColumn<?, ?> col = columns.get(i);
+            for (TableColumn<?, ?> col : columns) {
                 col.setPrefWidth(col.getPrefWidth() + freePart);
             }
         }
 
     }
 
+    public static void allToMin(TableView<?> view) {
+        view.getColumns().forEach(col -> col.setPrefWidth(col.getMinWidth()));
+    }
 
     public static void allToMinButColumn(TableView<?> view, List<TableColumn<?, ?>> column) {
         boolean needResize = false;
@@ -74,13 +76,14 @@ public class TableViewUntils {
         if (totalColSize > view.getWidth()) {
             for (int i = 0; i < view.getColumns().size(); i++) {
                 TableColumn col = view.getColumns().get(i);
-                if (!col.equals(column)) {
-                    col.setPrefWidth(col.getMinWidth());
+                for (TableColumn tc : column) {
+                    if (!col.equals(tc)) {
+                        col.setPrefWidth(col.getMinWidth());
+                    }
                 }
             }
             growColumns(view, column);
         }
-
 
     }
 
@@ -105,7 +108,7 @@ public class TableViewUntils {
             text.setFont(new Label().getFont());
             double textWidth = text.getBoundsInLocal().getWidth();
 //            System.out.println("Text.width: " + textWidth + " or " + text.getLayoutBounds().getWidth());
-            col.setPrefWidth(textWidth + COLUM_OFFSET_WIDTH);
+            col.setPrefWidth(textWidth + COLUMN_OFFSET_WIDTH);
             expectedColWidth += col.getPrefWidth();
 
         }
@@ -116,7 +119,7 @@ public class TableViewUntils {
 //            System.out.println("freePart: " + freePart);
             for (int i = 0; i < prioColumns.size(); i++) {
                 TableColumn<?, ?> col = prioColumns.get(i);
-                col.setPrefWidth(col.getPrefWidth() + freePart - (COLUM_OFFSET_WIDTH * prioColumns.size()));
+                col.setPrefWidth(col.getPrefWidth() + freePart - (COLUMN_OFFSET_WIDTH * prioColumns.size()));
             }
         }
 

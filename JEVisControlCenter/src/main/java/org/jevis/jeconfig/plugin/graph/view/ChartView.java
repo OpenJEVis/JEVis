@@ -28,7 +28,7 @@ import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.*;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
-import org.jevis.jeconfig.application.tools.TableViewUntils;
+import org.jevis.jeconfig.application.tools.TableViewUtils;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
@@ -54,6 +54,13 @@ public class ChartView implements Observer {
     private boolean firstLogical;
     private ChartDataModel singleRow;
     private List<ChartDataModel> currentSelectedChartDataModels;
+    private final double VALUE_COLUMNS_PREF_SIZE = 200;
+    private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 70;
+    private TableColumn<TableEntry, String> nameCol;
+    private TableColumn<TableEntry, Color> colorCol;
+    private TableColumn<TableEntry, String> periodCol;
+    private TableColumn<TableEntry, String> dateCol;
+    private TableColumn<TableEntry, String> noteCol;
 
     public ChartView(GraphDataModel dataModel) {
         this.dataModel = dataModel;
@@ -89,48 +96,68 @@ public class ChartView implements Observer {
 
         tableView.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 
-        /** Disabled because of out ScrolllesTable.css **/
-        TableColumn<TableEntry, String> name = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
-        name.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
-        name.setSortable(false);
-        name.setPrefWidth(500);
-        name.setMinWidth(100);
+        /** Disabled because of out ScrolllesTable.css
+         *
+         * Table Column 0
+         */
+        nameCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
+        nameCol.setSortable(false);
+        nameCol.setPrefWidth(500);
+        nameCol.setMinWidth(100);
 
-        TableColumn<TableEntry, Color> colorCol = buildColorColumn();
+        /**
+         * Table Column 1
+         */
+        colorCol = buildColorColumn();
         colorCol.setSortable(false);
         colorCol.setPrefWidth(25);
         colorCol.setMinWidth(25);
 
-        TableColumn<TableEntry, String> periodCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.period"));
+        /**
+         * Table Column 2
+         */
+        periodCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.period"));
         periodCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("period"));
         periodCol.setStyle("-fx-alignment: CENTER-RIGHT");
         periodCol.setSortable(false);
         periodCol.setPrefWidth(100);
         periodCol.setMinWidth(100);
 
+        /**
+         * Table Column 3
+         */
         TableColumn<TableEntry, String> value = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.value"));
         value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
         value.setStyle("-fx-alignment: CENTER-RIGHT");
         value.setSortable(false);
-        double VALUE_COLUMNS_PREF_SIZE = 200;
+
         value.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 70;
         value.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
-        TableColumn<TableEntry, String> dateCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.date"));
+        /**
+         * Table Column 4
+         */
+        dateCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.date"));
         dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("date"));
         dateCol.setStyle("-fx-alignment: CENTER");
         dateCol.setSortable(false);
         dateCol.setPrefWidth(160);
         dateCol.setMinWidth(160);
 
-        TableColumn<TableEntry, String> note = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.note"));
-        note.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
-        note.setStyle("-fx-alignment: CENTER");
-        note.setPrefWidth(50);
-        note.setMinWidth(50);
-        note.setSortable(false);
+        /**
+         * Table Column 5
+         */
+        noteCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.note"));
+        noteCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
+        noteCol.setStyle("-fx-alignment: CENTER");
+        noteCol.setPrefWidth(50);
+        noteCol.setMinWidth(50);
+        noteCol.setSortable(false);
 
+        /**
+         * Table Column 6
+         */
         TableColumn<TableEntry, String> minCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.min"));
         minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
         minCol.setStyle("-fx-alignment: CENTER-RIGHT");
@@ -138,6 +165,9 @@ public class ChartView implements Observer {
         minCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
         minCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
+        /**
+         * Table Column 7
+         */
         TableColumn<TableEntry, String> maxCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.max"));
         maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
         maxCol.setStyle("-fx-alignment: CENTER-RIGHT");
@@ -145,6 +175,9 @@ public class ChartView implements Observer {
         maxCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
         maxCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
+        /**
+         * Table Column 8
+         */
         TableColumn<TableEntry, String> avgCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.avg"));
         avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
         avgCol.setStyle("-fx-alignment: CENTER-RIGHT");
@@ -152,13 +185,20 @@ public class ChartView implements Observer {
         avgCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
         avgCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
+        /**
+         * Table Column 9
+         */
         TableColumn<TableEntry, String> enPICol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.enpi"));
         enPICol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("enpi"));
         enPICol.setStyle("-fx-alignment: CENTER-RIGHT");
         enPICol.setSortable(false);
         enPICol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
         enPICol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+        enPICol.setVisible(false);
 
+        /**
+         * Table Column 10
+         */
         TableColumn<TableEntry, String> sumCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.sum"));
         sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
         sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
@@ -171,9 +211,23 @@ public class ChartView implements Observer {
         tableData.add(tableEntry);
         tableView.setItems(tableData);
 
-        tableView.getColumns().addAll(colorCol, name, periodCol, value, dateCol, note, minCol, maxCol, avgCol, enPICol, sumCol);
+        tableView.getColumns().addAll(colorCol, nameCol, periodCol, value, dateCol, noteCol, minCol, maxCol, avgCol, enPICol, sumCol);
+        tableView.setTableMenuButtonVisible(true);
 
-        tableView.widthProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> TableViewUntils.allToMinButColumn(tableView, Collections.singletonList(name))));
+        tableView.widthProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(this::updateColumnCaptionWidths);
+        });
+
+        enPICol.visibleProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                Platform.runLater(this::updateColumnCaptionWidths);
+            }
+        });
+    }
+
+    public void updateColumnCaptionWidths() {
+        TableViewUtils.allToMin(tableView);
+        TableViewUtils.growColumns(tableView, Collections.singletonList(nameCol));
     }
 
     private TableColumn<TableEntry, Color> buildColorColumn() {
@@ -348,7 +402,7 @@ public class ChartView implements Observer {
             case AREA:
                 chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
-                tableView.getColumns().get(9).setVisible(containsEnPI);
+//                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case LOGICAL:
                 chart = new LogicalChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
@@ -366,7 +420,7 @@ public class ChartView implements Observer {
             case LINE:
                 chart = new LineChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
-                tableView.getColumns().get(9).setVisible(containsEnPI);
+//                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case BAR:
                 chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
@@ -382,7 +436,7 @@ public class ChartView implements Observer {
             case COLUMN:
                 chart = new ColumnChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
                 setTableStandard();
-                tableView.getColumns().get(9).setVisible(containsEnPI);
+//                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case BUBBLE:
                 chart = new BubbleChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
@@ -391,7 +445,7 @@ public class ChartView implements Observer {
             case SCATTER:
                 chart = new ScatterChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
-                tableView.getColumns().get(9).setVisible(containsEnPI);
+//                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case PIE:
                 chart = new PieChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
@@ -412,7 +466,7 @@ public class ChartView implements Observer {
             default:
                 chart = new AreaChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
-                tableView.getColumns().get(9).setVisible(containsEnPI);
+//                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
         }
     }
@@ -467,7 +521,7 @@ public class ChartView implements Observer {
                 chart.setHideShowIcons(dataModel.getHideShowIcons());
                 chart.setDataModels(currentSelectedChartDataModels);
                 boolean containsEnPI = currentSelectedChartDataModels.stream().anyMatch(ChartDataModel::getEnPI);
-                tableView.getColumns().get(9).setVisible(containsEnPI);
+//                tableView.getColumns().get(9).setVisible(containsEnPI);
 
                 chart.updateChart();
             } else {

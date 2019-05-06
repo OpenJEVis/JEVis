@@ -118,11 +118,17 @@ public class GraphPluginView implements Plugin {
         border.heightProperty().addListener((observable, oldValue, newValue) -> {
             if (!oldValue.equals(0.0) && dataModel.getSelectedData() != null && !dataModel.getSelectedData().isEmpty()) {
                 Platform.runLater(() -> update(false));
+                for (ChartView cv : charts) {
+                    Platform.runLater(cv::updateColumnCaptionWidths);
+                }
             }
         });
-        border.heightProperty().addListener((observable, oldValue, newValue) -> {
+        border.widthProperty().addListener((observable, oldValue, newValue) -> {
             if (!oldValue.equals(0.0) && dataModel.getSelectedData() != null && !dataModel.getSelectedData().isEmpty()) {
                 Platform.runLater(() -> update(false));
+                for (ChartView cv : charts) {
+                    Platform.runLater(cv::updateColumnCaptionWidths);
+                }
             }
         });
 
