@@ -19,7 +19,6 @@ import javafx.geometry.Insets;
 import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -49,7 +48,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +64,6 @@ public class ToolBarView {
     private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private final JEVisDataSource ds;
     private final GraphPluginView graphPluginView;
-    private BorderPane borderPane;
     private GraphDataModel model;
     private ComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean _initialized = false;
@@ -220,13 +217,12 @@ public class ToolBarView {
                 GraphExportImage ge = new GraphExportImage(model);
 
                 if (ge.getDestinationFile() != null) {
-                    try {
-                        ge.export(getBorderPane());
 
-                    } catch (IOException e) {
-                        logger.error("Error: could not export to file.", e);
-                    }
+                    ge.export(graphPluginView.getvBox());
+
+
                 }
+
             });
 
             save.setOnAction(action -> {
@@ -341,10 +337,6 @@ public class ToolBarView {
 
     public void setupAnalysisComboBoxListener() {
         listAnalysesComboBox.valueProperty().addListener(analysisComboBoxChangeListener);
-    }
-
-    public void removeAnalysisComboBoxListener() {
-        listAnalysesComboBox.valueProperty().removeListener(analysisComboBoxChangeListener);
     }
 
     private void resetZoom() {
@@ -471,10 +463,6 @@ public class ToolBarView {
             }
         } else if (dialog.getResponse() == Response.LOAD) {
 
-//            model.updateSamples();
-//            model.setCharts(model.getCharts());
-//            model.setSelectedData(model.getSelectedData());
-
         }
 
     }
@@ -487,7 +475,7 @@ public class ToolBarView {
         model.setAutoResize(!model.getAutoResize());
     }
 
-    public ComboBox<JEVisObject> getListAnalysesComboBox() {
+    private ComboBox<JEVisObject> getListAnalysesComboBox() {
         return listAnalysesComboBox;
     }
 
@@ -825,26 +813,6 @@ public class ToolBarView {
         pickerDateEnd.setDisable(bool);
         pickerTimeStart.setDisable(bool);
         pickerTimeEnd.setDisable(bool);
-    }
-
-    public BorderPane getBorderPane() {
-        return borderPane;
-    }
-
-    public void setBorderPane(BorderPane borderPane) {
-        this.borderPane = borderPane;
-    }
-
-    public ComboBox getPresetDateBox() {
-        return presetDateBox;
-    }
-
-    public JFXDatePicker getPickerDateStart() {
-        return pickerDateStart;
-    }
-
-    public JFXDatePicker getPickerDateEnd() {
-        return pickerDateEnd;
     }
 
     public PickerCombo getPickerCombo() {

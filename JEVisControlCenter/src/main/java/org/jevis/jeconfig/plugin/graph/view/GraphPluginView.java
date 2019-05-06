@@ -38,7 +38,10 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
@@ -91,10 +94,10 @@ public class GraphPluginView implements Plugin {
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private BorderPane border = new BorderPane();
-    private StackPane stackPane = new StackPane();
     private ToolBar toolBar;
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
+    private VBox vBox;
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
         this.dataModel = new GraphDataModel(ds, this);
@@ -125,7 +128,6 @@ public class GraphPluginView implements Plugin {
 
         border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2 + "; -fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
 
-        if (!stackPane.getChildren().contains(border)) stackPane.getChildren().add(border);
     }
 
     @Override
@@ -386,7 +388,7 @@ public class GraphPluginView implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return stackPane;
+        return border;
     }
 
     public void update(Boolean getNewChartViews) {
@@ -414,7 +416,7 @@ public class GraphPluginView implements Plugin {
             } catch (Exception e) {
             }
 
-            VBox vBox = new VBox();
+            vBox = new VBox();
             vBox.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
 
             ScrollPane sp = new ScrollPane();
@@ -531,8 +533,6 @@ public class GraphPluginView implements Plugin {
             border.setCenter(sp);
             border.setBottom(null);
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-
-            toolBarView.setBorderPane(border);
 
             toolBarView.updateLayout();
 
@@ -1131,5 +1131,9 @@ public class GraphPluginView implements Plugin {
 
     public List<ChartView> getCharts() {
         return charts;
+    }
+
+    public VBox getvBox() {
+        return vBox;
     }
 }

@@ -69,7 +69,7 @@ public class ChartView implements Observer {
     }
 
     private void init() {
-        tableView = new TableView<TableEntry>();
+        tableView = new TableView<>();
 
         tableView.setBorder(null);
         tableView.setStyle(
@@ -90,7 +90,7 @@ public class ChartView implements Observer {
         tableView.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 
         /** Disabled because of out ScrolllesTable.css **/
-        TableColumn<TableEntry, String> name = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.name"));
+        TableColumn<TableEntry, String> name = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
         name.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
         name.setSortable(false);
         name.setPrefWidth(500);
@@ -173,14 +173,7 @@ public class ChartView implements Observer {
 
         tableView.getColumns().addAll(colorCol, name, periodCol, value, dateCol, note, minCol, maxCol, avgCol, enPICol, sumCol);
 
-        TableColumn[] maxSizeColumns = new TableColumn[]{name};
-
-        tableView.widthProperty().addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> {
-                TableViewUntils.allToMinButColumn(tableView, Arrays.asList(name));
-            });
-
-        });
+        tableView.widthProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> TableViewUntils.allToMinButColumn(tableView, Collections.singletonList(name))));
     }
 
     private TableColumn<TableEntry, Color> buildColorColumn() {
