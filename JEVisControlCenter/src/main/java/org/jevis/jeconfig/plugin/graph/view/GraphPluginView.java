@@ -652,13 +652,12 @@ public class GraphPluginView implements Plugin {
                     dataModel.setCurrentAnalysis(newObject);
                     dataModel.setCharts(chartSettingsList);
                     dataModel.setData(chartDataModels);
-                    toolBarView.getPickerCombo().updateCellFactory();
-
                     dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
                     dataModel.isGlobalAnalysisTimeFrame(true);
                     dataModel.updateSamples();
                     dataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisRequest.getAnalysisTimeFrame());
+                    toolBarView.getPickerCombo().updateCellFactory();
                     dataModel.update();
 
                 }

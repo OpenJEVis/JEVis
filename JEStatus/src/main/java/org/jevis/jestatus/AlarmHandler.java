@@ -102,6 +102,14 @@ public class AlarmHandler {
         sb.append("<br>");
         sb.append("<br>");
 
+        sb.append("<h1>Service Stati</h1>");
+
+        ServiceStati serviceStati = new ServiceStati(_ds);
+        sb.append(serviceStati.getStati());
+
+        sb.append("<br>");
+        sb.append("<br>");
+
         DataServerTable dataServerTable = new DataServerTable(_ds, alarm);
         sb.append(dataServerTable.getTableString());
 
