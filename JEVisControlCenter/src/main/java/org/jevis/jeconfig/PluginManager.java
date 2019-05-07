@@ -171,6 +171,17 @@ public class PluginManager {
                                     JEVisSample value = enabled.getLatestSample();
                                     if (value != null) {
                                         if (value.getValueAsBoolean()) {
+                                            /** Workaround to manage the dashboard access,
+                                             *  hide the dashboard if the user has no analyses.
+                                             */
+                                            if (plugObj.getJEVisClassName().equals(DashBordPlugIn.PLUGIN_NAME)) {
+                                                JEVisClass scadaAnalysis = _ds.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
+                                                List<JEVisObject> allAnalyses = _ds.getObjects(scadaAnalysis, false);
+                                                if (allAnalyses.size() == 0) {
+                                                    continue;
+                                                }
+                                            }
+
                                             enabledPlugins.add(plugin);
                                         }
                                     }
