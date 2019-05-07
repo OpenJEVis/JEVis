@@ -52,6 +52,9 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
+import org.jevis.jeapi.ws.JEVisObjectWS;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -72,10 +75,7 @@ import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.tool.I18n;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -327,7 +327,7 @@ public class GraphPluginView implements Plugin {
                     AnalysisTimeFrame currentTimeframe = dataModel.getGlobalAnalysisTimeFrame();
                     dataModel.setCurrentAnalysis(null);
                     dataModel.setCurrentAnalysis(currentAnalysis);
-                    dataModel.setCharts(null);
+                    dataModel.setCharts(new ArrayList<>());
                     dataModel.updateSelectedData();
 
                     dataModel.setManipulationMode(currentManipulationMode);
@@ -587,8 +587,8 @@ public class GraphPluginView implements Plugin {
                 /**
                  * clear old model
                  */
-                dataModel.setCharts(null);
-                dataModel.setData(null);
+                dataModel.setCharts(new ArrayList<>());
+                dataModel.setData(new HashSet<>());
                 charts.clear();
 
 
@@ -597,7 +597,7 @@ public class GraphPluginView implements Plugin {
                 if (jeVisObject.getJEVisClassName().equals("Analysis")) {
 
                     dataModel.setCurrentAnalysis(analysisRequest.getObject());
-                    dataModel.setCharts(null);
+                    dataModel.setCharts(new ArrayList<>());
                     dataModel.updateSelectedData();
 
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
@@ -644,6 +644,12 @@ public class GraphPluginView implements Plugin {
                     chartSettings.setAnalysisTimeFrame(analysisTimeFrame);
                     List<ChartSettings> chartSettingsList = Collections.singletonList(chartSettings);
 
+                    org.jevis.commons.ws.json.JsonObject newJsonObject = new JsonObject();
+                    newJsonObject.setName("Temp");
+                    newJsonObject.setId(999999999999l);
+                    newJsonObject.setJevisClass("Analysis");
+                    JEVisObjectWS newObject = new JEVisObjectWS((JEVisDataSourceWS) ds, newJsonObject);
+                    dataModel.setCurrentAnalysis(newObject);
                     dataModel.setCharts(chartSettingsList);
                     dataModel.setData(chartDataModels);
                     toolBarView.getPickerCombo().updateCellFactory();
@@ -652,7 +658,8 @@ public class GraphPluginView implements Plugin {
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
                     dataModel.isGlobalAnalysisTimeFrame(true);
                     dataModel.updateSamples();
-                    dataModel.setGlobalAnalysisTimeFrame(analysisRequest.getAnalysisTimeFrame());
+                    dataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisRequest.getAnalysisTimeFrame());
+                    dataModel.update();
 
                 }
 
