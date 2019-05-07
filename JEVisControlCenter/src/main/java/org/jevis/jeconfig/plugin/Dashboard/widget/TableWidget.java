@@ -80,10 +80,11 @@ public class TableWidget extends Widget {
                 }
 
                 if (!results.isEmpty()) {
-                    JEVisSample sample = results.get(results.size() - 1);
+
+
                     tableDatas.add(new TableData(
                             chartDataModel.getObject().getName(),
-                            nf.format(sample.getValueAsDouble()),
+                            nf.format(DataModelDataHandler.getTotal(results)),
                             chartDataModel.getUnitLabel()));
 
 
