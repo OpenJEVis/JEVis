@@ -289,8 +289,7 @@ public class XYChart implements Chart {
              * its not in problem in this function by somewhere else **/
 
             Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get().plus(realPeriod));
-
-            if (period.toStandardSeconds().getSeconds() >= 86400) {
+            if ((timeStampOfLastSample.get().plus(realPeriod)).minus(timeStampOfFirstSample.get().getMillis()).getMillis() >= 86400) {
 
                 Period roundedPeriod = removeWorkdayInterval(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
 
