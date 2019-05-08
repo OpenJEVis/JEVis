@@ -202,6 +202,7 @@ public class CalcJobFactory {
             DateTime ts = null;
             try {
                 if (valueAttribute.hasSample()) {
+                    ds.reloadAttribute(valueAttribute);
                     JEVisSample smp = valueAttribute.getLatestSample();
 
                     if (startTime == null && smp != null) {
@@ -237,6 +238,7 @@ public class CalcJobFactory {
                 targetAttr = obj.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                 JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
+                ds.reloadAttribute(valueAttribute);
                 if (startTimeFromInputs.isBefore(valueAttribute.getTimestampFromFirstSample()))
                     startTimeFromInputs = valueAttribute.getTimestampFromFirstSample();
             } catch (JEVisException e) {
@@ -297,8 +299,10 @@ public class CalcJobFactory {
                         calcJob.setHasProcessedAllInputSamples(true);
                         /**
                          * is this minus really necessary? do tests...
+                         * disabled for  now, concrete testing for aggregated values is needed
                          */
-                        endTime = new DateTime().minus(valueAttribute.getInputSampleRate());
+//                        endTime = new DateTime().minus(valueAttribute.getInputSampleRate());
+                        endTime = new DateTime();
                     } else {
                         calcJob.setHasProcessedAllInputSamples(false);
                         DateTime limitedMaxDate = startTime;

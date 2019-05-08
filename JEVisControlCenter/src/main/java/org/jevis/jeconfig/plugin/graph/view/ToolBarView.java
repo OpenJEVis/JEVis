@@ -121,6 +121,9 @@ public class ToolBarView {
             model.setGlobalAnalysisTimeFrame(model.getGlobalAnalysisTimeFrame());
         }
     };
+    private ToggleButton addSeriesRunningMean;
+    private ImageView pauseIcon;
+    private ImageView playIcon;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.model = model;
@@ -133,201 +136,9 @@ public class ToolBarView {
     public ToolBar getToolbar(JEVisDataSource ds) {
         if (toolBar == null) {
             toolBar = new ToolBar();
-            pickerCombo = new PickerCombo(model, null);
-            presetDateBox = pickerCombo.getPresetDateBox();
-            pickerDateStart = pickerCombo.getStartDatePicker();
-            pickerTimeStart = pickerCombo.getStartTimePicker();
-            pickerDateEnd = pickerCombo.getEndDatePicker();
-            pickerTimeEnd = pickerCombo.getEndTimePicker();
-            pickerCombo.addListener();
-
             toolBar.setId("ObjectPlugin.Toolbar");
 
-            double iconSize = 20;
-            Label labelComboBox = new Label(I18n.getInstance().getString("plugin.graph.toolbar.analyses"));
-
-            listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
-            listAnalysesComboBox.setPrefWidth(300);
-            setCellFactoryForComboBox();
-
-            if (!listAnalysesComboBox.getItems().isEmpty()) {
-
-                dateHelper.setStartTime(model.getWorkdayStart());
-                dateHelper.setEndTime(model.getWorkdayEnd());
-            }
-
-            save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
-            GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
-
-            Tooltip saveTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.save"));
-            save.setTooltip(saveTooltip);
-
-            loadNew = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
-            Tooltip loadNewTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.loadNew"));
-            GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadNew);
-            loadNew.setTooltip(loadNewTooltip);
-
-            exportCSV = new ToggleButton("", JEConfig.getImage("export-csv.png", iconSize, iconSize));
-            Tooltip exportCSVTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportCSV"));
-            exportCSV.setTooltip(exportCSVTooltip);
-            GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportCSV);
-
-            exportImage = new ToggleButton("", JEConfig.getImage("export-image.png", iconSize, iconSize));
-            Tooltip exportImageTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportImage"));
-            exportImage.setTooltip(exportImageTooltip);
-            GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportImage);
-
-            reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
-            Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
-            reload.setTooltip(reloadTooltip);
-            GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
-
-            reload.selectedProperty().addListener((observable, oldValue, newValue) -> graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD));
-
-            ImageView pauseIcon = JEConfig.getImage("pause_32.png", iconSize, iconSize);
-            ImageView playIcon = JEConfig.getImage("play_32.png", iconSize, iconSize);
-
-            runUpdateButton = new ToggleButton("", playIcon);
-            GlobalToolBar.changeBackgroundOnHoverUsingBinding(runUpdateButton);
-
-            continuousUpdate.addListener((observable, oldValue, newValue) -> {
-                if (newValue) {
-                    runUpdateButton.setGraphic(pauseIcon);
-                    setTimer();
-                } else {
-                    runUpdateButton.setGraphic(playIcon);
-                    stopTimer();
-                }
-            });
-
-            runUpdateButton.setOnAction(event -> {
-                continuousUpdate.setValue(!continuousUpdate.get());
-            });
-
-            exportCSV.setOnAction(action -> {
-                GraphExportCSV ge = new GraphExportCSV(ds, model);
-                try {
-                    ge.export();
-                } catch (FileNotFoundException | UnsupportedEncodingException | JEVisException e) {
-                    logger.error("Error: could not export to file.", e);
-                }
-            });
-
-            exportImage.setOnAction(action -> {
-                GraphExportImage ge = new GraphExportImage(model);
-
-                if (ge.getDestinationFile() != null) {
-
-                    ge.export(graphPluginView.getvBox());
-
-                }
-
-            });
-
-            save.setOnAction(action -> {
-                saveCurrentAnalysis();
-            });
-
-            loadNew.setOnAction(event -> {
-                loadNewDialog();
-            });
-
-            delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
-            Tooltip deleteTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.delete"));
-            delete.setTooltip(deleteTooltip);
-            GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
-
-            autoResize = new ToggleButton("", JEConfig.getImage("if_full_screen_61002.png", iconSize, iconSize));
-            Tooltip autoResizeTip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
-            autoResize.setTooltip(autoResizeTip);
-            autoResize.setSelected(true);
-            GlobalToolBar.changeBackgroundOnHoverUsingBinding(autoResize);
-            autoResize.styleProperty().bind(
-                    Bindings
-                            .when(autoResize.hoverProperty())
-                            .then(
-                                    new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
-                            .otherwise(Bindings
-                                    .when(autoResize.selectedProperty())
-                                    .then("-fx-background-insets: 1 1 1;")
-                                    .otherwise(
-                                            new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
-
-
-            Separator sep1 = new Separator();
-            Separator sep2 = new Separator();
-            Separator sep3 = new Separator();
-            Separator sep4 = new Separator();
-            save.setDisable(false);
-            delete.setDisable(false);
-
-            select = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
-            Tooltip selectTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.select"));
-            select.setTooltip(selectTooltip);
-            GlobalToolBar.changeBackgroundOnHoverUsingBinding(select);
-
-            disableIcons = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
-            Tooltip disableIconsTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
-            disableIcons.setTooltip(disableIconsTooltip);
-            disableIcons.setSelected(true);
-            disableIcons.styleProperty().bind(
-                    Bindings
-                            .when(disableIcons.hoverProperty())
-                            .then(
-                                    new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
-                            .otherwise(Bindings
-                                    .when(disableIcons.selectedProperty())
-                                    .then("-fx-background-insets: 1 1 1;")
-                                    .otherwise(
-                                            new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
-
-            ToggleButton addSeriesRunningMean = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
-            Tooltip addSeriesRunningMeanTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
-            addSeriesRunningMean.setTooltip(addSeriesRunningMeanTooltip);
-            addSeriesRunningMean.styleProperty().bind(
-                    Bindings
-                            .when(addSeriesRunningMean.hoverProperty())
-                            .then(
-                                    new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
-                            .otherwise(Bindings
-                                    .when(addSeriesRunningMean.selectedProperty())
-                                    .then("-fx-background-insets: 1 1 1;")
-                                    .otherwise(
-                                            new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
-
-
-            zoomOut = new ToggleButton("", JEConfig.getImage("ZoomOut.png", iconSize, iconSize));
-            Tooltip zoomOutTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.zoomout"));
-            zoomOut.setTooltip(zoomOutTooltip);
-            GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
-
-            zoomOut.setOnAction(event -> resetZoom());
-
-            select.setOnAction(event -> {
-                changeSettings();
-            });
-
-            delete.setOnAction(event -> deleteCurrentAnalysis());
-
-            disableIcons.setOnAction(event -> hideShowIconsInGraph());
-
-            addSeriesRunningMean.setOnAction(event -> addSeriesRunningMean());
-
-            autoResize.setOnAction(event -> autoResizeInGraph());
-
-            /**
-             * addSeriesRunningMean disabled for now
-             */
-            toolBar.getItems().addAll(listAnalysesComboBox,
-                    sep1, presetDateBox, pickerDateStart, pickerDateEnd,
-                    sep2, reload, zoomOut,
-                    sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                    sep4, disableIcons, autoResize, runUpdateButton);
-
-            setDisableToolBarIcons(true);
-            _initialized = true;
-
-            setupAnalysisComboBoxListener();
+            updateLayout();
         }
 
         return toolBar;
@@ -826,9 +637,8 @@ public class ToolBarView {
             if (model.getCurrentAnalysis() != null) {
                 listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
             }
-            setCellFactoryForComboBox();
 
-            setupAnalysisComboBoxListener();
+            setCellFactoryForComboBox();
 
             if (!listAnalysesComboBox.getItems().isEmpty()) {
 
@@ -844,7 +654,8 @@ public class ToolBarView {
             pickerTimeStart = pickerCombo.getStartTimePicker();
             pickerDateEnd = pickerCombo.getEndDatePicker();
             pickerTimeEnd = pickerCombo.getEndTimePicker();
-            pickerCombo.addListener();
+
+            createToolbarIcons();
 
             Separator sep1 = new Separator();
             Separator sep2 = new Separator();
@@ -857,6 +668,177 @@ public class ToolBarView {
                     sep3, loadNew, save, delete, select, exportCSV, exportImage,
                     sep4, disableIcons, autoResize, runUpdateButton);
 
+
+            setupAnalysisComboBoxListener();
+            pickerCombo.addListener();
+            startToolbarIconListener();
+
         });
+    }
+
+    private void startToolbarIconListener() {
+        reload.selectedProperty().addListener((observable, oldValue, newValue) -> graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD));
+
+        continuousUpdate.addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                runUpdateButton.setGraphic(pauseIcon);
+                setTimer();
+            } else {
+                runUpdateButton.setGraphic(playIcon);
+                stopTimer();
+            }
+        });
+
+        runUpdateButton.setOnAction(event -> {
+            continuousUpdate.setValue(!continuousUpdate.get());
+        });
+
+        exportCSV.setOnAction(action -> {
+            GraphExportCSV ge = new GraphExportCSV(ds, model);
+            try {
+                ge.export();
+            } catch (FileNotFoundException | UnsupportedEncodingException | JEVisException e) {
+                logger.error("Error: could not export to file.", e);
+            }
+        });
+
+        exportImage.setOnAction(action -> {
+            GraphExportImage ge = new GraphExportImage(model);
+
+            if (ge.getDestinationFile() != null) {
+
+                ge.export(graphPluginView.getvBox());
+
+            }
+
+        });
+
+        save.setOnAction(action -> {
+            saveCurrentAnalysis();
+        });
+
+        loadNew.setOnAction(event -> {
+            loadNewDialog();
+        });
+
+        zoomOut.setOnAction(event -> resetZoom());
+
+        select.setOnAction(event -> {
+            changeSettings();
+        });
+
+        delete.setOnAction(event -> deleteCurrentAnalysis());
+
+        disableIcons.setOnAction(event -> hideShowIconsInGraph());
+
+        addSeriesRunningMean.setOnAction(event -> addSeriesRunningMean());
+
+        autoResize.setOnAction(event -> autoResizeInGraph());
+    }
+
+    private void createToolbarIcons() {
+        double iconSize = 20;
+
+        save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
+
+        Tooltip saveTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.save"));
+        save.setTooltip(saveTooltip);
+
+        loadNew = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
+        Tooltip loadNewTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.loadNew"));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(loadNew);
+        loadNew.setTooltip(loadNewTooltip);
+
+        exportCSV = new ToggleButton("", JEConfig.getImage("export-csv.png", iconSize, iconSize));
+        Tooltip exportCSVTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportCSV"));
+        exportCSV.setTooltip(exportCSVTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportCSV);
+
+        exportImage = new ToggleButton("", JEConfig.getImage("export-image.png", iconSize, iconSize));
+        Tooltip exportImageTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.exportImage"));
+        exportImage.setTooltip(exportImageTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportImage);
+
+        reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
+        reload.setTooltip(reloadTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
+
+        pauseIcon = JEConfig.getImage("pause_32.png", iconSize, iconSize);
+        playIcon = JEConfig.getImage("play_32.png", iconSize, iconSize);
+
+        runUpdateButton = new ToggleButton("", playIcon);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(runUpdateButton);
+
+        delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
+        Tooltip deleteTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.delete"));
+        delete.setTooltip(deleteTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
+
+        autoResize = new ToggleButton("", JEConfig.getImage("if_full_screen_61002.png", iconSize, iconSize));
+        Tooltip autoResizeTip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
+        autoResize.setTooltip(autoResizeTip);
+        autoResize.setSelected(true);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(autoResize);
+        autoResize.styleProperty().bind(
+                Bindings
+                        .when(autoResize.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(autoResize.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
+        select = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
+        Tooltip selectTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.select"));
+        select.setTooltip(selectTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(select);
+
+        disableIcons = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
+        Tooltip disableIconsTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
+        disableIcons.setTooltip(disableIconsTooltip);
+        disableIcons.setSelected(true);
+        disableIcons.styleProperty().bind(
+                Bindings
+                        .when(disableIcons.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(disableIcons.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
+        addSeriesRunningMean = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
+        Tooltip addSeriesRunningMeanTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
+        addSeriesRunningMean.setTooltip(addSeriesRunningMeanTooltip);
+        addSeriesRunningMean.styleProperty().bind(
+                Bindings
+                        .when(addSeriesRunningMean.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(addSeriesRunningMean.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
+
+        zoomOut = new ToggleButton("", JEConfig.getImage("ZoomOut.png", iconSize, iconSize));
+        Tooltip zoomOutTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.zoomout"));
+        zoomOut.setTooltip(zoomOutTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
+
+        if (!_initialized) {
+            save.setDisable(false);
+            delete.setDisable(false);
+
+            setDisableToolBarIcons(true);
+
+            _initialized = true;
+        }
     }
 }

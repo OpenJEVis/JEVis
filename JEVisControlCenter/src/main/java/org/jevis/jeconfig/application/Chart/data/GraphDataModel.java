@@ -93,9 +93,12 @@ public class GraphDataModel {
         changed.addListener((observable, oldValue, newValue) -> {
             if (newValue != oldValue && newValue) {
                 changed.set(false);
-                selectedData = null;
-                charts = null;
-                getSelectedData();
+
+                if (!getCurrentAnalysis().getName().equals("Temp")) {
+                    selectedData = new HashSet<>();
+                    charts = new ArrayList<>();
+                    getSelectedData();
+                }
                 update();
             }
         });
