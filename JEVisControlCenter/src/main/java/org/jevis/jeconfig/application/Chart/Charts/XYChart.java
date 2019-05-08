@@ -20,6 +20,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
@@ -35,6 +36,7 @@ import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.PeriodFormat;
 
 import javax.measure.unit.Unit;
@@ -72,12 +74,14 @@ public class XYChart implements Chart {
     private AtomicBoolean addManipulationToTitle;
     private AtomicReference<ManipulationMode> manipulationMode;
     private Boolean[] changedBoth;
+    private DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("yyyy-MMM-dd HH:mm");
     private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
         @Override
         public void applySetting(javafx.scene.chart.Chart chart) {
 
         }
     };
+    private WorkDays workDays = new WorkDays(null);
     private ChartPanManager panner;
     private JFXChartUtil jfxChartUtil;
 
@@ -86,6 +90,10 @@ public class XYChart implements Chart {
         this.hideShowIcons = hideShowIcons;
         this.chartName = chartName;
         this.addSeriesOfType = addSeriesOfType;
+        if (!chartDataModels.isEmpty()) {
+            workDays = new WorkDays(chartDataModels.get(0).getObject());
+        }
+
         init();
     }
 
@@ -272,19 +280,55 @@ public class XYChart implements Chart {
             }
         }
 
-        String overall = "-";
+        String overall = "";
         if (changedBoth[0] || changedBoth[1]) {
             /** FS, works for Dashboard but not diagrams. This and the old Solution does not work for diagrams but i guess
              * its not in problem in this function by somewhere else **/
             Period samplePeriod = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
+//            overall = "" + dtfOutLegend.print(timeStampOfFirstSample.get()) + " - " + dtfOutLegend.print(timeStampOfLastSample.get().plus(samplePeriod));
+
+
             Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get().plus(samplePeriod));
-//            Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get());//old
-            period = period.minusSeconds(period.getSeconds());
-            period = period.minusMillis(period.getMillis());
-            overall = period.toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+            System.out.println("++++period: " + period.toStandardSeconds().getSeconds());
+            if (period.toStandardSeconds().getSeconds() > 86400) {
+
+                Period roundedPeriod = removeWorkdayInterval(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
+
+//                DateTime roundedEnd = new DateTime(timeStampOfLastSample.get().getYear(),
+//                        timeStampOfLastSample.get().getMonthOfYear(),
+//                        timeStampOfLastSample.get().getDayOfMonth(),
+//                        timeStampOfLastSample.get().getHourOfDay(), 0, 0, 0);
+//                Period roundedPeriod = new Period(timeStampOfFirstSample.get(), roundedEnd);
+                overall += " " + roundedPeriod.toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+            } else {
+                overall += " " + (new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get().plus(samplePeriod)).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
+            }
+
+
+//            Period samplePeriod = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
+//            System.out.println("------------ Chart legend: First: " + timeStampOfFirstSample.get() + "  Last: " + timeStampOfLastSample.get().plus(samplePeriod));
+//            Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get().plus(samplePeriod));
+//
+//            Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get();
+//
+////            Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get());//old
+//            period = period.minusSeconds(period.getSeconds());
+//            period = period.minusMillis(period.getMillis());
+//            overall = period.toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
         }
 
         dateAxis.setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
+    }
+
+    private Period removeWorkdayInterval(DateTime workStart, DateTime workEnd) {
+        if (workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd())) {
+            workStart = workStart.plusDays(1);
+        }
+
+        workStart = workStart.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+        DateTime workEnd2 = workEnd.plusDays(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+
+        return new Period(workStart, workEnd2);
     }
 
     @Override
@@ -449,6 +493,7 @@ public class XYChart implements Chart {
                 e.printStackTrace();
             }
         }
+        System.out.println("timeStampOfLastSample: " + timeStampOfLastSample.get());
     }
 
     String getUpdatedChartName() {
