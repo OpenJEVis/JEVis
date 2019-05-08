@@ -61,9 +61,15 @@ public class CalcInputObject {
     public void buildSamplesFromInputType(JEVisAttribute valueAttribute, CalcInputType inputType, DateTime startTime, DateTime endTime) {
 
         List<JEVisSample> returnSamples = new ArrayList<>();
+        try {
+            valueAttribute.getDataSource().reloadAttribute(valueAttribute);
+        } catch (JEVisException e) {
+            logger.error("Could not reload attribute. ", e);
+        }
         switch (inputType) {
             case PERIODIC:
                 //todo try to make it better for incomplete periods (aggregation)
+
                 returnSamples = valueAttribute.getSamples(startTime, endTime);
                 break;
             case STATIC:
@@ -85,6 +91,11 @@ public class CalcInputObject {
     public void buildSamplesFromInputType(JEVisAttribute valueAttribute, CalcInputType inputType, DateTime startTime, DateTime endTime, AggregationPeriod aggregationPeriod) {
 
         List<JEVisSample> returnSamples = new ArrayList<>();
+        try {
+            valueAttribute.getDataSource().reloadAttribute(valueAttribute);
+        } catch (JEVisException e) {
+            logger.error("Could not reload attribute. ", e);
+        }
         switch (inputType) {
             case PERIODIC:
                 SampleGenerator sampleGenerator = null;
@@ -118,6 +129,11 @@ public class CalcInputObject {
     public void buildSamplesFromInputType(JEVisAttribute valueAttribute, CalcInputType inputType, DateTime startTime, DateTime endTime, Boolean absolute) {
 
         List<JEVisSample> returnSamples = new ArrayList<>();
+        try {
+            valueAttribute.getDataSource().reloadAttribute(valueAttribute);
+        } catch (JEVisException e) {
+            logger.error("Could not reload attribute. ", e);
+        }
         switch (inputType) {
             case PERIODIC:
                 SampleGenerator sampleGenerator = null;
