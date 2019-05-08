@@ -302,6 +302,7 @@ public class LoadAnalysisDialog {
         mathBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
                 graphDataModel.setManipulationMode(newValue);
+                graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
                 updateGridLayout();
             }
         });
@@ -309,6 +310,9 @@ public class LoadAnalysisDialog {
         aggregationBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
                 graphDataModel.setAggregationPeriod(newValue);
+                if (newValue.equals(AggregationPeriod.NONE)) {
+                    graphDataModel.setManipulationMode(ManipulationMode.TOTAL);
+                }
                 updateGridLayout();
             }
         });
