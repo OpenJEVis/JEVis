@@ -69,9 +69,15 @@ public class SampleEditor {
     private BooleanProperty disableEditing = new SimpleBooleanProperty(false);
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
-    private DateTime _from;
-    private DateTime _until;
+
+    private JFXDatePicker startDate = new JFXDatePicker();
+    private JFXDatePicker endDate = new JFXDatePicker();
+    private int lastDataSettings = 0;
+
+    //    private DateTime _from;
+//    private DateTime _until;
     private boolean initial = true;
+    private SampleEditorExtension activExtensions;
 
     /**
      * @param owner
@@ -121,8 +127,7 @@ public class SampleEditor {
 
         Label startLabel = new Label(I18n.getInstance().getString("attribute.editor.from"));
 
-        JFXDatePicker startDate = new JFXDatePicker();
-        JFXDatePicker endDate = new JFXDatePicker();
+
         startDate.setMaxWidth(120);
         endDate.setMaxWidth(120);
 
@@ -130,11 +135,11 @@ public class SampleEditor {
         Label endLabel = new Label(I18n.getInstance().getString("attribute.editor.until"));
         if (attribute.hasSample()) {
             try {
-                _from = attribute.getTimestampFromLastSample().minusDays(1);
-                _until = attribute.getTimestampFromLastSample();
+                DateTime from = attribute.getTimestampFromLastSample().minusDays(1);
+                DateTime until = attribute.getTimestampFromLastSample();
 
-                startDate.valueProperty().set(LocalDate.of(_from.getYear(), _from.getMonthOfYear(), _from.getDayOfMonth()));
-                endDate.valueProperty().set(LocalDate.of(_until.getYear(), _until.getMonthOfYear(), _until.getDayOfMonth()));
+                startDate.valueProperty().set(LocalDate.of(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth()));
+                endDate.valueProperty().set(LocalDate.of(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth()));
 
                 WorkDays wd = new WorkDays(attribute.getObject());
                 if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
@@ -167,8 +172,10 @@ public class SampleEditor {
         HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(cancel, Priority.NEVER);
 
-
-        extensions.add(new SampleTableExtension(attribute, stage));
+        SampleTableExtension sampleGraphExtension = new SampleTableExtension(attribute, stage);
+        extensions.add(sampleGraphExtension);
+        activExtensions = sampleGraphExtension;
+        /** graph makes only if the data are numbers **/
         try {
             if (attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.LONG || attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE) {
                 extensions.add(new SampleGraphExtension(attribute));
@@ -221,19 +228,31 @@ public class SampleEditor {
         tabPane.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
             for (SampleEditorExtension ex : extensions) {
                 if (ex.getTitel().equals(t1.getText())) {
+                    System.out.println("Tab chaned: " + ex.getClass());
+                    activExtensions = ex;
                     ex.update();
                 }
             }
         });
 
 
+        if (attribute.hasSample()) {
+            DateTime lastSample = attribute.getTimestampFromLastSample();
+            endDate.setValue(LocalDate.of(lastSample.getYear(), lastSample.getMonthOfYear(), lastSample.getDayOfMonth()));
+            DateTime startDateTMP = lastSample.minusDays(1);
+            startDate.setValue(LocalDate.of(startDateTMP.getYear(), startDateTMP.getMonthOfYear(), startDateTMP.getDayOfMonth()));
+        }
+
+
         startDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            _from = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 0, 0);
-            updateSamples(_from, _until);
+//            _from = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 0, 0);
+//            updateSamples(startDate, _until);
+            updateSamples(startDate, endDate);
         });
         endDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            _until = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 23, 59, 59, 999);
-            updateSamples(_from, _until);
+//            _until = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 23, 59, 59, 999);
+//            updateSamples(_from, _until);
+            updateSamples(startDate, endDate);
         });
 
         cancel.setOnAction(t -> {
@@ -247,7 +266,7 @@ public class SampleEditor {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                updateSamples(_from, _until);
+                updateSamples(startDate, endDate);
             }
         });
 
@@ -289,11 +308,11 @@ public class SampleEditor {
             try {
                 if (newValue.equals("None")) {
                     disableEditing.setValue(true);
-                    update();
+                    updateSamples(startDate, endDate);
                 } else {
                     for (JEVisObject configObject : _dataProcessors) {
                         if (configObject.getName().equals(newValue)) {
-                            update();
+                            updateSamples(startDate, endDate);
                         }
                     }
                 }
@@ -344,7 +363,7 @@ public class SampleEditor {
                         _period = AggregationPeriod.YEARLY;
                         break;
                 }
-                update();
+                updateSamples(startDate, endDate);
             }
         });
 
@@ -373,6 +392,16 @@ public class SampleEditor {
         return grid;
     }
 
+    private void updateSamples(JFXDatePicker startDate, JFXDatePicker endDate) {
+
+        updateSamples(new DateTime(startDate.getValue().getYear(), startDate.getValue().getMonth().getValue(), startDate.getValue().getDayOfMonth(), 0, 0)
+                , new DateTime(endDate.getValue().getYear(), endDate.getValue().getMonth().getValue(), endDate.getValue().getDayOfMonth(), 23, 59, 59, 999));
+    }
+
+    private int getLastDataSettings(final DateTime from, final DateTime until, AggregationPeriod period) {
+        return (int) from.hashCode() * until.hashCode() * period.hashCode();
+    }
+
     /**
      * @param from
      * @param until
@@ -381,48 +410,51 @@ public class SampleEditor {
 
         try {
 
-            if (!initial) {
-                _from = new DateTime(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth(),
+            if (lastDataSettings != getLastDataSettings(from, until, _period)) {
+                DateTime _from = new DateTime(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth(),
                         workdayStart.getHour(), workdayStart.getMinute(), workdayStart.getSecond(), workdayStart.getNano());
-                _until = new DateTime(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth(),
+                DateTime _until = new DateTime(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth(),
                         workdayEnd.getHour(), workdayEnd.getMinute(), workdayEnd.getSecond(), workdayEnd.getNano() / 1000000);
 
                 if (workdayStart.isAfter(workdayEnd)) {
                     _from = _from.minusDays(1);
                 }
-            } else {
-                initial = false;
+
+
+                SampleGenerator sg;
+                if (_period.equals(AggregationPeriod.NONE))
+                    sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, ManipulationMode.NONE, _period);
+                else
+                    sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, ManipulationMode.TOTAL, _period);
+
+                samples = sg.generateSamples();
+                samples = sg.getAggregatedSamples(samples);
+
+                for (SampleEditorExtension extension : extensions) {
+                    Platform.runLater(() -> {
+                        try {
+                            extension.setSamples(_attribute, samples);
+//                        extension.update();
+                        } catch (Exception excp) {
+                            logger.error(extension);
+                        }
+                    });
+
+                }
             }
 
-            SampleGenerator sg;
-            if (_period.equals(AggregationPeriod.NONE))
-                sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, ManipulationMode.NONE, _period);
-            else
-                sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, ManipulationMode.TOTAL, _period);
-
-            samples = sg.generateSamples();
-            samples = sg.getAggregatedSamples(samples);
-
-            for (SampleEditorExtension extension : extensions) {
-                Platform.runLater(() -> {
-                    try {
-                        extension.setSamples(_attribute, samples);
-                        extension.update();
-                    } catch (Exception excp) {
-                        logger.error(extension);
-                    }
-                });
-
+            if (activExtensions != null) {
+                activExtensions.update();
             }
+
+            lastDataSettings = getLastDataSettings(from, until, _period);
 
         } catch (Exception ex) {
             logger.error(ex);
+            ex.printStackTrace();
         }
     }
 
-    private void update() {
-        updateSamples(_from, _until);
-    }
 
     public enum Response {
 
