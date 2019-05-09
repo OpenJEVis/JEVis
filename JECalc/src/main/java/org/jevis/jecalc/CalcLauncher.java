@@ -95,7 +95,6 @@ public class CalcLauncher extends AbstractCliApp {
                         CalcJob calcJob;
                         CalcJobFactory calcJobCreator = new CalcJobFactory();
                         do {
-                            ds.clearCache();
                             calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
                             calcJob.execute();
                         } while (!calcJob.hasProcessedAllInputSamples());
@@ -176,7 +175,6 @@ public class CalcLauncher extends AbstractCliApp {
                 CalcJob calcJob;
                 CalcJobFactory calcJobCreator = new CalcJobFactory();
                 do {
-                    ds.clearCache();
                     calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, calcObject);
                     calcJob.execute();
                 } while (!calcJob.hasProcessedAllInputSamples());

@@ -20,7 +20,6 @@
  */
 package org.jevis.jeconfig.dialog;
 
-import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.beans.property.SimpleStringProperty;
@@ -30,6 +29,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -54,6 +54,7 @@ import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
+import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -280,6 +281,9 @@ public class ChartSelectionDialog {
     private Tab createChartTab(ChartSettings cset) {
         Tab newTab = new Tab(cset.getId().toString());
         newTab.setClosable(false);
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(7);
@@ -309,12 +313,17 @@ public class ChartSelectionDialog {
         final Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
         final Label presetDateBoxLabel = new Label(I18n.getInstance().getString("plugin.graph.analysis.label.standard"));
 
-        HBox hbox = new HBox();
+        FlowPane flowPane = new FlowPane();
+        flowPane.setPadding(new Insets(4, 4, 4, 4));
         for (ChartDataModel model : correspondingDataModels) {
-            VBox vBox = new VBox();
+            GridPane gp = new GridPane();
+            gp.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
+            gp.setHgap(4);
+            gp.setVgap(4);
+            gp.setPadding(new Insets(4, 0, 4, 0));
             final Label modelLabel = new Label(model.getObject().getName());
-            final Label isEnPILabel = new Label("is EnPI");
-            final Label calculationLabel = new Label("Calculation");
+            final Label isEnPILabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.usecalc"));
+            final Label calculationLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.calculation"));
 
             SimpleStringProperty targetProperty = new SimpleStringProperty();
 
@@ -322,17 +331,23 @@ public class ChartSelectionDialog {
                 targetProperty.set(model.getCalculationObject().getID().toString());
             }
 
-            final JFXCheckBox isEnPI = new JFXCheckBox();
+            final ToggleSwitchPlus isEnPI = new ToggleSwitchPlus();
             isEnPI.selectedProperty().setValue(model.getEnPI());
             isEnPI.selectedProperty().addListener((observable, oldValue, newValue) -> model.setEnPI(isEnPI.isSelected()));
             HBox targetSelector = getTargetSelector(targetProperty.get(), model);
 
-            HBox enpi = new HBox();
-            enpi.getChildren().addAll(isEnPILabel, isEnPI);
-            HBox target = new HBox();
-            target.getChildren().addAll(calculationLabel, targetSelector);
-            vBox.getChildren().addAll(modelLabel, enpi, target);
-            hbox.getChildren().add(vBox);
+            int row = 0;
+            gp.add(modelLabel, 0, row);
+            row++;
+
+            gp.add(isEnPILabel, 0, row);
+            gp.add(isEnPI, 1, row);
+            row++;
+
+            gp.add(calculationLabel, 0, row);
+            gp.add(targetSelector, 1, row);
+
+            flowPane.getChildren().add(gp);
         }
 
 
@@ -359,10 +374,11 @@ public class ChartSelectionDialog {
         gridPane.add(presetDateBox, 1, row);
         row++;
 
-        gridPane.add(hbox, 0, row, 3, 2);
+        gridPane.add(flowPane, 0, row, 3, 2);
 
 
-        newTab.setContent(gridPane);
+        scrollPane.setContent(gridPane);
+        newTab.setContent(scrollPane);
 
         return newTab;
     }

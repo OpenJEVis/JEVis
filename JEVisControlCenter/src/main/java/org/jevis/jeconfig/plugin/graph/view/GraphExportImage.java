@@ -1,9 +1,12 @@
 package org.jevis.jeconfig.plugin.graph.view;
 
+import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,11 +52,21 @@ public class GraphExportImage {
         }
     }
 
-    public void export(BorderPane border) throws IOException {
+    public void export(VBox vBox) {
 
-        WritableImage image = border.snapshot(new SnapshotParameters(), null);
+        SnapshotParameters snapshotParameters = new SnapshotParameters();
+        snapshotParameters.setTransform(new Scale(2, 2));
+        snapshotParameters.setFill(Color.WHITESMOKE);
 
-        ImageIO.write(SwingFXUtils.fromFXImage(image, null), formatName, destinationFile);
+        Platform.runLater(() -> {
+            WritableImage image = vBox.snapshot(snapshotParameters, null);
+
+            try {
+                ImageIO.write(SwingFXUtils.fromFXImage(image, null), formatName, destinationFile);
+            } catch (IOException e) {
+                logger.error("Error: could not export to file.", e);
+            }
+        });
     }
 
     private void setDates() {
@@ -63,5 +76,9 @@ public class GraphExportImage {
             if (minDate == null || startNow.isBefore(minDate)) minDate = startNow;
             if (maxDate == null || endNow.isAfter(maxDate)) maxDate = endNow;
         }
+    }
+
+    public File getDestinationFile() {
+        return destinationFile;
     }
 }
