@@ -350,7 +350,8 @@ public class SampleTable {
                 ps.setTimestamp(i, new Timestamp(until.getMillis()));
             }
 
-            logger.trace("SQL: {}", ps);
+            logger.debug("SQL: {}", ps);
+            ps.execute();
             _connection.getAttributeTable().updateMinMaxTS(object, att);
             return true;
         } catch (SQLException ex) {
