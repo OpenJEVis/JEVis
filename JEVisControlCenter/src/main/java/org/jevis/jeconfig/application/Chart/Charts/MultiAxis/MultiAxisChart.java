@@ -1,6 +1,12 @@
 package org.jevis.jeconfig.application.Chart.Charts.MultiAxis;
 
 import com.sun.javafx.collections.NonIterableChange;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
+import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.beans.binding.StringBinding;
@@ -19,6 +25,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.util.Duration;
+import org.jevis.jeconfig.dialog.HiddenConfig;
 
 import java.util.*;
 
@@ -629,13 +636,98 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
     private void dataItemsChanged(MultiAxisChart.Series<X, Y> series, List<Data<X, Y>> removed, int addedFrom,
                                   int addedTo, boolean permutation) {
-        for (Data<X, Y> item : removed) {
-            dataItemRemoved(item, series);
+        if (HiddenConfig.CHART_PRECESSION_ON && series.getDataSize() > HiddenConfig.CHART_PRECESSION_LIMIT) {
+            /**
+             * This experimental code will use the "Duglas Peucker Algorithm" to improve drawing performance.
+             * Enable via HiddenConfig editor STRG+H
+             */
+
+            System.out.println("Drawing-Optimization UI-Nodes before : " + series.getDataSize());
+            List<Data<X, Y>> newData = new ArrayList<>();
+            Map<Coordinate, Data<X, Y>> map = new HashMap<>();
+            for (int i = addedFrom; i < addedTo; i++) {
+                Data<X, Y> item = series.getData().get(i);
+                newData.add(item);
+            }
+
+            Coordinate[] coordinates = new Coordinate[newData.size()];
+            for (int i = 0; i < newData.size(); i++) {
+                Double xValue = null;
+                Double yValue = null;
+                if (newData.get(i).currentX.getValue() instanceof Long) {
+                    xValue = ((Long) newData.get(i).currentX.getValue()).doubleValue();
+                } else if (newData.get(i).currentX.getValue() instanceof Double) {
+                    xValue = (Double) newData.get(i).currentX.getValue();
+                }
+
+
+                if (newData.get(i).currentY.getValue() instanceof Long) {
+                    yValue = ((Long) newData.get(i).currentY.getValue()).doubleValue();
+                } else if (newData.get(i).currentY.getValue() instanceof Double) {
+                    yValue = (Double) newData.get(i).currentY.getValue();
+                }
+
+                if (xValue != null && yValue != null) {
+                    coordinates[i] = new Coordinate(xValue, yValue);
+                    map.put(coordinates[i], newData.get(i));
+                }
+            }
+
+            GeometryFactory gf = new GeometryFactory();
+            Geometry geom = new LineString(new CoordinateArraySequence(coordinates), gf);
+            Geometry simplified = DouglasPeuckerSimplifier.simplify(geom, HiddenConfig.CHART_PRECESSION);//0.00001)
+            List<MultiAxisChart.Data<X, Y>> update = new ArrayList<>();
+
+            for (Coordinate each : simplified.getCoordinates()) {
+                if (map.containsKey(each)) {
+                    update.add(map.get(each));
+                }
+            }
+            System.out.println("Drawing-Optimization UI-Nodes after Duglas Peucker : " + update.size());
+
+            for (int i = 0; i < coordinates.length; i++) {
+                boolean isIn = false;
+                for (Coordinate each : simplified.getCoordinates()) {
+                    if (each.equals(coordinates[i])) {
+                        isIn = true;
+                        break;
+                    }
+                }
+                if (!isIn) {
+                    Data<X, Y> item = map.get(coordinates[i]);
+                    item.setNode(null);
+                    item.setExtraValue(null);
+//                item.setXValue(null);
+//                item.setYValue(null);
+                }
+
+            }
+            map = null;
+            gf = null;
+            coordinates = null;
+
+            System.out.println("Drawing-Optimization - start adding Nodes to chart ");
+
+
+            for (int i = 0; i < update.size(); i++) {
+                Data<X, Y> item = update.get(i);
+                dataItemAdded(series, i, item);
+            }
+            System.out.println("Drawing-Optimization - Done");
+
+        } else {
+
+            /**
+             * Original code
+             */
+
+            for (int i = addedFrom; i < addedTo; i++) {
+                Data<X, Y> item = series.getData().get(i);
+                dataItemAdded(series, i, item);
+            }
+
         }
-        for (int i = addedFrom; i < addedTo; i++) {
-            Data<X, Y> item = series.getData().get(i);
-            dataItemAdded(series, i, item);
-        }
+
         invalidateRange();
         requestChartLayout();
     }

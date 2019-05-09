@@ -125,10 +125,11 @@ public class XYChartSerie {
                 logger.error(ex);
             }
         }
+
+
         Platform.runLater(() -> {
             serie.getData().setAll(dataList);
         });
-
 
         QuantityUnits qu = new QuantityUnits();
         boolean isQuantity = qu.isQuantityUnit(unit);
@@ -207,6 +208,7 @@ public class XYChartSerie {
             }
         }
     }
+
 
     public void setDataNodeColor(MultiAxisChart.Data<Number, Number> data) {
         if (data.getNode() != null) {

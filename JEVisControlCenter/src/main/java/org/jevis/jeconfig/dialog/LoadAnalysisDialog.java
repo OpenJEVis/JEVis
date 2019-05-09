@@ -338,7 +338,6 @@ public class LoadAnalysisDialog {
 
             stage.close();
             stage = null;
-
         });
 
         newButton.setOnAction(event -> {

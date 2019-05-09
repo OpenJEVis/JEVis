@@ -1,13 +1,16 @@
 package org.jevis.jeconfig.plugin.Dashboard;
 
+import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Bounds;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
+import javafx.scene.layout.FlowPane;
+import javafx.stage.*;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,8 +24,6 @@ import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.jevis.jeconfig.plugin.Dashboard.timeframe.ToolBarIntervalSelector;
-import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
-import org.jevis.jeconfig.plugin.Dashboard.wizzard.Wizard;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -33,7 +34,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.jevis.jeconfig.application.Chart.data.GraphDataModel.BUILDING_CLASS_NAME;
 import static org.jevis.jeconfig.application.Chart.data.GraphDataModel.ORGANIZATION_CLASS_NAME;
@@ -168,16 +168,6 @@ public class DashBoardToolbar extends ToolBar {
     }
 
     public void updateToolbar(final DashBordModel analyses) {
-        Label analysisLabel = new Label(I18n.getInstance().getString("plugin.scada.analysis"));
-
-        try {
-            if (analyses != null) {
-//                listAnalysesComboBox.getSelectionModel().select(analyses.getAnalysisObject());
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
 
         ToggleButton settingsButton = new ToggleButton("", JEConfig.getImage("Service Manager.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(settingsButton);
@@ -298,17 +288,39 @@ public class DashBoardToolbar extends ToolBar {
 
 
         newWidgetButton.setOnAction(event -> {
-            Wizard wizzard = new Wizard(JEConfig.getDataSource());
-            Optional<Widget> newWidget = wizzard.show(null);
 
-            if (newWidget.isPresent()) {
-                dashBordPlugIn.addWidget(newWidget.get().getConfig());
-            }
+            PopupWindow popupWindow = new Popup();
+            popupWindow.show(newWidgetButton, 0, 50);
+
+            Stage newWidget = new Stage();
+            newWidget.initStyle(StageStyle.UNDECORATED);
+            FlowPane flowPane = new FlowPane();
+            flowPane.getChildren().addAll(new JFXButton("Test"), new JFXButton("blub"));
+            Scene newScene = new Scene(flowPane);
+
+            Bounds boundsInScreen = this.localToScene(this.getBoundsInLocal());
+            System.out.println("Bounds: " + boundsInScreen);
+
+            System.out.println("B1: " + newWidgetButton.getBoundsInLocal());
+            System.out.println("B2: " + newWidgetButton.getBoundsInParent());
+            System.out.println("B3: " + newWidgetButton.layoutBoundsProperty().get());
+//            boundsInScreen = newWidget.setScene(newScene);
+            newWidget.setAlwaysOnTop(true);
+            newWidget.initOwner(JEConfig.getStage());
+            newWidget.setX(boundsInScreen.getMaxX());
+            newWidget.setY(boundsInScreen.getMaxY());
+            newWidget.show();
+
+//            Wizard wizzard = new Wizard(JEConfig.getDataSource());
+//            Optional<Widget> newWidget = wizzard.show(null);
+//
+//            if (newWidget.isPresent()) {
+//                dashBordPlugIn.addWidget(newWidget.get().getConfig());
+//            }
 
         });
 
         backgroundButton.setOnAction(event -> {
-
 
             FileChooser fileChooser = new FileChooser();
             fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Pictures", "*.png", "*.gif", "*.jpg", "*.bmp"));

@@ -50,6 +50,7 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
 import org.jevis.jeconfig.application.login.FXLogin;
 import org.jevis.jeconfig.application.statusbar.Statusbar;
+import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
@@ -301,6 +302,16 @@ public class JEConfig extends Application {
             }
         }
 
+//        BigDecimalField ttt = new
+//                System.out.println("Test: " + Pattern.compile("[0-9].*").matcher("5638.").matches());
+//        Locale fmtLocale = Locale.getDefault(Category.FORMAT);
+//        NumberFormat formatter = NumberFormat.getInstance(fmtLocale);
+//        formatter.setMaximumFractionDigits(2);
+//        formatter.setMinimumFractionDigits(2);
+//        System.out.println(formatter.format(d1));
+//        System.out.println(formatter.format(d2));
+//        System.out.println(fmtLocale.toLanguageTag());
+
         final AnchorPane jeconfigRoot = new AnchorPane();
 
         Scene scene = new Scene(jeconfigRoot);
@@ -366,12 +377,15 @@ public class JEConfig extends Application {
 
                 final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
                 final KeyCombination reloadF5 = new KeyCodeCombination(KeyCode.F5);
+                final KeyCombination hiddenSettings = new KeyCodeCombination(KeyCode.H, KeyCombination.CONTROL_DOWN);
                 scene.setOnKeyPressed(ke -> {
                     if (saveCombo.match(ke)) {
                         pluginManager.getToolbar().requestFocus();//the most attribute will validate if the lose focus so we do
                         pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.SAVE);
                     } else if (reloadF5.match(ke)) {
                         pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.RELOAD);
+                    } else if (hiddenSettings.match(ke)) {
+                        HiddenConfig.showHiddenConfig();
                     }
                 });
 

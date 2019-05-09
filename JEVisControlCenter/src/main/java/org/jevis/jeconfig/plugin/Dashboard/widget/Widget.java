@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -8,6 +9,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import jfxtras.labs.util.event.MouseControlUtil;
@@ -99,7 +101,7 @@ public abstract class Widget extends Group {
 
         windowHeader.getChildren().addAll(configButton, deleteButton);
         windowHeader.setBackground(new Background(new BackgroundFill(Color.GREY, new CornerRadii(0), new Insets(0, 0, 0, 0))));
-//        windowHeader.setOpacity(0.5);
+
         editPane.setBackground(new Background(new BackgroundFill(Color.GREY, new CornerRadii(0), new Insets(0, 0, 0, 0))));
         editPane.setOpacity(0.5);
         config.size.addListener((observable, oldValue, newValue) -> {
@@ -109,6 +111,16 @@ public abstract class Widget extends Group {
 
         editPane.getChildren().addAll(windowHeader);
 
+        EventHandler<MouseEvent> openConfigEvent = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if (event.getClickCount() == 2) {
+                    openConfig();
+                }
+            }
+        };
+        windowHeader.setOnMouseClicked(openConfigEvent);
+        editPane.setOnMouseClicked(openConfigEvent);
 
         this.getChildren().add(editPane);
     }

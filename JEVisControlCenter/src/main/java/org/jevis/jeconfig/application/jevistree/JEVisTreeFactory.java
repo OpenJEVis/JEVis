@@ -153,7 +153,7 @@ public class JEVisTreeFactory {
         return tree;
     }
 
-    public static JEVisTree buildDefaultWidgetTree(JEVisDataSource ds) {
+    public static JEVisTree buildDefaultWidgetTree(JEVisDataSource ds, WidgetTreePlugin plugin) {
         TreeTableColumn<JEVisTreeRow, String> nameCol = ColumnFactory.buildName();
         nameCol.setPrefWidth(500);
         nameCol.setMinWidth(250);
@@ -166,19 +166,24 @@ public class JEVisTreeFactory {
         cellFilter.addFilter(WidgetTreePlugin.COLUMN, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_SELECTED, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_COLOR, dataFilter);
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_MANIPULATION, dataFilter);
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_AGGREGATION, dataFilter);
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_CLEANING, dataFilter);
+
 
         JEVisTree tree = new JEVisTree(ds, cellFilter);
 
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
         allFilter.add(cellFilter);
 
-        WidgetTreePlugin widgetTreePlugin = new WidgetTreePlugin();
+//        WidgetTreePlugin widgetTreePlugin = new WidgetTreePlugin();
         tree.getColumns().addAll(nameCol);
-        tree.getPlugins().add(widgetTreePlugin);
+        tree.getPlugins().add(plugin);
 
         Finder finder = new Finder(tree);
         SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder);
         tree.setSearchFilterBar(searchBar);
+
 
         return tree;
     }
