@@ -26,8 +26,6 @@ public class JEVisItemLoader {
     private static final Logger logger = LogManager.getLogger(JEVisItemLoader.class);
     private final JEVisTree jeVisTree;
     private final List<JEVisObject> roots;
-    //    private final List<JEVisTreeItem> treeObjectItems = Collections.synchronizedList(new ArrayList<>());
-//    private final List<JEVisTreeItem> treeAttributeItems = Collections.synchronizedList(new ArrayList<>());
     private final ConcurrentHashMap<JEVisObject, JEVisTreeItem> itemObjectLinker = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, JEVisTreeItem> itemAttributeLinker = new ConcurrentHashMap<>();
 
@@ -113,15 +111,11 @@ public class JEVisItemLoader {
 //                logger.debug("Create item for object: {}", object.getName());
                 JEVisTreeItem item = new JEVisTreeItem(object);
                 registerEventHandler(object);
-//                treeObjectItems.add(item);
                 itemObjectLinker.put(object, item);
                 for (JEVisAttribute attribute : object.getAttributes()) {
                     try {
-//                        logger.error("Create item for attribute: {}", attribute.getName());
                         JEVisTreeItem attributeItem = new JEVisTreeItem(attribute);
-//                        treeAttributeItems.add(attributeItem);
                         itemAttributeLinker.put(attributeKey(attribute), attributeItem);
-//                        System.out.println("#### " + attributeKey(attribute) + " " + attribute);
                     } catch (Exception aex) {
                         logger.error("Error while loading type {}", attribute.getName(), aex);
                     }
@@ -130,28 +124,6 @@ public class JEVisItemLoader {
                 logger.error("Error while loading object {}", object.getID(), ex);
             }
         });
-//        for (JEVisObject object : objects) {
-//            try {
-////                logger.error("Create item for object: {}", object.getName());
-//                JEVisTreeItem item = new JEVisTreeItem(jeVisTree, object);
-//                registerEventHandler(object);
-//                treeObjectItems.add(item);
-//                itemObjectLinker.put(object, item);
-//                for (JEVisAttribute attribute : object.getAttributes()) {
-//                    try {
-////                        logger.error("Create item for attribute: {}", attribute.getName());
-//                        JEVisTreeItem attributeItem = new JEVisTreeItem(jeVisTree, attribute);
-//                        treeAttributeItems.add(attributeItem);
-//                        itemAttributeLinker.put(attributeKey(attribute), attributeItem);
-////                        System.out.println("#### " + attributeKey(attribute) + " " + attribute);
-//                    } catch (Exception aex) {
-//                        logger.error("Error while loading type {}", attribute.getName(), aex);
-//                    }
-//                }
-//            } catch (Exception ex) {
-//                logger.error("Error while loading object {}", object.getID(), ex);
-//            }
-//        }
     }
 
     private String attributeKey(JEVisAttribute attribute) {
@@ -280,6 +252,14 @@ public class JEVisItemLoader {
             }
         });
 //        benchmark.printBenchmarkDetail("build children");
+
+
+        Comparator<TreeItem<JEVisTreeRow>> comparator = JEVisTreeItem.getComparator();
+        itemObjectLinker.forEach((object, jeVisTreeItem) -> {
+            if (!jeVisTreeItem.getChildren().isEmpty()) {
+                jeVisTreeItem.getChildren().sort(comparator);
+            }
+        });
 
 
         /** create an fake rootItem and add the root objects ad children if visible **/
