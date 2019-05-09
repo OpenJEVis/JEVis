@@ -47,7 +47,7 @@ public class ValidatedTextField extends JFXTextField {
     private boolean validate(String text) {
         try {
 //            /** backspace is ok **/
-            if (text.isEmpty()) {
+            if (text.isEmpty() || validator == null) {
                 return true;
             }
             System.out.println("Validate: '" + text + "'");

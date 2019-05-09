@@ -6,12 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,17 +17,11 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.jeconfig.application.jevistree.Finder;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
-import org.jevis.jeconfig.application.jevistree.SearchFilterBar;
-import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
-import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.Dashboard.config.DataModelNode;
-import org.jevis.jeconfig.plugin.Dashboard.wizzard.Page;
 import org.jevis.jeconfig.tool.I18n;
-import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -65,7 +54,7 @@ public class DataModelDataHandler {
             DataModelNode dataModelNode = mapper.treeToValue(configNode, DataModelNode.class);
             this.dataModelNode = dataModelNode;
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error(ex);
         }
 
         dataModelNode.getData().forEach(dataPointNode -> {
@@ -96,9 +85,6 @@ public class DataModelDataHandler {
                         chartDataModel.setAggregationPeriod(dataPointNode.getAggregationPeriod());
 
 
-//                        chartDataModel.setManipulationMode(ManipulationMode.TOTAL);
-//                        chartDataModel.setAggregationPeriod(AggregationPeriod.HOURLY);
-
                         if (dataPointNode.getColor() != null) {
                             chartDataModel.setColor(dataPointNode.getColor());
                         } else {
@@ -111,7 +97,6 @@ public class DataModelDataHandler {
 
                         attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
 
-//                        logger.info("Is Enpi: {}, calcID: {}", dataPointNode.isEnpi(), dataPointNode.getCalculationID());
                         if (dataPointNode.isEnpi()) {
                             chartDataModel.setEnPI(dataPointNode.isEnpi());
                             chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
@@ -142,7 +127,7 @@ public class DataModelDataHandler {
      *
      * @param enable
      */
-    public void setAutoAggrigation(boolean enable) {
+    public void setAutoAggregation(boolean enable) {
         autoAggregation = enable;
     }
 
@@ -154,10 +139,11 @@ public class DataModelDataHandler {
     public Tab getConfigTab() {
         Tab tab = new Tab(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
 
+        WidgetTreePlugin widgetTreePlugin = new WidgetTreePlugin();
 
-        JEVisTree tree = JEVisTreeFactory.buildDefaultWidgetTree(jeVisDataSource);
-
+        JEVisTree tree = JEVisTreeFactory.buildDefaultWidgetTree(jeVisDataSource, widgetTreePlugin);
         tab.setContent(tree);
+        widgetTreePlugin.setUserSelection(dataModelNode.getData());
 
 
         return tab;
@@ -211,6 +197,7 @@ public class DataModelDataHandler {
         dataHandlerNode.set("data", dataArrayNode);
         dataHandlerNode.set("type", JsonNodeFactory.instance.textNode(TYPE));
 
+
         return dataArrayNode;
 
     }
@@ -224,13 +211,14 @@ public class DataModelDataHandler {
     }
 
     public void update() {
-//        logger.error("Update Samples: {} -> {}", uuid.toString(), durationProperty.getValue());
+        logger.error("Update Samples: {}", durationProperty.getValue());
 //        logger.error("AttributeMap: {}", attributeMap.size());
 
         chartDataModels.forEach(chartDataModel -> {
 
             chartDataModel.setSelectedStart(durationProperty.getValue().getStart());
             chartDataModel.setSelectedEnd(durationProperty.getValue().getEnd());
+
         });
 
         lastUpdate.setValue(new DateTime());
@@ -245,59 +233,6 @@ public class DataModelDataHandler {
         return unitProperty;
     }
 
-    public void setUserSelectionDone() {
-//        System.out.println("Selection Done");
-//        simpleTargetPlugin.getUserSelection()s.forEach(userSelection -> {
-//            System.out.println("Userselect: " + userSelection.getSelectedObject() + "  att: " + userSelection.getSelectedAttribute());
-//            String key = generateValueKey(userSelection.getSelectedAttribute());
-//            valueMap.put(key, new ArrayList<>());
-//            attributeMap.put(key, userSelection.getSelectedAttribute());
-//        });
-    }
-
-    public Page getPage() {
-        AnchorPane anchorPane = new AnchorPane();
-
-
-        JEVisTree tree = JEVisTreeFactory.buildBasicDefault(jeVisDataSource, false);
-        tree.getPlugins().add(simpleTargetPlugin);
-        tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        simpleTargetPlugin.setAllowMultiSelection(enableMultiSelect.getValue());
-        simpleTargetPlugin.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
-
-        ObservableList<JEVisTreeFilter> filterTypes = FXCollections.observableArrayList();
-        filterTypes.setAll(SelectTargetDialog.buildAllAttributesFilter());
-
-        Finder finder = new Finder(tree);
-        SearchFilterBar searchBar = new SearchFilterBar(tree, filterTypes, finder);
-
-        enableMultiSelect.addListener((observable, oldValue, newValue) -> {
-            simpleTargetPlugin.setAllowMultiSelection(newValue);
-
-        });
-
-        anchorPane.getChildren().addAll(tree, searchBar);
-        Layouts.setAnchor(tree, 1.0);
-        AnchorPane.setBottomAnchor(tree, 40.0);
-        AnchorPane.setLeftAnchor(searchBar, 1.0);
-        AnchorPane.setBottomAnchor(searchBar, 1.0);
-        AnchorPane.setRightAnchor(searchBar, 1.0);
-
-
-        Page page = new Page() {
-            @Override
-            public Node getNode() {
-                return anchorPane;
-            }
-
-            @Override
-            public boolean isSkipable() {
-                return false;
-            }
-        };
-
-        return page;
-    }
 
     public static Double getTotal(List<JEVisSample> samples) {
         Double total = 0d;

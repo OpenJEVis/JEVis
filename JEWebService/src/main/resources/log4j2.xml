@@ -8,7 +8,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="org.jevis.api.sql" level="error" additivity="false">
+        <Logger name="org.jevis.api.sql" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Logger name="org.jevis.jeconfig.application" level="error" additivity="false">

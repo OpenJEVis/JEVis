@@ -63,7 +63,7 @@ public class ObjectAttributeFilter {
     }
 
     public boolean showCell(JEVisTreeRow row) throws JEVisException {
-        if (row.getType() == null) {
+        if (row == null || row.getType() == null) {
             return false;
         }
 

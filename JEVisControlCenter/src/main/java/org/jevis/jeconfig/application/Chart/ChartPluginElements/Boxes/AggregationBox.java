@@ -12,8 +12,8 @@ import org.jevis.jeconfig.tool.I18n;
 
 public class AggregationBox extends ComboBox<AggregationPeriod> {
 
-    public AggregationBox(GraphDataModel graphDataModel, ChartDataModel data) {
 
+    public AggregationBox(AggregationPeriod period) {
         final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
         final String keyHourly = I18n.getInstance().getString("plugin.graph.interval.hourly");
         final String keyDaily = I18n.getInstance().getString("plugin.graph.interval.daily");
@@ -67,8 +67,11 @@ public class AggregationBox extends ComboBox<AggregationPeriod> {
         setCellFactory(cellFactory);
         setButtonCell(cellFactory.call(null));
 
-        getSelectionModel().select(graphDataModel.getAggregationPeriod());
+        getSelectionModel().select(period);
+    }
 
+    public AggregationBox(GraphDataModel graphDataModel, ChartDataModel data) {
+        this(graphDataModel.getAggregationPeriod());
     }
 
 }

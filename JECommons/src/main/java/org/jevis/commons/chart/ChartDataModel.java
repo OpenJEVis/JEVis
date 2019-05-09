@@ -93,7 +93,6 @@ public class ChartDataModel {
 
             if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                 try {
-
                     if (!isEnPI || aggregationPeriod.equals(AggregationPeriod.NONE)) {
                         SampleGenerator sg;
                         if (aggregationPeriod.equals(AggregationPeriod.NONE))
@@ -112,7 +111,6 @@ public class ChartDataModel {
                                 selectedStart, selectedEnd, aggregationPeriod);
                         samples = calcJob.getResults();
                     }
-
 
                     /**
                      * Checking for data inconsistencies

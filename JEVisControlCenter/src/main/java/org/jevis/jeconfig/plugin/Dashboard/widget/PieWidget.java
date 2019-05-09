@@ -19,6 +19,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfigEditor;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
 
@@ -52,7 +53,7 @@ public class PieWidget extends Widget {
     public void update(Interval interval) {
         logger.debug("Pie.Update: {}", interval);
 
-        sampleHandler.setAutoAggrigation(true);
+        sampleHandler.setAutoAggregation(true);
 
         sampleHandler.setInterval(interval);
         sampleHandler.update();
@@ -201,11 +202,11 @@ public class PieWidget extends Widget {
 
     @Override
     public void openConfig() {
-//        WidgetConfigEditor widgetConfigEditor = new WidgetConfigEditor(config);
-//
-//        widgetConfigEditor.addTab(sampleHandler.getConfigTab());
-//
-//        widgetConfigEditor.show();
+        WidgetConfigEditor widgetConfigEditor = new WidgetConfigEditor(config);
+
+        widgetConfigEditor.addTab(sampleHandler.getConfigTab());
+
+        widgetConfigEditor.show();
 
     }
 
