@@ -81,7 +81,6 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
 
                     /** if they are objects **/
                     if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
-                        System.out.println("is obj");
                         boolean o1isDir = DirectoryHelper.getInstance(row1.getJEVisObject().getDataSource()).getDirectoryNames().contains(row1.getJEVisObject().getJEVisClassName());
                         boolean o2isDir = DirectoryHelper.getInstance(row1.getJEVisObject().getDataSource()).getDirectoryNames().contains(row2.getJEVisObject().getJEVisClassName());
 
