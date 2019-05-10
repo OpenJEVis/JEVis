@@ -76,12 +76,12 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
             try {
                 JEVisTreeRow row1 = o1.getValue();
                 JEVisTreeRow row2 = o2.getValue();
+                
 
                 if (row1.getType() == row2.getType()) {
 
                     /** if they are objects **/
                     if (o1.getValue().getType() == JEVisTreeRow.TYPE.OBJECT) {
-                        System.out.println("is obj");
                         boolean o1isDir = DirectoryHelper.getInstance(row1.getJEVisObject().getDataSource()).getDirectoryNames().contains(row1.getJEVisObject().getJEVisClassName());
                         boolean o2isDir = DirectoryHelper.getInstance(row1.getJEVisObject().getDataSource()).getDirectoryNames().contains(row2.getJEVisObject().getJEVisClassName());
 

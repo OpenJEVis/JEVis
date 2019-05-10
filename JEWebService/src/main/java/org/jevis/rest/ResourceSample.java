@@ -389,6 +389,7 @@ public class ResourceSample {
             @DefaultValue("false") @QueryParam("onlyLatest") boolean onlyLatest) {
 
         try {
+            logger.debug("Delete Sample: {}:{} from:{} to:{}", id, attribute, start, end);
             ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject object = ds.getObject(id);

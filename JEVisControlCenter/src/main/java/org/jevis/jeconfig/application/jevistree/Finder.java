@@ -45,15 +45,28 @@ public class Finder {
     private void showObject(JEVisObject obj) {
         Platform.runLater(() -> {
             try {
-                System.out.println("showFind: " + selected);
-                tree.openPathToObject(selected);
+                System.out.println("showFind: " + obj);
+                tree.openPathToObject(obj);
 
                 JEVisTreeItem item = tree.getItemForObject(obj);
                 if (item != null) {
+                    tree.getSelectionModel().clearSelection();
+                    tree.getSelectionModel().clearAndSelect(tree.getRow(item));
 
-                    tree.getSelectionModel().select(item);
-                    int selected = tree.getSelectionModel().getSelectedIndex();
-                    tree.scrollTo(selected);
+//                    tree.getRow(item);
+                    tree.getSelectionModel().focus(tree.getRow(item));
+                    tree.scrollTo(tree.getRow(item));
+
+
+//                    tree.getSelectionModel().select(item);
+
+
+//                    tree.getSelectionModel().select(item);
+
+//                    System.out.println("Selected item: " + tree.getSelectionModel().getSelectedItem().toString());
+//                    int selected = tree.getSelectionModel().getSelectedIndex();
+//                    System.out.println("Index: " + selected);
+//                    tree.scrollTo(selected);
                 }
 
 //                tree.getSelectionModel().select(selected);
@@ -108,6 +121,7 @@ public class Finder {
             }
         }
 
+//        System.out.println("Results: " + result.size() + " : " + Arrays.toString(result.toArray()));
         //TODO: order in the same order as the tree
         objects.clear();
         if (!result.isEmpty()) {

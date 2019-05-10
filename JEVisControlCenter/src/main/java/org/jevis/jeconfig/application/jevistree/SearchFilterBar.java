@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -65,18 +66,29 @@ public class SearchFilterBar extends HBox {
             if (newValue.equals(oldValue) || newValue.length() < 4) {
                 return;
             }
+            filter(tree, newValue, originalBackground);
 
-            if (!newValue.isEmpty() && newValue.length() > 0) {
-                if (finder.findMatch(newValue)) {
-                    searchField.getEditor().setBackground(originalBackground);
-                } else {
-                    searchField.getEditor().setBackground(new Background(new BackgroundFill(Color.ORANGERED, new CornerRadii(2), new Insets(2))));
-                }
-            } else {
-                searchField.getEditor().setBackground(originalBackground);
-                tree.getHighlighterList().clear();
+
+//            if (!newValue.isEmpty() && newValue.length() > 0) {
+//                if (finder.findMatch(newValue)) {
+//                    searchField.getEditor().setBackground(originalBackground);
+//                } else {
+//                    searchField.getEditor().setBackground(new Background(new BackgroundFill(Color.ORANGERED, new CornerRadii(2), new Insets(2))));
+//                }
+//            } else {
+//                searchField.getEditor().setBackground(originalBackground);
+//                tree.getHighlighterList().clear();
+//            }
+        });
+
+
+        searchField.getEditor().setOnKeyReleased(event -> {
+            System.out.println("key typed: " + event.getCode());
+            if (event.getCode() == KeyCode.ENTER) {
+                filter(tree, searchField.getEditor().getText(), originalBackground);
             }
         });
+
         SpinnerValueFactory<String> spinnerFactory = new SpinnerValueFactory<String>() {
             @Override
             public void decrement(int steps) {
@@ -104,6 +116,15 @@ public class SearchFilterBar extends HBox {
 //            }
 
 //        });
+
+    }
+
+    private void filter(JEVisTree tree, String newValue, Background originalBackground) {
+        if (finder.findMatch(newValue)) {
+            searchField.getEditor().setBackground(originalBackground);
+        } else {
+            searchField.getEditor().setBackground(new Background(new BackgroundFill(Color.ORANGERED, new CornerRadii(2), new Insets(2))));
+        }
 
     }
 

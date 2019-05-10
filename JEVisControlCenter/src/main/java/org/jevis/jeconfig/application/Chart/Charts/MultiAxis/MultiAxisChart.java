@@ -699,7 +699,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 if (!isIn) {
                     Data<X, Y> item = map.get(coordinates[i]);
                     item.setNode(null);
-                    item.setExtraValue(null);
+//                    item.setExtraValue(null);
 //                item.setXValue(null);
 //                item.setYValue(null);
                 }
