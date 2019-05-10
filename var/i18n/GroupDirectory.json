@@ -1,9 +1,9 @@
 {
   "jevisclass": "Group Directory",
   "names": {
-    "de": "Gruppenverzeichnis",
+    "de": "Gruppen",
     "ru": "Group Directory",
-    "en": "Group Directory"
+    "en": "Groups"
   },
   "descriptions": {
     "de": "In einem Gruppenverzeichnis werden die Zugriffsrechte von Benutzergruppen verwaltet.",

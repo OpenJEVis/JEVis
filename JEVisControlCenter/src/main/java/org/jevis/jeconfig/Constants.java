@@ -68,6 +68,8 @@ public interface Constants {
         String GROUP_DIRECTORY = "Group Directory";
         String USER = "Users";
         String ORGANIZATION = "Organization";
+        String BUILDING = "Building";
+        String MONITORED_OBJECT = "Monitored Object";
         String SYSTEM = "System";
         String ADMINISTRATION_DIRECTORY = "Administration Directory";
 

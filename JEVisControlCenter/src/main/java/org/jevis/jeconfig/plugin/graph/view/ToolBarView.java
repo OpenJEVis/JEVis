@@ -208,8 +208,9 @@ public class ToolBarView {
                     @Override
                     protected void updateItem(JEVisObject obj, boolean empty) {
                         super.updateItem(obj, empty);
-                        if (empty || obj == null || obj.getName() == null) {
-                            setText("");
+                        if (obj == null || empty) {
+                            setGraphic(null);
+                            setText(null);
                         } else {
                             String prefix = "";
                             try {
@@ -342,11 +343,23 @@ public class ToolBarView {
                                     if (firstParent.getJEVisClass().equals(buildingClass)) {
 
                                         try {
-                                            JEVisObject organisationParent = firstParent.getParents().get(0).getParents().get(0);
+                                            List<JEVisObject> parents = firstParent.getParents();
+                                            if (!parents.isEmpty()) {
+                                                List<JEVisObject> parentsParents = parents.get(0).getParents();
+                                                if (!parentsParents.isEmpty()) {
+                                                    JEVisObject organisationParent = parentsParents.get(0);
 
-                                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
+                                                    if (organisationParent.getJEVisClass().equals(organisationClass)) {
 
-                                                prefix += organisationParent.getName() + " / " + firstParent.getName();
+                                                        prefix += organisationParent.getName() + " / " + firstParent.getName();
+                                                    } else {
+                                                        prefix += firstParent.getName();
+                                                    }
+                                                } else {
+                                                    prefix += firstParent.getName();
+                                                }
+                                            } else {
+                                                prefix += firstParent.getName();
                                             }
                                         } catch (JEVisException e) {
                                             logger.error("Could not get Organization parent of " + firstParent.getName() + ":" + firstParent.getID());
@@ -634,11 +647,12 @@ public class ToolBarView {
 
             listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
             listAnalysesComboBox.setPrefWidth(300);
+
+            setCellFactoryForComboBox();
+
             if (model.getCurrentAnalysis() != null) {
                 listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
             }
-
-            setCellFactoryForComboBox();
 
             if (!listAnalysesComboBox.getItems().isEmpty()) {
 

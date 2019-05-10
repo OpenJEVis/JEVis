@@ -403,9 +403,9 @@ public class GraphPluginView implements Plugin {
             sp.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
             sp.setFitToWidth(true);
             sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
             for (ChartView cv : charts) {
-                final Integer index = charts.indexOf(cv);
                 if (cv.getChartType().equals(ChartType.LOGICAL)) {
                     autoMinSize = autoMinSizeLogical;
                 } else {
@@ -417,7 +417,7 @@ public class GraphPluginView implements Plugin {
 
                 bp.setMinHeight(autoMinSize);
 
-                bp.setMaxWidth(border.getMaxWidth());
+                bp.setMaxWidth(sp.getMaxWidth());
 
                 if (!cv.getChartType().equals(ChartType.LOGICAL) || cv.getFirstLogical()) {
                     for (ChartSettings cset : dataModel.getCharts()) {
@@ -656,7 +656,7 @@ public class GraphPluginView implements Plugin {
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
                     dataModel.isGlobalAnalysisTimeFrame(true);
                     dataModel.updateSamples();
-                    dataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisRequest.getAnalysisTimeFrame());
+                    dataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisTimeFrame);
                     toolBarView.getPickerCombo().updateCellFactory();
                     dataModel.update();
 

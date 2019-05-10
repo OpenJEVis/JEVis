@@ -15,6 +15,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -61,6 +62,7 @@ public class ChartView implements Observer {
     private TableColumn<TableEntry, String> periodCol;
     private TableColumn<TableEntry, String> dateCol;
     private TableColumn<TableEntry, String> noteCol;
+    private TableViewContextMenuHelper contextMenuHelper;
 
     public ChartView(GraphDataModel dataModel) {
         this.dataModel = dataModel;
@@ -86,8 +88,8 @@ public class ChartView implements Observer {
                         "-fx-background-insets: -1.4,0,1;" +
                         "}");
         tableView.getStylesheets().add
-                (ChartView.class.getResource("/styles/ScrolllesTable.css").toExternalForm());
-        tableView.sortPolicyProperty().set(param -> {
+                (ChartView.class.getResource("/styles/TableViewNoScrollbar.css").toExternalForm());
+        tableView.setSortPolicy(param -> {
             Comparator<TableEntry> comparator = (t1, t2) -> getAlphanumComparator().compare(t1.getName(), t2.getName());
             FXCollections.sort(getTableView().getItems(), comparator);
             return true;
@@ -95,23 +97,24 @@ public class ChartView implements Observer {
 
         tableView.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 
-        /** Disabled because of out ScrolllesTable.css
-         *
+        /** Disabled because of out TableViewNoScrollbar.css
+
+         /**
          * Table Column 0
+         */
+        colorCol = buildColorColumn();
+        colorCol.setSortable(false);
+        colorCol.setPrefWidth(25);
+        colorCol.setMinWidth(25);
+
+        /**
+         * Table Column 1
          */
         nameCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
         nameCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
         nameCol.setSortable(false);
         nameCol.setPrefWidth(500);
         nameCol.setMinWidth(100);
-
-        /**
-         * Table Column 1
-         */
-        colorCol = buildColorColumn();
-        colorCol.setSortable(false);
-        colorCol.setPrefWidth(25);
-        colorCol.setMinWidth(25);
 
         /**
          * Table Column 2
@@ -212,6 +215,7 @@ public class ChartView implements Observer {
 
         tableView.getColumns().addAll(colorCol, nameCol, periodCol, value, dateCol, noteCol, minCol, maxCol, avgCol, enPICol, sumCol);
         tableView.setTableMenuButtonVisible(true);
+        contextMenuHelper = new TableViewContextMenuHelper(tableView);
 
         tableView.widthProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(this::updateColumnCaptionWidths);
@@ -227,6 +231,13 @@ public class ChartView implements Observer {
     public void updateColumnCaptionWidths() {
         TableViewUtils.allToMin(tableView);
         TableViewUtils.growColumns(tableView, Collections.singletonList(nameCol));
+        if (contextMenuHelper.getTableHeaderRow() != null) {
+            contextMenuHelper.getTableHeaderRow().setOnMouseClicked(event -> {
+                if (event.getButton() == MouseButton.SECONDARY) {
+                    contextMenuHelper.showContextMenu();
+                }
+            });
+        }
     }
 
     private TableColumn<TableEntry, Color> buildColorColumn() {
