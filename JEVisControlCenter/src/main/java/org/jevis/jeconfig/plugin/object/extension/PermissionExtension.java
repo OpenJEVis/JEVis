@@ -432,7 +432,7 @@ public class PermissionExtension implements ObjectEditorExtension {
             public ListCell<JEVisObject> call(ListView<JEVisObject> p) {
                 return new ListCell<JEVisObject>() {
                     {
-                        super.setPrefWidth(300);
+                        super.setPrefWidth(600);
                     }
 
                     @Override
