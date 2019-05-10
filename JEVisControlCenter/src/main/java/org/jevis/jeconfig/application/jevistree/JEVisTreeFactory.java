@@ -22,6 +22,7 @@ package org.jevis.jeconfig.application.jevistree;
 
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeSortMode;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -118,7 +119,7 @@ public class JEVisTreeFactory {
 
     public static JEVisTree buildBasicDefault(JEVisDataSource ds, JEVisTreeFilter filter, boolean withMinMaxTSColumn) {
 
-        TreeTableColumn<JEVisTreeRow, String> nameCol = ColumnFactory.buildName();
+        TreeTableColumn<JEVisTreeRow, JEVisTreeRow> nameCol = ColumnFactory.buildName();
         TreeTableColumn<JEVisTreeRow, Long> idCol = ColumnFactory.buildID();
         TreeTableColumn<JEVisTreeRow, String> minTS = null;
         TreeTableColumn<JEVisTreeRow, String> maxTS = null;
@@ -142,8 +143,11 @@ public class JEVisTreeFactory {
 //        FilterFactory.addDefaultObjectTreeFilter(cellFilter, nameCol);
 //        FilterFactory.addDefaultObjectTreeFilter(cellFilter, idCol);
         JEVisTree tree = new JEVisTree(ds, filter);
-
         tree.getColumns().addAll(nameCol, idCol);
+        tree.getSortOrder().addAll(nameCol);
+        tree.setSortMode(TreeSortMode.ALL_DESCENDANTS);
+
+
         if (withMinMaxTSColumn) {
             tree.getColumns().addAll(minTS, maxTS);
         }
@@ -153,8 +157,8 @@ public class JEVisTreeFactory {
         return tree;
     }
 
-    public static JEVisTree buildDefaultWidgetTree(JEVisDataSource ds) {
-        TreeTableColumn<JEVisTreeRow, String> nameCol = ColumnFactory.buildName();
+    public static JEVisTree buildDefaultWidgetTree(JEVisDataSource ds, WidgetTreePlugin plugin) {
+        TreeTableColumn<JEVisTreeRow, JEVisTreeRow> nameCol = ColumnFactory.buildName();
         nameCol.setPrefWidth(500);
         nameCol.setMinWidth(250);
 
@@ -166,19 +170,25 @@ public class JEVisTreeFactory {
         cellFilter.addFilter(WidgetTreePlugin.COLUMN, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_SELECTED, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_COLOR, dataFilter);
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_MANIPULATION, dataFilter);
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_AGGREGATION, dataFilter);
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_CLEANING, dataFilter);
+
 
         JEVisTree tree = new JEVisTree(ds, cellFilter);
 
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
         allFilter.add(cellFilter);
 
-        WidgetTreePlugin widgetTreePlugin = new WidgetTreePlugin();
+//        WidgetTreePlugin widgetTreePlugin = new WidgetTreePlugin();
         tree.getColumns().addAll(nameCol);
-        tree.getPlugins().add(widgetTreePlugin);
+        tree.getSortOrder().addAll(nameCol);
+        tree.getPlugins().add(plugin);
 
         Finder finder = new Finder(tree);
         SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder);
         tree.setSearchFilterBar(searchBar);
+
 
         return tree;
     }
@@ -186,7 +196,7 @@ public class JEVisTreeFactory {
 
     public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds, GraphDataModel graphDataModel) {
 
-        TreeTableColumn<JEVisTreeRow, String> nameCol = ColumnFactory.buildName();
+        TreeTableColumn<JEVisTreeRow, JEVisTreeRow> nameCol = ColumnFactory.buildName();
         nameCol.setPrefWidth(500);
         nameCol.setMinWidth(250);
 //        TreeTableColumn<JEVisTreeRow, Long> idCol = ColumnFactory.buildID();
@@ -223,6 +233,7 @@ public class JEVisTreeFactory {
         TreePlugin bp = new ChartPluginTree(graphDataModel);
         //((ChartPluginTree) bp).setData(graphDataModel);
         tree.getColumns().addAll(nameCol);
+        tree.getSortOrder().addAll(nameCol);
 //                , idCol, minTS, maxTS);
         tree.getPlugins().add(bp);
 //        addGraphKeys(tree);

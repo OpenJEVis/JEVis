@@ -41,6 +41,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.jevistree.filter.DirectoryHelper;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -61,48 +62,90 @@ public class ColumnFactory {
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:MM");
     private static final Image ATTRIBUTE_ICON = ResourceLoader.getImage("graphic-design.png");
     private static final Map<String, Image> classIconCache = new HashMap<>();
+    private static AlphanumComparator alphanumComparator = new AlphanumComparator();
 
-    public static TreeTableColumn<JEVisTreeRow, String> buildName() {
-        TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn<>(OBJECT_NAME);
+    public static TreeTableColumn<JEVisTreeRow, JEVisTreeRow> buildName() {
+        TreeTableColumn<JEVisTreeRow, JEVisTreeRow> column = new TreeTableColumn<>(OBJECT_NAME);
         column.setId(OBJECT_NAME);
         column.setPrefWidth(460);
-        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<JEVisTreeRow, String> p) -> {
+        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<JEVisTreeRow, JEVisTreeRow> p) -> {
             try {
                 if (p != null && p.getValue() != null && p.getValue().getValue() != null && p.getValue().getValue().getJEVisObject() != null) {
                     TreeItem<JEVisTreeRow> item = p.getValue();
                     JEVisTreeRow selectionObject = item.getValue();
 
-                    if (selectionObject.getType() == JEVisTreeRow.TYPE.OBJECT) {
-                        JEVisObject obj = selectionObject.getJEVisObject();
-                        return new ReadOnlyObjectWrapper<String>(obj.getName());
-                    } else if (selectionObject.getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
-                        JEVisAttribute att = selectionObject.getJEVisAttribute();
-                        return new ReadOnlyObjectWrapper<String>(att.getName());
-                    } else {
-                        return new ReadOnlyObjectWrapper<String>("");
-                    }
+                    return new ReadOnlyObjectWrapper<JEVisTreeRow>(selectionObject);
+
                 } else {
-                    return new ReadOnlyObjectWrapper<String>("Null");
+                    return new ReadOnlyObjectWrapper<JEVisTreeRow>();
                 }
 
             } catch (Exception ex) {
                 logger.debug("Error in Column Factory: " + ex);
-                return new ReadOnlyObjectWrapper<String>("Error");
+                return new ReadOnlyObjectWrapper<JEVisTreeRow>();
             }
 
         });
 
+        column.setComparator((row1, row2) -> {
+            try {
+                if (row1.getType() == row2.getType()) {
+
+                    /** if they are objects **/
+                    if (row1.getType() == JEVisTreeRow.TYPE.OBJECT) {
+                        boolean o1isDir = DirectoryHelper.getInstance(row1.getJEVisObject().getDataSource()).getDirectoryNames().contains(row1.getJEVisObject().getJEVisClassName());
+                        boolean o2isDir = DirectoryHelper.getInstance(row1.getJEVisObject().getDataSource()).getDirectoryNames().contains(row2.getJEVisObject().getJEVisClassName());
+
+                        /** Check if one of this is an directory, if it will be first **/
+                        if (o1isDir && !o2isDir) {
+                            return -1;
+                        } else if (!o1isDir && o2isDir) {
+                            return 1;
+                        }
+
+                        /** Sort by Classname **/
+                        int className = row1.getJEVisObject().getJEVisClassName().compareTo(row2.getJEVisObject().getJEVisClassName());
+                        if (className == 0) {
+                            /** if same class sort by name **/
+                            return alphanumComparator.compare(row1.getJEVisObject().getName(), row2.getJEVisObject().getName());
+//                                    return row1.getJEVisObject().getName().compareTo(row2.getJEVisObject().getName());
+                        } else {
+                            return className;
+                        }
+
+
+                    } else if (row1.getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
+                        /** attributes are sorted by name **/
+                        return alphanumComparator.compare(row1.getJEVisAttribute().getName(), row2.getJEVisAttribute().getName());
+//                                return row1.getJEVisAttribute().getName().compareTo(row2.getJEVisAttribute().getName());
+                    }
+
+
+                } else {/** one is object the other attribute, Object before attribute **/
+                    if (row1.getType() == JEVisTreeRow.TYPE.OBJECT) {
+                        return -1;
+                    } else {
+                        return 1;
+                    }
+                }
+            } catch (Exception ex) {
+                logger.warn(ex);
+            }
+            return 0;
+        });
+
+
         final JEVisTreeContextMenu contextMenu = new JEVisTreeContextMenu();
 
-        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, String>, TreeTableCell<JEVisTreeRow, String>>() {
+        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, JEVisTreeRow>, TreeTableCell<JEVisTreeRow, JEVisTreeRow>>() {
 
                                   @Override
-                                  public TreeTableCell<JEVisTreeRow, String> call(TreeTableColumn<JEVisTreeRow, String> param) {
+                                  public TreeTableCell<JEVisTreeRow, JEVisTreeRow> call(TreeTableColumn<JEVisTreeRow, JEVisTreeRow> param) {
 
-                                      return new TreeTableCell<JEVisTreeRow, String>() {
+                                      return new TreeTableCell<JEVisTreeRow, JEVisTreeRow>() {
 
                                           @Override
-                                          public void commitEdit(String newValue) {
+                                          public void commitEdit(JEVisTreeRow newValue) {
                                               super.commitEdit(newValue);
                                           }
 
@@ -128,7 +171,7 @@ public class ColumnFactory {
                                           }
 
                                           @Override
-                                          protected void updateItem(String item, boolean empty) {
+                                          protected void updateItem(JEVisTreeRow item, boolean empty) {
                                               super.updateItem(item, empty);
                                               setText(null);
                                               setGraphic(null);
@@ -141,7 +184,8 @@ public class ColumnFactory {
 
                                                   try {
 
-                                                      JEVisTreeRow jeVisTreeRow = getTreeTableRow().getItem();
+//                                                      JEVisTreeRow jeVisTreeRow = getTreeTableRow().getItem();
+                                                      JEVisTreeRow jeVisTreeRow = item;
                                                       JEVisObject jeVisObject = jeVisTreeRow.getJEVisObject();
 
                                                       HBox hbox = new HBox();

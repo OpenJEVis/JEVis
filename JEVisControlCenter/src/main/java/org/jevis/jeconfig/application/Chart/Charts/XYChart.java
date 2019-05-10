@@ -74,7 +74,7 @@ public class XYChart implements Chart {
     private AtomicBoolean addManipulationToTitle;
     private AtomicReference<ManipulationMode> manipulationMode;
     private Boolean[] changedBoth;
-    private DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("yyyy-MMM-dd HH:mm");
+    private DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
     private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
         @Override
         public void applySetting(javafx.scene.chart.Chart chart) {
@@ -288,15 +288,19 @@ public class XYChart implements Chart {
             /** FS, works for Dashboard but not diagrams. This and the old Solution does not work for diagrams but i guess
              * its not in problem in this function by somewhere else **/
 
-            Period period = new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get().plus(realPeriod));
-            if ((timeStampOfLastSample.get().plus(realPeriod)).minus(timeStampOfFirstSample.get().getMillis()).getMillis() >= 86400) {
+            overall = String.format("%s %s %s",
+                    dtfOutLegend.print(timeStampOfFirstSample.get()),
+                    I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
+                    dtfOutLegend.print(timeStampOfLastSample.get()));
 
-                Period roundedPeriod = removeWorkdayInterval(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
-
-                overall += " " + roundedPeriod.toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
-            } else {
-                overall += " " + (new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get().plus(realPeriod)).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
-            }
+//            if ((timeStampOfLastSample.get().plus(realPeriod)).minus(timeStampOfFirstSample.get().getMillis()).getMillis() >= 86400) {
+//
+//                Period roundedPeriod = removeWorkdayInterval(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
+//
+//                overall += " " + roundedPeriod.toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+//            } else {
+//                overall += " " + (new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get().plus(realPeriod)).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
+//            }
 
 
         }
@@ -478,7 +482,6 @@ public class XYChart implements Chart {
                 e.printStackTrace();
             }
         }
-        System.out.println("timeStampOfLastSample: " + timeStampOfLastSample.get());
     }
 
     String getUpdatedChartName() {

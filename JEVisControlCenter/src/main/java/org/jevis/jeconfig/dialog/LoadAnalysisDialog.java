@@ -62,6 +62,7 @@ public class LoadAnalysisDialog {
     private ComboBox<String> comboBoxCustomPeriods;
     private Button loadButton;
     private Button newButton;
+    private CheckBox drawOptimization;
 
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data) {
         this.graphDataModel = data;
@@ -342,7 +343,6 @@ public class LoadAnalysisDialog {
 
             stage.close();
             stage = null;
-
         });
 
         newButton.setOnAction(event -> {
@@ -351,6 +351,10 @@ public class LoadAnalysisDialog {
             stage.close();
             stage = null;
 
+        });
+
+        drawOptimization.setOnAction(event -> {
+            HiddenConfig.CHART_PRECESSION_ON = drawOptimization.isSelected();
         });
     }
 
@@ -605,6 +609,8 @@ public class LoadAnalysisDialog {
             Region spacer = new Region();
             loadButton = new Button(I18n.getInstance().getString("plugin.graph.analysis.load"));
             newButton = new Button(I18n.getInstance().getString("plugin.graph.analysis.new"));
+            drawOptimization = new CheckBox(I18n.getInstance().getString("plugin.graph.analysis.drawopt"));
+            drawOptimization.setSelected(HiddenConfig.CHART_PRECESSION_ON);
 
             loadButton.setDefaultButton(true);
 
@@ -613,8 +619,9 @@ public class LoadAnalysisDialog {
             HBox.setHgrow(spacer, Priority.ALWAYS);
             HBox.setMargin(loadButton, new Insets(10));
             HBox.setMargin(newButton, new Insets(10));
+            HBox.setMargin(drawOptimization, new Insets(10));
 
-            buttonBox.getChildren().setAll(spacer, loadButton, newButton);
+            buttonBox.getChildren().setAll(drawOptimization, spacer, loadButton, newButton);
             VBox root = new VBox();
             Separator sep = new Separator(Orientation.HORIZONTAL);
 

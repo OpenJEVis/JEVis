@@ -155,19 +155,22 @@ public class JEVisObjectWS implements JEVisObject {
 //            getChildren();
 //        }
         for (JEVisObject obj : getChildren()) {
-            //TODO: also get inherit
+            try {
 
-            JEVisClass oClass = obj.getJEVisClass();
-            if (oClass != null && oClass.equals(jclass)) {
-                filterLIst.add(obj);
-            } else {
-                Set<JEVisClass> inheritanceClasses = getInheritanceClasses(new HashSet<JEVisClass>(), Objects.requireNonNull(obj.getJEVisClass()));
-                for (JEVisClass curClass : inheritanceClasses) {
-                    if (curClass.equals(jclass)) {
-                        filterLIst.add(obj);
-                        break;
+                JEVisClass oClass = obj.getJEVisClass();
+                if (oClass != null && oClass.equals(jclass)) {
+                    filterLIst.add(obj);
+                } else {
+                    Set<JEVisClass> inheritanceClasses = getInheritanceClasses(new HashSet<JEVisClass>(), Objects.requireNonNull(obj.getJEVisClass()));
+                    for (JEVisClass curClass : inheritanceClasses) {
+                        if (curClass.equals(jclass)) {
+                            filterLIst.add(obj);
+                            break;
+                        }
                     }
                 }
+            } catch (Exception ex) {
+                logger.error(ex);
             }
         }
 
