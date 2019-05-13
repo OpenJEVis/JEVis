@@ -645,6 +645,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     private void removeObjectFromCache(long objectID) {
         try {
+            objectCache.remove(objectID);
+
             JEVisObject object = getObject(objectID);
             List<Long> ids = new ArrayList<>();
             for (JEVisObject c : object.getChildren()) {
@@ -678,16 +680,28 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     + REQUEST.OBJECTS.PATH
                     + objectID;
 
-            HttpURLConnection response = getHTTPConnection().getDeleteConnection(resource);
-            if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            JEVisObject object = getObject(objectID);
 
-                reloadRelationships();
-                removeObjectFromCache(objectID);
+            if (object != null) {
+                HttpURLConnection response = getHTTPConnection().getDeleteConnection(resource);
+                if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
-                return true;
+                    reloadRelationships();
+                    removeObjectFromCache(objectID);
+
+                    object.getParents().forEach(parent -> {
+                        parent.notifyListeners(new JEVisEvent(parent, JEVisEvent.TYPE.OBJECT_CHILD_DELETED, object));
+                    });
+
+
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
                 return false;
             }
+
 
         } catch (Exception ex) {
             logger.catching(ex);
@@ -1221,6 +1235,36 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
         }
         return list;
+    }
+
+    public boolean confirmPassword(String username, String password) throws JEVisException {
+        HTTPConnection con = new HTTPConnection(host, username, password);
+        try {
+            String resource
+                    = REQUEST.API_PATH_V1
+                    + REQUEST.JEVISUSER.PATH;
+
+            HttpURLConnection conn = getHTTPConnection().getGetConnection(resource);
+            logger.debug("Login Response: {}", conn.getResponseCode());
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+
+                logger.debug("Login response: {}", conn.getContent().toString());
+                String payload = IOUtils.toString((InputStream) conn.getContent(), "UTF-8");
+
+                JsonObject json = gson.fromJson(payload, JsonObject.class);
+
+                user = new JEVisUserWS(this, new JEVisObjectWS(this, json)); //TODO: implement
+                logger.trace("User.object: " + user.getUserObject());
+                return true;
+            } else {
+                logger.error("Login failed: [{}] {}", conn.getResponseCode(), conn.getResponseMessage());
+                return false;
+            }
+
+        } catch (Exception ex) {
+            logger.catching(ex);
+            throw new JEVisException(ex.getMessage(), 402, ex);
+        }
     }
 
     @Override
