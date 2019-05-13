@@ -22,6 +22,7 @@ import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.jevistree.TreePlugin;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,7 +68,8 @@ public class SimpleTargetPlugin implements TreePlugin {
     public List<TreeTableColumn<JEVisTreeRow, Long>> getColumns() {
         List<TreeTableColumn<JEVisTreeRow, Long>> list = new ArrayList<>();
 
-        TreeTableColumn<JEVisTreeRow, Long> pluginHeader = new TreeTableColumn<>("Target");
+        TreeTableColumn<JEVisTreeRow, Long> pluginHeader = new TreeTableColumn<>(
+                I18n.getInstance().getString("targetplugin.column.target"));
         pluginHeader.setId(TARGET_COLUMN_ID);
 
         TreeTableColumn<JEVisTreeRow, Boolean> selectColumn = buildSelectionColumn(_tree);
