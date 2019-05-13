@@ -68,6 +68,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     private final ObservableList<SampleTable.TableSample> data = FXCollections.observableArrayList();
     private DateTime minDate = null;
     private DateTime maxDate = null;
+    boolean canDelete = false;
 
     /**
      * Create an SampleEditor table for the given JEVisSamples.
@@ -78,6 +79,16 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     public SampleTable(JEVisAttribute attribute, List<JEVisSample> samples) {
         super();
         this.attribute = attribute;
+
+
+        try {
+            if (attribute.getObject().getDataSource().getCurrentUser().canWrite(attribute.getObject().getID())) {
+                canDelete = true;
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+
         setEditable(true);
 
         setPlaceholder(new Label(I18n.getInstance().getString("sampleeditor.confirmationdialog.nodata")));
@@ -303,8 +314,12 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
 
     private void selectionChanged() {
         logger.debug("selectionChanged: {}", changedSamples.size());
-        deleteInBetween.setValue(changedSamples.size() == 2);
-        deleteSelected.setValue(!changedSamples.isEmpty());
+
+        if (canDelete) {
+            deleteInBetween.setValue(changedSamples.size() == 2);
+            deleteSelected.setValue(!changedSamples.isEmpty());
+        }
+
 
     }
 
