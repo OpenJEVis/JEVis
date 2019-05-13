@@ -60,6 +60,7 @@ public class ReportLauncher extends AbstractCliApp {
     private void executeReports(List<JEVisObject> reportObjects) {
 
         logger.info("Number of Reports: " + reportObjects.size());
+        setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         reportObjects.parallelStream().forEach(reportObject -> {
             forkJoinPool.submit(() -> {
@@ -103,6 +104,7 @@ public class ReportLauncher extends AbstractCliApp {
 
                     if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
                         logger.info("Last job. Clearing cache.");
+                        setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
                         ds.clearCache();
                     }
 
