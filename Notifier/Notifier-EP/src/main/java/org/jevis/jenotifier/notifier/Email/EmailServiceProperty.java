@@ -25,7 +25,7 @@ public class EmailServiceProperty {
     private JEVisFile notificationFile;
     private Long mailID;
     private final String NOTIFICATION_FILE = "Notification File";
-    private final String REPORT_MAIL_ID = "Report Notification ID";
+    private final String REPORT_MAIL_ID = "Notification ID";
 
     public void initialize(JEVisObject jevisobject) {
         try {
