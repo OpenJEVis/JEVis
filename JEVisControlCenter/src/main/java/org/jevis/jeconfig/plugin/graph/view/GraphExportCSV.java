@@ -219,8 +219,14 @@ public class GraphExportCSV {
             s.append(dateColumn.get(i)).append(";");
 
             for (ChartDataModel mdl : model.getSelectedData()) {
-                String formattedValue = numberFormat.format(map.get(mdl.getObject().getName()).get(i).getValueAsDouble());
-                s.append(formattedValue).append(";");
+                String name = mdl.getObject().getName();
+                List<JEVisSample> jeVisSamples = map.get(name);
+                if (i < jeVisSamples.size()) {
+                    JEVisSample sample = jeVisSamples.get(i);
+                    String formattedValue = numberFormat.format(sample.getValueAsDouble());
+                    s.append(formattedValue);
+                }
+                s.append(";");
             }
             sb.append(s);
             sb.append(System.getProperty("line.separator"));
