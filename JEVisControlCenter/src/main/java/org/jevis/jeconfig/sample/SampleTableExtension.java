@@ -75,7 +75,17 @@ public class SampleTableExtension implements SampleEditorExtension {
         final SampleTable table = new SampleTable(att, samples);
         table.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
+        boolean canDelete = false;
+        boolean canWrite = false;
         Button deleteAll = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.deleteall.titlelong"));
+
+        try {
+            canDelete = att.getObject().getDataSource().getCurrentUser().canDelete(att.getObject().getID());
+            canWrite = att.getObject().getDataSource().getCurrentUser().canWrite(att.getObject().getID());
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+        deleteAll.setDisable(!canDelete);
 
         deleteAll.setOnAction(event -> {
             try {
@@ -141,11 +151,7 @@ public class SampleTableExtension implements SampleEditorExtension {
         saveButton.setDefaultButton(true);
 
         Button addNewSample = new Button(null, JEConfig.getImage("list-add.png", 17, 17));
-        try {
-            /** File is not supported yet **/
-            addNewSample.setDisable(att.getPrimitiveType() == JEVisConstants.PrimitiveType.FILE);
-        } catch (Exception ex) {
-        }
+        addNewSample.setDisable(!canWrite);
 
         addNewSample.setOnAction(event -> {
             /** TODO: implement missing PrimitiveTypes **/
@@ -207,8 +213,24 @@ public class SampleTableExtension implements SampleEditorExtension {
                 }
         );
 
+
+//        boolean disableEdit = true;
         box.getChildren()
                 .setAll(addNewSample, deleteAll, deleteSelected, deleteInBetween, saveButton);
+//
+//        try {
+//            if (att.getObject().getDataSource().getCurrentUser().canWrite(att.getObject().getID())) {
+//                disableEdit = false;
+//
+//            }
+//        } catch (Exception ex) {
+//            logger.error(ex);
+//        }
+//
+//        deleteAll.setDisable(disableEdit);
+//        deleteInBetween.setDisable(disableEdit);
+//        deleteSelected.setDisable(disableEdit);
+//        addNewSample.setDisable(disableEdit);
 
 
         _view.setPadding(new Insets(10, 0, 10, 0));

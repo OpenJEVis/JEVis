@@ -308,7 +308,6 @@ public class JEVisAttributeWS implements JEVisAttribute {
                 resource += HTTPConnection.FMT.print(to);
             }
 
-            Gson gson = new Gson();
             HttpURLConnection conn = ds.getHTTPConnection().getDeleteConnection(resource);
 
             ds.reloadAttribute(this);

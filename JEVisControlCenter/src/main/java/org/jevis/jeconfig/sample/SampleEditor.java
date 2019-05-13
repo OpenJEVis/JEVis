@@ -172,9 +172,10 @@ public class SampleEditor {
         HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(cancel, Priority.NEVER);
 
-        SampleTableExtension sampleGraphExtension = new SampleTableExtension(attribute, stage);
-        extensions.add(sampleGraphExtension);
-        activExtensions = sampleGraphExtension;
+        SampleTableExtension sampleTableExtension = new SampleTableExtension(attribute, stage);
+        extensions.add(sampleTableExtension);
+        activExtensions = sampleTableExtension;
+
         /** graph makes only if the data are numbers **/
         try {
             if (attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.LONG || attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE) {

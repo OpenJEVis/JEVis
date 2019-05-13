@@ -22,22 +22,16 @@ package org.jevis.jeconfig.sample;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.tool.I18n;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.util.List;
 
@@ -57,7 +51,7 @@ public class AttributeStatesExtension implements SampleEditorExtension {
         _att = att;
     }
 
-    private void buildGui(JEVisAttribute att, List<JEVisSample> samples) throws JEVisException {
+    private void buildGui(JEVisAttribute att) throws JEVisException {
         Label lName = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.name"));
         Label lType = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.type"));
 //        Label lUnit = new Label(I18n.getInstance().getString("plugin.object.attribute.overview.unit"));
@@ -187,7 +181,7 @@ public class AttributeStatesExtension implements SampleEditorExtension {
             public void run() {
                 if (_dataChanged) {
                     try {
-                        buildGui(_att, _att.getAllSamples());
+                        buildGui(_att);
                         _dataChanged = false;
                     } catch (Exception ex) {
                         logger.fatal(ex);
@@ -198,127 +192,6 @@ public class AttributeStatesExtension implements SampleEditorExtension {
         });
     }
 
-    private XYChart buildChart(final List<JEVisSample> samples) {
-
-        final NumberAxis xAxis = new NumberAxis();
-        final NumberAxis yAxis = new NumberAxis();
-
-        xAxis.setAutoRanging(false);
-        yAxis.setAutoRanging(true);
-
-        xAxis.setTickUnit(1);
-        xAxis.setTickMarkVisible(true);
-        xAxis.setTickLength(1);
-//        xAxis.setTickLabelFormatter(new StringConverter<Number>() {
-//
-//            @Override
-//            public String toString(Number t) {
-//
-//                DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyy-MM-dd    HH:mm:ss");
-//                try {
-////                    Number index = (t.doubleValue() - 1.5);
-//                    Number index = t.doubleValue();
-////                    if (index.intValue() < 0) {
-////                        index = 0;
-////                    }
-////                    if (index.intValue() > 100) {
-////                        logger.info(" is bigger 100");
-////                    }
-//                    logger.info("convert Major value: " + t.toString() + "=" + index);
-//                    return fmtDate.print(samples.get(index.intValue()).getTimestamp());
-////                return fmtDate.print(new DateTime(t.longValue()));
-//                } catch (Exception ex) {
-//                    logger.info("error");
-//                }
-//                return t.toString();
-//            }
-//
-//            @Override
-//            public Number fromString(String string) {
-//                logger.info("from string: " + string);
-//                return 200;
-//            }
-//        });
-
-        final DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyy-MM-dd    HH:mm:ss");
-        xAxis.setMinorTickCount(1);
-        xAxis.setMinorTickLength(1);
-        xAxis.setMinorTickVisible(true);
-        xAxis.setTickLabelRotation(75d);
-        xAxis.setTickLabelFormatter(new StringConverter<Number>() {
-
-            @Override
-            public String toString(Number t) {
-
-                try {
-//                    logger.info("number: " + t);
-                    //TODO: replace this DIRTY workaround. For this i will come in the DevHell
-                    //NOTE: the axis is % based, java 1.8 has an dateAxe use this if we migrate to it
-                    int index = samples.size() / 100 * t.intValue();
-                    return fmtDate.print(samples.get(index).getTimestamp());
-//                    return fmtDate.print(samples.get(t.intValue()).getTimestamp());
-                } catch (Exception ex) {
-                    logger.error("error: " + ex);
-                    return "";
-                }
-
-            }
-
-            @Override
-            public Number fromString(String string) {
-                logger.info("from string: " + string);
-                return 200;
-            }
-        });
-
-//        xAxis.setLabel("Month");
-        final LineChart<Number, Number> lineChart = new LineChart(xAxis, yAxis);
-//        final BarChart<String, Number> lineChart = new BarChart(xAxis, yAxis);
-
-        String titel = String.format("");
-
-        lineChart.setTitle(titel);
-//        lineChart.setAnimated(true);
-        lineChart.setLegendVisible(false);
-        lineChart.setCache(true);
-
-        XYChart.Series series1 = new XYChart.Series();
-
-//        DateTimeFormatter fmttime = DateTimeFormat.forPattern("E HH:mm:ss");
-//        DateTimeFormatter fmttime2 = DateTimeFormat.forPattern("E HH:mm:ss");
-        int pos = 0;
-
-        for (JEVisSample sample : samples) {
-            try {
-////                String datelabel = "";
-////                if (pos == 0 || samples.size() == pos || pos % 10 == 0) {
-////                    datelabel = fmtDate.print(sample.getTimestamp());
-////                }
-
-//                String datelabel = fmtDate.print(sample.getTimestamp());
-                series1.getData().add(new XYChart.Data(pos, sample.getValueAsDouble()));
-
-//                logger.info("pos1: " + pos + " sample=" + sample);
-                if (yAxis.getLowerBound() > sample.getValueAsDouble()) {
-                    yAxis.setLowerBound(sample.getValueAsDouble() * 0.9d);
-                }
-
-                pos++;
-//                series1.getData().add(new XYChart.Data(pos + "", sample.getValueAsDouble()));
-            } catch (Exception ex) {
-                logger.fatal(ex);
-            }
-        }
-        yAxis.setLowerBound(10d);
-
-//        int size = 22 * samples.size();
-//        int size = 15 * samples.size();
-//        lineChart.setPrefWidth(size);
-        lineChart.setPrefWidth(720);
-        lineChart.getData().addAll(series1);
-
-        return lineChart;
-    }
 
     @Override
     public boolean sendOKAction() {

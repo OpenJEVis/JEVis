@@ -211,7 +211,7 @@ public class DataModelDataHandler {
     }
 
     public void update() {
-        logger.error("Update Samples: {}", durationProperty.getValue());
+        logger.debug("Update Samples: {}", durationProperty.getValue());
 //        logger.error("AttributeMap: {}", attributeMap.size());
 
         chartDataModels.forEach(chartDataModel -> {
