@@ -59,7 +59,7 @@ public class CleanDataTable extends AlarmTable {
         for (JEVisObject obj : cleanDataObjects) {
             JEVisSample lastSample = obj.getAttribute("Value").getLatestSample();
             if (lastSample != null) {
-                if (lastSample.getTimestamp().isBefore(furthestReported) && lastSample.getTimestamp().isAfter(latestReported)) {
+                if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
                     outOfBounds.add(obj);
                 }
             }

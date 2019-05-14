@@ -53,8 +53,6 @@ public class DataServerTable extends AlarmTable {
 
         List<JEVisObject> channelObjects = getChannelObjects();
 
-        DateTime ignoreTS = latestReported;
-        DateTime limit = furthestReported;
         Map<JEVisObject, JEVisObject> channelAndTarget = new HashMap<>();
         List<JEVisObject> outOfBounds = new ArrayList<>();
 
@@ -68,7 +66,7 @@ public class DataServerTable extends AlarmTable {
                 if (lastReadoutAtt.hasSample()) {
                     JEVisSample lastSample = lastReadoutAtt.getLatestSample();
                     if (lastSample != null) {
-                        if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                        if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
                             if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
                         }
                     }
@@ -101,7 +99,7 @@ public class DataServerTable extends AlarmTable {
                             if (resultAtt.hasSample()) {
                                 JEVisSample lastSample = resultAtt.getLatestSample();
                                 if (lastSample != null) {
-                                    if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                                    if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
                                         if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
                                     }
                                 }
@@ -110,7 +108,7 @@ public class DataServerTable extends AlarmTable {
                     }
                 }
             } else {
-                getOtherChannelsTarget(channel, channelAndTarget, outOfBounds, limit, ignoreTS);
+                getOtherChannelsTarget(channel, channelAndTarget, outOfBounds, latestReported, furthestReported);
             }
         }
 
