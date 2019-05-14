@@ -117,7 +117,7 @@ public class ServiceStati extends AlarmTable {
          * Service Column
          */
         sb.append("<td style=\"");
-        sb.append(rowCss);
+        sb.append(highlight);
         sb.append("\">");
         sb.append(dataCollectorClass.getName());
         sb.append("</td>");
@@ -125,7 +125,7 @@ public class ServiceStati extends AlarmTable {
          * Last Contact Column
          */
         sb.append("<td style=\"");
-        sb.append(rowCss);
+        sb.append(highlight);
         sb.append("\">");
         if (contactDataCollector != null) {
             sb.append(contactDataCollector.toString(timestampFormat));
@@ -135,7 +135,7 @@ public class ServiceStati extends AlarmTable {
          * Status Column
          */
         sb.append("<td style=\"");
-        sb.append(rowCss);
+        sb.append(highlight);
         sb.append("\">");
         if (statusDataCollector != null) {
             sb.append(getStatus(statusDataCollector));
@@ -207,7 +207,7 @@ public class ServiceStati extends AlarmTable {
          * Service Column
          */
         sb.append("<td style=\"");
-        sb.append(rowCss);
+        sb.append(highlight);
         sb.append("\">");
         sb.append(calcClass.getName());
         sb.append("</td>");
@@ -215,7 +215,7 @@ public class ServiceStati extends AlarmTable {
          * Last Contact Column
          */
         sb.append("<td style=\"");
-        sb.append(rowCss);
+        sb.append(highlight);
         sb.append("\">");
         if (contactCalc != null) {
             sb.append(contactCalc.toString(timestampFormat));
@@ -225,7 +225,7 @@ public class ServiceStati extends AlarmTable {
          * Status Column
          */
         sb.append("<td style=\"");
-        sb.append(rowCss);
+        sb.append(highlight);
         sb.append("\">");
         if (statusCalc != null) {
             sb.append(getStatus(statusCalc));
