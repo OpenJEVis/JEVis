@@ -30,12 +30,13 @@ public class ServiceStati extends AlarmTable {
 
         sb.append("<h2>Service Stati</h2>");
 
-
+        JEVisClass alarmClass = ds.getJEVisClass("JEAlarm");
         JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
         JEVisClass dataprocessorClass = ds.getJEVisClass("JEDataProcessor");
         JEVisClass calcClass = ds.getJEVisClass("JECalc");
         JEVisClass reportClass = ds.getJEVisClass("JEReport");
 
+        List<JEVisObject> alarms = ds.getObjects(alarmClass, true);
         List<JEVisObject> dataCollectors = ds.getObjects(dataCollectorClass, true);
         List<JEVisObject> dataProcessors = ds.getObjects(dataprocessorClass, true);
         List<JEVisObject> calcs = ds.getObjects(calcClass, true);
@@ -51,6 +52,51 @@ public class ServiceStati extends AlarmTable {
         sb.append("    <th>Last Contact</th>");
         sb.append("    <th>status</th>");
         sb.append("  </tr>");
+
+        DateTime contactAlarm = null;
+        Long statusAlarm = null;
+
+        if (!dataCollectors.isEmpty()) {
+            JEVisAttribute statusAttribute = dataCollectors.get(0).getAttribute("Status");
+            if (statusAttribute != null) {
+                JEVisSample latestSample = statusAttribute.getLatestSample();
+                if (latestSample != null) {
+                    contactAlarm = latestSample.getTimestamp();
+                    statusAlarm = latestSample.getValueAsLong();
+                }
+            }
+        }
+
+        sb.append("<tr>");
+        /**
+         * Service Column
+         */
+        sb.append("<td style=\"");
+        sb.append(rowCss);
+        sb.append("\">");
+        sb.append(alarmClass.getName());
+        sb.append("</td>");
+        /**
+         * Last Contact Column
+         */
+        sb.append("<td style=\"");
+        sb.append(rowCss);
+        sb.append("\">");
+        if (contactAlarm != null) {
+            sb.append(contactAlarm.toString(timestampFormat));
+        }
+        sb.append("</td>");
+        /**
+         * Status Column
+         */
+        sb.append("<td style=\"");
+        sb.append(rowCss);
+        sb.append("\">");
+        if (statusAlarm != null) {
+            sb.append(getStatus(statusAlarm));
+        }
+        sb.append("</td>");
+        sb.append("</tr>");
 
         DateTime contactDataCollector = null;
         Long statusDataCollector = null;
