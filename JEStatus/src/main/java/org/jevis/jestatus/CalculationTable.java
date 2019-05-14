@@ -90,7 +90,7 @@ public class CalculationTable extends AlarmTable {
                                 if (resultAtt.hasSample()) {
                                     JEVisSample lastSample = resultAtt.getLatestSample();
                                     if (lastSample != null) {
-                                        if (lastSample.getTimestamp().isBefore(furthestReported) && lastSample.getTimestamp().isAfter(latestReported)) {
+                                        if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
                                             outOfBounds.add(calculation);
                                         }
                                     }

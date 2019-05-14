@@ -9,6 +9,7 @@ import java.util.List;
 
 public class ServiceStati extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ServiceStati.class);
+    private static final String timestampFormat = "yyyy-MM-dd HH:MM:ss";
     private final JEVisDataSource ds;
 
     public ServiceStati(JEVisDataSource ds) {
@@ -81,7 +82,7 @@ public class ServiceStati extends AlarmTable {
         sb.append(rowCss);
         sb.append("\">");
         if (contactDataCollector != null) {
-            sb.append(contactDataCollector.toString("YYYY-mm-dd HH:MM:ss"));
+            sb.append(contactDataCollector.toString(timestampFormat));
         }
         sb.append("</td>");
         /**
@@ -126,7 +127,7 @@ public class ServiceStati extends AlarmTable {
         sb.append(rowCss);
         sb.append("\">");
         if (contactDataProcessor != null) {
-            sb.append(contactDataProcessor.toString("YYYY-mm-dd HH:MM:ss"));
+            sb.append(contactDataProcessor.toString(timestampFormat));
         }
         sb.append("</td>");
         /**
@@ -171,7 +172,7 @@ public class ServiceStati extends AlarmTable {
         sb.append(rowCss);
         sb.append("\">");
         if (contactCalc != null) {
-            sb.append(contactCalc.toString("YYYY-mm-dd HH:MM:ss"));
+            sb.append(contactCalc.toString(timestampFormat));
         }
         sb.append("</td>");
         /**
@@ -216,7 +217,7 @@ public class ServiceStati extends AlarmTable {
         sb.append(rowCss);
         sb.append("\">");
         if (contactReport != null) {
-            sb.append(contactReport.toString("YYYY-mm-dd HH:MM:ss"));
+            sb.append(contactReport.toString(timestampFormat));
         }
         sb.append("</td>");
         /**

@@ -1,29 +1,16 @@
 {
-  "jevisclass": "JEDataCollector",
+  "jevisclass": "JEDataProcessor",
   "names": {
-    "de": "JEDataCollector",
-    "ru": "JEDataCollector",
-    "en": "JEDataCollector"
+    "de": "JEDataProcessor",
+    "ru": "JEDataProcessor",
+    "en": "JEDataProcessor"
   },
   "descriptions": {
-    "de": "JEDataCollector ist ein automatisierter Datenerfassungsdienst. JEDataCollector ermöglicht dem JEVis-System das Auslesen von Daten von verschiedenen Arten von Datenservern, z.B. FTP- und HTTP-Servern.",
-    "ru": "JEDataCollector represents an automated data collecting service. JEDataCollector enables the JEVis system to read-out data from different types of data servers, for instance FTP and HTTP servers.",
-    "en": "JEDataCollector represents an automated data collecting service. JEDataCollector enables the JEVis system to read-out data from different types of data servers, for instance FTP and HTTP servers."
+    "de": "JEDataProcessor ist ein Dienst, der Rohdaten bereinigt. Dies beinhaltet periodische Veränderungen, Bildung differenzieller Werte, Plausibilisierung, Lückenbefüllung, Skalierung, Offsets und mehr.",
+    "ru": "JEDataProcessor - это служба очистки необработанных данных. Это включает периодические изменения, создание дифференциальных значений, проверку достоверности, заполнение пробелов, масштабирование, смещения и многое другое.",
+    "en": "JEDataProcessor is a service that cleans raw data. This includes periodic changes, creation of differential values, plausibility checks, gap filling, scaling, offsets and more."
   },
   "types": [
-    {
-      "type": "Data Source Timeout",
-      "descriptions": {
-        "de": "Data Source Timeout description",
-        "ru": "Data Source Timeout description",
-        "en": "Data Source Timeout description"
-      },
-      "names": {
-        "de": "Datenquellen-Timeout",
-        "ru": "Data Source Timeout",
-        "en": "Data Source Timeout"
-      }
-    },
     {
       "type": "Enable",
       "descriptions": {
