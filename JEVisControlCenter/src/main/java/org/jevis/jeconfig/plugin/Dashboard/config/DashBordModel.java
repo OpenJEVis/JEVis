@@ -170,6 +170,7 @@ public class DashBordModel {
     public DashBordModel(JEVisObject analysisObject) throws JEVisException {
         this.analysisObject = analysisObject;
         this.jeVisDataSource = analysisObject.getDataSource();
+        this.timeFrames.setDs(jeVisDataSource);
         load();
     }
 

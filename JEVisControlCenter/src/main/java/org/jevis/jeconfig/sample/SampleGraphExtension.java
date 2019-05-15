@@ -68,6 +68,8 @@ public class SampleGraphExtension implements SampleEditorExtension {
                 else if (obj.getObject().getJEVisClassName().equals("Clean Data")) {
                     chartDataModel.setDataProcessor(obj.getObject());
                     chartDataModel.setObject(obj.getObject().getParents().get(0));
+                } else {
+                    chartDataModel.setObject(obj.getObject());
                 }
             } catch (JEVisException e) {
 

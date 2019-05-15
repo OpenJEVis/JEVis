@@ -354,7 +354,7 @@ public class DashBoardToolbar extends ToolBar {
             analyses.zoomOut();
         });
 
-        ToolBarIntervalSelector toolBarIntervalSelector = new ToolBarIntervalSelector(analyses, iconSize, new Interval(new DateTime(), new DateTime()));
+        ToolBarIntervalSelector toolBarIntervalSelector = new ToolBarIntervalSelector(dataSource, analyses, iconSize, new Interval(new DateTime(), new DateTime()));
 
         toolBarIntervalSelector.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
 
