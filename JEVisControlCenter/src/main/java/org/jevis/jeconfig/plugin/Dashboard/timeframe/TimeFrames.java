@@ -2,17 +2,38 @@ package org.jevis.jeconfig.plugin.Dashboard.timeframe;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.datetime.CustomPeriodObject;
+import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TimeFrames {
 
+    private static final Logger logger = LogManager.getLogger(TimeFrames.class);
+    private JEVisDataSource ds;
     private WorkDays workDays = new WorkDays(null);
+
+    public TimeFrames(JEVisDataSource ds) {
+        this.ds = ds;
+    }
+
+    public TimeFrames() {
+    }
 
     public ObservableList<TimeFrameFactory> getAll() {
         ObservableList<TimeFrameFactory> list = FXCollections.observableArrayList();
@@ -22,7 +43,84 @@ public class TimeFrames {
         list.add(month());
         list.add(year());
 
+        List<JEVisObject> listCustomPeriods = null;
+        try {
+            listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
+        } catch (JEVisException e) {
+            logger.error("Error: could not get custom period", e);
+        }
+
+        List<CustomPeriodObject> listCustomPeriodObjects = null;
+        if (listCustomPeriods != null) {
+            for (JEVisObject obj : listCustomPeriods) {
+                if (obj != null) {
+                    if (listCustomPeriodObjects == null) listCustomPeriodObjects = new ArrayList<>();
+                    CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(ds));
+                    if (cpo.isVisible()) {
+                        listCustomPeriodObjects.add(cpo);
+                    }
+                }
+            }
+        }
+
+        if (listCustomPeriodObjects != null) {
+            for (CustomPeriodObject cpo : listCustomPeriodObjects) {
+                list.add(cpos(cpo));
+            }
+        }
+
         return list;
+    }
+
+    private TimeFrameFactory cpos(CustomPeriodObject cpo) {
+        return new TimeFrameFactory() {
+            @Override
+            public String getListName() {
+                return cpo.getObject().getName();
+            }
+
+            @Override
+            public Interval nextPeriod(Interval interval, int addAmount) {
+                long l = interval.getEnd().getMillis() - interval.getStart().getMillis();
+                return new Interval(interval.getStart().plus(l), interval.getEnd().plus(l));
+            }
+
+            @Override
+            public Interval previousPeriod(Interval interval, int addAmount) {
+                long l = interval.getEnd().getMillis() - interval.getStart().getMillis();
+                return new Interval(interval.getStart().minus(l), interval.getEnd().minus(l));
+            }
+
+            @Override
+            public String format(Interval interval) {
+                return DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(interval.getStart()) + " / " + DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(interval.getEnd());
+            }
+
+            @Override
+            public Interval getInterval(DateTime dateTime) {
+
+                DateHelper dateHelper = new DateHelper();
+                dateHelper.setCustomPeriodObject(cpo);
+                dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
+
+                dateHelper.setStartTime(workDays.getWorkdayStart());
+                dateHelper.setEndTime(workDays.getWorkdayEnd());
+
+                AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame();
+                newTimeFrame.setTimeFrame(TimeFrame.CUSTOM_START_END);
+                newTimeFrame.setId(cpo.getObject().getID());
+                newTimeFrame.setStart(dateHelper.getStartDate());
+                newTimeFrame.setEnd(dateHelper.getEndDate());
+
+
+                return new Interval(newTimeFrame.getStart(), newTimeFrame.getEnd());
+            }
+
+            @Override
+            public String getID() {
+                return cpo.getObject().getID().toString();
+            }
+        };
     }
 
     /**
@@ -59,7 +157,7 @@ public class TimeFrames {
 
             @Override
             public String format(Interval interval) {
-                return DateTimeFormat.forPattern("yyyy-MM-dd mm:ss").print(interval.getStart()) + " / " + DateTimeFormat.forPattern("yyyy-MM-dd mm:ss").print(interval.getEnd());
+                return DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(interval.getStart()) + " / " + DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(interval.getEnd());
             }
 
             @Override
@@ -117,7 +215,6 @@ public class TimeFrames {
 
         workStart = workStart.withHourOfDay(0).withMinuteOfHour(0);
         DateTime workEnd = interval.getEnd().withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
-        ;
         return new Interval(workStart, workEnd);
     }
 
@@ -268,5 +365,7 @@ public class TimeFrames {
         DAY, WEEK, MONTH, YEAR, CUSTOM
     }
 
-
+    public void setDs(JEVisDataSource ds) {
+        this.ds = ds;
+    }
 }
