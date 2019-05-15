@@ -81,13 +81,25 @@ public class TimeFrames {
 
             @Override
             public Interval nextPeriod(Interval interval, int addAmount) {
-                long l = interval.getEnd().getMillis() - interval.getStart().getMillis();
+                Long endMillis = null;
+                if (interval.getEnd().getSecondOfMinute() == 59) {
+                    endMillis = (interval.getEnd().plusSeconds(1)).getMillis();
+                } else {
+                    endMillis = interval.getEnd().getMillis();
+                }
+                long l = endMillis - interval.getStart().getMillis();
                 return new Interval(interval.getStart().plus(l), interval.getEnd().plus(l));
             }
 
             @Override
             public Interval previousPeriod(Interval interval, int addAmount) {
-                long l = interval.getEnd().getMillis() - interval.getStart().getMillis();
+                Long endMillis = null;
+                if (interval.getEnd().getSecondOfMinute() == 59) {
+                    endMillis = (interval.getEnd().plusSeconds(1)).getMillis();
+                } else {
+                    endMillis = interval.getEnd().getMillis();
+                }
+                long l = endMillis - interval.getStart().getMillis();
                 return new Interval(interval.getStart().minus(l), interval.getEnd().minus(l));
             }
 
