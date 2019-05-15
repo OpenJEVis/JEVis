@@ -34,6 +34,7 @@ public class GraphAnalysisLinker {
         return button;
     }
 
+
     public void applyConfig(JFXButton button, List<ChartDataModel> dataModels, Interval interval) {
         button.setOnAction(event -> {
             try {

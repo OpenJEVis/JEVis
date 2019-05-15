@@ -183,9 +183,8 @@ public class TopMenu extends MenuBar {
         MenuItem changePassword = new MenuItem(I18n.getInstance().getString("menu.options.changepassword"));
         changePassword.setOnAction(event -> {
             PasswordDialog dia = new PasswordDialog();
-            if (dia.show(JEConfig.getStage()) == PasswordDialog.Response.YES) {
-
-                try {
+            try {
+                if (dia.show(JEConfig.getStage(), JEConfig.getDataSource().getCurrentUser().getUserObject()) == PasswordDialog.Response.YES) {
                     String note = String.format("Password set by %s", activePlugin.getDataSource().getCurrentUser().getAccountName());
 
                     JEVisSample sample;
@@ -198,10 +197,10 @@ public class TopMenu extends MenuBar {
                     }
                     sample.commit();
 
-                } catch (JEVisException ex) {
-                    logger.fatal(ex);
-                }
 
+                }
+            } catch (JEVisException ex) {
+                logger.fatal(ex);
             }
         });
 

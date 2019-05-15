@@ -117,7 +117,7 @@ public class TimeFrames {
 
         workStart = workStart.withHourOfDay(0).withMinuteOfHour(0);
         DateTime workEnd = interval.getEnd().withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
-        ;
+
         return new Interval(workStart, workEnd);
     }
 
@@ -226,7 +226,8 @@ public class TimeFrames {
         return new TimeFrameFactory() {
             @Override
             public String getID() {
-                return TimeFrameType.YEAR.toString();
+                return Period.years(1).toString();
+//                return TimeFrameType.YEAR.toString();
             }
 
             @Override

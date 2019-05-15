@@ -113,7 +113,7 @@ public class PasswordEditor implements AttributeEditor {
                 @Override
                 public void handle(ActionEvent t) {
                     PasswordDialog dia = new PasswordDialog();
-                    if (dia.show(JEConfig.getStage()) == PasswordDialog.Response.YES) {
+                    if (dia.show(JEConfig.getStage(), null) == PasswordDialog.Response.YES) {
 
                         try {
                             String note = String.format("Password set by %s", _attribute.getDataSource().getCurrentUser().getAccountName());

@@ -21,9 +21,12 @@ import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jeconfig.plugin.Dashboard.config.DataModelNode;
+import org.jevis.jeconfig.plugin.Dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jeconfig.plugin.Dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +47,8 @@ public class DataModelDataHandler {
     private ObjectProperty<Interval> durationProperty = new SimpleObjectProperty<>();
     private DataModelNode dataModelNode = new DataModelNode();
     private boolean autoAggregation = true;
-
+    private boolean forcedInterval = false;
+    private Period forcedPeriod;
 
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {
         this.jeVisDataSource = jeVisDataSource;
@@ -57,11 +61,26 @@ public class DataModelDataHandler {
             logger.error(ex);
         }
 
+        if (!dataModelNode.getForcedInterval().isEmpty()) {
+            forcedInterval = true;
+            //if PTx than new Interval
+            //if number then jevisObject for custom intervals
+
+            try {
+                forcedPeriod = Period.parse(dataModelNode.getForcedInterval());
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
         dataModelNode.getData().forEach(dataPointNode -> {
             try {
                 logger.debug("Add attribute: {}:{}", dataPointNode.getObjectID(), dataPointNode.getAttribute());
                 JEVisObject jevisobject = jeVisDataSource.getObject(dataPointNode.getObjectID());
                 JEVisObject cleanObject = jeVisDataSource.getObject(dataPointNode.getCleanObjectID());
+
+
                 if (jevisobject != null) {
                     JEVisAttribute jeVisAttribute = jevisobject.getAttribute(dataPointNode.getAttribute());
                     if (jeVisAttribute != null) {
@@ -151,8 +170,24 @@ public class DataModelDataHandler {
     }
 
     public void setInterval(Interval interval) {
+
+
+        System.out.println("Forced Interval:" + forcedInterval + " " + forcedPeriod + "  oldI: " + interval);
+
+        if (forcedInterval) {
+            for (TimeFrameFactory timeFrameFactory : (new TimeFrames().getAll())) {
+                if (timeFrameFactory.getID().equals(forcedPeriod.toString())) {
+                    System.out.println("Match TimeFactory: " + timeFrameFactory.getListName());
+
+                    interval = timeFrameFactory.getInterval(interval.getEnd());
+                    System.out.println("new Interval: " + interval);
+                }
+            }
+
+        }
         this.durationProperty.setValue(interval);
-        getDataModel().forEach(chartDataModel -> {
+
+        for (ChartDataModel chartDataModel : getDataModel()) {
             AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
             ManipulationMode manipulationMode = ManipulationMode.NONE;
             if (autoAggregation) {
@@ -180,8 +215,7 @@ public class DataModelDataHandler {
                 chartDataModel.setManipulationMode(manipulationMode);
             }
 
-
-        });
+        }
     }
 
     public JsonNode toJsonNode() {

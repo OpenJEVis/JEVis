@@ -40,32 +40,33 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisObject;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.dialog.DialogHeader;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class PasswordDialog {
     private static final Logger logger = LogManager.getLogger(PasswordDialog.class);
     public static String ICON = "1415303685_lock-128.png";
 
-    final Label passL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.newpassword"));
+    private final Label passOldL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.oldpassword"));
+    private final Label passL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.newpassword"));
 
     private Response response = Response.CANCEL;
-    final Label confirmL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.confirmpassword"));
-    final Button ok = new Button(I18n.getInstance().getString("tool.dialog.passworddialog.button.ok"));
-    final PasswordField pass = new PasswordField();
-    final PasswordField comfirm = new PasswordField();
+    private final Label confirmL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.confirmpassword"));
+    private final Button ok = new Button(I18n.getInstance().getString("tool.dialog.passworddialog.button.ok"));
+    private final PasswordField pass = new PasswordField();
+    private final PasswordField oldPass = new PasswordField();
+    private final PasswordField confirm = new PasswordField();
 
     /**
-     *
      * @param owner
-     * @param heir
-     * @param ds
+     * @param oldUser can be null, if not null and its the same as the current user request old password
      * @return
      */
-    public Response show(Stage owner) {
+    public Response show(Stage owner, JEVisObject oldUser) {
         logger.info("Change password dialog");
         final Stage stage = new Stage();
 
@@ -103,10 +104,20 @@ public class PasswordDialog {
         gp.setHgap(10);
         gp.setVgap(5);
         int y = 0;
-        gp.add(passL, 0, y);
+        try {
+            if (oldUser != null && oldUser.getJEVisClass().getName().equals("User")) {
+                gp.add(passOldL, 0, y);
+                gp.add(oldPass, 1, y);
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+
+
+        gp.add(passL, 0, ++y);
         gp.add(pass, 1, y);
         gp.add(confirmL, 0, ++y);
-        gp.add(comfirm, 1, y);
+        gp.add(confirm, 1, y);
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         sep.setMinHeight(10);
@@ -136,11 +147,21 @@ public class PasswordDialog {
             }
         });
 
-        comfirm.setOnKeyReleased(new EventHandler<KeyEvent>() {
+        confirm.setOnKeyReleased(new EventHandler<KeyEvent>() {
 
             @Override
             public void handle(KeyEvent t) {
                 checkPW();
+
+                try {
+                    String currentUsername = oldUser.getDataSource().getCurrentUser().getAccountName();
+                    /** non save using the webservice directly **/
+                    JEVisDataSourceWS dsWS = (JEVisDataSourceWS) oldUser.getDataSource();
+                    dsWS.confirmPassword(currentUsername, oldPass.getText());
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+
             }
         });
 
@@ -169,9 +190,10 @@ public class PasswordDialog {
         return pass.getText();
     }
 
+
     private void checkPW() {
-        if (!pass.getText().isEmpty() && !comfirm.getText().isEmpty()) {
-            if (pass.getText().equals(comfirm.getText())) {
+        if (!pass.getText().isEmpty() && !confirm.getText().isEmpty()) {
+            if (pass.getText().equals(confirm.getText())) {
                 ok.setDisable(false);
             }
         }
