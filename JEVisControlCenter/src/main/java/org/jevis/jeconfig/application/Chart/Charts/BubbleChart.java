@@ -84,6 +84,11 @@ public class BubbleChart implements Chart {
     }
 
     @Override
+    public void setRegion(Region region) {
+
+    }
+
+    @Override
     public void showNote(MouseEvent mouseEvent) {
 
     }

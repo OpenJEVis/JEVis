@@ -340,16 +340,6 @@ public class XYChart implements Chart {
         panner.start();
 
         jfxChartUtil = new JFXChartUtil();
-        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
-
-            if (mouseEvent.getButton() != MouseButton.PRIMARY
-                    || mouseEvent.isShortcutDown()) {
-                mouseEvent.consume();
-                if (mouseEvent.isControlDown()) {
-                    showNote(mouseEvent);
-                }
-            }
-        });
 
         jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
 
@@ -358,6 +348,11 @@ public class XYChart implements Chart {
     @Override
     public JFXChartUtil getJfxChartUtil() {
         return jfxChartUtil;
+    }
+
+    @Override
+    public void setRegion(Region region) {
+        areaChartRegion = region;
     }
 
     @Override
