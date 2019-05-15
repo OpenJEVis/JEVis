@@ -208,6 +208,11 @@ public class PieChart implements Chart {
     }
 
     @Override
+    public void setRegion(Region region) {
+        pieChartRegion = region;
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
     }

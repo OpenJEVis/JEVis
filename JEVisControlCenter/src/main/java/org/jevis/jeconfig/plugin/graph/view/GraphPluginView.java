@@ -33,11 +33,9 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Separator;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
@@ -685,6 +683,32 @@ public class GraphPluginView implements Plugin {
                 case AREA:
                 case LINE:
                 case SCATTER:
+                    cv.getChart().setRegion(cv.getChart().getJfxChartUtil().setupZooming((MultiAxisChart<?, ?>) cv.getChart().getChart(), mouseEvent -> {
+
+                        if (mouseEvent.getButton() != MouseButton.PRIMARY
+                                || mouseEvent.isShortcutDown()) {
+                            mouseEvent.consume();
+                            if (mouseEvent.isControlDown()) {
+                                Platform.runLater(() -> {
+                                    cv.getChart().showNote(mouseEvent);
+
+                                    Dialog<ButtonType> wantToReload = new Dialog<>();
+                                    wantToReload.setTitle(I18n.getInstance().getString("plugin.graph.dialog.reload.title"));
+                                    final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.reload.ok"), ButtonBar.ButtonData.YES);
+                                    final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.reload.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                                    wantToReload.setContentText(I18n.getInstance().getString("plugin.graph.dialog.reload.message"));
+                                    wantToReload.getDialogPane().getButtonTypes().addAll(ok, cancel);
+                                    wantToReload.showAndWait().ifPresent(response -> {
+                                        if (response.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
+                                            handleRequest(Constants.Plugin.Command.RELOAD);
+                                        }
+                                    });
+                                });
+                            }
+                        }
+                    }));
+
                     cv.getChart().getChart().setOnMouseMoved(event -> {
                         cv.updateTablesSimultaneously(event, null);
                         notActive.stream().filter(na -> !na.getChartType().equals(ChartType.PIE)
@@ -735,7 +759,6 @@ public class GraphPluginView implements Plugin {
                             cv.getChart().getJfxChartUtil().doubleClickedProperty().setValue(false);
                         }
                     });
-
                     break;
                 case LOGICAL:
                     /**

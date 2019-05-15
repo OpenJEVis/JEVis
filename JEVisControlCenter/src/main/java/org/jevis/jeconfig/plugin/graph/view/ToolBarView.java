@@ -506,7 +506,7 @@ public class ToolBarView {
         reallyDelete.setContentText(I18n.getInstance().getString("plugin.graph.dialog.delete.message"));
         reallyDelete.getDialogPane().getButtonTypes().addAll(ok, cancel);
         reallyDelete.showAndWait().ifPresent(response -> {
-            if (response.getButtonData().getTypeCode() == ButtonType.YES.getButtonData().getTypeCode()) {
+            if (response.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
                 try {
                     if (ds.getCurrentUser().canDelete(model.getCurrentAnalysis().getID())) {
                         ds.deleteObject(model.getCurrentAnalysis().getID());

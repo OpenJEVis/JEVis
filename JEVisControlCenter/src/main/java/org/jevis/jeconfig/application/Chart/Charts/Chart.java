@@ -105,43 +105,64 @@ public interface Chart {
                         }
                     }
 
-                    try {
-                        JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
+                    if (correspondingNoteObject != null) {
+                        try {
+                            JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
 
-                        List<JEVisSample> listSamples;
-                        if (userNoteAttribute.hasSample()) {
-                            listSamples = userNoteAttribute.getSamples(timeStamp.minusMillis(1), timeStamp.plusMillis(1));
+                            List<JEVisSample> listSamples;
+                            if (userNoteAttribute.hasSample()) {
+                                listSamples = userNoteAttribute.getSamples(timeStamp.minusMillis(1), timeStamp.plusMillis(1));
 
-                            if (listSamples.size() == 1) {
-                                listSamples.get(0).setValue(newUserNote);
-                                listSamples.get(0).commit();
+                                if (!newUserNote.equals("") && listSamples.size() == 1) {
+                                    listSamples.get(0).setValue(newUserNote);
+                                    listSamples.get(0).commit();
+                                } else if (!newUserNote.equals("")) {
+                                    JEVisSample newSample = userNoteAttribute.buildSample(timeStamp.toDateTimeISO(), newUserNote);
+                                    newSample.commit();
+                                } else {
+                                    userNoteAttribute.deleteSamplesBetween(timeStamp.toDateTimeISO(), timeStamp.toDateTimeISO());
+                                }
                             } else {
-                                JEVisSample newSample = userNoteAttribute.buildSample(timeStamp.toDateTimeISO(), newUserNote);
-                                newSample.commit();
+                                if (!newUserNote.equals("")) {
+                                    JEVisSample newSample = userNoteAttribute.buildSample(timeStamp.toDateTimeISO(), newUserNote);
+                                    newSample.commit();
+                                }
+
                             }
-                        } else {
-                            JEVisSample newSample = userNoteAttribute.buildSample(timeStamp.toDateTimeISO(), newUserNote);
-                            newSample.commit();
-                        }
 
-                        if (!sample.getNote().contains("userNotes")) {
-                            List<JEVisSample> unmodifiedSamples = obj
-                                    .getDataSource()
-                                    .getObject(obj.getID())
-                                    .getAttribute("Value")
-                                    .getSamples(timeStamp.minusMillis(1), timeStamp.plusMillis(1));
+                            if (!newUserNote.equals("") && !sample.getNote().contains("userNotes")) {
+                                List<JEVisSample> unmodifiedSamples = obj
+                                        .getDataSource()
+                                        .getObject(obj.getID())
+                                        .getAttribute("Value")
+                                        .getSamples(timeStamp.minusMillis(1), timeStamp.plusMillis(1));
 
-                            if (unmodifiedSamples.size() == 1) {
-                                JEVisSample unmodifiedSample = unmodifiedSamples.get(0);
-                                String note = unmodifiedSample.getNote();
-                                note += ",userNotes";
-                                unmodifiedSample.setNote(note);
-                                unmodifiedSample.commit();
+                                if (unmodifiedSamples.size() == 1) {
+                                    JEVisSample unmodifiedSample = unmodifiedSamples.get(0);
+                                    String note = unmodifiedSample.getNote();
+                                    note += ",userNotes";
+                                    unmodifiedSample.setNote(note);
+                                    unmodifiedSample.commit();
+                                }
+                            } else if (newUserNote.equals("") && sample.getNote().contains("userNotes")) {
+                                List<JEVisSample> unmodifiedSamples = obj
+                                        .getDataSource()
+                                        .getObject(obj.getID())
+                                        .getAttribute("Value")
+                                        .getSamples(timeStamp.minusMillis(1), timeStamp.plusMillis(1));
+
+                                if (unmodifiedSamples.size() == 1) {
+                                    JEVisSample unmodifiedSample = unmodifiedSamples.get(0);
+                                    String note = unmodifiedSample.getNote();
+                                    note = note.replace(",userNotes", "");
+                                    unmodifiedSample.setNote(note);
+                                    unmodifiedSample.commit();
+                                }
                             }
+
+                        } catch (JEVisException e) {
+
                         }
-
-                    } catch (JEVisException e) {
-
                     }
 
                 } catch (JEVisException e) {
@@ -180,4 +201,6 @@ public interface Chart {
     ChartPanManager getPanner();
 
     JFXChartUtil getJfxChartUtil();
+
+    void setRegion(Region region);
 }

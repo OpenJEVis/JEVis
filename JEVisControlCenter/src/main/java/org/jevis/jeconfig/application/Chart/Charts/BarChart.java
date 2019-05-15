@@ -274,6 +274,11 @@ public class BarChart implements Chart {
     }
 
     @Override
+    public void setRegion(Region region) {
+        barChartRegion = region;
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
     }
