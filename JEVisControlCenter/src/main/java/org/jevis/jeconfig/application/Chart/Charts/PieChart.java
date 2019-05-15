@@ -51,7 +51,7 @@ public class PieChart implements Chart {
         }
     };
 
-    public PieChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
+    public PieChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
         this.hideShowIcons = hideShowIcons;
         this.chartName = chartName;
@@ -246,7 +246,9 @@ public class PieChart implements Chart {
             String hexColor = toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = pieChart.lookup(preIdent + ".chart-pie");
-            node.setStyle("-fx-pie-color: " + hexColor + ";");
+            if (node != null) {
+                node.setStyle("-fx-pie-color: " + hexColor + ";");
+            }
         }
     }
 

@@ -314,4 +314,8 @@ public class XYChartSerie {
     public void setMaxValue(Double maxValue) {
         this.maxValue = maxValue;
     }
+
+    public Integer getyAxis() {
+        return yAxis;
+    }
 }

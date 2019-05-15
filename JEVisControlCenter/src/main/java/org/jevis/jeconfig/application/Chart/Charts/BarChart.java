@@ -398,7 +398,9 @@ public class BarChart implements Chart {
             String hexColor = toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = barChart.lookup(preIdent + ".chart-bar");
-            node.setStyle("-fx-bar-fill: " + hexColor + ";");
+            if (node != null) {
+                node.setStyle("-fx-bar-fill: " + hexColor + ";");
+            }
         }
     }
 

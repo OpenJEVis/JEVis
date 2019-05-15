@@ -447,4 +447,30 @@ public class ChartDataModel {
             this.calculationObject = th.getObject().get(0);
         }
     }
+
+    public void setCalculationObject(JEVisObject calculationObject) {
+        this.calculationObject = calculationObject;
+    }
+
+    @Override
+    public ChartDataModel clone() {
+        ChartDataModel newModel = new ChartDataModel(dataSource);
+        newModel.setManipulationMode(this.getManipulationMode());
+        newModel.setAggregationPeriod(this.getAggregationPeriod());
+        newModel.setObject(this.getObject());
+        newModel.setDataProcessor(this.getDataProcessor());
+        newModel.setAttribute(this.getAttribute());
+        newModel.setSelectedEnd(this.getSelectedEnd());
+        newModel.setSelectedStart(this.getSelectedStart());
+        newModel.setEnPI(this.getEnPI());
+        newModel.setCalculationObject(getCalculationObject());
+        newModel.setAxis(this.getAxis());
+        newModel.setColor(this.getColor());
+        newModel.setSelectedCharts(this.getSelectedcharts());
+        newModel.setTitle(this.getTitle());
+        newModel.setSamples(this.getSamples());
+        newModel.setUnit(this.getUnit());
+
+        return newModel;
+    }
 }

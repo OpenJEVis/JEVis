@@ -49,6 +49,7 @@ import static org.jevis.commons.dataprocessing.ManipulationMode.RUNNING_MEAN;
 
 public class XYChart implements Chart {
     private static final Logger logger = LogManager.getLogger(XYChart.class);
+    private final Boolean showRawData;
     Boolean hideShowIcons;
     //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
     List<Color> hexColors = new ArrayList<>();
@@ -85,8 +86,9 @@ public class XYChart implements Chart {
     private ChartPanManager panner;
     private JFXChartUtil jfxChartUtil;
 
-    public XYChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+    public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
+        this.showRawData = showRawData;
         this.hideShowIcons = hideShowIcons;
         this.chartName = chartName;
         this.addSeriesOfType = addSeriesOfType;
@@ -99,6 +101,9 @@ public class XYChart implements Chart {
 
     public void init() {
         initializeChart();
+        hexColors.clear();
+        chart.getData().clear();
+        tableData.clear();
 
         changedBoth = new Boolean[]{false, false};
 
@@ -108,6 +113,19 @@ public class XYChart implements Chart {
         chartDataModels.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
+                    if (showRawData && singleRow.getDataProcessor() != null) {
+                        ChartDataModel newModel = singleRow.clone();
+                        newModel.setDataProcessor(null);
+                        newModel.setAttribute(null);
+                        newModel.setSamples(null);
+                        newModel.setUnit(null);
+                        newModel.setColor(newModel.getColor().darker());
+
+                        singleRow.setAxis(0);
+                        newModel.setAxis(1);
+                        xyChartSerieList.add(generateSerie(changedBoth, newModel));
+                    }
+
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
 
                 } catch (JEVisException e) {
@@ -213,16 +231,16 @@ public class XYChart implements Chart {
         y1Axis.setAutoRanging(true);
         y2Axis.setAutoRanging(true);
 
-        for (ChartDataModel singleRow : chartDataModels) {
-            if (singleRow.getUnit() != null) {
-                String currentUnit = UnitManager.getInstance().format(singleRow.getUnit());
+        for (XYChartSerie serie : xyChartSerieList) {
+            if (serie.getUnit() != null) {
+                String currentUnit = UnitManager.getInstance().format(serie.getUnit());
                 if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString()))
-                    currentUnit = singleRow.getUnit().getLabel();
-                if (singleRow.getAxis() == 0) {
+                    currentUnit = serie.getUnit();
+                if (serie.getyAxis() == 0) {
                     if (!unitY1.contains(currentUnit)) {
                         unitY1.add(currentUnit);
                     }
-                } else if (singleRow.getAxis() == 1) {
+                } else if (serie.getyAxis() == 1) {
                     if (!unitY2.contains(currentUnit)) {
                         unitY2.add(currentUnit);
                     }
@@ -392,10 +410,10 @@ public class XYChart implements Chart {
         if (chartDataModelsSize > 0) {
             if (chartDataModelsSize <= xyChartSerieListSize) {
                 /**
-                 * if the new chart data model contains fewer or equal count of chart series as the old one
+                 * if the new chart data model contains fewer or equal times the chart series as the old one
                  */
 
-                if (chartDataModelsSize < xyChartSerieListSize) {
+                if (chartDataModelsSize < xyChartSerieListSize && !showRawData) {
                     /**
                      * remove the series which are in excess
                      */
@@ -451,30 +469,44 @@ public class XYChart implements Chart {
         for (int i = 0; i < xyChartSerieList.size(); i++) {
             XYChartSerie xyChartSerie = xyChartSerieList.get(i);
 
-            hexColors.set(i, chartDataModels.get(i).getColor());
-            xyChartSerie.setSingleRow(chartDataModels.get(i));
-            try {
-                xyChartSerie.generateSeriesFromSamples();
-            } catch (JEVisException e) {
-                e.printStackTrace();
+            ChartDataModel model = null;
+            if (!showRawData) {
+                model = chartDataModels.get(i);
+            } else {
+                for (ChartDataModel mdl : chartDataModels) {
+                    if (mdl.getObject().equals(xyChartSerie.getSingleRow().getObject())) {
+                        model = mdl;
+                        break;
+                    }
+                }
             }
 
-            tableData.set(i, xyChartSerie.getTableEntry());
+            if (model != null) {
+                hexColors.set(i, model.getColor());
+                xyChartSerie.setSingleRow(model);
+                try {
+                    xyChartSerie.generateSeriesFromSamples();
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
 
-            if (xyChartSerie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
-                timeStampOfFirstSample.set(xyChartSerie.getTimeStampFromFirstSample());
-                changedBoth[0] = true;
-            }
+                tableData.set(i, xyChartSerie.getTableEntry());
 
-            if (xyChartSerie.getTimeStampFromLastSample().isAfter(timeStampOfLastSample.get())) {
-                timeStampOfLastSample.set(xyChartSerie.getTimeStampFromLastSample());
-                changedBoth[1] = true;
-            }
+                if (xyChartSerie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
+                    timeStampOfFirstSample.set(xyChartSerie.getTimeStampFromFirstSample());
+                    changedBoth[0] = true;
+                }
 
-            try {
-                checkManipulation(chartDataModels.get(i));
-            } catch (JEVisException e) {
-                e.printStackTrace();
+                if (xyChartSerie.getTimeStampFromLastSample().isAfter(timeStampOfLastSample.get())) {
+                    timeStampOfLastSample.set(xyChartSerie.getTimeStampFromLastSample());
+                    changedBoth[1] = true;
+                }
+
+                try {
+                    checkManipulation(model);
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -651,10 +683,14 @@ public class XYChart implements Chart {
             Node node = getChart().lookup(preIdent + ".chart-series-area-fill");
             Node nodew = getChart().lookup(preIdent + ".chart-series-area-line");
 
-            node.setStyle("-fx-fill: linear-gradient(" + hexColor + "," + hexBrighter + ");"
-                    + "  -fx-background-insets: 0 0 -1 0, 0, 1, 2;"
-                    + "  -fx-background-radius: 3px, 3px, 2px, 1px;");
-            nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+            if (node != null) {
+                node.setStyle("-fx-fill: linear-gradient(" + hexColor + "," + hexBrighter + ");"
+                        + "  -fx-background-insets: 0 0 -1 0, 0, 1, 2;"
+                        + "  -fx-background-radius: 3px, 3px, 2px, 1px;");
+            }
+            if (nodew != null) {
+                nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+            }
         }
     }
 
@@ -684,8 +720,8 @@ public class XYChart implements Chart {
 
     private void checkForY2Axis() {
         boolean hasY2Axis = false;
-        for (ChartDataModel chartDataModel : chartDataModels) {
-            if (chartDataModel.getAxis() == 1) {
+        for (XYChartSerie serie : xyChartSerieList) {
+            if (serie.getyAxis() == 1) {
                 hasY2Axis = true;
                 break;
             }

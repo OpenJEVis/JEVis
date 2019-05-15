@@ -123,7 +123,7 @@ public class ChartWidget extends Widget {
         sampleHandler.setMultiSelect(true);
 
         if (lineChart == null) {
-            lineChart = new LineChart(sampleHandler.getDataModel(), false, ManipulationMode.NONE, 0, "");
+            lineChart = new LineChart(sampleHandler.getDataModel(), false, false, ManipulationMode.NONE, 0, "");
 
 
             legend.setAlignment(Pos.CENTER);

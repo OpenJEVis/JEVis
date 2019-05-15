@@ -13,8 +13,8 @@ import java.util.List;
 
 public class ScatterChart extends XYChart {
 
-    public ScatterChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, hideShowIcons, addSeriesOfType, chartId, chartName);
+    public ScatterChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+        super(chartDataModels, showRawData, hideShowIcons, addSeriesOfType, chartId, chartName);
     }
 
     @Override

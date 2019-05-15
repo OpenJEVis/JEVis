@@ -17,7 +17,7 @@ public class LogicalChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(LogicalChart.class);
 
     public LogicalChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, hideShowIcons, addSeriesOfType, chartId, chartName);
+        super(chartDataModels, false, hideShowIcons, addSeriesOfType, chartId, chartName);
     }
 
     @Override
@@ -62,8 +62,12 @@ public class LogicalChart extends XYChart {
             Node node = getChart().lookup(preIdent + ".chart-series-area-fill");
             Node nodew = getChart().lookup(preIdent + ".chart-series-area-line");
 
-            node.setStyle("-fx-fill: " + hexColor + ";");
-            nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+            if (node != null) {
+                node.setStyle("-fx-fill: " + hexColor + ";");
+            }
+            if (nodew != null) {
+                nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+            }
         }
     }
 

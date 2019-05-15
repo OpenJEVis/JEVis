@@ -19,7 +19,7 @@ public class BubbleChart implements Chart {
     private javafx.scene.chart.BubbleChart<Number, Number> bubbleChart;
     private List<Color> hexColors = new ArrayList<>();
 
-    public BubbleChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
+    public BubbleChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean hideShowIcons, Integer chartId, String chartName) {
 
     }
 

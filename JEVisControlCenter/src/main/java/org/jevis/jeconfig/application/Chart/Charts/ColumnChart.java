@@ -65,7 +65,7 @@ public class ColumnChart implements Chart {
     private ChartPanManager panner;
     private CategoryAxis catAxis = new CategoryAxis();
 
-    public ColumnChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
+    public ColumnChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
         this.hideShowIcons = hideShowIcons;
         this.chartId = chartId;
