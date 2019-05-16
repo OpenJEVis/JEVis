@@ -206,7 +206,7 @@ public class DataModelDataHandler {
                         JEVisObject jeVisObject = this.jeVisDataSource.getObject(Long.parseLong(forcedPeriod));
                         CustomPeriodObject cpo = new CustomPeriodObject(jeVisObject, new ObjectHandler(jeVisDataSource));
                         TimeFrameFactory customPeriodObject = timeFrames.customPeriodObject(cpo);
-                        interval = customPeriodObject.getInterval(new DateTime());
+                        interval = customPeriodObject.getInterval(interval.getEnd());
                     } catch (Exception ex) {
                         logger.error(ex);
                     }
@@ -219,7 +219,7 @@ public class DataModelDataHandler {
                 try {
                     System.out.println("new custom period");
                     LastPeriod lastPeriod = new LastPeriod(Period.parse(forcedPeriod));
-                    interval = lastPeriod.getInterval(new DateTime());
+                    interval = lastPeriod.getInterval(interval.getEnd());
 
                 } catch (Exception ex) {
                     logger.error(ex);

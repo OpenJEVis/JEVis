@@ -27,7 +27,10 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -251,15 +254,15 @@ public class ColumnFactory {
 
                                                       hbox.getChildren().addAll(icon, spaceBetween, nameLabel);
 
-                                                      String debugText = "";
-                                                      try {
-                                                          debugText += "Parent: " + getTreeTableRow().getTreeItem().getParent().getValue().getJEVisObject().getID();
-                                                      } catch (Exception ex) {
-
-                                                      }
-                                                      Tooltip debugTip = new Tooltip(debugText);
-
-                                                      setTooltip(debugTip);
+//                                                      String debugText = "";
+//                                                      try {
+//                                                          debugText += "Parent: " + getTreeTableRow().getTreeItem().getParent().getValue().getJEVisObject().getID();
+//                                                      } catch (Exception ex) {
+//
+//                                                      }
+//                                                      Tooltip debugTip = new Tooltip(debugText);
+//
+//                                                      setTooltip(debugTip);
                                                       setGraphic(hbox);
 
                                                   } catch (Exception ex) {
