@@ -71,26 +71,13 @@ public class ValueWidget extends Widget {
 
         try {
             ChartDataModel dataModel = sampleHandler.getDataModel().get(0);
+            dataModel.setAbsolute(true);
             List<JEVisSample> results;
 
             String unit = dataModel.getUnitLabel();
 
 
             results = dataModel.getSamples();
-
-//            if (dataModel.getEnPI()) {
-//                System.out.println("is EnpI: " + dataModel.getEnPI());
-//                CalcJobFactory calcJobCreator = new CalcJobFactory();
-//
-//                CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(
-//                        new SampleHandler(), dataModel.getObject().getDataSource(), dataModel.getCalculationObject(),
-//                        dataModel.getSelectedStart(), dataModel.getSelectedEnd(), true);
-//
-//                results = calcJob.getResults();
-//
-//            } else {
-//                results = dataModel.getSamples();
-//            }
 
             if (!results.isEmpty()) {
                 labelText.setValue((nf.format(DataModelDataHandler.getTotal(results))) + " " + unit);

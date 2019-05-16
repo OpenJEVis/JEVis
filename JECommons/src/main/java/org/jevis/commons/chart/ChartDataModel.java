@@ -42,6 +42,7 @@ public class ChartDataModel {
     private Double maxValue;
     private Boolean isEnPI = false;
     private JEVisObject calculationObject;
+    private Boolean absolute = false;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -107,8 +108,16 @@ public class ChartDataModel {
                     } else {
                         CalcJobFactory calcJobCreator = new CalcJobFactory();
 
-                        CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
-                                selectedStart, selectedEnd, aggregationPeriod);
+                        CalcJob calcJob = null;
+
+                        if (!getAbsolute()) {
+                            calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                    selectedStart, selectedEnd, aggregationPeriod);
+                        } else {
+                            calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                    selectedStart, selectedEnd, true);
+                        }
+
                         samples = calcJob.getResults();
                     }
 
@@ -472,5 +481,13 @@ public class ChartDataModel {
         newModel.setUnit(this.getUnit());
 
         return newModel;
+    }
+
+    public Boolean getAbsolute() {
+        return absolute;
+    }
+
+    public void setAbsolute(Boolean absolute) {
+        this.absolute = absolute;
     }
 }
