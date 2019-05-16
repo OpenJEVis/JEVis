@@ -206,11 +206,7 @@ public class XYChart implements Chart {
                 Platform.runLater(() -> {
                     chart.getData().forEach(serie -> ((MultiAxisChart.Series) serie).getData().forEach(numberNumberData -> {
                         MultiAxisChart.Data node = (MultiAxisChart.Data) numberNumberData;
-                        if (node != null && chart.getData().indexOf(serie) != chart.getData().size() - 1) {
-                            node.setExtraValue(0);
-                        } else if (node != null) {
-                            node.setExtraValue(1);
-                        }
+                        node.setExtraValue(0);
                     }));
                 });
             } catch (JEVisException e) {
