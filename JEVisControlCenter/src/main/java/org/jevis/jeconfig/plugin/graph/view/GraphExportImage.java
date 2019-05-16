@@ -38,6 +38,14 @@ public class GraphExportImage {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("CSV File Destination");
         DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
+
+        if (JEConfig.getLastPath() != null) {
+            File file = JEConfig.getLastPath();
+            if (file.exists() && file.canRead()) {
+                fileChooser.setInitialDirectory(file);
+            }
+        }
+
         fileChooser.setInitialFileName(formattedName + I18n.getInstance().getString("plugin.graph.dialog.export.from")
                 + fmtDate.print(minDate) + I18n.getInstance().getString("plugin.graph.dialog.export.to")
                 + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()) + ".png");
@@ -49,6 +57,7 @@ public class GraphExportImage {
             String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1, file.getName().length());
             destinationFile = file;
             formatName = fileExtension;
+            JEConfig.setLastPath(file);
         }
     }
 

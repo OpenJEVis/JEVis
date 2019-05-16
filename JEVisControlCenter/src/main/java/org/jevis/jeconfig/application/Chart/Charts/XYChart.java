@@ -73,7 +73,7 @@ public class XYChart implements Chart {
     private String chartName;
     private List<String> unitY1 = new ArrayList<>();
     private List<String> unitY2 = new ArrayList<>();
-    private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
+    List<XYChartSerie> xyChartSerieList = new ArrayList<>();
     private DateTime valueForDisplay;
     private Region areaChartRegion;
     private Period period;
@@ -689,6 +689,7 @@ public class XYChart implements Chart {
 
             xyChartSerieList.parallelStream().forEach(serie -> {
                 try {
+
                     TableEntry tableEntry = serie.getTableEntry();
                     TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
 
