@@ -5,20 +5,21 @@ import org.jevis.api.*;
 import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 import java.util.*;
 
 public class CalculationTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CalculationTable.class);
     private final JEVisDataSource ds;
-    private final Alarm alarm;
     private final List<JEVisObject> dataServerObjects;
+    private final DateTime furthestReported;
+    private final DateTime latestReported;
 
-    public CalculationTable(JEVisDataSource ds, Alarm alarm, List<JEVisObject> dataServerObjects) {
+    public CalculationTable(JEVisDataSource ds, DateTime furthestReported, DateTime latestReported, List<JEVisObject> dataServerObjects) {
         this.ds = ds;
-        this.alarm = alarm;
         this.dataServerObjects = dataServerObjects;
+        this.furthestReported = furthestReported;
+        this.latestReported = latestReported;
 
         try {
             createTableString();
@@ -63,9 +64,6 @@ public class CalculationTable extends AlarmTable {
             }
         }
 
-        DateTime now = new DateTime();
-        DateTime ignoreTS = now.minus(Period.hours(alarm.getIgnoreOld()));
-        DateTime limit = now.minus(Period.hours(alarm.getTimeLimit()));
         Map<JEVisObject, JEVisObject> calcAndResult = new HashMap<>();
         List<JEVisObject> outOfBounds = new ArrayList<>();
 
@@ -92,7 +90,7 @@ public class CalculationTable extends AlarmTable {
                                 if (resultAtt.hasSample()) {
                                     JEVisSample lastSample = resultAtt.getLatestSample();
                                     if (lastSample != null) {
-                                        if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                                        if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
                                             outOfBounds.add(calculation);
                                         }
                                     }
