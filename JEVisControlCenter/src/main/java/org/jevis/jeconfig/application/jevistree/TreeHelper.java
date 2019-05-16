@@ -559,7 +559,11 @@ public class TreeHelper {
                     JEVisAttribute aInputData = newInputObj.getAttribute("Input Data");
                     JEVisAttribute inputDataTypeAtt = newInputObj.getAttribute("Input Data Type");
 
-                    TargetHelper th = new TargetHelper(aInputData.getDataSource(), us.getSelectedObject(), us.getSelectedAttribute());
+                    JEVisAttribute targetAtt = us.getSelectedAttribute();
+                    if (targetAtt == null) {
+                        targetAtt = us.getSelectedObject().getAttribute("Value");
+                    }
+                    TargetHelper th = new TargetHelper(us.getSelectedObject().getDataSource(), us.getSelectedObject(), targetAtt);
                     if (th.isValid() && th.targetAccessible()) {
                         logger.info("Target Is valid");
                         JEVisSample newTarget = aInputData.buildSample(now, th.getSourceString());

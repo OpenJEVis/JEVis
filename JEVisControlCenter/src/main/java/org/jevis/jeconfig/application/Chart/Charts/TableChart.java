@@ -15,8 +15,8 @@ import java.util.List;
 public class TableChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(TableChart.class);
 
-    public TableChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, hideShowIcons, addSeriesOfType, chartId, chartName);
+    public TableChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+        super(chartDataModels, showRawData, showSum, hideShowIcons, addSeriesOfType, chartId, chartName);
     }
 
     @Override

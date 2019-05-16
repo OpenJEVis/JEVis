@@ -86,6 +86,10 @@ public class ToolBarView {
     private JFXTimePicker pickerTimeEnd;
     private DateHelper dateHelper = new DateHelper();
     private SimpleBooleanProperty continuousUpdate = new SimpleBooleanProperty(false);
+    private SimpleBooleanProperty autoResizeInGraph = new SimpleBooleanProperty(true);
+    private SimpleBooleanProperty showIconsInGraph = new SimpleBooleanProperty(true);
+    private SimpleBooleanProperty showRawDataInGraph = new SimpleBooleanProperty(false);
+    private SimpleBooleanProperty showSumInGraph = new SimpleBooleanProperty(false);
     private ToolBar toolBar;
 
 
@@ -124,6 +128,8 @@ public class ToolBarView {
     private ToggleButton addSeriesRunningMean;
     private ImageView pauseIcon;
     private ImageView playIcon;
+    private ToggleButton showRawData;
+    private ToggleButton showSum;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.model = model;
@@ -280,10 +286,22 @@ public class ToolBarView {
 
     private void hideShowIconsInGraph() {
         model.setHideShowIcons(!model.getHideShowIcons());
+        showIconsInGraph.set(model.getHideShowIcons());
     }
 
     private void autoResizeInGraph() {
         model.setAutoResize(!model.getAutoResize());
+        autoResizeInGraph.set(model.getAutoResize());
+    }
+
+    private void showRawDataInGraph() {
+        model.setShowRawData(!model.getShowRawData());
+        showRawDataInGraph.set(model.getShowRawData());
+    }
+
+    private void showSumInGraph() {
+        model.setShowSum(!model.getShowSum());
+        showSumInGraph.set(model.getShowSum());
     }
 
     private ComboBox<JEVisObject> getListAnalysesComboBox() {
@@ -629,6 +647,8 @@ public class ToolBarView {
         delete.setDisable(bool);
         autoResize.setDisable(bool);
         select.setDisable(bool);
+        showRawData.setDisable(bool);
+        showSum.setDisable(bool);
         disableIcons.setDisable(bool);
         zoomOut.setDisable(bool);
         presetDateBox.setDisable(bool);
@@ -680,7 +700,7 @@ public class ToolBarView {
                     sep1, presetDateBox, pickerDateStart, pickerDateEnd,
                     sep2, reload, zoomOut,
                     sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                    sep4, disableIcons, autoResize, runUpdateButton);
+                    sep4, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
 
 
             setupAnalysisComboBoxListener();
@@ -743,6 +763,10 @@ public class ToolBarView {
 
         delete.setOnAction(event -> deleteCurrentAnalysis());
 
+        showRawData.setOnAction(event -> showRawDataInGraph());
+
+        showSum.setOnAction(event -> showSumInGraph());
+
         disableIcons.setOnAction(event -> hideShowIconsInGraph());
 
         addSeriesRunningMean.setOnAction(event -> addSeriesRunningMean());
@@ -793,7 +817,7 @@ public class ToolBarView {
         autoResize = new ToggleButton("", JEConfig.getImage("if_full_screen_61002.png", iconSize, iconSize));
         Tooltip autoResizeTip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.autosize"));
         autoResize.setTooltip(autoResizeTip);
-        autoResize.setSelected(true);
+        autoResize.setSelected(autoResizeInGraph.get());
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(autoResize);
         autoResize.styleProperty().bind(
                 Bindings
@@ -811,10 +835,40 @@ public class ToolBarView {
         select.setTooltip(selectTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(select);
 
+        showRawData = new ToggleButton("", JEConfig.getImage("raw_199316.png", iconSize, iconSize));
+        Tooltip showRawDataTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showrawdata"));
+        showRawData.setTooltip(showRawDataTooltip);
+        showRawData.setSelected(showRawDataInGraph.get());
+        showRawData.styleProperty().bind(
+                Bindings
+                        .when(showRawData.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(showRawData.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
+        showSum = new ToggleButton("", JEConfig.getImage("Sum_132399.png", iconSize, iconSize));
+        Tooltip showSumTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
+        showSum.setTooltip(showSumTooltip);
+        showSum.setSelected(showSumInGraph.get());
+        showSum.styleProperty().bind(
+                Bindings
+                        .when(showSum.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(showSum.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
         disableIcons = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
         Tooltip disableIconsTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
         disableIcons.setTooltip(disableIconsTooltip);
-        disableIcons.setSelected(true);
+        disableIcons.setSelected(showIconsInGraph.get());
         disableIcons.styleProperty().bind(
                 Bindings
                         .when(disableIcons.hoverProperty())

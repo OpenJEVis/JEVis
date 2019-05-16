@@ -13,8 +13,8 @@ import java.util.List;
 public class LineChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(LineChart.class);
 
-    public LineChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, hideShowIcons, addSeriesOfType, chartId, chartName);
+    public LineChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+        super(chartDataModels, showRawData, showSum, hideShowIcons, addSeriesOfType, chartId, chartName);
     }
 
     @Override
@@ -31,7 +31,9 @@ public class LineChart extends XYChart {
             String preIdent = ".default-color" + i;
 
             Node node = getChart().lookup(preIdent + ".chart-series-line");
-            node.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+            if (node != null) {
+                node.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+            }
         }
     }
 }

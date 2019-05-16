@@ -43,6 +43,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ColumnChart implements Chart {
     private static final Logger logger = LogManager.getLogger(ColumnChart.class);
     private final Integer chartId;
+    private final Boolean showRawData;
+    private final Boolean showSum;
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
     NumberAxis y1Axis = new NumberAxis();
@@ -65,8 +67,10 @@ public class ColumnChart implements Chart {
     private ChartPanManager panner;
     private CategoryAxis catAxis = new CategoryAxis();
 
-    public ColumnChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
+    public ColumnChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
+        this.showRawData = showRawData;
+        this.showSum = showSum;
         this.hideShowIcons = hideShowIcons;
         this.chartId = chartId;
         this.chartName = chartName;

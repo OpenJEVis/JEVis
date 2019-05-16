@@ -120,7 +120,9 @@ public class XYLogicalChartSerie extends XYChartSerie {
                     JEVisSample smp = allSamples.get(i);
                     if (smp.getTimestamp().isBefore(start)) {
                         if (!start.equals(checkStart.getTimestamp())) {
-                            modifiedList.add(new VirtualSample(start, smp.getValueAsDouble()));
+                            JEVisSample virtualSample = new VirtualSample(start, smp.getValueAsDouble());
+                            virtualSample.setNote("auto");
+                            modifiedList.add(virtualSample);
                             lastValue = smp.getValueAsDouble();
                         }
                         break;
@@ -145,7 +147,13 @@ public class XYLogicalChartSerie extends XYChartSerie {
                             }
                         }
                     }
-                    modifiedList.add(newSample);
+                    if (newSample != null) {
+                        newSample.setNote("auto");
+                        modifiedList.add(newSample);
+                    }
+                }
+                if (smp.getNote() == null || smp.getNote().equals("")) {
+                    smp.setNote("auto");
                 }
                 modifiedList.add(smp);
                 lastValue = currentValue;
@@ -153,7 +161,9 @@ public class XYLogicalChartSerie extends XYChartSerie {
             }
 
             if (lastProcessedSample != null && !lastProcessedSample.getTimestamp().equals(end)) {
-                modifiedList.add(new VirtualSample(end, lastValue));
+                JEVisSample virtualSample = new VirtualSample(end, lastValue);
+                virtualSample.setNote("auto");
+                modifiedList.add(virtualSample);
             }
 
 //            JEVisSample checkEnd = samples.get(samples.size() - 1);
@@ -168,8 +178,10 @@ public class XYLogicalChartSerie extends XYChartSerie {
 //            }
         } else {
 
-            modifiedList.add(new VirtualSample(start, lastSample.getValueAsDouble()));
-            modifiedList.add(new VirtualSample(end, lastSample.getValueAsDouble()));
+            JEVisSample virtualSampleStart = new VirtualSample(start, lastSample.getValueAsDouble());
+            modifiedList.add(virtualSampleStart);
+            JEVisSample virtualSampleEnd = new VirtualSample(end, lastSample.getValueAsDouble());
+            modifiedList.add(virtualSampleEnd);
 
         }
         return modifiedList;

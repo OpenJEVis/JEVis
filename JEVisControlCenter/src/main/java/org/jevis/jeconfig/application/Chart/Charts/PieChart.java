@@ -32,6 +32,8 @@ import java.util.List;
 public class PieChart implements Chart {
     private static final Logger logger = LogManager.getLogger(PieChart.class);
     private final Integer chartId;
+    private final Boolean showRawData;
+    private final Boolean showSum;
     private String chartName;
     private String unit;
     private List<ChartDataModel> chartDataModels;
@@ -51,8 +53,10 @@ public class PieChart implements Chart {
         }
     };
 
-    public PieChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
+    public PieChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
+        this.showRawData = showRawData;
+        this.showSum = showSum;
         this.hideShowIcons = hideShowIcons;
         this.chartName = chartName;
         this.chartId = chartId;
@@ -246,7 +250,9 @@ public class PieChart implements Chart {
             String hexColor = toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = pieChart.lookup(preIdent + ".chart-pie");
-            node.setStyle("-fx-pie-color: " + hexColor + ";");
+            if (node != null) {
+                node.setStyle("-fx-pie-color: " + hexColor + ";");
+            }
         }
     }
 

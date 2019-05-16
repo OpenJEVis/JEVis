@@ -86,7 +86,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
             List<ChartDataModel> chartDataModelList = new ArrayList<>();
             chartDataModelList.add(chartDataModel);
 
-            LineChart lc = new LineChart(chartDataModelList, false, ManipulationMode.NONE, 0, "");
+            LineChart lc = new LineChart(chartDataModelList, false, false, false, ManipulationMode.NONE, 0, "");
 
             bp.setCenter(lc.getRegion());
             _view.setCenter(bp);

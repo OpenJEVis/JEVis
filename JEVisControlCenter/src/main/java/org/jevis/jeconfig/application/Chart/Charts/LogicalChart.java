@@ -1,23 +1,33 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
-import org.jevis.jeconfig.application.Chart.ChartElements.XYLogicalChartSerie;
+import org.jevis.jeconfig.application.Chart.ChartElements.*;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.LogicalYAxisStringConverter;
+import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.PeriodFormat;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Objects;
+import java.util.TreeMap;
 
 public class LogicalChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(LogicalChart.class);
 
     public LogicalChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, hideShowIcons, addSeriesOfType, chartId, chartName);
+        super(chartDataModels, false, false, hideShowIcons, addSeriesOfType, chartId, chartName);
     }
 
     @Override
@@ -62,8 +72,12 @@ public class LogicalChart extends XYChart {
             Node node = getChart().lookup(preIdent + ".chart-series-area-fill");
             Node nodew = getChart().lookup(preIdent + ".chart-series-area-line");
 
-            node.setStyle("-fx-fill: " + hexColor + ";");
-            nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+            if (node != null) {
+                node.setStyle("-fx-fill: " + hexColor + ";");
+            }
+            if (nodew != null) {
+                nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
+            }
         }
     }
 
@@ -81,5 +95,60 @@ public class LogicalChart extends XYChart {
     @Override
     public void generateXAxis(Boolean[] changedBoth) {
 
+    }
+
+    @Override
+    public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
+        Point2D mouseCoordinates = null;
+        if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+        Double x = null;
+        if (valueForDisplay == null) {
+
+            x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
+
+            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
+
+        }
+        if (valueForDisplay != null) {
+            setValueForDisplay(valueForDisplay);
+            DateTime finalValueForDisplay = valueForDisplay;
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setMinimumFractionDigits(0);
+            nf.setMaximumFractionDigits(0);
+
+            xyChartSerieList.parallelStream().forEach(serie -> {
+                try {
+
+                    TableEntry tableEntry = serie.getTableEntry();
+                    TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
+
+                    DateTime nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
+
+                    JEVisSample sample = sampleTreeMap.get(nearest);
+                    Double valueAsDouble = sample.getValueAsDouble();
+                    Note formattedNote = new Note(sample);
+                    String formattedDouble = nf.format(valueAsDouble);
+
+                    if (!asDuration) {
+                        tableEntry.setDate(nearest
+                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                    } else {
+                        tableEntry.setDate((nearest.getMillis() -
+                                timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
+                    }
+                    tableEntry.setNote(formattedNote.getNoteAsString());
+                    String unit = serie.getUnit();
+
+                    if (!sample.getNote().contains("Empty")) {
+                        tableEntry.setValue(formattedDouble + " " + unit);
+                    } else tableEntry.setValue("- " + unit);
+
+                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
+
+                } catch (Exception ex) {
+                }
+
+            });
+        }
     }
 }

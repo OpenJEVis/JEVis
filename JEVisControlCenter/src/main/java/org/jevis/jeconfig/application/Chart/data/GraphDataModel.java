@@ -30,6 +30,7 @@ import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
@@ -79,6 +80,8 @@ public class GraphDataModel {
     private Boolean isGlobalAnalysisTimeFrame = true;
     private AnalysisTimeFrame globalAnalysisTimeFrame;
     private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
+    private Boolean showRawData = false;
+    private Boolean showSum = false;
 
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
@@ -307,6 +310,34 @@ public class GraphDataModel {
 
         if (autoResize.equals(Boolean.TRUE)) {
             update();
+        }
+    }
+
+    public Boolean getShowSum() {
+        return showSum;
+    }
+
+    public void setShowSum(Boolean show) {
+        this.showSum = show;
+
+        if (show) {
+            update();
+        } else {
+            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+        }
+    }
+
+    public Boolean getShowRawData() {
+        return showRawData;
+    }
+
+    public void setShowRawData(Boolean show) {
+        this.showRawData = show;
+
+        if (show) {
+            update();
+        } else {
+            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
         }
     }
 
