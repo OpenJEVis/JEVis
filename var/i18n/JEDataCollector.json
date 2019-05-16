@@ -27,53 +27,27 @@
     {
       "type": "Enable",
       "descriptions": {
-        "de": "Dieser Schalter schaltet den Dienst ein oder aus.",
-        "ru": "Этот переключатель включает или выключает службу.",
-        "en": "This switch turns the service on or off."
+        "de": "Enable description",
+        "ru": "Enable description",
+        "en": "Enable description"
       },
       "names": {
         "de": "Aktiviert",
-        "ru": "Активированный",
-        "en": "Enabled"
+        "ru": "Enable",
+        "en": "Enable"
       }
     },
     {
       "type": "Max Number Threads",
       "descriptions": {
-        "de": "Die Anzahl der parallelen Threads, die dem Dienst zur Verfügung stehen.",
-        "ru": "Количество параллельных потоков, доступных сервису.",
-        "en": "The number of parallel threads available to the service."
+        "de": "Max Number Threads description",
+        "ru": "Max Number Threads description",
+        "en": "Max Number Threads description"
       },
       "names": {
-        "de": "Anzahl an Threads",
-        "ru": "Количество потоков",
-        "en": "Number of Threads"
-      }
-    },
-    {
-      "type": "Cycle Time",
-      "descriptions": {
-        "de": "Die Zeit, nach der der Dienst eine neue Abfragerunde startet. Angegeben in Millisekunden.",
-        "ru": "Время, по истечении которого служба начинает новый раунд голосования. Указано в миллисекундах.",
-        "en": "The time after which the service starts a new polling round. Specified in milliseconds."
-      },
-      "names": {
-        "de": "Taktzeit",
-        "ru": "продолжительность цикла",
-        "en": "Cycle Time"
-      }
-    },
-    {
-      "type": "Status",
-      "descriptions": {
-        "de": "Der letzte bekannte Status des Dienstes. Möglich sind: 0 = aus, 1 = an und wartend, 2 = an und arbeitend.",
-        "ru": "Последний известный статус службы. Возможны следующие варианты: 0 = выключен, 1 = включен и ждет, 2 = включен и работает.",
-        "en": "The last known status of the service. Possible are: 0 = off, 1 = on and waiting, 2 = on and working."
-      },
-      "names": {
-        "de": "Status",
-        "ru": "Статус",
-        "en": "State"
+        "de": "Maximale Anzahl Threads",
+        "ru": "Max Number Threads",
+        "en": "Max Number Threads"
       }
     }
   ]

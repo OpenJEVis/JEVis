@@ -80,7 +80,6 @@ public class CalcLauncher extends AbstractCliApp {
     private void executeCalcJobs(List<JEVisObject> enabledCalcObject) {
 
         logger.info("Number of Calc Jobs: " + enabledCalcObject.size());
-        setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         enabledCalcObject.parallelStream().forEach(object -> {
             forkJoinPool.submit(() -> {
@@ -119,7 +118,6 @@ public class CalcLauncher extends AbstractCliApp {
 
                     if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
                         logger.info("Last job. Clearing cache.");
-                        setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
                         ds.clearCache();
                     }
 

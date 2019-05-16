@@ -15,15 +15,21 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jeconfig.plugin.Dashboard.config.DataModelNode;
+import org.jevis.jeconfig.plugin.Dashboard.timeframe.LastPeriod;
+import org.jevis.jeconfig.plugin.Dashboard.timeframe.TimeFrameFactory;
+import org.jevis.jeconfig.plugin.Dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,17 +50,38 @@ public class DataModelDataHandler {
     private ObjectProperty<Interval> durationProperty = new SimpleObjectProperty<>();
     private DataModelNode dataModelNode = new DataModelNode();
     private boolean autoAggregation = true;
-
+    private boolean forcedInterval = false;
+    private TimeFrames timeFrames;
+    private List<TimeFrameFactory> timeFrameFactorys = new ArrayList<>();
+    private String forcedPeriod;
 
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {
         this.jeVisDataSource = jeVisDataSource;
 
+        timeFrames = new TimeFrames(jeVisDataSource);
+        timeFrameFactorys.addAll(timeFrames.getAll());
+
         try {
             ObjectMapper mapper = new ObjectMapper();
             DataModelNode dataModelNode = mapper.treeToValue(configNode, DataModelNode.class);
+//            System.out.println("Json: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataModelNode));
             this.dataModelNode = dataModelNode;
         } catch (Exception ex) {
             logger.error(ex);
+        }
+
+        if (!dataModelNode.getForcedInterval().isEmpty()) {
+            forcedInterval = true;
+            //if PTx than new Interval
+            //if number then jevisObject for custom intervals
+
+            try {
+//                forcedPeriod = Period.parse(dataModelNode.getForcedInterval());
+                forcedPeriod = dataModelNode.getForcedInterval();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
 
         dataModelNode.getData().forEach(dataPointNode -> {
@@ -62,6 +89,8 @@ public class DataModelDataHandler {
                 logger.debug("Add attribute: {}:{}", dataPointNode.getObjectID(), dataPointNode.getAttribute());
                 JEVisObject jevisobject = jeVisDataSource.getObject(dataPointNode.getObjectID());
                 JEVisObject cleanObject = jeVisDataSource.getObject(dataPointNode.getCleanObjectID());
+
+
                 if (jevisobject != null) {
                     JEVisAttribute jeVisAttribute = jevisobject.getAttribute(dataPointNode.getAttribute());
                     if (jeVisAttribute != null) {
@@ -83,6 +112,8 @@ public class DataModelDataHandler {
 
                         chartDataModel.setManipulationMode(dataPointNode.getManipulationMode());
                         chartDataModel.setAggregationPeriod(dataPointNode.getAggregationPeriod());
+                        System.out.println("dataPointNode.isEnpi(): " + dataPointNode.isEnpi());
+                        chartDataModel.setEnPI(dataPointNode.isEnpi());
 
 
                         if (dataPointNode.getColor() != null) {
@@ -151,8 +182,58 @@ public class DataModelDataHandler {
     }
 
     public void setInterval(Interval interval) {
+
+
+        if (forcedInterval) {
+
+            boolean foundFactory = false;
+
+            for (TimeFrameFactory timeFrameFactory : timeFrameFactorys) {
+                if (timeFrameFactory.getID().equals(forcedPeriod)) {
+                    System.out.println("Match TimeFactory: " + timeFrameFactory.getListName());
+                    interval = timeFrameFactory.getInterval(interval.getEnd());
+                    foundFactory = true;
+                }
+            }
+
+            if (!foundFactory) {
+
+
+                //IF integer than custom period
+                if (forcedPeriod.matches("-?\\d+")) {
+                    try {
+                        System.out.println("new jevis custom period");
+                        JEVisObject jeVisObject = this.jeVisDataSource.getObject(Long.parseLong(forcedPeriod));
+                        CustomPeriodObject cpo = new CustomPeriodObject(jeVisObject, new ObjectHandler(jeVisDataSource));
+                        TimeFrameFactory customPeriodObject = timeFrames.customPeriodObject(cpo);
+                        interval = customPeriodObject.getInterval(new DateTime());
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
+                }
+
+            }
+            if (!foundFactory) {
+
+                // else cast new Custom Period
+                try {
+                    System.out.println("new custom period");
+                    LastPeriod lastPeriod = new LastPeriod(Period.parse(forcedPeriod));
+                    interval = lastPeriod.getInterval(new DateTime());
+
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            }
+
+            System.out.println("new Interval for: " + forcedPeriod + " -> " + interval);
+
+        }
         this.durationProperty.setValue(interval);
-        getDataModel().forEach(chartDataModel -> {
+
+
+        for (ChartDataModel chartDataModel : getDataModel()) {
+
             AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
             ManipulationMode manipulationMode = ManipulationMode.NONE;
             if (autoAggregation) {
@@ -180,8 +261,7 @@ public class DataModelDataHandler {
                 chartDataModel.setManipulationMode(manipulationMode);
             }
 
-
-        });
+        }
     }
 
     public JsonNode toJsonNode() {

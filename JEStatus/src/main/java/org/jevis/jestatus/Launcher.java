@@ -19,15 +19,13 @@
  */
 package org.jevis.jestatus;
 
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
 
-import java.util.List;
+import java.util.Objects;
 
 /**
  * The Launcher is an minimalistic alarm notification tool for JEVis 3.0
@@ -49,8 +47,6 @@ public class Launcher extends AbstractCliApp {
     private final String APP_SERVICE_CLASS_NAME = "JEStatus";
     private final Command commands = new Command();
     private Config config;
-    private Long furthestReported;
-    private Long latestReported;
 
     public Launcher(String[] args, String appname) {
         super(args);
@@ -73,45 +69,46 @@ public class Launcher extends AbstractCliApp {
     protected void handleAdditionalCommands() {
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
 
-//        options.addOption(configFile);
-//        options.addOption(help);
-//        options.addOption(mode);
-//
-//        CommandLineParser parser = new BasicParser();
-//        CommandLine cmd = null;
-//        try {
-//            cmd = parser.parse(options, args);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//
-//        HelpFormatter formatter = new HelpFormatter();
-//
-//        if (Objects.requireNonNull(cmd).hasOption(help.getLongOpt())) {
-//            formatter.printHelp("Launcher 1.0", options);
-//        }
-//
-//        if (cmd.hasOption(configFile.getLongOpt())) {
-//            config = null;
-//            try {
-//                config = new Config(cmd.getOptionValue(configFile.getLongOpt()));
-//            } catch (ConfigurationException e) {
-//                logger.error(e);
-//            }
-//        } else {
-//            logger.info("Missing configuration file..");
-//            formatter.printHelp("Launcher 1.0  2019-01-02", options);
-//        }
+        options.addOption(configFile);
+        options.addOption(help);
+        options.addOption(mode);
+
+        CommandLineParser parser = new BasicParser();
+        CommandLine cmd = null;
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        HelpFormatter formatter = new HelpFormatter();
+
+        if (Objects.requireNonNull(cmd).hasOption(help.getLongOpt())) {
+            formatter.printHelp("Launcher 1.0", options);
+        }
+
+        if (cmd.hasOption(configFile.getLongOpt())) {
+            config = null;
+            try {
+                config = new Config(cmd.getOptionValue(configFile.getLongOpt()));
+            } catch (ConfigurationException e) {
+                logger.error(e);
+            }
+        } else {
+            logger.info("Missing configuration file..");
+            formatter.printHelp("Launcher 1.0  2019-01-02", options);
+        }
     }
 
     @Override
     protected void runSingle(Long id) {
-        AlarmHandler ah = new AlarmHandler(ds, furthestReported, latestReported);
-
-        try {
-            ah.checkAlarm();
-        } catch (JEVisException e) {
-            logger.error(e);
+        AlarmHandler ah = new AlarmHandler(config, ds);
+        for (Alarm alarm : Objects.requireNonNull(config).getAlarms()) {
+            try {
+                ah.checkAlarm(alarm);
+            } catch (JEVisException e) {
+                logger.error(e);
+            }
         }
     }
 
@@ -123,7 +120,6 @@ public class Launcher extends AbstractCliApp {
                 ds.clearCache();
                 ds.preload();
                 getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-                getTimeConstraints();
             } catch (JEVisException e) {
                 logger.error(e);
             }
@@ -131,9 +127,10 @@ public class Launcher extends AbstractCliApp {
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                 logger.info("Service is enabled.");
                 try {
-                    AlarmHandler ah = new AlarmHandler(ds, furthestReported, latestReported);
-                    ah.checkAlarm();
-
+                    AlarmHandler ah = new AlarmHandler(config, ds);
+                    for (Alarm alarm : Objects.requireNonNull(config).getAlarms()) {
+                        ah.checkAlarm(alarm);
+                    }
                 } catch (JEVisException ex) {
                     logger.fatal(ex);
                 }
@@ -151,17 +148,6 @@ public class Launcher extends AbstractCliApp {
             runServiceHelp();
         } catch (InterruptedException e) {
             logger.error("Interrupted sleep: ", e);
-        }
-    }
-
-    private void getTimeConstraints() {
-        try {
-            JEVisClass serviceClass = ds.getJEVisClass(APP_SERVICE_CLASS_NAME);
-            List<JEVisObject> listServiceObjects = ds.getObjects(serviceClass, false);
-            furthestReported = listServiceObjects.get(0).getAttribute("Furthest reported").getLatestSample().getValueAsLong();
-            latestReported = listServiceObjects.get(0).getAttribute("Latest reported").getLatestSample().getValueAsLong();
-        } catch (Exception e) {
-            logger.error("Couldn't get Service status from the JEVis System");
         }
     }
 

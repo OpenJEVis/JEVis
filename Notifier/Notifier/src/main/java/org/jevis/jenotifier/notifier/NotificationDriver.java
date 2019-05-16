@@ -4,10 +4,9 @@
  */
 package org.jevis.jenotifier.notifier;
 
+import java.util.List;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
-
-import java.util.List;
 
 /**
  *
@@ -30,15 +29,6 @@ public interface NotificationDriver {
      * @return
      */
     boolean sendNotification(Notification jenoti);
-
-    /**
-     * Send the Notification. If the notification is successully sent, returns
-     * true. If not, returns false.
-     *
-     * @param jenoti
-     * @return
-     */
-    boolean sendNotification(Notification jenoti, String customMessage);
 
     /**
      * Check, whether the notification driver is configured to send the notification.

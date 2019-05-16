@@ -41,11 +41,6 @@
       "start": "Alarm Directory",
       "end": "Building",
       "type": 3
-    },
-    {
-      "start": "Administration Directory",
-      "end": "Building",
-      "type": 3
     }
   ],
   "types": [

@@ -72,11 +72,6 @@ public class SQLNotificationDriver implements NotificationDriver {
         return successful;
     }
 
-    @Override
-    public boolean sendNotification(Notification jenoti, String customMessage) {
-        return false;
-    }
-
     /**
      * All necessary parameters will be configured to send the SQLNotification.
      * If the SQLNotification is sucessfully sent, returns true. Else, returns

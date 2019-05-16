@@ -7,6 +7,7 @@ public class DataModelNode {
 
     private List<DataPointNode> data = new ArrayList<>();
     private String type;
+    private String forcedInterval = "";
 
     public List<DataPointNode> getData() {
         return data;
@@ -22,5 +23,13 @@ public class DataModelNode {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getForcedInterval() {
+        return forcedInterval;
+    }
+
+    public void setForcedInterval(String forcedInterval) {
+        this.forcedInterval = forcedInterval;
     }
 }

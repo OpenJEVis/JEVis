@@ -1,9 +1,9 @@
 {
   "jevisclass": "User Directory",
   "names": {
-    "de": "Benutzer",
-    "ru": "Users",
-    "en": "Users"
+    "de": "Benutzerverzeichnis",
+    "ru": "User Directory",
+    "en": "User Directory"
   },
   "descriptions": {
     "de": "Im Benutzerverzeichnis werden die Benutzer des JEVis Servers verwaltet.",

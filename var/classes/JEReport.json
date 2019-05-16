@@ -25,7 +25,7 @@
       "jevisClass": "JEReport"
     },
     {
-      "name": "Notification ID",
+      "name": "Report Notification ID",
       "primitiveType": 2,
       "guiType": "Number",
       "GUIPosition": 0,
@@ -52,14 +52,6 @@
     },
     {
       "name": "Cycle Time",
-      "primitiveType": 2,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "JEReport"
-    },
-    {
-      "name": "Status",
       "primitiveType": 2,
       "GUIPosition": 0,
       "validity": 0,

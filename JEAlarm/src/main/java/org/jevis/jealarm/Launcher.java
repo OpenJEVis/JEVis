@@ -43,8 +43,6 @@ public class Launcher extends AbstractCliApp {
     }
 
     private void executeProcesses(List<AlarmConfiguration> processes) {
-        logger.info("Number of Alarm Jobs: " + processes.size());
-        setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         processes.parallelStream().forEach(alarmConfiguration -> {
             forkJoinPool.submit(new Runnable() {
@@ -75,7 +73,6 @@ public class Launcher extends AbstractCliApp {
 
                         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
                             logger.info("Last job. Clearing cache.");
-                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
                             ds.clearCache();
                         }
 

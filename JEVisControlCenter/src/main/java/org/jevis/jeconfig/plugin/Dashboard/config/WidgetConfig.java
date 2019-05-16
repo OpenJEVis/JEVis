@@ -62,7 +62,7 @@ public class WidgetConfig {
             try {
                 title.setValue(jsonNode.get(title.getName()).asText(title.get()));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", title.getName(), ex);
+                logger.error("Could not parse {}: {}", title.getName(), ex.getMessage());
             }
 
             try {
@@ -108,6 +108,19 @@ public class WidgetConfig {
                 logger.error("Could not parse position: {}", title.getName(), ex);
             }
 
+            try {
+                showShadow.setValue(jsonNode.get("shadow").asBoolean(true));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", showShadow.getName(), ex.getMessage());
+            }
+
+            try {
+                borderSize.setValue(new BorderWidths(jsonNode.get("borderSize").asDouble(0.2)));
+            } catch (Exception ex) {
+                logger.error("Could not parse position: {}", showShadow.getName(), ex.getMessage());
+            }
+
+
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {
                 dataHandlerJson = jsonNode.asText(DATA_HANDLER_NODE);
 //                System.out.println("DATA_HANDLER_NODE: " + dataHandlerJson);
@@ -115,6 +128,7 @@ public class WidgetConfig {
             } else {
                 logger.debug("------ missing json node: {}", DATA_HANDLER_NODE);
             }
+
 
             if (jsonNode.get(WIDGET_SETTINGS_NODE) != null) {
                 extraNode = jsonNode.get(WIDGET_SETTINGS_NODE);

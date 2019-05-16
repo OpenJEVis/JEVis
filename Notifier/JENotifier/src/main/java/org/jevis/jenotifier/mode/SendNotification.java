@@ -20,17 +20,10 @@ public class SendNotification implements Runnable {
     private Notification _noti;
     private NotificationDriver _driver;
     private PrintWriter _writer;
-    private String _customMessage;
 
     public SendNotification(Notification noti, NotificationDriver notiDri) {
         _noti = noti;
         _driver = notiDri;
-    }
-
-    public SendNotification(Notification noti, NotificationDriver notiDri, String customMessage) {
-        _noti = noti;
-        _driver = notiDri;
-        _customMessage = customMessage;
     }
 
     public SendNotification(Notification notiObj, NotificationDriver notiDriObj, PrintWriter writer) {
@@ -47,11 +40,7 @@ public class SendNotification implements Runnable {
 
         if (_noti.isNotiConfigured() && _driver.isDriverConfigured()) {
             if (_driver.isSupported(_noti)) {
-                if (_customMessage == null) {
-                    _driver.sendNotification(_noti);
-                } else {
-                    _driver.sendNotification(_noti, _customMessage);
-                }
+                _driver.sendNotification(_noti);
                 if (_noti.isSendSuccessfully()) {
                     _driver.sendTimeRecorder(_noti);
                     logger.info("------- " + _noti.getJEVisObjectNoti().getName() + " " + _noti.getJEVisObjectNoti().getID() + " Sent sucessfully by " + _driver.getJEVisObjectDriver().getName() + " " + _driver.getJEVisObjectDriver().getID() + "-------");

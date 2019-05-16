@@ -21,11 +21,6 @@
       "start": "E-Mail Notification",
       "end": "Static Limit Alarm",
       "type": 3
-    },
-    {
-      "start": "E-Mail Notification",
-      "end": "JEStatus",
-      "type": 3
     }
   ],
   "types": [

@@ -163,7 +163,7 @@ public class DateHelper {
                                 now = DateTime.now();
                                 startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
                                         startTime.getHour(), startTime.getMinute(), startTime.getSecond())
-                                        .minusDays(now.getDayOfWeek() - 1);
+                                        .minusDays(now.getDayOfWeek());
                                 break;
                             case "CURRENT_MONTH":
                                 now = DateTime.now();
@@ -255,7 +255,6 @@ public class DateHelper {
             listTimeStamps.add(start);
             DateTime currentDateTime = start.plus(d);
             while (currentDateTime.isBefore(end)) {
-                if (currentDateTime.getSecondOfMinute() == 59) currentDateTime = currentDateTime.plusSeconds(1);
                 listTimeStamps.add(currentDateTime);
                 currentDateTime = currentDateTime.plus(d);
             }

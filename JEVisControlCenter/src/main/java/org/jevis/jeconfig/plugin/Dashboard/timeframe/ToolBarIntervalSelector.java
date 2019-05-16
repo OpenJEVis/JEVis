@@ -4,7 +4,7 @@ import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.control.*;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -16,7 +16,7 @@ import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-public class ToolBarIntervalSelector extends FlowPane {
+public class ToolBarIntervalSelector extends HBox {
 
     private static final Logger logger = LogManager.getLogger(ToolBarIntervalSelector.class);
     private final DashBordModel analysis;
@@ -44,7 +44,7 @@ public class ToolBarIntervalSelector extends FlowPane {
 
 
         ComboBox<TimeFrameFactory> timeFrameBox = new ComboBox();
-        timeFrameBox.setPrefWidth(100);
+        timeFrameBox.setPrefWidth(150);
         timeFrameBox.setMinWidth(100);
 
         Callback<ListView<TimeFrameFactory>, ListCell<TimeFrameFactory>> cellFactory = new Callback<ListView<TimeFrameFactory>, ListCell<TimeFrameFactory>>() {
@@ -127,6 +127,12 @@ public class ToolBarIntervalSelector extends FlowPane {
 
         Platform.runLater(() -> {
             timeFrameBox.getSelectionModel().selectFirst();
+            ToolBarIntervalSelector.this.setDisable(analysis.disableIntervalUI.get());
+            nextButton.setDisable(analysis.disableIntervalUI.get());
+            prevButton.setDisable(analysis.disableIntervalUI.get());
+            dateButton.setDisable(analysis.disableIntervalUI.get());
+            timeFrameBox.setDisable(analysis.disableIntervalUI.get());
+
         });
 
 

@@ -21,13 +21,7 @@ package org.jevis.jestatus;
 
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
-import org.jevis.jenotifier.mode.SendNotification;
-import org.jevis.jenotifier.notifier.Email.EmailNotification;
-import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
-import org.jevis.jenotifier.notifier.Email.EmailServiceProperty;
-import org.jevis.jenotifier.notifier.Notification;
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -38,31 +32,24 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * This Class handles the logic and the sending of the alarms.
+ * This Class handels the logic and the sending of the alarms.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class AlarmHandler {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(AlarmHandler.class);
-    private final Long furthestReported;
-    private final Long latestReported;
-    private final DateTime now;
 
     private JEVisDataSource _ds;
     private Config _conf;
-    private JEVisObject notificationObject;
 
     /**
      * Create an AlarmHandler for the given Configuration
      *
-     * @param furthestReported
-     * @param latestReported
+     * @param conf
      */
-    public AlarmHandler(JEVisDataSource ds, Long furthestReported, Long latestReported) {
+    public AlarmHandler(Config conf, JEVisDataSource ds) {
+        _conf = conf;
         _ds = ds;
-        this.furthestReported = furthestReported;
-        this.latestReported = latestReported;
-        this.now = DateTime.now();
     }
 
     /**
@@ -99,101 +86,52 @@ public class AlarmHandler {
     /**
      * Checks the Data Objects for alarms and send an email.
      *
-     * @param
+     * @param alarm
      * @throws JEVisException
      */
-    public void checkAlarm() throws JEVisException {
+    public void checkAlarm(Alarm alarm) throws JEVisException {
 
         StringBuilder sb = new StringBuilder();
 
         sb.append("<html>");
-//        sb.append(alarm.getGreeting());
-//        sb.append(",");
-//        sb.append("<br>");
-//        sb.append("<br>");
-//        sb.append(alarm.getMessage());
+        sb.append(alarm.getGreeting());
+        sb.append(",");
+        sb.append("<br>");
+        sb.append("<br>");
+        sb.append(alarm.getMessage());
+        sb.append("<br>");
+        sb.append("<br>");
+
+        sb.append("<h1>Service Stati</h1>");
 
         ServiceStati serviceStati = new ServiceStati(_ds);
-        sb.append(serviceStati.getTableString());
+        sb.append(serviceStati.getStati());
 
-        DataServerTable dataServerTable = new DataServerTable(_ds, getFurthestReported(), getLatestReported());
+        sb.append("<br>");
+        sb.append("<br>");
+
+        DataServerTable dataServerTable = new DataServerTable(_ds, alarm);
         sb.append(dataServerTable.getTableString());
 
-        CalculationTable calculationTable = new CalculationTable(_ds, getFurthestReported(), getLatestReported(), dataServerTable.getListCheckedData());
+        CalculationTable calculationTable = new CalculationTable(_ds, alarm, dataServerTable.getListCheckedData());
         sb.append(calculationTable.getTableString());
 
-        CleanDataTable cleanDataTable = new CleanDataTable(_ds, getFurthestReported(), getLatestReported(), calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
+        CleanDataTable cleanDataTable = new CleanDataTable(_ds, alarm, calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
         sb.append(cleanDataTable.getTableString());
 
+        sb.append(_conf.getSmtpSignatur());
         sb.append("</html>");
 
-        logToServiceObject(sb.toString());
-        if (isEMailEnabled()) {
-            initializeNotification();
-
-            sendNotification(notificationObject, sb.toString());
-
-//                sendAlarm(_conf, alarm, sb.toString());
-
-        }
-
-    }
-
-    private void sendNotification(JEVisObject notificationObject, String customMessage) {
-        try {
-
-            EmailServiceProperty service = getStatusService();
-
-            Notification nofi = new EmailNotification();
-            nofi.setNotificationObject(notificationObject);
-
-            JEVisObject notiDriObj = notificationObject.getDataSource().getObject(service.getMailID());
-
-            EmailNotificationDriver emailNofi = new EmailNotificationDriver();
-            emailNofi.setNotificationDriverObject(notiDriObj);
-
-            SendNotification sn = new SendNotification(nofi, emailNofi, customMessage);
-            sn.run();
-
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
-    }
-
-    private EmailServiceProperty getStatusService() {
-
-        EmailServiceProperty service = new EmailServiceProperty();
-        try {
-            JEVisClass jeVisClass = _ds.getJEVisClass("JEStatus");
-            List<JEVisObject> statusServies = _ds.getObjects(jeVisClass, true);
-            if (statusServies.size() == 1) {
-                service.initialize(statusServies.get(0));
-            }
-        } catch (JEVisException ex) {
-            logger.error("error while getting status service", ex);
-        }
-        return service;
-    }
-
-    private void initializeNotification() {
-        try {
-            JEVisClass jEStatusClass = _ds.getJEVisClass("JEStatus");
-            List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
-            if (!jEStatusObjects.isEmpty()) {
-                JEVisClass notificationType = _ds.getJEVisClass("E-Mail Notification");
-                List<JEVisObject> notificationObjects = jEStatusObjects.get(0).getChildren(notificationType, false);
-                if (notificationObjects.size() == 1) {
-                    notificationObject = notificationObjects.get(0);
-                } else {
-                    throw new IllegalStateException("Too many or no Notification Object for report Object: id: " + jEStatusObjects.get(0).getID() + " and name: " + jEStatusObjects.get(0).getName());
-                }
-            } else {
-                throw new IllegalStateException("No JEStatus Objects found.");
+        if (alarm.isIgnoreFalse()) {
+            //Do nothing then
+        } else {
+            logToServiceObject(sb.toString());
+            if (isEMailEnabled()) {
+                sendAlarm(_conf, alarm, sb.toString());
             }
 
-        } catch (JEVisException ex) {
-            throw new RuntimeException("Error while parsing Notification Object for JEStatus", ex);
         }
+
     }
 
     private void logToServiceObject(String log) throws JEVisException {
@@ -365,11 +303,4 @@ public class AlarmHandler {
 
     }
 
-    private DateTime getFurthestReported() {
-        return now.minus(Period.hours(furthestReported.intValue()));
-    }
-
-    private DateTime getLatestReported() {
-        return now.minus(Period.hours(latestReported.intValue()));
-    }
 }

@@ -163,7 +163,6 @@ public abstract class Widget extends Group {
         getChildren().add(contentRoot);
         makeDragDropOverlay();
 
-
         if (config.showShadow.getValue()) {
             DropShadow dropShadow = new DropShadow();
             dropShadow.setRadius(5.0);

@@ -11,32 +11,9 @@
       "start": "JEStatus",
       "end": "Service Directory",
       "type": 3
-    },
-    {
-      "start": "E-Mail Notification",
-      "end": "JEStatus",
-      "type": 3
     }
   ],
   "types": [
-    {
-      "name": "Notification File",
-      "primitiveType": 3,
-      "guiType": "File Selector",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "JEStatus"
-    },
-    {
-      "name": "Notification ID",
-      "primitiveType": 2,
-      "guiType": "Number",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "JEStatus"
-    },
     {
       "name": "Enable",
       "primitiveType": 4,
@@ -75,30 +52,6 @@
       "name": "Status Log",
       "primitiveType": 0,
       "guiType": "Web View",
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "JEStatus"
-    },
-    {
-      "name": "Status",
-      "primitiveType": 2,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "JEStatus"
-    },
-    {
-      "name": "Furthest reported",
-      "primitiveType": 2,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "JEStatus"
-    },
-    {
-      "name": "Latest reported",
-      "primitiveType": 2,
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,

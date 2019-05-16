@@ -42,11 +42,6 @@
       "start": "View Directory",
       "end": "Monitored Object",
       "type": 3
-    },
-    {
-      "start": "Administration Directory",
-      "end": "Monitored Object",
-      "type": 3
     }
   ]
 }

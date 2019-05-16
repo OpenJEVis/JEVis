@@ -39,14 +39,6 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEDataProcessor"
-    },
-    {
-      "name": "Status",
-      "primitiveType": 2,
-      "GUIPosition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "JEDataProcessor"
     }
   ]
 }

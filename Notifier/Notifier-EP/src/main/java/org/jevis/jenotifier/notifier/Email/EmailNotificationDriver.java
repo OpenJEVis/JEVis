@@ -391,27 +391,6 @@ public class EmailNotificationDriver implements NotificationDriver {
     }
 
     /**
-     * To send the Notification, the Notification must have the type: Email
-     * Notification. If the notification is sucessfully sent, returns true.
-     * Else, returns false.
-     *
-     * @param jenoti type: Notification
-     * @return
-     */
-    public boolean sendNotification(Notification jenoti, String customMessage) {
-        boolean successful = false;
-        if (jenoti.getType().equals(APPLICATIVE_NOTI_TYPE)) {
-            EmailNotification emnoti = (EmailNotification) jenoti;//(EmailNotification) jenoti;
-            successful = sendEmailNotification(emnoti, customMessage);
-            return successful;
-        } else {
-            logger.info("This Notification is not the EmailNotification.");
-            logger.info("This Notification is" + jenoti.getType() + ".");
-            return successful;
-        }
-    }
-
-    /**
      * All necessary parameters will be configured to send the
      * EmailNotification. If the EmailNotification is sucessfully sent, returns
      * true. Else, returns false.
@@ -427,39 +406,7 @@ public class EmailNotificationDriver implements NotificationDriver {
             session = setServer(this); //set the properties for sen
             logger.debug("Set Server finished.");
 
-            message = configureMessage(session, emnoti, null);
-            logger.debug("Finished configuring message.");
-
-            Transport.send(message);
-            logger.debug("Sent message.");
-
-            emnoti.setSuccessfulSend(true, new DateTime(new Date()));//set the send time
-            return true;
-        } catch (MessagingException mex) {
-            logger.error(mex);
-            return false;
-        }
-
-    }
-
-    /**
-     * All necessary parameters will be configured to send the
-     * EmailNotification. If the EmailNotification is sucessfully sent, returns
-     * true. Else, returns false.
-     *
-     * @param emnoti        type: EmailNotification
-     * @param customMessage for a custom message in the e-mail
-     * @return
-     */
-    public boolean sendEmailNotification(EmailNotification emnoti, String customMessage) {
-        try {
-            Session session;
-            MimeMessage message;
-
-            session = setServer(this); //set the properties for sen
-            logger.debug("Set Server finished.");
-
-            message = configureMessage(session, emnoti, customMessage);
+            message = configureMessage(session, emnoti);
             logger.debug("Finished configuring message.");
 
             Transport.send(message);
@@ -478,13 +425,12 @@ public class EmailNotificationDriver implements NotificationDriver {
      * To configure the Email information with the attribute of
      * EmailNotification and EmailNotificationDriver.
      *
-     * @param session       the Session created by setServer()
-     * @param emnoti        the EmailNotification to be sent
-     * @param customMessage for adding a custom message for other mail
+     * @param session the Session created by setServer()
+     * @param emnoti  the EmailNotification to be sent
      * @return the configured Email: the variable of type MimeMessage
      * @throws UnsupportedEncodingException
      */
-    private MimeMessage configureMessage(Session session, EmailNotification emnoti, String customMessage) throws MessagingException {
+    private MimeMessage configureMessage(Session session, EmailNotification emnoti) throws MessagingException {
         MimeMessage message;
         message = new MimeMessage(session);//MimeMessage
 
@@ -537,14 +483,8 @@ public class EmailNotificationDriver implements NotificationDriver {
             if (emnoti.getMessage() != null) { //If message is not null, it will be setted
                 if (emnoti.getIsHTML()) { //judge, Whether the message is HTML-Form or Text-Form
                     messageBodyPart.setContent(emnoti.getMessage(), "text/html; charset=UTF-8"); //HTML-Form
-                    if (customMessage != null) {
-                        messageBodyPart.setContent(emnoti.getMessage() + customMessage, "text/html; charset=UTF-8");
-                    }
                 } else {
                     messageBodyPart.setText(emnoti.getMessage()); //Text-Form
-                    if (customMessage != null) {
-                        messageBodyPart.setText(emnoti.getMessage() + customMessage);
-                    }
                 }
                 multipart.addBodyPart(messageBodyPart);
             }
@@ -559,9 +499,6 @@ public class EmailNotificationDriver implements NotificationDriver {
             }
         } else {
             messageBodyPart.setText("");
-            if (customMessage != null) {
-                messageBodyPart.setContent(emnoti.getMessage() + customMessage, "text/html; charset=UTF-8");
-            }
             multipart.addBodyPart(messageBodyPart);
             logger.info("There is no message and no attachment!");
         }

@@ -32,9 +32,6 @@ public class TimeFrames {
         this.ds = ds;
     }
 
-    public TimeFrames() {
-    }
-
     public ObservableList<TimeFrameFactory> getAll() {
         ObservableList<TimeFrameFactory> list = FXCollections.observableArrayList();
 
@@ -43,36 +40,41 @@ public class TimeFrames {
         list.add(month());
         list.add(year());
 
-        List<JEVisObject> listCustomPeriods = null;
-        try {
-            listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
-        } catch (JEVisException e) {
-            logger.error("Error: could not get custom period", e);
-        }
 
-        List<CustomPeriodObject> listCustomPeriodObjects = null;
-        if (listCustomPeriods != null) {
-            for (JEVisObject obj : listCustomPeriods) {
-                if (obj != null) {
-                    if (listCustomPeriodObjects == null) listCustomPeriodObjects = new ArrayList<>();
-                    CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(ds));
-                    if (cpo.isVisible()) {
-                        listCustomPeriodObjects.add(cpo);
+        if (this.ds != null) {
+            List<JEVisObject> listCustomPeriods = null;
+            try {
+                listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
+            } catch (JEVisException e) {
+                logger.error("Error: could not get custom period", e);
+            }
+
+            List<CustomPeriodObject> listCustomPeriodObjects = null;
+            if (listCustomPeriods != null) {
+                for (JEVisObject obj : listCustomPeriods) {
+                    if (obj != null) {
+                        if (listCustomPeriodObjects == null) listCustomPeriodObjects = new ArrayList<>();
+                        CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(ds));
+                        if (cpo.isVisible()) {
+                            listCustomPeriodObjects.add(cpo);
+                        }
                     }
+                }
+            }
+
+            if (listCustomPeriodObjects != null) {
+                for (CustomPeriodObject cpo : listCustomPeriodObjects) {
+                    list.add(customPeriodObject(cpo));
                 }
             }
         }
 
-        if (listCustomPeriodObjects != null) {
-            for (CustomPeriodObject cpo : listCustomPeriodObjects) {
-                list.add(cpos(cpo));
-            }
-        }
 
         return list;
     }
 
-    private TimeFrameFactory cpos(CustomPeriodObject cpo) {
+
+    public TimeFrameFactory customPeriodObject(CustomPeriodObject cpo) {
         return new TimeFrameFactory() {
             @Override
             public String getListName() {
@@ -249,7 +251,8 @@ public class TimeFrames {
         return new TimeFrameFactory() {
             @Override
             public String getID() {
-                return TimeFrameType.WEEK.toString();
+                return Period.weeks(1).toString();
+//                return TimeFrameType.WEEK.toString();
             }
 
             @Override
@@ -335,7 +338,8 @@ public class TimeFrames {
         return new TimeFrameFactory() {
             @Override
             public String getID() {
-                return TimeFrameType.YEAR.toString();
+                return Period.years(1).toString();
+//                return TimeFrameType.YEAR.toString();
             }
 
             @Override
