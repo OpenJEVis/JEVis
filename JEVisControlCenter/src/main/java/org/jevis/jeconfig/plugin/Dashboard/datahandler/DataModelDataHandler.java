@@ -99,6 +99,7 @@ public class DataModelDataHandler {
                         chartDataModel.setSelectedStart(new DateTime(1000, 1, 1, 1, 1, 1));
                         chartDataModel.setSelectedEnd(new DateTime(1000, 1, 1, 1, 1, 2));
 
+                        chartDataModel.setAbsolute(dataPointNode.isAbsolute());
                         chartDataModel.setSelectedCharts(list);
                         chartDataModel.setObject(jeVisAttribute.getObject());
                         chartDataModel.setAttribute(jeVisAttribute);
@@ -106,6 +107,7 @@ public class DataModelDataHandler {
                             chartDataModel.setDataProcessor(cleanObject);
                             chartDataModel.setAttribute(cleanObject.getAttribute(dataPointNode.getAttribute()));
                         }
+
 
                         chartDataModel.setManipulationMode(dataPointNode.getManipulationMode());
                         chartDataModel.setAggregationPeriod(dataPointNode.getAggregationPeriod());
@@ -127,7 +129,10 @@ public class DataModelDataHandler {
 
                         if (dataPointNode.isEnpi()) {
                             chartDataModel.setEnPI(dataPointNode.isEnpi());
-                            chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
+                            if (dataPointNode.getCalculationID() != null && !dataPointNode.getCalculationID().equals("0")) {
+                                chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
+                            }
+
                         }
 
                     } else {

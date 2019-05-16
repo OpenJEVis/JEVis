@@ -71,7 +71,7 @@ public class ValueWidget extends Widget {
 
         try {
             ChartDataModel dataModel = sampleHandler.getDataModel().get(0);
-            dataModel.setAbsolute(true);
+//            dataModel.setAbsolute(true);
             List<JEVisSample> results;
 
             String unit = dataModel.getUnitLabel();
