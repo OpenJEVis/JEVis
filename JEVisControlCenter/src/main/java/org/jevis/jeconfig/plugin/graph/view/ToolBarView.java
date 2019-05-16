@@ -89,6 +89,7 @@ public class ToolBarView {
     private SimpleBooleanProperty autoResizeInGraph = new SimpleBooleanProperty(true);
     private SimpleBooleanProperty showIconsInGraph = new SimpleBooleanProperty(true);
     private SimpleBooleanProperty showRawDataInGraph = new SimpleBooleanProperty(false);
+    private SimpleBooleanProperty showSumInGraph = new SimpleBooleanProperty(false);
     private ToolBar toolBar;
 
 
@@ -128,6 +129,7 @@ public class ToolBarView {
     private ImageView pauseIcon;
     private ImageView playIcon;
     private ToggleButton showRawData;
+    private ToggleButton showSum;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.model = model;
@@ -297,6 +299,10 @@ public class ToolBarView {
         showRawDataInGraph.set(model.getShowRawData());
     }
 
+    private void showSumInGraph() {
+        model.setShowSum(!model.getShowSum());
+        showSumInGraph.set(model.getShowSum());
+    }
 
     private ComboBox<JEVisObject> getListAnalysesComboBox() {
         return listAnalysesComboBox;
@@ -642,6 +648,7 @@ public class ToolBarView {
         autoResize.setDisable(bool);
         select.setDisable(bool);
         showRawData.setDisable(bool);
+        showSum.setDisable(bool);
         disableIcons.setDisable(bool);
         zoomOut.setDisable(bool);
         presetDateBox.setDisable(bool);
@@ -693,7 +700,7 @@ public class ToolBarView {
                     sep1, presetDateBox, pickerDateStart, pickerDateEnd,
                     sep2, reload, zoomOut,
                     sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                    sep4, showRawData, disableIcons, autoResize, runUpdateButton);
+                    sep4, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
 
 
             setupAnalysisComboBoxListener();
@@ -757,6 +764,8 @@ public class ToolBarView {
         delete.setOnAction(event -> deleteCurrentAnalysis());
 
         showRawData.setOnAction(event -> showRawDataInGraph());
+
+        showSum.setOnAction(event -> showSumInGraph());
 
         disableIcons.setOnAction(event -> hideShowIconsInGraph());
 
@@ -827,7 +836,7 @@ public class ToolBarView {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(select);
 
         showRawData = new ToggleButton("", JEConfig.getImage("raw_199316.png", iconSize, iconSize));
-        Tooltip showRawDataTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
+        Tooltip showRawDataTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showrawdata"));
         showRawData.setTooltip(showRawDataTooltip);
         showRawData.setSelected(showRawDataInGraph.get());
         showRawData.styleProperty().bind(
@@ -837,6 +846,21 @@ public class ToolBarView {
                                 new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
                         .otherwise(Bindings
                                 .when(showRawData.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
+        showSum = new ToggleButton("", JEConfig.getImage("Sum_132399.png", iconSize, iconSize));
+        Tooltip showSumTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showsum"));
+        showSum.setTooltip(showSumTooltip);
+        showSum.setSelected(showSumInGraph.get());
+        showSum.styleProperty().bind(
+                Bindings
+                        .when(showSum.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(showSum.selectedProperty())
                                 .then("-fx-background-insets: 1 1 1;")
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));

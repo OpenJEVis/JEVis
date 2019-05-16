@@ -410,7 +410,7 @@ public class ChartView implements Observer {
         boolean containsEnPI = chartDataModels.stream().anyMatch(ChartDataModel::getEnPI);
         switch (chartType) {
             case AREA:
-                chart = new AreaChart(chartDataModels, dataModel.getShowRawData(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                chart = new AreaChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
@@ -428,7 +428,7 @@ public class ChartView implements Observer {
                 } else disableTable();
                 break;
             case LINE:
-                chart = new LineChart(chartDataModels, dataModel.getShowRawData(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                chart = new LineChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
@@ -444,25 +444,25 @@ public class ChartView implements Observer {
                 tableView.getColumns().get(10).setVisible(false);
                 break;
             case COLUMN:
-                chart = new ColumnChart(chartDataModels, dataModel.getShowRawData(), dataModel.getHideShowIcons(), chartId, getChartName());
+                chart = new ColumnChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), chartId, getChartName());
                 setTableStandard();
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case BUBBLE:
-                chart = new BubbleChart(chartDataModels, dataModel.getShowRawData(), dataModel.getHideShowIcons(), chartId, getChartName());
+                chart = new BubbleChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), chartId, getChartName());
                 setTableStandard();
                 break;
             case SCATTER:
-                chart = new ScatterChart(chartDataModels, dataModel.getShowRawData(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                chart = new ScatterChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case PIE:
-                chart = new PieChart(chartDataModels, dataModel.getShowRawData(), dataModel.getHideShowIcons(), chartId, getChartName());
+                chart = new PieChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), chartId, getChartName());
                 disableTable();
                 break;
             case TABLE:
-                chart = new TableChart(chartDataModels, dataModel.getShowRawData(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                chart = new TableChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
                 tableView.getColumns().get(0).setVisible(false);
                 tableView.getColumns().get(2).setVisible(false);
@@ -474,7 +474,7 @@ public class ChartView implements Observer {
                 tableView.getColumns().get(10).setVisible(false);
                 break;
             default:
-                chart = new AreaChart(chartDataModels, dataModel.getShowRawData(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                chart = new AreaChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;

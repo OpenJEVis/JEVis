@@ -13,8 +13,8 @@ import java.util.List;
 public class LineChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(LineChart.class);
 
-    public LineChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, showRawData, hideShowIcons, addSeriesOfType, chartId, chartName);
+    public LineChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+        super(chartDataModels, showRawData, showSum, hideShowIcons, addSeriesOfType, chartId, chartName);
     }
 
     @Override

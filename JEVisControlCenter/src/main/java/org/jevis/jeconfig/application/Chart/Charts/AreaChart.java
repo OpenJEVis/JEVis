@@ -12,8 +12,8 @@ public class AreaChart extends org.jevis.jeconfig.application.Chart.Charts.XYCha
     private static final Logger logger = LogManager.getLogger(AreaChart.class);
 
 
-    public AreaChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, showRawData, hideShowIcons, addSeriesOfType, chartId, chartName);
+    public AreaChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+        super(chartDataModels, showRawData, showSum, hideShowIcons, addSeriesOfType, chartId, chartName);
     }
 
     @Override

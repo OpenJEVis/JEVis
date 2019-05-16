@@ -81,6 +81,7 @@ public class GraphDataModel {
     private AnalysisTimeFrame globalAnalysisTimeFrame;
     private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
     private Boolean showRawData = false;
+    private Boolean showSum = false;
 
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
@@ -312,10 +313,23 @@ public class GraphDataModel {
         }
     }
 
+    public Boolean getShowSum() {
+        return showSum;
+    }
+
+    public void setShowSum(Boolean show) {
+        this.showSum = show;
+
+        if (show) {
+            update();
+        } else {
+            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+        }
+    }
+
     public Boolean getShowRawData() {
         return showRawData;
     }
-
 
     public void setShowRawData(Boolean show) {
         this.showRawData = show;

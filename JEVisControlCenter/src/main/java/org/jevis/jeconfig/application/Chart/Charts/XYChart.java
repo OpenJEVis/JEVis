@@ -1,6 +1,7 @@
 
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
@@ -20,8 +21,12 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
+import org.jevis.jeapi.ws.JEVisObjectWS;
 import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
@@ -50,6 +55,7 @@ import static org.jevis.commons.dataprocessing.ManipulationMode.RUNNING_MEAN;
 public class XYChart implements Chart {
     private static final Logger logger = LogManager.getLogger(XYChart.class);
     private final Boolean showRawData;
+    private final Boolean showSum;
     Boolean hideShowIcons;
     //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
     List<Color> hexColors = new ArrayList<>();
@@ -86,9 +92,10 @@ public class XYChart implements Chart {
     private ChartPanManager panner;
     private JFXChartUtil jfxChartUtil;
 
-    public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+    public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
         this.showRawData = showRawData;
+        this.showSum = showSum;
         this.hideShowIcons = hideShowIcons;
         this.chartName = chartName;
         this.addSeriesOfType = addSeriesOfType;
@@ -110,7 +117,8 @@ public class XYChart implements Chart {
         addManipulationToTitle = new AtomicBoolean(false);
         manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
-        chartDataModels.forEach(singleRow -> {
+        ChartDataModel sumModel = null;
+        for (ChartDataModel singleRow : chartDataModels) {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
                     if (showRawData && singleRow.getDataProcessor() != null) {
@@ -128,11 +136,87 @@ public class XYChart implements Chart {
 
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
 
+                    if (showSum && sumModel == null) {
+                        sumModel = singleRow.clone();
+                    }
+
                 } catch (JEVisException e) {
                     logger.error("Error: Cant create series for data rows: ", e);
                 }
             }
-        });
+        }
+
+        if (showSum && chartDataModels.size() > 1) {
+            try {
+                JsonObject json = new JsonObject();
+                json.setId(9999999999L);
+                json.setName("Summe");
+                JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) sumModel.getObject().getDataSource(), json);
+                sumModel.setObject(test);
+                sumModel.setAxis(1);
+                sumModel.setColor(Color.BLACK);
+                Map<DateTime, JEVisSample> sumSamples = new HashMap<>();
+                for (ChartDataModel model : chartDataModels) {
+                    for (JEVisSample jeVisSample : model.getSamples()) {
+                        try {
+                            DateTime ts = jeVisSample.getTimestamp();
+                            Double value = jeVisSample.getValueAsDouble();
+                            if (!sumSamples.containsKey(ts)) {
+                                JEVisSample smp = new VirtualSample(ts, value);
+                                smp.setNote("sum");
+                                sumSamples.put(ts, smp);
+                            } else {
+                                JEVisSample smp = sumSamples.get(ts);
+
+                                smp.setValue(smp.getValueAsDouble() + value);
+                            }
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
+                ArrayList arrayList = new ArrayList<>(sumSamples.values());
+                arrayList.sort(new Comparator<JEVisSample>() {
+                    @Override
+                    public int compare(JEVisSample o1, JEVisSample o2) {
+                        try {
+                            if (o1.getTimestamp().isBefore(o2.getTimestamp())) {
+                                return -1;
+                            } else if (o1.getTimestamp().equals(o2.getTimestamp())) {
+                                return 0;
+                            } else {
+                                return 1;
+                            }
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                        return -1;
+                    }
+                });
+
+                sumModel.setSamples(arrayList);
+                sumModel.setSomethingChanged(false);
+            } catch (JEVisException e) {
+                logger.error("Could not generate sum of data rows: ", e);
+            }
+            try {
+                xyChartSerieList.add(generateSerie(changedBoth, sumModel));
+
+                Platform.runLater(() -> {
+                    chart.getData().forEach(serie -> ((MultiAxisChart.Series) serie).getData().forEach(numberNumberData -> {
+                        MultiAxisChart.Data node = (MultiAxisChart.Data) numberNumberData;
+                        if (node != null && chart.getData().indexOf(serie) != chart.getData().size() - 1) {
+                            node.setExtraValue(0);
+                        } else if (node != null) {
+                            node.setExtraValue(1);
+                        }
+                    }));
+                });
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+        }
 
         if (asDuration) {
             ((DateValueAxis) dateAxis).setAsDuration(true);
@@ -144,18 +228,31 @@ public class XYChart implements Chart {
 
         generateYAxis();
 
-        getChart().setStyle("-fx-font-size: " + 12 + "px;");
-        getChart().setAnimated(false);
+        getChart().
+
+                setStyle("-fx-font-size: " + 12 + "px;");
+
+        getChart().
+
+                setAnimated(false);
+
         applyColors();
 
-        getChart().setTitle(getUpdatedChartName());
+        getChart().
 
-        getChart().setLegendVisible(false);
+                setTitle(getUpdatedChartName());
+
+        getChart().
+
+                setLegendVisible(false);
         //((javafx.scene.chart.XYChart)getChart()).setCreateSymbols(true);
 
-        chartSettingsFunction.applySetting(getChart());
+        chartSettingsFunction.applySetting(
+
+                getChart());
 
         initializeZoom();
+
     }
 
     public void initializeChart() {
@@ -447,12 +544,14 @@ public class XYChart implements Chart {
                 }
             }
 
-            chart.getData().forEach(serie -> ((MultiAxisChart.Series) serie).getData().forEach(numberNumberData -> {
-                if (((MultiAxisChart.Data) numberNumberData).getNode() != null)
-                    if (((MultiAxisChart.Data) numberNumberData).getNode().getClass().equals(HBox.class)) {
-                        ((MultiAxisChart.Data) numberNumberData).getNode().setVisible(hideShowIcons);
-                    }
-            }));
+            Platform.runLater(() -> {
+                chart.getData().forEach(serie -> ((MultiAxisChart.Series) serie).getData().forEach(numberNumberData -> {
+                    if (((MultiAxisChart.Data) numberNumberData).getNode() != null)
+                        if (((MultiAxisChart.Data) numberNumberData).getNode().getClass().equals(HBox.class)) {
+                            ((MultiAxisChart.Data) numberNumberData).getNode().setVisible(hideShowIcons);
+                        }
+                }));
+            });
 
             applyColors();
 
