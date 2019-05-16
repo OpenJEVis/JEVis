@@ -4,30 +4,32 @@ import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.control.*;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
-public class ToolBarIntervalSelector extends FlowPane {
+public class ToolBarIntervalSelector extends HBox {
 
     private static final Logger logger = LogManager.getLogger(ToolBarIntervalSelector.class);
     private final DashBordModel analysis;
+    private final JEVisDataSource ds;
     //    public ObjectProperty<Interval> intervalProperty = new SimpleObjectProperty<>();
 //    public ObjectProperty<TimeFrameFactory> timeFrameProperty = new SimpleObjectProperty<>();
 //    public ObjectProperty<DateTime> dateTimereferrenzProperty = new SimpleObjectProperty<>(new DateTime());
     private TimeFrameEdior popup;
 
-    public ToolBarIntervalSelector(DashBordModel analysis, Double iconSize, final Interval interval) {
+    public ToolBarIntervalSelector(JEVisDataSource dataSource, DashBordModel analysis, Double iconSize, final Interval interval) {
         super();
+        this.ds = dataSource;
         this.analysis = analysis;
-
 
 //        analysis.intervalProperty.setValue(interval);
 
@@ -42,7 +44,7 @@ public class ToolBarIntervalSelector extends FlowPane {
 
 
         ComboBox<TimeFrameFactory> timeFrameBox = new ComboBox();
-        timeFrameBox.setPrefWidth(100);
+        timeFrameBox.setPrefWidth(150);
         timeFrameBox.setMinWidth(100);
 
         Callback<ListView<TimeFrameFactory>, ListCell<TimeFrameFactory>> cellFactory = new Callback<ListView<TimeFrameFactory>, ListCell<TimeFrameFactory>>() {
@@ -69,7 +71,7 @@ public class ToolBarIntervalSelector extends FlowPane {
                 return cell;
             }
         };
-        TimeFrames timeFrames = new TimeFrames();
+        TimeFrames timeFrames = new TimeFrames(ds);
         timeFrames.setWorkdays(analysis.getAnalysisObject());
         timeFrameBox.setItems(timeFrames.getAll());
 
@@ -125,6 +127,12 @@ public class ToolBarIntervalSelector extends FlowPane {
 
         Platform.runLater(() -> {
             timeFrameBox.getSelectionModel().selectFirst();
+            ToolBarIntervalSelector.this.setDisable(analysis.disableIntervalUI.get());
+            nextButton.setDisable(analysis.disableIntervalUI.get());
+            prevButton.setDisable(analysis.disableIntervalUI.get());
+            dateButton.setDisable(analysis.disableIntervalUI.get());
+            timeFrameBox.setDisable(analysis.disableIntervalUI.get());
+
         });
 
 

@@ -14,13 +14,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.calculation.CalcJob;
-import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.commons.database.SampleHandler;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.Interval;
 
 import java.text.NumberFormat;
@@ -47,6 +45,10 @@ public class ValueWidget extends Widget {
     @Override
     public void update(Interval interval) {
         logger.debug("Value.Update: {}", interval);
+        Platform.runLater(() -> {
+            label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
+        });
+
 
         sampleHandler.setInterval(interval);
         sampleHandler.update();
@@ -74,18 +76,21 @@ public class ValueWidget extends Widget {
             String unit = dataModel.getUnitLabel();
 
 
-            if (dataModel.getEnPI()) {
-                CalcJobFactory calcJobCreator = new CalcJobFactory();
+            results = dataModel.getSamples();
 
-                CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(
-                        new SampleHandler(), dataModel.getObject().getDataSource(), dataModel.getCalculationObject(),
-                        dataModel.getSelectedStart(), dataModel.getSelectedEnd(), true);
-
-                results = calcJob.getResults();
-
-            } else {
-                results = dataModel.getSamples();
-            }
+//            if (dataModel.getEnPI()) {
+//                System.out.println("is EnpI: " + dataModel.getEnPI());
+//                CalcJobFactory calcJobCreator = new CalcJobFactory();
+//
+//                CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(
+//                        new SampleHandler(), dataModel.getObject().getDataSource(), dataModel.getCalculationObject(),
+//                        dataModel.getSelectedStart(), dataModel.getSelectedEnd(), true);
+//
+//                results = calcJob.getResults();
+//
+//            } else {
+//                results = dataModel.getSamples();
+//            }
 
             if (!results.isEmpty()) {
                 labelText.setValue((nf.format(DataModelDataHandler.getTotal(results))) + " " + unit);

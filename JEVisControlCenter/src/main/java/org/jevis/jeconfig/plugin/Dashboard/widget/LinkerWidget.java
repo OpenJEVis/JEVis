@@ -10,6 +10,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
 
 public class LinkerWidget extends Widget {
@@ -20,6 +21,7 @@ public class LinkerWidget extends Widget {
     private JFXButton openAnalysisButton = new JFXButton();
     private ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(LinkerWidget.class);
+    private DataModelDataHandler sampleHandler;
 
     public LinkerWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
@@ -32,6 +34,7 @@ public class LinkerWidget extends Widget {
 
     @Override
     public void update(Interval interval) {
+        System.out.println("Update link");
         //if config changed
         if (config.hasChanged("")) {
 //            Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
@@ -45,7 +48,7 @@ public class LinkerWidget extends Widget {
                 if (config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE) != null) {
                     GraphAnalysisLinkerNode dataModelNode = mapper.treeToValue(config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE), GraphAnalysisLinkerNode.class);
                     graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), dataModelNode);
-//                    graphAnalysisLinker.applyConfig(openAnalysisButton, sampleHandler.getDataModel(), interval);
+                    graphAnalysisLinker.applyConfig(openAnalysisButton, sampleHandler.getDataModel(), interval);
                 } else {
 //                    openAnalysisButton.setVisible(false);
                     logger.warn("no linker set");
@@ -67,6 +70,12 @@ public class LinkerWidget extends Widget {
 //        AnchorPane anchorPane = new AnchorPane();
 //        anchorPane.getChildren().add(label);
 //        Layouts.setAnchor(label, 0);
+        try {
+            sampleHandler = new DataModelDataHandler(getDataSource(), config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+            sampleHandler.setMultiSelect(false);
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
         setGraphic(openAnalysisButton);
     }
 

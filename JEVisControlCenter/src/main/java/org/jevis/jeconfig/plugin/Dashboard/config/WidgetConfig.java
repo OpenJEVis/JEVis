@@ -111,7 +111,7 @@ public class WidgetConfig {
             try {
                 showShadow.setValue(jsonNode.get("shadow").asBoolean(true));
             } catch (Exception ex) {
-                logger.error("Could not parse position: {}", showShadow.getName(), ex.getMessage());
+                logger.error("Could not parse {}: {}", showShadow.getName(), ex.getMessage());
             }
 
             try {

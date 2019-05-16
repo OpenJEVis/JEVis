@@ -112,14 +112,19 @@ public class DashBordModel {
      * Current displayed interval
      */
     public final ObjectProperty<Interval> displayedIntervalProperty = new SimpleObjectProperty(Interval.class, "Data Interval", new Interval(new DateTime(), new DateTime()));
+    /**
+     * disable the intervalSelection
+     */
+    public final BooleanProperty disableIntervalUI = new SimpleBooleanProperty(Boolean.class, "Disable Interval UI", false);
+
     public final ObjectProperty<Size> pageSize = new SimpleObjectProperty<>(new Size(1080, 1600));
     public final ObjectProperty<Interval> intervalProperty = new SimpleObjectProperty<>();
     public final ObjectProperty<DateTime> dateTimereferrenzProperty = new SimpleObjectProperty<>(new DateTime());
     private final List<ChangeListener> changeListeners = new ArrayList<>();
     private final JEVisDataSource jeVisDataSource;
     private ObjectMapper mapper = new ObjectMapper();
-    private TimeFrames timeFrames = new TimeFrames();
-    public final ObjectProperty<TimeFrameFactory> timeFrameProperty = new SimpleObjectProperty<>(timeFrames.day());
+    private final TimeFrames timeFrames;
+    public final ObjectProperty<TimeFrameFactory> timeFrameProperty;
     private JEVisObject analysisObject;
     private List<WidgetConfig> widgetList = new ArrayList<>();
     /**
@@ -165,11 +170,15 @@ public class DashBordModel {
 
     public DashBordModel(JEVisDataSource jeVisDataSource) {
         this.jeVisDataSource = jeVisDataSource;
+        this.timeFrames = new TimeFrames(jeVisDataSource);
+        this.timeFrameProperty = new SimpleObjectProperty<>(timeFrames.day());
     }
 
     public DashBordModel(JEVisObject analysisObject) throws JEVisException {
         this.analysisObject = analysisObject;
         this.jeVisDataSource = analysisObject.getDataSource();
+        this.timeFrames = new TimeFrames(jeVisDataSource);
+        this.timeFrameProperty = new SimpleObjectProperty<>(timeFrames.day());
         load();
     }
 
@@ -249,6 +258,12 @@ public class DashBordModel {
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", dataPeriodProperty.getName(), ex);
             }
+            try {
+                disableIntervalUI.setValue(jsonNode.get("disableIntervalUI").asBoolean(snapToGridProperty.getValue()));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", disableIntervalUI.getName(), ex.getMessage());
+            }
+
 
             JsonNode widgets = jsonNode.get("Widget");
 

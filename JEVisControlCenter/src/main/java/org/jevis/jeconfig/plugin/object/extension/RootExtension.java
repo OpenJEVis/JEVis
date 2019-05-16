@@ -182,15 +182,15 @@ public class RootExtension implements ObjectEditorExtension {
                     });
                 });
 
-                HBox contols = new HBox(5);
-                contols.getChildren().addAll(remove);
+                HBox controls = new HBox(5);
+                controls.getChildren().addAll(remove);
 
                 yAxis++;
                 GridPane.setValignment(groupBox, VPos.BASELINE);
-                GridPane.setValignment(contols, VPos.BASELINE);
+                GridPane.setValignment(controls, VPos.BASELINE);
 
                 gridPane.add(groupBox, 0, yAxis);
-                gridPane.add(contols, 1, yAxis);
+                gridPane.add(controls, 1, yAxis);
 
             } catch (JEVisException ex) {
                 logger.fatal(ex);

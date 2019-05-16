@@ -25,11 +25,14 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.util.Duration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 
 import java.util.*;
 
 public abstract class MultiAxisChart<X, Y> extends Chart {
+    private static final Logger logger = LogManager.getLogger(MultiAxisChart.class);
 
     // -------------- PRIVATE FIELDS -------------------------------------
 
@@ -638,11 +641,11 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                                   int addedTo, boolean permutation) {
         if (HiddenConfig.CHART_PRECESSION_ON && series.getDataSize() > HiddenConfig.CHART_PRECESSION_LIMIT) {
             /**
-             * This experimental code will use the "Duglas Peucker Algorithm" to improve drawing performance.
+             * This experimental code will use the "Douglas Peucker Algorithm" to improve drawing performance.
              * Enable via HiddenConfig editor STRG+H
              */
 
-            System.out.println("Drawing-Optimization UI-Nodes before : " + series.getDataSize());
+            logger.info("Drawing-Optimization UI-Nodes before : " + series.getDataSize());
             List<Data<X, Y>> newData = new ArrayList<>();
             Map<Coordinate, Data<X, Y>> map = new HashMap<>();
             for (int i = addedFrom; i < addedTo; i++) {
@@ -683,7 +686,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                     update.add(map.get(each));
                 }
             }
-            System.out.println("Drawing-Optimization UI-Nodes after Duglas Peucker : " + update.size());
+            logger.info("Drawing-Optimization UI-Nodes after Douglas Peucker : " + update.size());
 
             for (int i = 0; i < coordinates.length; i++) {
                 boolean isIn = false;
@@ -706,14 +709,14 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             gf = null;
             coordinates = null;
 
-            System.out.println("Drawing-Optimization - start adding Nodes to chart ");
+            logger.info("Drawing-Optimization - start adding Nodes to chart ");
 
 
             for (int i = 0; i < update.size(); i++) {
                 Data<X, Y> item = update.get(i);
                 dataItemAdded(series, i, item);
             }
-            System.out.println("Drawing-Optimization - Done");
+            logger.info("Drawing-Optimization - Done");
 
         } else {
 

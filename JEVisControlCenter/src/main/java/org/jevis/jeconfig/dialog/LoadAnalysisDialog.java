@@ -32,6 +32,7 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.Aggregatio
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
@@ -57,7 +58,7 @@ public class LoadAnalysisDialog {
     private JEVisDataSource ds;
     private DateHelper dateHelper = new DateHelper();
     private ComboBox<AggregationPeriod> aggregationBox;
-    private ComboBox<ManipulationMode> mathBox;
+    private DisabledItemsComboBox<ManipulationMode> mathBox;
     private List<CustomPeriodObject> finalListCustomPeriodObjects;
     private ComboBox<String> comboBoxCustomPeriods;
     private Button loadButton;
@@ -312,7 +313,7 @@ public class LoadAnalysisDialog {
             if (newValue != null && newValue != oldValue) {
                 graphDataModel.setAggregationPeriod(newValue);
                 if (newValue.equals(AggregationPeriod.NONE)) {
-                    graphDataModel.setManipulationMode(ManipulationMode.TOTAL);
+                    graphDataModel.setManipulationMode(ManipulationMode.NONE);
                 }
                 updateGridLayout();
             }
@@ -358,7 +359,7 @@ public class LoadAnalysisDialog {
         });
     }
 
-    private ComboBox<ManipulationMode> getMathBox() {
+    private DisabledItemsComboBox<ManipulationMode> getMathBox() {
 
         final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
 
@@ -368,7 +369,7 @@ public class LoadAnalysisDialog {
         final String keySortedMin = I18n.getInstance().getString("plugin.graph.manipulation.sortedmin");
         final String keySortedMax = I18n.getInstance().getString("plugin.graph.manipulation.sortedmax");
 
-        ComboBox<ManipulationMode> math = new ComboBox<>();
+        DisabledItemsComboBox<ManipulationMode> math = new DisabledItemsComboBox<>();
         List<ManipulationMode> customList = new ArrayList<>();
         customList.add(ManipulationMode.NONE);
         customList.add(ManipulationMode.TOTAL);
@@ -376,6 +377,8 @@ public class LoadAnalysisDialog {
         customList.add(ManipulationMode.CENTRIC_RUNNING_MEAN);
         customList.add(ManipulationMode.SORTED_MIN);
         customList.add(ManipulationMode.SORTED_MAX);
+
+        math.setDisabledItems(ManipulationMode.TOTAL);
 
         math.setItems(FXCollections.observableArrayList(customList));
         math.getSelectionModel().selectFirst();
