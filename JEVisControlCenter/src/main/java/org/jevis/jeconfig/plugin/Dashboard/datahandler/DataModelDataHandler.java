@@ -49,17 +49,14 @@ public class DataModelDataHandler {
     private List<ChartDataModel> chartDataModels = new ArrayList<>();
     private ObjectProperty<Interval> durationProperty = new SimpleObjectProperty<>();
     private DataModelNode dataModelNode = new DataModelNode();
-    private boolean autoAggregation = true;
+    private boolean autoAggregation = false;
     private boolean forcedInterval = false;
     private TimeFrames timeFrames;
-    private List<TimeFrameFactory> timeFrameFactorys = new ArrayList<>();
+    private List<TimeFrameFactory> timeFrameFactories = new ArrayList<>();
     private String forcedPeriod;
 
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {
         this.jeVisDataSource = jeVisDataSource;
-
-        timeFrames = new TimeFrames(jeVisDataSource);
-        timeFrameFactorys.addAll(timeFrames.getAll());
 
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -146,6 +143,10 @@ public class DataModelDataHandler {
             }
 
         });
+
+        timeFrames = new TimeFrames(jeVisDataSource);
+        timeFrames.setWorkdays(chartDataModels.stream().findFirst().map(ChartDataModel::getObject).orElse(null));
+        timeFrameFactories.addAll(timeFrames.getAll());
     }
 
     /**
@@ -188,7 +189,7 @@ public class DataModelDataHandler {
 
             boolean foundFactory = false;
 
-            for (TimeFrameFactory timeFrameFactory : timeFrameFactorys) {
+            for (TimeFrameFactory timeFrameFactory : timeFrameFactories) {
                 if (timeFrameFactory.getID().equals(forcedPeriod)) {
                     System.out.println("Match TimeFactory: " + timeFrameFactory.getListName());
                     interval = timeFrameFactory.getInterval(interval.getEnd());
