@@ -46,6 +46,7 @@ public class Launcher extends AbstractCliApp {
     private void executeProcesses(List<JEVisObject> processes) {
 
         logger.info("{} cleaning task found starting", processes.size());
+        setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         processes.parallelStream().forEach(currentCleanDataObject -> {
             forkJoinPool.submit(() -> {
@@ -73,6 +74,7 @@ public class Launcher extends AbstractCliApp {
 
                     if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
                         logger.info("Last job. Clearing cache.");
+                        setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
                         ds.clearCache();
                     }
 

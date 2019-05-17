@@ -251,6 +251,7 @@ public class DashBoardPane extends Pane {
 
 
     public Interval buildInterval() {
+        System.out.println("buildInterval");
         analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().getInterval(DateTime.now()));
 //        logger.error("New Interval: " + analysis.intervalProperty.getValue());
 
@@ -370,12 +371,15 @@ public class DashBoardPane extends Pane {
 
     public void updateChildren() {
         logger.debug("UpdateChildren");
-        getChildren().clear();
-        setGrid(analysis.xGridInterval.get(), analysis.yGridInterval.get());
+        Platform.runLater(() -> {
+            getChildren().clear();
+            setGrid(analysis.xGridInterval.get(), analysis.yGridInterval.get());
 
-        widgetList.forEach(node -> {
-            getChildren().add(node);
+            widgetList.forEach(node -> {
+                getChildren().add(node);
+            });
         });
+
 
     }
 

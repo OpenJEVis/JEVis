@@ -90,6 +90,7 @@ public class PieWidget extends Widget {
         AtomicDouble total = new AtomicDouble(0);
         sampleHandler.getDataModel().forEach(chartDataModel -> {
             try {
+//                chartDataModel.setAbsolute(true);
                 Double dataModelTotal = DataModelDataHandler.getTotal(chartDataModel.getSamples());
                 total.set(total.get() + dataModelTotal);
             } catch (Exception ex) {

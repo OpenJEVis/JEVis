@@ -317,6 +317,11 @@ public class PushNotificationDriver implements NotificationDriver {
         }
     }
 
+    @Override
+    public boolean sendNotification(Notification jenoti, String customMessage) {
+        return false;
+    }
+
     /**
      * All necessary parameters will be configured to send the PushNotification.
      * If the PushNotification is sucessfully sent, returns true. Else, returns

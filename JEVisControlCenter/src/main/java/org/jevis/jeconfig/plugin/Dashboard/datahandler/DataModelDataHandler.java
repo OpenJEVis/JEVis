@@ -15,10 +15,8 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
@@ -59,10 +57,14 @@ public class DataModelDataHandler {
         this.jeVisDataSource = jeVisDataSource;
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            DataModelNode dataModelNode = mapper.treeToValue(configNode, DataModelNode.class);
+            if (configNode != null) {
+                ObjectMapper mapper = new ObjectMapper();
+
+                DataModelNode dataModelNode = mapper.treeToValue(configNode, DataModelNode.class);
 //            System.out.println("Json: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataModelNode));
-            this.dataModelNode = dataModelNode;
+                this.dataModelNode = dataModelNode;
+            }
+
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -99,6 +101,7 @@ public class DataModelDataHandler {
                         chartDataModel.setSelectedStart(new DateTime(1000, 1, 1, 1, 1, 1));
                         chartDataModel.setSelectedEnd(new DateTime(1000, 1, 1, 1, 1, 2));
 
+                        chartDataModel.setAbsolute(dataPointNode.isAbsolute());
                         chartDataModel.setSelectedCharts(list);
                         chartDataModel.setObject(jeVisAttribute.getObject());
                         chartDataModel.setAttribute(jeVisAttribute);
@@ -107,9 +110,9 @@ public class DataModelDataHandler {
                             chartDataModel.setAttribute(cleanObject.getAttribute(dataPointNode.getAttribute()));
                         }
 
+
                         chartDataModel.setManipulationMode(dataPointNode.getManipulationMode());
                         chartDataModel.setAggregationPeriod(dataPointNode.getAggregationPeriod());
-                        System.out.println("dataPointNode.isEnpi(): " + dataPointNode.isEnpi());
                         chartDataModel.setEnPI(dataPointNode.isEnpi());
 
 
@@ -127,7 +130,10 @@ public class DataModelDataHandler {
 
                         if (dataPointNode.isEnpi()) {
                             chartDataModel.setEnPI(dataPointNode.isEnpi());
-                            chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
+                            if (dataPointNode.getCalculationID() != null && !dataPointNode.getCalculationID().equals("0")) {
+                                chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
+                            }
+
                         }
 
                     } else {
@@ -191,43 +197,40 @@ public class DataModelDataHandler {
 
             for (TimeFrameFactory timeFrameFactory : timeFrameFactories) {
                 if (timeFrameFactory.getID().equals(forcedPeriod)) {
-                    System.out.println("Match TimeFactory: " + timeFrameFactory.getListName());
+//                    System.out.println("Match TimeFactory: " + timeFrameFactory.getListName());
                     interval = timeFrameFactory.getInterval(interval.getEnd());
                     foundFactory = true;
                 }
             }
 
-            if (!foundFactory) {
-
-
-                //IF integer than custom period
-                if (forcedPeriod.matches("-?\\d+")) {
-                    try {
-                        System.out.println("new jevis custom period");
-                        JEVisObject jeVisObject = this.jeVisDataSource.getObject(Long.parseLong(forcedPeriod));
-                        CustomPeriodObject cpo = new CustomPeriodObject(jeVisObject, new ObjectHandler(jeVisDataSource));
-                        TimeFrameFactory customPeriodObject = timeFrames.customPeriodObject(cpo);
-                        interval = customPeriodObject.getInterval(new DateTime());
-                    } catch (Exception ex) {
-                        logger.error(ex);
-                    }
-                }
-
-            }
+//            if (!foundFactory) {
+            //IF integer than custom period
+//                if (forcedPeriod.matches("-?\\d+")) {
+//                    try {
+//                        System.out.println("new jevis custom period");
+//                        JEVisObject jeVisObject = this.jeVisDataSource.getObject(Long.parseLong(forcedPeriod));
+//                        CustomPeriodObject cpo = new CustomPeriodObject(jeVisObject, new ObjectHandler(jeVisDataSource));
+//                        TimeFrameFactory customPeriodObject = timeFrames.customPeriodObject(cpo);
+//                        interval = customPeriodObject.getInterval(interval.getEnd());
+//                    } catch (Exception ex) {
+//                        logger.error(ex);
+//                    }
+//                }
+//            }
             if (!foundFactory) {
 
                 // else cast new Custom Period
                 try {
-                    System.out.println("new custom period");
+//                    System.out.println("new custom period");
                     LastPeriod lastPeriod = new LastPeriod(Period.parse(forcedPeriod));
-                    interval = lastPeriod.getInterval(new DateTime());
+                    interval = lastPeriod.getInterval(interval.getEnd());
 
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
             }
 
-            System.out.println("new Interval for: " + forcedPeriod + " -> " + interval);
+//            System.out.println("new Interval for: " + forcedPeriod + " -> " + interval);
 
         }
         this.durationProperty.setValue(interval);

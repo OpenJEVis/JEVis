@@ -1,7 +1,10 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
 import com.jfoenix.controls.JFXButton;
+import javafx.scene.control.Tooltip;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -11,6 +14,7 @@ import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.Dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.Interval;
 
 import java.util.List;
@@ -56,6 +60,17 @@ public class GraphAnalysisLinker {
                 ex.printStackTrace();
             }
         });
+        try {
+            JEVisObject jeVisObject = dataSource.getObject(node.getGraphAnalysisObject());
+            if (jeVisObject != null) {
+                Tooltip tooltip = new Tooltip(I18n.getInstance().getString("plugin.dashboard.linker.open") + " " + jeVisObject.getName());
+                button.setTooltip(tooltip);
+            }
+
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

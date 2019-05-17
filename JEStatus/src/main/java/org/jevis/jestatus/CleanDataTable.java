@@ -4,22 +4,23 @@ import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.AlarmTable;
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 import java.util.*;
 
 public class CleanDataTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CleanDataTable.class);
     private final JEVisDataSource ds;
-    private final Alarm alarm;
     private final List<JEVisObject> dataServerObjects;
     private final List<JEVisObject> calcObjects;
+    private final DateTime furthestReported;
+    private final DateTime latestReported;
 
-    public CleanDataTable(JEVisDataSource ds, Alarm alarm, List<JEVisObject> calcObjects, List<JEVisObject> dataServerObjects) {
+    public CleanDataTable(JEVisDataSource ds, DateTime furthestReported, DateTime latestReported, List<JEVisObject> calcObjects, List<JEVisObject> dataServerObjects) {
         this.ds = ds;
-        this.alarm = alarm;
         this.calcObjects = calcObjects;
         this.dataServerObjects = dataServerObjects;
+        this.furthestReported = furthestReported;
+        this.latestReported = latestReported;
 
         try {
             createTableString();
@@ -55,14 +56,10 @@ public class CleanDataTable extends AlarmTable {
             }
         }
 
-        DateTime now = new DateTime();
-        DateTime ignoreTS = now.minus(Period.hours(alarm.getIgnoreOld()));
-        DateTime limit = now.minus(Period.hours(alarm.getTimeLimit()));
-
         for (JEVisObject obj : cleanDataObjects) {
             JEVisSample lastSample = obj.getAttribute("Value").getLatestSample();
             if (lastSample != null) {
-                if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
                     outOfBounds.add(obj);
                 }
             }

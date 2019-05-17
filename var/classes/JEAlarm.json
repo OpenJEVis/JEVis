@@ -38,6 +38,14 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEAlarm"
+    },
+    {
+      "name": "Status",
+      "primitiveType": 2,
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEAlarm"
     }
   ]
 }

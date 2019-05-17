@@ -131,6 +131,11 @@ public class VIDA350NotificationDriver implements NotificationDriver {
         }
     }
 
+    @Override
+    public boolean sendNotification(Notification jenoti, String customMessage) {
+        return false;
+    }
+
     /**
      * Because there is nothing to configure for this Driver,so directly return
      * true. If later there is something to configure, this function must be

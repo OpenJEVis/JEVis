@@ -60,6 +60,7 @@ public class Launcher extends AbstractCliApp {
     private void executeDataSources(List<JEVisObject> dataSources) {
 
         logger.info("Number of Requests: " + dataSources.size());
+        setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
         for (JEVisObject dataSource : dataSources) {
             logger.info("obj: " + dataSource.getName() + ":" + dataSource.getID());
         }
@@ -101,6 +102,7 @@ public class Launcher extends AbstractCliApp {
 
                         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
                             logger.info("Last job. Clearing cache.");
+                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
                             ds.clearCache();
                         }
                     }

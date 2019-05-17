@@ -117,6 +117,8 @@ public class DashBordModel {
      */
     public final BooleanProperty disableIntervalUI = new SimpleBooleanProperty(Boolean.class, "Disable Interval UI", false);
 
+    public final StringProperty defaultPeriod = new SimpleStringProperty(String.class, "Default Period", Period.days(1).toString());
+
     public final ObjectProperty<Size> pageSize = new SimpleObjectProperty<>(new Size(1080, 1600));
     public final ObjectProperty<Interval> intervalProperty = new SimpleObjectProperty<>();
     public final ObjectProperty<DateTime> dateTimereferrenzProperty = new SimpleObjectProperty<>(new DateTime());
@@ -179,6 +181,8 @@ public class DashBordModel {
         this.jeVisDataSource = analysisObject.getDataSource();
         this.timeFrames = new TimeFrames(jeVisDataSource);
         this.timeFrameProperty = new SimpleObjectProperty<>(timeFrames.day());
+
+
         load();
     }
 
@@ -205,9 +209,30 @@ public class DashBordModel {
                 return;
             }
 
+
             JEVisFile file = lastConfigSample.getValueAsFile();
             System.out.println("file: " + file);
             JsonNode jsonNode = mapper.readTree(file.getBytes());
+
+            this.timeFrameProperty.addListener((observable, oldValue, newValue) -> {
+                System.out.println("timeFrameProperty.changed: " + oldValue.getID() + " to " + newValue.getID());
+            });
+            try {
+                String defaultPeriodStrg = jsonNode.get("defaultPeriod").asText(Period.days(1).toString());
+                System.out.println("Default period: " + defaultPeriodStrg);
+
+                for (TimeFrameFactory timeFrameFactory : timeFrames.getAll()) {
+                    if (timeFrameFactory.getID().equals(defaultPeriodStrg)) {
+                        System.out.println("found period: " + timeFrameFactory.getID());
+                        this.timeFrameProperty.setValue(timeFrameFactory);
+                    }
+                }
+
+
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", defaultPeriod.getName(), ex);
+            }
+
 
             try {
                 Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();

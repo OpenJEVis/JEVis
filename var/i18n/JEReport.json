@@ -25,16 +25,16 @@
       }
     },
     {
-      "type": "Report Notification ID",
+      "type": "Notification ID",
       "descriptions": {
-        "de": "Report Notification ID description",
-        "ru": "Report Notification ID description",
-        "en": "Report Notification ID description"
+        "de": "Notification ID description",
+        "ru": "Notification ID description",
+        "en": "Notification ID description"
       },
       "names": {
-        "de": "Bericht Benachrichtigungs-ID",
+        "de": "Benachrichtigungs-ID",
         "ru": "Report Notification ID",
-        "en": "Report Notification ID"
+        "en": "Notification ID"
       }
     }
   ]

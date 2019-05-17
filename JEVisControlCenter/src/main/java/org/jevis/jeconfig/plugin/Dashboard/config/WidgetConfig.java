@@ -62,38 +62,38 @@ public class WidgetConfig {
             try {
                 title.setValue(jsonNode.get(title.getName()).asText(title.get()));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", title.getName(), ex.getMessage());
+                logger.debug("Could not parse {}: {}", title.getName(), ex.getMessage());
             }
 
             try {
                 titlePosition.setValue(Pos.valueOf(jsonNode.get(titlePosition.getName()).asText(Pos.CENTER.toString())));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", titlePosition.getName(), ex);
+                logger.debug("Could not parse {}: {}", titlePosition.getName(), ex);
             }
 
 
             try {
                 type = jsonNode.get("WidgetType").asText("");
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", "WidgetType", ex);
+                logger.debug("Could not parse {}: {}", "WidgetType", ex);
             }
 
             try {
                 backgroundColor.setValue(Color.valueOf(jsonNode.get(backgroundColor.getName()).asText(backgroundColor.get().toString())));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", backgroundColor.getName(), ex);
+                logger.debug("Could not parse {}: {}", backgroundColor.getName(), ex);
             }
 
             try {
                 fontColor.setValue(Color.valueOf(jsonNode.get(fontColor.getName()).asText(Color.BLACK.toString())));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", fontColor.getName(), ex);
+                logger.debug("Could not parse {}: {}", fontColor.getName(), ex);
             }
             try {
                 Size newSize = new Size(jsonNode.get("height").asDouble(), jsonNode.get("width").asDouble());
                 size.setValue(newSize);
             } catch (Exception ex) {
-                logger.error("Could not parse Size: {}", ex);
+                logger.debug("Could not parse Size: {}", ex);
             }
             try {
                 fontSize.setValue(jsonNode.get("fontSize").asDouble(13));
@@ -105,19 +105,19 @@ public class WidgetConfig {
                 xPosition.setValue(jsonNode.get("xPos").asDouble(0));
                 yPosition.setValue(jsonNode.get("yPos").asDouble(0));
             } catch (Exception ex) {
-                logger.error("Could not parse position: {}", title.getName(), ex);
+                logger.debug("Could not parse position: {}", title.getName(), ex);
             }
 
             try {
                 showShadow.setValue(jsonNode.get("shadow").asBoolean(true));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", showShadow.getName(), ex.getMessage());
+                logger.debug("Could not parse {}: {}", showShadow.getName(), ex.getMessage());
             }
 
             try {
                 borderSize.setValue(new BorderWidths(jsonNode.get("borderSize").asDouble(0.2)));
             } catch (Exception ex) {
-                logger.error("Could not parse position: {}", showShadow.getName(), ex.getMessage());
+                logger.debug("Could not parse position: {}", showShadow.getName(), ex.getMessage());
             }
 
 

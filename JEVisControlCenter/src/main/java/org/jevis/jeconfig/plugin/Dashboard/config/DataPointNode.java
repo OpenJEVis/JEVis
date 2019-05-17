@@ -12,6 +12,15 @@ public class DataPointNode {
     private ManipulationMode manipulationMode;
     private AggregationPeriod aggregationPeriod;
     private Color color;
+    private boolean absolute;
+
+    public boolean isAbsolute() {
+        return absolute;
+    }
+
+    public void setAbsolute(boolean absolute) {
+        this.absolute = absolute;
+    }
 
     private boolean enpi = false;
     private Long calculationID;

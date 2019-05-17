@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.datasource.DataSourceLoader;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,6 +84,8 @@ public abstract class AbstractCliApp {
      */
     public void execute() {
         init();
+        setServiceStatus(comm.getProgramName(), 1L);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> setServiceStatus(comm.getProgramName(), 0L)));
         if (active) {
             if (settings.servicemode.equals(BasicSettings.SINGLE)) {
                 runSingle(settings.jevisid);
@@ -269,6 +272,26 @@ public abstract class AbstractCliApp {
             logger.error("Couldn't get Service cycle time from the JEVis System");
         }
     }
+
+    /**
+     * Sets the status for the JEVis Service
+     *
+     * @param serviceClassName
+     * @param status
+     */
+    protected void setServiceStatus(String serviceClassName, Long status) {
+        try {
+            JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
+            List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
+            JEVisAttribute statusAttribute = listServices.get(0).getAttribute("Status");
+            logger.info("Set status of" + serviceClassName + " " + status);
+            JEVisSample newStatus = statusAttribute.buildSample(DateTime.now(), status);
+            newStatus.commit();
+        } catch (Exception e) {
+            logger.error("Couldn't write status to the JEVis System");
+        }
+    }
+
 
     public class Command {
 
