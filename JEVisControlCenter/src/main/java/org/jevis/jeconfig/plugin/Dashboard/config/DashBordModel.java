@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.*;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Alert;
@@ -215,8 +216,10 @@ public class DashBordModel {
             JsonNode jsonNode = mapper.readTree(file.getBytes());
 
             this.timeFrameProperty.addListener((observable, oldValue, newValue) -> {
-                System.out.println("timeFrameProperty.changed: " + oldValue.getID() + " to " + newValue.getID());
+                System.out.println("DashBoardModel.timframe.changed: " + oldValue.getID() + " to " + newValue.getID());
+//                intervalProperty.setValue(newValue.getInterval(new DateTime()));
             });
+
             try {
                 String defaultPeriodStrg = jsonNode.get("defaultPeriod").asText(Period.days(1).toString());
                 System.out.println("Default period: " + defaultPeriodStrg);
@@ -302,26 +305,31 @@ public class DashBordModel {
 
             //WidgetConfig
 
-            try {
-                JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
-                if (bgFile != null && bgFile.hasSample()) {
-                    JEVisSample backgroundImage = bgFile.getLatestSample();
-                    if (backgroundImage != null) {
-                        JEVisFile imageFile = backgroundImage.getValueAsFile();
-                        InputStream in = new ByteArrayInputStream(imageFile.getBytes());
-//                    BufferedImage image = ImageIO.read(in);
-                        imageBoardBackground.setValue(new Image(in));
-                        logger.info("Done loading image");
+
+            Task<Image> imageLoadTask = new Task<Image>() {
+                @Override
+                public Image call() throws InterruptedException {
+                    try {
+                        JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
+                        if (bgFile != null && bgFile.hasSample()) {
+                            JEVisSample backgroundImage = bgFile.getLatestSample();
+                            if (backgroundImage != null) {
+                                JEVisFile imageFile = backgroundImage.getValueAsFile();
+                                InputStream in = new ByteArrayInputStream(imageFile.getBytes());
+                                return new Image(in);
+                            }
+                        }
+
+
+                    } catch (Exception ex) {
+                        logger.error("Could load background image: {}", ex);
                     }
-
-                } else {
-                    logger.info("No image set");
+                    throw new InterruptedException("could load background image");
                 }
+            };
 
-
-            } catch (Exception ex) {
-                logger.error("Could load background image: {}", ex);
-            }
+            imageLoadTask.setOnSucceeded(e -> imageBoardBackground.setValue(imageLoadTask.getValue()));
+            new Thread(imageLoadTask).start();
 
 
         } catch (Exception ex) {
