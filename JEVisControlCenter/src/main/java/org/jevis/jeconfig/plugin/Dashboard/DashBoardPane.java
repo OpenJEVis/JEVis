@@ -36,7 +36,7 @@ public class DashBoardPane extends Pane {
     private static final Logger logger = LogManager.getLogger(DashBoardPane.class);
     private final DashBordModel analysis;
     private final ExecutorService executor = Executors.newFixedThreadPool(4);
-    private ObservableList<Widget> widgetList = FXCollections.observableArrayList();
+    private ObservableList<Widget> widgetList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
     private List<Double> xGrids = new ArrayList<>();
     private List<Double> yGrids = new ArrayList<>();
     private Scale scale = new Scale();
@@ -337,7 +337,7 @@ public class DashBoardPane extends Pane {
         widgetList.remove(widget);
     }
 
-    public void addNode(Widget widget) {
+    public synchronized void addNode(Widget widget) {
         if(!widgetList.contains(widget)){
             logger.debug("Add widget to pane: {}", widget);
             widgetList.add(widget);
@@ -374,7 +374,7 @@ public class DashBoardPane extends Pane {
 
     private void printChildren(){
         System.out.println("---");
-        for(Node node:getChildren()){
+        for(Widget node:widgetList){
             String id= "";
 
             if(node instanceof Widget){
@@ -387,8 +387,9 @@ public class DashBoardPane extends Pane {
 
     public void updateChildren() {
         if(!isUpdating.get()){
-            System.out.println("Start updateChildren");
+//            System.out.println("Start updateChildren");
             isUpdating.set(true);
+//            printChildren();
 //            try {
 //                printChildren();
 //
@@ -400,10 +401,16 @@ public class DashBoardPane extends Pane {
 //                logger.error(ex);
 //            }
             Platform.runLater(() -> {
-                getChildren().setAll(widgetList);
-                setGrid(analysis.xGridInterval.get(), analysis.yGridInterval.get());
+                try {
+                    getChildren().setAll(widgetList);
+                    setGrid(analysis.xGridInterval.get(), analysis.yGridInterval.get());
+                    isUpdating.set(false);
+                }catch (Exception ex){
+                    logger.error("Thread problem: {}",ex.getMessage());
+                    isUpdating.set(false);
+                }
             });
-            isUpdating.set(false);
+
         }
 
 
