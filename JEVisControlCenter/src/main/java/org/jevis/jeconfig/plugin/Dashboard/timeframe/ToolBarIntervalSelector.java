@@ -41,7 +41,7 @@ public class ToolBarIntervalSelector extends HBox {
 
         ComboBox<TimeFrameFactory> timeFrameBox = new ComboBox();
         timeFrameBox.setPrefWidth(200);
-        timeFrameBox.setMinWidth(100);
+        timeFrameBox.setMinWidth(200);
 
         Callback<ListView<TimeFrameFactory>, ListCell<TimeFrameFactory>> cellFactory = new Callback<ListView<TimeFrameFactory>, ListCell<TimeFrameFactory>>() {
             @Override

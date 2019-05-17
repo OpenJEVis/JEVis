@@ -262,19 +262,19 @@ public class DashBoardPane extends Pane {
         return new TimerTask() {
             @Override
             public void run() {
-                logger.info("Starting Update");
+                logger.debug("Starting Update");
 
                 showLoading(true);
 
                 Interval interval = buildInterval();
                 widgetList.forEach(widget -> {
-                    logger.info("Update widget: {}", widget.getConfig().title.get());
+                    logger.debug("Update widget: {}", widget.getConfig().title.get());
 
                     addWidgetUpdateTask(widget, interval);
 
                 });
                 showLoading(false);
-                logger.info("Update done");
+                logger.debug("Update done");
             }
         };
     }

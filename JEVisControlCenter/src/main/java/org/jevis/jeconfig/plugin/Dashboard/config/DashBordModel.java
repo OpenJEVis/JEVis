@@ -212,13 +212,12 @@ public class DashBordModel {
 
 
             JEVisFile file = lastConfigSample.getValueAsFile();
-            System.out.println("file: " + file);
             JsonNode jsonNode = mapper.readTree(file.getBytes());
 
-            this.timeFrameProperty.addListener((observable, oldValue, newValue) -> {
-                System.out.println("DashBoardModel.timframe.changed: " + oldValue.getID() + " to " + newValue.getID());
+//            this.timeFrameProperty.addListener((observable, oldValue, newValue) -> {
+//                System.out.println("DashBoardModel.timframe.changed: " + oldValue.getID() + " to " + newValue.getID());
 //                intervalProperty.setValue(newValue.getInterval(new DateTime()));
-            });
+//            });
 
             try {
                 String defaultPeriodStrg = jsonNode.get("defaultPeriod").asText(Period.days(1).toString());
@@ -226,7 +225,6 @@ public class DashBordModel {
 
                 for (TimeFrameFactory timeFrameFactory : timeFrames.getAll()) {
                     if (timeFrameFactory.getID().equals(defaultPeriodStrg)) {
-                        System.out.println("found period: " + timeFrameFactory.getID());
                         this.timeFrameProperty.setValue(timeFrameFactory);
                     }
                 }
