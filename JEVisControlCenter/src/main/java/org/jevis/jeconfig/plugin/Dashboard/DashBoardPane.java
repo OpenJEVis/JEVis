@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Line;
@@ -27,6 +28,7 @@ import javax.swing.event.ChangeEvent;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DashBoardPane extends Pane {
 
@@ -42,11 +44,11 @@ public class DashBoardPane extends Pane {
     private WorkIndicatorDialog workIndicatorDialog = new WorkIndicatorDialog(JEConfig.getStage().getScene().getWindow(), "Aktualisiere...");
     private Task<Integer> loadingTask;
     private int jopsDone = 0;
+    private AtomicBoolean isUpdating = new AtomicBoolean(false);
 
     public DashBoardPane(DashBordModel analysis) {
         super();
         logger.debug("Start DashBoardPane");
-
 
         showLoading(true);
 
@@ -146,6 +148,7 @@ public class DashBoardPane extends Pane {
         ChangeListener sizeListener = new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                System.out.println(" ChangeListener sizeListener");
                 updateChildren();
             }
         };
@@ -167,6 +170,7 @@ public class DashBoardPane extends Pane {
         analysis.addChangeListener(new javax.swing.event.ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
+                System.out.println("analysis.addChangeListener");
                 updateChildren();
             }
         });
@@ -269,9 +273,7 @@ public class DashBoardPane extends Pane {
                 Interval interval = buildInterval();
                 widgetList.forEach(widget -> {
                     logger.debug("Update widget: {}", widget.getConfig().title.get());
-
                     addWidgetUpdateTask(widget, interval);
-
                 });
                 showLoading(false);
                 logger.debug("Update done");
@@ -336,10 +338,11 @@ public class DashBoardPane extends Pane {
     }
 
     public void addNode(Widget widget) {
-        logger.debug("Add widget to pane: {}", widget);
-        widgetList.add(widget);
-        widget.setDashBoard(this);
-//        getChildren().add(widget);
+        if(!widgetList.contains(widget)){
+            logger.debug("Add widget to pane: {}", widget);
+            widgetList.add(widget);
+            widget.setDashBoard(this);
+        }
     }
 
 
@@ -369,16 +372,40 @@ public class DashBoardPane extends Pane {
         return analysis;
     }
 
-    public void updateChildren() {
-        logger.debug("UpdateChildren");
-        Platform.runLater(() -> {
-            getChildren().clear();
-            setGrid(analysis.xGridInterval.get(), analysis.yGridInterval.get());
+    private void printChildren(){
+        System.out.println("---");
+        for(Node node:getChildren()){
+            String id= "";
 
-            widgetList.forEach(node -> {
-                getChildren().add(node);
+            if(node instanceof Widget){
+                id= ((Widget)node).getId();
+            }
+
+            System.out.println("Child: "+id+"  "+node.getClass()+" "+node);
+        }
+    }
+
+    public void updateChildren() {
+        if(!isUpdating.get()){
+            System.out.println("Start updateChildren");
+            isUpdating.set(true);
+//            try {
+//                printChildren();
+//
+//                System.out.println("uc------");
+//                widgetList.forEach(widget -> {
+//                    System.out.println("Widget: " + widget.getConfig().xPosition.get() + "/" + widget.getConfig().yPosition.get() + "  " + widget);
+//                });
+//            }catch (Exception ex){
+//                logger.error(ex);
+//            }
+            Platform.runLater(() -> {
+                getChildren().setAll(widgetList);
+                setGrid(analysis.xGridInterval.get(), analysis.yGridInterval.get());
             });
-        });
+            isUpdating.set(false);
+        }
+
 
 
     }
