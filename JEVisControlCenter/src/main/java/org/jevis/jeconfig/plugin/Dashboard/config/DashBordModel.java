@@ -221,7 +221,7 @@ public class DashBordModel {
 
             try {
                 String defaultPeriodStrg = jsonNode.get("defaultPeriod").asText(Period.days(1).toString());
-                System.out.println("Default period: " + defaultPeriodStrg);
+//                System.out.println("Default period: " + defaultPeriodStrg);
 
                 for (TimeFrameFactory timeFrameFactory : timeFrames.getAll()) {
                     if (timeFrameFactory.getID().equals(defaultPeriodStrg)) {

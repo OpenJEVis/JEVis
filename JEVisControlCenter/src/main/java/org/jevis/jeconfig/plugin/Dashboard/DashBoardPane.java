@@ -148,7 +148,7 @@ public class DashBoardPane extends Pane {
         ChangeListener sizeListener = new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                System.out.println(" ChangeListener sizeListener");
+//                System.out.println(" ChangeListener sizeListener");
                 updateChildren();
             }
         };
