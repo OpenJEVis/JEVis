@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.jevis.api.JEVisAttribute;
@@ -21,6 +22,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
 import java.util.List;
+
+import static org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM_START_END;
+import static org.jevis.jeconfig.application.Chart.TimeFrame.PREVIEW;
 
 public class PickerCombo {
 
@@ -55,9 +59,9 @@ public class PickerCombo {
         final String thisYear = I18n.getInstance().getString("plugin.graph.changedate.buttonthisyear");
         final String lastYear = I18n.getInstance().getString("plugin.graph.changedate.buttonlastyear");
         final String customStartEnd = I18n.getInstance().getString("plugin.graph.changedate.buttoncustomstartend");
+        final String preview = I18n.getInstance().getString("plugin.graph.changedate.preview");
 
         presetDateBox.setItems(FXCollections.observableArrayList(TimeFrame.values()));
-        presetDateBox.getItems().remove(TimeFrame.PREVIEW);
 
         Callback<ListView<TimeFrame>, ListCell<TimeFrame>> cellFactory = new Callback<javafx.scene.control.ListView<TimeFrame>, ListCell<TimeFrame>>() {
             @Override
@@ -66,9 +70,10 @@ public class PickerCombo {
                     @Override
                     protected void updateItem(TimeFrame timeFrame, boolean empty) {
                         super.updateItem(timeFrame, empty);
-                        if (empty || timeFrame == null) {
-                            setText("");
-                        } else {
+                        setText(null);
+                        setGraphic(null);
+
+                        if (timeFrame != null) {
                             String text = "";
                             switch (timeFrame) {
                                 case CUSTOM:
@@ -101,8 +106,15 @@ public class PickerCombo {
                                 case CUSTOM_START_END:
                                     text = customStartEnd;
                                     break;
+                                case PREVIEW:
+                                    text = preview;
+                                    break;
                             }
                             setText(text);
+                            if (timeFrame == CUSTOM_START_END || timeFrame == PREVIEW) {
+                                setTextFill(Color.LIGHTGRAY);
+                                setDisable(true);
+                            }
                         }
                     }
                 };
@@ -117,12 +129,16 @@ public class PickerCombo {
         startTimePicker.setPrefWidth(100d);
         startTimePicker.setMaxWidth(100d);
         startTimePicker.set24HourView(true);
-        startTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+        startTimePicker.setConverter(new
+
+                LocalTimeStringConverter(FormatStyle.SHORT));
 
         endTimePicker.setPrefWidth(100d);
         endTimePicker.setMaxWidth(100d);
         endTimePicker.set24HourView(true);
-        endTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+        endTimePicker.setConverter(new
+
+                LocalTimeStringConverter(FormatStyle.SHORT));
 
         if (chartDataModels != null && !chartDataModels.isEmpty()) {
             if (graphDataModel != null && !graphDataModel.getCharts().isEmpty()) {
@@ -163,17 +179,18 @@ public class PickerCombo {
                 });
             }
         }
+
     }
 
     public void addListener() {
         presetDateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
                 if (chartDataModels == null && graphDataModel != null) {
-                    if (newValue != TimeFrame.CUSTOM && newValue != TimeFrame.CUSTOM_START_END) {
+                    if (newValue != TimeFrame.CUSTOM && newValue != CUSTOM_START_END) {
                         graphDataModel.setAnalysisTimeFrameForAllModels(new AnalysisTimeFrame(newValue));
                     }
                 } else if (graphDataModel != null && chartDataModels != null) {
-                    if (newValue != TimeFrame.CUSTOM && newValue != TimeFrame.CUSTOM_START_END) {
+                    if (newValue != TimeFrame.CUSTOM && newValue != CUSTOM_START_END) {
                         graphDataModel.setAnalysisTimeFrameForModels(chartDataModels, new DateHelper(), new AnalysisTimeFrame(newValue));
                     }
                 }

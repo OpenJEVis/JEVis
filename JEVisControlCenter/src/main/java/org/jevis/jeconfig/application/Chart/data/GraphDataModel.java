@@ -471,8 +471,8 @@ public class GraphDataModel {
                         } catch (Exception e) {
                             logger.error("Error getting custom period object: " + e);
                         }
-                        break;
                     }
+                    break;
                 case PREVIEW:
                     try {
                         AtomicReference<DateTime> start = new AtomicReference<>(DateTime.now().minusDays(1));
