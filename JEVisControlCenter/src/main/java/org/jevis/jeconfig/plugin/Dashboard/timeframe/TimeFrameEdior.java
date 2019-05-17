@@ -43,10 +43,7 @@ public class TimeFrameEdior extends Popup {
 
     private void setIntervalresult() {
         DateTime newDateTime = new DateTime(datePicker.valueProperty().getValue().getYear(), datePicker.valueProperty().getValue().getMonthValue(), datePicker.valueProperty().getValue().getDayOfMonth(), 0, 0);
-        Interval newInterval = new Interval(newDateTime, newDateTime);
-//        intervalProperty.setValue(newInterval);
         intervalProperty.setValue(timeFrameProperty.getValue().getInterval(newDateTime));
-//
     }
 
     public ObjectProperty<Interval> getIntervalProperty() {
