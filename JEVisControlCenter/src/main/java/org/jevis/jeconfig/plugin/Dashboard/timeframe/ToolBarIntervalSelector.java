@@ -70,7 +70,10 @@ public class ToolBarIntervalSelector extends HBox {
 
                 return cell;
             }
+
         };
+
+
         TimeFrames timeFrames = new TimeFrames(ds);
         timeFrames.setWorkdays(analysis.getAnalysisObject());
         timeFrameBox.setItems(timeFrames.getAll());
@@ -83,7 +86,6 @@ public class ToolBarIntervalSelector extends HBox {
                         dateButton.setText(analysis.timeFrameProperty.getValue().format(analysis.intervalProperty.getValue()));
                     });
                 }
-
 //                dateButton.setText(timeFrameBox.valueProperty().getValue().format(analysis.intervalProperty.getValue()));
             } catch (Exception ex) {
                 logger.error(ex);
@@ -102,14 +104,28 @@ public class ToolBarIntervalSelector extends HBox {
             }
         });
 
-        timeFrameBox.getSelectionModel().select(analysis.timeFrameProperty.getValue());
+
         timeFrameBox.setCellFactory(cellFactory);
         timeFrameBox.setButtonCell(cellFactory.call(null));
         timeFrameBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+//            System.out.println("timeFrameBox.value.change: " + newValue.getID());
             analysis.timeFrameProperty.setValue(newValue);
             analysis.intervalProperty.setValue(newValue.getInterval(new DateTime()));
         });
 
+//        System.out.println("Toolbar.defaultINterval: " + analysis.timeFrameProperty.getValue().getID());
+
+//        timeFrameBox.getItems().forEach(timeFrameFactory -> {
+//            if (analysis.timeFrameProperty.getValue().getID().equals(timeFrameFactory.getID())) {
+//                timeFrameBox.getSelectionModel().select(timeFrameFactory);
+//                return;
+//            }
+//        });
+//        System.out.println("Toolbar.defaultINterval.after: " + analysis.timeFrameProperty.getValue().getID());
+
+//        System.out.println("Toolbar .defaultINterval: " + analysis.timeFrameProperty.getValue().getID());
+        /** bug , replace after git fix **/
+        timeFrameBox.getSelectionModel().select(analysis.timeFrameProperty.getValue());
 
         prevButton.setOnAction(event -> {
             analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().previousPeriod(analysis.intervalProperty.get(), 1));
@@ -125,6 +141,7 @@ public class ToolBarIntervalSelector extends HBox {
 
         getChildren().addAll(timeFrameBox, spacer, prevButton, dateButton, nextButton);
 
+        System.out.println("done tbis");
         Platform.runLater(() -> {
             timeFrameBox.getSelectionModel().selectFirst();
             ToolBarIntervalSelector.this.setDisable(analysis.disableIntervalUI.get());
