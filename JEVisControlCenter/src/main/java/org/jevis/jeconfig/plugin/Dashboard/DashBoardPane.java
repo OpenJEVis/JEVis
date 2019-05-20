@@ -16,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.WorkIndicatorDialog;
+import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Size;
@@ -35,7 +36,7 @@ public class DashBoardPane extends Pane {
     //    private GridLayer gridLayer = new GridLayer();
     private static final Logger logger = LogManager.getLogger(DashBoardPane.class);
     private final DashBordModel analysis;
-    private final ExecutorService executor = Executors.newFixedThreadPool(4);
+    private ExecutorService executor;
     private ObservableList<Widget> widgetList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
     private List<Double> xGrids = new ArrayList<>();
     private List<Double> yGrids = new ArrayList<>();
@@ -49,6 +50,8 @@ public class DashBoardPane extends Pane {
     public DashBoardPane(DashBordModel analysis) {
         super();
         logger.debug("Start DashBoardPane");
+
+        executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
 
         showLoading(true);
 
@@ -271,7 +274,7 @@ public class DashBoardPane extends Pane {
                 showLoading(true);
 
                 Interval interval = buildInterval();
-                widgetList.forEach(widget -> {
+                widgetList.parallelStream().forEach(widget -> {
                     logger.debug("Update widget: {}", widget.getConfig().title.get());
                     addWidgetUpdateTask(widget, interval);
                 });
