@@ -94,7 +94,7 @@ public class ChartDataModel {
 
             if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                 try {
-                    if (!isEnPI) {
+                    if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
                         SampleGenerator sg;
                         if (aggregationPeriod.equals(AggregationPeriod.NONE))
                             sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
