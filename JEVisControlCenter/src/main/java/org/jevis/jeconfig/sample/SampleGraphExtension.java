@@ -104,7 +104,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return TITLE;
     }
 

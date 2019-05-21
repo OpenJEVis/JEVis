@@ -50,7 +50,7 @@ public interface SampleEditorExtension {
      *
      * @return
      */
-    String getTitel();
+    String getTitle();
 
     /**
      * Set the new samples to load.

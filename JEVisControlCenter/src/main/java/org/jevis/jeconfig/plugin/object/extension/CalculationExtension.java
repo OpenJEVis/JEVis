@@ -106,15 +106,15 @@ public class CalculationExtension implements ObjectEditorExtension {
                     enableButton.selectedProperty().setValue(selected);
 //            _field.setSelected(selected);//TODO: get default Value
                     if (selected) {
-                        enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
+                        enableButton.setText(I18n.getInstance().getString("extension.calc.button.toggle.activate"));
                     } else {
-                        enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
+                        enableButton.setText(I18n.getInstance().getString("extension.calc.button.toggle.deactivate"));
                     }
 
 
                 } else {
                     enableButton.setSelected(false);//TODO: get default Value
-                    enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
+                    enableButton.setText(I18n.getInstance().getString("extension.calc.button.toggle.deactivate"));
                 }
 
 
@@ -122,10 +122,10 @@ public class CalculationExtension implements ObjectEditorExtension {
                     try {
                         _newSampleEnabled = enabled.buildSample(new DateTime(), enableButton.isSelected());
                         if (t1) {
-                            enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
+                            enableButton.setText(I18n.getInstance().getString("extension.calc.button.toggle.activate"));
                             editConfigPane.setDisable(false);
                         } else {
-                            enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
+                            enableButton.setText(I18n.getInstance().getString("extension.calc.button.toggle.deactivate"));
                             editConfigPane.setDisable(true);
                         }
                         _enabledChanged.setValue(true);

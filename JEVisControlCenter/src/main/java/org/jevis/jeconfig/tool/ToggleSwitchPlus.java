@@ -12,8 +12,8 @@ import org.controlsfx.control.ToggleSwitch;
  */
 public class ToggleSwitchPlus extends GridPane {
 
-    private Label labelOn = new Label(I18n.getInstance().getString("button.toggle.activate"));
-    private Label labelOff = new Label(I18n.getInstance().getString("button.toggle.deactivate"));
+    private Label labelOn = new Label(I18n.getInstance().getString("extension.calc.button.toggle.activate"));
+    private Label labelOff = new Label(I18n.getInstance().getString("extension.calc.button.toggle.deactivate"));
     private ToggleSwitch button = new ToggleSwitch();
 
     public ToggleSwitchPlus() {

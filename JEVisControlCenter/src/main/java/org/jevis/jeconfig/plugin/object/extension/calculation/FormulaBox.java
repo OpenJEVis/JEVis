@@ -156,7 +156,7 @@ public class FormulaBox extends HBox {
                 tt.setText("ID: " + outputObj.getID());
                 outputButton.setTooltip(tt);
             } else {
-                outputButton.setText("Select Output");
+                outputButton.setText(I18n.getInstance().getString("extension.calc.outputbutton"));
             }
         } catch (Exception ex) {
             ex.printStackTrace();

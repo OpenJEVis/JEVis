@@ -51,10 +51,11 @@ public class SamplingRateUI extends ComboBox<Period> {
     private final Period FREE_SELECTION = Period.years(999);//Workaround, value to show the selection
     private final Period CANCELD_SELECTION = Period.years(998);//workaround, value if the new persio was cancled
 
-    private final ObjectProperty<Period> periodProperty = new SimpleObjectProperty<>(Period.ZERO);
+    private final ObjectProperty<Period> periodProperty;
 
     public SamplingRateUI(Period period) {
         super();
+        this.periodProperty = new SimpleObjectProperty<>(period);
 //        this.period = period;
 
         this.getItems().add(Period.minutes(15));
@@ -129,7 +130,7 @@ public class SamplingRateUI extends ComboBox<Period> {
         });
     }
 
-    public ObjectProperty<Period> sampleingRateProperty() {
+    public ObjectProperty<Period> samplingRateProperty() {
         return periodProperty;
     }
 

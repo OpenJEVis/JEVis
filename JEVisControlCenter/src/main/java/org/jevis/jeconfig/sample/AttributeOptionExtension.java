@@ -217,7 +217,7 @@ public class AttributeOptionExtension implements SampleEditorExtension {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return "Options";
     }
 

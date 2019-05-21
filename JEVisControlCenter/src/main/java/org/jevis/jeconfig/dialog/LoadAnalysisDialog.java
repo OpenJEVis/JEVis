@@ -160,6 +160,7 @@ public class LoadAnalysisDialog {
                 pickerCombo.updateCellFactory();
                 graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
                 graphDataModel.setManipulationMode(ManipulationMode.NONE);
+                graphDataModel.resetToolbarSettings();
                 AnalysisTimeFrame preview = new AnalysisTimeFrame(TimeFrame.PREVIEW);
                 graphDataModel.setAnalysisTimeFrameForAllModels(preview);
             }

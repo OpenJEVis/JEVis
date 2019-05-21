@@ -274,7 +274,7 @@ public class SampleTableExtension implements SampleEditorExtension {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return TITLE;
     }
 

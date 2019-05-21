@@ -291,6 +291,10 @@ public class GraphDataModel {
         update();
     }
 
+    public void setHideShowIconsNO_EVENT(Boolean hideShowIcons) {
+        this.hideShowIcons = hideShowIcons;
+    }
+
     public ManipulationMode getAddSeries() {
         return addSeries;
     }
@@ -313,6 +317,10 @@ public class GraphDataModel {
         }
     }
 
+    public void setAutoResizeNO_EVENT(Boolean resize) {
+        this.autoResize = resize;
+    }
+
     public Boolean getShowSum() {
         return showSum;
     }
@@ -327,6 +335,10 @@ public class GraphDataModel {
         }
     }
 
+    public void setShowSumNO_EVENT(Boolean show) {
+        this.showSum = show;
+    }
+
     public Boolean getShowRawData() {
         return showRawData;
     }
@@ -339,6 +351,10 @@ public class GraphDataModel {
         } else {
             graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
         }
+    }
+
+    public void setShowRawDataNO_EVENT(Boolean show) {
+        this.showRawData = show;
     }
 
     public boolean containsId(Long id) {
@@ -361,6 +377,13 @@ public class GraphDataModel {
             }
         }
         return out;
+    }
+
+    public void resetToolbarSettings() {
+        setHideShowIconsNO_EVENT(true);
+        setShowRawDataNO_EVENT(false);
+        setShowSumNO_EVENT(false);
+        setAutoResizeNO_EVENT(true);
     }
 
 
