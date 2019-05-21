@@ -403,7 +403,6 @@ public class CalculationViewController {
         logger.info("setData: " + buttonOutput);
         formulaBox.setCalculation(obj);
 
-
         formulaBox.setOutputButton(buttonOutput);
 
         variablesBox.bindVaribaleBox(formulaBox, obj);
