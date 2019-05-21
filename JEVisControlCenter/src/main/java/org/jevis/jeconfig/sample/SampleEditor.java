@@ -193,14 +193,14 @@ public class SampleEditor {
 
         for (SampleEditorExtension ex : extensions) {
             Tab tabEditor = new Tab();
-            tabEditor.setText(ex.getTitel());
+            tabEditor.setText(ex.getTitle());
             tabEditor.setContent(ex.getView());
             tabs.add(tabEditor);
         }
 
         disableEditing.addListener((observable, oldValue, newValue) -> {
             extensions.forEach(sampleEditorExtension -> {
-                logger.info("Diabled editing in: " + sampleEditorExtension.getTitel());
+                logger.info("Diabled editing in: " + sampleEditorExtension.getTitle());
                 sampleEditorExtension.disableEditing(newValue);
             });
         });
@@ -228,7 +228,7 @@ public class SampleEditor {
 
         tabPane.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
             for (SampleEditorExtension ex : extensions) {
-                if (ex.getTitel().equals(t1.getText())) {
+                if (ex.getTitle().equals(t1.getText())) {
                     System.out.println("Tab chaned: " + ex.getClass());
                     activExtensions = ex;
                     ex.update();
@@ -400,7 +400,7 @@ public class SampleEditor {
     }
 
     private int getLastDataSettings(final DateTime from, final DateTime until, AggregationPeriod period) {
-        return (int) from.hashCode() * until.hashCode() * period.hashCode();
+        return from.hashCode() * until.hashCode() * period.hashCode();
     }
 
     /**

@@ -158,7 +158,7 @@ public class AttributeStatesExtension implements SampleEditorExtension {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return TITLE;
     }
 

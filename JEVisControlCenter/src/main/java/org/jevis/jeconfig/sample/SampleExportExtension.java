@@ -380,7 +380,7 @@ public class SampleExportExtension implements SampleEditorExtension {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return TITLE;
     }
 
