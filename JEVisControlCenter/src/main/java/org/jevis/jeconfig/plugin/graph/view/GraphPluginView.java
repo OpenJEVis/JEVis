@@ -59,6 +59,7 @@ import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
@@ -72,6 +73,7 @@ import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
 
 import java.util.*;
 
@@ -711,9 +713,17 @@ public class GraphPluginView implements Plugin {
 
                     cv.getChart().getChart().setOnMouseMoved(event -> {
                         cv.updateTablesSimultaneously(event, null);
-                        notActive.stream().filter(na -> !na.getChartType().equals(ChartType.PIE)
-                                && !na.getChartType().equals(ChartType.BAR)
-                                && !na.getChartType().equals(ChartType.BUBBLE)).forEach(na -> na.updateTablesSimultaneously(null, cv.getValueForDisplay()));
+                        notActive.forEach(na -> {
+                            if (!na.getChartType().equals(ChartType.PIE)
+                                    && !na.getChartType().equals(ChartType.BAR)
+                                    && !na.getChartType().equals(ChartType.BUBBLE)
+                                    && !na.getChartType().equals(ChartType.TABLE)) {
+                                na.updateTablesSimultaneously(null, cv.getValueForDisplay());
+                            } else if (na.getChartType().equals(ChartType.TABLE)) {
+                                TableChart naChart = (TableChart) na.getChart();
+                                naChart.getTableTopDatePicker().getDatePicker().getSelectionModel().select(cv.getChart().getNearest());
+                            }
+                        });
                     });
 
                     cv.getChart().getPanner().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
@@ -761,17 +771,61 @@ public class GraphPluginView implements Plugin {
                     });
                     break;
                 case LOGICAL:
-                    /**
-                     * merged with TABLE -> no break
-                     */
-                case TABLE:
                     cv.getChart().getChart().setOnMouseMoved(event -> {
                         cv.updateTablesSimultaneously(event, null);
 
-                        notActive.stream().filter(na -> !na.getChartType().equals(ChartType.PIE)
+                        notActive.forEach(na -> {
+                            if (!na.getChartType().equals(ChartType.PIE)
                                     && !na.getChartType().equals(ChartType.BAR)
-                                && !na.getChartType().equals(ChartType.BUBBLE)).forEach(na -> na.updateTablesSimultaneously(null, cv.getValueForDisplay()));
+                                    && !na.getChartType().equals(ChartType.BUBBLE)
+                                    && !na.getChartType().equals(ChartType.TABLE)) {
+                                na.updateTablesSimultaneously(null, cv.getValueForDisplay());
+                            } else if (na.getChartType().equals(ChartType.TABLE)) {
+                                TableChart naChart = (TableChart) na.getChart();
+                                naChart.getTableTopDatePicker().getDatePicker().getSelectionModel().select(cv.getChart().getNearest());
+                            }
+                        });
 
+                    });
+                    break;
+                case TABLE:
+                    TableChart chart = (TableChart) cv.getChart();
+                    TableTopDatePicker tableTopDatePicker = chart.getTableTopDatePicker();
+                    ComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
+                    ChartDataModel singleRow = chart.getSingleRow();
+                    datePicker.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                        if (datePicker.getSelectionModel().selectedIndexProperty().get() < singleRow.getSamples().size()
+                                && datePicker.getSelectionModel().selectedIndexProperty().get() > -1) {
+                            Platform.runLater(() -> {
+                                cv.updateTablesSimultaneously(null, newValue);
+
+                                notActive.forEach(na -> {
+                                    if (!na.getChartType().equals(ChartType.PIE)
+                                            && !na.getChartType().equals(ChartType.BAR)
+                                            && !na.getChartType().equals(ChartType.BUBBLE)
+                                            && !na.getChartType().equals(ChartType.TABLE)) {
+                                        na.updateTablesSimultaneously(null, newValue);
+                                    } else if (na.getChartType().equals(ChartType.TABLE)) {
+                                        TableChart naChart = (TableChart) na.getChart();
+                                        naChart.getTableTopDatePicker().getDatePicker().getSelectionModel().select(newValue);
+                                    }
+                                });
+                            });
+                        }
+                    });
+
+                    tableTopDatePicker.getLeftImage().setOnMouseClicked(event -> {
+                        int i = datePicker.getSelectionModel().getSelectedIndex() - 1;
+                        if (i > -1) {
+                            datePicker.getSelectionModel().select(i);
+                        }
+                    });
+
+                    tableTopDatePicker.getRightImage().setOnMouseClicked(event -> {
+                        int i = datePicker.getSelectionModel().getSelectedIndex() - 1;
+                        if (i < singleRow.getSamples().size()) {
+                            datePicker.getSelectionModel().select(i);
+                        }
                     });
                     break;
 

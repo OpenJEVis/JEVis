@@ -109,6 +109,11 @@ public class BubbleChart implements Chart {
     }
 
     @Override
+    public DateTime getNearest() {
+        return null;
+    }
+
+    @Override
     public void setValueForDisplay(DateTime valueForDisplay) {
 
     }

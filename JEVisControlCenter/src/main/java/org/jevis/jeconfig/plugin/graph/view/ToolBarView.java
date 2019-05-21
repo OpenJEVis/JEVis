@@ -795,6 +795,8 @@ public class ToolBarView {
         playIcon = JEConfig.getImage("play_32.png", iconSize, iconSize);
 
         runUpdateButton = new ToggleButton("", playIcon);
+        Tooltip runUpdateTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.runupdate"));
+        runUpdateButton.setTooltip(runUpdateTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(runUpdateButton);
 
         delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));

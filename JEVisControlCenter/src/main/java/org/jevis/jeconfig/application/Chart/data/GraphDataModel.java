@@ -97,7 +97,7 @@ public class GraphDataModel {
             if (newValue != oldValue && newValue) {
                 changed.set(false);
 
-                if (!getCurrentAnalysis().getName().equals("Temp")) {
+                if (getCurrentAnalysis() != null && !getCurrentAnalysis().getName().equals("Temp")) {
                     selectedData = new HashSet<>();
                     charts = new ArrayList<>();
                     getSelectedData();
