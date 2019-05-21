@@ -536,6 +536,7 @@ public class LoadAnalysisDialog {
         Platform.runLater(() -> {
 
             pickerCombo = new PickerCombo(graphDataModel, null);
+            pickerCombo.updateCellFactory();
             presetDateBox = pickerCombo.getPresetDateBox();
             pickerDateStart = pickerCombo.getStartDatePicker();
             pickerTimeStart = pickerCombo.getStartTimePicker();

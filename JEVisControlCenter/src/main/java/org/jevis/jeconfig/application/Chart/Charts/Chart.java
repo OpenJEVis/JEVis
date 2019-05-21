@@ -174,6 +174,8 @@ public interface Chart {
 
     DateTime getValueForDisplay();
 
+    DateTime getNearest();
+
     void setValueForDisplay(DateTime valueForDisplay);
 
     javafx.scene.chart.Chart getChart();

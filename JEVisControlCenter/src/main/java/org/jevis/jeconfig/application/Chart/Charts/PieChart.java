@@ -273,6 +273,11 @@ public class PieChart implements Chart {
     }
 
     @Override
+    public DateTime getNearest() {
+        return null;
+    }
+
+    @Override
     public void setValueForDisplay(DateTime valueForDisplay) {
         this.valueForDisplay = valueForDisplay;
     }

@@ -64,6 +64,7 @@ public class BarChart implements Chart {
     private boolean asDuration = false;
     private AtomicReference<ManipulationMode> manipulationMode;
     private ChartPanManager panner;
+    private DateTime nearest;
 
     public BarChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -314,7 +315,7 @@ public class BarChart implements Chart {
                     TableEntry tableEntry = serie.getTableEntry();
                     TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
 
-                    DateTime nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
+                    nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
 
                     NumberFormat nf = NumberFormat.getInstance();
                     nf.setMinimumFractionDigits(2);
@@ -407,6 +408,11 @@ public class BarChart implements Chart {
     @Override
     public DateTime getValueForDisplay() {
         return valueForDisplay;
+    }
+
+    @Override
+    public DateTime getNearest() {
+        return nearest;
     }
 
     @Override
