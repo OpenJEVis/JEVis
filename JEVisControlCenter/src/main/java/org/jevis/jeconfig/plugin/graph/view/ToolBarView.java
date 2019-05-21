@@ -12,8 +12,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.*;
@@ -44,7 +42,6 @@ import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
@@ -52,7 +49,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -87,30 +83,6 @@ public class ToolBarView {
     private ToolBar toolBar;
 
 
-    private Long finalSeconds = 60L;
-    private Service<Void> service = new Service<Void>() {
-        @Override
-        protected Task<Void> createTask() {
-            return new Task<Void>() {
-                @Override
-                protected Void call() {
-                    try {
-                        TimeUnit.SECONDS.sleep(finalSeconds);
-                        Platform.runLater(() -> {
-                            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
-                        });
-
-                    } catch (InterruptedException e) {
-                        logger.warn("Reload Service stopped.");
-                        cancelled();
-                    }
-                    succeeded();
-
-                    return null;
-                }
-            };
-        }
-    };
     private ToggleButton runUpdateButton;
     private ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
@@ -163,40 +135,7 @@ public class ToolBarView {
         });
     }
 
-    private void stopTimer() {
-        service.cancel();
-    }
 
-    private void setTimer() {
-        Period p = null;
-        for (ChartDataModel chartDataModel : model.getSelectedData()) {
-            List<JEVisSample> samples = chartDataModel.getSamples();
-            if (samples.size() > 0) {
-                try {
-                    p = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
-                } catch (JEVisException e) {
-                    logger.error(e);
-                }
-                break;
-            }
-        }
-        if (p != null) {
-            Long seconds = null;
-            try {
-                seconds = p.toStandardDuration().getStandardSeconds();
-            } catch (Exception e) {
-                logger.error(e);
-            }
-            if (seconds == null) seconds = 60L;
-
-            Alert warning = new Alert(Alert.AlertType.INFORMATION, I18n.getInstance().getString("plugin.graph.toolbar.timer.settimer")
-                    + " " + seconds + " " + I18n.getInstance().getString("plugin.graph.toolbar.timer.settimer2"), ButtonType.OK);
-            warning.showAndWait();
-
-            finalSeconds = seconds;
-            service.start();
-        }
-    }
 
     private void addSeriesRunningMean() {
         model.setAddSeries(ManipulationMode.RUNNING_MEAN);
@@ -707,11 +646,13 @@ public class ToolBarView {
 
         runUpdateButton.setOnAction(action -> {
             if (runUpdateButton.isSelected()) {
+                model.setRunUpdate(true);
                 runUpdateButton.setGraphic(pauseIcon);
-                setTimer();
+                model.setTimer();
             } else {
+                model.setRunUpdate(false);
                 runUpdateButton.setGraphic(playIcon);
-                stopTimer();
+                model.stopTimer();
             }
         });
 
@@ -798,6 +739,17 @@ public class ToolBarView {
         Tooltip runUpdateTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.runupdate"));
         runUpdateButton.setTooltip(runUpdateTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(runUpdateButton);
+        runUpdateButton.setSelected(model.getRunUpdate());
+        runUpdateButton.styleProperty().bind(
+                Bindings
+                        .when(runUpdateButton.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(runUpdateButton.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
         delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
         Tooltip deleteTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.delete"));

@@ -13,6 +13,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,9 +41,11 @@ import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.time.LocalTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -82,6 +86,8 @@ public class GraphDataModel {
     private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
     private Boolean showRawData = false;
     private Boolean showSum = false;
+    private Boolean runUpdate = false;
+    private Long finalSeconds = 60L;
 
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
@@ -281,6 +287,35 @@ public class GraphDataModel {
 
     }
 
+    private Service<Void> service = new Service<Void>() {
+        @Override
+        protected Task<Void> createTask() {
+            return new Task<Void>() {
+                @Override
+                protected Void call() {
+                    try {
+                        TimeUnit.SECONDS.sleep(finalSeconds);
+                        Platform.runLater(() -> {
+                            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+                        });
+
+                    } catch (InterruptedException e) {
+                        logger.warn("Reload Service stopped.");
+                        cancelled();
+                    }
+                    succeeded();
+
+                    return null;
+                }
+            };
+        }
+    };
+
+    public void stopTimer() {
+        service.cancel();
+        service.reset();
+    }
+
     public Boolean getHideShowIcons() {
         return hideShowIcons;
     }
@@ -335,6 +370,46 @@ public class GraphDataModel {
         }
     }
 
+    public void setTimer() {
+        if (service.isRunning()) {
+            service.cancel();
+            service.reset();
+        }
+        Period p = null;
+        for (ChartDataModel chartDataModel : getSelectedData()) {
+            List<JEVisSample> samples = chartDataModel.getSamples();
+            if (samples.size() > 0) {
+                try {
+                    p = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+                } catch (JEVisException e) {
+                    logger.error(e);
+                }
+                break;
+            }
+        }
+        if (p != null) {
+            Long seconds = null;
+            try {
+                seconds = p.toStandardDuration().getStandardSeconds();
+                seconds = seconds / 2;
+            } catch (Exception e) {
+                logger.error(e);
+            }
+            if (seconds == null) seconds = 60L;
+
+            Alert warning = new Alert(Alert.AlertType.INFORMATION, I18n.getInstance().getString("plugin.graph.toolbar.timer.settimer")
+                    + " " + seconds + " " + I18n.getInstance().getString("plugin.graph.toolbar.timer.settimer2"), ButtonType.OK);
+            warning.showAndWait();
+
+            finalSeconds = seconds;
+            service.start();
+        }
+    }
+
+    public Boolean getRunUpdate() {
+        return runUpdate;
+    }
+
     public void setShowSumNO_EVENT(Boolean show) {
         this.showSum = show;
     }
@@ -379,13 +454,21 @@ public class GraphDataModel {
         return out;
     }
 
+    public void setRunUpdate(Boolean run) {
+        this.runUpdate = run;
+    }
+
     public void resetToolbarSettings() {
         setHideShowIconsNO_EVENT(true);
         setShowRawDataNO_EVENT(false);
         setShowSumNO_EVENT(false);
         setAutoResizeNO_EVENT(true);
+        setRunUpdate(false);
+        if (service.isRunning()) {
+            service.cancel();
+            service.reset();
+        }
     }
-
 
     public void setAnalysisTimeFrameForAllModels(AnalysisTimeFrame analysisTimeFrame) {
 
