@@ -26,6 +26,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.io.InputStream;
 import java.util.List;
@@ -79,11 +80,29 @@ public interface DataSource {
         DateTime lastRun = getLastRun(object);
         Long cycleTime = getCycleTime(object);
         DateTime nextRun = lastRun.plusMillis(cycleTime.intValue());
-        return DateTime.now().equals(nextRun) || DateTime.now().isAfter(nextRun);
+        return DateTime.now().withZone(getTimeZone(object)).equals(nextRun) || DateTime.now().isAfter(nextRun);
+    }
+
+    default DateTimeZone getTimeZone(JEVisObject object) {
+        DateTimeZone zone = DateTimeZone.UTC;
+
+        JEVisAttribute timeZoneAttribute = null;
+        try {
+            timeZoneAttribute = object.getAttribute("Timezone");
+            if (timeZoneAttribute != null) {
+                JEVisSample lastTimeZoneSample = timeZoneAttribute.getLatestSample();
+                if (lastTimeZoneSample != null) {
+                    zone = DateTimeZone.forID(lastTimeZoneSample.getValueAsString());
+                }
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+        return zone;
     }
 
     default DateTime getLastRun(JEVisObject object) {
-        DateTime dateTime = new DateTime(2001, 1, 1, 0, 0, 0);
+        DateTime dateTime = new DateTime(2001, 1, 1, 0, 0, 0).withZone(getTimeZone(object));
 
         try {
             JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");

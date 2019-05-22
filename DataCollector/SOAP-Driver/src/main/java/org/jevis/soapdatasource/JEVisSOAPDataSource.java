@@ -12,7 +12,6 @@ import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -110,7 +109,8 @@ public class JEVisSOAPDataSource implements DataSource {
             JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.SOAPChannel.PATH);
             String path = DatabaseHelper.getObjectAsString(channel, pathType);
             JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.SOAPChannel.LAST_READOUT);
-            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
+            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
+
             JEVisType templateType = channelClass.getType(DataCollectorTypes.Channel.SOAPChannel.TEMPLATE);
             String template = DatabaseHelper.getObjectAsString(channel, templateType);
 
@@ -162,7 +162,11 @@ public class JEVisSOAPDataSource implements DataSource {
             }
 
             String timezoneString = DatabaseHelper.getObjectAsString(soapObject, timezoneType);
-            _timeZone = DateTimeZone.forID(timezoneString);
+            if (_timeZone != null) {
+                _timeZone = DateTimeZone.forID(timezoneString);
+            } else {
+                _timeZone = DateTimeZone.UTC;
+            }
             Boolean _enabled = DatabaseHelper.getObjectAsBoolean(soapObject, enableType);
 
             _soapdatasource = new SOAPDataSource();

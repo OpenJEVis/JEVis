@@ -77,11 +77,12 @@ public class ProcessManager {
     public void start() throws Exception {
         logger.info("[{}] Starting Process", resourceManager.getID());
 
-        resourceManager.getCleanDataObject().checkConfig();
+        if (resourceManager.getCleanDataObject().checkConfig()) {
 
 //        while (missingSamples) {
-        reRun();
+            reRun();
 //        }
+        }
 
         logger.info("[{}] Finished", resourceManager.getID(), resourceManager.getCleanDataObject().getCleanObject().getName());
     }

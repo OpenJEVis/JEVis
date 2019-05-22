@@ -81,7 +81,7 @@ public class LimitsStep implements ProcessStep {
 
             sampleCache = cleanDataObject.getCleanObject().getAttribute(CleanDataObject.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
         } catch (Exception e) {
-            logger.error("No caching possible: " + e);
+            logger.info("No caching possible: " + e);
         }
         for (JsonLimitsConfig limitsConfig : cleanDataObject.getLimitsConfig()) {
             if (cleanDataObject.getLimitsConfig().indexOf(limitsConfig) == 0) {

@@ -89,11 +89,10 @@ public class CleanDataObject {
     }
 
     /**
-     * Check if the configuration is valid. Throws exception if configuration is not valid.
+     * Check if the configuration is valid. Returns false if configuration is not valid.
      *
-     * @throws Exception
      */
-    public void checkConfig() throws Exception {
+    public boolean checkConfig() {
         List<String> errors = new ArrayList<>();
         if (getLimitsEnabled() && getLimitsConfig().isEmpty()) {
             errors.add("Missing Limit configuration");
@@ -147,10 +146,10 @@ public class CleanDataObject {
             String exception = String.format("[%s] Error in configuration, stopping: %s", getCleanObject().getID(), stringBuilder.toString().replace("\n", ""));
             LogTaskManager.getInstance().getTask(getCleanObject().getID()).setException(new Exception(exception));
 
-            throw new Exception(exception);
+            return false;
         }
 
-
+        return true;
     }
 
     public void getAttributes() throws JEVisException {

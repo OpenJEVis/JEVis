@@ -90,7 +90,7 @@ public class PrepareStep implements ProcessStep {
         DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
         DateTime maxEndDate = calcAttribute.getMaxEndDate();
 
-        logger.error("[{}] getIntervals: currentDate: {}  MaxEndDate: {} ", calcAttribute.getCleanObject().getID(), currentDate, maxEndDate);
+        logger.info("[{}] getIntervals: currentDate: {}  MaxEndDate: {} ", calcAttribute.getCleanObject().getID(), currentDate, maxEndDate);
 
         if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
             logger.warn("Nothing to do with only one interval");
