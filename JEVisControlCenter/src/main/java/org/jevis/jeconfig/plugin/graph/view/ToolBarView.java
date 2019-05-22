@@ -678,6 +678,16 @@ public class ToolBarView {
 
                 ge.export(graphPluginView.getvBox());
 
+                Platform.runLater(() -> {
+                    JEConfig.getStage().setMaximized(false);
+                    double height = JEConfig.getStage().getHeight();
+                    double width = JEConfig.getStage().getWidth();
+                    JEConfig.getStage().setWidth(0);
+                    JEConfig.getStage().setHeight(0);
+                    JEConfig.getStage().setHeight(height);
+                    JEConfig.getStage().setWidth(width);
+                });
+
             }
 
         });
