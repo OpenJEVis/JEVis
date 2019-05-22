@@ -79,7 +79,7 @@ public class Launcher extends AbstractCliApp {
                     }
 
                 } else {
-                    logger.error("Still processing Job " + currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID());
+                    logger.info("Still processing Job " + currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID());
                 }
             });
         });
