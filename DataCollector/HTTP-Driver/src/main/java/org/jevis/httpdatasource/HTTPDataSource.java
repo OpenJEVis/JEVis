@@ -146,9 +146,9 @@ public class HTTPDataSource {
         return answer;
     }
 
-    public void setDateTimeZone(String timeZone) {
+    public void setDateTimeZone(DateTimeZone timeZone) {
         logger.info("TIMEZONE: " + timeZone);
-        this._timeZone = DateTimeZone.forID(timeZone);
+        _timeZone = timeZone;
     }
 
     // interfaces

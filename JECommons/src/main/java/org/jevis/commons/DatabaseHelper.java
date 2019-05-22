@@ -6,7 +6,8 @@ package org.jevis.commons;
 
 import org.jevis.api.*;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
 
 /**
  * @author bf
@@ -105,14 +106,20 @@ public class DatabaseHelper {
         return value;
     }
 
-    public static DateTime getObjectAsDate(JEVisObject jevisObject, JEVisType jevisType, DateTimeFormatter timeFormat) {
-        DateTime datetime = null;
+    public static DateTime getObjectAsDate(JEVisObject jevisObject, JEVisType jevisType) {
+        DateTime datetime = new DateTime(2001, 1, 1, 0, 0).withZone(DateTimeZone.UTC);
+
         try {
             if (DatabaseHelper.checkValidStringObject(jevisObject, jevisType)) {
                 String value = jevisObject.getAttribute(jevisType).getLatestSample().getValueAsString();
-                datetime = timeFormat.parseDateTime(value);
+                try {
+                    datetime = new DateTime(value);
+                } catch (Exception e) {
+                    datetime = DateTime.parse(value, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
+                }
             }
-        } catch (NumberFormatException | JEVisException nfe) {
+        } catch (NumberFormatException |
+                JEVisException nfe) {
         }
         return datetime;
     }

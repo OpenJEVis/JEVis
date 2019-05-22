@@ -11,7 +11,7 @@ import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
+import org.joda.time.DateTimeZone;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -22,6 +22,7 @@ import java.util.List;
  */
 public class JEVisHTTPDataSource implements DataSource {
     private static final Logger logger = LogManager.getLogger(JEVisHTTPDataSource.class);
+    private DateTimeZone timezone;
 
     @Override
     public void run() {
@@ -63,7 +64,8 @@ public class JEVisHTTPDataSource implements DataSource {
             JEVisType pathType = channelClass.getType(HTTPChannelTypes.PATH);
             String path = DatabaseHelper.getObjectAsString(channel, pathType);
             JEVisType readoutType = channelClass.getType(HTTPChannelTypes.LAST_READOUT);
-            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
+            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
+
             httpChannel.setLastReadout(lastReadout);
             httpChannel.setPath(path);
         } catch (JEVisException ex) {
@@ -94,11 +96,11 @@ public class JEVisHTTPDataSource implements DataSource {
             JEVisAttribute userAttr = httpObject.getAttribute(userType);
             JEVisAttribute timeZoneAttr = httpObject.getAttribute(timezoneType);
 
-            String timeZone = null;
-            if (!timeZoneAttr.hasSample()) {
-                timeZone = "UTC";
+            String timezoneString = DatabaseHelper.getObjectAsString(httpObject, timezoneType);
+            if (timezone != null) {
+                timezone = DateTimeZone.forID(timezoneString);
             } else {
-                timeZone = timeZoneAttr.getLatestSample().getValueAsString();
+                timezone = DateTimeZone.UTC;
             }
 
             String userName = null;
@@ -124,7 +126,7 @@ public class JEVisHTTPDataSource implements DataSource {
             _httpdatasource.setServerURL(serverURL);
             _httpdatasource.setSsl(ssl);
             _httpdatasource.setUserName(userName);
-            _httpdatasource.setDateTimeZone(timeZone);
+            _httpdatasource.setDateTimeZone(timezone);
 
         } catch (JEVisException ex) {
             logger.fatal(ex);
