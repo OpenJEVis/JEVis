@@ -161,6 +161,11 @@ public class LayoutmanagerPlugin implements Plugin {
     }
 
     @Override
+    public void updateToolbar() {
+
+    }
+
+    @Override
     public JEVisDataSource getDataSource() {
         return ds;
     }

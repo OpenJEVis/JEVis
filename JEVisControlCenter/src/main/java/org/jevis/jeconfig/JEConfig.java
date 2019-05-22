@@ -89,6 +89,11 @@ public class JEConfig extends Application {
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
 
+    public static boolean getExpert() {
+        final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
+        return prefExpert.getBoolean("show", false);
+    }
+
     /**
      * Returns the last path the local user selected
      *
@@ -98,12 +103,12 @@ public class JEConfig extends Application {
     public static File getLastPath() {
         File result;
 
-        if (OsUtils.isWindows()) {//Pref is not working under windows 8+
-            result = new File("/");
-        } else {
-            result = new File(pref.get("lastPath", System.getProperty("user.home")));
-        }
-
+//        if (OsUtils.isWindows()) {//Pref is not working under windows 8+
+//            result = new File("/");
+//        } else {
+        final Preferences lastPath = Preferences.userRoot().node("JEVis.JEConfig");
+        result = new File(lastPath.get("lastPath", System.getProperty("user.home")));
+//        }
 
         if (result.canRead()) {
             if (result.isFile()) {
@@ -124,11 +129,8 @@ public class JEConfig extends Application {
      * @deprecated Will be moved into the Configuration -> user settings
      */
     public static void setLastPath(File file) {
-        if (file.exists()) {
-            getConfig().setLastPath(file.getParentFile());
-        } else {
-            getConfig().setLastPath(new File(pref.get("lastPath", System.getProperty("user.home"))));
-        }
+        final Preferences lastPath = Preferences.userRoot().node("JEVis.JEConfig");
+        lastPath.put("lastPath", file.getAbsolutePath());
     }
 
     /**

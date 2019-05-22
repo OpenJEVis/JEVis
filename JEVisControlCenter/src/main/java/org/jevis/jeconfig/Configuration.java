@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * This class holds the configutraion for the JEConfig.
+ * This class holds the configuration for the JECC.
  *
  * TODO: replace this with the JEVisOption
  *

@@ -123,6 +123,11 @@ public class DashBordPlugIn implements Plugin {
     }
 
     @Override
+    public void updateToolbar() {
+
+    }
+
+    @Override
     public JEVisDataSource getDataSource() {
         return jeVisDataSource;
     }
