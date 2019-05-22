@@ -62,7 +62,6 @@ public class Launcher extends AbstractCliApp {
                         currentProcess.start();
                     } catch (Exception ex) {
                         logger.debug(ex);
-                        logger.error(LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).getException());
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
                     }
 
