@@ -265,6 +265,11 @@ public class GraphPluginView implements Plugin {
     }
 
     @Override
+    public void updateToolbar() {
+        toolBarView.updateLayout();
+    }
+
+    @Override
     public JEVisDataSource getDataSource() {
         return ds;
     }

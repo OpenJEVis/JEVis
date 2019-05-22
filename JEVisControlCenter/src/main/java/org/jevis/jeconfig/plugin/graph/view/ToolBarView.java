@@ -136,7 +136,6 @@ public class ToolBarView {
     }
 
 
-
     private void addSeriesRunningMean() {
         model.setAddSeries(ManipulationMode.RUNNING_MEAN);
     }
@@ -627,12 +626,19 @@ public class ToolBarView {
             Separator sep3 = new Separator();
             Separator sep4 = new Separator();
 
-            toolBar.getItems().addAll(listAnalysesComboBox,
-                    sep1, presetDateBox, pickerDateStart, pickerDateEnd,
-                    sep2, reload, zoomOut,
-                    sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                    sep4, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
-
+            if (!JEConfig.getExpert()) {
+                toolBar.getItems().addAll(listAnalysesComboBox,
+                        sep1, presetDateBox, pickerDateStart, pickerDateEnd,
+                        sep2, reload, zoomOut,
+                        sep3, loadNew, save, delete, select, exportCSV, exportImage,
+                        sep4, showSum, disableIcons, autoResize, runUpdateButton);
+            } else {
+                toolBar.getItems().addAll(listAnalysesComboBox,
+                        sep1, presetDateBox, pickerDateStart, pickerDateEnd,
+                        sep2, reload, zoomOut,
+                        sep3, loadNew, save, delete, select, exportCSV, exportImage,
+                        sep4, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
+            }
 
             setupAnalysisComboBoxListener();
             pickerCombo.addListener();

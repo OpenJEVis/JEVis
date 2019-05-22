@@ -299,6 +299,11 @@ public class ObjectPlugin implements Plugin {
     }
 
     @Override
+    public void updateToolbar() {
+
+    }
+
+    @Override
     public JEVisDataSource getDataSource() {
         return ds;
     }
