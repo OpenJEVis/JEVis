@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig.application.unit;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
@@ -31,7 +29,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -43,6 +40,7 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.dialog.DialogHeader;
+import org.jevis.jeconfig.tool.I18n;
 
 import javax.measure.unit.Unit;
 
@@ -57,7 +55,7 @@ public class SimpleTreeUnitChooser {
     public Response show(Point2D position, final JEVisDataSource ds) {
         final Stage stage = new Stage();
 
-        stage.setTitle("Base Unit Selection");
+        stage.setTitle(I18n.getInstance().getString("plugin.units.baseunit.title"));
         stage.initModality(Modality.APPLICATION_MODAL);
 //        stage.initOwner(owner);
         stage.setX(position.getX());
@@ -75,17 +73,17 @@ public class SimpleTreeUnitChooser {
 
         ImageView imageView = ResourceLoader.getImage("1405444584_measure.png", 65, 65);
 
-        Node header = DialogHeader.getDialogHeader("1405444584_measure.png", "Unit Selection");
+        Node header = DialogHeader.getDialogHeader("1405444584_measure.png", I18n.getInstance().getString("plugin.units.baseunit.header"));
 
         stage.getIcons().add(imageView.getImage());
 
 //        Node header = DialogHeader.getDialogHeader("1404313956_evolution-tasks.png", "Unit Selection");
         HBox buttonPanel = new HBox();
 
-        Button ok = new Button("OK");
+        Button ok = new Button(I18n.getInstance().getString("plugin.units.baseunit.ok"));
         ok.setDefaultButton(true);
 
-        Button cancel = new Button("Cancel");
+        Button cancel = new Button(I18n.getInstance().getString("plugin.units.baseunit.cancel"));
         cancel.setCancelButton(true);
 
         uTree = new UnitTree(ds);
@@ -102,39 +100,30 @@ public class SimpleTreeUnitChooser {
 
         root.getChildren().setAll(header, new Separator(Orientation.HORIZONTAL), box, buttonPanel);
 
-        ok.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
+        ok.setOnAction(t -> {
 //                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
-                response = Response.YES;
-                logger.info("UnitTree.OK: " + uTree.getSelectedObject().getUnit());
-                _unit = uTree.getSelectedObject().getUnit();
-                stage.close();
+            response = Response.YES;
+            logger.info("UnitTree.OK: " + uTree.getSelectedObject().getUnit());
+            _unit = uTree.getSelectedObject().getUnit();
+            stage.close();
 
-            }
         });
 
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                response = Response.CANCEL;
+        cancel.setOnAction(t -> {
+            response = Response.CANCEL;
 
-                stage.close();
+            stage.close();
 
-            }
         });
 
-        uTree.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
-                    if (mouseEvent.getClickCount() == 2) {
-                        if (uTree.getSelectedObject() != null) {
-                            response = Response.YES;
-                            logger.info("UnitTree.OK: " + uTree.getSelectedObject().getUnit());
-                            _unit = uTree.getSelectedObject().getUnit();
-                            stage.close();
-                        }
+        uTree.setOnMouseClicked(mouseEvent -> {
+            if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                if (mouseEvent.getClickCount() == 2) {
+                    if (uTree.getSelectedObject() != null) {
+                        response = Response.YES;
+                        logger.info("UnitTree.OK: " + uTree.getSelectedObject().getUnit());
+                        _unit = uTree.getSelectedObject().getUnit();
+                        stage.close();
                     }
                 }
             }

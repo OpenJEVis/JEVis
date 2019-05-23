@@ -43,7 +43,7 @@ public class UnitGraphic {
     private final ContextMenu _menu;
     private final UnitTree _tree;
     private Tooltip _tip;
-    private static final Image ICON_QUANTITI = new Image(UnitGraphic.class.getResourceAsStream("/icons/" + "quntity.png"));
+    private static final Image ICON_QUANTITY = new Image(UnitGraphic.class.getResourceAsStream("/icons/" + "quntity.png"));
     private static final Image ICON_SIUNIT = new Image(UnitGraphic.class.getResourceAsStream("/icons/" + "siunit.png"));
     private static final Image ICON_NONSIUNIT = new Image(UnitGraphic.class.getResourceAsStream("/icons/" + "nonsiunit.png"));
     private static final Image ICON_LABEL = new Image(UnitGraphic.class.getResourceAsStream("/icons/" + "label.png"));
@@ -89,8 +89,8 @@ public class UnitGraphic {
         }
 
         switch (item.getType()) {
-            case Quntity:
-                _icon = new ImageView(ICON_QUANTITI);
+            case Quantity:
+                _icon = new ImageView(ICON_QUANTITY);
                 break;
             case SIUnit:
                 _icon = new ImageView(ICON_SIUNIT);

@@ -200,7 +200,7 @@ public class SampleEditor {
 
         disableEditing.addListener((observable, oldValue, newValue) -> {
             extensions.forEach(sampleEditorExtension -> {
-                logger.info("Diabled editing in: " + sampleEditorExtension.getTitle());
+                logger.info("Disabled editing in: " + sampleEditorExtension.getTitle());
                 sampleEditorExtension.disableEditing(newValue);
             });
         });
@@ -229,7 +229,7 @@ public class SampleEditor {
         tabPane.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
             for (SampleEditorExtension ex : extensions) {
                 if (ex.getTitle().equals(t1.getText())) {
-                    System.out.println("Tab chaned: " + ex.getClass());
+                    logger.info("Tab changed: " + ex.getClass());
                     activExtensions = ex;
                     ex.update();
                 }
