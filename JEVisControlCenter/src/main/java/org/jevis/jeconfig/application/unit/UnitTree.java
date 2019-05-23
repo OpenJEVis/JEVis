@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig.application.unit;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.SelectionMode;
@@ -48,10 +46,10 @@ public class UnitTree extends TreeView<UnitObject> {
 //    private UnitEditor _editor = new UnitEditor();
     private JEVisDataSource _ds;
 
-    private HashMap<String, TreeItem<UnitObject>> _itemCache;
-    private HashMap<String, UnitGraphic> _graphicCache;
-    private HashMap<TreeItem<UnitObject>, ObservableList<TreeItem<UnitObject>>> _itemChildren;
-    private ObservableList<TreeItem<UnitObject>> _emtyList = FXCollections.emptyObservableList();
+    private HashMap<String, TreeItem<UnitObject>> itemCache;
+    private HashMap<String, UnitGraphic> graphicsCache;
+    private HashMap<TreeItem<UnitObject>, ObservableList<TreeItem<UnitObject>>> itemChildren;
+    private ObservableList<TreeItem<UnitObject>> emptyList = FXCollections.emptyObservableList();
 
     private UnitObject _dragObj;
 
@@ -63,9 +61,9 @@ public class UnitTree extends TreeView<UnitObject> {
         super();
         try {
             _ds = ds;
-            _itemCache = new HashMap<>();
-            _graphicCache = new HashMap<>();
-            _itemChildren = new HashMap<>();
+            itemCache = new HashMap<>();
+            graphicsCache = new HashMap<>();
+            itemChildren = new HashMap<>();
 //            setStyle("-fx-background-color: white;");
             setMaxHeight(2014);
 
@@ -76,15 +74,11 @@ public class UnitTree extends TreeView<UnitObject> {
 
             getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-            getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<UnitObject>>() {
-
-                @Override
-                public void changed(ObservableValue<? extends TreeItem<UnitObject>> ov, TreeItem<UnitObject> t, TreeItem<UnitObject> t1) {
-                    if (t != null) {
+            getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
+                if (t != null) {
 //                        _editor.setUnit(t1.getValue());
-                    }
-
                 }
+
             });
 
             setCellFactory(new Callback<TreeView<UnitObject>, TreeCell<UnitObject>>() {
@@ -136,15 +130,7 @@ public class UnitTree extends TreeView<UnitObject> {
     }
 
     public static void sortList(ObservableList<TreeItem<UnitObject>> list) {
-        Comparator<TreeItem<UnitObject>> sort = new Comparator<TreeItem<UnitObject>>() {
-
-            @Override
-            public int compare(TreeItem<UnitObject> o1, TreeItem<UnitObject> o2) {
-//                logger.info("Compare: \n " + o1 + " with\n " + o2);
-                return o1.getValue().getName().compareTo(o2.getValue().getName());
-
-            }
-        };
+        Comparator<TreeItem<UnitObject>> sort = Comparator.comparing(o -> o.getValue().getName());
 
         FXCollections.sort(list, sort);
 
@@ -155,37 +141,37 @@ public class UnitTree extends TreeView<UnitObject> {
     }
 
     public UnitGraphic getObjectGraphic(UnitObject object) {
-        if (_graphicCache.containsKey(object.toString())) {
-            return _graphicCache.get(object.toString());
+        if (graphicsCache.containsKey(object.toString())) {
+            return graphicsCache.get(object.toString());
         }
 
 //        logger.info("grahic does not exist create for: " + object);
         UnitGraphic graph = new UnitGraphic(object, this);
-        _graphicCache.put(object.toString(), graph);
+        graphicsCache.put(object.toString(), graph);
 
         return graph;
     }
 
     public TreeItem<UnitObject> buildItem(UnitObject object) {
 
-        if (_itemCache.containsKey(object.toString())) {
-            return _itemCache.get(object.toString());
+        if (itemCache.containsKey(object.toString())) {
+            return itemCache.get(object.toString());
         }
 
 //        logger.info("buildItem: " + object);
         final TreeItem<UnitObject> newItem = new UnitItem(object, this);
-        _itemCache.put(object.toString(), newItem);
+        itemCache.put(object.toString(), newItem);
 
         return newItem;
     }
 
     public ObservableList<TreeItem<UnitObject>> getChildrenList(TreeItem<UnitObject> item) {
         if (item == null || item.getValue() == null) {
-            return _emtyList;
+            return emptyList;
         }
 
-        if (_itemChildren.containsKey(item)) {
-            return _itemChildren.get(item);
+        if (itemChildren.containsKey(item)) {
+            return itemChildren.get(item);
         }
 
         ObservableList<TreeItem<UnitObject>> list = FXCollections.observableArrayList();
@@ -195,7 +181,7 @@ public class UnitTree extends TreeView<UnitObject> {
 //            list.add(newItem);
 //        }
 //        sortList(list);
-        _itemChildren.put(item, list);
+        itemChildren.put(item, list);
 
         return list;
 
@@ -227,21 +213,21 @@ public class UnitTree extends TreeView<UnitObject> {
     public void addChildrenList(TreeItem<UnitObject> item, ObservableList<TreeItem<UnitObject>> list) {
 //        logger.info("addChildrenList: " + item);
 //        List<JEVisUnit> usedAdditionalUnits = new ArrayList<>();
-        _itemChildren.put(item, list);
+        itemChildren.put(item, list);
 
         if (item.getValue().getType() == UnitObject.Type.FakeRoot) {
             for (JEVisUnit child : UnitManager.getInstance().getQuantitiesJunit()) {
 //                logger.info("---add quanti: " + child);
-                UnitObject quant = new UnitObject(UnitObject.Type.Quntity, child, UnitManager.getInstance().getQuantitiesName(child, Locale.ENGLISH));
+                UnitObject quant = new UnitObject(UnitObject.Type.Quantity, child, UnitManager.getInstance().getQuantitiesName(child, Locale.ENGLISH));
                 TreeItem<UnitObject> newItem = buildItem(quant);
                 list.add(newItem);
             }
             //Quantity for all the rest Unit with are not comatible to anyting
-            UnitObject custom = new UnitObject(UnitObject.Type.Quntity, new JEVisUnitImp(Unit.ONE), "Custom");
+            UnitObject custom = new UnitObject(UnitObject.Type.Quantity, new JEVisUnitImp(Unit.ONE), "Custom");
             TreeItem<UnitObject> customItem = buildItem(custom);
             list.add(customItem);
 
-        } else if (item.getValue().getType() == UnitObject.Type.Quntity) {
+        } else if (item.getValue().getType() == UnitObject.Type.Quantity) {
             if (item.getValue().getID().equals("Custom")) {
                 for (JEVisUnit child : UnitManager.getInstance().getCustomUnits()) {
                     UnitObject customUnit = new UnitObject(UnitObject.Type.NonSIUnit, child, item.getValue().getID() + child.toString());

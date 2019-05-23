@@ -60,7 +60,9 @@ public class UnitItem extends TreeItem<UnitObject> {
         if (_doInit) {
             _doInit = false;
 
-            _tree.addChildrenList(this, super.getChildren());
+            if (_tree != null) {
+                _tree.addChildrenList(this, super.getChildren());
+            }
         }
         return super.getChildren();
     }

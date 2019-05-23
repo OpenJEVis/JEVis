@@ -609,8 +609,7 @@ public class UnitManager {
 //            uString = uString.replace("(", "");
 //            uString = uString.replace(")", "");
 //            uString = uString.replace("·", "");
-            String withPrefix = getPrefixChar(junit.getPrefix()) + uString;
-            return withPrefix;
+            return getPrefixChar(junit.getPrefix()) + uString;
         } else {
             logger.warn("No unit for format");
             return "";
@@ -711,7 +710,7 @@ public class UnitManager {
 
     public List<JEVisUnit> getCustomUnits() {
         List<JEVisUnit> customUnits = new ArrayList<>();
-        for (JEVisUnit unit : getAdditonalJEVisUnits()) {
+        for (JEVisUnit unit : getAdditionalJEVisUnits()) {
             boolean hasQuantitiy = false;
             for (JEVisUnit quantity : getQuantitiesJunit()) {
                 if (quantity.isCompatible(unit)) {
@@ -737,7 +736,7 @@ public class UnitManager {
         return customUnits;
     }
 
-    public List<JEVisUnit> getAdditonalJEVisUnits() {
+    public List<JEVisUnit> getAdditionalJEVisUnits() {
 //        if (additionalUnits != null) {
 //            return additionalUnits;
 //        }
@@ -816,7 +815,7 @@ public class UnitManager {
         return _siJunit;
     }
 
-    public HashMap<JEVisUnit, String> getNameMapQuantities(Locale local) {
+    public HashMap<JEVisUnit, String> getNameMapQuantities(Locale locale) {
         if (_dimNamesJUnit != null) {
             return _dimNamesJUnit;
         }
@@ -909,6 +908,7 @@ public class UnitManager {
             return names;
         }
         names = new HashMap<>();
+
 
         names.put(SI.AMPERE, "Ampere");
         names.put(SI.BECQUEREL, "Becquerel");
@@ -1074,7 +1074,7 @@ public class UnitManager {
     /**
      * Ask the JEAPI localization feature for the correct name of the unit.
      * Unit is identified by its symbol(this should be unitq?)
-     * <p>
+     * <p>.getStandardUnit().
      * TODO: The functionality is hardcoded in the moment....
      *
      * @param unit
@@ -1176,7 +1176,7 @@ public class UnitManager {
     public List<JEVisUnit> getCompatibleAdditionalUnit(JEVisUnit unit) {
         List<JEVisUnit> units = new ArrayList<>();
 
-        for (JEVisUnit other : getAdditonalJEVisUnits()) {
+        for (JEVisUnit other : getAdditionalJEVisUnits()) {
 //            System.out.print(other + " ? ...");
             if (unit.isCompatible(other) && !other.equals(unit)) {
 //                logger.info("is");
