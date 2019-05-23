@@ -114,9 +114,7 @@ public class TimeFrames {
 
             @Override
             public Interval getInterval(DateTime dateTime) {
-                if (dateTime.isAfterNow()) {
-                    dateTime = DateTime.now();
-                }
+
 
                 DateHelper dateHelper = new DateHelper();
                 dateHelper.setCustomPeriodObject(cpo);
