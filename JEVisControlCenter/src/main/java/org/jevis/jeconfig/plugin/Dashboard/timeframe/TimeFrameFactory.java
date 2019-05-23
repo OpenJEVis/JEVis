@@ -22,5 +22,8 @@ public interface TimeFrameFactory {
 
     String getID();
 
+    boolean hasNextPeriod(Interval interval);
+    boolean hasPreviousPeriod(Interval interval);
+
 }
 

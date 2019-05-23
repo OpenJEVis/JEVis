@@ -91,6 +91,7 @@ public class PieWidget extends Widget {
 //                chartDataModel.setAbsolute(true);
                 Double dataModelTotal = DataModelDataHandler.getTotal(chartDataModel.getSamples());
                 total.set(total.get() + dataModelTotal);
+
             } catch (Exception ex) {
                 logger.error(ex);
             }

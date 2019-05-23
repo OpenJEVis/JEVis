@@ -14,7 +14,7 @@ import java.util.Optional;
 public class HiddenConfig {
 
     public static double CHART_PRECESSION = 2.0;
-    public static int DASH_THREADS = 4;
+    public static int DASH_THREADS = 6;
     public static int CHART_PRECESSION_LIMIT = 1000;
     public static boolean CHART_PRECESSION_ON = true;
 

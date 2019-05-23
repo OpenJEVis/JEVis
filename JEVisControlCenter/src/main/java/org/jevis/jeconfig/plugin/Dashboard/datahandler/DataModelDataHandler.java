@@ -203,20 +203,6 @@ public class DataModelDataHandler {
                 }
             }
 
-//            if (!foundFactory) {
-            //IF integer than custom period
-//                if (forcedPeriod.matches("-?\\d+")) {
-//                    try {
-//                        System.out.println("new jevis custom period");
-//                        JEVisObject jeVisObject = this.jeVisDataSource.getObject(Long.parseLong(forcedPeriod));
-//                        CustomPeriodObject cpo = new CustomPeriodObject(jeVisObject, new ObjectHandler(jeVisDataSource));
-//                        TimeFrameFactory customPeriodObject = timeFrames.customPeriodObject(cpo);
-//                        interval = customPeriodObject.getInterval(interval.getEnd());
-//                    } catch (Exception ex) {
-//                        logger.error(ex);
-//                    }
-//                }
-//            }
             if (!foundFactory) {
 
                 // else cast new Custom Period
