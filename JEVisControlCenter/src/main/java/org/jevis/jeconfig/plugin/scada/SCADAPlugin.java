@@ -516,6 +516,11 @@ public class SCADAPlugin implements Plugin {
         return toolBar;
     }
 
+    @Override
+    public void updateToolbar() {
+
+    }
+
 
     @Override
     public JEVisDataSource getDataSource() {

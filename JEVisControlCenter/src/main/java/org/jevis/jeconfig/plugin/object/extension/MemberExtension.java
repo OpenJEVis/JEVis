@@ -22,8 +22,6 @@ package org.jevis.jeconfig.plugin.object.extension;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -57,12 +55,11 @@ import static org.jevis.api.JEVisConstants.ObjectRelationship.*;
 public class MemberExtension implements ObjectEditorExtension {
     private static final Logger logger = LogManager.getLogger(MemberExtension.class);
 
-    //    AnchorPane _view = new AnchorPane();
-    BorderPane _view = new BorderPane();
+    private static final String TITLE = I18n.getInstance().getString("plugin.object.member");
     private JEVisObject _obj;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-
-    private static final String TITEL = I18n.getInstance().getString("plugin.object.member");
+    //    AnchorPane _view = new AnchorPane();
+    private BorderPane _view = new BorderPane();
 
     public MemberExtension(JEVisObject obj) {
         _obj = obj;
@@ -129,13 +126,7 @@ public class MemberExtension implements ObjectEditorExtension {
         yAxis++;
         gridPane.add(new Separator(Orientation.HORIZONTAL), 0, yAxis, 7, 1);
 
-        Map<JEVisObject, List<JEVisRelationship>> members = new TreeMap<>(new Comparator<JEVisObject>() {
-
-            @Override
-            public int compare(JEVisObject o1, JEVisObject o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        Map<JEVisObject, List<JEVisRelationship>> members = new TreeMap<>(Comparator.comparing(this::getDisplayName));
 
         try {
             for (JEVisRelationship rel : obj.getRelationships()) {
@@ -150,9 +141,7 @@ public class MemberExtension implements ObjectEditorExtension {
                             || rel.isType(MEMBER_WRITE)
                             || rel.isType(MEMBER_CREATE)
                             || rel.isType(MEMBER_EXECUTE)) {
-                        if (members.get(rel.getOtherObject(obj)) == null) {
-                            members.put(rel.getOtherObject(obj), new ArrayList<JEVisRelationship>());
-                        }
+                        members.computeIfAbsent(rel.getOtherObject(obj), k -> new ArrayList<>());
                         members.get(rel.getOtherObject(obj)).add(rel);
                     }
                 } catch (Exception ex) {
@@ -177,7 +166,7 @@ public class MemberExtension implements ObjectEditorExtension {
         for (final Map.Entry<JEVisObject, List<JEVisRelationship>> member : members.entrySet()) {
             yAxis++;
 
-            Label userLabel = new Label(member.getKey().getName());
+            Label userLabel = new Label(getDisplayName(member.getKey()));
             ImageView usericon = new ImageView();
             if (userClass != null) {
                 try {
@@ -262,24 +251,18 @@ public class MemberExtension implements ObjectEditorExtension {
                 logger.info("can delete Relationship");
                 remove.setDisable(false);
 
-                remove.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent t) {
+                remove.setOnAction(t -> {
 
-                        removeRelationhsips(member.getValue());
+                    removeRelationships(member.getValue());
 
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    buildView(_obj);
-                                } catch (JEVisException ex) {
-                                    logger.fatal(ex);
-                                }
+                    Platform.runLater(() -> {
+                        try {
+                            buildView(_obj);
+                        } catch (JEVisException ex) {
+                            logger.fatal(ex);
+                        }
 
-                            }
-                        });
-                    }
+                    });
                 });
 
             } else {
@@ -308,12 +291,12 @@ public class MemberExtension implements ObjectEditorExtension {
         newUserLabel.setPrefHeight(21);
         GridPane.setValignment(newUserLabel, VPos.CENTER);
         HBox addNewBox = new HBox(2);
-        gridPane.add(addNewBox, 0, yAxis, 5, 1);
+        gridPane.add(addNewBox, 0, yAxis, 7, 1);
 
         Button newB = new Button();
         //ToDo
         final ComboBox<JEVisObject> users = new ComboBox<>();
-        users.setMinWidth(150);
+        users.setMinWidth(500);
         users.setButtonCell(new ListCell<JEVisObject>() {
 
             @Override
@@ -321,7 +304,7 @@ public class MemberExtension implements ObjectEditorExtension {
                 super.updateItem(t, bln); //To change body of generated methods, choose Tools | Templates.
                 if (!bln && t != null) {
 
-                    setText(t.getName());
+                    setText(getDisplayName(t));
                 }
             }
 
@@ -330,7 +313,7 @@ public class MemberExtension implements ObjectEditorExtension {
 
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> p) {
-                final ListCell<JEVisObject> cell = new ListCell<JEVisObject>() {
+                return new ListCell<JEVisObject>() {
                     {
                         super.setPrefWidth(100);
                     }
@@ -340,25 +323,18 @@ public class MemberExtension implements ObjectEditorExtension {
                                            boolean empty) {
                         super.updateItem(item, empty);
                         if (item != null && !empty) {
-                            setText(item.getName());
+                            setText(getDisplayName(item));
                         } else {
                             setText(I18n.getInstance().getString("plugin.object.member.user_not_available"));
                         }
                     }
                 };
-                return cell;
             }
         });
 
         try {
 //            List<JEVisObject> usersObjs = obj.getDataSource().getObjects(obj.getDataSource().getJEVisClass("User"), true);
-            Collections.sort(allUsers, new Comparator<JEVisObject>() {
-
-                @Override
-                public int compare(JEVisObject o1, JEVisObject o2) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-            });
+            allUsers.sort(Comparator.comparing(this::getDisplayName));
 
             for (JEVisObject user : allUsers) {
 //                System.out.print("User in box: " + user.getName());
@@ -378,28 +354,22 @@ public class MemberExtension implements ObjectEditorExtension {
         }
 
         newB.setGraphic(JEConfig.getImage("list-add.png", 17, 17));
-        newB.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                try {
-                    JEVisObject userObj = users.getSelectionModel().getSelectedItem();
+        newB.setOnAction(t -> {
+            try {
+                JEVisObject userObj = users.getSelectionModel().getSelectedItem();
 
-                    userObj.buildRelationship(obj, JEVisConstants.ObjectRelationship.MEMBER_READ, JEVisConstants.Direction.FORWARD);
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                buildView(_obj);
-                            } catch (JEVisException ex) {
-                                logger.fatal(ex);
-                            }
+                userObj.buildRelationship(obj, JEVisConstants.ObjectRelationship.MEMBER_READ, JEVisConstants.Direction.FORWARD);
+                Platform.runLater(() -> {
+                    try {
+                        buildView(_obj);
+                    } catch (JEVisException ex) {
+                        logger.fatal(ex);
+                    }
 
-                        }
-                    });
+                });
 
-                } catch (Exception ex) {
-                    logger.fatal(ex);
-                }
+            } catch (Exception ex) {
+                logger.fatal(ex);
             }
         });
 
@@ -411,6 +381,49 @@ public class MemberExtension implements ObjectEditorExtension {
         scroll.setContent(gridPane);
 //        _view.getChildren().setAll(scroll);
         _view.setCenter(scroll);
+    }
+
+    private String getDisplayName(JEVisObject obj) {
+        if (obj != null) {
+            String dName = "";
+            String prefix = "";
+            try {
+
+                JEVisObject thirdParent = obj.getParents().get(0).getParents().get(0).getParents().get(0);
+                JEVisClass buildingClass = obj.getDataSource().getJEVisClass("Building");
+                JEVisClass organisationClass = obj.getDataSource().getJEVisClass("Organization");
+                JEVisClass systemClass = obj.getDataSource().getJEVisClass("System");
+
+                if (thirdParent.getJEVisClass().equals(buildingClass)) {
+
+                    try {
+                        JEVisObject organisationParent = thirdParent.getParents().get(0).getParents().get(0);
+                        if (organisationParent.getJEVisClass().equals(organisationClass)) {
+
+                            prefix += organisationParent.getName() + " / " + thirdParent.getName() + " / ";
+                        }
+                    } catch (JEVisException e) {
+                        logger.error("Could not get Organization parent of " + thirdParent.getName() + ":" + thirdParent.getID());
+
+                        prefix += thirdParent.getName() + " / ";
+                    }
+                } else if (thirdParent.getJEVisClass().equals(organisationClass)) {
+
+                    prefix += thirdParent.getName() + " / ";
+
+                } else if (thirdParent.getJEVisClass().equals(systemClass)) {
+
+                    prefix += thirdParent.getName() + " / ";
+
+                }
+
+            } catch (Exception e) {
+            }
+            dName = prefix + obj.getName();
+
+            return dName;
+        } else return null;
+
     }
 
     /**
@@ -427,44 +440,37 @@ public class MemberExtension implements ObjectEditorExtension {
                 button.setDisable(true);
             } else {
 
-                button.setOnAction(new EventHandler<ActionEvent>() {
+                button.setOnAction(t -> {
 
-                                       @Override
-                                       public void handle(ActionEvent t) {
+                            if (button.isSelected()) {
+                                try {
+                                    JEVisRelationship newRel = userObj.buildRelationship(group, type, JEVisConstants.Direction.FORWARD);
+                                    userObj.commit();//?
+                                } catch (JEVisException ex) {
+                                    logger.fatal(ex);
+                                }
 
-                                           if (button.isSelected()) {
-                                               try {
-                                                   JEVisRelationship newRel = userObj.buildRelationship(group, type, JEVisConstants.Direction.FORWARD);
-                                                   userObj.commit();//?
-                                               } catch (JEVisException ex) {
-                                                   logger.fatal(ex);
-                                               }
+                            } else {
+                                try {
+                                    if (rel != null) {
+                                        rel.getStartObject().deleteRelationship(rel);
+                                    }
+                                } catch (JEVisException ex) {
+                                    logger.fatal(ex);
+                                }
+                            }
 
-                                           } else {
-                                               try {
-                                                   if (rel != null) {
-                                                       rel.getStartObject().deleteRelationship(rel);
-                                                   }
-                                               } catch (JEVisException ex) {
-                                                   logger.fatal(ex);
-                                               }
-                                           }
+                            Platform.runLater(() -> {
+                                try {
+                                    logger.info("Rebuild GUI");
+                                    buildView(_obj);
+                                } catch (JEVisException ex) {
+                                    logger.fatal(ex);
+                                }
 
-                                           Platform.runLater(new Runnable() {
-                                               @Override
-                                               public void run() {
-                                                   try {
-                                                       logger.info("Rebuild GUI");
-                                                       buildView(_obj);
-                                                   } catch (JEVisException ex) {
-                                                       logger.fatal(ex);
-                                                   }
+                            });
 
-                                               }
-                                           });
-
-                                       }
-                                   }
+                        }
                 );
             }
 
@@ -474,7 +480,7 @@ public class MemberExtension implements ObjectEditorExtension {
 
     }
 
-    private void removeRelationhsips(List<JEVisRelationship> memberships) {
+    private void removeRelationships(List<JEVisRelationship> memberships) {
         for (JEVisRelationship rel : memberships) {
             try {
                 if (rel.getType() == MEMBER_READ
@@ -511,23 +517,20 @@ public class MemberExtension implements ObjectEditorExtension {
 
     @Override
     public void setVisible() {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    buildView(_obj);
-                } catch (JEVisException ex) {
-                    logger.fatal(ex);
-                }
-
+        Platform.runLater(() -> {
+            try {
+                buildView(_obj);
+            } catch (JEVisException ex) {
+                logger.fatal(ex);
             }
+
         });
 
     }
 
     @Override
     public String getTitle() {
-        return TITEL;
+        return TITLE;
     }
 
     @Override

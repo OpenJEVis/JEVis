@@ -25,7 +25,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class JEVisImporterAdapter {
 
     private static void setLastReadout(JEVisObject channel, DateTime lastDateTime) {
         try {
-            String toString = lastDateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
+            String toString = lastDateTime.toString();
 
             JEVisSample buildSample = channel.getAttribute(DataCollectorTypes.Channel.LAST_READOUT).buildSample(new DateTime(), toString);
             buildSample.commit();

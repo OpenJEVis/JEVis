@@ -160,6 +160,7 @@ public class LoadAnalysisDialog {
                 pickerCombo.updateCellFactory();
                 graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
                 graphDataModel.setManipulationMode(ManipulationMode.NONE);
+                graphDataModel.resetToolbarSettings();
                 AnalysisTimeFrame preview = new AnalysisTimeFrame(TimeFrame.PREVIEW);
                 graphDataModel.setAnalysisTimeFrameForAllModels(preview);
             }
@@ -535,6 +536,7 @@ public class LoadAnalysisDialog {
         Platform.runLater(() -> {
 
             pickerCombo = new PickerCombo(graphDataModel, null);
+            pickerCombo.updateCellFactory();
             presetDateBox = pickerCombo.getPresetDateBox();
             pickerDateStart = pickerCombo.getStartDatePicker();
             pickerTimeStart = pickerCombo.getStartTimePicker();

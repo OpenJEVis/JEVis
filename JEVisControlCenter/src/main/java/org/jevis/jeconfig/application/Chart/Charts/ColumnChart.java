@@ -66,6 +66,7 @@ public class ColumnChart implements Chart {
     private AtomicReference<ManipulationMode> manipulationMode;
     private ChartPanManager panner;
     private CategoryAxis catAxis = new CategoryAxis();
+    private DateTime nearest;
 
     public ColumnChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -333,7 +334,7 @@ public class ColumnChart implements Chart {
 
             for (ColumnChartSerie serie : columnChartSerieList) {
                 try {
-                    DateTime nearest = serie.getSampleMap().lowerKey(valueForDisplay);
+                    nearest = serie.getSampleMap().lowerKey(valueForDisplay);
 
                     if (nearest != null) {
 
@@ -382,6 +383,11 @@ public class ColumnChart implements Chart {
     @Override
     public DateTime getValueForDisplay() {
         return valueForDisplay;
+    }
+
+    @Override
+    public DateTime getNearest() {
+        return nearest;
     }
 
     @Override

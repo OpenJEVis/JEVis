@@ -5,8 +5,6 @@
  */
 package org.jevis.jeconfig.sample;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -15,19 +13,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.jevistree.plugin.AttributeSettingsDialog;
-import org.jevis.jeconfig.application.unit.SampleRateNode;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
 import org.jevis.jeconfig.tool.I18n;
-import org.joda.time.Period;
 
 import java.util.List;
 import java.util.Locale;
@@ -37,16 +30,9 @@ import java.util.Locale;
  */
 public class AttributeUnitExtension implements SampleEditorExtension {
 
-    private final static String TITEL = I18n.getInstance().getString("attribute.editor.unit.title");
+    private final static String TITLE = I18n.getInstance().getString("attribute.editor.unit.title");
     private final BorderPane _view = new BorderPane();
-    Stage owner = JEConfig.getStage();
     private JEVisAttribute att;
-    private AttributeSettingsDialog.Response response = AttributeSettingsDialog.Response.CANCEL;
-    private JEVisAttribute _attribute;
-    private UnitSelectUI upDisplay;
-    private UnitSelectUI upInput;
-    private SampleRateNode _inputSampleRate;
-    private SampleRateNode _displaySampleRate;
 
     public AttributeUnitExtension(JEVisAttribute att) {
         this.att = att;
@@ -63,8 +49,8 @@ public class AttributeUnitExtension implements SampleEditorExtension {
     }
 
     @Override
-    public String getTitel() {
-        return TITEL;
+    public String getTitle() {
+        return TITLE;
     }
 
     @Override
@@ -91,9 +77,6 @@ public class AttributeUnitExtension implements SampleEditorExtension {
             final Label l_dbUnit = new Label(I18n.getInstance().getString("attribute.editor.unit.meteringunit"));
             final Label l_displayUnit = new Label(I18n.getInstance().getString("attribute.editor.unit.diplayunit"));
 
-            _displaySampleRate = new SampleRateNode(att.getDisplaySampleRate());
-            _inputSampleRate = new SampleRateNode(att.getInputSampleRate());
-
             UnitSelectUI iuUnit = new UnitSelectUI(att.getDataSource(), att.getInputUnit());
             UnitSelectUI ouUnit = new UnitSelectUI(att.getDataSource(), att.getDisplayUnit());
             SamplingRateUI iuRate = new SamplingRateUI(att.getInputSampleRate());
@@ -113,7 +96,7 @@ public class AttributeUnitExtension implements SampleEditorExtension {
                             UnitManager.getInstance().getPrefixName(att.getInputUnit().getPrefix(), Locale.getDefault()));
                     ouUnit.getLabelField().setText(UnitManager.getInstance().format(att.getInputUnit()));
 
-                    ouRate.sampleingRateProperty().setValue(att.getInputSampleRate());
+                    ouRate.samplingRateProperty().setValue(att.getInputSampleRate());
                     ouRate.getSelectionModel().select(att.getInputSampleRate());
 
 
@@ -133,7 +116,7 @@ public class AttributeUnitExtension implements SampleEditorExtension {
                             UnitManager.getInstance().getPrefixName(att.getDisplayUnit().getPrefix(), Locale.getDefault()));
                     iuUnit.getLabelField().setText(UnitManager.getInstance().format(att.getDisplayUnit()));
 
-                    iuRate.sampleingRateProperty().setValue(att.getDisplaySampleRate());
+                    iuRate.samplingRateProperty().setValue(att.getDisplaySampleRate());
                     iuRate.getSelectionModel().select(att.getDisplaySampleRate());
 
                 } catch (JEVisException e) {
@@ -141,48 +124,36 @@ public class AttributeUnitExtension implements SampleEditorExtension {
                 }
             });
 
-            iuUnit.unitProperty().addListener(new ChangeListener<JEVisUnit>() {
-                @Override
-                public void changed(ObservableValue<? extends JEVisUnit> observable, JEVisUnit oldValue, JEVisUnit newValue) {
-                    try {
-                        att.setInputUnit(iuUnit.unitProperty().getValue());
-                    } catch (JEVisException jex) {
-                        jex.printStackTrace();
-                    }
+            iuUnit.unitProperty().addListener((observable, oldValue, newValue) -> {
+                try {
+                    att.setInputUnit(iuUnit.unitProperty().getValue());
+                } catch (JEVisException jex) {
+                    jex.printStackTrace();
                 }
             });
 
-            ouUnit.unitProperty().addListener(new ChangeListener<JEVisUnit>() {
-                @Override
-                public void changed(ObservableValue<? extends JEVisUnit> observable, JEVisUnit oldValue, JEVisUnit newValue) {
-                    try {
-                        att.setDisplayUnit(ouUnit.unitProperty().getValue());
-                    } catch (JEVisException jex) {
-                        jex.printStackTrace();
-                    }
+            ouUnit.unitProperty().addListener((observable, oldValue, newValue) -> {
+                try {
+                    att.setDisplayUnit(ouUnit.unitProperty().getValue());
+                } catch (JEVisException jex) {
+                    jex.printStackTrace();
                 }
             });
 
 
-            iuRate.sampleingRateProperty().addListener(new ChangeListener<Period>() {
-                @Override
-                public void changed(ObservableValue<? extends Period> observable, Period oldValue, Period newValue) {
-                    try {
-                        att.setInputSampleRate(newValue);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();//TODO
-                    }
+            iuRate.samplingRateProperty().addListener((observable, oldValue, newValue) -> {
+                try {
+                    att.setInputSampleRate(iuRate.samplingRateProperty().getValue());
+                } catch (Exception ex) {
+                    ex.printStackTrace();//TODO
                 }
             });
 
-            ouRate.sampleingRateProperty().addListener(new ChangeListener<Period>() {
-                @Override
-                public void changed(ObservableValue<? extends Period> observable, Period oldValue, Period newValue) {
-                    try {
-                        att.setDisplaySampleRate(newValue);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();//TODO
-                    }
+            ouRate.samplingRateProperty().addListener((observable, oldValue, newValue) -> {
+                try {
+                    att.setDisplaySampleRate(ouRate.samplingRateProperty().getValue());
+                } catch (Exception ex) {
+                    ex.printStackTrace();//TODO
                 }
             });
 //            HBox iuSepUnit = buildTitelPane("Metering Unit");

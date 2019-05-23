@@ -136,7 +136,7 @@
         "en": "This field defines from when a datepoint is listed. Specified in hours."
       },
       "names": {
-        "de": "Benachrichtigungs-ID",
+        "de": "Kürzest berichtet",
         "ru": "Последний раз сообщалось.",
         "en": "Latest back reported"
       }

@@ -91,6 +91,7 @@ public class XYChart implements Chart {
     private WorkDays workDays = new WorkDays(null);
     private ChartPanManager panner;
     private JFXChartUtil jfxChartUtil;
+    private DateTime nearest;
 
     public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -249,6 +250,7 @@ public class XYChart implements Chart {
 
         initializeZoom();
 
+        Platform.runLater(() -> updateTable(null, timeStampOfFirstSample.get()));
     }
 
     public void initializeChart() {
@@ -689,7 +691,12 @@ public class XYChart implements Chart {
                     TableEntry tableEntry = serie.getTableEntry();
                     TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
 
-                    DateTime nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
+                    nearest = null;
+                    if (sampleTreeMap.get(finalValueForDisplay) != null) {
+                        nearest = finalValueForDisplay;
+                    } else {
+                        nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
+                    }
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
                     Double valueAsDouble = sample.getValueAsDouble();
@@ -845,5 +852,9 @@ public class XYChart implements Chart {
 
     public void setMaxValue(Double maxValue) {
         this.maxValue = maxValue;
+    }
+
+    public DateTime getNearest() {
+        return nearest;
     }
 }

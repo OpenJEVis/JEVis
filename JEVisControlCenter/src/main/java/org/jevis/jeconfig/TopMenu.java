@@ -171,13 +171,13 @@ public class TopMenu extends MenuBar {
         Menu menuView = new Menu(I18n.getInstance().getString("menu.view"));
 
         Menu options = new Menu(I18n.getInstance().getString("menu.option"));
-        final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
+        final Preferences prefWelcome = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
         CheckMenuItem welcome = new CheckMenuItem(I18n.getInstance().getString("menu.options.welcome"));
-        welcome.setSelected(pref.getBoolean("show", true));
+        welcome.setSelected(prefWelcome.getBoolean("show", true));
         welcome.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                pref.putBoolean("show", !pref.getBoolean("show", true));
+                prefWelcome.putBoolean("show", !prefWelcome.getBoolean("show", true));
             }
         });
         MenuItem changePassword = new MenuItem(I18n.getInstance().getString("menu.options.changepassword"));
@@ -204,7 +204,18 @@ public class TopMenu extends MenuBar {
             }
         });
 
-        options.getItems().addAll(changePassword, welcome);
+        final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
+        CheckMenuItem expertMode = new CheckMenuItem(I18n.getInstance().getString("menu.options.expert"));
+        expertMode.setSelected(prefExpert.getBoolean("show", false));
+        expertMode.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                prefExpert.putBoolean("show", !prefExpert.getBoolean("show", false));
+                activePlugin.updateToolbar();
+            }
+        });
+
+        options.getItems().addAll(changePassword, welcome, expertMode);
 
         Menu help = new Menu(I18n.getInstance().getString("menu.help"));
 

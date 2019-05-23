@@ -14,13 +14,21 @@ import java.util.List;
 
 public class TableChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(TableChart.class);
+    private ChartDataModel singleRow;
+    private TableTopDatePicker tableTopDatePicker;
 
     public TableChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         super(chartDataModels, showRawData, showSum, hideShowIcons, addSeriesOfType, chartId, chartName);
+
+        tableTopDatePicker = new TableTopDatePicker(singleRow);
+        tableTopDatePicker.initialize(timeStampOfLastSample.get());
+
+
     }
 
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
+        this.singleRow = singleRow;
         TableSerie serie = new TableSerie(singleRow, hideShowIcons);
 
         hexColors.add(singleRow.getColor());
@@ -50,9 +58,6 @@ public class TableChart extends XYChart {
     }
 
     public HBox getTopPicker() {
-        TableTopDatePicker tableTopDatePicker = new TableTopDatePicker();
-        tableTopDatePicker.initialize(chartDataModels, timeStampOfFirstSample.get());
-
         return tableTopDatePicker;
     }
 
@@ -79,5 +84,13 @@ public class TableChart extends XYChart {
         y1Axis.setLabel("");
         y2Axis.setLabel("");
 
+    }
+
+    public TableTopDatePicker getTableTopDatePicker() {
+        return tableTopDatePicker;
+    }
+
+    public ChartDataModel getSingleRow() {
+        return singleRow;
     }
 }

@@ -31,6 +31,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +88,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
             chartDataModelList.add(chartDataModel);
 
             LineChart lc = new LineChart(chartDataModelList, false, false, false, ManipulationMode.NONE, 0, "");
+            lc.setRegion(lc.getJfxChartUtil().setupZooming((MultiAxisChart<?, ?>) lc.getChart()));
 
             bp.setCenter(lc.getRegion());
             _view.setCenter(bp);
@@ -104,7 +106,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
     }
 
     @Override
-    public String getTitel() {
+    public String getTitle() {
         return TITLE;
     }
 

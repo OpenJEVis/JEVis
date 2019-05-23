@@ -51,6 +51,8 @@ public interface Plugin {
 
     Node getToolbar();
 
+    void updateToolbar();
+
     JEVisDataSource getDataSource();
 
     void setDataSource(JEVisDataSource ds);

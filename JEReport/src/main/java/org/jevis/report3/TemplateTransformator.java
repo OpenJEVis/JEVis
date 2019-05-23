@@ -7,6 +7,7 @@ package org.jevis.report3;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jxls.common.Context;
+import org.jxls.formula.StandardFormulaProcessor;
 import org.jxls.transform.Transformer;
 import org.jxls.util.JxlsHelper;
 import org.jxls.util.TransformerFactory;
@@ -30,6 +31,8 @@ public class TemplateTransformator {
         Transformer transformer = TransformerFactory.createTransformer(input, output);
         JxlsHelper jxlsHelper = JxlsHelper.getInstance();
         jxlsHelper.setUseFastFormulaProcessor(false);
+        jxlsHelper.setFormulaProcessor(new StandardFormulaProcessor());
+        jxlsHelper.setProcessFormulas(true);
 
         jxlsHelper.processTemplate(context, transformer);
 
