@@ -115,12 +115,20 @@ public class ToolBarIntervalSelector extends HBox {
 
         });
 
+
         prevButton.setOnAction(event -> {
-            analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().previousPeriod(analysis.intervalProperty.get(), 1));
+            Interval nextInterval = analysis.timeFrameProperty.getValue().previousPeriod(analysis.intervalProperty.get(),1);
+            if(nextInterval.getStart().isBeforeNow()){
+                analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().previousPeriod(analysis.intervalProperty.get(), 1));
+            }
         });
 
         nextButton.setOnAction(event -> {
-            analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().nextPeriod(analysis.intervalProperty.get(), 1));
+            Interval nextInterval = analysis.timeFrameProperty.getValue().nextPeriod(analysis.intervalProperty.get(),1);
+//            analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().nextPeriod(analysis.intervalProperty.get(), 1));
+            if(nextInterval.getStart().isBeforeNow()){
+                analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().nextPeriod(analysis.intervalProperty.get(), 1));
+            }
         });
 
         Region spacer = new Region();

@@ -197,17 +197,13 @@ public class DataModelDataHandler {
 
             for (TimeFrameFactory timeFrameFactory : timeFrameFactories) {
                 if (timeFrameFactory.getID().equals(forcedPeriod)) {
-//                    System.out.println("Match TimeFactory: " + timeFrameFactory.getListName());
                     interval = timeFrameFactory.getInterval(interval.getEnd());
                     foundFactory = true;
                 }
             }
 
             if (!foundFactory) {
-
-                // else cast new Custom Period
                 try {
-//                    System.out.println("new custom period");
                     LastPeriod lastPeriod = new LastPeriod(Period.parse(forcedPeriod));
                     interval = lastPeriod.getInterval(interval.getEnd());
 
@@ -216,7 +212,6 @@ public class DataModelDataHandler {
                 }
             }
 
-//            System.out.println("new Interval for: " + forcedPeriod + " -> " + interval);
 
         }
         this.durationProperty.setValue(interval);
