@@ -250,6 +250,7 @@ public class XYChart implements Chart {
 
         initializeZoom();
 
+        Platform.runLater(() -> updateTable(null, timeStampOfFirstSample.get()));
     }
 
     public void initializeChart() {
