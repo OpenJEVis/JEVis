@@ -520,7 +520,7 @@ public class DashBoardPane extends Pane {
 
                     isUpdating.set(false);
                 } catch (Exception ex) {
-                    logger.error("Thread problem: {}", ex.getMessage());
+                    logger.error("Thread problem: {}", ex);
                     isUpdating.set(false);
                 }
             });

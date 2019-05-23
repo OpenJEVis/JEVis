@@ -191,10 +191,6 @@ public class DashBordModel {
         return jeVisDataSource;
     }
 
-    public void addWidget(WidgetConfig config) {
-        widgetList.add(config);
-    }
-
 
     private void load() {
         try {
