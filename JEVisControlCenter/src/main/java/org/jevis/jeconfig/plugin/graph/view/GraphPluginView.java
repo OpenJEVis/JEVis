@@ -581,6 +581,8 @@ public class GraphPluginView implements Plugin {
                 }
             }
         }
+
+        Platform.runLater(vBox::toFront);
     }
 
     @Override
