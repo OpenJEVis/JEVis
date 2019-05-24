@@ -162,7 +162,7 @@ public class JEVisSOAPDataSource implements DataSource {
             }
 
             String timezoneString = DatabaseHelper.getObjectAsString(soapObject, timezoneType);
-            if (_timeZone != null) {
+            if (timezoneString != null) {
                 _timeZone = DateTimeZone.forID(timezoneString);
             } else {
                 _timeZone = DateTimeZone.UTC;

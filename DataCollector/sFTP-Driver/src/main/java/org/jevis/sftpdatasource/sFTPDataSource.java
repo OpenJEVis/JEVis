@@ -216,7 +216,7 @@ public class sFTPDataSource implements DataSource {
             }
 
             String timezoneString = DatabaseHelper.getObjectAsString(sftpObject, timezoneType);
-            if (_timezone != null) {
+            if (timezoneString != null) {
                 _timezone = DateTimeZone.forID(timezoneString);
             } else {
                 _timezone = DateTimeZone.UTC;

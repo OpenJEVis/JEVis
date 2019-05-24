@@ -12,6 +12,7 @@ import org.jevis.commons.driver.DataSourceHelper;
 import org.jevis.commons.driver.Importer;
 import org.jevis.commons.driver.Parser;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -41,7 +42,7 @@ public class SOAPDataSource {
     private String _userName;
     private String _password;
     private Boolean _ssl = false;
-    private String _timezone;
+    private DateTimeZone _timezone;
 
     private Parser _parser;
     private Importer _importer;
@@ -96,7 +97,7 @@ public class SOAPDataSource {
             boolean containsToken = DataSourceHelper.containsTokens(templateQuery);
             String realQuery = null;
             if (containsToken) {
-                realQuery = DataSourceHelper.replaceDateFrom(templateQuery, lastReadout);
+                realQuery = DataSourceHelper.replaceDateFrom(templateQuery, lastReadout, _timezone);
             } else {
                 realQuery = templateQuery;
             }
@@ -209,4 +210,7 @@ public class SOAPDataSource {
         this._ssl = _ssl;
     }
 
+    public void set_timezone(DateTimeZone _timezone) {
+        this._timezone = _timezone;
+    }
 }

@@ -218,7 +218,7 @@ public class FTPDataSource implements DataSource {
                 _password = DatabaseHelper.getObjectAsString(ftpObject, passwordType);
             }
             String timezoneString = DatabaseHelper.getObjectAsString(ftpObject, timezoneType);
-            if (_timezone != null) {
+            if (timezoneString != null) {
                 _timezone = DateTimeZone.forID(timezoneString);
             } else {
                 _timezone = DateTimeZone.UTC;
