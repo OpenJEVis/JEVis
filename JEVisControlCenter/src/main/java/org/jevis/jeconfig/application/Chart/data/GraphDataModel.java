@@ -61,6 +61,7 @@ public class GraphDataModel {
     public static final String WORKDAY_BEGINNING_ATTRIBUTE_NAME = "Workday Beginning";
     public static final String WORKDAY_END_ATTRIBUTE_NAME = "Workday End";
     public static final String ANALYSES_DIRECTORY_CLASS_NAME = "Analyses Directory";
+    public static final String NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME = "Number of Horizontal Pies";
     public static final String BUILDING_CLASS_NAME = "Building";
     public static final String ANALYSIS_CLASS_NAME = "Analysis";
     public static final String ORGANIZATION_CLASS_NAME = "Organization";
@@ -81,6 +82,7 @@ public class GraphDataModel {
     private JEVisObject currentAnalysis = null;
     private Boolean multipleDirectories = false;
     private Long chartsPerScreen = 2L;
+    private Long horizontalPies = 2L;
     private Boolean isGlobalAnalysisTimeFrame = true;
     private AnalysisTimeFrame globalAnalysisTimeFrame;
     private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
@@ -974,10 +976,10 @@ public class GraphDataModel {
     public Long getChartsPerScreen() {
         if (chartsPerScreen == null) {
             try {
-                JEVisClass graphPluginClass = ds.getJEVisClass("Graph Plugin");
+                JEVisClass graphPluginClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
                 List<JEVisObject> graphPlugins = ds.getObjects(graphPluginClass, true);
                 if (!graphPlugins.isEmpty()) {
-                    JEVisAttribute chartsPerScreenAttribute = graphPlugins.get(0).getAttribute("Number of Charts per Screen");
+                    JEVisAttribute chartsPerScreenAttribute = graphPlugins.get(0).getAttribute(NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME);
                     if (chartsPerScreenAttribute != null) {
                         JEVisSample latestSample = chartsPerScreenAttribute.getLatestSample();
                         if (latestSample != null) {
@@ -995,6 +997,32 @@ public class GraphDataModel {
 
     public void setChartsPerScreen(Long chartsPerScreen) {
         this.chartsPerScreen = chartsPerScreen;
+    }
+
+    public Long getHorizontalPies() {
+        if (horizontalPies == null) {
+            try {
+                JEVisClass graphPluginClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+                List<JEVisObject> graphPlugins = ds.getObjects(graphPluginClass, true);
+                if (!graphPlugins.isEmpty()) {
+                    JEVisAttribute horizontalPiesAttribute = graphPlugins.get(0).getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME);
+                    if (horizontalPiesAttribute != null) {
+                        JEVisSample latestSample = horizontalPiesAttribute.getLatestSample();
+                        if (latestSample != null) {
+                            horizontalPies = Long.parseLong(latestSample.getValueAsString());
+                        }
+                    }
+                }
+            } catch (JEVisException e) {
+                logger.error("Could not get JEVisClass for Graph Plugin");
+            }
+        }
+        if (horizontalPies == null || horizontalPies.equals(0L)) horizontalPies = 2L;
+        return horizontalPies;
+    }
+
+    public void setHorizontalPies(Long horizontalPies) {
+        this.horizontalPies = horizontalPies;
     }
 
     public Boolean isglobalAnalysisTimeFrame() {

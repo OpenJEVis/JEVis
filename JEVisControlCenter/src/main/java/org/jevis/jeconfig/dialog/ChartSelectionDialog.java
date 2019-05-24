@@ -248,16 +248,22 @@ public class ChartSelectionDialog {
         gridPane.setVgap(5);
 
         Label labelChartsPerScreen = new Label(I18n.getInstance().getString("graph.tabs.tab.chartsperscreen"));
-
         Long numberOfChartsPerScreen = data.getChartsPerScreen();
-
         NumberSpinner chartsPerScreen = new NumberSpinner(new BigDecimal(numberOfChartsPerScreen), new BigDecimal(1));
-
         chartsPerScreen.numberProperty().addListener((observable, oldValue, newValue) -> data.setChartsPerScreen(newValue.longValue()));
+
+        Label labelHorizontalPies = new Label(I18n.getInstance().getString("graph.tabs.tab.horizontalpies"));
+        Long numberOfHorizontalPies = data.getHorizontalPies();
+        NumberSpinner horizontalPies = new NumberSpinner(new BigDecimal(numberOfHorizontalPies), new BigDecimal(1));
+        horizontalPies.numberProperty().addListener((observable, oldValue, newValue) -> data.setHorizontalPies(newValue.longValue()));
 
         int row = 0;
         gridPane.add(labelChartsPerScreen, 0, row);
         gridPane.add(chartsPerScreen, 1, row);
+        row++;
+
+        gridPane.add(labelHorizontalPies, 0, row);
+        gridPane.add(horizontalPies, 1, row);
         row++;
 
         commonTab.setContent(gridPane);

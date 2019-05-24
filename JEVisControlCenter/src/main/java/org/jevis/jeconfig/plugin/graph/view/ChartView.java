@@ -308,13 +308,15 @@ public class ChartView implements Observer {
     }
 
     public Region getChartRegion() {
-        StackPane stackPane = new StackPane();
+//        StackPane stackPane = new StackPane();
 
         if (chart != null) {
             if (chart.getRegion() != null) {
-                stackPane.getChildren().add(chart.getRegion());
+//                stackPane.getChildren().add(chart.getRegion());
+                return chart.getRegion();
             } else {
-                stackPane.getChildren().add(chart.getChart());
+//                stackPane.getChildren().add(chart.getChart());
+                return chart.getChart();
             }
 
 
@@ -364,7 +366,7 @@ public class ChartView implements Observer {
 //                stackPane.getChildren().addAll(pickerBox, iconBox);
 //            }
 
-            return stackPane;
+//            return stackPane;
         } else return null;
     }
 

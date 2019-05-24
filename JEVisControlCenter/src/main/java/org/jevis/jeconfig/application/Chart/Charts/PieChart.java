@@ -1,13 +1,17 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import com.sun.javafx.charts.Legend;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -39,7 +43,7 @@ public class PieChart implements Chart {
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
     private ObservableList<javafx.scene.chart.PieChart.Data> series = FXCollections.observableArrayList();
-    private javafx.scene.chart.PieChart pieChart;
+    private PieChartExtended pieChart;
     private List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -52,6 +56,7 @@ public class PieChart implements Chart {
 
         }
     };
+    private List<String> seriesNames = new ArrayList<>();
 
     public PieChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -120,24 +125,26 @@ public class PieChart implements Chart {
         for (Double d : listSumsPiePieces) listPercentages.add(d / whole);
 
         series.clear();
+        seriesNames.clear();
         for (String name : listTableEntryNames) {
             QuantityUnits qu = new QuantityUnits();
             JEVisUnit currentUnit = chartDataModels.get(listTableEntryNames.indexOf(name)).getUnit();
             String currentUnitString = "";
             if (qu.isQuantityUnit(currentUnit)) currentUnitString = getUnit(currentUnit);
             else currentUnitString = getUnit(qu.getSumUnit(currentUnit));
-            String seriesName = name + " - " + nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
+//            String seriesName = name + " - " + nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
+            String seriesName = nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
                     + " " + currentUnitString
                     + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + " %)";
 
             javafx.scene.chart.PieChart.Data data = new javafx.scene.chart.PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
             series.add(data);
-
+            seriesNames.add(name);
         }
 
 
         if (pieChart == null) {
-            pieChart = new javafx.scene.chart.PieChart(series);
+            pieChart = new PieChartExtended(series);
         }
 
         pieChart.setTitle(chartName);
@@ -146,9 +153,12 @@ public class PieChart implements Chart {
 
         applyColors();
 
+        pieChart.setTitle(chartName);
+        pieChart.setLegendVisible(true);
+        pieChart.setLegendSide(Side.BOTTOM);
+        pieChart.setLabelsVisible(true);
 
         chartSettingsFunction.applySetting(pieChart);
-
 
     }
 
@@ -253,6 +263,16 @@ public class PieChart implements Chart {
             if (node != null) {
                 node.setStyle("-fx-pie-color: " + hexColor + ";");
             }
+        }
+
+        ObservableList<Legend.LegendItem> items = pieChart.getPieLegend().getItems();
+        for (int i = 0; i < items.size(); i++) {
+            Legend.LegendItem legendItem = items.get(i);
+            int finalI = i;
+            Platform.runLater(() -> {
+                legendItem.setSymbol(new Rectangle(8, 8, hexColors.get(finalI)));
+                legendItem.setText(seriesNames.get(finalI));
+            });
         }
     }
 
