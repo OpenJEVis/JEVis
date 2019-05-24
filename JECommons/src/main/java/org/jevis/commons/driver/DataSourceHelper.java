@@ -29,6 +29,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
@@ -277,13 +278,13 @@ public class DataSourceHelper {
         return tokens;
     }
 
-    public static String replaceDateFrom(String template, DateTime date) {
+    public static String replaceDateFrom(String template, DateTime date, DateTimeZone zone) {
         DateTimeFormatter dtf = getFromDateFormat(template);
         int startindex = template.indexOf("${DF:");
         int endindex = template.indexOf("}") + 1;
         String first = template.substring(0, startindex);
         String last = template.substring(endindex);
-        return first + date.toString(dtf) + last;
+        return first + date.toString(dtf.withZone(zone)) + last;
     }
 
     public static String replaceDateUntil(String template, DateTime date) {
@@ -295,17 +296,17 @@ public class DataSourceHelper {
         return first + date.toString(dtf) + last;
     }
 
-    public static String replaceDateFromUntil(DateTime from, DateTime until, String filePath) {
+    public static String replaceDateFromUntil(DateTime from, DateTime until, String filePath, DateTimeZone zone) {
 //        String replacedString = null;
         while (filePath.indexOf("${DF:") != -1 || filePath.indexOf("${DF:") != -1) {
             int fromstartindex = filePath.indexOf("${DF:");
             int untilstartindex = filePath.indexOf("${DU:");
             if (fromstartindex < untilstartindex) {
-                filePath = replaceDateFrom(filePath, from);
+                filePath = replaceDateFrom(filePath, from, zone);
                 filePath = replaceDateUntil(filePath, until);
             } else {
                 filePath = replaceDateUntil(filePath, until);
-                filePath = replaceDateFrom(filePath, from);
+                filePath = replaceDateFrom(filePath, from, zone);
             }
 
         }

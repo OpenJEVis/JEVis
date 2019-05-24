@@ -97,7 +97,7 @@ public class JEVisHTTPDataSource implements DataSource {
             JEVisAttribute timeZoneAttr = httpObject.getAttribute(timezoneType);
 
             String timezoneString = DatabaseHelper.getObjectAsString(httpObject, timezoneType);
-            if (timezone != null) {
+            if (timezoneString != null) {
                 timezone = DateTimeZone.forID(timezoneString);
             } else {
                 timezone = DateTimeZone.UTC;

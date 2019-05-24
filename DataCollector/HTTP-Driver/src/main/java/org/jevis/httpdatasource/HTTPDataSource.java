@@ -60,7 +60,7 @@ public class HTTPDataSource {
             URL requestUrl;
             if (_userName == null || _password == null || _userName.equals("") || _password.equals("")) {
 
-                path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path);
+                path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
                 HttpURLConnection request = null;
                 if (!_serverURL.contains("://")) {
                     _serverURL = "http://" + _serverURL;
@@ -100,7 +100,7 @@ public class HTTPDataSource {
                 BasicHttpContext _localContext = new BasicHttpContext();
                 _httpClient = new DefaultHttpClient();
 
-                path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path);
+                path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
                 if (_ssl) {
                     DataSourceHelper.doTrustToCertificates();
                     _targetHost = new HttpHost(_serverURL, ((int) (long) _port), "https");
@@ -121,7 +121,7 @@ public class HTTPDataSource {
                 BasicScheme basicAuth = new BasicScheme();
                 authCache.put(_targetHost, basicAuth);
 
-                path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path);
+                path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
 
                 _httpGet = new HttpGet(path);
                 //TODO: Connection timeouts and error handling
