@@ -37,6 +37,7 @@ public class ChartWidget extends Widget {
     private ConfigNode configNode = new ConfigNode();
     private ObjectMapper mapper = new ObjectMapper();
     private GraphAnalysisLinker graphAnalysisLinker;
+    private BorderPane borderPane = new BorderPane();
 
     private boolean autoAggregation = true;
 
@@ -53,38 +54,36 @@ public class ChartWidget extends Widget {
     public void update(Interval interval) {
         logger.info("Update: {}", interval);
 
-
-        //if config changed
-        if (config.hasChanged("")) {
-            lineChart.setChartSettings(chart1 -> {
+        if (this.config.hasChanged("")) {
+            this.lineChart.setChartSettings(chart1 -> {
                 MultiAxisLineChart multiAxisLineChart = (MultiAxisLineChart) chart1;
 //                multiAxisLineChart.setAnimated(true);
-                lineChart.getChart().setAnimated(false);
+                this.lineChart.getChart().setAnimated(false);
                 multiAxisLineChart.setLegendSide(Side.BOTTOM);
                 multiAxisLineChart.setLegendVisible(true);
 
             });
 
             Platform.runLater(() -> {
-                setChartLabel((MultiAxisLineChart) lineChart.getChart(), config.fontColor.get());
-                legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+                setChartLabel((MultiAxisLineChart) this.lineChart.getChart(), this.config.fontColor.get());
+                this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
                 //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
             });
 
         }
 
 
-        sampleHandler.setInterval(interval);
-        sampleHandler.update();
+        this.sampleHandler.setInterval(interval);
+        this.sampleHandler.update();
 
 
         try {
-            if (config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE) != null) {
-                GraphAnalysisLinkerNode dataModelNode = mapper.treeToValue(config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE), GraphAnalysisLinkerNode.class);
-                graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), dataModelNode);
-                graphAnalysisLinker.applyConfig(openAnalysisButton, sampleHandler.getDataModel(), interval);
+            if (this.config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE) != null) {
+                GraphAnalysisLinkerNode dataModelNode = this.mapper.treeToValue(this.config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE), GraphAnalysisLinkerNode.class);
+                this.graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), dataModelNode);
+                this.graphAnalysisLinker.applyConfig(this.openAnalysisButton, this.sampleHandler.getDataModel(), interval);
             } else {
-                openAnalysisButton.setVisible(false);
+                this.openAnalysisButton.setVisible(false);
                 logger.warn("no linker set");
             }
 
@@ -93,18 +92,23 @@ public class ChartWidget extends Widget {
         }
 
         Platform.runLater(() -> {
-            legend.getItems().clear();
-            sampleHandler.getDataModel().forEach(chartDataModel -> {
+            this.legend.getItems().clear();
+            this.sampleHandler.getDataModel().forEach(chartDataModel -> {
                 try {
                     String dataName = chartDataModel.getObject().getName();
-                    legend.getItems().add(legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
+                    this.legend.getItems().add(this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), chartDataModel.getColor(), this.config.fontColor.getValue(), this.config.fontSize.get()));
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
             });
+            /**
+             * Linechart does not support update so we need to create an new one every time;
+             */
+            this.lineChart = new LineChart(this.sampleHandler.getDataModel(), false, false, false, ManipulationMode.NONE, 0, "");
+//            this.lineChart.updateChart();
 
-            lineChart.updateChart();
-            lineChart.getChart().layout();
+            this.lineChart.getChart().layout();
+            this.borderPane.setCenter(this.lineChart.getChart());
         });
 
     }
@@ -119,30 +123,25 @@ public class ChartWidget extends Widget {
 
     @Override
     public void init() {
-        sampleHandler = new DataModelDataHandler(getDataSource(), config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
-        sampleHandler.setMultiSelect(true);
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+        this.sampleHandler.setMultiSelect(true);
 
-        if (lineChart == null) {
-            lineChart = new LineChart(sampleHandler.getDataModel(), false, false, false, ManipulationMode.NONE, 0, "");
+        this.lineChart = new LineChart(this.sampleHandler.getDataModel(), false, false, false, ManipulationMode.NONE, 0, "");
 
 
-            legend.setAlignment(Pos.CENTER);
+        this.legend.setAlignment(Pos.CENTER);
 
-            graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), null);
-            openAnalysisButton = graphAnalysisLinker.buildLinkerButton();
+        this.graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), null);
+        this.openAnalysisButton = this.graphAnalysisLinker.buildLinkerButton();
 
-            BorderPane borderPane = new BorderPane();
 
-            BorderPane bottomBorderPane = new BorderPane();
-            bottomBorderPane.setCenter(legend);
-            bottomBorderPane.setRight(openAnalysisButton);
+        BorderPane bottomBorderPane = new BorderPane();
+        bottomBorderPane.setCenter(this.legend);
+        bottomBorderPane.setRight(this.openAnalysisButton);
 
-            borderPane.setCenter(lineChart.getChart());
-            borderPane.setBottom(bottomBorderPane);
-            setGraphic(borderPane);
-        } else {
-            lineChart.setDataModels(sampleHandler.getDataModel());
-        }
+        this.borderPane.setCenter(this.lineChart.getChart());
+        this.borderPane.setBottom(bottomBorderPane);
+        setGraphic(this.borderPane);
 
 
     }
@@ -154,7 +153,7 @@ public class ChartWidget extends Widget {
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/ChartWidget.png", previewSize.getHeight(), previewSize.getWidth());
+        return JEConfig.getImage("widget/ChartWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
 
@@ -162,7 +161,7 @@ public class ChartWidget extends Widget {
         private Long graphAnalysisObject = 7904L;
 
         public Long getGraphAnalysisObject() {
-            return graphAnalysisObject;
+            return this.graphAnalysisObject;
         }
 
         public void setGraphAnalysisObject(Long graphAnalysisObject) {
