@@ -27,7 +27,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -36,10 +35,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
@@ -389,6 +385,8 @@ public class GraphPluginView implements Plugin {
             double maxHeight = border.getHeight();
             double totalPrefHeight = 0d;
             Long chartsPerScreen = dataModel.getChartsPerScreen();
+            Long horizontalPies = dataModel.getHorizontalPies();
+            List<HBox> pieFrames = new ArrayList<>();
 
             if (getNewChartViews) {
                 charts.clear();
@@ -409,6 +407,10 @@ public class GraphPluginView implements Plugin {
             sp.setFitToWidth(true);
             sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+            int noOfPie = 0;
+            int currentPieFrame = 0;
+            int countOfPies = (int) charts.stream().filter(cv -> cv.getChartType() == ChartType.PIE).count();
 
             for (ChartView cv : charts) {
                 if (cv.getChartType().equals(ChartType.LOGICAL)) {
@@ -498,7 +500,7 @@ public class GraphPluginView implements Plugin {
                     }
                 });
 
-                List<ChartView> notActive = FXCollections.observableArrayList(charts);
+                List<ChartView> notActive = new ArrayList<>(charts);
                 notActive.remove(cv);
                 ChartType chartType = cv.getChartType();
 
@@ -507,8 +509,35 @@ public class GraphPluginView implements Plugin {
                 Separator sep = new Separator();
                 sep.setOrientation(Orientation.HORIZONTAL);
 
-                vBox.getChildren().add(bp);
-                vBox.getChildren().add(sep);
+                if (cv.getChartType() != ChartType.PIE) {
+                    vBox.getChildren().add(bp);
+                    vBox.getChildren().add(sep);
+                } else {
+
+                    if (pieFrames.isEmpty()) {
+                        HBox hBox = new HBox();
+                        hBox.setFillHeight(true);
+                        pieFrames.add(hBox);
+                    }
+
+                    HBox hBox = null;
+                    if (currentPieFrame < pieFrames.size()) {
+                        hBox = pieFrames.get(currentPieFrame);
+                    } else {
+                        hBox = new HBox();
+                        hBox.setFillHeight(true);
+                        pieFrames.add(hBox);
+                    }
+                    hBox.getChildren().add(bp);
+                    HBox.setHgrow(bp, Priority.ALWAYS);
+                    noOfPie++;
+
+                    if (noOfPie == horizontalPies || noOfPie == countOfPies) {
+                        vBox.getChildren().add(pieFrames.get(currentPieFrame));
+                        vBox.getChildren().add(sep);
+                        currentPieFrame++;
+                    }
+                }
 
             }
 
@@ -550,6 +579,8 @@ public class GraphPluginView implements Plugin {
                     for (Node node : children) {
                         if (node instanceof BorderPane) {
                             ((BorderPane) node).setPrefHeight((height) / chartsPerScreen);
+                        } else if (node instanceof HBox) {
+                            ((HBox) node).setPrefHeight((height) / chartsPerScreen);
                         }
                     }
                 } else {
@@ -557,6 +588,8 @@ public class GraphPluginView implements Plugin {
                         for (Node node : vBox.getChildren()) {
                             if (node instanceof BorderPane) {
                                 ((BorderPane) node).setPrefHeight(autoMinSize);
+                            } else if (node instanceof HBox) {
+                                ((HBox) node).setPrefHeight(autoMinSize);
                             }
                         }
                     }

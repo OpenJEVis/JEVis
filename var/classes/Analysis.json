@@ -35,7 +35,16 @@
       "GUIPosition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Graph Plugin"
+      "jevisClass": "Analysis"
+    },
+    {
+      "name": "Number of Horizontal Pies",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Analysis"
     }
   ]
 }
