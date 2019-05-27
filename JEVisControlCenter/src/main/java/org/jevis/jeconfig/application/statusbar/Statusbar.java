@@ -53,14 +53,14 @@ public class Statusbar extends ToolBar {
     private static final Logger logger = LogManager.getLogger(Statusbar.class);
 
     private final int ICON_SIZE = 20;
-    private final int WAIT_TIME = 60000;//MSEC
+    private final int WAIT_TIME = 2000;//60000;//MSEC
     private final int RETRY_COUNT = 720;//count
     public BooleanProperty connectedProperty = new SimpleBooleanProperty(true);
     Label userName = new Label("");
     Label onlineInfo = new Label("Online");
     HBox conBox = new HBox();
-    ImageView connectIcon = ResourceLoader.getImage("network-connected.png", ICON_SIZE, ICON_SIZE);
-    ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", ICON_SIZE, ICON_SIZE);
+    ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
+    ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
     private JEVisDataSource _ds;
     private String lastUsername = "";
     private String lastPassword = "";
@@ -69,29 +69,29 @@ public class Statusbar extends ToolBar {
 
     public Statusbar(JEVisDataSource ds) {
         super();
-        _ds = ds;
+        this._ds = ds;
 
         HBox root = new HBox();
 
         root.setSpacing(10);
         root.setAlignment(Pos.CENTER_LEFT);
 
-        ImageView userIcon = ResourceLoader.getImage("user.png", ICON_SIZE, ICON_SIZE);
+        ImageView userIcon = ResourceLoader.getImage("user.png", this.ICON_SIZE, this.ICON_SIZE);
 
 //        Label userLabel = new Label("User:");
-        ImageView notification = ResourceLoader.getImage("note_3.png", ICON_SIZE, ICON_SIZE);
+        ImageView notification = ResourceLoader.getImage("note_3.png", this.ICON_SIZE, this.ICON_SIZE);
 
-        conBox.getChildren().setAll(connectIcon);
+        this.conBox.getChildren().setAll(this.connectIcon);
 
         Pane spacer = new Pane();
         spacer.setMaxWidth(Integer.MAX_VALUE);
 
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox.setHgrow(onlineInfo, Priority.NEVER);
-        HBox.setHgrow(userName, Priority.NEVER);
+        HBox.setHgrow(this.onlineInfo, Priority.NEVER);
+        HBox.setHgrow(this.userName, Priority.NEVER);
 
         //TODO implement notification
-        root.getChildren().addAll(userIcon, userName, spacer, conBox, onlineInfo);
+        root.getChildren().addAll(userIcon, this.userName, spacer, this.conBox, this.onlineInfo);
 
         String sinfo = "";
 
@@ -111,7 +111,7 @@ public class Statusbar extends ToolBar {
 
         Tooltip serverTip = new Tooltip("Connection Info:\n"
                 + sinfo);
-        onlineInfo.setTooltip(serverTip);
+        this.onlineInfo.setTooltip(serverTip);
 
         HBox.setHgrow(root, Priority.ALWAYS);
         getItems().add(root);
@@ -124,17 +124,17 @@ public class Statusbar extends ToolBar {
         String lastName = "";
         String userAccount = "";
         try {
-            name = _ds.getCurrentUser().getFirstName();
-            lastName = _ds.getCurrentUser().getLastName();
-            lastUsername = _ds.getCurrentUser().getAccountName();
+            name = this._ds.getCurrentUser().getFirstName();
+            lastName = this._ds.getCurrentUser().getLastName();
+            this.lastUsername = this._ds.getCurrentUser().getAccountName();
         } catch (Exception ex) {
             logger.fatal("Could not fetch Username", ex);
         }
 
         if (name.isEmpty() && lastName.isEmpty()) {
-            userName.setText(userAccount);
+            this.userName.setText(userAccount);
         } else {
-            userName.setText(name + " " + lastName);
+            this.userName.setText(name + " " + lastName);
         }
 
         Thread checkOnline = new Thread() {
@@ -143,26 +143,22 @@ public class Statusbar extends ToolBar {
             public void run() {
                 try {
                     while (true) {
-                        sleep(WAIT_TIME);
+                        sleep(Statusbar.this.WAIT_TIME);
 //                        System.gc();
-//                        System.out.println("Time: " + (new DateTime()));
-//                        Optimization.getInstance().printStatistics();
-                        System.gc();
-//                        Optimization.getInstance().printStatistics();
 
-                        if (_ds.isConnectionAlive()) {
+                        if (Statusbar.this._ds.isConnectionAlive()) {
                             Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {
 //                                    logger.info("still online");
-                                    onlineInfo.setText("Online");
-                                    onlineInfo.setTextFill(Color.BLACK);
-                                    conBox.getChildren().setAll(connectIcon);
+                                    Statusbar.this.onlineInfo.setText("Online");
+                                    Statusbar.this.onlineInfo.setTextFill(Color.BLACK);
+                                    Statusbar.this.conBox.getChildren().setAll(Statusbar.this.connectIcon);
 
-                                    if (tt.isShowing()) {
-                                        tt.hide();
+                                    if (Statusbar.this.tt.isShowing()) {
+                                        Statusbar.this.tt.hide();
                                     }
-                                    connectedProperty.setValue(Boolean.TRUE);
+                                    Statusbar.this.connectedProperty.setValue(Boolean.TRUE);
                                 }
                             });
 
@@ -171,17 +167,17 @@ public class Statusbar extends ToolBar {
                                 @Override
                                 public void run() {
 //                                    logger.info("whaa were are offline");
-                                    onlineInfo.setText("Offline");
-                                    onlineInfo.setTextFill(Color.web("#D62748"));//red
-                                    conBox.getChildren().setAll(notConnectIcon);
+                                    Statusbar.this.onlineInfo.setText("Offline");
+                                    Statusbar.this.onlineInfo.setTextFill(Color.web("#D62748"));//red
+                                    Statusbar.this.conBox.getChildren().setAll(Statusbar.this.notConnectIcon);
 
 //                                    onlineInfo.setTooltip(tt);
-                                    final Point2D nodeCoord = onlineInfo.localToScene(0.0, 0.0);
-                                    if (!tt.isShowing()) {
-                                        tt.show(onlineInfo, nodeCoord.getX(), nodeCoord.getY());
+                                    final Point2D nodeCoord = Statusbar.this.onlineInfo.localToScene(0.0, 0.0);
+                                    if (!Statusbar.this.tt.isShowing()) {
+                                        Statusbar.this.tt.show(Statusbar.this.onlineInfo, nodeCoord.getX(), nodeCoord.getY());
                                     }
-                                    connectedProperty.setValue(Boolean.FALSE);
-                                    reconnect();
+                                    Statusbar.this.connectedProperty.setValue(Boolean.FALSE);
+//                                    reconnect();
                                 }
                             });
 
@@ -208,10 +204,10 @@ public class Statusbar extends ToolBar {
             @Override
             public void run() {
                 try {
-                    if (retryCount < RETRY_COUNT) {
+                    if (Statusbar.this.retryCount < Statusbar.this.RETRY_COUNT) {
                         logger.info("try Reconnect");
-                        _ds.reconnect();
-                        ++retryCount;
+                        Statusbar.this._ds.reconnect();
+                        ++Statusbar.this.retryCount;
                     } else {
                         logger.error("No Connection Possible .. giving up");
                     }
