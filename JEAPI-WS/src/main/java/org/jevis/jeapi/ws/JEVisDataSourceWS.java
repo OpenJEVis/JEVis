@@ -1334,7 +1334,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             conn.setReadTimeout(1000);
             conn.setRequestMethod("GET");
 
-            logger.error("HTTP request {}", conn.getURL());
+            logger.debug("HTTP request {}", conn.getURL());
 
             conn.connect();
             int responseCode = conn.getResponseCode();
