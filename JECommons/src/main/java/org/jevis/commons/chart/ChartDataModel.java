@@ -108,7 +108,7 @@ public class ChartDataModel {
                     } else {
                         CalcJobFactory calcJobCreator = new CalcJobFactory();
 
-                        CalcJob calcJob = null;
+                        CalcJob calcJob;
 
                         if (!getAbsolute()) {
                             calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
@@ -120,11 +120,6 @@ public class ChartDataModel {
 
                         samples = calcJob.getResults();
                     }
-
-                    /**
-                     * Checking for data inconsistencies
-                     */
-
 
                 } catch (Exception ex) {
                     logger.error(ex);
@@ -139,6 +134,7 @@ public class ChartDataModel {
                 }
             }
         }
+        logger.debug("ChartDataModel: sample.size: {} Aggregation:  {} EnPI: {} absolute: {} {}/{}  {}-{} ",samples.size(),aggregationPeriod,isEnPI,absolute,getAttribute().getObjectID(),getAttribute().getName(),selectedStart,selectedEnd);
 
         return samples;
     }

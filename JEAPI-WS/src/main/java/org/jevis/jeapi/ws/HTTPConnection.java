@@ -63,6 +63,7 @@ public class HTTPConnection {
     private final String baseURL;
     private final String username;
     private final String password;
+    private int readTimeout = 8140;//mils
 
     public HTTPConnection(String baseurl, String username, String password) {
         this.baseURL = baseurl;
@@ -138,6 +139,7 @@ public class HTTPConnection {
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         conn.setRequestProperty("Accept-Charset", "UTF-8");
+        conn.setReadTimeout(readTimeout);
         addAuth(conn, username, password);
 
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
