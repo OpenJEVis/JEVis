@@ -50,9 +50,21 @@ public class DashBordPlugIn implements Plugin {
     }
 
 
-    public void loadAnalysis(DashBordModel currentAnalysis) {
-        this.currentAnalysis = currentAnalysis;
-        this.dashBoardPane = new DashBoardPane(currentAnalysis);
+    public void loadAnalysis(DashBordModel currentAnalysis, boolean forceReload) {
+        if (forceReload) {
+            try {
+                jeVisDataSource.reloadAttribute(currentAnalysis.getAnalysisObject());
+
+                this.currentAnalysis = new DashBordModel(currentAnalysis.getAnalysisObject());
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        }else{
+            this.currentAnalysis = currentAnalysis;
+        }
+
+        this.dashBoardPane = new DashBoardPane(this.currentAnalysis);
+
         ScrollPane scrollPane = new ScrollPane(dashBoardPane);
 
         AnchorPane.setTopAnchor(scrollPane, 0d);
@@ -61,10 +73,11 @@ public class DashBordPlugIn implements Plugin {
         AnchorPane.setRightAnchor(scrollPane, 0d);
 
         rootPane.getChildren().setAll(scrollPane);
-        toolBar.updateToolbar(currentAnalysis);
+        toolBar.updateToolbar(this.currentAnalysis);
         dashBoardPane.getDashBordAnalysis().editProperty.setValue(false);
 
     }
+
 
     @Override
     public String getClassName() {
@@ -221,18 +234,8 @@ public class DashBordPlugIn implements Plugin {
         return null;
     }
 
-    public void addWidget(WidgetConfig widget) {
-        Widget newWidget = createWidget(widget);
-        if (newWidget != null) {
-            dashBoardPane.addNode(newWidget);
-            currentAnalysis.addWidget(widget);
-        }
 
-    }
 
-    private Node getView() {
-        return dashBoardPane;
-    }
 
     public void toPDF() {
         /** disabled in dependency, takes 5 mb an d does not work for now
