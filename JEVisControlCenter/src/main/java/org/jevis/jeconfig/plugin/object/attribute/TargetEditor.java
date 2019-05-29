@@ -19,10 +19,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -238,9 +235,24 @@ public class TargetEditor implements AttributeEditor {
 
                 StringBuilder bText = new StringBuilder();
 
+                JEVisClass cleanData = _attribute.getDataSource().getJEVisClass("Clean Data");
+
                 for (JEVisObject obj : th.getObject()) {
                     int index = th.getObject().indexOf(obj);
                     if (index > 0) bText.append("; ");
+
+                    if (obj.getJEVisClass().equals(cleanData)) {
+                        List<JEVisObject> parents = obj.getParents();
+                        if (!parents.isEmpty()) {
+                            for (JEVisObject parent : parents) {
+                                bText.append("[");
+                                bText.append(parent.getID());
+                                bText.append("]");
+                                bText.append(parent.getName());
+                                bText.append(" / ");
+                            }
+                        }
+                    }
 
                     bText.append("[");
                     bText.append(obj.getID());
