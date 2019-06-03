@@ -56,4 +56,14 @@ public class LastPeriod implements TimeFrameFactory {
         return new Interval(start, end);
     }
 
+    @Override
+    public boolean hasNextPeriod(Interval interval) {
+        return interval.getEnd().isAfterNow();
+    }
+
+    @Override
+    public boolean hasPreviousPeriod(Interval interval) {
+        return true;
+    }
+
 }

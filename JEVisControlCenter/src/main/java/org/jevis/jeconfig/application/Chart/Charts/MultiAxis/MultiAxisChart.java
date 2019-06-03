@@ -645,7 +645,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
              * Enable via HiddenConfig editor STRG+H
              */
 
-            logger.info("Drawing-Optimization UI-Nodes before : " + series.getDataSize());
+            logger.debug("Drawing-Optimization UI-Nodes before : " + series.getDataSize());
             List<Data<X, Y>> newData = new ArrayList<>();
             Map<Coordinate, Data<X, Y>> map = new HashMap<>();
             for (int i = addedFrom; i < addedTo; i++) {
@@ -686,7 +686,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                     update.add(map.get(each));
                 }
             }
-            logger.info("Drawing-Optimization UI-Nodes after Douglas Peucker : " + update.size());
+            logger.debug("Drawing-Optimization UI-Nodes after Douglas Peucker : " + update.size());
 
             for (int i = 0; i < coordinates.length; i++) {
                 boolean isIn = false;
@@ -709,14 +709,14 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             gf = null;
             coordinates = null;
 
-            logger.info("Drawing-Optimization - start adding Nodes to chart ");
+            logger.debug("Drawing-Optimization - start adding Nodes to chart ");
 
 
             for (int i = 0; i < update.size(); i++) {
                 Data<X, Y> item = update.get(i);
                 dataItemAdded(series, i, item);
             }
-            logger.info("Drawing-Optimization - Done");
+            logger.debug("Drawing-Optimization - Done");
 
         } else {
 

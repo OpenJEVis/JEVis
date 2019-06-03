@@ -197,31 +197,13 @@ public class DataModelDataHandler {
 
             for (TimeFrameFactory timeFrameFactory : timeFrameFactories) {
                 if (timeFrameFactory.getID().equals(forcedPeriod)) {
-//                    System.out.println("Match TimeFactory: " + timeFrameFactory.getListName());
                     interval = timeFrameFactory.getInterval(interval.getEnd());
                     foundFactory = true;
                 }
             }
 
-//            if (!foundFactory) {
-            //IF integer than custom period
-//                if (forcedPeriod.matches("-?\\d+")) {
-//                    try {
-//                        System.out.println("new jevis custom period");
-//                        JEVisObject jeVisObject = this.jeVisDataSource.getObject(Long.parseLong(forcedPeriod));
-//                        CustomPeriodObject cpo = new CustomPeriodObject(jeVisObject, new ObjectHandler(jeVisDataSource));
-//                        TimeFrameFactory customPeriodObject = timeFrames.customPeriodObject(cpo);
-//                        interval = customPeriodObject.getInterval(interval.getEnd());
-//                    } catch (Exception ex) {
-//                        logger.error(ex);
-//                    }
-//                }
-//            }
             if (!foundFactory) {
-
-                // else cast new Custom Period
                 try {
-//                    System.out.println("new custom period");
                     LastPeriod lastPeriod = new LastPeriod(Period.parse(forcedPeriod));
                     interval = lastPeriod.getInterval(interval.getEnd());
 
@@ -230,7 +212,6 @@ public class DataModelDataHandler {
                 }
             }
 
-//            System.out.println("new Interval for: " + forcedPeriod + " -> " + interval);
 
         }
         this.durationProperty.setValue(interval);

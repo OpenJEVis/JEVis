@@ -16,6 +16,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.Dashboard.common.LimitColoring;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.I18n;
@@ -32,6 +33,7 @@ public class ValueWidget extends Widget {
     private NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
     private StringProperty labelText = new SimpleStringProperty("n.a.");
+    private LimitColoring limitColoring;
 
     public ValueWidget(JEVisDataSource jeVisDataSource) {
         super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
@@ -53,7 +55,7 @@ public class ValueWidget extends Widget {
         sampleHandler.setInterval(interval);
         sampleHandler.update();
 
-        //if config changed
+        //TODO implement hasChanged
         if (config.hasChanged("")) {
             Platform.runLater(() -> {
                 Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
@@ -62,6 +64,14 @@ public class ValueWidget extends Widget {
 
                 label.setContentDisplay(ContentDisplay.CENTER);
             });
+
+            /*** TODO: replace null check if hasChanged is working **/
+//            System.out.println("jnode: "+config.getConfigNode(LimitColoring.JNODE_NAME));
+            if(limitColoring==null && config.getConfigNode(LimitColoring.JNODE_NAME)!=null ){
+                System.out.println("Create new LimitColoring: "+config.getConfigNode(LimitColoring.JNODE_NAME));
+                limitColoring = new LimitColoring(config.getConfigNode(LimitColoring.JNODE_NAME),config.fontColor.getValue(),config.backgroundColor.getValue());
+            }
+
 
             nf.setMinimumFractionDigits(config.decimals.getValue());
             nf.setMaximumFractionDigits(config.decimals.getValue());
@@ -78,10 +88,16 @@ public class ValueWidget extends Widget {
 
 
             results = dataModel.getSamples();
-
             if (!results.isEmpty()) {
-                labelText.setValue((nf.format(DataModelDataHandler.getTotal(results))) + " " + unit);
+                Double total = DataModelDataHandler.getTotal(results);
+                labelText.setValue((nf.format( total )) + " " + unit);
+                if(limitColoring!=null){
+                    System.out.println("limitColoring formate");
+                    limitColoring.formateLabel(label,total);
+                }
             }
+
+
 
 
         } catch (Exception ex) {

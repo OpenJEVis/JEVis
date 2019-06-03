@@ -50,6 +50,17 @@ public class DashBoardToolbar extends ToolBar {
     public DashBoardToolbar(JEVisDataSource dataSource, DashBordPlugIn dashBordPlugIn) {
         this.dataSource = dataSource;
         this.dashBordPlugIn = dashBordPlugIn;
+
+    }
+
+
+
+    public ComboBox<JEVisObject> getListAnalysesComboBox() {
+        return listAnalysesComboBox;
+    }
+
+    public void updateToolbar(final DashBordModel analyses) {
+
         ObservableList<JEVisObject> observableList = FXCollections.emptyObservableList();
 
         try {
@@ -143,6 +154,7 @@ public class DashBoardToolbar extends ToolBar {
         listAnalysesComboBox = new ComboBox<>(observableList);
         listAnalysesComboBox.setPrefWidth(300);
         listAnalysesComboBox.setMinWidth(300);
+        listAnalysesComboBox.getSelectionModel().select(analyses.getAnalysisObject());
         setCellFactoryForComboBox();
 
         ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
@@ -152,7 +164,7 @@ public class DashBoardToolbar extends ToolBar {
             try {
                 DashBordModel analysis = new DashBordModel(newValue);
 
-                dashBordPlugIn.loadAnalysis(analysis);
+                dashBordPlugIn.loadAnalysis(analysis,false);
                 Platform.runLater(() -> {
                     backgroundButton.requestFocus();
                 });
@@ -161,13 +173,6 @@ public class DashBoardToolbar extends ToolBar {
                 ex.printStackTrace();
             }
         });
-    }
-
-    public ComboBox<JEVisObject> getListAnalysesComboBox() {
-        return listAnalysesComboBox;
-    }
-
-    public void updateToolbar(final DashBordModel analyses) {
 
         ToggleButton settingsButton = new ToggleButton("", JEConfig.getImage("Service Manager.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(settingsButton);
@@ -198,6 +203,7 @@ public class DashBoardToolbar extends ToolBar {
         ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
+        reload.setTooltip(reloadTooltip);
 
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
 
@@ -223,8 +229,9 @@ public class DashBoardToolbar extends ToolBar {
         });
 
 
-        reload.setOnAction(event -> {
 
+        reload.setOnAction(event -> {
+            dashBordPlugIn.loadAnalysis(analyses,true);
         });
 
         exportPDF.setOnAction(event -> {
@@ -379,7 +386,7 @@ public class DashBoardToolbar extends ToolBar {
         getItems().addAll(
                 listAnalysesComboBox
                 , sep3, toolBarIntervalSelector
-                , sep1, zoomOut, zoomIn
+                , sep1, zoomOut, zoomIn,reload
                 , sep4, newButton, save, delete, newWidgetButton, settingsButton, backgroundButton, exportPDF
                 , sep2, runUpdateButton, unlockB);
     }

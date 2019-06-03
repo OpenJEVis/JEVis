@@ -54,7 +54,6 @@ public class GraphAnalysisLinker {
                         dataSource.getObject(node.getGraphAnalysisObject())
                         , aggregationPeriod, manipulationMode, analysisTimeFrame
                         , interval.getStart(), interval.getEnd());
-                System.out.println("Open Analysis: " + node.getGraphAnalysisObject());
                 JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest);
             } catch (Exception ex) {
                 ex.printStackTrace();

@@ -30,7 +30,9 @@ public class TimeFrameEdior extends Popup {
 
         getContent().add(borderPane);
         datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-            setIntervalresult();
+
+
+            setIntervalResult();
             this.hide();
         });
 
@@ -41,8 +43,15 @@ public class TimeFrameEdior extends Popup {
     }
 
 
-    private void setIntervalresult() {
-        DateTime newDateTime = new DateTime(datePicker.valueProperty().getValue().getYear(), datePicker.valueProperty().getValue().getMonthValue(), datePicker.valueProperty().getValue().getDayOfMonth(), 0, 0);
+    private void setIntervalResult() {
+        LocalDate localDate = datePicker.valueProperty().getValue();
+        if(datePicker.valueProperty().getValue().isAfter(LocalDate.now())){
+            localDate= LocalDate.now();
+            datePicker.setValue(localDate);
+            return;
+        }
+
+        DateTime newDateTime = new DateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0);
         intervalProperty.setValue(timeFrameProperty.getValue().getInterval(newDateTime));
     }
 

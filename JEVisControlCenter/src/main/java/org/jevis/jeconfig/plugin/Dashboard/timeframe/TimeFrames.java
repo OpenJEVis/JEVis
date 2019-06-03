@@ -22,6 +22,8 @@ import org.joda.time.format.DateTimeFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.jevis.commons.datetime.CustomPeriodObject.AttributeName.END_REFERENCE_POINT;
+
 public class TimeFrames {
 
     private static final Logger logger = LogManager.getLogger(TimeFrames.class);
@@ -113,6 +115,7 @@ public class TimeFrames {
             @Override
             public Interval getInterval(DateTime dateTime) {
 
+
                 DateHelper dateHelper = new DateHelper();
                 dateHelper.setCustomPeriodObject(cpo);
                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
@@ -128,6 +131,26 @@ public class TimeFrames {
 
 
                 return new Interval(newTimeFrame.getStart(), newTimeFrame.getEnd());
+            }
+
+            @Override
+            public boolean hasNextPeriod(Interval interval) {
+                /** Customer special case **/
+                if (cpo.getEndReferencePoint().equals("NOW")) {
+                    return false;
+                }
+
+                return interval.getEnd().isAfterNow();
+            }
+
+            @Override
+            public boolean hasPreviousPeriod(Interval interval) {
+                /** Customer special case **/
+                if (cpo.getEndReferencePoint().equals("NOW")) {
+                    return false;
+                }
+
+                return true;
             }
 
             @Override
@@ -176,9 +199,22 @@ public class TimeFrames {
 
             @Override
             public Interval getInterval(DateTime dateTime) {
+                if (dateTime.isAfterNow()) {
+                    dateTime = DateTime.now();
+                }
                 DateTime start = dateTime.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 DateTime end = dateTime.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
                 return new Interval(start, end);
+            }
+
+            @Override
+            public boolean hasNextPeriod(Interval interval) {
+                return interval.getEnd().isBeforeNow();
+            }
+
+            @Override
+            public boolean hasPreviousPeriod(Interval interval) {
+                return true;
             }
         };
     }
@@ -214,9 +250,23 @@ public class TimeFrames {
 
             @Override
             public Interval getInterval(DateTime dateTime) {
+                if (dateTime.isAfterNow()) {
+                    dateTime = DateTime.now();
+                }
                 DateTime start = dateTime.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 DateTime end = dateTime.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
                 return getWorkdayInterval(start, end);
+            }
+
+            @Override
+            public boolean hasNextPeriod(Interval interval) {
+                System.out.println("day.hasNextPeriod: " + interval + " = " + interval.getEnd().isAfterNow());
+                return interval.getEnd().isBeforeNow();
+            }
+
+            @Override
+            public boolean hasPreviousPeriod(Interval interval) {
+                return true;
             }
         };
     }
@@ -280,9 +330,22 @@ public class TimeFrames {
 
             @Override
             public Interval getInterval(DateTime dateTime) {
+                if (dateTime.isAfterNow()) {
+                    dateTime = DateTime.now();
+                }
                 DateTime start = dateTime.withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 DateTime end = dateTime.withDayOfWeek(7).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
                 return getWorkdayInterval(start, end);
+            }
+
+            @Override
+            public boolean hasNextPeriod(Interval interval) {
+                return interval.getEnd().isBeforeNow();
+            }
+
+            @Override
+            public boolean hasPreviousPeriod(Interval interval) {
+                return true;
             }
         };
     }
@@ -319,6 +382,9 @@ public class TimeFrames {
 
             @Override
             public Interval getInterval(DateTime dateTime) {
+                if (dateTime.isAfterNow()) {
+                    dateTime = DateTime.now();
+                }
                 int lastDayInMonth = dateTime.dayOfMonth().getMaximumValue();
                 DateTime start = dateTime.withDayOfMonth(1)
 //                        .withDayOfWeek(1)
@@ -330,6 +396,16 @@ public class TimeFrames {
 
                 //                return new Interval(start, end);
                 return getWorkdayInterval(start, end);
+            }
+
+            @Override
+            public boolean hasNextPeriod(Interval interval) {
+                return interval.getEnd().isBeforeNow();
+            }
+
+            @Override
+            public boolean hasPreviousPeriod(Interval interval) {
+                return true;
             }
         };
     }
@@ -367,12 +443,23 @@ public class TimeFrames {
 
             @Override
             public Interval getInterval(DateTime dateTime) {
+                if (dateTime.isAfterNow()) {
+                    dateTime = DateTime.now();
+                }
                 DateTime start = dateTime.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-//                DateTime end = dateTime.withMonthOfYear(12).withDayOfMonth(dateTime.dayOfMonth().getMaximumValue()).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
                 DateTime end = new DateTime(dateTime.getYear(), 12, 31, 23, 59, 59, 999);
 
-                //                return new Interval(start, end);
                 return getWorkdayInterval(start, end);
+            }
+
+            @Override
+            public boolean hasNextPeriod(Interval interval) {
+                return interval.getEnd().isBeforeNow();
+            }
+
+            @Override
+            public boolean hasPreviousPeriod(Interval interval) {
+                return true;
             }
         };
     }
