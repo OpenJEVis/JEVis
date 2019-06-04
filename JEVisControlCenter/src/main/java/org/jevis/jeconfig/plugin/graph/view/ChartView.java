@@ -452,7 +452,7 @@ public class ChartView implements Observer {
                 break;
             case BUBBLE:
                 chart = new BubbleChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), chartId, getChartName());
-                setTableStandard();
+                disableTable();
                 break;
             case SCATTER:
                 chart = new ScatterChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());

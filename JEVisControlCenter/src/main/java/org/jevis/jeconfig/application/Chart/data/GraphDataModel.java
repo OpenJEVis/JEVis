@@ -20,6 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
+import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
@@ -926,6 +927,11 @@ public class GraphDataModel {
                     if (mdl.getCalculation() != null) {
                         newData.setCalculationObject(mdl.getCalculation());
                     }
+
+                    if (mdl.getBubbleType() != null) {
+                        newData.setBubbleType(BubbleType.parseBubbleType(mdl.getBubbleType()));
+                    }
+
                     if (isGlobalAnalysisTimeFrame) {
                         newData.setSelectedStart(globalAnalysisTimeFrame.getStart());
                         newData.setSelectedEnd(globalAnalysisTimeFrame.getEnd());
