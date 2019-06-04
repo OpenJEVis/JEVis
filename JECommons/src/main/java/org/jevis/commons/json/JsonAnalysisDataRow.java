@@ -43,6 +43,7 @@ public class JsonAnalysisDataRow {
     private String axis;
     private String isEnPI;
     private String calculation;
+    private String bubbleType;
 
     public JsonAnalysisDataRow() {
     }
@@ -150,5 +151,14 @@ public class JsonAnalysisDataRow {
 
     public void setCalculation(String calculation) {
         this.calculation = calculation;
+    }
+
+    @XmlElement(name = "bubbleType")
+    public String getBubbleType() {
+        return bubbleType;
+    }
+
+    public void setBubbleType(String bubbleType) {
+        this.bubbleType = bubbleType;
     }
 }

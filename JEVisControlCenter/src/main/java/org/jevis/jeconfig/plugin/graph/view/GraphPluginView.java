@@ -23,6 +23,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -31,12 +32,14 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.chart.BubbleChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Ellipse;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -550,9 +553,41 @@ public class GraphPluginView implements Plugin {
 
             toolBarView.updateLayout();
 
-
             autoSize(autoMinSize, maxHeight, chartsPerScreen, vBox);
+
+            formatCharts();
         }
+    }
+
+    private void formatCharts() {
+        Platform.runLater(() -> {
+            for (ChartView cv : charts) {
+                if (cv.getChartType().equals(ChartType.BUBBLE)) {
+                    BubbleChart bubbleChart = (BubbleChart) cv.getChart().getChart();
+
+                    bubbleChart.getData().forEach(numberNumberSeries -> {
+                        BubbleChart.Series bubbleChartSeries = (BubbleChart.Series) numberNumberSeries;
+                        bubbleChartSeries.getData().forEach(numberNumberData -> {
+                            Node bubble = ((BubbleChart.Data) numberNumberData).getNode();
+                            if (bubble != null && bubble instanceof StackPane) {
+                                StackPane region = (StackPane) bubble;
+                                if (region.getShape() != null && region.getShape() instanceof Ellipse) {
+                                    Ellipse ellipse = (Ellipse) region.getShape();
+                                    DoubleProperty fontSize = new SimpleDoubleProperty(20);
+
+                                    Label label = new Label(((BubbleChart.Data) numberNumberData).getExtraValue().toString());
+                                    label.setAlignment(Pos.CENTER);
+                                    label.minWidthProperty().bind(ellipse.radiusXProperty());
+                                    fontSize.bind(Bindings.divide(ellipse.radiusXProperty(), 5));
+                                    label.styleProperty().bind(Bindings.concat("-fx-font-size:", fontSize.asString(), ";"));
+                                    region.getChildren().add(label);
+                                }
+                            }
+                        });
+                    });
+                }
+            }
+        });
     }
 
     private void autoSize(Double autoMinSize, double maxHeight, Long chartsPerScreen, VBox vBox) {
@@ -780,6 +815,7 @@ public class GraphPluginView implements Plugin {
                 case BAR:
                     break;
                 case BUBBLE:
+
                     break;
 
                 case PIE:

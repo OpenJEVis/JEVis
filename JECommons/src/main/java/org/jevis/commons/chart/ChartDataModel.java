@@ -43,6 +43,7 @@ public class ChartDataModel {
     private Boolean isEnPI = false;
     private JEVisObject calculationObject;
     private Boolean absolute = false;
+    private BubbleType bubbleType = BubbleType.NONE;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -475,6 +476,7 @@ public class ChartDataModel {
         newModel.setTitle(this.getTitle());
         newModel.setSamples(this.getSamples());
         newModel.setUnit(this.getUnit());
+        newModel.setBubbleType(this.getBubbleType());
 
         return newModel;
     }
@@ -485,5 +487,13 @@ public class ChartDataModel {
 
     public void setAbsolute(Boolean absolute) {
         this.absolute = absolute;
+    }
+
+    public BubbleType getBubbleType() {
+        return bubbleType;
+    }
+
+    public void setBubbleType(BubbleType bubbleType) {
+        this.bubbleType = bubbleType;
     }
 }
