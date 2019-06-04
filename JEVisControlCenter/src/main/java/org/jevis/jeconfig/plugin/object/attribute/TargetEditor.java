@@ -247,7 +247,7 @@ public class TargetEditor implements AttributeEditor {
                             for (JEVisObject parent : parents) {
                                 bText.append("[");
                                 bText.append(parent.getID());
-                                bText.append("]");
+                                bText.append("] ");
                                 bText.append(parent.getName());
                                 bText.append(" / ");
                             }
