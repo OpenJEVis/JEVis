@@ -13,7 +13,7 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
-import org.jevis.jeconfig.application.tools.CalculationNameFormater;
+import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.dialog.ExceptionDialog2;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.tool.I18n;
@@ -212,7 +212,7 @@ public class FormulaBox extends HBox {
                          */
                         try {
                             if (outputObj == null) {
-                                outputObj = this.calcObj.buildObject(CalculationNameFormater.createVariableName(us.getSelectedObject()), outputClass);
+                                outputObj = this.calcObj.buildObject(CalculationNameFormatter.createVariableName(us.getSelectedObject()), outputClass);
                                 outputObj.commit();
                             }
                         } catch (Exception ex) {
@@ -230,8 +230,8 @@ public class FormulaBox extends HBox {
                         newSample.commit();
 
                         /** update output variable name **/
-                        if (!outputObj.getName().equals(CalculationNameFormater.createVariableName(us.getSelectedObject()))) {
-                            outputObj.setName(CalculationNameFormater.createVariableName(us.getSelectedObject()));
+                        if (!outputObj.getName().equals(CalculationNameFormatter.createVariableName(us.getSelectedObject()))) {
+                            outputObj.setName(CalculationNameFormatter.createVariableName(us.getSelectedObject()));
                             outputObj.commit();
                         }
                         outputButton.setText(th.getObject().get(0).getName() + "." + th.getAttribute().get(0).getName());

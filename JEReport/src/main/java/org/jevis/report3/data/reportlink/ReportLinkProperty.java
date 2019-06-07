@@ -14,6 +14,7 @@ import org.jevis.commons.database.JEVisSampleDAO;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.report.PeriodMode;
 import org.jevis.report3.data.DataHelper;
 import org.jevis.report3.data.attribute.*;
 import org.jevis.report3.data.report.IntervalCalculator;
@@ -176,10 +177,10 @@ public class ReportLinkProperty implements ReportData {
                         switch (config.getConfigName()) {
                             case Period: {
                                 Interval interval = null;
-                                IntervalCalculator.PeriodMode mode = null;
+                                PeriodMode mode = null;
                                 try {
                                     String modeName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.PERIOD).getLatestSample().getValueAsString();
-                                    mode = IntervalCalculator.PeriodMode.valueOf(modeName.toUpperCase());
+                                    mode = PeriodMode.valueOf(modeName.toUpperCase());
                                     interval = intervalCalc.getInterval(mode);
                                     logger.info("interval: " + interval);
                                     logger.error("Mode name: " + modeName.toUpperCase());

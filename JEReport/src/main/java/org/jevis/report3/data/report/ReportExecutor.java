@@ -13,6 +13,7 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.report.PeriodMode;
 import org.jevis.jenotifier.mode.SendNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
@@ -65,7 +66,7 @@ public class ReportExecutor {
 
         intervalCalculator.buildIntervals(reportObject);
 
-        DateTime end = intervalCalculator.getInterval(IntervalCalculator.PeriodMode.CURRENT).getEnd();
+        DateTime end = intervalCalculator.getInterval(PeriodMode.CURRENT).getEnd();
 
         if (!precondition.isPreconditionReached(reportObject)) {
 
