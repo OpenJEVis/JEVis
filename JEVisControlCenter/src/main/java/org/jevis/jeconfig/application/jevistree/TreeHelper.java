@@ -41,9 +41,10 @@ import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
 import org.jevis.commons.export.ExportMaster;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.report.ReportLink;
 import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
-import org.jevis.jeconfig.application.tools.CalculationNameFormater;
+import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -459,11 +460,67 @@ public class TreeHelper {
 
                         JEVisClass dataClass = newObject.getDataSource().getJEVisClass("Data");
                         JEVisClass cleanDataClass = newObject.getDataSource().getJEVisClass("Clean Data");
+                        JEVisClass reportClass = newObject.getDataSource().getJEVisClass("Periodic Report");
+                        JEVisClass reportLinkClass = newObject.getDataSource().getJEVisClass("Report Link");
+                        JEVisClass reportAttributeClass = newObject.getDataSource().getJEVisClass("Report Attribute");
+                        JEVisClass reportPeriodConfigurationClass = newObject.getDataSource().getJEVisClass("Report Period Configuration");
                         if (createClass.equals(dataClass) || createClass.equals(cleanDataClass)) {
                             JEVisAttribute valueAttribute = newObject.getAttribute("Value");
                             valueAttribute.setInputSampleRate(Period.minutes(15));
                             valueAttribute.setDisplaySampleRate(Period.minutes(15));
                             valueAttribute.commit();
+                        } else if (createClass.equals(reportClass)) {
+                            ReportWizardDialog rwd = new ReportWizardDialog(newObject);
+
+                            rwd.showAndWait();
+                            if (rwd.getSelections() != null) {
+                                JEVisObject reportLinkDirectory = rwd.getReportLinkDirectory();
+                                for (ReportLink rl : rwd.getReportLinkList()) {
+                                    UserSelection us = rwd.getSelections().get(rwd.getReportLinkList().indexOf(rl));
+                                    JEVisObject object = null;
+                                    String variableName = "";
+                                    if (us.getSelectedObject().getJEVisClass().equals(cleanDataClass)) {
+                                        List<JEVisObject> parents = us.getSelectedObject().getParents();
+                                        if (parents.size() == 1) {
+                                            object = reportLinkDirectory.buildObject(parents.get(0).getName(), reportLinkClass);
+                                            object.commit();
+                                            variableName = CalculationNameFormatter.createVariableName(parents.get(0));
+                                        }
+                                    } else {
+                                        object = reportLinkDirectory.buildObject(us.getSelectedObject().getName(), reportLinkClass);
+                                        object.commit();
+                                        variableName = CalculationNameFormatter.createVariableName(us.getSelectedObject());
+                                    }
+
+                                    if (object != null) {
+                                        JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
+                                        JEVisSample sample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
+                                        sample.commit();
+
+                                        JEVisAttribute templateVariableName = object.getAttribute("Template Variable Name");
+                                        JEVisSample sample1 = templateVariableName.buildSample(new DateTime(), variableName);
+                                        sample1.commit();
+
+                                        JEVisObject reportAttribute = object.buildObject("Report Attribute", reportAttributeClass);
+                                        reportAttribute.commit();
+                                        JEVisAttribute attribute_name = reportAttribute.getAttribute("Attribute Name");
+
+                                        attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
+
+                                        JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", reportPeriodConfigurationClass);
+                                        reportPeriodConfiguration.commit();
+
+                                        JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute("Aggregation");
+                                        JEVisSample sample2 = aggregationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+                                        sample2.commit();
+
+                                        JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute("Period");
+                                        JEVisSample sample3 = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
+                                        sample3.commit();
+                                    }
+                                }
+                            }
+
                         }
 
                     } catch (JEVisException ex) {
@@ -545,7 +602,7 @@ public class TreeHelper {
             if (selectTargetDialog.getUserSelection() != null && !selectTargetDialog.getUserSelection().isEmpty()) {
                 for (UserSelection us : selectTargetDialog.getUserSelection()) {
 
-                    String inputName = CalculationNameFormater.createVariableName(us.getSelectedObject());
+                    String inputName = CalculationNameFormatter.createVariableName(us.getSelectedObject());
 
                     JEVisClass inputClass = calcObject.getDataSource().getJEVisClass("Input");
                     JEVisObject newInputObj = calcObject.buildObject(inputName, inputClass);

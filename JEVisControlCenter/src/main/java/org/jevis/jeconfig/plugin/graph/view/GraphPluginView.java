@@ -29,6 +29,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -74,6 +75,7 @@ import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
+import java.text.NumberFormat;
 import java.util.*;
 
 /**
@@ -570,21 +572,44 @@ public class GraphPluginView implements Plugin {
                         bubbleChartSeries.getData().forEach(numberNumberData -> {
                             Node bubble = ((BubbleChart.Data) numberNumberData).getNode();
                             if (bubble != null && bubble instanceof StackPane) {
-                                StackPane region = (StackPane) bubble;
-                                if (region.getShape() != null && region.getShape() instanceof Ellipse) {
-                                    Ellipse ellipse = (Ellipse) region.getShape();
+                                StackPane stackPane = (StackPane) bubble;
+                                if (stackPane.getShape() != null && stackPane.getShape() instanceof Ellipse) {
+                                    Ellipse ellipse = (Ellipse) stackPane.getShape();
                                     DoubleProperty fontSize = new SimpleDoubleProperty(20);
 
-                                    Label label = new Label(((BubbleChart.Data) numberNumberData).getExtraValue().toString());
+                                    NumberFormat nf = NumberFormat.getInstance();
+                                    nf.setMinimumFractionDigits(0);
+                                    nf.setMaximumFractionDigits(0);
+                                    String value = nf.format(((BubbleChart.Data) numberNumberData).getExtraValue());
+
+                                    Label label = new Label(value);
                                     label.setAlignment(Pos.CENTER);
-                                    label.minWidthProperty().bind(ellipse.radiusXProperty());
-                                    fontSize.bind(Bindings.divide(ellipse.radiusXProperty(), 5));
+                                    label.setBackground(
+                                            new Background(
+                                                    new BackgroundFill(Color.WHITE, new CornerRadii(5), new Insets(1, 1, 1, 1))
+                                            )
+                                    );
+
+
+                                    label.setMinWidth(value.length() * 20d);
+
+                                    if (ellipse.radiusYProperty().get() / 5 > 16d) {
+                                        fontSize.bind(Bindings.divide(ellipse.radiusYProperty(), 5));
+                                        label.minWidthProperty().bind(Bindings.divide(ellipse.radiusYProperty(), 5).add(4));
+                                    } else {
+                                        fontSize.set(16d);
+                                    }
+
                                     label.styleProperty().bind(Bindings.concat("-fx-font-size:", fontSize.asString(), ";"));
-                                    region.getChildren().add(label);
+//                                    label.styleProperty().bind(Bindings.concat("-fx-font-size:", 20d, ";"));
+                                    stackPane.getChildren().setAll(label);
                                 }
+                                bubble.setOnMouseClicked(event -> bubble.toFront());
                             }
                         });
                     });
+
+                    cv.getChart().applyColors();
                 }
             }
         });

@@ -26,8 +26,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BubbleChart implements Chart {
-    private javafx.scene.chart.BubbleChart<Number, Number> bubbleChart;
     private List<Color> hexColors = new ArrayList<>();
+    private List<Integer> noOfBubbles = new ArrayList<>();
     javafx.scene.chart.BubbleChart<Number, Number> chart;
     private Region chartRegion;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -54,6 +54,9 @@ public class BubbleChart implements Chart {
                         }
                     } else if (model.getBubbleType() == BubbleType.Y) {
                         yList.add(sample);
+                        if (!hexColors.contains(model.getColor())) {
+                            hexColors.add(model.getColor());
+                        }
                     }
                 } catch (JEVisException e) {
                     e.printStackTrace();
@@ -169,6 +172,7 @@ public class BubbleChart implements Chart {
 
         chart = new javafx.scene.chart.BubbleChart<Number, Number>(xAxis, yAxis);
         chart.setTitle(chartName);
+        chart.setLegendVisible(false);
 
         String xAxisTitle = "";
         String yAxisTitle = "";
@@ -187,6 +191,7 @@ public class BubbleChart implements Chart {
 
         yAxis.setLabel(yAxisTitle);
         yAxis.setAutoRanging(true);
+        yAxis.setForceZeroInRange(false);
 
         javafx.scene.chart.XYChart.Series series1 = new javafx.scene.chart.XYChart.Series();
 //        series1.setName("Arabica");
@@ -196,8 +201,11 @@ public class BubbleChart implements Chart {
             series1.getData().add(data);
         }
 
+        noOfBubbles.add(bubbles.size());
+
         chart.getData().addAll(series1);
         chart.layout();
+
     }
 
     @Override
@@ -274,9 +282,18 @@ public class BubbleChart implements Chart {
     public void applyColors() {
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
-            String preIdent = ".default-color" + i;
-            Node node = bubbleChart.lookup(preIdent + ".chart-series-area-fill");
-            Node nodew = bubbleChart.lookup(preIdent + ".chart-series-area-line");
+            currentColor = currentColor.deriveColor(0, 1, 1, 0.7);
+            String hexColor = toRGBCode(currentColor);
+            int noOfBubbles = this.noOfBubbles.get(i);
+            String preIdent = "";
+            for (int j = 0; j < noOfBubbles; j++) {
+                preIdent = ".chart-bubble.series" + i + ".data" + j + ".default-color0";
+
+                Node node = chart.lookup(preIdent);
+                if (node != null) {
+                    node.setStyle("-fx-bubble-fill: " + hexColor + ";");
+                }
+            }
         }
     }
 

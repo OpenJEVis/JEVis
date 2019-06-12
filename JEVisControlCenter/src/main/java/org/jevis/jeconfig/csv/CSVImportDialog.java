@@ -98,6 +98,7 @@ public class CSVImportDialog {
     private CSVTable table;
     private Stage stage;
     private Charset charset = Charset.defaultCharset();
+    private String customNoteString = "";
 
     public Response show(Stage owner, JEVisDataSource ds) {
         stage = new Stage();
@@ -198,7 +199,10 @@ public class CSVImportDialog {
             response = Response.CANCEL;
         });
 
-        ok.setOnAction(t -> table.doImport());
+        ok.setOnAction(t -> {
+            table.setCustomNote(customNoteString);
+            table.doImport();
+        });
 
         stage.sizeToScene();
         stage.showAndWait();
@@ -260,7 +264,15 @@ public class CSVImportDialog {
         Label formatL = new Label(I18n.getInstance().getString("csv.format"));
         Label charSetL = new Label(I18n.getInstance().getString("csv.charset"));
         Label fromRow = new Label(I18n.getInstance().getString("csv.from_rowFrom"));
+        Label customNoteLabel = new Label(I18n.getInstance().getString("csv.customnote"));
         final Label fileNameL = new Label();
+
+        TextField customNoteField = new TextField();
+        customNoteField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                customNoteString = newValue;
+            }
+        });
 
         ObservableList<Charset> options = FXCollections.observableArrayList();
         for (Charset set : Charset.availableCharsets().values()) {
@@ -415,6 +427,9 @@ public class CSVImportDialog {
 //        gp.add(formatL, 0, ++x);
 //        gp.add(formats, 1, x);
 //        gp.add(automatic, 2, x);
+
+        gp.add(customNoteLabel, 0, ++x);
+        gp.add(customNoteField, 1, x);
 
         gp.add(charSetL, 0, ++x);
         gp.add(charsetBox, 1, x);

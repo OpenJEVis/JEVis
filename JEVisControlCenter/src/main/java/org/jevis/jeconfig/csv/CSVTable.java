@@ -50,6 +50,7 @@ public class CSVTable extends TableView<CSVLine> {
     private CSVParser parser;
     private JEVisDataSource ds;
     private List<CSVColumnHeader> header = new ArrayList<>();
+    private String customNote = "";
 
     public CSVTable(JEVisDataSource ds, CSVParser parser) {
         super();
@@ -204,6 +205,9 @@ public class CSVTable extends TableView<CSVLine> {
                                             Double value = header.getValueAsDouble(line.getColumn(header.getColumn()));
                                             JEVisAttribute targetAtt = header.getTarget();
                                             String note = "CSV Import by " + ds.getCurrentUser().getAccountName();
+                                            if (!customNote.equals("")) {
+                                                note += "; " + customNote;
+                                            }
                                             JEVisSample newSample = targetAtt.buildSample(ts, value, note);
                                             _newSamples.add(newSample);
                                         }
@@ -256,5 +260,9 @@ public class CSVTable extends TableView<CSVLine> {
 
     public CSVParser getParser() {
         return parser;
+    }
+
+    public void setCustomNote(String customNote) {
+        this.customNote = customNote;
     }
 }
