@@ -191,6 +191,7 @@ public class BubbleChart implements Chart {
 
         yAxis.setLabel(yAxisTitle);
         yAxis.setAutoRanging(true);
+        yAxis.setForceZeroInRange(false);
 
         javafx.scene.chart.XYChart.Series series1 = new javafx.scene.chart.XYChart.Series();
 //        series1.setName("Arabica");
