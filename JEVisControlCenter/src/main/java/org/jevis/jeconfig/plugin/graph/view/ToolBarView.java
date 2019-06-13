@@ -500,6 +500,9 @@ public class ToolBarView {
                     json.setIsEnPI(mdl.getEnPI().toString());
                     if (mdl.getCalculationObject() != null)
                         json.setCalculation(mdl.getCalculationObject().getID().toString());
+                    if (mdl.getBubbleType() != null) {
+                        json.setBubbleType(mdl.getBubbleType().toString());
+                    }
                     jsonDataModels.add(json);
                 }
             }

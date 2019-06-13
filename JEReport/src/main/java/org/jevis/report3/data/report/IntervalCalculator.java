@@ -6,6 +6,7 @@
 package org.jevis.report3.data.report;
 
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.report.PeriodMode;
 import org.joda.time.Interval;
 
 /**
@@ -16,10 +17,7 @@ public interface IntervalCalculator {
 
     void buildIntervals(JEVisObject reportObject);
 
-    Interval getInterval(PeriodMode periodModus);
+    Interval getInterval(PeriodMode periodMode);
 
-    enum PeriodMode {
 
-        CURRENT, LAST, ALL
-    }
 }

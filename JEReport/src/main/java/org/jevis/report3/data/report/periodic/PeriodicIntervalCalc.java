@@ -11,6 +11,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.report3.data.report.IntervalCalculator;
 import org.joda.time.DateTime;

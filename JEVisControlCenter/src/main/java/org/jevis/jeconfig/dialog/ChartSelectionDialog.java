@@ -23,6 +23,7 @@ package org.jevis.jeconfig.dialog;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -37,6 +38,7 @@ import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
@@ -330,6 +332,15 @@ public class ChartSelectionDialog {
             final Label modelLabel = new Label(model.getObject().getName());
             final Label isEnPILabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.usecalc"));
             final Label calculationLabel = new Label(I18n.getInstance().getString("plugin.graph.chart.selectiondialog.calculation"));
+            final Label bubbleTypeLabel = new Label("Bubble Type");
+
+            final ComboBox<BubbleType> bubbleTypeComboBox = new ComboBox<>(FXCollections.observableArrayList(BubbleType.X, BubbleType.Y));
+
+            bubbleTypeComboBox.getSelectionModel().select(model.getBubbleType());
+
+            bubbleTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                model.setBubbleType(newValue);
+            });
 
             SimpleStringProperty targetProperty = new SimpleStringProperty();
 
@@ -352,6 +363,11 @@ public class ChartSelectionDialog {
 
             gp.add(calculationLabel, 0, row);
             gp.add(targetSelector, 1, row);
+            row++;
+
+            gp.add(bubbleTypeLabel, 0, row);
+            gp.add(bubbleTypeComboBox, 1, row);
+
 
             flowPane.getChildren().add(gp);
         }

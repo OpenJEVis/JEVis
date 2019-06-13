@@ -26,7 +26,7 @@ public class CalcJob {
     private String expression;
     private List<JEVisAttribute> outputs;
     private long calcObjID;
-    private boolean processedAllInputSamples = false;
+    private boolean processedAllInputSamples = true;
     private Double staticValue = 0.0;
     private Double allZeroValue;
     private String DIV0Handling = "";
