@@ -1330,8 +1330,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             URL url = new URL(this.host + "/" + resource);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(2000);
-            conn.setReadTimeout(1000);
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
             conn.setRequestMethod("GET");
 
             logger.debug("HTTP request {}", conn.getURL());

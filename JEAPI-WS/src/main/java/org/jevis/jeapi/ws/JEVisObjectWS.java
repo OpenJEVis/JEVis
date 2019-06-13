@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.commons.utils.Optimization;
 import org.jevis.commons.ws.json.JsonObject;
 
 import javax.swing.event.EventListenerList;
@@ -37,14 +36,12 @@ public class JEVisObjectWS implements JEVisObject {
 
     private final EventListenerList listeners = new EventListenerList();
     private JEVisDataSourceWS ds;
-    //    private List<JEVisObject> children = null;
     private JsonObject json;
 
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
         this.ds = ds;
         this.json = json;
 
-        Optimization.getInstance().addObject(this);
     }
 
     public void update(JsonObject json) {
@@ -54,40 +51,50 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public void addEventListener(JEVisEventListener listener) {
-        listeners.add(JEVisEventListener.class, listener);
+        this.listeners.add(JEVisEventListener.class, listener);
     }
 
     @Override
     public void removeEventListener(JEVisEventListener listener) {
-        listeners.remove(JEVisEventListener.class, listener);
+        this.listeners.remove(JEVisEventListener.class, listener);
     }
 
     @Override
     public synchronized void notifyListeners(JEVisEvent event) {
-        logger.trace("Object event[{}] listeners: {} event:", getID(), listeners.getListenerCount(), event.getType());
-        for (JEVisEventListener l : listeners.getListeners(JEVisEventListener.class)) {
+        logger.trace("Object event[{}] listeners: {} event:", getID(), this.listeners.getListenerCount(), event.getType());
+        for (JEVisEventListener l : this.listeners.getListeners(JEVisEventListener.class)) {
             l.fireEvent(event);
         }
     }
 
     @Override
     public String getName() {
-        return json.getName();
+        return this.json.getName();
     }
 
     @Override
     public void setName(String name) {
-        json.setName(name);
+        this.json.setName(name);
     }
 
     @Override
     public Long getID() {
-        return json.getId();
+        return this.json.getId();
+    }
+
+    private boolean isLink() {
+        return this.json.getJevisClass().equals("Link");
     }
 
     @Override
-    public JEVisClass getJEVisClass() {
-        return ds.getJEVisClass(json.getJevisClass());
+    public JEVisClass getJEVisClass() throws JEVisException {
+        if (isLink()) {
+            JEVisObject linkedObject = getLinkedObject();
+            if (linkedObject != null) {
+                return linkedObject.getJEVisClass();
+            }
+        }
+        return this.ds.getJEVisClass(this.json.getJevisClass());
     }
 
     @Override
@@ -113,7 +120,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public String getJEVisClassName() {
-        return json.getJevisClass();
+        return this.json.getJevisClass();
     }
 
     @Override
@@ -151,9 +158,6 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public List<JEVisObject> getChildren(JEVisClass jclass, boolean inherit) throws JEVisException {
         List<JEVisObject> filterLIst = new ArrayList<>();
-//        if (children == null) {
-//            getChildren();
-//        }
         for (JEVisObject obj : getChildren()) {
             try {
 
@@ -179,13 +183,19 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisAttribute> getAttributes() {
+        if (isLink()) {
+            JEVisObject linkedObject = getLinkedObject();
+            if (linkedObject != null) {
+                return this.ds.getAttributes(linkedObject.getID());
+            }
+        }
 
-        return ds.getAttributes(getID());
+        return this.ds.getAttributes(getID());
     }
 
-    public List<JEVisAttribute> getAttributesWS() {
-        return ds.getAttributes(getID());
-    }
+//    public List<JEVisAttribute> getAttributesWS() {
+//        return this.ds.getAttributes(getID());
+//    }
 
     @Override
     public JEVisAttribute getAttribute(JEVisType type) throws JEVisException {
@@ -216,8 +226,9 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public boolean delete() {
 
-        return ds.deleteObject(getID());
+        return this.ds.deleteObject(getID());
     }
+
 
     @Override
     public JEVisObject buildObject(String name, JEVisClass type) throws JEVisException {
@@ -228,19 +239,35 @@ public class JEVisObjectWS implements JEVisObject {
         newJson.setParent(getID());
 
 
-        return new JEVisObjectWS(ds, newJson);
+        return new JEVisObjectWS(this.ds, newJson);
     }
 
     @Override
     public JEVisObject getLinkedObject() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            for (JEVisRelationship relationship : getRelationships(JEVisConstants.ObjectRelationship.LINK, JEVisConstants.Direction.FORWARD)) {
+                try {
+                    JEVisObject originalObj = relationship.getEndObject();
+                    if (originalObj != null) {
+                        return originalObj;
+                    }
+                    /** TODO: maybe return some spezial object of the user has not access to the otherObject **/
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     @Override
     public JEVisRelationship buildRelationship(JEVisObject otherObj, int type, int direction) throws JEVisException {
         JEVisRelationship rel;
         if (direction == JEVisConstants.Direction.FORWARD) {
-            rel = ds.buildRelationship(getID(), otherObj.getID(), type);
+            rel = this.ds.buildRelationship(getID(), otherObj.getID(), type);
 
             if (type == JEVisConstants.ObjectRelationship.PARENT) {
                 otherObj.notifyListeners(new JEVisEvent(rel.getEndObject(), JEVisEvent.TYPE.OBJECT_NEW_CHILD, rel.getStartObject()));
@@ -256,7 +283,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public void deleteRelationship(JEVisRelationship rel) throws JEVisException {
-        ds.deleteRelationship(rel.getStartID(), rel.getEndID(), rel.getType());
+        this.ds.deleteRelationship(rel.getStartID(), rel.getEndID(), rel.getType());
 
         /**
          * Delete form cache and other objects
@@ -271,7 +298,7 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public List<JEVisRelationship> getRelationships() {
-        return ds.getRelationships(getID());
+        return this.ds.getRelationships(getID());
     }
 
     @Override
@@ -321,7 +348,7 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public boolean isAllowedUnder(JEVisObject otherObject) throws JEVisException {
         boolean classIsAllowedUnderClass = getJEVisClass().isAllowedUnder(otherObject.getJEVisClass());
-        boolean isDirectory = ds.getJEVisClass("Directory").getHeirs().contains(this);
+        boolean isDirectory = this.ds.getJEVisClass("Directory").getHeirs().contains(this);
         boolean isUnique = getJEVisClass().isUnique();
         boolean isAlreadyUnderParent = false;
         if (getParents() != null) {
@@ -360,48 +387,42 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public JEVisDataSource getDataSource() {
-        return ds;
+        return this.ds;
     }
 
     @Override
     public void commit() throws JEVisException {
-//        ds.commitObject(this);
         try {
             Gson gson = new Gson();
-            logger.trace("Commit: {}", gson.toJson(json));
+            logger.trace("Commit: {}", gson.toJson(this.json));
 
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.OBJECTS.PATH;
 
             boolean update = false;
 
-            if (json.getId() > 0) {//update existing
+            if (this.json.getId() > 0) {//update existing
                 resource += getID();
                 update = true;
             }
 
-            StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
+            StringBuffer response = this.ds.getHTTPConnection().postRequest(resource, gson.toJson(this.json));
             //TODO: remove the relationship from the post json, like in the Webservice JSonFactory
 
             JsonObject newJson = gson.fromJson(response.toString(), JsonObject.class);
             logger.debug("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
             this.json = newJson;
 
-            ds.reloadRelationships();
+            this.ds.reloadRelationships();
 
 
             /** reload object to be sure all evens will be handelt and the cache is working correctly **/
-            ds.addToObjectCache(this);
-
-//            if (!getAttributes().isEmpty()) {
-//                ds.reloadAttribute(getAttributes().get(0));
-//            }
-
+            this.ds.addToObjectCache(this);
 
             if (update) {
                 notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED, this));
             } else {
-                ds.reloadAttribute(this);
+                this.ds.reloadAttribute(this);
                 if (!getParents().isEmpty()) {
                     try {
                         getParents().get(0).notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_NEW_CHILD, this));
@@ -440,10 +461,6 @@ public class JEVisObjectWS implements JEVisObject {
         try {
             if (o instanceof JEVisObject) {
                 return ((JEVisObject) o).getID().equals(getID());
-//                JEVisObject obj = (JEVisObject) o;
-//                if (obj.getID().equals(getID())) {
-//                    return true;
-//                }
             }
         } catch (Exception ex) {
             return false;
@@ -468,12 +485,12 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public boolean isPublic() {
-        return json.getisPublic();
+        return this.json.getisPublic();
     }
 
     @Override
     public void setIsPublic(boolean ispublic) {
-        json.setisPublic(ispublic);
+        this.json.setisPublic(ispublic);
     }
 
 

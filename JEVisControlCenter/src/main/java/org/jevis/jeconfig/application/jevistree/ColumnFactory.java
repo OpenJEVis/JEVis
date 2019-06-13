@@ -241,15 +241,10 @@ public class ColumnFactory {
                                                       } else {//Attribute
 
                                                           nameLabel.setText(I18nWS.getInstance().getAttributeName(jeVisTreeRow.getJEVisAttribute()));
-                                                          HBox hbox2 = new HBox();
-                                                          Region spacer = new Region();
-                                                          spacer.setPrefWidth(12);
                                                           ImageView image = new ImageView(ATTRIBUTE_ICON);
                                                           image.fitHeightProperty().set(18);
                                                           image.fitWidthProperty().set(18);
-
-                                                          hbox2.getChildren().addAll(spacer, image);
-                                                          icon = hbox2;
+                                                          icon = image;
                                                       }
 
                                                       hbox.getChildren().addAll(icon, spaceBetween, nameLabel);
