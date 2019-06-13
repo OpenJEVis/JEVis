@@ -32,7 +32,6 @@ import org.joda.time.Interval;
 
 import javax.swing.event.ChangeEvent;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -61,7 +60,7 @@ public class DashBoardPane extends Pane {
         super();
         logger.debug("Start DashBoardPane");
 
-        executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
+        this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
 
         showLoading(true);
 
@@ -101,7 +100,7 @@ public class DashBoardPane extends Pane {
         addConfigListener();
         setBackground();
 
-        getTransforms().add(scale);
+        getTransforms().add(this.scale);
         setOnScroll(event -> {
             if (event.isControlDown()) {
 
@@ -227,7 +226,7 @@ public class DashBoardPane extends Pane {
     }
 
     public Widget createWidget(WidgetConfig widget) {
-        for (Widget availableWidget : Widgets.getAvabableWidgets(analysis.getDataSource(), widget)) {
+        for (Widget availableWidget : Widgets.getAvabableWidgets(this.analysis.getDataSource(), widget)) {
             try {
                 if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
                     widget.setType(availableWidget.getId());
@@ -254,26 +253,26 @@ public class DashBoardPane extends Pane {
         this.heightProperty().addListener(sizeListener);
         this.widthProperty().addListener(sizeListener);
 
-        analysis.pageSize.addListener((observable, oldValue, newValue) -> {
+        this.analysis.pageSize.addListener((observable, oldValue, newValue) -> {
             setWidth(newValue.getWidth());
             setHeight(newValue.getHeight());
             setBackground();
         });
 
-        analysis.zoomFactor.addListener((observable, oldValue, newValue) -> {
+        this.analysis.zoomFactor.addListener((observable, oldValue, newValue) -> {
 //            System.out.println("Change zoom to: " + newValue);
-            scale.setX(newValue.doubleValue());
-            scale.setY(newValue.doubleValue());
+            this.scale.setX(newValue.doubleValue());
+            this.scale.setY(newValue.doubleValue());
             requestLayout();
         });
-        analysis.addChangeListener(new javax.swing.event.ChangeListener() {
+        this.analysis.addChangeListener(new javax.swing.event.ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 updateChildren();
             }
         });
 
-        analysis.imageBoardBackground.addListener((observable, oldValue, newValue) -> {
+        this.analysis.imageBoardBackground.addListener((observable, oldValue, newValue) -> {
             if (newValue != null && (oldValue == null || !oldValue.equals(newValue))) {
                 setBackground();
             }
@@ -281,37 +280,37 @@ public class DashBoardPane extends Pane {
 
         Timer timer = new Timer(true);
 
-        analysis.intervalProperty.addListener((observable, oldValue, newValue) -> {
+        this.analysis.intervalProperty.addListener((observable, oldValue, newValue) -> {
             logger.debug("New Interval: {}", newValue);
         });
 
-        analysis.updateIsRunningProperty.addListener((observable, oldValue, newValue) -> {
-            if (updateTask != null) {
+        this.analysis.updateIsRunningProperty.addListener((observable, oldValue, newValue) -> {
+            if (this.updateTask != null) {
                 try {
-                    updateTask.cancel();
+                    this.updateTask.cancel();
                 } catch (Exception ex) {
 
                 }
             }
-            updateTask = updateTimerTask();
+            this.updateTask = updateTimerTask();
 
             if (newValue) {
-                logger.info("Start update scheduler: {} sec", analysis.updateRate.getValue());
-                timer.scheduleAtFixedRate(updateTask, 1000, analysis.updateRate.getValue() * 1000);
+                logger.info("Start update scheduler: {} sec", this.analysis.updateRate.getValue());
+                timer.scheduleAtFixedRate(this.updateTask, 1000, this.analysis.updateRate.getValue() * 1000);
             }
         });
 
-        analysis.displayedIntervalProperty.addListener((observable, oldValue, newValue) -> {
+        this.analysis.displayedIntervalProperty.addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 showLoading(true);
 
-                for (Task task : runningUpdateTaskList) {
+                for (Task task : this.runningUpdateTaskList) {
                     task.cancel();
                 }
-                runningUpdateTaskList.clear();
+                this.runningUpdateTaskList.clear();
 
                 try {
-                    widgetList.forEach(widget -> {
+                    this.widgetList.forEach(widget -> {
                         addWidgetUpdateTask(widget, newValue);
                     });
                     showLoading(false);
@@ -322,7 +321,7 @@ public class DashBoardPane extends Pane {
 
         });
 
-        analysis.showGridProperty.addListener((observable, oldValue, newValue) -> {
+        this.analysis.showGridProperty.addListener((observable, oldValue, newValue) -> {
             if (oldValue != newValue) {
                 showGrid(newValue);
             }
@@ -332,27 +331,33 @@ public class DashBoardPane extends Pane {
     }
 
     private void addWidgetUpdateTask(Widget widget, Interval interval) {
+        if (widget == null || interval == null) {
+            logger.error("widget is null, this should not happen");
+            return;
+        }
         Task updateTask = new Task() {
             @Override
             protected Object call() throws Exception {
                 try {
+                    logger.debug("addWidgetUpdateTask: " + widget.typeID());
                     widget.showProgressIndicator(true);
                     widget.update(interval);
                     widget.showProgressIndicator(false);
                 } catch (Exception ex) {
                     logger.error(ex);
+                    ex.printStackTrace();
                 }
                 return null;
             }
         };
 
-        runningUpdateTaskList.add(updateTask);
-        executor.execute(updateTask);
+        this.runningUpdateTaskList.add(updateTask);
+        this.executor.execute(updateTask);
     }
 
     private void setBackground() {
         try {
-            final Image image = analysis.imageBoardBackground.getValue();
+            final Image image = this.analysis.imageBoardBackground.getValue();
 
 //            final BackgroundSize backgroundSize = new BackgroundSize(image.getWidth(), image.getHeight(), false, false, false, false);
 //            final BackgroundSize backgroundSize = new BackgroundSize(analysis.pageSize.get().getWidth(), analysis.pageSize.get().getHeight(), false, false, false, false);
@@ -370,9 +375,9 @@ public class DashBoardPane extends Pane {
 
 
     public Interval buildInterval() {
-        analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().getInterval(DateTime.now()));
+        this.analysis.intervalProperty.setValue(this.analysis.timeFrameProperty.getValue().getInterval(DateTime.now()));
 
-        return analysis.intervalProperty.getValue();
+        return this.analysis.intervalProperty.getValue();
     }
 
     public TimerTask updateTimerTask() {
@@ -387,7 +392,7 @@ public class DashBoardPane extends Pane {
                 Interval interval = buildInterval();
 
 
-                widgetList.parallelStream().forEach(widget -> {
+                DashBoardPane.this.widgetList.parallelStream().forEach(widget -> {
                     addWidgetUpdateTask(widget, interval);
                 });
                 showLoading(false);
@@ -398,9 +403,9 @@ public class DashBoardPane extends Pane {
 
     private void showGrid(boolean show) {
         if (show) {
-            DashBoardPane.this.getChildren().addAll(visibleGrid);
+            DashBoardPane.this.getChildren().addAll(this.visibleGrid);
         } else {
-            DashBoardPane.this.getChildren().removeAll(visibleGrid);
+            DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
         }
     }
 
@@ -417,14 +422,14 @@ public class DashBoardPane extends Pane {
         int maxRows = Double.valueOf(DashBoardPane.this.getHeight() / height).intValue() + 1;
         double opacity = 0.4;
         Double[] strokeDashArray = new Double[]{4d};
-        xGrids.clear();
-        yGrids.clear();
-        visibleGrid.clear();
+        this.xGrids.clear();
+        this.yGrids.clear();
+        this.visibleGrid.clear();
 
         /** rows **/
         for (int i = 0; i < maxColumns; i++) {
             double xPos = i * xWidth;
-            xGrids.add(xPos);
+            this.xGrids.add(xPos);
 
 
             Line line = new Line();
@@ -434,14 +439,14 @@ public class DashBoardPane extends Pane {
             line.setEndY(DashBoardPane.this.getHeight());
             line.getStrokeDashArray().addAll(strokeDashArray);
             line.setOpacity(opacity);
-            visibleGrid.add(line);
+            this.visibleGrid.add(line);
 
         }
 
         /** columns **/
         for (int i = 0; i < maxRows; i++) {
             double yPos = i * height;
-            yGrids.add(yPos);
+            this.yGrids.add(yPos);
 
             Line line = new Line();
             line.setStartX(0);
@@ -450,30 +455,30 @@ public class DashBoardPane extends Pane {
             line.setEndY(yPos);
             line.getStrokeDashArray().addAll(strokeDashArray);
             line.setOpacity(opacity);
-            visibleGrid.add(line);
+            this.visibleGrid.add(line);
 
         }
-        showGrid(analysis.showGridProperty.getValue());
+        showGrid(this.analysis.showGridProperty.getValue());
     }
 
     public void removeNode(Widget widget) {
-        widgetList.remove(widget);
+        this.widgetList.remove(widget);
     }
 
     public synchronized void addNode(Widget widget) {
-        if (!widgetList.contains(widget)) {
+        if (!this.widgetList.contains(widget)) {
             logger.debug("Add widget to pane: {}", widget);
-            widgetList.add(widget);
+            this.widgetList.add(widget);
             widget.setDashBoard(this);
         }
     }
 
 
     public double getNextGridX(double xPos) {
-        if (!analysis.snapToGridProperty.getValue()) {
+        if (!this.analysis.snapToGridProperty.getValue()) {
             return xPos;
         }
-        double c = xGrids.stream()
+        double c = this.xGrids.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - xPos)))
                 .orElseThrow(() -> new NoSuchElementException("No value present"));
 //        System.out.println("Next xPos: " + c);
@@ -481,10 +486,10 @@ public class DashBoardPane extends Pane {
     }
 
     public double getNextGridY(double yPos) {
-        if (!analysis.snapToGridProperty.getValue()) {
+        if (!this.analysis.snapToGridProperty.getValue()) {
             return yPos;
         }
-        double c = yGrids.stream()
+        double c = this.yGrids.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - yPos)))
                 .orElseThrow(() -> new NoSuchElementException("No value present"));
 //        System.out.println("Next yPos: " + c);
@@ -492,12 +497,12 @@ public class DashBoardPane extends Pane {
     }
 
     public DashBordModel getDashBordAnalysis() {
-        return analysis;
+        return this.analysis;
     }
 
     private void printChildren() {
         System.out.println("---");
-        for (Widget node : widgetList) {
+        for (Widget node : this.widgetList) {
             String id = "";
 
             if (node instanceof Widget) {
@@ -509,19 +514,19 @@ public class DashBoardPane extends Pane {
     }
 
     public void updateChildren() {
-        if (!isUpdating.get()) {
-            isUpdating.set(true);
+        if (!this.isUpdating.get()) {
+            this.isUpdating.set(true);
             Platform.runLater(() -> {
                 try {
                     logger.debug("update Dashboard");
 
-                    getChildren().setAll(widgetList);
-                    createGrid(analysis.xGridInterval.get(), analysis.yGridInterval.get());
+                    getChildren().setAll(this.widgetList);
+                    createGrid(this.analysis.xGridInterval.get(), this.analysis.yGridInterval.get());
 
-                    isUpdating.set(false);
+                    this.isUpdating.set(false);
                 } catch (Exception ex) {
                     logger.error("Thread problem: {}", ex);
-                    isUpdating.set(false);
+                    this.isUpdating.set(false);
                 }
             });
 

@@ -2,43 +2,40 @@ package org.jevis.jeconfig.plugin.Dashboard.widget;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.AtomicDouble;
-import com.jfoenix.controls.JFXButton;
-import com.sun.javafx.charts.Legend;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.chart.PieChart;
-import javafx.scene.control.Label;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Worker;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
 
-import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Experimental JavaScript based PieChart. Prototype for future browser based WidGets.
+ * To enable this Widget add "d3.min.js" and "d3pie.js" into the resources folder '/html'
+ */
 public class WebPieWidget extends Widget {
     private static final Logger logger = LogManager.getLogger(WebPieWidget.class);
     public static String WIDGET_ID = "Web Pie";
-    private PieChart chart;
     private NumberFormat nf = NumberFormat.getInstance();
-    private JFXButton openAnalysisButton = new JFXButton();
     private DataModelDataHandler sampleHandler;
-    private WidgetLegend legend = new WidgetLegend();
-    private GraphAnalysisLinker graphAnalysisLinker;
     private ObjectMapper mapper = new ObjectMapper();
     private BorderPane borderPane = new BorderPane();
     private VBox legendPane = new VBox();
@@ -56,131 +53,87 @@ public class WebPieWidget extends Widget {
 
     @Override
     public void update(Interval interval) {
-        logger.debug("Pie.Update: {}", interval);
-//        chart = new PieChart();
-        sampleHandler.setInterval(interval);
-        sampleHandler.update();
+        logger.debug("WebPie.Update: {}", interval);
+        this.sampleHandler.setInterval(interval);
+        this.sampleHandler.update();
 
 
-        ObservableList<PieChart.Data> series = FXCollections.observableArrayList();
-        List<Legend.LegendItem> legendItemList = new ArrayList<>();
-        List<Color> colors = new ArrayList<>();
-        if (config.hasChanged("")) {
-
-            borderPane.setMaxWidth(config.size.getValue().getWidth());
-            chart.setLabelsVisible(true);
-            chart.setLabelLineLength(18);
-            chart.setLegendVisible(false);
-            chart.setAnimated(false);
-            chart.setMinWidth(320d);/** tmp solution for an unified look**/
-            chart.setMaxWidth(320d);
-
-//            nf.setMinimumFractionDigits(config.decimals.getValue());
-//            nf.setMaximumFractionDigits(config.decimals.getValue());
-            nf.setMinimumFractionDigits(0);/** tmp solution**/
-            nf.setMaximumFractionDigits(0);
-
-
-            Platform.runLater(() -> {
-                //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
-                legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-
-
-            });
+        if (this.config.hasChanged("")) {
+            this.borderPane.setMaxWidth(this.config.size.getValue().getWidth());
+            this.nf.setMinimumFractionDigits(0);/** tmp solution**/
+            this.nf.setMaximumFractionDigits(0);
         }
+
+        List<Color> colors = new ArrayList<>();
 
         /** data Update **/
         AtomicDouble total = new AtomicDouble(0);
-        sampleHandler.getDataModel().forEach(chartDataModel -> {
+        this.sampleHandler.getDataModel().forEach(chartDataModel -> {
             try {
-                if (!chartDataModel.getSamples().isEmpty()) {
-//                        System.out.println("Pie Sample: " + chartDataModel.getSamples());
-                    total.set(total.get() + chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble());
-                }
+//                chartDataModel.setAbsolute(true);
+                Double dataModelTotal = DataModelDataHandler.getTotal(chartDataModel.getSamples());
+                total.set(total.get() + dataModelTotal);
+
             } catch (Exception ex) {
                 logger.error(ex);
             }
         });
 
-        StringBuilder stringBuilder = new StringBuilder();
+        List<PieData> pieDataList = new ArrayList<>();
+        this.sampleHandler.getDataModel().forEach(chartDataModel -> {
+            try {
+                String dataName = chartDataModel.getObject().getName();
+                double value = 0;
+                boolean hasNoData = chartDataModel.getSamples().isEmpty();
 
-        HTMLPie WebPieWidget = new HTMLPie();
+                double proC = 0;
+
+                if (!hasNoData) {
+                    logger.error("Samples: ({}) {}", dataName, chartDataModel.getSamples());
+                    try {
+                        value = DataModelDataHandler.getTotal(chartDataModel.getSamples());
+                        BigDecimal bd = new BigDecimal(value);
+                        bd = bd.setScale(5, RoundingMode.HALF_UP);
+//                        value = bd.doubleValue();
+
+                        proC = (bd.doubleValue() / total.get()) * 100;
+                        if (Double.isInfinite(proC)) proC = 100;
+                        if (Double.isNaN(proC)) proC = 0;
 
 
-//        String content =
-//                "Hello World!";
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
+                } else {
+                    logger.debug("Empty Samples for: {}", this.config.title.get());
+                }
 
 
-//        var data = {
-//                series: [5, 3, 4]
-//};
-//
-//        var sum = function(a, b) { return a + b };
-//
-//        new Chartist.Pie('.ct-chart', data, {
-//                labelInterpolationFnc: function(value) {
-//            return Math.round(value / data.series.reduce(sum) * 100) + '%';
-//        }
-//});
+                if (proC < 8) {
+                    proC = 8;
+                }
 
-//        sampleHandler.getDataModel().forEach(chartDataModel -> {
-//            try {
-//
-//                String dataName = chartDataModel.getObject().getName();
-//                double value = 0;
-//
-//
-//                boolean hasNoData = chartDataModel.getSamples().isEmpty();
-//
-//                String textValue = "";
-//
-//
-//                if (!hasNoData) {
-//                    logger.debug("Samples: ({}) {}", dataName, chartDataModel.getSamples());
-//                    try {
-//                        value = chartDataModel.getSamples().get(chartDataModel.getSamples().size() - 1).getValueAsDouble();
-//
-//                        double proC = (value / total.get()) * 100;
-//                        if (Double.isInfinite(proC)) proC = 100;
-//                        if (Double.isNaN(proC)) proC = 0;
-//
-//
-//                        textValue = nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + nf.format(proC) + "%";
-//
-//
-//                    } catch (Exception ex) {
-////                        value = 1;/** pie pease will be missing if its 0 **/
-////                        textValue = "n.a. ";
-//                        logger.error(ex);
-//                    }
-//                } else {
-//                    logger.debug("Empty Samples for: {}", config.title.get());
-//                    value = 1;
-//                    textValue = "n.a.  " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + nf.format(0) + "%";
-//
-//                }
-//
-//
-//                legendItemList.add(legend.buildLegendItem(dataName, chartDataModel.getColor(), config.fontColor.getValue(), config.fontSize.get()));
-//
-//                PieChart.Data pieData = new PieChart.Data(textValue, value);
-//                series.add(pieData);
-//                colors.add(chartDataModel.getColor());
-//
-//
-//            } catch (Exception ex) {
-//                logger.error(ex);
-//            }
-//        });
+                PieData pieData = new PieData(chartDataModel.getColor()
+                        , value, proC, UnitManager.getInstance().format(chartDataModel.getUnitLabel()), dataName, dataName);
 
-        WebEngine webEngine = webView.getEngine();
+                pieDataList.add(pieData);
+                colors.add(pieData.getColor());
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        });
+
+
+        WebEngine webEngine = this.webView.getEngine();
+
         webEngine.setJavaScriptEnabled(true);
 
 
+//        logger.error("\n--------------\n{}\n------------------", buildHTMLPie2(pieDataList));
         /** redrawing **/
         Platform.runLater(() -> {
-
-            webEngine.loadContent(WebPieWidget.getPiePage(), "text/html");
+            webEngine.loadContent(buildHTMLPie2(pieDataList), "text/html");
         });
     }
 
@@ -189,72 +142,33 @@ public class WebPieWidget extends Widget {
     public void init() {
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonInString = mapper.writeValueAsString(config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
-
-            sampleHandler = new DataModelDataHandler(getDataSource(), config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
-            sampleHandler.setMultiSelect(true);
+            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+            this.sampleHandler.setMultiSelect(true);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        chart = new PieChart();
-        /** Dummy data to render pie**/
-        ObservableList<PieChart.Data> series = FXCollections.observableArrayList();
-        series.add(new PieChart.Data("A", 1));
-        series.add(new PieChart.Data("B", 1));
-        series.add(new PieChart.Data("C", 1));
-        series.add(new PieChart.Data("D", 1));
-
-//        graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), null);
-//        openAnalysisButton = graphAnalysisLinker.buildLinkerButton();
-
-        legendPane.setPadding(new Insets(10, 5, 5, 0));
-
-        legend.setMaxWidth(100);
-        legend.setPrefWidth(100);
-        legend.setPrefHeight(10);
-
-//        legendPane.getChildren().setAll(legend);
-//        borderPane.setCenter(chart);
-//        borderPane.setRight(legendPane);
 
         Platform.runLater(() -> {
-//            legendPane.getChildren().setAll(legend);
-            borderPane.setCenter(webView);
-//            borderPane.setRight(legendPane);
-            setGraphic(borderPane);
+            this.borderPane.setCenter(this.webView);
+            setGraphic(this.borderPane);
+            WebEngine engine = this.webView.getEngine();
+            engine.getLoadWorker().stateProperty().addListener(new ChangeListener<Worker.State>() {
+                @Override
+                public void changed(ObservableValue<? extends Worker.State> o, Worker.State old, final Worker.State state) {
+                    if (state == Worker.State.SUCCEEDED) {
+                        try {
+//                            System.out.println("Page loaded: " + engine.getLocation());
+                            engine.executeScript("document.style.overflow = 'hidden';");
+                        } catch (Exception ex) {
+                        }
+                    }
+                }
+            });
         });
 
 
     }
 
-
-    private Legend.LegendItem buildLegendItem(String name, Color color, Color fontColor) {
-        Rectangle r = new Rectangle();
-        r.setX(0);
-        r.setY(0);
-        r.setWidth(12);
-        r.setHeight(12);
-        r.setArcWidth(20);
-        r.setArcHeight(20);
-        r.setStroke(color);
-        r.setFill(color);
-        /**
-         * TODO: replace this hack with an own implementation of an legend
-         */
-        Legend.LegendItem item = new Legend.LegendItem(name, r);
-        try {
-            Field privateStringField = Legend.LegendItem.class.
-                    getDeclaredField("label");
-            privateStringField.setAccessible(true);
-            Label label = (Label) privateStringField.get(item);
-            label.setTextFill(fontColor);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return item;
-    }
 
     @Override
     public String typeID() {
@@ -263,27 +177,341 @@ public class WebPieWidget extends Widget {
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/DonutWidget.png", previewSize.getHeight(), previewSize.getWidth());
+        return JEConfig.getImage("widget/DonutWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
-    public void applyColors(List<Color> colors) {
 
-        for (int i = 0; i < colors.size(); i++) {
+    private String buildHTMLPie2(List<PieData> pieDataList) {
+        StringBuilder sb = new StringBuilder();
 
-            Color currentColor = colors.get(i);
-            String hexColor = toRGBCode(currentColor);
-            String preIdent = ".default-color" + i;
-            Node node = chart.lookup(preIdent + ".chart-pie");
-            node.setStyle("-fx-pie-color: " + hexColor + ";");
-
-//            System.out.println(preIdent + ".chart-pie " + "-fx-pie-color: " + hexColor + ";" + " color: " + currentColor.toString());
+        String unit = "";
+        for (PieData pieData : pieDataList) {
+            unit = pieData.getUnit();
+            break;
         }
+
+
+        sb.append(
+                "<html>" +
+                        "<head></head>" +
+                        "<body>" +
+                        "<div id=\"pieChart\"></div>" +
+                        "<script src=\"" + getClass().getResource("/html/d3.min.js") + "\"></script>" +
+                        "<script src=\"" + getClass().getResource("/html/d3pie.js") + "\"></script>" +
+                        "<script>\n" +
+                        "var pie = new d3pie(\"pieChart\", {" +
+                        "\"header\": {" +
+                        "\"title\": {" +
+                        "\"text\": \"" + "" + "\"," +
+                        "\"fontSize\": 18," +
+                        "\"font\": \"courier\"" +
+                        "},\n" +
+                        "\"subtitle\": {" +
+                        "\"text\": \"sub\"," +
+                        "\"color\": \"#999999\"," +
+                        "\"fontSize\": 8," +
+                        "\"font\": \"courier\"" +
+                        "},\n" +
+                        "\"location\": \"pie-center\"," +
+                        "\"titleSubtitlePadding\": 9" +
+                        "}," +
+                        "\"footer\": {" +
+                        "\"color\": \"#999999\"," +
+                        "\"fontSize\": 10," +
+                        "\"font\": \"open sans\"," +
+                        "\"location\": \"bottom-left\"" +
+                        "}," +
+                        "\"size\": {" +
+                        "\"canvasWidth\": " + (this.borderPane.getWidth() - 20) + "," +
+                        "\"canvasHeight\": " + (this.borderPane.getHeight() - 20) + "," +
+//                        "\"pieInnerRadius\": \"31%\"," +
+                        "\"pieOuterRadius\": \"90%\"" +
+                        "}," +
+                        "\"data\": {" +
+                        "\"sortOrder\": \"label-desc\"," +
+                        "\"smallSegmentGrouping\": {" +
+                        "\"enabled\": true" +
+                        "},\n" +
+                        "\"content\": [");
+
+
+        boolean firstElement = true;
+        for (PieData pieData : pieDataList) {
+            if (!firstElement) {
+                sb.append(",");
+            }
+            sb.append(String.format("{label: '%s [%s]', value: %s, color: '%s'}"
+                    , pieData.getLineName(), pieData.getUnit(), pieData.getRealValue(), toRGBCode(pieData.getColor())));
+            firstElement = false;
+        }
+
+
+        sb.append(
+                "]\n" +
+                        "},\n" +
+                        "\"labels\": {" +
+                        "\"outer\": {\n" +
+                        "\"format\": \"label-value2\"," +
+                        "\"pieDistance\": 10" +
+                        "},\n" +
+                        "\"inner\": {\n" +
+                        "\t\t\t\"hideWhenLessThanPercentage\": 2\n" +
+                        "\t\t}," +
+
+                        "\"mainLabel\": {" +
+                        "\"fontSize\": 11" +
+                        "},\n" +
+                        "\"percentage\": {" +
+                        "\"color\": \"#ffffff\"," +
+                        "\"fontSize\": 11," +
+                        "\"decimalPlaces\": 2" +
+                        "},\n" +
+                        "\"value\": {" +
+                        "\"color\": \"#000000\"," +
+                        "\"fontSize\": 11" +
+                        "},\n" +
+                        "\"lines\": {" +
+                        "\"enabled\": true," +
+                        "\"style\": \"straight\"," +
+                        "\"color\": \"#777777\"" +
+                        "},\n" +
+                        "\"truncation\": {" +
+                        "\"enabled\": true" +
+                        "}" +
+                        "}," +
+                        "\"effects\": {" +
+                        "\"pullOutSegmentOnClick\": {" +
+                        "\"effect\": \"linear\"," +
+                        "\"speed\": 400," +
+                        "\"size\": 8" +
+                        "}" +
+                        "}," +
+                        "\"misc\": {" +
+                        "\"colors\": {" +
+                        "\"segmentStroke\": \"#000000\"" +
+                        "}" +
+                        "}" +
+                        "});" +
+                        "</script>" +
+                        "" +
+                        "</body>" +
+                        "</html>"
+        );
+
+
+        return sb.toString();
     }
 
-    private String toRGBCode(Color color) {
+    private String buildHTMLPie3(List<PieData> pieDataList) {
+        StringBuilder sb = new StringBuilder();
+
+        String unit = "";
+        for (PieData pieData : pieDataList) {
+            unit = pieData.getUnit();
+            break;
+        }
+
+        sb.append("<html>");
+        sb.append("<head>");
+        sb.append("<meta charset=\"utf-8\">");
+        sb.append("<script src=\"");
+        sb.append(getClass().getResource("/html/echarts/echarts.min2.js"));
+        sb.append("\"></script>");
+        sb.append("</head>");
+        sb.append("<body bgcolor=\"#FFFFFF\" >");
+        sb.append("<div id=\"main\" style=\"width:");
+        sb.append(this.borderPane.getWidth() - 20);
+        sb.append("px;height:");
+        sb.append(this.borderPane.getHeight() - 20);
+        sb.append("px;\"></div>");
+        sb.append("<script type=\"text/javascript\">");
+        sb.append("var myChart = echarts.init(document.getElementById('main'));");
+
+        sb.append("option = {" +
+                "" +
+                "    backgroundColor: '#FFFFFF'," +
+                "    calculable : true," +
+                "    series : [" +
+                "" +
+                "        {" +
+                "            name:'Pie'," +
+                "            type:'sunburst'," +
+                "            radius : [10, 60]," +
+                "            center : ['50%', '50%']," +
+//                "            roseType : 'area'," +
+                "            animation: false," +
+                "            hoverAnimation: true," +
+                "            label:{ " +
+                "                   formatter: '{b}: \\n{@1} " + unit + " ({d}%)'," +
+                "                   color: '#000000'" +
+                "            }," +
+                "            data:[");
+
+
+        boolean firstElement = true;
+        for (PieData pieData : pieDataList) {
+            if (!firstElement) {
+                sb.append(",");
+            }
+            sb.append(String.format("{value:%s, name:'%s',itemStyle: {color: '%s'}}"
+                    , pieData.getRealValue(), pieData.getLineName(), toRGBCode(pieData.getColor())));
+            firstElement = false;
+        }
+        sb.append("]");
+        sb.append("}");
+        sb.append("]");
+        sb.append("};");
+
+
+        sb.append("myChart.setOption(option)");
+        sb.append(" </script>");
+        sb.append("</body>");
+        sb.append("</html>");
+
+
+        return sb.toString();
+    }
+
+
+    private String buildHTMLPie(List<PieData> pieDataList) {
+        StringBuilder sb = new StringBuilder();
+
+        String unit = "";
+        for (PieData pieData : pieDataList) {
+            unit = pieData.getUnit();
+            break;
+        }
+
+        sb.append("<html>");
+        sb.append("<head>");
+        sb.append("<meta charset=\"utf-8\">");
+        sb.append("<script src=\"");
+        sb.append(getClass().getResource("/html/echarts/echarts.min.js"));
+        sb.append("\"></script>");
+        sb.append("</head>");
+        sb.append("<body bgcolor=\"#FFFFFF\" >");
+        sb.append("<div id=\"main\" style=\"width:");
+        sb.append(this.borderPane.getWidth() - 20);
+        sb.append("px;height:");
+        sb.append(this.borderPane.getHeight() - 20);
+        sb.append("px;\"></div>");
+        sb.append("<script type=\"text/javascript\">");
+        sb.append("var myChart = echarts.init(document.getElementById('main'));");
+
+        sb.append("option = {" +
+                "" +
+                "    backgroundColor: '#FFFFFF'," +
+                "    calculable : true," +
+                "    series : [" +
+                "" +
+                "        {" +
+                "            name:'Pie'," +
+                "            type:'pie'," +
+                "            radius : [10, 60]," +
+                "            center : ['50%', '50%']," +
+                "            roseType : 'area'," +
+                "            animation: false," +
+                "            hoverAnimation: true," +
+                "            label:{ " +
+                "                   formatter: '{b}: \\n{@1} " + unit + " ({d}%)'," +
+                "                   color: '#000000'" +
+                "            }," +
+                "            data:[");
+
+
+        boolean firstElement = true;
+        for (PieData pieData : pieDataList) {
+            if (!firstElement) {
+                sb.append(",");
+            }
+            sb.append(String.format("{value:%s, name:'%s',itemStyle: {color: '%s'}}"
+                    , pieData.getRealValue(), pieData.getLineName(), toRGBCode(pieData.getColor())));
+            firstElement = false;
+        }
+        sb.append("]");
+        sb.append("}");
+        sb.append("]");
+        sb.append("};");
+
+
+        sb.append("myChart.setOption(option)");
+        sb.append(" </script>");
+        sb.append("</body>");
+        sb.append("</html>");
+
+
+        return sb.toString();
+    }
+
+
+    public static String toRGBCode(Color color) {
         return String.format("#%02X%02X%02X",
                 (int) (color.getRed() * 255),
                 (int) (color.getGreen() * 255),
                 (int) (color.getBlue() * 255));
+    }
+
+    private class PieData {
+        private double realValue, relativValue;
+        private String legendName, lineName, unit;
+        private Color color;
+
+        public PieData(Color color, double realValue, double relativeValue, String unit, String legendName, String lineName) {
+            this.color = color;
+            this.unit = unit;
+            this.realValue = realValue;
+            this.relativValue = relativeValue;
+            this.legendName = legendName;
+            this.lineName = lineName;
+        }
+
+
+        public Color getColor() {
+            return this.color;
+        }
+
+        public double getRealValue() {
+            return this.realValue;
+        }
+
+        public void setRealValue(double realValue) {
+            this.realValue = realValue;
+        }
+
+        public double getRelativValue() {
+            return this.relativValue;
+        }
+
+        public void setRelativValue(double relativValue) {
+            this.relativValue = relativValue;
+        }
+
+        public String getLegendName() {
+            return this.legendName;
+        }
+
+        public void setLegendName(String legendName) {
+            this.legendName = legendName;
+        }
+
+        public String getLineName() {
+            return this.lineName;
+        }
+
+        public void setLineName(String lineName) {
+            this.lineName = lineName;
+        }
+
+        public String getUnit() {
+            return this.unit;
+        }
+
+        public void setUnit(String unit) {
+            this.unit = unit;
+        }
+
+        public void setColor(Color color) {
+            this.color = color;
+        }
     }
 }
