@@ -54,7 +54,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Collection of commen JEVisTree operations
+ * Collection of common JEVisTree operations
  *
  * @author florian.simon@envidatec.com
  */
@@ -259,6 +259,8 @@ public class TreeHelper {
     public static void buildLink(JEVisObject linkSrcObj, final JEVisObject targetParent, String linkName) {
         try {
             JEVisObject newLinkObj = targetParent.buildObject(linkName, targetParent.getDataSource().getJEVisClass(CommonClasses.LINK.NAME));
+            newLinkObj.commit();
+            System.out.println("new LinkObject: " + newLinkObj);
             CommonObjectTasks.createLink(newLinkObj, linkSrcObj);
         } catch (JEVisException ex) {
             logger.error(ex);
