@@ -207,24 +207,33 @@ public class JEVisTreeFactory {
 //        minTS.setVisible(false);
 //        maxTS.setVisible(false);
 
-        BasicCellFilter cellFilter = new BasicCellFilter("Data");
-        ObjectAttributeFilter dataFilter = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
+        BasicCellFilter dataBasicFilter = new BasicCellFilter("Data");
+        ObjectAttributeFilter dataObjectFilter = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
+        ObjectAttributeFilter stringDataObjectFilter = new ObjectAttributeFilter("String Data", ObjectAttributeFilter.NONE);
 
-        cellFilter.addItemFilter(dataFilter);
+        dataBasicFilter.addItemFilter(dataObjectFilter);
+        dataBasicFilter.addItemFilter(stringDataObjectFilter);
 
-        cellFilter.addFilter(SelectionColumn.COLUMN_ID, dataFilter);
-        cellFilter.addFilter(UnitColumn.COLUMN_ID, dataFilter);
-        cellFilter.addFilter(DateColumn.COLUMN_ID, dataFilter);
-        cellFilter.addFilter(ColorColumn.COLUMN_ID, dataFilter);
-        cellFilter.addFilter(DataProcessorColumn.COLUMN_ID, dataFilter);
-        cellFilter.addFilter(AggregationColumn.COLUMN_ID, dataFilter);
-        cellFilter.addFilter(AxisColumn.COLUMN_ID, dataFilter);
+        dataBasicFilter.addFilter(SelectionColumn.COLUMN_ID, dataObjectFilter);
+        dataBasicFilter.addFilter(UnitColumn.COLUMN_ID, dataObjectFilter);
+        dataBasicFilter.addFilter(DateColumn.COLUMN_ID, dataObjectFilter);
+        dataBasicFilter.addFilter(ColorColumn.COLUMN_ID, dataObjectFilter);
+        dataBasicFilter.addFilter(DataProcessorColumn.COLUMN_ID, dataObjectFilter);
+        dataBasicFilter.addFilter(AggregationColumn.COLUMN_ID, dataObjectFilter);
+        dataBasicFilter.addFilter(AxisColumn.COLUMN_ID, dataObjectFilter);
 
+        dataBasicFilter.addFilter(SelectionColumn.COLUMN_ID, stringDataObjectFilter);
+        dataBasicFilter.addFilter(UnitColumn.COLUMN_ID, stringDataObjectFilter);
+        dataBasicFilter.addFilter(DateColumn.COLUMN_ID, stringDataObjectFilter);
+        dataBasicFilter.addFilter(ColorColumn.COLUMN_ID, stringDataObjectFilter);
+        dataBasicFilter.addFilter(DataProcessorColumn.COLUMN_ID, stringDataObjectFilter);
+        dataBasicFilter.addFilter(AggregationColumn.COLUMN_ID, stringDataObjectFilter);
+        dataBasicFilter.addFilter(AxisColumn.COLUMN_ID, stringDataObjectFilter);
 
-        JEVisTree tree = new JEVisTree(ds, cellFilter);
+        JEVisTree tree = new JEVisTree(ds, dataBasicFilter);
 
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
-        allFilter.add(cellFilter);
+        allFilter.add(dataBasicFilter);
 
         Finder finder = new Finder(tree);
         SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder);

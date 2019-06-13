@@ -175,6 +175,19 @@
         "ru": "Time Zone",
         "en": "Time Zone"
       }
+    },
+    {
+      "type": "Custom Schedule Object",
+      "descriptions": {
+        "de": "Custom Schedule Object description",
+        "ru": "Custom Schedule Object description",
+        "en": "Custom Schedule Object description"
+      },
+      "names": {
+        "de": "Benutzerdefinierter Zeitbereich",
+        "ru": "Custom Schedule Object",
+        "en": "Custom Schedule Object"
+      }
     }
   ]
 }

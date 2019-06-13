@@ -12,7 +12,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
+import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.unit.ChartUnits.*;
@@ -43,89 +45,99 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
     }
 
     private ComboBox<String> buildUnitBox(ChartDataModel singleRow) {
+        ComboBox<String> processorBox = new ComboBox<>();
+        try {
+            JEVisClass stringDataClass = null;
 
-        List<String> proNames = new ArrayList<>();
+            stringDataClass = tree.getJEVisDataSource().getJEVisClass("String Data");
 
-        Boolean isEnergyUnit = false;
-        Boolean isVolumeUnit = false;
-        Boolean isMassUnit = false;
-        Boolean isPressureUnit = false;
-        Boolean isVolumeFlowUnit = false;
+            if (!singleRow.getObject().getJEVisClass().equals(stringDataClass)) {
 
-        JEVisUnit currentUnit = singleRow.getUnit();
+                List<String> proNames = new ArrayList<>();
 
-        for (EnergyUnit eu : EnergyUnit.values()) {
-            if (eu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
-                isEnergyUnit = true;
-            } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(eu.toString())) {
-                isEnergyUnit = true;
+                Boolean isEnergyUnit = false;
+                Boolean isVolumeUnit = false;
+                Boolean isMassUnit = false;
+                Boolean isPressureUnit = false;
+                Boolean isVolumeFlowUnit = false;
+
+                JEVisUnit currentUnit = singleRow.getUnit();
+
+                for (EnergyUnit eu : EnergyUnit.values()) {
+                    if (eu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isEnergyUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(eu.toString())) {
+                        isEnergyUnit = true;
+                    }
+                }
+                if (isEnergyUnit) for (EnergyUnit eu : EnergyUnit.values()) {
+                    proNames.add(eu.toString());
+                }
+
+                for (VolumeUnit vu : VolumeUnit.values()) {
+                    if (vu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isVolumeUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(vu.toString())) {
+                        isEnergyUnit = true;
+                    }
+                }
+                if (isVolumeUnit) for (VolumeUnit vu : VolumeUnit.values()) {
+                    proNames.add(vu.toString());
+                }
+
+                for (MassUnit mu : MassUnit.values()) {
+                    if (mu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isMassUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(mu.toString())) {
+                        isEnergyUnit = true;
+                    }
+                }
+                if (isMassUnit) for (MassUnit mu : MassUnit.values()) {
+                    proNames.add(mu.toString());
+                }
+
+                for (PressureUnit pu : PressureUnit.values()) {
+                    if (pu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isPressureUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(pu.toString())) {
+                        isEnergyUnit = true;
+                    }
+                }
+                if (isPressureUnit) for (PressureUnit pu : PressureUnit.values()) {
+                    proNames.add(pu.toString());
+                }
+
+                for (VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
+                    if (vfu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isVolumeFlowUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(vfu.toString())) {
+                        isEnergyUnit = true;
+                    }
+                }
+                if (isVolumeFlowUnit) {
+                    for (VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
+                        proNames.add(vfu.toString());
+                    }
+                }
+
+                if (!isEnergyUnit && !isMassUnit && !isPressureUnit && !isVolumeFlowUnit && !isVolumeUnit) {
+                    if (singleRow.getUnit() != null)
+                        proNames.add(singleRow.getUnit().getLabel());
+                }
+
+
+                processorBox.setItems(FXCollections.observableArrayList(proNames));
+
+                processorBox.setPrefWidth(90);
+                processorBox.setMinWidth(70);
+
+                if (currentUnit != null) {
+                    processorBox.getSelectionModel().select(currentUnit.getLabel());
+                }
+
             }
-        }
-        if (isEnergyUnit) for (EnergyUnit eu : EnergyUnit.values()) {
-            proNames.add(eu.toString());
-        }
-
-        for (VolumeUnit vu : VolumeUnit.values()) {
-            if (vu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
-                isVolumeUnit = true;
-            } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(vu.toString())) {
-                isEnergyUnit = true;
-            }
-        }
-        if (isVolumeUnit) for (VolumeUnit vu : VolumeUnit.values()) {
-            proNames.add(vu.toString());
-        }
-
-        for (MassUnit mu : MassUnit.values()) {
-            if (mu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
-                isMassUnit = true;
-            } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(mu.toString())) {
-                isEnergyUnit = true;
-            }
-        }
-        if (isMassUnit) for (MassUnit mu : MassUnit.values()) {
-            proNames.add(mu.toString());
-        }
-
-        for (PressureUnit pu : PressureUnit.values()) {
-            if (pu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
-                isPressureUnit = true;
-            } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(pu.toString())) {
-                isEnergyUnit = true;
-            }
-        }
-        if (isPressureUnit) for (PressureUnit pu : PressureUnit.values()) {
-            proNames.add(pu.toString());
-        }
-
-        for (VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
-            if (vfu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
-                isVolumeFlowUnit = true;
-            } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(vfu.toString())) {
-                isEnergyUnit = true;
-            }
-        }
-        if (isVolumeFlowUnit) {
-            for (VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
-                proNames.add(vfu.toString());
-            }
-        }
-
-        if (!isEnergyUnit && !isMassUnit && !isPressureUnit && !isVolumeFlowUnit && !isVolumeUnit) {
-            if (singleRow.getUnit() != null)
-                proNames.add(singleRow.getUnit().getLabel());
-        }
-
-        ComboBox<String> processorBox;
-        if (proNames.isEmpty()) {
-            processorBox = new ComboBox<>();
-        } else processorBox = new ComboBox<>(FXCollections.observableArrayList(proNames));
-
-        processorBox.setPrefWidth(90);
-        processorBox.setMinWidth(70);
-
-        if (currentUnit != null) {
-            processorBox.getSelectionModel().select(currentUnit.getLabel());
+        } catch (JEVisException e) {
+            e.printStackTrace();
         }
 
         return processorBox;

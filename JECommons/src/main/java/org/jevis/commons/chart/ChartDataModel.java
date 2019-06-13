@@ -44,6 +44,7 @@ public class ChartDataModel {
     private JEVisObject calculationObject;
     private Boolean absolute = false;
     private BubbleType bubbleType = BubbleType.NONE;
+    private boolean isStringData = false;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -104,7 +105,11 @@ public class ChartDataModel {
 
                         samples = sg.generateSamples();
                         samples = sg.getAggregatedSamples(samples);
-                        samples = factorizeSamples(samples);
+
+                        if (!isStringData) {
+                            samples = factorizeSamples(samples);
+                        }
+
                         AddZerosForMissingValues();
                     } else {
                         CalcJobFactory calcJobCreator = new CalcJobFactory();
@@ -135,7 +140,7 @@ public class ChartDataModel {
                 }
             }
         }
-        logger.debug("ChartDataModel: sample.size: {} Aggregation:  {} EnPI: {} absolute: {} {}/{}  {}-{} ",samples.size(),aggregationPeriod,isEnPI,absolute,getAttribute().getObjectID(),getAttribute().getName(),selectedStart,selectedEnd);
+        logger.debug("ChartDataModel: sample.size: {} Aggregation:  {} EnPI: {} absolute: {} {}/{}  {}-{} ", samples.size(), aggregationPeriod, isEnPI, absolute, getAttribute().getObjectID(), getAttribute().getName(), selectedStart, selectedEnd);
 
         return samples;
     }
@@ -343,11 +348,15 @@ public class ChartDataModel {
             try {
                 JEVisAttribute attribute = null;
                 String jevisClassName = getObject().getJEVisClassName();
-                if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data")) {
+                if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data")) {
                     if (dataProcessorObject == null) attribute = getObject().getAttribute("Value");
                     else attribute = getDataProcessor().getAttribute("Value");
 
                     this.attribute = attribute;
+
+                    if (jevisClassName.equals("String Data")) {
+                        this.isStringData = true;
+                    }
                 }
             } catch (Exception ex) {
                 logger.fatal(ex);
@@ -495,5 +504,9 @@ public class ChartDataModel {
 
     public void setBubbleType(BubbleType bubbleType) {
         this.bubbleType = bubbleType;
+    }
+
+    public boolean isStringData() {
+        return isStringData;
     }
 }

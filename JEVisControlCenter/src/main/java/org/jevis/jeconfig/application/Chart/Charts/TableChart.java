@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +22,7 @@ public class TableChart extends XYChart {
         super(chartDataModels, showRawData, showSum, hideShowIcons, addSeriesOfType, chartId, chartName);
 
         tableTopDatePicker = new TableTopDatePicker(singleRow);
+        tableTopDatePicker.setAlignment(Pos.CENTER);
         tableTopDatePicker.initialize(timeStampOfLastSample.get());
 
 

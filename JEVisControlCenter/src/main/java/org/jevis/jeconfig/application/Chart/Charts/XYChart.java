@@ -699,9 +699,9 @@ public class XYChart implements Chart {
                     }
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
-                    Double valueAsDouble = sample.getValueAsDouble();
+
+
                     Note formattedNote = new Note(sample);
-                    String formattedDouble = nf.format(valueAsDouble);
 
                     if (!asDuration) {
                         tableEntry.setDate(nearest
@@ -714,7 +714,16 @@ public class XYChart implements Chart {
                     String unit = serie.getUnit();
 
                     if (!sample.getNote().contains("Empty")) {
-                        tableEntry.setValue(formattedDouble + " " + unit);
+                        Double valueAsDouble = null;
+                        String formattedDouble = null;
+                        if (!serie.getSingleRow().isStringData()) {
+                            valueAsDouble = sample.getValueAsDouble();
+                            formattedDouble = nf.format(valueAsDouble);
+                            tableEntry.setValue(formattedDouble + " " + unit);
+                        } else {
+                            tableEntry.setValue(sample.getValueAsString());
+                        }
+
                     } else tableEntry.setValue("- " + unit);
 
                     tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
