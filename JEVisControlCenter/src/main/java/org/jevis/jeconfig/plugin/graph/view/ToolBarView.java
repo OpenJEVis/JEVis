@@ -482,6 +482,8 @@ public class ToolBarView {
 
             JEVisAttribute horizontalPiesAttribute = analysis.getAttribute(GraphDataModel.NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME);
             Long horizontalPies = model.getHorizontalPies();
+            JEVisAttribute horizontalTablesAttribute = analysis.getAttribute(GraphDataModel.NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME);
+            Long horizontalTables = model.getHorizontalTables();
 
             JsonChartDataModel jsonChartDataModel = new JsonChartDataModel();
             List<JsonAnalysisDataRow> jsonDataModels = new ArrayList<>();
@@ -538,8 +540,13 @@ public class ToolBarView {
                     smp3.commit();
                 }
 
-                if (horizontalPies != null && !horizontalPies.equals(0L) && !horizontalPies.equals(2L)) {
+                if (horizontalPies != null && !horizontalPies.equals(0L)) {
                     JEVisSample smp4 = horizontalPiesAttribute.buildSample(now, horizontalPies);
+                    smp4.commit();
+                }
+
+                if (horizontalTables != null && !horizontalTables.equals(0L)) {
+                    JEVisSample smp4 = horizontalTablesAttribute.buildSample(now, horizontalTables);
                     smp4.commit();
                 }
             } else {

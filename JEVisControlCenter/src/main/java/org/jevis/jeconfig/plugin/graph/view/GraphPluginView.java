@@ -391,7 +391,9 @@ public class GraphPluginView implements Plugin {
             double totalPrefHeight = 0d;
             Long chartsPerScreen = dataModel.getChartsPerScreen();
             Long horizontalPies = dataModel.getHorizontalPies();
+            Long horizontalTables = dataModel.getHorizontalTables();
             List<HBox> pieFrames = new ArrayList<>();
+            List<HBox> tableFrames = new ArrayList<>();
 
             if (getNewChartViews) {
                 charts.clear();
@@ -414,8 +416,11 @@ public class GraphPluginView implements Plugin {
             sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
             int noOfPie = 0;
+            int noOfTable = 0;
             int currentPieFrame = 0;
+            int currentTableFrame = 0;
             int countOfPies = (int) charts.stream().filter(cv -> cv.getChartType() == ChartType.PIE).count();
+            int countOfTables = (int) charts.stream().filter(cv -> cv.getChartType() == ChartType.TABLE).count();
 
             for (ChartView cv : charts) {
                 if (cv.getChartType().equals(ChartType.LOGICAL)) {
@@ -514,10 +519,7 @@ public class GraphPluginView implements Plugin {
                 Separator sep = new Separator();
                 sep.setOrientation(Orientation.HORIZONTAL);
 
-                if (cv.getChartType() != ChartType.PIE) {
-                    vBox.getChildren().add(bp);
-                    vBox.getChildren().add(sep);
-                } else {
+                if (cv.getChartType() == ChartType.PIE) {
 
                     if (pieFrames.isEmpty()) {
                         HBox hBox = new HBox();
@@ -542,6 +544,34 @@ public class GraphPluginView implements Plugin {
                         vBox.getChildren().add(sep);
                         currentPieFrame++;
                     }
+                } else if (cv.getChartType() == ChartType.TABLE) {
+
+                    if (tableFrames.isEmpty()) {
+                        HBox hBox = new HBox();
+                        hBox.setFillHeight(true);
+                        tableFrames.add(hBox);
+                    }
+
+                    HBox hBox = null;
+                    if (currentTableFrame < tableFrames.size()) {
+                        hBox = tableFrames.get(currentTableFrame);
+                    } else {
+                        hBox = new HBox();
+                        hBox.setFillHeight(true);
+                        tableFrames.add(hBox);
+                    }
+                    hBox.getChildren().add(bp);
+                    HBox.setHgrow(bp, Priority.ALWAYS);
+                    noOfTable++;
+
+                    if (noOfTable == horizontalTables || noOfTable == countOfTables) {
+                        vBox.getChildren().add(tableFrames.get(currentTableFrame));
+                        vBox.getChildren().add(sep);
+                        currentTableFrame++;
+                    }
+                } else {
+                    vBox.getChildren().add(bp);
+                    vBox.getChildren().add(sep);
                 }
 
             }
@@ -810,13 +840,13 @@ public class GraphPluginView implements Plugin {
                                 notActive.forEach(na -> {
                                     if (!na.getChartType().equals(ChartType.PIE)
                                             && !na.getChartType().equals(ChartType.BAR)
-                                            && !na.getChartType().equals(ChartType.BUBBLE)
-                                            && !na.getChartType().equals(ChartType.TABLE)) {
+                                            && !na.getChartType().equals(ChartType.BUBBLE)) {
                                         na.updateTablesSimultaneously(null, newValue);
-                                    } else if (na.getChartType().equals(ChartType.TABLE)) {
-                                        TableChart naChart = (TableChart) na.getChart();
-                                        naChart.getTableTopDatePicker().getDatePicker().getSelectionModel().select(newValue);
                                     }
+//                                    else if (na.getChartType().equals(ChartType.TABLE)) {
+//                                        TableChart naChart = (TableChart) na.getChart();
+//                                        naChart.getTableTopDatePicker().getDatePicker().getSelectionModel().select(newValue);
+//                                    }
                                 });
                             });
                         }

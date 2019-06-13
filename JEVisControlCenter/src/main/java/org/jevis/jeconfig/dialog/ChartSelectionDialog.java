@@ -259,6 +259,11 @@ public class ChartSelectionDialog {
         NumberSpinner horizontalPies = new NumberSpinner(new BigDecimal(numberOfHorizontalPies), new BigDecimal(1));
         horizontalPies.numberProperty().addListener((observable, oldValue, newValue) -> data.setHorizontalPies(newValue.longValue()));
 
+        Label labelHorizontalTables = new Label(I18n.getInstance().getString("graph.tabs.tab.horizontaltables"));
+        Long numberOfHorizontalTables = data.getHorizontalTables();
+        NumberSpinner horizontalTables = new NumberSpinner(new BigDecimal(numberOfHorizontalTables), new BigDecimal(1));
+        horizontalTables.numberProperty().addListener((observable, oldValue, newValue) -> data.setHorizontalTables(newValue.longValue()));
+
         int row = 0;
         gridPane.add(labelChartsPerScreen, 0, row);
         gridPane.add(chartsPerScreen, 1, row);
@@ -266,6 +271,10 @@ public class ChartSelectionDialog {
 
         gridPane.add(labelHorizontalPies, 0, row);
         gridPane.add(horizontalPies, 1, row);
+        row++;
+
+        gridPane.add(labelHorizontalTables, 0, row);
+        gridPane.add(horizontalTables, 1, row);
         row++;
 
         commonTab.setContent(gridPane);
