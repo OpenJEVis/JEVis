@@ -63,6 +63,7 @@ public class GraphDataModel {
     public static final String WORKDAY_END_ATTRIBUTE_NAME = "Workday End";
     public static final String ANALYSES_DIRECTORY_CLASS_NAME = "Analyses Directory";
     public static final String NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME = "Number of Horizontal Pies";
+    public static final String NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME = "Number of Horizontal Tables";
     public static final String BUILDING_CLASS_NAME = "Building";
     public static final String ANALYSIS_CLASS_NAME = "Analysis";
     public static final String ORGANIZATION_CLASS_NAME = "Organization";
@@ -84,6 +85,7 @@ public class GraphDataModel {
     private Boolean multipleDirectories = false;
     private Long chartsPerScreen = 2L;
     private Long horizontalPies = 2L;
+    private Long horizontalTables = 2L;
     private Boolean isGlobalAnalysisTimeFrame = true;
     private AnalysisTimeFrame globalAnalysisTimeFrame;
     private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
@@ -1025,6 +1027,32 @@ public class GraphDataModel {
         }
         if (horizontalPies == null || horizontalPies.equals(0L)) horizontalPies = 2L;
         return horizontalPies;
+    }
+
+    public Long getHorizontalTables() {
+        if (horizontalTables == null) {
+            try {
+                JEVisClass graphPluginClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+                List<JEVisObject> graphPlugins = ds.getObjects(graphPluginClass, true);
+                if (!graphPlugins.isEmpty()) {
+                    JEVisAttribute horizontalTablesAttribute = graphPlugins.get(0).getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME);
+                    if (horizontalTablesAttribute != null) {
+                        JEVisSample latestSample = horizontalTablesAttribute.getLatestSample();
+                        if (latestSample != null) {
+                            horizontalTables = Long.parseLong(latestSample.getValueAsString());
+                        }
+                    }
+                }
+            } catch (JEVisException e) {
+                logger.error("Could not get JEVisClass for Graph Plugin");
+            }
+        }
+        if (horizontalTables == null || horizontalTables.equals(0L)) horizontalTables = 3L;
+        return horizontalTables;
+    }
+
+    public void setHorizontalTables(Long horizontalTables) {
+        this.horizontalTables = horizontalTables;
     }
 
     public void setHorizontalPies(Long horizontalPies) {
