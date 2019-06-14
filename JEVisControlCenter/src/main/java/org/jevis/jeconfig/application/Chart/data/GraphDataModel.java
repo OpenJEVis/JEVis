@@ -85,7 +85,7 @@ public class GraphDataModel {
     private Boolean multipleDirectories = false;
     private Long chartsPerScreen = 2L;
     private Long horizontalPies = 2L;
-    private Long horizontalTables = 2L;
+    private Long horizontalTables = 3L;
     private Boolean isGlobalAnalysisTimeFrame = true;
     private AnalysisTimeFrame globalAnalysisTimeFrame;
     private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
@@ -782,6 +782,23 @@ public class GraphDataModel {
                         }
                     }
                 }
+                if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME))) {
+                    if (getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME).hasSample()) {
+                        Long no = getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME).getLatestSample().getValueAsLong();
+                        if (no != null) {
+                            setHorizontalPies(no);
+                        }
+                    }
+                }
+                if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME))) {
+                    if (getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME).hasSample()) {
+                        Long no = getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME).getLatestSample().getValueAsLong();
+                        if (no != null) {
+                            setHorizontalPies(no);
+                        }
+                    }
+                }
+
                 updateWorkdayTimesFromJEVisObject(getCurrentAnalysis());
             }
         } catch (JEVisException e) {
