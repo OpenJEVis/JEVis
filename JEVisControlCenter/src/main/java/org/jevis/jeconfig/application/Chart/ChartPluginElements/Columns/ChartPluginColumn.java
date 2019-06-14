@@ -6,6 +6,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
@@ -37,6 +38,12 @@ public interface ChartPluginColumn {
                 e.printStackTrace();
             }
             newData.setAttribute(row.getJEVisAttribute());
+
+            if (getData().isglobalAnalysisTimeFrame()) {
+                AnalysisTimeFrame analysisTimeFrame = getData().getGlobalAnalysisTimeFrame();
+                newData.setSelectedStart(analysisTimeFrame.getStart());
+                newData.setSelectedEnd(analysisTimeFrame.getEnd());
+            }
 
             getData().getSelectedData().add(newData);
 
