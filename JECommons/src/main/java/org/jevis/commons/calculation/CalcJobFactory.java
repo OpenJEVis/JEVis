@@ -295,7 +295,7 @@ public class CalcJobFactory {
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                 JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
 
-                if (fromTo == null) {
+                if (fromTo == null && startTime.isBefore(new DateTime())) {
                     fromTo = new Interval(startTime, new DateTime());
                     period = valueAttribute.getInputSampleRate();
 
@@ -310,14 +310,18 @@ public class CalcJobFactory {
                     } else {
                         calcJob.setHasProcessedAllInputSamples(false);
                         DateTime limitedMaxDate = startTime;
-                        for (int i = 0; i < 10000; i++)
+                        int i = 0;
+                        while (i < 10000) {
                             limitedMaxDate = limitedMaxDate.plus(period.toStandardDuration());
+                            i++;
+                        }
                         endTime = limitedMaxDate;
                         lastEndTime = endTime;
                     }
                 }
 
                 if (valueAttribute == null) {
+                    calcJob.setHasProcessedAllInputSamples(true);
                     throw new IllegalStateException("Cant find valid values for input data with id " + child.getID());
                 }
 
@@ -331,6 +335,7 @@ public class CalcJobFactory {
                 calcObjects.add(calcObject);
             }
         } catch (JEVisException ex) {
+            calcJob.setHasProcessedAllInputSamples(true);
             logger.fatal(ex);
         }
         return calcObjects;

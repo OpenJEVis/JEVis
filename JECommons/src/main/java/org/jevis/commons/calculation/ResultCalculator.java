@@ -29,13 +29,11 @@ public class ResultCalculator {
     public List<JEVisSample> calculateResult(String div0Handling, Double replacementValue, Double allZeroReplacementValue) {
         List<JEVisSample> resultList = new ArrayList<>();
 
-        for (Map.Entry<DateTime, List<Sample>> entry : mergedSamples.entrySet()) {
-            int numberOfInputs = entry.getValue().size();
+        mergedSamples.forEach((key, value) -> {
+            int numberOfInputs = value.size();
             Boolean[] arrayAllZero = new Boolean[numberOfInputs];
 
-            for (Sample sample : entry.getValue()) {
-                arrayAllZero[entry.getValue().indexOf(sample)] = sample.getValue().equals(0d);
-            }
+            value.forEach(sample -> arrayAllZero[value.indexOf(sample)] = sample.getValue().equals(0d));
 
             Boolean allZero = true;
             for (Boolean b : arrayAllZero) {
@@ -43,15 +41,13 @@ public class ResultCalculator {
             }
 
             if (!allZero || allZeroReplacementValue == null) {
-                for (Sample sample : entry.getValue()) {
-                    template.put(sample.getVariable(), sample.getValue());
-                }
+                value.forEach(sample -> template.put(sample.getVariable(), sample.getValue()));
 
                 Double evaluate = template.evaluate();
                 if (Double.isInfinite(evaluate) || Double.isNaN(evaluate)) {
                     //TODO implement different handling switch...
 
-                    VirtualSample smp = new VirtualSample(entry.getKey(), replacementValue);
+                    VirtualSample smp = new VirtualSample(key, replacementValue);
                     String note = smp.getNote();
 
                     if (note == null) {
@@ -63,17 +59,17 @@ public class ResultCalculator {
                     smp.setNote(note);
                     resultList.add(smp);
                 } else {
-                    VirtualSample newSample = new VirtualSample(entry.getKey(), evaluate);
+                    VirtualSample newSample = new VirtualSample(key, evaluate);
                     newSample.setNote("");
                     resultList.add(newSample);
                 }
 
             } else {
-                VirtualSample newSample = new VirtualSample(entry.getKey(), allZeroReplacementValue);
+                VirtualSample newSample = new VirtualSample(key, allZeroReplacementValue);
                 newSample.setNote("");
                 resultList.add(newSample);
             }
-        }
+        });
         return resultList;
     }
 
