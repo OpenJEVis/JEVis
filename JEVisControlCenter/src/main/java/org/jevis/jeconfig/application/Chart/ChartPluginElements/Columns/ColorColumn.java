@@ -52,7 +52,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     private List<Color> usedColors = new ArrayList<>();
     private JEVisTree tree;
     private String columnName;
-    private Color standardColor = Color.LIGHTBLUE;
+    public static Color STANDARD_COLOR = Color.LIGHTBLUE;
 
     public ColorColumn(JEVisTree tree, JEVisDataSource dataSource, String columnName) {
         this.tree = tree;
@@ -97,13 +97,13 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
             @Override
             public TreeTableCell<JEVisTreeRow, Color> call(TreeTableColumn<JEVisTreeRow, Color> param) {
 
-                TreeTableCell<JEVisTreeRow, Color> cell = new TreeTableCell<JEVisTreeRow, Color>() {
+                return new TreeTableCell<JEVisTreeRow, Color>() {
 
                     @Override
                     public void commitEdit(Color newValue) {
                         super.commitEdit(newValue);
-                        ChartDataModel data = getData(getTreeTableRow().getItem());
-                        data.setColor(newValue);
+                        ChartDataModel data1 = getData(getTreeTableRow().getItem());
+                        data1.setColor(newValue);
                         if (!usedColors.contains(newValue)) usedColors.add(newValue);
                     }
 
@@ -121,7 +121,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    ChartDataModel data1 = getData(getTreeTableRow().getItem());
                                     ColorPicker colorPicker = new ColorPicker();
 
                                     StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
@@ -131,7 +131,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
 
                                     colorPicker.setOnAction(event -> commitEdit(colorPicker.getValue()));
 
-                                    colorPicker.setDisable(!data.isSelectable());
+                                    colorPicker.setDisable(!data1.isSelectable());
                                     stackPane.getChildren().setAll(colorPicker);
                                     setGraphic(stackPane);
                                 }
@@ -142,8 +142,6 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
                     }
 
                 };
-
-                return cell;
             }
         });
 
@@ -175,6 +173,6 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     }
 
     public Color getStandardColor() {
-        return standardColor;
+        return STANDARD_COLOR;
     }
 }

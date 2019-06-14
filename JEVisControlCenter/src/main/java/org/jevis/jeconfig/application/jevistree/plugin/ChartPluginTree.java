@@ -38,6 +38,7 @@ public class ChartPluginTree implements TreePlugin {
     private List<TreeTableColumn<JEVisTreeRow, Long>> allColumns;
     private JEVisDataSource dataSource;
     private SimpleBooleanProperty addedChart = new SimpleBooleanProperty(false);
+    private ColorColumn colorColumn;
 
     public ChartPluginTree(GraphDataModel data) {
         this.data = data;
@@ -88,7 +89,7 @@ public class ChartPluginTree implements TreePlugin {
             data.getCharts().add(new ChartSettings(0, chartTitle));
         }
 
-        ColorColumn colorColumn = new ColorColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.color"));
+        colorColumn = new ColorColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.color"));
         colorColumn.setGraphDataModel(data);
 
         List<TreeTableColumn<JEVisTreeRow, Boolean>> selectionColumns = new ArrayList<TreeTableColumn<JEVisTreeRow, Boolean>>();
@@ -191,6 +192,7 @@ public class ChartPluginTree implements TreePlugin {
 
     public void selectNone() {
         data.selectNone();
+        colorColumn.getUsedColors().clear();
         jeVisTree.refresh();
     }
 

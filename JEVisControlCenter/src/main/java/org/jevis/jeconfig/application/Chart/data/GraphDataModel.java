@@ -35,6 +35,7 @@ import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
@@ -895,6 +896,7 @@ public class GraphDataModel {
     public void selectNone() {
         getSelectedData().forEach(mdl -> {
             mdl.setSelectedCharts(new ArrayList<>());
+            mdl.setColor(ColorColumn.STANDARD_COLOR);
         });
     }
 
