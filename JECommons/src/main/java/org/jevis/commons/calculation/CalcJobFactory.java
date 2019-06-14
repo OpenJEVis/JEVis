@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static org.jevis.commons.calculation.CalcInputType.PERIODIC;
+
 /**
  * @author broder
  */
@@ -235,6 +237,7 @@ public class CalcJobFactory {
         for (JEVisObject obj : inputDataObjects) {
             JEVisAttribute targetAttr = null;
             try {
+
                 targetAttr = obj.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                 JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
@@ -288,15 +291,39 @@ public class CalcJobFactory {
         List<CalcInputObject> calcObjects = new ArrayList<>();
         Interval fromTo = null;
         Period period = null;
-        DateTime endTime = null;
+        DateTime endTime = new DateTime(2050, 12, 31, 23, 59, 59, 999);
+
+        List<JEVisObject> calcInputObjects = getCalcInputObjects(jevisObject);
+        for (JEVisObject child : calcInputObjects) {
+            try {
+                JEVisAttribute attribute = child.getAttribute(Calculation.INPUT_TYPE.getName());
+                String inputTypeString = attribute.getLatestSample().getValueAsString();
+                CalcInputType inputType = CalcInputType.valueOf(inputTypeString);
+                if (inputType.equals(PERIODIC)) {
+                    JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
+                    TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
+                    JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
+                    JEVisSample latestSample = valueAttribute.getLatestSample();
+                    DateTime latestTimeStamp = latestSample.getTimestamp();
+                    if (latestTimeStamp.isBefore(endTime)) {
+                        endTime = latestTimeStamp;
+                    }
+                }
+
+            } catch (JEVisException e) {
+                calcJob.setHasProcessedAllInputSamples(true);
+                throw new IllegalStateException("Cant find valid values for input data with id " + child.getID());
+            }
+        }
+
         try {
-            for (JEVisObject child : getCalcInputObjects(jevisObject)) { //Todo differenciate based on input type
+            for (JEVisObject child : calcInputObjects) { //Todo differentiate based on input type
                 JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                 JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
 
-                if (fromTo == null && startTime.isBefore(new DateTime())) {
-                    fromTo = new Interval(startTime, new DateTime());
+                if (fromTo == null && startTime.isBefore(endTime)) {
+                    fromTo = new Interval(startTime, endTime);
                     period = valueAttribute.getInputSampleRate();
 
                     if (PeriodArithmetic.periodsInAnInterval(fromTo, period) < 10000) {
@@ -306,7 +333,7 @@ public class CalcJobFactory {
                          * disabled for  now, concrete testing for aggregated values is needed
                          */
 //                        endTime = new DateTime().minus(valueAttribute.getInputSampleRate());
-                        endTime = new DateTime();
+//                        endTime = new DateTime();
                     } else {
                         calcJob.setHasProcessedAllInputSamples(false);
                         DateTime limitedMaxDate = startTime;

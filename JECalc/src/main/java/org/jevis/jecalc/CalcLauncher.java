@@ -58,7 +58,7 @@ public class CalcLauncher extends AbstractCliApp {
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                 logger.info("Service is enabled.");
                 List<JEVisObject> dataSources = getEnabledCalcObjects();
-                executeCalcJobs(dataSources);
+                this.executeCalcJobs(dataSources);
             } else {
                 logger.info("Service is disabled.");
             }
@@ -99,8 +99,6 @@ public class CalcLauncher extends AbstractCliApp {
                             calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
                             calcJob.execute();
                         } while (!calcJob.hasProcessedAllInputSamples());
-
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
 
                     } catch (Exception e) {
                         logger.debug(e);
