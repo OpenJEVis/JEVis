@@ -12,6 +12,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -25,10 +26,7 @@ public class SampleMerger {
     private final List<List<Sample>> periodConstants = new ArrayList<>();
 
     private void addSamples(List<JEVisSample> jevisSamples, String variable) {
-        List<Sample> samples = new ArrayList<>();
-        for (JEVisSample currentSample : jevisSamples) {
-            samples.add(new Sample(currentSample, variable));
-        }
+        List<Sample> samples = jevisSamples.stream().map(currentSample -> new Sample(currentSample, variable)).collect(Collectors.toList());
         allSamples.add(samples);
     }
 
@@ -38,10 +36,7 @@ public class SampleMerger {
     }
 
     private void addPeriodConstant(List<JEVisSample> jevisSamples, String variable) {
-        List<Sample> samples = new ArrayList<>();
-        for (JEVisSample currentSample : jevisSamples) {
-            samples.add(new Sample(currentSample, variable));
-        }
+        List<Sample> samples = jevisSamples.stream().map(currentSample -> new Sample(currentSample, variable)).collect(Collectors.toList());
         periodConstants.add(samples);
     }
 
@@ -69,41 +64,29 @@ public class SampleMerger {
         insertPeriodicConstants(sampleMap); //value changed for specific periods
 
         int variableSize = allSamples.size() + constants.size() + periodConstants.size();
-        Set<DateTime> removableKeys = new HashSet<>();
-        for (Map.Entry<DateTime, List<Sample>> sampleEntry : sampleMap.entrySet()) {
-            if (sampleEntry.getValue().size() != variableSize) {
-                removableKeys.add(sampleEntry.getKey());
-            }
-        }
+        Set<DateTime> removableKeys = sampleMap.entrySet().stream().filter(sampleEntry -> sampleEntry.getValue().size() != variableSize).map(Map.Entry::getKey).collect(Collectors.toSet());
 
-        for (DateTime key : removableKeys) {
+        removableKeys.forEach(key -> {
             logger.debug("not every input data with datetime {}, will delete this datetime from calculation", key.toString(DateTimeFormat.fullDateTime()));
             sampleMap.remove(key);
-        }
+        });
         return sampleMap;
     }
 
     private void insertAllSamples(Map<DateTime, List<Sample>> sampleMap) {
-        for (List<Sample> currentSamples : allSamples) {
-            for (Sample sample : currentSamples) {
-                List<Sample> samples = sampleMap.getOrDefault(sample.getDate(), new ArrayList<Sample>());
-                samples.add(sample);
-                sampleMap.put(sample.getDate(), samples);
-            }
-        }
+        allSamples.forEach(currentSamples -> currentSamples.forEach(sample -> {
+            List<Sample> samples = sampleMap.getOrDefault(sample.getDate(), new ArrayList<>());
+            samples.add(sample);
+            sampleMap.put(sample.getDate(), samples);
+        }));
     }
 
     private void insertConstants(Map<DateTime, List<Sample>> sampleMap) {
-        for (Map.Entry<DateTime, List<Sample>> entry : sampleMap.entrySet()) {
-            for (Sample constant : constants) {
-                entry.getValue().add(constant);
-            }
-        }
+        sampleMap.forEach((key, value) -> value.addAll(constants));
     }
 
     private void insertPeriodicConstants(Map<DateTime, List<Sample>> sampleMap) {
-        for (Map.Entry<DateTime, List<Sample>> entry : sampleMap.entrySet()) {
-            DateTime currentSampleTime = entry.getKey();
+        sampleMap.forEach((currentSampleTime, value) -> {
             for (List<Sample> periodicConstants : periodConstants) {
                 Sample validConstant = null;
                 for (Sample periodicConstant : periodicConstants) {
@@ -115,10 +98,10 @@ public class SampleMerger {
                     }
                 }
                 if (validConstant != null) {
-                    entry.getValue().add(validConstant);
+                    value.add(validConstant);
                 }
             }
-        }
+        });
     }
 
 

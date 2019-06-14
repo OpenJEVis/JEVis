@@ -58,7 +58,7 @@ public class CalcLauncher extends AbstractCliApp {
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                 logger.info("Service is enabled.");
                 List<JEVisObject> dataSources = getEnabledCalcObjects();
-                executeCalcJobs(dataSources);
+                this.executeCalcJobs(dataSources);
             } else {
                 logger.info("Service is disabled.");
             }
@@ -100,18 +100,12 @@ public class CalcLauncher extends AbstractCliApp {
                             calcJob.execute();
                         } while (!calcJob.hasProcessedAllInputSamples());
 
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
-
                     } catch (Exception e) {
-                        if (logger.isDebugEnabled() || logger.isTraceEnabled()) {
-                            logger.error("[{}] Error in process: \n {} \n ", object.getID(), org.apache.commons.lang.exception.ExceptionUtils.getStackTrace(e));
-                        } else {
-                            logger.error("[{}] Error in process: \n {} message: {}", object.getID(), LogTaskManager.getInstance().getShortErrorMessage(e), e.getMessage());
-                        }
-                        LogTaskManager.getInstance().getTask(object.getID()).setException(e);
+                        logger.debug(e);
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
                     }
 
+                    LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
                     runningJobs.remove(object.getID());
                     plannedJobs.remove(object.getID());
 
@@ -124,7 +118,7 @@ public class CalcLauncher extends AbstractCliApp {
                     }
 
                 } else {
-                    logger.error("Still processing DataSource " + object.getName() + ":" + object.getID());
+                    logger.error("Still processing Calc Object " + object.getName() + ":" + object.getID());
                 }
             });
         });

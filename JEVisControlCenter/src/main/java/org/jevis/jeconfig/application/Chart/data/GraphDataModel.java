@@ -35,6 +35,7 @@ import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
@@ -85,7 +86,7 @@ public class GraphDataModel {
     private Boolean multipleDirectories = false;
     private Long chartsPerScreen = 2L;
     private Long horizontalPies = 2L;
-    private Long horizontalTables = 2L;
+    private Long horizontalTables = 3L;
     private Boolean isGlobalAnalysisTimeFrame = true;
     private AnalysisTimeFrame globalAnalysisTimeFrame;
     private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
@@ -782,6 +783,23 @@ public class GraphDataModel {
                         }
                     }
                 }
+                if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME))) {
+                    if (getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME).hasSample()) {
+                        Long no = getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME).getLatestSample().getValueAsLong();
+                        if (no != null) {
+                            setHorizontalPies(no);
+                        }
+                    }
+                }
+                if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME))) {
+                    if (getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME).hasSample()) {
+                        Long no = getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME).getLatestSample().getValueAsLong();
+                        if (no != null) {
+                            setHorizontalPies(no);
+                        }
+                    }
+                }
+
                 updateWorkdayTimesFromJEVisObject(getCurrentAnalysis());
             }
         } catch (JEVisException e) {
@@ -878,6 +896,7 @@ public class GraphDataModel {
     public void selectNone() {
         getSelectedData().forEach(mdl -> {
             mdl.setSelectedCharts(new ArrayList<>());
+            mdl.setColor(ColorColumn.STANDARD_COLOR);
         });
     }
 

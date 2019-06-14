@@ -10,6 +10,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.task.LogTaskManager;
+import org.jevis.commons.task.Task;
 import org.joda.time.DateTime;
 
 import java.util.HashMap;
@@ -42,26 +44,32 @@ public class CalcJob {
     }
 
     public void execute() {
-        SampleMerger sampleMerger = new SampleMerger();
-        for (CalcInputObject calcObject : calcObjects) {
-            sampleMerger.addSamples(calcObject.getSamples(), calcObject.getIdentifier(), calcObject.getInputType());
-            logger.debug("added {} samples with identifier {} to merger", calcObject.getSamples().size(), calcObject.getIdentifier());
+        try {
+            SampleMerger sampleMerger = new SampleMerger();
+            calcObjects.forEach(calcObject -> {
+                sampleMerger.addSamples(calcObject.getSamples(), calcObject.getIdentifier(), calcObject.getInputType());
+                logger.debug("added {} samples with identifier {} to merger", calcObject.getSamples().size(), calcObject.getIdentifier());
+            });
+            Map<DateTime, List<Sample>> mergedSamples = sampleMerger.merge();
+            logger.debug("{} mergable calculations found", mergedSamples.size());
+            ResultCalculator resultCalc = new ResultCalculator(mergedSamples, new CalcTemplate(expression));
+            List<JEVisSample> calculateResult = resultCalc.calculateResult(DIV0Handling, staticValue, allZeroValue);
+            logger.info("{} results calculated", calculateResult.size());
+            saveToOutput(calculateResult);
+        } catch (Exception e) {
+            setHasProcessedAllInputSamples(true);
+            logger.error(e);
+            LogTaskManager.getInstance().getTask(calcObjID).setStatus(Task.Status.FAILED);
+            LogTaskManager.getInstance().getTask(calcObjID).setException(e);
         }
-        Map<DateTime, List<Sample>> mergedSamples = sampleMerger.merge();
-        logger.debug("{} mergable calculations found", mergedSamples.size());
-        ResultCalculator resultCalc = new ResultCalculator(mergedSamples, new CalcTemplate(expression));
-        List<JEVisSample> calculateResult = resultCalc.calculateResult(DIV0Handling, staticValue, allZeroValue);
-        logger.info("{} results calculated", calculateResult.size());
-        saveToOutput(calculateResult);
-
     }
 
     public List<JEVisSample> getResults() {
         SampleMerger sampleMerger = new SampleMerger();
-        for (CalcInputObject calcObject : calcObjects) {
+        calcObjects.forEach(calcObject -> {
             sampleMerger.addSamples(calcObject.getSamples(), calcObject.getIdentifier(), calcObject.getInputType());
             logger.debug("added {} samples with identifier {} to merger", calcObject.getSamples().size(), calcObject.getIdentifier());
-        }
+        });
         Map<DateTime, List<Sample>> mergedSamples = sampleMerger.merge();
         logger.debug("{} mergable calculations found", mergedSamples.size());
         ResultCalculator resultCalc = new ResultCalculator(mergedSamples, new CalcTemplate(expression));
