@@ -478,48 +478,42 @@ public class TreeHelper {
                             if (rwd.getSelections() != null) {
                                 JEVisObject reportLinkDirectory = rwd.getReportLinkDirectory();
                                 for (ReportLink rl : rwd.getReportLinkList()) {
-                                    UserSelection us = rwd.getSelections().get(rwd.getReportLinkList().indexOf(rl));
-                                    JEVisObject object = null;
-                                    String variableName = "";
-                                    if (us.getSelectedObject().getJEVisClass().equals(cleanDataClass)) {
-                                        List<JEVisObject> parents = us.getSelectedObject().getParents();
-                                        if (parents.size() == 1) {
-                                            object = reportLinkDirectory.buildObject(parents.get(0).getName(), reportLinkClass);
+                                    Platform.runLater(() -> {
+                                        try {
+                                            String variableName = rl.getTemplateVariableName();
+
+                                            JEVisObject object = reportLinkDirectory.buildObject(variableName, reportLinkClass);
                                             object.commit();
-                                            variableName = CalculationNameFormatter.createVariableName(parents.get(0));
+
+                                            JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
+                                            JEVisSample sample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
+                                            sample.commit();
+
+                                            JEVisAttribute templateVariableName = object.getAttribute("Template Variable Name");
+                                            JEVisSample sample1 = templateVariableName.buildSample(new DateTime(), variableName);
+                                            sample1.commit();
+
+                                            JEVisObject reportAttribute = object.buildObject("Report Attribute", reportAttributeClass);
+                                            reportAttribute.commit();
+                                            JEVisAttribute attribute_name = reportAttribute.getAttribute("Attribute Name");
+
+                                            JEVisSample sample4 = attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
+                                            sample4.commit();
+
+                                            JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", reportPeriodConfigurationClass);
+                                            reportPeriodConfiguration.commit();
+
+                                            JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute("Aggregation");
+                                            JEVisSample sample2 = aggregationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+                                            sample2.commit();
+
+                                            JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute("Period");
+                                            JEVisSample sample3 = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
+                                            sample3.commit();
+                                        } catch (JEVisException e) {
+                                            e.printStackTrace();
                                         }
-                                    } else {
-                                        object = reportLinkDirectory.buildObject(us.getSelectedObject().getName(), reportLinkClass);
-                                        object.commit();
-                                        variableName = CalculationNameFormatter.createVariableName(us.getSelectedObject());
-                                    }
-
-                                    if (object != null) {
-                                        JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
-                                        JEVisSample sample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
-                                        sample.commit();
-
-                                        JEVisAttribute templateVariableName = object.getAttribute("Template Variable Name");
-                                        JEVisSample sample1 = templateVariableName.buildSample(new DateTime(), variableName);
-                                        sample1.commit();
-
-                                        JEVisObject reportAttribute = object.buildObject("Report Attribute", reportAttributeClass);
-                                        reportAttribute.commit();
-                                        JEVisAttribute attribute_name = reportAttribute.getAttribute("Attribute Name");
-
-                                        attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
-
-                                        JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", reportPeriodConfigurationClass);
-                                        reportPeriodConfiguration.commit();
-
-                                        JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute("Aggregation");
-                                        JEVisSample sample2 = aggregationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
-                                        sample2.commit();
-
-                                        JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute("Period");
-                                        JEVisSample sample3 = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
-                                        sample3.commit();
-                                    }
+                                    });
                                 }
                             }
 

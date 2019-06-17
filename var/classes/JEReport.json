@@ -65,6 +65,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEReport"
+    },
+    {
+      "name": "Template",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report"
     }
   ]
 }

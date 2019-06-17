@@ -104,7 +104,7 @@ public class JEVisObjectWS implements JEVisObject {
             for (JEVisRelationship rel : getRelationships()) {
                 if (rel.getType() == 1) {
                     if (rel.getStartObject().getID().equals(getID())) {
-                        if (rel.getEndObject() != null) {
+                        if (rel.getEndObject() != null && !parents.contains(rel.getEndObject())) {
                             parents.add(rel.getEndObject());
                         }
                     }
@@ -131,7 +131,7 @@ public class JEVisObjectWS implements JEVisObject {
                 try {
                     Long id = rel.getEndID();
                     if ((rel.getType() == JEVisConstants.ObjectRelationship.PARENT) && (id.equals(getID()))) {
-                        if (rel.getStartObject() != null) {
+                        if (rel.getStartObject() != null && !children.contains(rel.getStartObject())) {
                             children.add(rel.getStartObject());
                         }
                     }

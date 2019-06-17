@@ -15,6 +15,9 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.*;
@@ -24,6 +27,9 @@ import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.tool.I18n;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -158,7 +164,10 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
                     newTarget += us.getSelectedObject().getID();
                     reportLink.setjEVisID(us.getSelectedObject().getID());
                     try {
-                        reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(us.getSelectedObject()));
+                        reportLink.setTemplateVariableName(CalculationNameFormatter.createVariableName(us.getSelectedObject())
+                                + "_" + reportLink.getReportAttribute().getAttributeName()
+                                + "_" + reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation()
+                                + "_" + reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }
@@ -264,5 +273,63 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
 
     public List<ReportLink> getReportLinkList() {
         return reportLinkList;
+    }
+
+    private void createTemplate() throws IOException {
+        Workbook workbook = new XSSFWorkbook(); //create workbook
+        Sheet sheet = workbook.createSheet(); //create sheet
+
+        /**
+         * create header line
+         */
+
+        Cell firstCell = getOrCreateCell(sheet, 0, 0);
+        addComment(workbook, sheet, 0, 0, "JEVis", "jx:area(lastCell=\"AZ2\")");
+
+        for (int i = 1; i < reportLinkList.size(); i++) {
+            ReportLink rl = reportLinkList.get(i);
+            Cell cell = getOrCreateCell(sheet, 0, i);
+            cell.setCellValue(rl.getName());
+        }
+
+
+        //write to disc and close workbook:
+        workbook.write(new FileOutputStream(new File("c:/temp/comments.xlsx")));
+        workbook.close();
+    }
+
+    private Cell getOrCreateCell(Sheet sheet, int rowIdx, int colIdx) {
+        Row row = sheet.getRow(rowIdx);
+        if (row == null) {
+            row = sheet.createRow(rowIdx);
+        }
+
+        Cell cell = row.getCell(colIdx);
+        if (cell == null) {
+            cell = row.createCell(colIdx);
+        }
+
+        return cell;
+    }
+
+    private void addComment(Workbook workbook, Sheet sheet, int rowIdx, int colIdx, String author, String commentText) {
+        CreationHelper factory = workbook.getCreationHelper();
+        //get an existing cell or create it otherwise:
+        Cell cell = getOrCreateCell(sheet, rowIdx, colIdx);
+
+        ClientAnchor anchor = factory.createClientAnchor();
+        //i found it useful to show the comment box at the bottom right corner
+        anchor.setCol1(cell.getColumnIndex() + 1); //the box of the comment starts at this given column...
+        anchor.setCol2(cell.getColumnIndex() + 3); //...and ends at that given column
+        anchor.setRow1(rowIdx + 1); //one row below the cell...
+        anchor.setRow2(rowIdx + 5); //...and 4 rows high
+
+        Drawing drawing = sheet.createDrawingPatriarch();
+        Comment comment = drawing.createCellComment(anchor);
+        //set the comment text and author
+        comment.setString(factory.createRichTextString(commentText));
+        comment.setAuthor(author);
+
+        cell.setCellComment(comment);
     }
 }
