@@ -181,7 +181,7 @@ public class AlarmHandler {
             List<JEVisObject> jEStatusObjects = _ds.getObjects(jEStatusClass, true);
             if (!jEStatusObjects.isEmpty()) {
                 JEVisClass notificationType = _ds.getJEVisClass("E-Mail Notification");
-                List<JEVisObject> notificationObjects = jEStatusObjects.get(0).getChildren(notificationType, false);
+                List<JEVisObject> notificationObjects = jEStatusObjects.get(0).getChildren(notificationType, true);
                 if (notificationObjects.size() == 1) {
                     notificationObject = notificationObjects.get(0);
                 } else {

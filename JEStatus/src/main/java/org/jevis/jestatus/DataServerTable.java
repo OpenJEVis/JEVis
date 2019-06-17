@@ -66,7 +66,18 @@ public class DataServerTable extends AlarmTable {
                 if (lastReadoutAtt.hasSample()) {
                     JEVisSample lastSample = lastReadoutAtt.getLatestSample();
                     if (lastSample != null) {
-                        if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
+
+                        DateTime ts = null;
+                        try {
+                            ts = new DateTime(lastSample.getValueAsString());
+                        } catch (Exception e) {
+                            try {
+                                ts = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(lastSample.getValueAsString());
+                            } catch (Exception e1) {
+
+                            }
+                        }
+                        if (ts != null && ts.isBefore(latestReported) && ts.isAfter(furthestReported)) {
                             if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
                         }
                     }
@@ -122,7 +133,11 @@ public class DataServerTable extends AlarmTable {
                         JEVisSample o1smp = o1att.getLatestSample();
                         if (o1smp != null) {
                             try {
-                                o1ts = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(o1smp.getValueAsString());
+                                try {
+                                    o1ts = new DateTime(o1smp.getValueAsString());
+                                } catch (Exception e) {
+                                    o1ts = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(o1smp.getValueAsString());
+                                }
                             } catch (IllegalArgumentException e) {
                                 logger.error("Could not parse, invalid datetime format: " + o1smp.getValueAsString()
                                         + " from object: " + o1.getName() + ":" + o1.getID() + " of attribute: " + o1att.getName());
@@ -142,7 +157,11 @@ public class DataServerTable extends AlarmTable {
                         JEVisSample o2smp = o2att.getLatestSample();
                         if (o2smp != null) {
                             try {
-                                o2ts = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(o2smp.getValueAsString());
+                                try {
+                                    o2ts = new DateTime(o2smp.getValueAsString());
+                                } catch (Exception e) {
+                                    o2ts = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(o2smp.getValueAsString());
+                                }
                             } catch (IllegalArgumentException e) {
                                 logger.error("Could not parse, invalid datetime format: " + o2smp.getValueAsString()
                                         + " from object: " + o1.getName() + ":" + o1.getID() + " of attribute: " + o2att.getName());
@@ -232,7 +251,7 @@ public class DataServerTable extends AlarmTable {
                 JEVisAttribute lastReadoutAtt = currentChannel.getAttribute("Last Readout");
                 if (lastReadoutAtt != null) {
                     if (lastReadoutAtt.hasSample()) {
-                        sb.append(dtf.print(lastReadoutAtt.getLatestSample().getTimestamp()));
+                        sb.append(dtf.print(new DateTime(lastReadoutAtt.getLatestSample().getValueAsString())));
                     }
                 }
             }
