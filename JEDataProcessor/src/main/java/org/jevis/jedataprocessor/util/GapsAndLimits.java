@@ -374,6 +374,7 @@ public class GapsAndLimits {
                         note += getNote(currentInterval);
                         note += "," + NoteConstants.Gap.GAP_MIN;
                         sample.setNote(note);
+                        currentInterval.addTmpSample(sample);
                     }
                 }
                 break;
@@ -386,6 +387,7 @@ public class GapsAndLimits {
                         note += getNote(currentInterval);
                         note += "," + NoteConstants.Limits.LIMIT_MIN;
                         sample.setNote(note);
+                        currentInterval.addTmpSample(sample);
                     }
                 }
                 break;
