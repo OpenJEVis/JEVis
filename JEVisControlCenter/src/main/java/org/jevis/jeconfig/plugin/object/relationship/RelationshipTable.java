@@ -43,7 +43,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class RelationshipTable extends TableView {
@@ -74,8 +73,11 @@ public class RelationshipTable extends TableView {
         List<TableSample> tjc = new LinkedList<>();
 //        logger.info("Rel.size: " + relationships.size());
         for (JEVisRelationship rel : relationships) {
-//            logger.info("rel: " + rel);
-            tjc.add(new TableSample(obj, rel));
+            try {
+                tjc.add(new TableSample(obj, rel));
+            } catch (Exception ex) {
+                logger.error("Error with relationship: {} :", rel, ex);
+            }
         }
 //        setStyle("table-row-cell:empty { -fx-background-color: " + Constants.Color.LIGHT_GREY2 + ";}");
 
@@ -152,23 +154,27 @@ public class RelationshipTable extends TableView {
                 TableCell<TableSample, Integer> cell = new TableCell<TableSample, Integer>() {
                     @Override
                     public void updateItem(Integer item, boolean empty) {
-                        if (item != null) {
-                            HBox box = new HBox();
-                            box.setAlignment(Pos.CENTER);
+                        try {
+                            if (item != null) {
+                                HBox box = new HBox();
+                                box.setAlignment(Pos.CENTER);
 
-                            ImageView icon = null;
-                            if (item == 1) {
-                                icon = JEConfig.getImage("left.png", 20, 20);
-                            } else if (item == 2) {
-                                icon = JEConfig.getImage("right.png", 20, 20);
+                                ImageView icon = null;
+                                if (item == 1) {
+                                    icon = JEConfig.getImage("left.png", 20, 20);
+                                } else if (item == 2) {
+                                    icon = JEConfig.getImage("right.png", 20, 20);
+                                }
+
+                                box.getChildren().setAll(icon);
+                                setGraphic(box);
+//                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                            } else {
+//                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                                setStyle("-fx-background-color: transparent; ");
                             }
-
-                            box.getChildren().setAll(icon);
-                            setGraphic(box);
-//                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-                        } else {
-//                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-                            setStyle("-fx-background-color: transparent; ");
+                        } catch (Exception ex) {
+                            logger.error("Error in direction cell update: {}:{}", item, ex);
                         }
                     }
                 };
@@ -249,39 +255,39 @@ public class RelationshipTable extends TableView {
         private SimpleIntegerProperty direction = new SimpleIntegerProperty();
         private SimpleStringProperty object = new SimpleStringProperty("");
         private SimpleStringProperty other = new SimpleStringProperty("");
-        //        private SimpleStringProperty objectTo = new SimpleStringProperty("");
         private SimpleIntegerProperty type = new SimpleIntegerProperty();
-
         private JEVisRelationship _relationship = null;
-
         private JEVisObject _thisObject;
 
         /**
-         *
          * @param obj
          * @param rel
          */
         public TableSample(final JEVisObject obj, JEVisRelationship rel) {
             try {
+                logger.error("new TableSample: {}, {}", obj, rel);
                 this.direction = new SimpleIntegerProperty(1);
                 this.object = new SimpleStringProperty(rel.getStartObject().getName());
                 this.type = new SimpleIntegerProperty(rel.getType());
-                _relationship = rel;
-                _thisObject = obj;
+                this._relationship = rel;
+                this._thisObject = obj;
             } catch (Exception ex) {
+                logger.error("Error in relationship table entry: {}", ex);
+                logger.error(ex);
             }
         }
 
         public Integer getDirection() {
             try {
-                if (_relationship.getEndObject().equals(_relationship.getOtherObject(_thisObject))) {
+                logger.debug("getDirection: {} |  {} | {}", this._relationship, this._relationship.getEndObject(), this._thisObject);
+                if (this._relationship.getEndObject().equals(this._relationship.getOtherObject(this._thisObject))) {
 //                if (_relationship.getEndObject().equals(_relationship.getOtherObject(_thisObject))) {
                     return 2;
                 } else {
                     return 1;
                 }
-            } catch (JEVisException ex) {
-                logger.fatal(ex);
+            } catch (Exception ex) {
+                logger.fatal("{}:{}", this._relationship, ex);
             }
             return 0;
         }
@@ -292,11 +298,11 @@ public class RelationshipTable extends TableView {
 
         public Integer getType() {
             try {
-                return _relationship.getType();
-            } catch (JEVisException ex) {
-                logger.fatal(ex);
+                return this._relationship.getType();
+            } catch (Exception ex) {
+                logger.fatal("{}:{}", this._relationship, ex);
             }
-            return 3;
+            return -1;
         }
 
         public void setType(Integer type) {
@@ -305,9 +311,9 @@ public class RelationshipTable extends TableView {
 
         public JEVisObject getOther() {
             try {
-                return _relationship.getOtherObject(_thisObject);
-            } catch (JEVisException ex) {
-                logger.fatal(ex);
+                return this._relationship.getOtherObject(this._thisObject);
+            } catch (Exception ex) {
+                logger.fatal("{}:{}", this._relationship, ex);
             }
             return null;
 //            try {
@@ -320,7 +326,7 @@ public class RelationshipTable extends TableView {
         }
 
         public JEVisObject getObject() {
-            return _thisObject;
+            return this._thisObject;
 //            try {
 //                return _relationship.getStartObject().getName();
 //            } catch (JEVisException ex) {
@@ -331,7 +337,7 @@ public class RelationshipTable extends TableView {
         }
 
         public void setObject(JEVisObject object) {
-            _thisObject = object;
+            this._thisObject = object;
 //            this.object = object;
         }
 

@@ -67,20 +67,20 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private String host = "http://localhost";
     private HTTPConnection con;
     private Gson gson = new Gson();
-    //    private JEVisObject currentUser = null;
-    private boolean fetchedAllClasses = false;
     private JEVisUser user;
     private List<JEVisOption> config = new ArrayList<>();
-    //    private Cache<Integer, List> relationshipCache;
     private List<JEVisRelationship> objectRelCache = Collections.synchronizedList(new ArrayList<JEVisRelationship>());
     private ConcurrentHashMap<String, JEVisClass> classCache = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Long, JEVisObject> objectCache = new ConcurrentHashMap<>();
-    //    private Map<Long, List<JEVisAttribute>> attributeMapCache = Collections.synchronizedMap(new HashMap<Long, List<JEVisAttribute>>());
     private ConcurrentHashMap<Long, List<JEVisRelationship>> objectRelMapCache = new ConcurrentHashMap<>();
     private boolean allAttributesPreloaded = false;
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
+    /**
+     * fallback because some old client will call preload but we now a days do per default
+     **/
+    private boolean hasPreloaded = false;
     private ConcurrentHashMap<Long, List<JEVisAttribute>> attributeCache = new ConcurrentHashMap<>();
 
     public JEVisDataSourceWS(String host) {
@@ -290,45 +290,97 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private void updateObject(JsonObject jsonObj) {
         Long id = jsonObj.getId();
         if (this.objectCache.containsKey(id)) {
-            /**
-             * cast needs to be removed
-             */
             this.objectCache.remove(id);
-            JEVisObjectWS newOBject = new JEVisObjectWS(this, jsonObj);
-            this.objectCache.put(newOBject.getID(), newOBject);
-            //((JEVisObjectWS) objectCache.get(id)).update(jsonObj);
-        } else {
-            JEVisObjectWS newOBject = new JEVisObjectWS(this, jsonObj);
-            this.objectCache.put(newOBject.getID(), newOBject);
         }
-        //this.reloadAttribute(objectCache.get(id));
+
+        JEVisObjectWS newObject = new JEVisObjectWS(this, jsonObj);
+        this.objectCache.put(newObject.getID(), newObject);
 
     }
+
+
+    public void preloadObjectAndRelationships() {
+        logger.trace("Get ALL ObjectsWS");
+        try {
+            this.objectRelMapCache.clear();
+            this.objectRelCache = getRelationshipsWS();
+
+            String resource = HTTPConnection.API_PATH_V1
+                    + REQUEST.OBJECTS.PATH
+                    + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS + "true"
+                    + "&" + REQUEST.OBJECTS.OPTIONS.ONLY_ROOT + "false";
+
+
+            List<JsonObject> jsonObjects = Arrays.asList(this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonObject[].class));
+
+
+            logger.debug("JsonObject.count: {}", jsonObjects.size());
+            jsonObjects.parallelStream().forEach(jsonObject -> {
+                try {
+                    updateObject(jsonObject);
+                    jsonObject.getRelationships().forEach(jsonRelationship -> {
+                        try {
+                            JEVisRelationship jeVisRelationship = new JEVisRelationshipWS(JEVisDataSourceWS.this, jsonRelationship);
+                            long startID = jeVisRelationship.getStartID();
+                            long endID = jeVisRelationship.getEndID();
+
+                            if (!this.objectRelMapCache.containsKey(startID)) {
+                                this.objectRelMapCache.put(startID, new CopyOnWriteArrayList<>());
+                            }
+
+                            if (!this.objectRelMapCache.containsKey(endID)) {
+                                this.objectRelMapCache.put(endID, new CopyOnWriteArrayList<>());
+                            }
+
+                            if (!this.objectRelMapCache.get(startID).contains(jeVisRelationship)) {
+                                this.objectRelMapCache.get(startID).add(jeVisRelationship);
+                            }
+
+                            if (!this.objectRelMapCache.get(endID).contains(jeVisRelationship)) {
+                                this.objectRelMapCache.get(endID).add(jeVisRelationship);
+                            }
+
+                        } catch (Exception ex) {
+                            logger.error("incorrect relationship: {}\n{}", jsonRelationship, ex);
+                        }
+                    });
+
+                } catch (Exception ex) {
+                    logger.error("Error while parsing object: {}", ex.getMessage());
+                }
+            });
+
+            this.orLoaded = true;
+            this.objectLoaded = true;
+
+        } catch (ProtocolException ex) {
+            logger.error(ex);
+        } catch (IOException ex) {
+            logger.error(ex);
+        }
+    }
+
 
     public void getObjectsWS() {
         logger.trace("Get ALL ObjectsWS");
         try {
-            List<JEVisObject> objects = new ArrayList<>();
             String resource = HTTPConnection.API_PATH_V1
                     + REQUEST.OBJECTS.PATH
                     + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS + "false"
                     + "&" + REQUEST.OBJECTS.OPTIONS.ONLY_ROOT + "false";
 
 
-            List<JsonObject> jsons = Arrays.asList(this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonObject[].class));
+            List<JsonObject> jsonObjects = Arrays.asList(this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonObject[].class));
 
-//            StringBuffer response = con.getRequest(resource);
-//            Type listType = new TypeToken<List<JsonObject>>() {
-//            }.getType();
-//            List<JsonObject> jsons = gson.fromJson(response.toString(), listType);
-            logger.debug("JsonObject.count: {}", jsons.size());
-            for (JsonObject obj : jsons) {
+
+            logger.debug("JsonObject.count: {}", jsonObjects.size());
+            jsonObjects.parallelStream().forEach(jsonObject -> {
                 try {
-                    updateObject(obj);
+                    updateObject(jsonObject);
                 } catch (Exception ex) {
                     logger.error("Error while parsing object: {}", ex.getMessage());
                 }
-            }
+            });
 
 
         } catch (ProtocolException ex) {
@@ -347,7 +399,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public List<JEVisRelationship> getRelationships() {
-        logger.debug("getRelationships");
+        logger.debug("getAllRelationships");
         if (!this.orLoaded) {
 
             this.objectRelMapCache.clear();
@@ -1104,18 +1156,15 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public JEVisObject getObject(Long id) {
-//        System.out.println("getObject: " + id);
-        if (this.objectLoaded) {
-            JEVisObject obj = this.objectCache.getOrDefault(id, null);
-            if (obj == null) {
-                logger.warn("Warning: Request for object {} was null", id);
-            }
+
+        JEVisObject obj = this.objectCache.getOrDefault(id, null);
+        if (obj != null) {
             return obj;
-        } else if (this.objectCache.get(id) != null) {
-            return this.objectCache.get(id);
+        } else {
+            System.out.println("Object without cache: " + id);
+            return getObjectWS(id);
         }
 
-        return getObjectWS(id);
 
     }
 
@@ -1240,7 +1289,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public boolean confirmPassword(String username, String password) throws JEVisException {
-        HTTPConnection con = new HTTPConnection(this.host, username, password);
         try {
             String resource
                     = REQUEST.API_PATH_V1
@@ -1292,7 +1340,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
                 JsonObject json = this.gson.fromJson(payload, JsonObject.class);
 
-                this.user = new JEVisUserWS(this, new JEVisObjectWS(this, json)); //TODO: implement
+                /** We will now always preload the JEVisDataSource **/
+                this.preload();
+
+                this.user = new JEVisUserWS(this, new JEVisObjectWS(this, json));
                 logger.trace("User.object: " + this.user.getUserObject());
                 return true;
             } else {
@@ -1360,6 +1411,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public void preload() {
+        if (this.hasPreloaded) return;
+
         try {
             logger.info("Start preload");
             Benchmark benchmark = new Benchmark();
@@ -1372,15 +1425,27 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             //getClassIcon();
             //benchmark.printBenchmarkDetail("Preload - Icons");
             //Optimization.getInstance().printStatistics();
+
+
+            this.getRelationships();
+
+            if (!this.objectCache.isEmpty()) this.objectCache.clear();
+//            if (!this.objectRelMapCache.isEmpty()) this.objectRelMapCache.clear();
+//            preloadObjectAndRelationships();
+//            benchmark.printBenchmarkDetail("Preload - Objects&Relationships");
+
+
             if (!this.objectCache.isEmpty()) this.objectCache.clear();
             getObjects();
             benchmark.printBenchmarkDetail("Preload - Objects");
             Optimization.getInstance().printStatistics();
+
             if (!this.attributeCache.isEmpty()) this.attributeCache.clear();
             getAttributes();
             benchmark.printBenchmarkDetail("Preload - Attributes");
             Optimization.getInstance().printStatistics();
-
+            logger.info("preload Done");
+            this.hasPreloaded = true;
         } catch (Exception ex) {
             logger.error("Error while preloading data source", ex);
         }

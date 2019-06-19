@@ -24,10 +24,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeSortMode;
 import javafx.scene.control.TreeTableColumn;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.input.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -57,7 +54,7 @@ public class JEVisTreeFactory {
 
     public static void addDefaultKeys(JEVisTree tree) {
 
-        final KeyCombination copyID = new KeyCodeCombination(KeyCode.F1);
+        final KeyCombination copyIDandValue = new KeyCodeCombination(KeyCode.F4);
         final KeyCombination copyObj = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN);
         final KeyCombination cutObj = new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN);
         final KeyCombination pasteObj = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);
@@ -66,7 +63,6 @@ public class JEVisTreeFactory {
         final KeyCombination delete = new KeyCodeCombination(KeyCode.DELETE);
         final KeyCombination pageDown = new KeyCodeCombination(KeyCode.PAGE_DOWN);
 
-        logger.error("Add Tree Hotkeys to: " + tree);
         tree.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
 
             @Override
@@ -91,6 +87,10 @@ public class JEVisTreeFactory {
                     TreeHelper.EventDelete(tree);
                 } else if (copyObj.match(t)) {
                     tree.setCopyObject(selectedObj.getValue().getJEVisObject(), false);
+                    final Clipboard clipboard = Clipboard.getSystemClipboard();
+                    final ClipboardContent content = new ClipboardContent();
+                    content.putString(selectedObj.getValue().getJEVisObject().getID() + " " + selectedObj.getValue().getJEVisObject().getName());
+                    clipboard.setContent(content);
                 } else if (cutObj.match(t)) {
                     tree.setCopyObject(selectedObj.getValue().getJEVisObject(), true);
                 } else if (pasteObj.match(t)) {
@@ -103,6 +103,11 @@ public class JEVisTreeFactory {
                     }
                 } else if (rename.match(t)) {
                     TreeHelper.EventRename(tree, selectedObj.getValue().getJEVisObject());
+                } else if (copyIDandValue.match(t)) {
+                    final Clipboard clipboard = Clipboard.getSystemClipboard();
+                    final ClipboardContent content = new ClipboardContent();
+                    content.putString(selectedObj.getValue().getJEVisObject().getID() + ":Value");
+                    clipboard.setContent(content);
                 }
             }
         });
