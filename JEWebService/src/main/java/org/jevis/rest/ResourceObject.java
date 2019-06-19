@@ -84,23 +84,23 @@ public class ResourceObject {
             @QueryParam("child") long child) {
 
         try {
-            ds = new SQLDataSource(httpHeaders, request, url);
-            ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
-            ds.preload(SQLDataSource.PRELOAD.ALL_REL);
+            this.ds = new SQLDataSource(httpHeaders, request, url);
+            this.ds.preload(SQLDataSource.PRELOAD.ALL_OBJECT);
+            this.ds.preload(SQLDataSource.PRELOAD.ALL_REL);
 
 
             if (root) {
-                returnList = ds.getRootObjects();
+                this.returnList = this.ds.getRootObjects();
             } else {
-                returnList = ds.getUserManager().filterList(ds.getObjects());
+                this.returnList = this.ds.getUserManager().filterList(this.ds.getObjects());
             }
 
             if (!jclass.isEmpty()) {
-                returnList = ds.filterObjectByClass(returnList, jclass);
+                this.returnList = this.ds.filterObjectByClass(this.returnList, jclass);
             }
 
             if (rel) {
-                ds.addRelationhsipsToObjects(returnList, ds.getUserManager().filterReadRelationships(ds.getRelationships()));
+                this.ds.addRelationhsipsToObjects(this.returnList, this.ds.getUserManager().filterReadRelationships(this.ds.getRelationships()));
             }
 
             if (detailed) {
@@ -108,7 +108,7 @@ public class ResourceObject {
             }
 
             //TODO add attributes if needed
-            return Response.ok(returnList).build();
+            return Response.ok(this.returnList).build();
 
         } catch (AuthenticationException ex) {
             logger.catching(ex);
@@ -117,7 +117,7 @@ public class ResourceObject {
             logger.catching(jex);
             return Response.serverError().build();
         } finally {
-            Config.CloseDS(ds);
+            Config.CloseDS(this.ds);
         }
     }
 
@@ -137,12 +137,12 @@ public class ResourceObject {
             @Context HttpHeaders httpHeaders) {
 
         try {
-            ds = new SQLDataSource(httpHeaders, request, url);
+            this.ds = new SQLDataSource(httpHeaders, request, url);
 
             List<JsonRelationship> list = new LinkedList<JsonRelationship>();
 
-            if (ds.getUserManager().canRead(ds.getObject(id))) {
-                list = ds.getUserManager().filterReadRelationships(ds.getRelationships(id));
+            if (this.ds.getUserManager().canRead(this.ds.getObject(id))) {
+                list = this.ds.getUserManager().filterReadRelationships(this.ds.getRelationships(id));
             }
 
             return Response.ok(list).build();
@@ -153,7 +153,7 @@ public class ResourceObject {
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } finally {
-            Config.CloseDS(ds);
+            Config.CloseDS(this.ds);
         }
 
     }
@@ -168,11 +168,11 @@ public class ResourceObject {
             @PathParam("id") long id) {
 
         try {
-            ds = new SQLDataSource(httpHeaders, request, url);
+            this.ds = new SQLDataSource(httpHeaders, request, url);
 
-            JsonObject obj = ds.getObject(id);
-            if (ds.getUserManager().canDelete(obj)) {
-                ds.deleteObject(obj);
+            JsonObject obj = this.ds.getObject(id);
+            if (this.ds.getUserManager().canDelete(obj)) {
+                this.ds.deleteObject(obj);
             }
 
             return Response.status(Response.Status.OK).build();
@@ -183,11 +183,22 @@ public class ResourceObject {
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } finally {
-            Config.CloseDS(ds);
+            Config.CloseDS(this.ds);
         }
 
     }
 
+    /**
+     * TODO: check this
+     * Is this function in use, because some sub function are not implemented?
+     *
+     * @param httpHeaders
+     * @param request
+     * @param url
+     * @param copyObject
+     * @param object
+     * @return
+     */
     @POST
     @Logged
     @Produces(MediaType.APPLICATION_JSON)
@@ -200,29 +211,29 @@ public class ResourceObject {
             String object) {
 
         try {
-            ds = new SQLDataSource(httpHeaders, request, url);
+            this.ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject json = (new Gson()).fromJson(object, JsonObject.class);
-            if (ds.getJEVisClass(json.getJevisClass()) == null) {
+            if (this.ds.getJEVisClass(json.getJevisClass()) == null) {
                 return Response.status(Response.Status.NOT_FOUND).entity("JEVisClass not found").build();
             }
 
-            JsonObject parentObj = ds.getObject(json.getParent());
-            if (parentObj != null && ds.getUserManager().canCreate(parentObj)) {
+            JsonObject parentObj = this.ds.getObject(json.getParent());
+            if (parentObj != null && this.ds.getUserManager().canCreate(parentObj)) {
 
 
                 //resful way of moving and object to an other parent while keeping the IDs?
                 if (copyObject > 0) {
-                    JsonObject toCopyObj = ds.getObject(copyObject);
+                    JsonObject toCopyObj = this.ds.getObject(copyObject);
 
-                    if (toCopyObj != null && ds.getUserManager().canCreate(toCopyObj)) {
-                        ds.moveObject(toCopyObj.getId(), parentObj.getId());
-                        return Response.ok(ds.getObject(copyObject)).build();
+                    if (toCopyObj != null && this.ds.getUserManager().canCreate(toCopyObj)) {
+                        this.ds.moveObject(toCopyObj.getId(), parentObj.getId());
+                        return Response.ok(this.ds.getObject(copyObject)).build();
                     } else {
                         return Response.status(Response.Status.UNAUTHORIZED).build();
                     }
                 } else {
-                    JsonObject newObj = ds.buildObject(json, parentObj.getId());
+                    JsonObject newObj = this.ds.buildObject(json, parentObj.getId());
                     return Response.ok(newObj).build();
                 }
 
@@ -236,7 +247,7 @@ public class ResourceObject {
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } finally {
-            Config.CloseDS(ds);
+            Config.CloseDS(this.ds);
         }
 
     }
@@ -254,19 +265,19 @@ public class ResourceObject {
             String object) {
 
         try {
-            ds = new SQLDataSource(httpHeaders, request, url);
+            this.ds = new SQLDataSource(httpHeaders, request, url);
 
             JsonObject json = (new Gson()).fromJson(object, JsonObject.class);
-            JsonObject existingObj = ds.getObject(id);
-            if (existingObj != null && ds.getUserManager().canWrite(json)) {
+            JsonObject existingObj = this.ds.getObject(id);
+            if (existingObj != null && this.ds.getUserManager().canWrite(json)) {
                 if (existingObj.getisPublic() != json.getisPublic()) {
-                    if (ds.getUserManager().isSysAdmin()) {
-                        return Response.ok(ds.updateObject(id, json.getName(), json.getisPublic())).build();
+                    if (this.ds.getUserManager().isSysAdmin()) {
+                        return Response.ok(this.ds.updateObject(id, json.getName(), json.getisPublic())).build();
                     } else {
-                        return Response.ok(ds.updateObject(id, json.getName(), existingObj.getisPublic())).build();
+                        return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic())).build();
                     }
                 } else {
-                    return Response.ok(ds.updateObject(id, json.getName(), existingObj.getisPublic())).build();
+                    return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic())).build();
                 }
             } else {
                 return Response.notModified().build();
@@ -278,7 +289,7 @@ public class ResourceObject {
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } finally {
-            Config.CloseDS(ds);
+            Config.CloseDS(this.ds);
         }
 
     }
@@ -304,13 +315,13 @@ public class ResourceObject {
             @DefaultValue("-99999") @PathParam("id") long id) {
 
         try {
-            ds = new SQLDataSource(httpHeaders, request, url);
+            this.ds = new SQLDataSource(httpHeaders, request, url);
 
             if (id == -999) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing id path parameter").build();
             }
-            JsonObject existingObj = ds.getObject(id, includeChildren);
-            if (existingObj != null || ds.getUserManager().canRead(existingObj)) {
+            JsonObject existingObj = this.ds.getObject(id, includeChildren);
+            if (existingObj != null || this.ds.getUserManager().canRead(existingObj)) {
                 return Response.ok(existingObj).build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -322,19 +333,19 @@ public class ResourceObject {
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } finally {
-            Config.CloseDS(ds);
+            Config.CloseDS(this.ds);
         }
     }
 
     @PostConstruct
     public void postConstruct() {
-        if (returnList != null) {
-            returnList.clear();
-            returnList = null;
+        if (this.returnList != null) {
+            this.returnList.clear();
+            this.returnList = null;
         }
-        if (ds != null) {
-            ds.clear();
-            ds = null;
+        if (this.ds != null) {
+            this.ds.clear();
+            this.ds = null;
         }
     }
 
