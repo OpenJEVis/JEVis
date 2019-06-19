@@ -9,7 +9,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisConstants;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisFile;
+import org.jevis.api.JEVisRelationship;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.*;
@@ -59,16 +62,16 @@ public class SQLDataSource {
         try {
             ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
 
-            dbConn = ConnectionFactory.getInstance().getConnection();
+            this.dbConn = ConnectionFactory.getInstance().getConnection();
 
-            if (dbConn.isValid(2000)) {
-                lTable = new LoginTable(this);
+            if (this.dbConn.isValid(2000)) {
+                this.lTable = new LoginTable(this);
                 jevisLogin(httpHeaders);
-                oTable = new ObjectTable(this);
-                aTable = new AttributeTable(this);
-                sTable = new SampleTable(this);
-                rTable = new RelationshipTable(this);
-                um = new UserRightManagerForWS(this);
+                this.oTable = new ObjectTable(this);
+                this.aTable = new AttributeTable(this);
+                this.sTable = new SampleTable(this);
+                this.rTable = new RelationshipTable(this);
+                this.um = new UserRightManagerForWS(this);
 
             }
         } catch (SQLException se) {
@@ -78,7 +81,7 @@ public class SQLDataSource {
     }
 
     public Connection getConnection() throws SQLException {
-        return dbConn;
+        return this.dbConn;
     }
 
 
@@ -146,7 +149,7 @@ public class SQLDataSource {
 
 
     public UserRightManagerForWS getUserManager() {
-        return um;
+        return this.um;
     }
 
     public void preload(PRELOAD preload) {
@@ -154,14 +157,14 @@ public class SQLDataSource {
         try {
             switch (preload) {
                 case ALL_REL:
-                    allRelationships = getRelationshipTable().getAll();
+                    this.allRelationships = getRelationshipTable().getAll();
                     break;
                 case ALL_CLASSES:
                     Config.getClassCache();
 //                    allTypes = getTypeTable().//todo
                     break;
                 case ALL_OBJECT:
-                    allObjects = getObjectTable().getAllObjects();
+                    this.allObjects = getObjectTable().getAllObjects();
                     break;
             }
         } catch (Exception sx) {
@@ -170,19 +173,19 @@ public class SQLDataSource {
     }
 
     public RelationshipTable getRelationshipTable() {
-        return rTable;
+        return this.rTable;
     }
 
     public ObjectTable getObjectTable() {
-        return oTable;
+        return this.oTable;
     }
 
     public SampleTable getSampleTable() {
-        return sTable;
+        return this.sTable;
     }
 
     public AttributeTable getAttributeTable() {
-        return aTable;
+        return this.aTable;
     }
 
 
@@ -218,7 +221,7 @@ public class SQLDataSource {
                     String username = dauth[0];
                     String password = dauth[1];
                     try {
-                        user = lTable.loginUser(username, password);
+                        this.user = this.lTable.loginUser(username, password);
 
                     } catch (JEVisException ex) {
                         ex.printStackTrace();
@@ -240,13 +243,6 @@ public class SQLDataSource {
 //        }
     }
 
-    public JEVisClass buildClass(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    public JEVisObject buildLink(String name, JEVisObject parent, JEVisObject linkedObject) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 
     public JEVisRelationship buildRelationship(Long fromObject, Long toObject, int type) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -275,8 +271,8 @@ public class SQLDataSource {
 
     public JsonObject getObject(Long id, boolean children) throws JEVisException {
         logger.debug("getObject: {}", id);
-        if (!allObjects.isEmpty()) {
-            for (JsonObject ob : allObjects) {
+        if (!this.allObjects.isEmpty()) {
+            for (JsonObject ob : this.allObjects) {
                 if (ob.getId() == id) {
                     logger.debug("getObject- cache");
                     return ob;
@@ -284,9 +280,9 @@ public class SQLDataSource {
             }
         }
         logger.debug("getObject- NON cache");
-        JsonObject ob = oTable.getObject(id);
+        JsonObject ob = this.oTable.getObject(id);
         if (ob != null) {
-            allObjects.add(ob);
+            this.allObjects.add(ob);
 
             if (children) {
                 ob.setObjects(new ArrayList<>());
@@ -314,8 +310,8 @@ public class SQLDataSource {
 
     public JsonObject getObject(Long id) throws JEVisException {
         logger.debug("getObject: {}", id);
-        if (!allObjects.isEmpty()) {
-            for (JsonObject ob : allObjects) {
+        if (!this.allObjects.isEmpty()) {
+            for (JsonObject ob : this.allObjects) {
                 if (ob.getId() == id) {
                     logger.debug("getObject- cache");
                     return ob;
@@ -323,9 +319,9 @@ public class SQLDataSource {
             }
         }
         logger.debug("getObject- NON cache");
-        JsonObject ob = oTable.getObject(id);
+        JsonObject ob = this.oTable.getObject(id);
         if (ob != null) {
-            allObjects.add(ob);
+            this.allObjects.add(ob);
         }
         return ob;
 
@@ -360,14 +356,14 @@ public class SQLDataSource {
 
     public List<JsonObject> getObjects() throws JEVisException {
         logger.debug("getObjectS");
-        if (!allObjects.isEmpty()) {
+        if (!this.allObjects.isEmpty()) {
             logger.debug("Cache");
-            return allObjects;
+            return this.allObjects;
         }
 
-        allObjects = oTable.getAllObjects();
+        this.allObjects = this.oTable.getAllObjects();
         logger.debug("NONE-Cache");
-        return allObjects;
+        return this.allObjects;
     }
 
     public List<JsonRelationship> setRelationships(List<JsonRelationship> rels) {
@@ -391,18 +387,18 @@ public class SQLDataSource {
     }
 
     public JEVisUserNew getCurrentUser() {
-        if (user == null) {
+        if (this.user == null) {
             return new JEVisUserNew(this, "Unkown", -1l, false, false);
         }
-        return user;
+        return this.user;
     }
 
     public List<JsonSample> getSamples(long obj, String attribute, DateTime from, DateTime until, long limit) throws JEVisException {
         return getSampleTable().getSamples(obj, attribute, from, until, limit);
     }
 
-    public int setSamples(long obj, String attribute, int primitype, List<JsonSample> samples) throws JEVisException {
-        return getSampleTable().insertSamples(obj, attribute, primitype, samples);
+    public int setSamples(long obj, String attribute, int primitiveType, List<JsonSample> samples) throws JEVisException {
+        return getSampleTable().insertSamples(obj, attribute, primitiveType, samples);
     }
 
     public JsonSample getLastSample(long obj, String attribute) throws JEVisException {
@@ -410,17 +406,19 @@ public class SQLDataSource {
     }
 
     public List<JsonRelationship> getRelationships(long object) {
-        if (!allRelationships.isEmpty()) {
-            //TODO
+        if (!this.allRelationships.isEmpty()) {
+
             List<JsonRelationship> list = Collections.synchronizedList(new LinkedList<>());
-            allRelationships.parallelStream().forEach(rel -> {
+            this.allRelationships.parallelStream().forEach(rel -> {
                 if (rel.getTo() == object || rel.getFrom() == object) {
-                    list.add(rel);
+                    if (!list.contains(rel)) {
+                        list.add(rel);
+                    }
+
                 }
             });
             return list;
         }
-
         return getRelationshipTable().getAllForObject(object);
 
     }
@@ -439,21 +437,21 @@ public class SQLDataSource {
 
     public List<JsonRelationship> getRelationships() {
         logger.debug("getRelationships");
-        if (!allRelationships.isEmpty()) {
+        if (!this.allRelationships.isEmpty()) {
             logger.debug("getRelationships - cache");
-            return allRelationships;
+            return this.allRelationships;
         }
 
-        allRelationships = rTable.getAll();
+        this.allRelationships = this.rTable.getAll();
         logger.debug("getRelationships - None cache");
-        return allRelationships;
+        return this.allRelationships;
 
     }
 
     public boolean disconnect() throws JEVisException {
-        if (dbConn != null) {
+        if (this.dbConn != null) {
             try {
-                dbConn.close();
+                this.dbConn.close();
 //                dbConn=null;
                 return true;
             } catch (SQLException se) {
@@ -491,7 +489,7 @@ public class SQLDataSource {
 
             allObjects.parallelStream().forEach(jsonObject -> {
                 try {
-                    if (um.canRead(jsonObject)) {
+                    if (this.um.canRead(jsonObject)) {
                         objectMap.add(jsonObject.getId());
                     }
                 } catch (Exception ex) {
@@ -667,20 +665,20 @@ public class SQLDataSource {
      * Let us try to help the garbage collector to clean up
      */
     public void clear() {
-        um.clear();
-        um = null;
+        this.um.clear();
+        this.um = null;
 
-        lTable = null;
-        oTable = null;
-        aTable = null;
-        sTable = null;
-        rTable = null;
-        lTable = null;
+        this.lTable = null;
+        this.oTable = null;
+        this.aTable = null;
+        this.sTable = null;
+        this.rTable = null;
+        this.lTable = null;
 
-        allRelationships.clear();
-        allRelationships = null;
-        allObjects.clear();
-        allObjects = null;
+        this.allRelationships.clear();
+        this.allRelationships = null;
+        this.allObjects.clear();
+        this.allObjects = null;
     }
 
     public enum PRELOAD {

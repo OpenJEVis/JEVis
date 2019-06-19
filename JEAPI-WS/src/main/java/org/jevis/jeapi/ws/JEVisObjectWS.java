@@ -177,6 +177,7 @@ public class JEVisObjectWS implements JEVisObject {
                 logger.error(ex);
             }
         }
+        logger.debug("[{}] getChildren: \n{}\n", getID(), filterLIst);
 
         return filterLIst;
     }
