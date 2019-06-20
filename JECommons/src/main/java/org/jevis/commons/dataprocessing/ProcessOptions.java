@@ -260,6 +260,23 @@ public class ProcessOptions {
         return result;
     }
 
+    public static List<DateTime> getAllTimestampsSingleList(List<JEVisSample> allSamples) {
+        List<DateTime> result = new ArrayList<>();
+        for (JEVisSample sample : allSamples) {
+            try {
+                if (!result.contains(sample.getTimestamp())) {
+                    result.add(sample.getTimestamp());
+                }
+            } catch (JEVisException ex) {
+                logger.fatal(ex);
+            }
+
+        }
+        Collections.sort(result);
+
+        return result;
+    }
+
     /**
      * Returns an list of intervals
      *

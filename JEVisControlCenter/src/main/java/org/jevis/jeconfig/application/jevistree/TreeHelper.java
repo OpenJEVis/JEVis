@@ -515,6 +515,15 @@ public class TreeHelper {
                                         }
                                     });
                                 }
+
+                                try {
+                                    JEVisFile template = rwd.createTemplate(newObject.getName());
+                                    JEVisAttribute templateAttribute = newObject.getAttribute("Template");
+                                    JEVisSample sample = templateAttribute.buildSample(new DateTime(), template);
+                                    sample.commit();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
                             }
 
                         }

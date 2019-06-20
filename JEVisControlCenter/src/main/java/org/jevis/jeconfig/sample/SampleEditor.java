@@ -267,7 +267,9 @@ public class SampleEditor {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                updateSamples(startDate, endDate);
+                if (startDate != null && endDate != null) {
+                    updateSamples(startDate, endDate);
+                }
             }
         });
 
@@ -395,8 +397,10 @@ public class SampleEditor {
 
     private void updateSamples(JFXDatePicker startDate, JFXDatePicker endDate) {
 
-        updateSamples(new DateTime(startDate.getValue().getYear(), startDate.getValue().getMonth().getValue(), startDate.getValue().getDayOfMonth(), 0, 0)
-                , new DateTime(endDate.getValue().getYear(), endDate.getValue().getMonth().getValue(), endDate.getValue().getDayOfMonth(), 23, 59, 59, 999));
+        if (startDate != null && endDate != null) {
+            updateSamples(new DateTime(startDate.getValue().getYear(), startDate.getValue().getMonth().getValue(), startDate.getValue().getDayOfMonth(), 0, 0)
+                    , new DateTime(endDate.getValue().getYear(), endDate.getValue().getMonth().getValue(), endDate.getValue().getDayOfMonth(), 23, 59, 59, 999));
+        }
     }
 
     private int getLastDataSettings(final DateTime from, final DateTime until, AggregationPeriod period) {

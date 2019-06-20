@@ -53,7 +53,7 @@ public class Launcher extends AbstractCliApp {
     private Long latestReported;
 
     public Launcher(String[] args, String appname) {
-        super(args);
+        super(args, appname);
 
     }
 
@@ -66,42 +66,12 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void addCommands() {
-
+        comm.addObject(commands);
     }
 
     @Override
     protected void handleAdditionalCommands() {
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
-
-//        options.addOption(configFile);
-//        options.addOption(help);
-//        options.addOption(mode);
-//
-//        CommandLineParser parser = new BasicParser();
-//        CommandLine cmd = null;
-//        try {
-//            cmd = parser.parse(options, args);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//
-//        HelpFormatter formatter = new HelpFormatter();
-//
-//        if (Objects.requireNonNull(cmd).hasOption(help.getLongOpt())) {
-//            formatter.printHelp("Launcher 1.0", options);
-//        }
-//
-//        if (cmd.hasOption(configFile.getLongOpt())) {
-//            config = null;
-//            try {
-//                config = new Config(cmd.getOptionValue(configFile.getLongOpt()));
-//            } catch (ConfigurationException e) {
-//                logger.error(e);
-//            }
-//        } else {
-//            logger.info("Missing configuration file..");
-//            formatter.printHelp("Launcher 1.0  2019-01-02", options);
-//        }
     }
 
     @Override

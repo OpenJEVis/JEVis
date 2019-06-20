@@ -48,12 +48,28 @@ public class ReportLink {
         this.templateVariableName = templateVariableName;
     }
 
+
     public ReportAttribute getReportAttribute() {
         return reportAttribute;
     }
 
     public void setReportAttribute(ReportAttribute reportAttribute) {
         this.reportAttribute = reportAttribute;
+    }
+
+    public ReportLink clone() {
+        ReportLink clonedReportLink = new ReportLink("", null, false, "", new ReportAttribute("Value", new ReportPeriodConfiguration("NONE", PeriodMode.CURRENT)));
+        clonedReportLink.setName(this.getName());
+        clonedReportLink.setTemplateVariableName(this.getTemplateVariableName());
+        clonedReportLink.setjEVisID(this.getjEVisID());
+        clonedReportLink.setOptional(this.isOptional());
+
+        clonedReportLink.getReportAttribute().setAttributeName(getReportAttribute().getAttributeName());
+
+        clonedReportLink.getReportAttribute().getReportPeriodConfiguration().setPeriodMode(getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
+        clonedReportLink.getReportAttribute().getReportPeriodConfiguration().setReportAggregation(getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+
+        return clonedReportLink;
     }
 }
 

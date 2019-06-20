@@ -129,9 +129,15 @@ public class AlarmHandler {
 
         logToServiceObject(sb.toString());
         if (isEMailEnabled()) {
+            logger.info("E-Mail is enabled. Initializing...");
+
             initializeNotification();
 
+            logger.info("Initialized Notifictation. Sending...");
+
             sendNotification(notificationObject, sb.toString());
+
+            logger.info("Sent notification.");
 
 //                sendAlarm(_conf, alarm, sb.toString());
 
