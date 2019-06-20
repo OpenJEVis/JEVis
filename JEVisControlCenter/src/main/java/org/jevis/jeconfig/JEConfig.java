@@ -347,10 +347,15 @@ public class JEConfig extends Application {
                 try {
                     _mainDS.preload();
                     logger.error("done preloading");
+//                    logger.error("-------test\n {}", _mainDS.getObject(9485l).getChildren());
+
                 } catch (Exception ex) {
                     logger.error("Error while preloading datasource", ex);
                     ex.printStackTrace();
                 }
+                //test
+
+
                 logger.error("start GUI");
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());

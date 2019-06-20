@@ -68,23 +68,23 @@ public class ObjectEditor {
     private HiddenSidesPane _view;
 
     public ObjectEditor() {
-        _view = new HiddenSidesPane();
-        _view.setId("objecteditorpane");
-        _view.getStylesheets().add("/styles/Styles.css");
-        _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        this._view = new HiddenSidesPane();
+        this._view.setId("objecteditorpane");
+        this._view.getStylesheets().add("/styles/Styles.css");
+        this._view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
     }
 
     public void commitAll() {
-        for (ObjectEditorExtension extension : activeExtensions) {
+        for (ObjectEditorExtension extension : this.activeExtensions) {
             logger.debug("ObjectEditor.comitall: {}", extension.getClass());
             extension.save();
         }
     }
 
     public boolean needSave() {
-        if (_currentObject != null) {
-            for (ObjectEditorExtension extension : activeExtensions) {
+        if (this._currentObject != null) {
+            for (ObjectEditorExtension extension : this.activeExtensions) {
                 if (extension.needSave()) {
                     return true;
                 }
@@ -94,8 +94,8 @@ public class ObjectEditor {
     }
 
     public void dismissChanges() {
-        if (_currentObject != null) {
-            for (ObjectEditorExtension extension : activeExtensions) {
+        if (this._currentObject != null) {
+            for (ObjectEditorExtension extension : this.activeExtensions) {
                 extension.dismissChanges();
             }
         }
@@ -137,7 +137,7 @@ public class ObjectEditor {
 //        }
 //    }
     public Node getView() {
-        return _view;
+        return this._view;
     }
 
     public void setTree(JEVisTree tree) {
@@ -164,7 +164,7 @@ public class ObjectEditor {
 
     public void loadObject(final JEVisObject obj) {
         //        checkIfSaved(obj); //TODO reimplement
-        _currentObject = obj;
+        this._currentObject = obj;
 
         Platform.runLater(
                 () -> {
@@ -173,30 +173,33 @@ public class ObjectEditor {
                     accordion.setStyle("-fx-box-border: transparent;");
 
                     List<TitledPane> taps = new ArrayList<>();
-                    installedExtensions = new ArrayList<>();
+                    this.installedExtensions = new ArrayList<>();
 
-                    installedExtensions.add(new CalculationExtension(obj));
-                    installedExtensions.add(new CleanDataExtension(obj));
-                    installedExtensions.add(new MemberExtension(obj));
+                    this.installedExtensions.add(new CalculationExtension(obj));
+                    this.installedExtensions.add(new CleanDataExtension(obj));
+                    this.installedExtensions.add(new MemberExtension(obj));
 
 
                     //Generic Extensions every Class has
                     //TODO: make an better logic to decide/configure the extension order
-                    installedExtensions.add(new GenericAttributeExtension(obj, tree));
-                    installedExtensions.add(new PermissionExtension(obj));
-                    installedExtensions.add(new RootExtension(obj));
-                    installedExtensions.add(new LinkExtension(obj));
+                    this.installedExtensions.add(new GenericAttributeExtension(obj, this.tree));
+                    if (JEConfig.getExpert()) {
+                        this.installedExtensions.add(new ChildrenEditorPlugin(obj));
+                    }
+                    this.installedExtensions.add(new PermissionExtension(obj));
+                    this.installedExtensions.add(new RootExtension(obj));
+                    this.installedExtensions.add(new LinkExtension(obj));
 
-                    activeExtensions = new ArrayList<>();
+                    this.activeExtensions = new ArrayList<>();
 
-                    for (final ObjectEditorExtension ex : installedExtensions) {
+                    for (final ObjectEditorExtension ex : this.installedExtensions) {
                         try {
                             if (ex.isForObject(obj)) {
-                                if (_lastOpenEditor == null) {
-                                    _lastOpenEditor = ex.getTitle();
+                                if (this._lastOpenEditor == null) {
+                                    this._lastOpenEditor = ex.getTitle();
                                 }
 
-                                activeExtensions.add(ex);
+                                this.activeExtensions.add(ex);
                                 TitledPane newTab = new TitledPane(ex.getTitle(), ex.getView());
                                 newTab.getStylesheets().add("/styles/objecteditor.css");
 
@@ -204,7 +207,7 @@ public class ObjectEditor {
                                 taps.add(newTab);
                                 ex.getValueChangedProperty().addListener((ov, t, t1) -> {
                                     if (t1) {
-                                        _hasChanged = t1;//TODO: enable/disbale the save button
+                                        this._hasChanged = t1;//TODO: enable/disbale the save button
                                     }
                                 });
 
@@ -213,7 +216,7 @@ public class ObjectEditor {
                                         try {
                                             JEConfig.loadNotification(true);
                                             ex.setVisible();
-                                            _lastOpenEditor = ex.getTitle();
+                                            this._lastOpenEditor = ex.getTitle();
                                             JEConfig.loadNotification(false);
                                         } catch (Exception ex1) {
                                             ex1.printStackTrace();
@@ -237,14 +240,14 @@ public class ObjectEditor {
                     boolean foundTab = false;
                     if (!taps.isEmpty()) {
 
-                        for (ObjectEditorExtension ex : activeExtensions) {
-                            if (ex.getTitle().equals(_lastOpenEditor)) {
+                        for (ObjectEditorExtension ex : this.activeExtensions) {
+                            if (ex.getTitle().equals(this._lastOpenEditor)) {
                                 ex.setVisible();
 //                            updateView(content, ex);
                             }
                         }
                         for (TitledPane tap : taps) {
-                            if (tap.getText().equals(_lastOpenEditor)) {
+                            if (tap.getText().equals(this._lastOpenEditor)) {
                                 accordion.setExpandedPane(tap);
                                 foundTab = true;
                             }
@@ -254,7 +257,7 @@ public class ObjectEditor {
                     if (!foundTab) {
 
                         //Set the first enabled extension visible, waring the order of installedExtensions an tabs is not the same
-                        for (final ObjectEditorExtension ex : activeExtensions) {
+                        for (final ObjectEditorExtension ex : this.activeExtensions) {
                             try {
                                 if (ex.isForObject(obj)) {
                                     ex.setVisible();
@@ -267,7 +270,7 @@ public class ObjectEditor {
 //                            installedExtensions.get(0).setVisible();
                         accordion.setExpandedPane(taps.get(0));
                         taps.get(0).requestFocus();
-                        _lastOpenEditor = installedExtensions.get(0).getTitle();
+                        this._lastOpenEditor = this.installedExtensions.get(0).getTitle();
                     }
 
                     Button helpButton = new Button("", JEConfig.getImage("1400874302_question_blue.png", 34, 34));
@@ -364,17 +367,17 @@ public class ObjectEditor {
                         SideNode help = new SideNode(
                                 I18nWS.getInstance().getClassName(obj.getJEVisClassName()),
                                 sb.toString(),
-                                Side.RIGHT, _view);
+                                Side.RIGHT, this._view);
 
 
-                        _view.setRight(help);
-                        helpButton.setOnAction(event -> _view.setPinnedSide(Side.RIGHT));
+                        this._view.setRight(help);
+                        helpButton.setOnAction(event -> this._view.setPinnedSide(Side.RIGHT));
 
                     } catch (Exception ex) {
                         logger.catching(ex);
                     }
 
-                    _view.setContent(pane);
+                    this._view.setContent(pane);
 
                 }
         );
