@@ -305,7 +305,6 @@ public class LoadAnalysisDialog {
         mathBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
                 graphDataModel.setManipulationMode(newValue);
-                graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
                 updateGridLayout();
             }
         });
@@ -313,9 +312,6 @@ public class LoadAnalysisDialog {
         aggregationBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
                 graphDataModel.setAggregationPeriod(newValue);
-                if (newValue.equals(AggregationPeriod.NONE)) {
-                    graphDataModel.setManipulationMode(ManipulationMode.NONE);
-                }
                 updateGridLayout();
             }
         });
@@ -364,7 +360,6 @@ public class LoadAnalysisDialog {
 
         final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
 
-        final String keyTotal = I18n.getInstance().getString("plugin.graph.manipulation.total");
         final String keyRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.runningmean");
         final String keyCentricRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
         final String keySortedMin = I18n.getInstance().getString("plugin.graph.manipulation.sortedmin");
@@ -373,13 +368,10 @@ public class LoadAnalysisDialog {
         DisabledItemsComboBox<ManipulationMode> math = new DisabledItemsComboBox<>();
         List<ManipulationMode> customList = new ArrayList<>();
         customList.add(ManipulationMode.NONE);
-        customList.add(ManipulationMode.TOTAL);
         customList.add(ManipulationMode.RUNNING_MEAN);
         customList.add(ManipulationMode.CENTRIC_RUNNING_MEAN);
         customList.add(ManipulationMode.SORTED_MIN);
         customList.add(ManipulationMode.SORTED_MAX);
-
-        math.setDisabledItems(ManipulationMode.TOTAL);
 
         math.setItems(FXCollections.observableArrayList(customList));
         math.getSelectionModel().selectFirst();
@@ -398,9 +390,6 @@ public class LoadAnalysisDialog {
                             switch (manipulationMode) {
                                 case NONE:
                                     text = keyPreset;
-                                    break;
-                                case TOTAL:
-                                    text = keyTotal;
                                     break;
                                 case RUNNING_MEAN:
                                     text = keyRunningMean;

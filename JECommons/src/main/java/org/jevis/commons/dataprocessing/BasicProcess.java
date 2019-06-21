@@ -36,7 +36,7 @@ import java.util.List;
 public class BasicProcess implements Process {
     private static final Logger logger = LogManager.getLogger(BasicProcess.class);
 
-    private ProcessFunction _processor = new NullFunction();
+    private ProcessFunction _processor = new NullFunction(ManipulationMode.NONE, AggregationPeriod.NONE);
     private List<ProcessOption> _options = new ArrayList<>();
     private List<JEVisSample> _result;
     private List<Process> tasks = new ArrayList<>();

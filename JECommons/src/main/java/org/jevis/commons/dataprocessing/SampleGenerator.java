@@ -100,7 +100,7 @@ public class SampleGenerator {
                 basicProcess.setID(ManipulationMode.SORTED_MAX.toString());
                 break;
             default:
-                basicProcess.setFunction(new NullFunction());
+                basicProcess.setFunction(new NullFunction(manipulationMode, aggregationPeriod));
                 basicProcess.setID("Null");
                 break;
         }
@@ -108,62 +108,64 @@ public class SampleGenerator {
 
         BasicProcess aggregationProcess = new BasicProcess();
         if (aggregationPeriod == AggregationPeriod.NONE) {
-            aggregationProcess.setJEVisDataSource(ds);
-            aggregationProcess.setObject(attribute.getObject());
-
-            switch (aggregationPeriod) {
-                case DAILY:
-                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
-                    break;
-                case HOURLY:
-                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
-                    break;
-                case WEEKLY:
-                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
-                    break;
-                case MONTHLY:
-                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
-                    break;
-                case QUARTERLY:
-                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(3).toString()));
-                    break;
-                case YEARLY:
-                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
-                    break;
-                default:
-                    return basicProcess.getResult();
-            }
-
-            aggregationProcess.setFunction(new AggregatorFunction());
-            aggregationProcess.setID(ManipulationMode.TOTAL.toString());
-
-            aggregationProcess.setSubProcesses(Collections.singletonList(basicProcess));
-            return aggregationProcess.getResult();
+            return basicProcess.getResult();
         } else {
-            switch (aggregationPeriod) {
-                case DAILY:
-                    basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
-                    break;
-                case HOURLY:
-                    basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
-                    break;
-                case WEEKLY:
-                    basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
-                    break;
-                case MONTHLY:
-                    basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
-                    break;
-                case QUARTERLY:
-                    basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(3).toString()));
-                    break;
-                case YEARLY:
-                    basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
-                    break;
-                default:
-                    break;
+            if (manipulationMode == ManipulationMode.NONE) {
+                aggregationProcess.setJEVisDataSource(ds);
+                aggregationProcess.setObject(attribute.getObject());
+
+                switch (aggregationPeriod) {
+                    case DAILY:
+                        aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
+                        break;
+                    case HOURLY:
+                        aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
+                        break;
+                    case WEEKLY:
+                        aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
+                        break;
+                    case MONTHLY:
+                        aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
+                        break;
+                    case QUARTERLY:
+                        aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(3).toString()));
+                        break;
+                    case YEARLY:
+                        aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
+                        break;
+                    default:
+                        return basicProcess.getResult();
+                }
+                aggregationProcess.setFunction(new AggregatorFunction());
+                aggregationProcess.setID("Aggregation");
+
+                aggregationProcess.setSubProcesses(Collections.singletonList(basicProcess));
+                return aggregationProcess.getResult();
+            } else {
+                switch (aggregationPeriod) {
+                    case DAILY:
+                        basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
+                        break;
+                    case HOURLY:
+                        basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
+                        break;
+                    case WEEKLY:
+                        basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
+                        break;
+                    case MONTHLY:
+                        basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
+                        break;
+                    case QUARTERLY:
+                        basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(3).toString()));
+                        break;
+                    case YEARLY:
+                        basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
+                        break;
+                    default:
+                        return basicProcess.getResult();
+                }
+                return basicProcess.getResult();
             }
         }
-
-        return basicProcess.getResult();
     }
 }

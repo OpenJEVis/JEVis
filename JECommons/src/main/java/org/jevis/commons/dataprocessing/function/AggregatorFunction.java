@@ -52,7 +52,6 @@ public class AggregatorFunction implements ProcessFunction {
         List<List<JEVisSample>> allSamples = new ArrayList<>();
         for (Process task : mainTask.getSubProcesses()) {
             allSamples.add(task.getResult());
-            //logger.info("Add input result: " + allSamples.size());
         }
 
         List<DateTime> allTimestamps = getAllTimestamps(allSamples);
@@ -72,37 +71,6 @@ public class AggregatorFunction implements ProcessFunction {
                 }
             }
         }
-
-        //logger.info("intervals: " + intervals.size());
-
-        /**
-         * get the object for getting the attribute to identify if its a quantity or not. just supporting clean data
-         */
-//        JEVisObject taskObject = null;
-//        for (ProcessOption processOption : getAvailableOptions()) {
-//            if (processOption.getKey().equals(InputFunction.OBJECT_ID)) {
-//                try {
-//                    taskObject = mainTask.getJEVisDataSource().getObject(Long.parseLong(processOption.getValue()));
-//                    break;
-//                } catch (JEVisException e) {
-//                    logger.error("Could not get object for task: " + e);
-//                }
-//            }
-//        }
-
-//        if (taskObject != null) {
-//            try {
-//                if (taskObject.getJEVisClassName().equals("Clean Data")) {
-//                    JEVisAttribute isQuantityAtt = taskObject.getAttribute("Value is a Quantity");
-//                    if (isQuantityAtt.hasSample()) {
-//                        isQuantity = isQuantityAtt.getLatestSample().getValueAsBoolean();
-//                    }
-//                }
-//
-//            } catch (JEVisException e) {
-//                e.printStackTrace();
-//            }
-//        }
 
         int lastPos = 0;
         for (Interval interval : intervals) {

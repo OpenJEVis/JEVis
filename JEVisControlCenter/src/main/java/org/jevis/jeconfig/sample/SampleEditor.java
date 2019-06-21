@@ -425,12 +425,7 @@ public class SampleEditor {
                     _from = _from.minusDays(1);
                 }
 
-
-                SampleGenerator sg;
-                if (_period.equals(AggregationPeriod.NONE))
-                    sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, ManipulationMode.NONE, _period);
-                else
-                    sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, ManipulationMode.TOTAL, _period);
+                SampleGenerator sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, ManipulationMode.NONE, _period);
 
                 samples = sg.generateSamples();
                 samples = sg.getAggregatedSamples(samples);

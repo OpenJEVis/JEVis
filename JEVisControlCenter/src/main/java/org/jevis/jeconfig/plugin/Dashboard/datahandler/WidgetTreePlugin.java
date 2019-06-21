@@ -329,7 +329,6 @@ public class WidgetTreePlugin implements TreePlugin {
 
                                 List<ManipulationMode> customList = new ArrayList<>();
                                 customList.add(ManipulationMode.NONE);
-                                customList.add(ManipulationMode.TOTAL);
                                 customList.add(ManipulationMode.RUNNING_MEAN);
                                 customList.add(ManipulationMode.CENTRIC_RUNNING_MEAN);
                                 customList.add(ManipulationMode.SORTED_MIN);
@@ -349,9 +348,6 @@ public class WidgetTreePlugin implements TreePlugin {
                                                     switch (manipulationMode) {
                                                         case NONE:
                                                             text = keyPreset;
-                                                            break;
-                                                        case TOTAL:
-                                                            text = keyTotal;
                                                             break;
                                                         case RUNNING_MEAN:
                                                             text = keyRunningMean;

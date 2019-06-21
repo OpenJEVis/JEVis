@@ -23,8 +23,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.Process;
-import org.jevis.commons.dataprocessing.ProcessFunction;
-import org.jevis.commons.dataprocessing.ProcessOption;
+import org.jevis.commons.dataprocessing.*;
+import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +37,13 @@ public class NullFunction implements ProcessFunction {
     private static final Logger logger = LogManager.getLogger(NullFunction.class);
 
     public static final String NAME = "Null Function";
+    private AggregationPeriod aggregationPeriod;
+    private ManipulationMode mode;
+
+    public NullFunction(ManipulationMode mode, AggregationPeriod aggregationPeriod) {
+        this.mode = mode;
+        this.aggregationPeriod = aggregationPeriod;
+    }
 
     @Override
     public void resetResult() {
@@ -50,6 +57,40 @@ public class NullFunction implements ProcessFunction {
         for (Process task : mainTask.getSubProcesses()) {
             allSamples.addAll(task.getResult());
             //logger.info("Add input result: " + allSamples.size());
+        }
+
+        if (aggregationPeriod != AggregationPeriod.NONE) {
+            BasicProcess aggregationProcess = new BasicProcess();
+            aggregationProcess.setJEVisDataSource(mainTask.getJEVisDataSource());
+            aggregationProcess.setObject(mainTask.getObject());
+
+            switch (aggregationPeriod) {
+                case DAILY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
+                    break;
+                case HOURLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
+                    break;
+                case WEEKLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
+                    break;
+                case MONTHLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
+                    break;
+                case QUARTERLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(3).toString()));
+                    break;
+                case YEARLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
+                    break;
+                default:
+            }
+            aggregationProcess.setFunction(new AggregatorFunction());
+            aggregationProcess.setID("Aggregation");
+
+            aggregationProcess.setSubProcesses(mainTask.getSubProcesses());
+
+            allSamples = aggregationProcess.getResult();
         }
 
         return allSamples;
