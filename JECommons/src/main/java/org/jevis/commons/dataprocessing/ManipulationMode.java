@@ -2,13 +2,15 @@ package org.jevis.commons.dataprocessing;
 
 public enum ManipulationMode {
 
-    TOTAL, AVERAGE, MIN, MAX, MEDIAN, RUNNING_MEAN, CENTRIC_RUNNING_MEAN, SORTED_MIN, SORTED_MAX, NONE;
+    AVERAGE, MIN, MAX, MEDIAN, RUNNING_MEAN, CENTRIC_RUNNING_MEAN, SORTED_MIN, SORTED_MAX, NONE;
 
     public static ManipulationMode get(String modeName) {
         String[] modeArray = modeName.split("_");
         String mode = NONE.name();
         if (modeArray.length == 2) {
             mode = modeArray[1];
+        } else if (modeArray.length == 3) {
+            mode = modeArray[1] + "_" + modeArray[2];
         }
         return valueOf(mode);
     }
@@ -17,8 +19,6 @@ public enum ManipulationMode {
         switch (manipulation) {
             case ("None"):
                 return NONE;
-            case ("Total"):
-                return TOTAL;
             case ("Average"):
                 return AVERAGE;
             case ("Min"):

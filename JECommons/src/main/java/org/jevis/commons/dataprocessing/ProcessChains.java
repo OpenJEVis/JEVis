@@ -244,7 +244,7 @@ public class ProcessChains {
         result.add(new LimitCheckerFunction());
         //todo default function?
         result.add(new MathFunction("default"));
-        result.add(new NullFunction());
+        result.add(new NullFunction(ManipulationMode.NONE, AggregationPeriod.NONE));
 
         return result;
 
@@ -258,7 +258,7 @@ public class ProcessChains {
      */
     public static String processChainToJSon(Process task) {
         BasicProcess json = new BasicProcess();
-        json.setFunction(new NullFunction());
+        json.setFunction(new NullFunction(ManipulationMode.NONE, AggregationPeriod.NONE));
 //        Gson gson = new GsonBuilder().create();
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -301,12 +301,11 @@ public class ProcessChains {
                 return new LimitCheckerFunction();
             case MathFunction.NAME:
                 return new MathFunction(name);
-            case NullFunction.NAME:
-                return new NullFunction();
             case ConverterFunction.NAME:
                 return new ConverterFunction();
+            case NullFunction.NAME:
             default:
-                return new NullFunction();
+                return new NullFunction(ManipulationMode.NONE, AggregationPeriod.NONE);
         }
     }
 

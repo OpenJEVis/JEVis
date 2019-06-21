@@ -628,8 +628,6 @@ public class XYChart implements Chart {
                 break;
             case NONE:
                 break;
-            case TOTAL:
-                break;
             case SORTED_MAX:
                 String sortedmax = I18n.getInstance().getString("plugin.graph.manipulation.sortedmax");
                 if (!newName.contains(sortedmax))
