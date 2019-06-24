@@ -60,9 +60,8 @@ public class DataModelDataHandler {
             if (configNode != null) {
                 ObjectMapper mapper = new ObjectMapper();
 
-                DataModelNode dataModelNode = mapper.treeToValue(configNode, DataModelNode.class);
-//            System.out.println("Json: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataModelNode));
-                this.dataModelNode = dataModelNode;
+                //            System.out.println("Json: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataModelNode));
+                this.dataModelNode = mapper.treeToValue(configNode, DataModelNode.class);
             }
 
         } catch (Exception ex) {
@@ -130,7 +129,7 @@ public class DataModelDataHandler {
 
                         if (dataPointNode.isEnpi()) {
                             chartDataModel.setEnPI(dataPointNode.isEnpi());
-                            if (dataPointNode.getCalculationID() != null && !dataPointNode.getCalculationID().equals("0")) {
+                            if (dataPointNode.getCalculationID() != null && !dataPointNode.getCalculationID().equals(0L)) {
                                 chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
                             }
 
@@ -225,22 +224,18 @@ public class DataModelDataHandler {
 
                 /** less then an week take original **/
                 if (interval.toDuration().getStandardDays() < 6) {
-                    aggregationPeriod = AggregationPeriod.NONE;
                 }
                 /** less then an month take hour **/
                 else if (interval.toDuration().getStandardDays() < 32) {
                     aggregationPeriod = AggregationPeriod.HOURLY;
-                    manipulationMode = ManipulationMode.NONE;
                 }
                 /** less than year take day **/
                 else if (interval.toDuration().getStandardDays() < 364) {
                     aggregationPeriod = AggregationPeriod.DAILY;
-                    manipulationMode = ManipulationMode.NONE;
                 }
                 /** more than an year take week **/
                 else {
                     aggregationPeriod = AggregationPeriod.WEEKLY;
-                    manipulationMode = ManipulationMode.NONE;
                 }
                 chartDataModel.setAggregationPeriod(aggregationPeriod);
                 chartDataModel.setManipulationMode(manipulationMode);

@@ -30,6 +30,7 @@ import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
 import java.io.File;
@@ -43,6 +44,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ReportWizardDialog extends Dialog<ButtonType> {
     private static final Logger logger = LogManager.getLogger(ReportWizardDialog.class);
+    public static String ICON = "Startup Wizard_18228.png";
     private JEVisDataSource ds;
     private JEVisObject reportLinkDirectory;
     private JEVisObject emailNotification;
@@ -72,11 +74,14 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
 
     private void init() {
         this.getDialogPane().setMinHeight(600);
+
+        Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("plugin.object.report.dialog.header"));
+
         VBox vBox = new VBox();
         HBox hbox = new HBox();
-        addButton = new Button("Add");
+        addButton = new Button("", JEConfig.getImage("list-add.png", 16, 16));
 
-        this.setTitle(I18n.getInstance().getString("Report Wizard"));
+        this.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.title"));
 
         gridPane = new GridPane();
         gridPane.setPadding(new Insets(10, 10, 10, 10));
@@ -106,6 +111,7 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
         this.getDialogPane().getButtonTypes().addAll(ok, cancel);
+        vBox.getChildren().add(header);
         vBox.getChildren().add(hbox);
         vBox.getChildren().add(addButton);
         this.getDialogPane().setContent(vBox);
@@ -145,7 +151,23 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
             periodModeComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
         }
 
+        Label optionalLabel = new Label("Optional");
+        ToggleSwitchPlus toggleSwitchPlus = new ToggleSwitchPlus();
+        toggleSwitchPlus.setSelected(reportLink.isOptional());
+        toggleSwitchPlus.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                reportLink.setOptional(newValue);
+            }
+        });
+
         Button copyButton = new Button("", JEConfig.getImage("copy_172587.png", 16, 16));
+
+        Button removeButton = new Button("", JEConfig.getImage("list-remove.png", 16, 16));
+        removeButton.setOnAction(event -> {
+            reportLinkList.remove(reportLink);
+            Platform.runLater(() -> gridPane.getChildren().remove(hBox));
+        });
+
         AtomicReference<String> targetString = new AtomicReference<>();
         if (reportLink.getjEVisID() != null) {
             targetString.set(reportLink.getjEVisID().toString());
@@ -243,7 +265,7 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
             Platform.runLater(() -> createNewReportLink(true, reportLink));
         });
 
-        hBox.getChildren().addAll(targetsButton, aggregationPeriodComboBox, periodModeComboBox, copyButton);
+        hBox.getChildren().addAll(targetsButton, aggregationPeriodComboBox, periodModeComboBox, optionalLabel, toggleSwitchPlus, copyButton, removeButton);
 
         return hBox;
     }
