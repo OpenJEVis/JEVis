@@ -30,6 +30,8 @@ import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.ReportAggregationBox;
+import org.jevis.jeconfig.tool.ReportPeriodBox;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
@@ -50,7 +52,7 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
     private JEVisObject emailNotification;
     private List<UserSelection> selections;
     private List<ReportLink> reportLinkList = new ArrayList<>();
-    private int row;
+    private int row = 0;
     private Button addButton;
     private GridPane gridPane;
 
@@ -86,19 +88,13 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         gridPane = new GridPane();
         gridPane.setPadding(new Insets(10, 10, 10, 10));
         gridPane.setVgap(10);
-
-        row = 0;
+        gridPane.setHgap(4);
 
         if (reportLinkList.isEmpty()) {
             reportLinkList.add(new ReportLink("", null, false, "", new ReportAttribute("Value", new ReportPeriodConfiguration("NONE", PeriodMode.CURRENT))));
         }
 
-        for (ReportLink reportLink : reportLinkList) {
-            Label reportVariable = new Label("Report Link: ");
-            gridPane.add(reportVariable, 0, row);
-            gridPane.add(createBox(reportLink), 1, row);
-            row++;
-        }
+        updateGridpane();
 
         addButton.setOnAction(event -> {
             createNewReportLink(false, null);
@@ -122,6 +118,24 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         this.getDialogPane().setPrefWidth(1220);
     }
 
+    private void updateGridpane() {
+        gridPane.getChildren().clear();
+        Label reportVariableLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.reportlink"));
+        Label aggregationLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.aggregation"));
+        Label periodLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.period"));
+        Label optionalLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.optional"));
+
+        gridPane.add(reportVariableLabel, 0, 0);
+        gridPane.add(aggregationLabel, 1, 0);
+        gridPane.add(periodLabel, 2, 0);
+        gridPane.add(optionalLabel, 3, 0);
+        row = 1;
+        for (ReportLink reportLink : reportLinkList) {
+            createBox(reportLink);
+            row++;
+        }
+    }
+
     private void createNewReportLink(Boolean copy, ReportLink oldReportLink) {
         ReportLink reportLink = null;
         if (!copy) {
@@ -131,27 +145,22 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
             reportLink = oldReportLink.clone();
         }
         reportLinkList.add(reportLink);
-        Label reportVariable = new Label("Report Link: ");
-        gridPane.add(reportVariable, 0, row);
-        gridPane.add(createBox(reportLink), 1, row);
         row++;
+        createBox(reportLink);
     }
 
-    private Node createBox(ReportLink reportLink) {
-        HBox hBox = new HBox();
-        hBox.setSpacing(4);
+    private void createBox(ReportLink reportLink) {
         Button targetsButton = new Button("Select Target");
-        ComboBox<String> aggregationPeriodComboBox = new ComboBox<String>(FXCollections.observableArrayList(ReportAggregation.values()));
+        ReportAggregationBox aggregationPeriodComboBox = new ReportAggregationBox(FXCollections.observableArrayList(ReportAggregation.values()));
         if (reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation() != null) {
             aggregationPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
         }
 
-        ComboBox<PeriodMode> periodModeComboBox = new ComboBox<>(FXCollections.observableArrayList(PeriodMode.values()));
+        ReportPeriodBox periodModeComboBox = new ReportPeriodBox(FXCollections.observableArrayList(PeriodMode.values()));
         if (reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode() != null) {
             periodModeComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
         }
 
-        Label optionalLabel = new Label("Optional");
         ToggleSwitchPlus toggleSwitchPlus = new ToggleSwitchPlus();
         toggleSwitchPlus.setSelected(reportLink.isOptional());
         toggleSwitchPlus.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -164,8 +173,10 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
 
         Button removeButton = new Button("", JEConfig.getImage("list-remove.png", 16, 16));
         removeButton.setOnAction(event -> {
-            reportLinkList.remove(reportLink);
-            Platform.runLater(() -> gridPane.getChildren().remove(hBox));
+            if (row > 1) {
+                reportLinkList.remove(reportLink);
+                Platform.runLater(this::updateGridpane);
+            }
         });
 
         AtomicReference<String> targetString = new AtomicReference<>();
@@ -265,9 +276,12 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
             Platform.runLater(() -> createNewReportLink(true, reportLink));
         });
 
-        hBox.getChildren().addAll(targetsButton, aggregationPeriodComboBox, periodModeComboBox, optionalLabel, toggleSwitchPlus, copyButton, removeButton);
-
-        return hBox;
+        gridPane.add(targetsButton, 0, row);
+        gridPane.add(aggregationPeriodComboBox, 1, row);
+        gridPane.add(periodModeComboBox, 2, row);
+        gridPane.add(toggleSwitchPlus, 3, row);
+        gridPane.add(copyButton, 4, row);
+        gridPane.add(removeButton, 5, row);
     }
 
     private void updateName(ReportLink reportLink) {
