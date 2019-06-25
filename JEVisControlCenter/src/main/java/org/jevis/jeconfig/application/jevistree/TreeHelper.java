@@ -489,6 +489,10 @@ public class TreeHelper {
                                             JEVisSample sample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
                                             sample.commit();
 
+                                            JEVisAttribute optionalAttribute = object.getAttribute("Optional");
+                                            JEVisSample sampleOptional = optionalAttribute.buildSample(new DateTime(), rl.isOptional());
+                                            sampleOptional.commit();
+
                                             JEVisAttribute templateVariableName = object.getAttribute("Template Variable Name");
                                             JEVisSample sample1 = templateVariableName.buildSample(new DateTime(), variableName);
                                             sample1.commit();
