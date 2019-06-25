@@ -225,28 +225,18 @@ public class XYChart implements Chart {
 
         generateYAxis();
 
-        getChart().
+        getChart().setStyle("-fx-font-size: " + 12 + "px;");
 
-                setStyle("-fx-font-size: " + 12 + "px;");
-
-        getChart().
-
-                setAnimated(false);
+        getChart().setAnimated(false);
 
         applyColors();
 
-        getChart().
+        getChart().setTitle(getUpdatedChartName());
 
-                setTitle(getUpdatedChartName());
-
-        getChart().
-
-                setLegendVisible(false);
+        getChart().setLegendVisible(false);
         //((javafx.scene.chart.XYChart)getChart()).setCreateSymbols(true);
 
-        chartSettingsFunction.applySetting(
-
-                getChart());
+        chartSettingsFunction.applySetting(getChart());
 
         initializeZoom();
 
