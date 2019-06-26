@@ -131,6 +131,19 @@ public class XYChartSerie {
             serie.getData().setAll(dataList);
         });
 
+        updateTableEntry(samples, unit, min, max, avg, sum);
+
+    }
+
+    public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, double min, double max, double avg, Double sum) throws JEVisException {
+
+        DateTime firstTS = null;
+        DateTime lastTS = null;
+        if (!samples.isEmpty()) {
+            firstTS = samples.get(0).getTimestamp();
+            lastTS = samples.get(0).getTimestamp();
+        }
+
         QuantityUnits qu = new QuantityUnits();
         boolean isQuantity = qu.isQuantityUnit(unit);
 
@@ -163,7 +176,7 @@ public class XYChartSerie {
                 CalcJobFactory calcJobCreator = new CalcJobFactory();
 
                 CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), singleRow.getObject().getDataSource(), singleRow.getCalculationObject(),
-                        singleRow.getSelectedStart(), singleRow.getSelectedEnd(), true);
+                        firstTS, lastTS, true);
                 List<JEVisSample> results = calcJob.getResults();
 
                 if (results.size() == 1) {
@@ -208,7 +221,6 @@ public class XYChartSerie {
                 }
             }
         }
-
     }
 
 

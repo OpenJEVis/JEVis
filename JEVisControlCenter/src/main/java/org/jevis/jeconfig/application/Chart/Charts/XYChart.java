@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
@@ -386,27 +387,15 @@ public class XYChart implements Chart {
             }
         }
 
-        String overall = "";
-        if (changedBoth[0] || changedBoth[1]) {
-            /** FS, works for Dashboard but not diagrams. This and the old Solution does not work for diagrams but i guess
-             * its not in problem in this function by somewhere else **/
+        updateXAxisLabel(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
+    }
 
-            overall = String.format("%s %s %s",
-                    dtfOutLegend.print(timeStampOfFirstSample.get()),
-                    I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
-                    dtfOutLegend.print(timeStampOfLastSample.get()));
+    public void updateXAxisLabel(DateTime firstTS, DateTime lastTS) {
 
-//            if ((timeStampOfLastSample.get().plus(realPeriod)).minus(timeStampOfFirstSample.get().getMillis()).getMillis() >= 86400) {
-//
-//                Period roundedPeriod = removeWorkdayInterval(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
-//
-//                overall += " " + roundedPeriod.toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
-//            } else {
-//                overall += " " + (new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get().plus(realPeriod)).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
-//            }
-
-
-        }
+        String overall = String.format("%s %s %s",
+                dtfOutLegend.print(firstTS),
+                I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
+                dtfOutLegend.print(lastTS));
 
         dateAxis.setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
     }
@@ -724,6 +713,58 @@ public class XYChart implements Chart {
     }
 
     @Override
+    public void updateTableZoom(Long lowerBound, Long upperBound) {
+        DateTime lower = new DateTime(lowerBound);
+        DateTime upper = new DateTime(upperBound);
+
+        xyChartSerieList.parallelStream().forEach(serie -> {
+            try {
+
+                TableEntry tableEntry = serie.getTableEntry();
+                TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
+
+                double min = Double.MAX_VALUE;
+                double max = -Double.MAX_VALUE;
+                double avg = 0.0;
+                Double sum = 0.0;
+
+                List<JEVisSample> samples = serie.getSingleRow().getSamples();
+                List<JEVisSample> newList = new ArrayList<>();
+                JEVisUnit unit = serie.getSingleRow().getUnit();
+
+                for (JEVisSample smp : samples) {
+                    if ((smp.getTimestamp().equals(lower) || smp.getTimestamp().isAfter(lower)) && smp.getTimestamp().isBefore(upper)) {
+
+                        newList.add(smp);
+                        Double currentValue = smp.getValueAsDouble();
+
+                        min = Math.min(min, currentValue);
+                        max = Math.max(max, currentValue);
+                        sum += currentValue;
+                    }
+                }
+
+                double finalMin = min;
+                double finalMax = max;
+                Double finalSum = sum;
+                Platform.runLater(() -> {
+                    try {
+                        serie.updateTableEntry(newList, unit, finalMin, finalMax, avg, finalSum);
+                    } catch (JEVisException e) {
+                        logger.error("Could not update Table Entry for {}", serie.getSingleRow().getObject().getName(), e);
+                    }
+                });
+
+
+            } catch (Exception ex) {
+            }
+
+        });
+
+        Platform.runLater(() -> updateXAxisLabel(lower, upper));
+    }
+
+    @Override
     public void showNote(MouseEvent mouseEvent) {
         if (manipulationMode.get().equals(ManipulationMode.NONE)) {
 
@@ -770,6 +811,7 @@ public class XYChart implements Chart {
             });
         }
     }
+
 
     @Override
     public void applyColors() {

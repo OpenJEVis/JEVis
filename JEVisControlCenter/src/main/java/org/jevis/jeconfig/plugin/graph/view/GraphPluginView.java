@@ -929,19 +929,26 @@ public class GraphPluginView implements Plugin {
     private void setupLinkedZoom(ChartView cv, List<ChartView> notActive) {
         cv.getChart().getPanner().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                Double xAxisLowerBound = cv.getChart().getPanner().getXAxisLowerBound();
+                Double xAxisUpperBound = cv.getChart().getPanner().getXAxisUpperBound();
                 notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
                         && !chartView.getChartType().equals(ChartType.BAR)
                         && !chartView.getChartType().equals(ChartType.BUBBLE)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateValueAxis) chart.getXAxis()).forEach(xAxis -> {
                     xAxis.setAutoRanging(false);
-                    xAxis.setLowerBound(cv.getChart().getPanner().getXAxisLowerBound());
-                    xAxis.setUpperBound(cv.getChart().getPanner().getXAxisUpperBound());
+                    xAxis.setLowerBound(xAxisLowerBound);
+                    xAxis.setUpperBound(xAxisUpperBound);
                 });
                 cv.getChart().getPanner().zoomFinishedProperty().setValue(false);
+
+                cv.getChart().updateTableZoom(xAxisLowerBound.longValue(), xAxisUpperBound.longValue());
+                notActive.forEach(chartView -> chartView.getChart().updateTableZoom(xAxisLowerBound.longValue(), xAxisUpperBound.longValue()));
             }
         });
 
         cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                Double xAxisLowerBound = cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound();
+                Double xAxisUpperBound = cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound();
                 notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
                         && !chartView.getChartType().equals(ChartType.BAR)
                         && !chartView.getChartType().equals(ChartType.BUBBLE)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateValueAxis) chart.getXAxis()).forEach(xAxis -> {
@@ -953,12 +960,15 @@ public class GraphPluginView implements Plugin {
                                     new KeyValue(xAxis.lowerBoundProperty(), xAxis.getLowerBound()),
                                     new KeyValue(xAxis.upperBoundProperty(), xAxis.getUpperBound())),
                             new KeyFrame(Duration.millis(zoomDurationMillis.get()),
-                                    new KeyValue(xAxis.lowerBoundProperty(), cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound()),
-                                    new KeyValue(xAxis.upperBoundProperty(), cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound()))
+                                    new KeyValue(xAxis.lowerBoundProperty(), xAxisLowerBound),
+                                    new KeyValue(xAxis.upperBoundProperty(), xAxisUpperBound))
                     );
                     zoomAnimation.play();
                 });
                 cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().setValue(false);
+
+                cv.getChart().updateTableZoom(xAxisLowerBound.longValue(), xAxisUpperBound.longValue());
+                notActive.forEach(chartView -> chartView.getChart().updateTableZoom(xAxisLowerBound.longValue(), xAxisUpperBound.longValue()));
             }
         });
     }
@@ -970,6 +980,12 @@ public class GraphPluginView implements Plugin {
                         && !chartView.getChartType().equals(ChartType.BAR)
                         && !chartView.getChartType().equals(ChartType.BUBBLE)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateValueAxis) chart.getXAxis()).forEach(xAxis -> xAxis.setAutoRanging(true));
                 cv.getChart().getJfxChartUtil().doubleClickedProperty().setValue(false);
+
+
+                DateTime firstTS = cv.getChart().getStartDateTime();
+                DateTime lastTS = cv.getChart().getEndDateTime();
+                cv.getChart().updateTableZoom(firstTS.getMillis(), lastTS.getMillis());
+                notActive.forEach(chartView -> chartView.getChart().updateTableZoom(firstTS.getMillis(), lastTS.getMillis()));
             }
         });
     }

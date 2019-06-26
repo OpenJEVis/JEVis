@@ -229,6 +229,11 @@ public class BubbleChart implements Chart {
     }
 
     @Override
+    public void updateTableZoom(Long lowerBound, Long upperBound) {
+
+    }
+
+    @Override
     public DateTime getStartDateTime() {
         return null;
     }
