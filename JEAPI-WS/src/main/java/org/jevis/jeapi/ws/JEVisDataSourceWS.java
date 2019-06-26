@@ -289,9 +289,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     private void updateObject(JsonObject jsonObj) {
         Long id = jsonObj.getId();
-        if (this.objectCache.containsKey(id)) {
-            this.objectCache.remove(id);
-        }
+        this.objectCache.remove(id);
 
         JEVisObjectWS newObject = new JEVisObjectWS(this, jsonObj);
         this.objectCache.put(newObject.getID(), newObject);
@@ -1494,6 +1492,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         this.classLoaded = false;
         this.objectLoaded = false;
         this.orLoaded = false;
+        this.hasPreloaded = false;
 
         System.gc();
         Optimization.getInstance().clearCache();
