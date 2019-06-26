@@ -47,6 +47,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Loytec XML-DL Channel"
+    },
+    {
+      "name": "Status Log",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "GUIPosition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Loytec XML-DL Channel"
     }
   ]
 }
