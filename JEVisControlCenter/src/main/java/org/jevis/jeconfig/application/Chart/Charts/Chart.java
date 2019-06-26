@@ -26,6 +26,8 @@ public interface Chart {
 
     void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay);
 
+    void updateTableZoom(Long lowerBound, Long upperBound);
+
     void showNote(MouseEvent mouseEvent);
 
     void applyColors();

@@ -344,6 +344,11 @@ public class BarChart implements Chart {
     }
 
     @Override
+    public void updateTableZoom(Long lowerBound, Long upperBound) {
+
+    }
+
+    @Override
     public void showNote(MouseEvent mouseEvent) {
         if (manipulationMode.get().equals(ManipulationMode.NONE)) {
 

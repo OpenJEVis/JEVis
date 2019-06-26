@@ -138,8 +138,9 @@ public class JFXChartUtil {
                         chartInfo.getChart().getY1Axis().setAutoRanging(true);
                         chartInfo.getChart().getY2Axis().setAutoRanging(true);
                     }
-                    if (!chartInfo.getY1AxisArea().contains(x, y) || !chartInfo.getY2AxisArea().contains(x, y))
+                    if (!chartInfo.getY1AxisArea().contains(x, y) || !chartInfo.getY2AxisArea().contains(x, y)) {
                         chartInfo.getChart().getXAxis().setAutoRanging(true);
+                    }
 
                     doubleClicked.setValue(true);
                 }

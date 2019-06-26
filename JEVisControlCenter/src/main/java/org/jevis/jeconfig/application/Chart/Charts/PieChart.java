@@ -247,6 +247,11 @@ public class PieChart implements Chart {
     }
 
     @Override
+    public void updateTableZoom(Long lowerBound, Long upperBound) {
+
+    }
+
+    @Override
     public void showNote(MouseEvent mouseEvent) {
 
     }
