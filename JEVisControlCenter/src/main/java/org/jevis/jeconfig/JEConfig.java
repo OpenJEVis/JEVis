@@ -354,7 +354,6 @@ public class JEConfig extends Application {
                 logger.error("start GUI");
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
-                PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
 
                 ExecutorService exe = Executors.newSingleThreadExecutor();
                 exe.submit(() -> {
