@@ -397,7 +397,7 @@ public class SampleEditor {
 
     private void updateSamples(JFXDatePicker startDate, JFXDatePicker endDate) {
 
-        if (startDate != null && endDate != null) {
+        if (startDate != null && endDate != null && startDate.getValue() != null && endDate.getValue() != null) {
             updateSamples(new DateTime(startDate.getValue().getYear(), startDate.getValue().getMonth().getValue(), startDate.getValue().getDayOfMonth(), 0, 0)
                     , new DateTime(endDate.getValue().getYear(), endDate.getValue().getMonth().getValue(), endDate.getValue().getDayOfMonth(), 23, 59, 59, 999));
         }

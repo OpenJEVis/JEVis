@@ -43,6 +43,7 @@ import org.jevis.commons.export.ExportMaster;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.ReportLink;
 import org.jevis.commons.utils.ObjectHelper;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.dialog.*;
@@ -471,6 +472,17 @@ public class TreeHelper {
                             valueAttribute.setInputSampleRate(Period.minutes(15));
                             valueAttribute.setDisplaySampleRate(Period.minutes(15));
                             valueAttribute.commit();
+
+                            if (createClass.equals(dataClass) && dia.isWithCleanData()) {
+                                JEVisObject newCleanObject = newObject.buildObject(I18nWS.getInstance().getClassName(cleanDataClass), cleanDataClass);
+                                newCleanObject.commit();
+
+                                JEVisAttribute cleanDataValueAttribute = newCleanObject.getAttribute("Value");
+                                cleanDataValueAttribute.setInputSampleRate(Period.minutes(15));
+                                cleanDataValueAttribute.setDisplaySampleRate(Period.minutes(15));
+                                cleanDataValueAttribute.commit();
+                            }
+
                         } else if (createClass.equals(reportClass)) {
                             ReportWizardDialog rwd = new ReportWizardDialog(newObject);
 
