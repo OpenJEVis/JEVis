@@ -196,6 +196,14 @@ public class LoadAnalysisDialog {
                         graphDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
                         updateGridLayout();
                         break;
+                    //this Week
+                    case THIS_WEEK:
+                        dateHelper.setType(DateHelper.TransformType.THISWEEK);
+                        graphDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.THIS_WEEK));
+                        graphDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
+                        graphDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
+                        updateGridLayout();
+                        break;
                     //last Week
                     case LAST_WEEK:
                         dateHelper.setType(DateHelper.TransformType.LASTWEEK);
@@ -208,6 +216,14 @@ public class LoadAnalysisDialog {
                     case LAST_30_DAYS:
                         dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
                         graphDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.LAST_30_DAYS));
+                        graphDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
+                        graphDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
+                        updateGridLayout();
+                        break;
+                    case THIS_MONTH:
+                        //last Month
+                        dateHelper.setType(DateHelper.TransformType.THISMONTH);
+                        graphDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.THIS_MONTH));
                         graphDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
                         graphDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
                         updateGridLayout();

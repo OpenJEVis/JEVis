@@ -75,10 +75,18 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
     }
 
     private void init() {
+        this.initOwner(JEConfig.getStage());
         this.getDialogPane().setMinHeight(600);
+        this.setResizable(true);
+        this.getDialogPane().setPrefWidth(1220);
 
         Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("plugin.object.report.dialog.header"));
 
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         VBox vBox = new VBox();
         HBox hbox = new HBox();
         addButton = new Button("", JEConfig.getImage("list-add.png", 16, 16));
@@ -110,12 +118,9 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         vBox.getChildren().add(header);
         vBox.getChildren().add(hbox);
         vBox.getChildren().add(addButton);
-        this.getDialogPane().setContent(vBox);
-
-        this.setResizable(true);
-        this.initOwner(JEConfig.getStage());
-
-        this.getDialogPane().setPrefWidth(1220);
+        scrollPane.setContent(vBox);
+        this.getDialogPane().setContent(scrollPane);
+        vBox.setFillWidth(true);
     }
 
     private void updateGridpane() {
