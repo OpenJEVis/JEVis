@@ -57,9 +57,10 @@ public class PasswordDialog {
     private Response response = Response.CANCEL;
     private final Label confirmL = new Label(I18n.getInstance().getString("tool.dialog.passworddialog.label.confirmpassword"));
     private final Button ok = new Button(I18n.getInstance().getString("tool.dialog.passworddialog.button.ok"));
-    private final PasswordField pass = new PasswordField();
+    private final PasswordField newPass = new PasswordField();
     private final PasswordField oldPass = new PasswordField();
-    private final PasswordField confirm = new PasswordField();
+    private final PasswordField confirmNew = new PasswordField();
+    private boolean correctOldPass = false;
 
     /**
      * @param owner
@@ -115,9 +116,9 @@ public class PasswordDialog {
 
 
         gp.add(passL, 0, ++y);
-        gp.add(pass, 1, y);
+        gp.add(newPass, 1, y);
         gp.add(confirmL, 0, ++y);
-        gp.add(confirm, 1, y);
+        gp.add(confirmNew, 1, y);
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         sep.setMinHeight(10);
@@ -131,7 +132,8 @@ public class PasswordDialog {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-//                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+//                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth())
+
                 stage.close();
 //                isOK.setValue(true);
                 response = Response.YES;
@@ -139,7 +141,19 @@ public class PasswordDialog {
             }
         });
 
-        pass.setOnKeyReleased(new EventHandler<KeyEvent>() {
+        oldPass.setOnKeyReleased(event -> {
+            try {
+                if (oldUser != null) {
+                    String currentUsername = oldUser.getDataSource().getCurrentUser().getAccountName();
+                    JEVisDataSourceWS dsWS = (JEVisDataSourceWS) oldUser.getDataSource();
+                    correctOldPass = dsWS.confirmPassword(currentUsername, oldPass.getText());
+                }
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        });
+
+        newPass.setOnKeyReleased(new EventHandler<KeyEvent>() {
 
             @Override
             public void handle(KeyEvent t) {
@@ -147,21 +161,11 @@ public class PasswordDialog {
             }
         });
 
-        confirm.setOnKeyReleased(new EventHandler<KeyEvent>() {
+        confirmNew.setOnKeyReleased(new EventHandler<KeyEvent>() {
 
             @Override
             public void handle(KeyEvent t) {
                 checkPW();
-
-                try {
-                    String currentUsername = oldUser.getDataSource().getCurrentUser().getAccountName();
-                    /** non save using the webservice directly **/
-                    JEVisDataSourceWS dsWS = (JEVisDataSourceWS) oldUser.getDataSource();
-                    dsWS.confirmPassword(currentUsername, oldPass.getText());
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-
             }
         });
 
@@ -174,7 +178,7 @@ public class PasswordDialog {
             }
         });
 
-        pass.requestFocus();
+        newPass.requestFocus();
         stage.showAndWait();
         logger.info("return " + response);
 
@@ -187,13 +191,13 @@ public class PasswordDialog {
     }
 
     public String getPassword() {
-        return pass.getText();
+        return newPass.getText();
     }
 
 
     private void checkPW() {
-        if (!pass.getText().isEmpty() && !confirm.getText().isEmpty()) {
-            if (pass.getText().equals(confirm.getText())) {
+        if (!newPass.getText().isEmpty() && !confirmNew.getText().isEmpty()) {
+            if (newPass.getText().equals(confirmNew.getText()) && correctOldPass) {
                 ok.setDisable(false);
             }
         }
