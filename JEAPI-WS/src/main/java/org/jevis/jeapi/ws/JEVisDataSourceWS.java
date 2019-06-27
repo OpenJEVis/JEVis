@@ -1287,27 +1287,18 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public boolean confirmPassword(String username, String password) throws JEVisException {
+        HTTPConnection.trustAllCertificates();
+        HTTPConnection httpConnection = new HTTPConnection(this.host, username, password);
+
+
         try {
             String resource
                     = REQUEST.API_PATH_V1
                     + REQUEST.JEVISUSER.PATH;
 
-            HttpURLConnection conn = getHTTPConnection().getGetConnection(resource);
-            logger.debug("Login Response: {}", conn.getResponseCode());
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            HttpURLConnection conn = httpConnection.getGetConnection(resource);
 
-                logger.debug("Login response: {}", conn.getContent().toString());
-                String payload = IOUtils.toString((InputStream) conn.getContent(), "UTF-8");
-
-                JsonObject json = this.gson.fromJson(payload, JsonObject.class);
-
-                this.user = new JEVisUserWS(this, new JEVisObjectWS(this, json)); //TODO: implement
-                logger.trace("User.object: " + this.user.getUserObject());
-                return true;
-            } else {
-                logger.error("Login failed: [{}] {}", conn.getResponseCode(), conn.getResponseMessage());
-                return false;
-            }
+            return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
 
         } catch (Exception ex) {
             logger.catching(ex);
@@ -1319,7 +1310,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     public boolean connect(String username, String password) throws JEVisException {
         logger.debug("Connect with user {} to: {}", username, this.host);
 
-        //TODO implement config paramter to set trustAllCertificates
+        //TODO implement config parameter to set trustAllCertificates
         HTTPConnection.trustAllCertificates();
         this.con = new HTTPConnection(this.host, username, password);
 

@@ -535,7 +535,14 @@ public class GraphDataModel {
                     analysisTimeFrame.setStart(dateHelper.getStartDate());
                     analysisTimeFrame.setEnd(dateHelper.getEndDate());
                     break;
-                //last Week days
+                //last Week
+                case THIS_WEEK:
+                    dateHelper.setType(DateHelper.TransformType.THISWEEK);
+                    updateStartEndToDataModel(chartDataModels, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
+                    break;
+                //last Week
                 case LAST_WEEK:
                     dateHelper.setType(DateHelper.TransformType.LASTWEEK);
                     updateStartEndToDataModel(chartDataModels, dateHelper);
@@ -545,6 +552,13 @@ public class GraphDataModel {
                 //last 30 days
                 case LAST_30_DAYS:
                     dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
+                    updateStartEndToDataModel(chartDataModels, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
+                    break;
+                case THIS_MONTH:
+                    //last Month
+                    dateHelper.setType(DateHelper.TransformType.THISMONTH);
                     updateStartEndToDataModel(chartDataModels, dateHelper);
                     analysisTimeFrame.setStart(dateHelper.getStartDate());
                     analysisTimeFrame.setEnd(dateHelper.getEndDate());

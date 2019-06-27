@@ -53,8 +53,10 @@ public class PickerCombo {
         final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
         final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
         final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
+        final String thisWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonthisweek");
         final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
         final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
+        final String thisMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonthismonth");
         final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
         final String thisYear = I18n.getInstance().getString("plugin.graph.changedate.buttonthisyear");
         final String lastYear = I18n.getInstance().getString("plugin.graph.changedate.buttonlastyear");
@@ -88,11 +90,17 @@ public class PickerCombo {
                                 case LAST_7_DAYS:
                                     text = last7Days;
                                     break;
+                                case THIS_WEEK:
+                                    text = thisWeek;
+                                    break;
                                 case LAST_WEEK:
                                     text = lastWeek;
                                     break;
                                 case LAST_30_DAYS:
                                     text = last30Days;
+                                    break;
+                                case THIS_MONTH:
+                                    text = thisMonth;
                                     break;
                                 case LAST_MONTH:
                                     text = lastMonth;
@@ -433,6 +441,11 @@ public class PickerCombo {
                 dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
+            //this Week
+            case THIS_WEEK:
+                dateHelper.setType(DateHelper.TransformType.THISWEEK);
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
             //last Week
             case LAST_WEEK:
                 dateHelper.setType(DateHelper.TransformType.LASTWEEK);
@@ -441,6 +454,11 @@ public class PickerCombo {
             //last 30 days
             case LAST_30_DAYS:
                 dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            case THIS_MONTH:
+                //last Month
+                dateHelper.setType(DateHelper.TransformType.THISMONTH);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             case LAST_MONTH:

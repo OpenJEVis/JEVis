@@ -106,9 +106,19 @@ public class DateHelper {
                         .minusDays(1);
                 if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
+            case THISWEEK:
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                        .minusDays(now.getDayOfWeek() - 1);
+                if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
+                break;
             case LASTWEEK:
                 startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond())
                         .minusDays(now.getDayOfWeek() - 1).minusWeeks(1);
+                if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
+                break;
+            case THISMONTH:
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(), startTime.getHour(), startTime.getMinute(), startTime.getSecond())
+                        .minusDays(now.getDayOfMonth() - 1);
                 if (startTime.isAfter(endTime)) startDate = startDate.minusDays(1);
                 break;
             case LASTMONTH:
@@ -325,19 +335,14 @@ public class DateHelper {
         //if (startTime.isAfter(endTime)) now = now.minusDays(1);
 
         switch (type) {
-            case CUSTOM:
-                break;
             case TODAY:
-                now = DateTime.now();
-
-                endDate = now;
-                break;
+            case THISMONTH:
+            case THISYEAR:
+            case THISWEEK:
+            case LAST30DAYS:
             case LAST7DAYS:
                 now = DateTime.now();
-                endDate = now;
-                break;
-            case LAST30DAYS:
-                now = DateTime.now();
+
                 endDate = now;
                 break;
             case YESTERDAY:
@@ -360,10 +365,6 @@ public class DateHelper {
                         endTime.getHour(), endTime.getMinute(), endTime.getSecond())
                         .minusDays(now.getDayOfMonth() - 1)
                         .minusDays(1);
-                break;
-            case THISYEAR:
-                now = DateTime.now();
-                endDate = now;
                 break;
             case LASTYEAR:
                 now = DateTime.now();
@@ -503,7 +504,7 @@ public class DateHelper {
         this.endTime = endTime;
     }
 
-    public enum TransformType {CUSTOM, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, LASTWEEK, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR}
+    public enum TransformType {CUSTOM, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, THISWEEK, LASTWEEK, THISMONTH, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR}
 
     public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
 
