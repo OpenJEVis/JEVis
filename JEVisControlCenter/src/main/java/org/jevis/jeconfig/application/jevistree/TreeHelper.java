@@ -53,7 +53,10 @@ import org.joda.time.Period;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Collection of common JEVisTree operations
@@ -87,25 +90,26 @@ public class TreeHelper {
             alert.setHeaderText(null);
             alert.setContentText(question);
 
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.get().equals(ButtonType.OK)) {
-                try {
-                    for (TreeItem<JEVisTreeRow> item : items) {
-                        item.getValue().getJEVisObject().getDataSource().deleteObject(item.getValue().getJEVisObject().getID());
-                        if (item.getParent() != null) {
-                            item.getParent().getChildren().remove(item);
+            alert.showAndWait().ifPresent(buttonType -> {
+                if (buttonType.equals(ButtonType.OK)) {
+                    try {
+                        for (TreeItem<JEVisTreeRow> item : items) {
+                            item.getValue().getJEVisObject().getDataSource().deleteObject(item.getValue().getJEVisObject().getID());
+                            if (item.getParent() != null) {
+                                item.getParent().getChildren().remove(item);
+                            }
+
                         }
 
+                    } catch (Exception ex) {
+                        logger.catching(ex);
+                        CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
+                                I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
                     }
-
-                } catch (Exception ex) {
-                    logger.catching(ex);
-                    CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
-                            I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                } else {
+                    // ... user chose CANCEL or closed the dialog
                 }
-            } else {
-                // ... user chose CANCEL or closed the dialog
-            }
+            });
         }
     }
 

@@ -109,6 +109,8 @@ public class PasswordDialog {
             if (oldUser != null && oldUser.getJEVisClass().getName().equals("User")) {
                 gp.add(passOldL, 0, y);
                 gp.add(oldPass, 1, y);
+            } else {
+                correctOldPass = true;
             }
         } catch (Exception ex) {
             logger.error(ex);
