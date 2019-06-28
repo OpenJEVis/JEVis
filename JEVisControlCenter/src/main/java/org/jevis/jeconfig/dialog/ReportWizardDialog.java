@@ -54,6 +54,7 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
     private List<ReportLink> reportLinkList = new ArrayList<>();
     private int row = 0;
     private Button addButton;
+    private Button addMultiple;
     private GridPane gridPane;
 
     public ReportWizardDialog(JEVisObject newObject) {
@@ -90,6 +91,7 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         VBox vBox = new VBox();
         HBox hbox = new HBox();
         addButton = new Button("", JEConfig.getImage("list-add.png", 16, 16));
+        addMultiple = new Button("", JEConfig.getImage("list-add_3671791.png", 16, 16));
 
         this.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.title"));
 
@@ -108,6 +110,10 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
             createNewReportLink(false, null);
         });
 
+        addMultiple.setOnAction(event -> {
+            openMultiSelect();
+        });
+
         hbox.getChildren().add(gridPane);
         HBox.setHgrow(gridPane, Priority.ALWAYS);
 
@@ -118,9 +124,47 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         vBox.getChildren().add(header);
         vBox.getChildren().add(hbox);
         vBox.getChildren().add(addButton);
+        vBox.getChildren().add(addMultiple);
         scrollPane.setContent(vBox);
         this.getDialogPane().setContent(scrollPane);
         vBox.setFillWidth(true);
+    }
+
+    private void openMultiSelect() {
+        List<JEVisTreeFilter> allFilter = new ArrayList<>();
+        JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllObjects();
+        JEVisTreeFilter allAttributeFilter = SelectTargetDialog.buildAllAttributesFilter();
+        allFilter.add(basicFilter);
+        allFilter.add(allAttributeFilter);
+
+        SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.MULTIPLE);
+
+        List<UserSelection> openList = new ArrayList<>();
+
+        if (selectionDialog.show(
+                ds,
+                I18n.getInstance().getString("dialog.target.data.title"),
+                openList
+        ) == SelectTargetDialog.Response.OK) {
+            logger.trace("Selection Done");
+
+            selections = selectionDialog.getUserSelection();
+            for (UserSelection us : selections) {
+
+                ReportLink newLink = new ReportLink("", us.getSelectedObject().getID(), false, "",
+                        new ReportAttribute("Value",
+                                new ReportPeriodConfiguration("NONE", PeriodMode.CURRENT)));
+                if (us.getSelectedAttribute() != null) {
+                    newLink.getReportAttribute().setAttributeName(us.getSelectedAttribute().getName());
+                } else {
+                    newLink.getReportAttribute().setAttributeName("Value");
+                }
+
+                updateName(newLink);
+
+                createNewReportLink(true, newLink);
+            }
+        }
     }
 
     private void updateGridpane() {
