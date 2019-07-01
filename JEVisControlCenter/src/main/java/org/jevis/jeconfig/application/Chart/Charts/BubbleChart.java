@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class BubbleChart implements Chart {
     private List<Color> hexColors = new ArrayList<>();
     private List<Integer> noOfBubbles = new ArrayList<>();
-    javafx.scene.chart.BubbleChart<Number, Number> chart;
+    org.jevis.jeconfig.application.Chart.Charts.jfx.BubbleChart<Number, Number> chart;
     private Region chartRegion;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
 
@@ -170,7 +170,7 @@ public class BubbleChart implements Chart {
             bubbles.add(new Bubble(aInteger.doubleValue(), modifiedY.get(aInteger), aInteger2.doubleValue()));
         });
 
-        chart = new javafx.scene.chart.BubbleChart<Number, Number>(xAxis, yAxis);
+        chart = new org.jevis.jeconfig.application.Chart.Charts.jfx.BubbleChart<Number, Number>(xAxis, yAxis);
         chart.setTitle(chartName);
         chart.setLegendVisible(false);
 
@@ -197,7 +197,8 @@ public class BubbleChart implements Chart {
 //        series1.setName("Arabica");
 
         for (Bubble bubble : bubbles) {
-            XYChart.Data data = new XYChart.Data(bubble.getX(), bubble.getY(), bubble.getSize());
+            XYChart.Data data = new org.jevis.jeconfig.application.Chart.Charts.jfx.BubbleChart.Data(bubble.getX(), bubble.getY(), bubble.getSize());
+
             series1.getData().add(data);
         }
 

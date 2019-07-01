@@ -33,14 +33,13 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.chart.BubbleChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,6 +64,7 @@ import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.BubbleChart;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
@@ -603,8 +603,8 @@ public class GraphPluginView implements Plugin {
                             Node bubble = ((BubbleChart.Data) numberNumberData).getNode();
                             if (bubble != null && bubble instanceof StackPane) {
                                 StackPane stackPane = (StackPane) bubble;
-                                if (stackPane.getShape() != null && stackPane.getShape() instanceof Ellipse) {
-                                    Ellipse ellipse = (Ellipse) stackPane.getShape();
+                                if (stackPane.getShape() != null && stackPane.getShape() instanceof Circle) {
+                                    Circle circle = (Circle) stackPane.getShape();
                                     DoubleProperty fontSize = new SimpleDoubleProperty(20);
 
                                     NumberFormat nf = NumberFormat.getInstance();
@@ -623,9 +623,9 @@ public class GraphPluginView implements Plugin {
 
                                     label.setMinWidth(value.length() * 20d);
 
-                                    if (ellipse.radiusYProperty().get() / 5 > 16d) {
-                                        fontSize.bind(Bindings.divide(ellipse.radiusYProperty(), 5));
-                                        label.minWidthProperty().bind(Bindings.divide(ellipse.radiusYProperty(), 5).add(4));
+                                    if (circle.radiusProperty().get() / 5 > 16d) {
+                                        fontSize.bind(Bindings.divide(circle.radiusProperty(), 5));
+                                        label.minWidthProperty().bind(Bindings.divide(circle.radiusProperty(), 5).add(4));
                                     } else {
                                         fontSize.set(16d);
                                     }
