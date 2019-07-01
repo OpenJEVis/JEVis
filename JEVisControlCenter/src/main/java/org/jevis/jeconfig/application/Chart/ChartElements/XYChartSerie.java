@@ -141,7 +141,7 @@ public class XYChartSerie {
         DateTime lastTS = null;
         if (!samples.isEmpty()) {
             firstTS = samples.get(0).getTimestamp();
-            lastTS = samples.get(0).getTimestamp();
+            lastTS = samples.get(samples.size() - 1).getTimestamp();
         }
 
         QuantityUnits qu = new QuantityUnits();
