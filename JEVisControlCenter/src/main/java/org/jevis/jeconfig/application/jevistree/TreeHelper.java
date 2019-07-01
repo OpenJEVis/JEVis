@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * Collection of common JEVisTree operations
@@ -322,6 +323,8 @@ public class TreeHelper {
 
     }
 
+    private final static Pattern lastIntPattern = Pattern.compile("[^0-9]+([0-9]+)$");
+
     public static void EventDrop(final JEVisTree tree, JEVisObject dragObj, JEVisObject targetParent, CopyObjectDialog.DefaultAction mode) {
 
         logger.trace("EventDrop");
@@ -333,9 +336,9 @@ public class TreeHelper {
         } else if (re == CopyObjectDialog.Response.LINK) {
             buildLink(dragObj, targetParent, dia.getCreateName());
         } else if (re == CopyObjectDialog.Response.COPY) {
-            for (int i = 0; i < dia.getCreateCount(); ++i) {
-                copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isRecursion());
-            }
+
+            copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isRecursion(), dia.getCreateCount());
+
 
         }
     }
@@ -384,7 +387,7 @@ public class TreeHelper {
 
     }
 
-    public static void copyObject(final JEVisObject toCopyObj, final JEVisObject newParent, String newName, boolean includeContent, boolean recursive) {
+    public static void copyObject(final JEVisObject toCopyObj, final JEVisObject newParent, String newName, boolean includeContent, boolean recursive, int createCount) {
         try {
             logger.debug("-> Copy ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
@@ -395,7 +398,13 @@ public class TreeHelper {
                 protected Void call() {
 
                     try {
-                        copyObjectUnder(toCopyObj, newParent, newName, includeContent, recursive);
+                        for (int i = 0; i < createCount; i++) {
+                            String name = newName;
+                            if (createCount > 1) {
+                                name += (" " + (i + 2));
+                            }
+                            copyObjectUnder(toCopyObj, newParent, name, includeContent, recursive);
+                        }
 
                     } catch (Exception ex) {
                         logger.catching(ex);
