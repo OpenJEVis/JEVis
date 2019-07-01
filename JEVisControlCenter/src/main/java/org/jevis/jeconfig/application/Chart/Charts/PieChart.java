@@ -98,9 +98,9 @@ public class PieChart implements Chart {
 
                     if (qu.isSumCalculable(singleRow.getUnit()) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
                         try {
-                            Period p = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
-                            double factor = Period.hours(1).toStandardDuration().getMillis() / p.toStandardDuration().getMillis();
-                            sumPiePiece = sumPiePiece / factor;
+//                            Period p = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+//                            double factor = Period.hours(1).toStandardDuration().getMillis() / p.toStandardDuration().getMillis();
+//                            sumPiePiece = sumPiePiece / factor;
                         } catch (Exception e) {
                             logger.error("Couldn't calculate periods");
                             sumPiePiece = 0d;
