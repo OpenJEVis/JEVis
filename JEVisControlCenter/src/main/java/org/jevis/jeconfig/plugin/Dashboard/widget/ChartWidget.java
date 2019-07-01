@@ -15,13 +15,14 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
+import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.Dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
 
@@ -41,36 +42,28 @@ public class ChartWidget extends Widget {
 
     private boolean autoAggregation = true;
 
-    public ChartWidget(JEVisDataSource jeVisDataSource) {
-        super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
-    }
-
-
-    public ChartWidget(JEVisDataSource jeVisDataSource, WidgetConfig config) {
-        super(jeVisDataSource, config);
+    public ChartWidget(DashboardControl control, WidgetPojo config) {
+        super(control, config);
     }
 
     @Override
     public void update(Interval interval) {
         logger.info("Update: {}", interval);
 
-        if (this.config.hasChanged("")) {
-            this.lineChart.setChartSettings(chart1 -> {
-                MultiAxisLineChart multiAxisLineChart = (MultiAxisLineChart) chart1;
+        this.lineChart.setChartSettings(chart1 -> {
+            MultiAxisLineChart multiAxisLineChart = (MultiAxisLineChart) chart1;
 //                multiAxisLineChart.setAnimated(true);
-                this.lineChart.getChart().setAnimated(false);
-                multiAxisLineChart.setLegendSide(Side.BOTTOM);
-                multiAxisLineChart.setLegendVisible(true);
+            this.lineChart.getChart().setAnimated(false);
+            multiAxisLineChart.setLegendSide(Side.BOTTOM);
+            multiAxisLineChart.setLegendVisible(true);
 
-            });
+        });
 
-            Platform.runLater(() -> {
-                setChartLabel((MultiAxisLineChart) this.lineChart.getChart(), this.config.fontColor.get());
-                this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-                //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
-            });
-
-        }
+        Platform.runLater(() -> {
+            setChartLabel((MultiAxisLineChart) this.lineChart.getChart(), this.config.getFontColor());
+            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+            //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
+        });
 
 
         this.sampleHandler.setInterval(interval);
@@ -96,7 +89,9 @@ public class ChartWidget extends Widget {
             this.sampleHandler.getDataModel().forEach(chartDataModel -> {
                 try {
                     String dataName = chartDataModel.getObject().getName();
-                    this.legend.getItems().add(this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), chartDataModel.getColor(), this.config.fontColor.getValue(), this.config.fontSize.get()));
+                    this.legend.getItems().add(
+                            this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), chartDataModel.getColor(),
+                                    this.config.getFontColor(), this.config.getFontSize()));
                 } catch (Exception ex) {
                     logger.error(ex);
                 }

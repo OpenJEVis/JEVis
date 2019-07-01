@@ -14,10 +14,11 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
 
@@ -42,12 +43,8 @@ public class WebPieWidget extends Widget {
     private WebView webView = new WebView();
 
 
-    public WebPieWidget(JEVisDataSource jeVisDataSource) {
-        super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
-    }
-
-    public WebPieWidget(JEVisDataSource jeVisDataSource, WidgetConfig config) {
-        super(jeVisDataSource, config);
+    public WebPieWidget(DashboardControl control, WidgetPojo config) {
+        super(control, config);
     }
 
 
@@ -58,11 +55,10 @@ public class WebPieWidget extends Widget {
         this.sampleHandler.update();
 
 
-        if (this.config.hasChanged("")) {
-            this.borderPane.setMaxWidth(this.config.size.getValue().getWidth());
-            this.nf.setMinimumFractionDigits(0);/** tmp solution**/
-            this.nf.setMaximumFractionDigits(0);
-        }
+        this.borderPane.setMaxWidth(this.config.getSize().getWidth());
+        this.nf.setMinimumFractionDigits(0);/** tmp solution**/
+        this.nf.setMaximumFractionDigits(0);
+
 
         List<Color> colors = new ArrayList<>();
 
@@ -105,7 +101,7 @@ public class WebPieWidget extends Widget {
                         logger.error(ex);
                     }
                 } else {
-                    logger.debug("Empty Samples for: {}", this.config.title.get());
+                    logger.debug("Empty Samples for: {}", this.config.getTitle());
                 }
 
 

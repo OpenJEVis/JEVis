@@ -3,9 +3,12 @@ package org.jevis.jeconfig.plugin.Dashboard;
 //import com.itextpdf.text.Document;
 //import com.itextpdf.text.pdf.PdfWriter;
 
-import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
@@ -13,17 +16,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
-import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
-import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
-import org.jevis.jeconfig.plugin.Dashboard.widget.Widgets;
+import org.jevis.jeconfig.tool.Layouts;
 
 
 public class DashBordPlugIn implements Plugin {
@@ -31,53 +27,62 @@ public class DashBordPlugIn implements Plugin {
     private static final Logger logger = LogManager.getLogger(DashBordPlugIn.class);
     public static String CLASS_ANALYSIS = "Dashboard Analysis", CLASS_ANALYSIS_DIR = "Analyses Directory", ATTRIBUTE_DATA_MODEL_FILE = "Data Model File", ATTRIBUTE_DATA_MODEL = "Data Model", ATTRIBUTE_BACKGROUND = "Background";
     public static String PLUGIN_NAME = "Dashboard Plugin";
-    private final DashBoardToolbar toolBar;
     private StringProperty nameProperty = new SimpleStringProperty("Dashboard");
     private StringProperty uuidProperty = new SimpleStringProperty("Dashboard");
-    private JEVisDataSource jeVisDataSource;
     private boolean isInitialized = false;
     private AnchorPane rootPane = new AnchorPane();
-    private DashBordModel currentAnalysis;
-    private DashBoardPane dashBoardPane;
 
+    public final BooleanProperty editProperty = new SimpleBooleanProperty(Boolean.class, "Enable Edit", false);
+    private final DashboardControl dashboardControl;
+    private JEVisDataSource jeVisDataSource;
+    private final DashBoardPane dashBoardPane;
+    private final DashBoardToolbar toolBar;
+    private ScrollPane scrollPane = new ScrollPane();
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
-        nameProperty.setValue(name);
+        logger.error("init DashBordPlugIn");
+        this.rootPane.setStyle("-fx-background-color: blue;");
+        this.nameProperty.setValue(name);
         this.jeVisDataSource = ds;
-        this.currentAnalysis = new DashBordModel(ds);
-        this.dashBoardPane = new DashBoardPane(currentAnalysis);
-        this.toolBar = new DashBoardToolbar(ds, this);
-    }
 
 
-    public void loadAnalysis(DashBordModel currentAnalysis, boolean forceReload) {
-        if (forceReload) {
-            try {
-                jeVisDataSource.reloadAttribute(currentAnalysis.getAnalysisObject());
+        this.dashboardControl = new DashboardControl(this);
+        this.toolBar = new DashBoardToolbar(this.dashboardControl);
+        this.dashBoardPane = new DashBoardPane(this.dashboardControl);
+        this.scrollPane.setContent(this.dashBoardPane);
 
-                this.currentAnalysis = new DashBordModel(currentAnalysis.getAnalysisObject());
-            } catch (Exception ex) {
-                logger.error(ex);
+        Layouts.setAnchor(this.scrollPane, 0d);
+        Layouts.setAnchor(this.rootPane, 0d);
+        this.rootPane.getChildren().setAll(this.scrollPane);
+
+
+        ChangeListener<Number> sizeListener = new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                DashBordPlugIn.this.dashboardControl.setRootSizeChanged(DashBordPlugIn.this.scrollPane.getWidth(), DashBordPlugIn.this.scrollPane.getHeight());
             }
-        }else{
-            this.currentAnalysis = currentAnalysis;
-        }
-
-        this.dashBoardPane = new DashBoardPane(this.currentAnalysis);
-
-        ScrollPane scrollPane = new ScrollPane(dashBoardPane);
-
-        AnchorPane.setTopAnchor(scrollPane, 0d);
-        AnchorPane.setBottomAnchor(scrollPane, 0d);
-        AnchorPane.setLeftAnchor(scrollPane, 0d);
-        AnchorPane.setRightAnchor(scrollPane, 0d);
-
-        rootPane.getChildren().setAll(scrollPane);
-        toolBar.updateToolbar(this.currentAnalysis);
-        dashBoardPane.getDashBordAnalysis().editProperty.setValue(false);
+        };
+        this.scrollPane.widthProperty().addListener(sizeListener);
+        this.scrollPane.heightProperty().addListener(sizeListener);
 
     }
 
+    public void setContentSize(double width, double height) {
+        logger.error("setContentSize: {}/{}", width, height);
+//        this.scrollPane.setPrefWidth(width);
+//        this.scrollPane.setMinWidth(width);
+//        this.scrollPane.setMaxWidth(width);
+//
+//        this.scrollPane.setMinHeight(height);
+//        this.scrollPane.setMaxHeight(height);
+//        this.scrollPane.setPrefHeight(height);
+        logger.error("DashBordPlugIn init.size: {}/{} {}/{} ", this.rootPane.getWidth(), this.rootPane.getHeight(), this.scrollPane.getWidth(), this.scrollPane.getHeight());
+
+    }
+
+    public DashBoardToolbar getDashBoardToolbar() {
+        return this.toolBar;
+    }
 
     @Override
     public String getClassName() {
@@ -86,37 +91,37 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public String getName() {
-        return nameProperty.getValue();
+        return this.nameProperty.getValue();
     }
 
     @Override
     public void setName(String name) {
-        nameProperty.setValue(name);
+        this.nameProperty.setValue(name);
     }
 
     @Override
     public StringProperty nameProperty() {
-        return nameProperty;
+        return this.nameProperty;
     }
 
     @Override
     public String getUUID() {
-        return uuidProperty.getValue();
+        return this.uuidProperty.getValue();
     }
 
     @Override
     public void setUUID(String id) {
-        uuidProperty.setValue(id);
+        this.uuidProperty.setValue(id);
     }
 
     @Override
     public String getToolTip() {
-        return nameProperty.getValue();
+        return this.nameProperty.getValue();
     }
 
     @Override
     public StringProperty uuidProperty() {
-        return uuidProperty;
+        return this.uuidProperty;
     }
 
     @Override
@@ -131,8 +136,7 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public Node getToolbar() {
-
-        return toolBar;
+        return this.toolBar;
     }
 
     @Override
@@ -142,12 +146,12 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public JEVisDataSource getDataSource() {
-        return jeVisDataSource;
+        return this.jeVisDataSource;
     }
 
     @Override
     public void setDataSource(JEVisDataSource ds) {
-        jeVisDataSource = ds;
+        this.jeVisDataSource = ds;
     }
 
     @Override
@@ -157,7 +161,7 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return rootPane;
+        return this.rootPane;
     }
 
     @Override
@@ -171,43 +175,20 @@ public class DashBordPlugIn implements Plugin {
     }
 
 
-    private JEVisObject getUserSelectedDashboard() {
-        JEVisObject currentUserObject = null;
-        try {
-            currentUserObject = jeVisDataSource.getCurrentUser().getUserObject();
-            JEVisAttribute userSelectedDashboard = currentUserObject.getAttribute("Start Dashboard");
-            if (userSelectedDashboard != null) {
-                TargetHelper th = new TargetHelper(jeVisDataSource, userSelectedDashboard);
-                if (th.getObject() != null && !th.getObject().isEmpty()) {
-                    return th.getObject().get(0);
-                }
-            }
-        } catch (JEVisException e) {
-            logger.error("Could not get Start Dashboard from user.");
-        }
-
-        return null;
-    }
-
     @Override
     public void setHasFocus() {
-        if (!isInitialized) {
-            isInitialized = true;
-
-            toolBar.updateToolbar(dashBoardPane.getDashBordAnalysis());
-
-            Platform.runLater(() -> {
-
-                JEVisObject userSelectedDashboard = getUserSelectedDashboard();
-                if (userSelectedDashboard != null) {
-                    toolBar.getListAnalysesComboBox().getSelectionModel().select(userSelectedDashboard);
-                } else {
-                    toolBar.getListAnalysesComboBox().getSelectionModel().selectFirst();
-                }
-            });
+        if (!this.isInitialized) {
+            this.isInitialized = true;
+            this.dashboardControl.loadFirstDashboard();
+            logger.error("DashBordPlugIn focus.size: {}/{} {}/{} ", this.rootPane.getWidth(), this.rootPane.getHeight(), this.scrollPane.getWidth(), this.scrollPane.getHeight());
 
         }
     }
+
+    public DashBoardPane getDashBoardPane() {
+        return this.dashBoardPane;
+    }
+
 
     @Override
     public void openObject(Object object) {
@@ -219,26 +200,9 @@ public class DashBordPlugIn implements Plugin {
         return 1;
     }
 
-    public Widget createWidget(WidgetConfig widget) {
-        for (Widget availableWidget : Widgets.getAvabableWidgets(getDataSource(), widget)) {
-            try {
-                if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
-                    availableWidget.init();
-                    return availableWidget;
-                }
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
-        }
-
-        return null;
-    }
-
-
-
 
     public void toPDF() {
-        /** disabled in dependency, takes 5 mb an d does not work for now
+        /** disabled in dependency, takes 5 mb and does not work for now because of ChartFX
          try {
          logger.info("start- converting to pdf");
 

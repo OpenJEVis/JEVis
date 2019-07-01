@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.Dashboard.timeframe;
 
 import com.sun.javafx.scene.control.skin.DatePickerSkin;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.control.DatePicker;
 import javafx.scene.layout.BorderPane;
@@ -13,25 +14,23 @@ import java.time.LocalDate;
 
 public class TimeFrameEdior extends Popup {
 
-    public final ObjectProperty<Interval> intervalProperty;
-    public final ObjectProperty<TimeFrameFactory> timeFrameProperty;
+    public ObjectProperty<Interval> intervalProperty;
+    public TimeFrameFactory timeFrame;
     DatePicker datePicker;
 
-    public TimeFrameEdior(ObjectProperty<TimeFrameFactory> timeFrameProperty, ObjectProperty<Interval> intervalProperty) {
+    public TimeFrameEdior(TimeFrameFactory timeFrame, Interval interval) {
         super();
-        this.intervalProperty = intervalProperty;
-        this.timeFrameProperty = timeFrameProperty;
-        datePicker = new DatePicker(LocalDate.now());
-        datePicker.setShowWeekNumbers(true);
-        DatePickerSkin datePickerSkin = new DatePickerSkin(datePicker);
+        this.intervalProperty = new SimpleObjectProperty<>(interval);
+        this.timeFrame = timeFrame;
+        this.datePicker = new DatePicker(LocalDate.now());
+        this.datePicker.setShowWeekNumbers(true);
+        DatePickerSkin datePickerSkin = new DatePickerSkin(this.datePicker);
         Node popupContent = datePickerSkin.getPopupContent();
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(popupContent);
 
         getContent().add(borderPane);
-        datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-
-
+        this.datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
             setIntervalResult();
             this.hide();
         });
@@ -39,24 +38,25 @@ public class TimeFrameEdior extends Popup {
     }
 
     public void setDate(DateTime date) {
-        datePicker.setValue(toLocalDate(date));
+        this.datePicker.setValue(toLocalDate(date));
     }
 
 
     private void setIntervalResult() {
-        LocalDate localDate = datePicker.valueProperty().getValue();
-        if(datePicker.valueProperty().getValue().isAfter(LocalDate.now())){
-            localDate= LocalDate.now();
-            datePicker.setValue(localDate);
+        LocalDate localDate = this.datePicker.valueProperty().getValue();
+        if (this.datePicker.valueProperty().getValue().isAfter(LocalDate.now())) {
+            localDate = LocalDate.now();
+            this.datePicker.setValue(localDate);
             return;
         }
 
         DateTime newDateTime = new DateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0);
-        intervalProperty.setValue(timeFrameProperty.getValue().getInterval(newDateTime));
+//        this.intervalProperty = this.timeFrame.getInterval(newDateTime);
+        this.intervalProperty.setValue(this.timeFrame.getInterval(newDateTime));
     }
 
     public ObjectProperty<Interval> getIntervalProperty() {
-        return intervalProperty;
+        return this.intervalProperty;
     }
 
     public LocalDate toLocalDate(DateTime dateTime) {

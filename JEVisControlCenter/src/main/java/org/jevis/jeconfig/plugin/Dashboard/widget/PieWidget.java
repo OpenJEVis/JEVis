@@ -14,11 +14,11 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
-import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfigEditor;
+import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
 
@@ -37,12 +37,8 @@ public class PieWidget extends Widget {
     private BorderPane borderPane = new BorderPane();
     private VBox legendPane = new VBox();
 
-    public PieWidget(JEVisDataSource jeVisDataSource) {
-        super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
-    }
-
-    public PieWidget(JEVisDataSource jeVisDataSource, WidgetConfig config) {
-        super(jeVisDataSource, config);
+    public PieWidget(DashboardControl control, WidgetPojo config) {
+        super(control, config);
     }
 
 
@@ -59,27 +55,20 @@ public class PieWidget extends Widget {
         ObservableList<PieChart.Data> series = FXCollections.observableArrayList();
         List<Legend.LegendItem> legendItemList = new ArrayList<>();
         List<Color> colors = new ArrayList<>();
-        if (this.config.hasChanged("")) {
 
-            this.borderPane.setMaxWidth(this.config.size.getValue().getWidth());
-            this.chart.setLabelsVisible(true);
-            this.chart.setLabelLineLength(18);
-            this.chart.setLegendVisible(false);
-            this.chart.setAnimated(false);
-//            chart.setMinWidth(320d);/** tmp solution for an unified look**/
-//            chart.setMaxWidth(320d);
-
-//            nf.setMinimumFractionDigits(config.decimals.getValue());
-//            nf.setMaximumFractionDigits(config.decimals.getValue());
-            this.nf.setMinimumFractionDigits(0);/** tmp solution**/
-            this.nf.setMaximumFractionDigits(2);
+        this.borderPane.setMaxWidth(this.config.getSize().getWidth());
+        this.chart.setLabelsVisible(true);
+        this.chart.setLabelLineLength(18);
+        this.chart.setLegendVisible(false);
+        this.chart.setAnimated(false);
+        this.nf.setMinimumFractionDigits(0);
+        this.nf.setMaximumFractionDigits(2);
 
 
-            Platform.runLater(() -> {
-                //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
-                this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-            });
-        }
+        Platform.runLater(() -> {
+            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+        });
+
 
         /** data Update **/
         AtomicDouble total = new AtomicDouble(0);
@@ -124,14 +113,15 @@ public class PieWidget extends Widget {
                         logger.error(ex);
                     }
                 } else {
-                    logger.debug("Empty Samples for: {}", this.config.title.get());
+                    logger.debug("Empty Samples for: {}", this.config.getTitle());
                     value = 1;
                     textValue = "n.a.  " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + this.nf.format(0) + "%";
 
                 }
 
 
-                legendItemList.add(this.legend.buildLegendItem(dataName, chartDataModel.getColor(), this.config.fontColor.getValue(), this.config.fontSize.get()));
+                legendItemList.add(this.legend.buildLegendItem(
+                        dataName, chartDataModel.getColor(), this.config.getFontColor(), this.config.getFontSize()));
 
                 javafx.scene.chart.PieChart.Data pieData = new javafx.scene.chart.PieChart.Data(textValue, value);
                 series.add(pieData);
@@ -157,9 +147,6 @@ public class PieWidget extends Widget {
     public void init() {
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
-//            String jsonInString = mapper.writeValueAsString(this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
-
             this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
             this.sampleHandler.setMultiSelect(true);
         } catch (Exception ex) {
@@ -173,8 +160,6 @@ public class PieWidget extends Widget {
         series.add(new javafx.scene.chart.PieChart.Data("C", 1));
         series.add(new javafx.scene.chart.PieChart.Data("D", 1));
 
-//        graphAnalysisLinker = new GraphAnalysisLinker(getDataSource(), null);
-//        openAnalysisButton = graphAnalysisLinker.buildLinkerButton();
 
         this.legendPane.setPadding(new Insets(10, 5, 5, 0));
 
@@ -182,9 +167,6 @@ public class PieWidget extends Widget {
         this.legend.setPrefWidth(100);
         this.legend.setPrefHeight(10);
 
-//        legendPane.getChildren().setAll(legend);
-//        borderPane.setCenter(chart);
-//        borderPane.setRight(legendPane);
 
         Platform.runLater(() -> {
             this.legendPane.getChildren().setAll(this.legend);
@@ -199,11 +181,11 @@ public class PieWidget extends Widget {
 
     @Override
     public void openConfig() {
-        WidgetConfigEditor widgetConfigEditor = new WidgetConfigEditor(this.config);
-
-        widgetConfigEditor.addTab(this.sampleHandler.getConfigTab());
-
-        widgetConfigEditor.show();
+//        WidgetConfigEditor widgetConfigEditor = new WidgetConfigEditor(this.config);
+//
+//        widgetConfigEditor.addTab(this.sampleHandler.getConfigTab());
+//
+//        widgetConfigEditor.show();
 
     }
 

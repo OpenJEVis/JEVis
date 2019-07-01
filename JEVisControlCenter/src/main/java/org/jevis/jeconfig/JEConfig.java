@@ -292,6 +292,7 @@ public class JEConfig extends Application {
             System.exit(0);
         });
 
+
         if (System.getProperty("os.name").toLowerCase().contains("linux")) {
             try {
                 java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
@@ -304,15 +305,6 @@ public class JEConfig extends Application {
             }
         }
 
-//        BigDecimalField ttt = new
-//                System.out.println("Test: " + Pattern.compile("[0-9].*").matcher("5638.").matches());
-//        Locale fmtLocale = Locale.getDefault(Category.FORMAT);
-//        NumberFormat formatter = NumberFormat.getInstance(fmtLocale);
-//        formatter.setMaximumFractionDigits(2);
-//        formatter.setMinimumFractionDigits(2);
-//        System.out.println(formatter.format(d1));
-//        System.out.println(formatter.format(d2));
-//        System.out.println(fmtLocale.toLanguageTag());
 
         final AnchorPane jeconfigRoot = new AnchorPane();
 

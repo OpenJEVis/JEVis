@@ -11,9 +11,9 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.Interval;
 
@@ -24,27 +24,18 @@ public class OpenAnalysisWidget extends Widget {
     public static String WIDGET_ID = "Open Analysis";
     private final JFXButton label = new JFXButton();
 
-    public OpenAnalysisWidget(JEVisDataSource jeVisDataSource) {
-        super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
-    }
-
-    public OpenAnalysisWidget(JEVisDataSource jeVisDataSource, WidgetConfig config) {
-        super(jeVisDataSource, config);
+    public OpenAnalysisWidget(DashboardControl control, WidgetPojo config) {
+        super(control, config);
     }
 
     @Override
     public void update(Interval interval) {
-        //if config changed
-        if (config.hasChanged("")) {
-            Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
-            label.setBackground(bgColor);
-            label.setTextFill(config.fontColor.getValue());
-            label.setText(config.title.getValue());
-            label.setFont(new Font(config.fontSize.getValue()));
-            label.setAlignment(config.titlePosition.getValue());
-
-
-        }
+        Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+        this.label.setBackground(bgColor);
+        this.label.setTextFill(this.config.getFontColor());
+        this.label.setText(this.config.getTitle());
+        this.label.setFont(new Font(this.config.getFontSize()));
+        this.label.setAlignment(this.config.getTitlePosition());
 
 
     }
@@ -71,11 +62,10 @@ public class OpenAnalysisWidget extends Widget {
 
     @Override
     public void init() {
-        label.setText(config.title.getValue());
 //        label.setPadding(new Insets(0, 8, 0, 8));
         AnchorPane anchorPane = new AnchorPane();
-        anchorPane.getChildren().add(label);
-        Layouts.setAnchor(label, 0);
+        anchorPane.getChildren().add(this.label);
+        Layouts.setAnchor(this.label, 0);
         setGraphic(anchorPane);
     }
 
@@ -86,7 +76,7 @@ public class OpenAnalysisWidget extends Widget {
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/DonutWidget.png", previewSize.getHeight(), previewSize.getWidth());
+        return JEConfig.getImage("widget/DonutWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
 

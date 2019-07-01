@@ -45,59 +45,59 @@ public class Wizard {
     }
 
     public JEVisDataSource getDataSource() {
-        return jeVisDataSource;
+        return this.jeVisDataSource;
     }
 
     public Optional<Widget> show(Window parent) {
 
-        pageWidgetSelection.setWizard(this);
-        pageList.add(pageWidgetSelection);
+        this.pageWidgetSelection.setWizard(this);
+        this.pageList.add(this.pageWidgetSelection);
 
 
         HBox buttonBox = new HBox(12);
         buttonBox.setPadding(new Insets(10));
-        buttonBox.getChildren().addAll(cancelButton, previousButton, nextButton, finishButton);
+        buttonBox.getChildren().addAll(this.cancelButton, this.previousButton, this.nextButton, this.finishButton);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
 
         Separator separator = new Separator(Orientation.HORIZONTAL);
-        bottomContent.getChildren().addAll(separator, buttonBox);
+        this.bottomContent.getChildren().addAll(separator, buttonBox);
 
-        rootPane.setTop(DialogHeader.getDialogHeader("if_dashboard_46791.png", "Dashboard Wizard"));
-        rootPane.setCenter(contentPane);
-        rootPane.setBottom(bottomContent);
+        this.rootPane.setTop(DialogHeader.getDialogHeader("if_dashboard_46791.png", "Dashboard Wizard"));
+        this.rootPane.setCenter(this.contentPane);
+        this.rootPane.setBottom(this.bottomContent);
 
-        isLastStep = new SimpleBooleanProperty(false);
+        this.isLastStep = new SimpleBooleanProperty(false);
 
-        isLastStep.addListener((observable, oldValue, newValue) -> {
-            finishButton.setDisable(!newValue);
-            finishButton.setDefaultButton(newValue);
+        this.isLastStep.addListener((observable, oldValue, newValue) -> {
+            this.finishButton.setDisable(!newValue);
+            this.finishButton.setDefaultButton(newValue);
 
-            nextButton.setDefaultButton(!newValue);
+            this.nextButton.setDefaultButton(!newValue);
 
         });
-        nextButton.setDisable(true);
-        previousButton.setDisable(true);
-        finishButton.setDisable(true);
+        this.nextButton.setDisable(true);
+        this.previousButton.setDisable(true);
+        this.finishButton.setDisable(true);
 
-        pageWidgetSelection.selectedWidgetProperty.addListener((observable, oldValue, newValue) -> {
-            selectedWidget.setValue(newValue);//or bind?
+        this.pageWidgetSelection.selectedWidgetProperty.addListener((observable, oldValue, newValue) -> {
+            this.selectedWidget.setValue(newValue);//or bind?
         });
 
-        selectedWidget.addListener((observable, oldValue, newValue) -> {
+        this.selectedWidget.addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                nextButton.setDisable(false);
+                this.nextButton.setDisable(false);
             } else {
-                nextButton.setDisable(true);
+                this.nextButton.setDisable(true);
             }
         });
 
-        cancelButton.setCancelButton(true);
+        this.cancelButton.setCancelButton(true);
 
-        currentPage = pageWidgetSelection;
+        this.currentPage = this.pageWidgetSelection;
 
-        contentPane.getChildren().add(pageWidgetSelection.getNode());
-        nextButton.setDefaultButton(true);
-        nextButton.setOnAction(event -> {
+        this.contentPane.getChildren().add(this.pageWidgetSelection.getNode());
+        this.nextButton.setDefaultButton(true);
+        this.nextButton.setOnAction(event -> {
             nextPage();
         });
 
@@ -105,17 +105,17 @@ public class Wizard {
         /**
          * TODO: replace this hardcoded solution with something more flexible
          */
-        pageIndex.addListener((observable, oldValue, newValue) -> {
+        this.pageIndex.addListener((observable, oldValue, newValue) -> {
             if (newValue.intValue() == 2) {
-                finishButton.setDisable(false);
-                nextButton.setDisable(true);
-                finishButton.setDefaultButton(true);
-                nextButton.setDefaultButton(false);
+                this.finishButton.setDisable(false);
+                this.nextButton.setDisable(true);
+                this.finishButton.setDefaultButton(true);
+                this.nextButton.setDefaultButton(false);
             } else {
-                finishButton.setDisable(true);
-                nextButton.setDisable(false);//not correct
-                finishButton.setDefaultButton(false);
-                nextButton.setDefaultButton(true);
+                this.finishButton.setDisable(true);
+                this.nextButton.setDisable(false);//not correct
+                this.finishButton.setDefaultButton(false);
+                this.nextButton.setDefaultButton(true);
             }
 
             if (newValue.intValue() == 0) {
@@ -146,12 +146,12 @@ public class Wizard {
 
 
 //        contentPane.getChildren().add(contentPane);
-        AnchorPane.setTopAnchor(contentPane, 5.0);
-        AnchorPane.setBottomAnchor(contentPane, 5.0);
-        AnchorPane.setLeftAnchor(contentPane, 5.0);
-        AnchorPane.setRightAnchor(contentPane, 5.0);
+        AnchorPane.setTopAnchor(this.contentPane, 5.0);
+        AnchorPane.setBottomAnchor(this.contentPane, 5.0);
+        AnchorPane.setLeftAnchor(this.contentPane, 5.0);
+        AnchorPane.setRightAnchor(this.contentPane, 5.0);
 
-        Scene scene = new Scene(rootPane, 600, 700);
+        Scene scene = new Scene(this.rootPane, 600, 700);
         Stage newWindow = new Stage();
 
         newWindow.setTitle("Dashboard Wizard");
@@ -159,12 +159,12 @@ public class Wizard {
         newWindow.toFront();
 
         BooleanProperty isFinised = new SimpleBooleanProperty(false);
-        finishButton.setOnAction(event -> {
+        this.finishButton.setOnAction(event -> {
             isFinised.setValue(true);
             newWindow.hide();
         });
 
-        cancelButton.setOnAction(event -> {
+        this.cancelButton.setOnAction(event -> {
             newWindow.hide();
         });
 
@@ -172,8 +172,8 @@ public class Wizard {
 
         if (isFinised.getValue()) {
 
-            selectedWidget.getValue().config.applyUserConfig();
-            Optional<Widget> sc = Optional.of(selectedWidget.getValue());
+//            selectedWidget.getValue().config.applyUserConfig();
+            Optional<Widget> sc = Optional.of(this.selectedWidget.getValue());
             return sc;
         } else {
             Optional<Widget> sc = Optional.empty();
@@ -183,7 +183,7 @@ public class Wizard {
     }
 
     public void nextPage() {
-        pageIndex.setValue(pageIndex.getValue() + 1);
+        this.pageIndex.setValue(this.pageIndex.getValue() + 1);
     }
 
 //    public void setWidgetSelected(Widget widget) {

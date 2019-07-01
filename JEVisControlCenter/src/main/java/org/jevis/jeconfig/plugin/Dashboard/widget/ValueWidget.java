@@ -12,12 +12,13 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.Dashboard.common.LimitColoring;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.Interval;
@@ -35,12 +36,8 @@ public class ValueWidget extends Widget {
     private StringProperty labelText = new SimpleStringProperty("n.a.");
     private LimitColoring limitColoring;
 
-    public ValueWidget(JEVisDataSource jeVisDataSource) {
-        super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
-    }
-
-    public ValueWidget(JEVisDataSource jeVisDataSource, WidgetConfig config) {
-        super(jeVisDataSource, config);
+    public ValueWidget(DashboardControl control, WidgetPojo config) {
+        super(control, config);
     }
 
 
@@ -48,39 +45,38 @@ public class ValueWidget extends Widget {
     public void update(Interval interval) {
         logger.debug("Value.Update: {}", interval);
         Platform.runLater(() -> {
-            label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
+            this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
         });
 
 
-        sampleHandler.setInterval(interval);
-        sampleHandler.update();
+        this.sampleHandler.setInterval(interval);
+        this.sampleHandler.update();
 
-        //TODO implement hasChanged
-        if (config.hasChanged("")) {
-            Platform.runLater(() -> {
-                Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
-                label.setBackground(bgColor);
-                label.setTextFill(config.fontColor.getValue());
+        Platform.runLater(() -> {
+            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+            this.label.setBackground(bgColor);
+            this.label.setTextFill(this.config.getFontColor());
 
-                label.setContentDisplay(ContentDisplay.CENTER);
-            });
+            this.label.setContentDisplay(ContentDisplay.CENTER);
+        });
 
-            /*** TODO: replace null check if hasChanged is working **/
+        /*** TODO: replace null check if hasChanged is working **/
 //            System.out.println("jnode: "+config.getConfigNode(LimitColoring.JNODE_NAME));
-            if(limitColoring==null && config.getConfigNode(LimitColoring.JNODE_NAME)!=null ){
-                System.out.println("Create new LimitColoring: "+config.getConfigNode(LimitColoring.JNODE_NAME));
-                limitColoring = new LimitColoring(config.getConfigNode(LimitColoring.JNODE_NAME),config.fontColor.getValue(),config.backgroundColor.getValue());
-            }
-
-
-            nf.setMinimumFractionDigits(config.decimals.getValue());
-            nf.setMaximumFractionDigits(config.decimals.getValue());
+        if (this.limitColoring == null && this.config.getConfigNode(LimitColoring.JNODE_NAME) != null) {
+            System.out.println("Create new LimitColoring: " + this.config.getConfigNode(LimitColoring.JNODE_NAME));
+            this.limitColoring = new LimitColoring(
+                    this.config.getConfigNode(LimitColoring.JNODE_NAME), this.config.getFontColor(), this.config.getBackgroundColor());
         }
 
-        labelText.setValue("n.a.");
+
+        this.nf.setMinimumFractionDigits(this.config.getDecimals());
+        this.nf.setMaximumFractionDigits(this.config.getDecimals());
+
+
+        this.labelText.setValue("n.a.");
 
         try {
-            ChartDataModel dataModel = sampleHandler.getDataModel().get(0);
+            ChartDataModel dataModel = this.sampleHandler.getDataModel().get(0);
 //            dataModel.setAbsolute(true);
             List<JEVisSample> results;
 
@@ -90,14 +86,12 @@ public class ValueWidget extends Widget {
             results = dataModel.getSamples();
             if (!results.isEmpty()) {
                 Double total = DataModelDataHandler.getTotal(results);
-                labelText.setValue((nf.format( total )) + " " + unit);
-                if(limitColoring!=null){
+                this.labelText.setValue((this.nf.format(total)) + " " + unit);
+                if (this.limitColoring != null) {
                     System.out.println("limitColoring formate");
-                    limitColoring.formateLabel(label,total);
+                    this.limitColoring.formateLabel(this.label, total);
                 }
             }
-
-
 
 
         } catch (Exception ex) {
@@ -105,7 +99,7 @@ public class ValueWidget extends Widget {
         }
 
         Platform.runLater(() -> {
-            label.setText(labelText.getValue());
+            this.label.setText(this.labelText.getValue());
         });
 
 
@@ -115,10 +109,10 @@ public class ValueWidget extends Widget {
     @Override
     public void init() {
 
-        sampleHandler = new DataModelDataHandler(getDataSource(), config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
-        sampleHandler.setMultiSelect(false);
-        label.setPadding(new Insets(0, 8, 0, 8));
-        setGraphic(label);
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+        this.sampleHandler.setMultiSelect(false);
+        this.label.setPadding(new Insets(0, 8, 0, 8));
+        setGraphic(this.label);
     }
 
 
@@ -129,6 +123,6 @@ public class ValueWidget extends Widget {
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/ValueWidget.png", previewSize.getHeight(), previewSize.getWidth());
+        return JEConfig.getImage("widget/ValueWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 }

@@ -240,7 +240,7 @@ public class GraphPluginView implements Plugin {
         ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel);
 
 //        AnalysisTimeFrame atf = new AnalysisTimeFrame();
-//        atf.setTimeFrame(TimeFrame.CUSTOM);
+//        atf.setActiveTimeFrame(TimeFrame.CUSTOM);
 //
 //        dataModel.setAnalysisTimeFrame(atf);
 

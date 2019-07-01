@@ -1,23 +1,23 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
-import org.jevis.api.JEVisDataSource;
-import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Widgets {
 
-    public static List<Widget> getAvabableWidgets(JEVisDataSource jeVisDataSource, WidgetConfig config) {
+    public static List<Widget> getAvabableWidgets(DashboardControl conrol, WidgetPojo config) {
         List<Widget> widgetList = new ArrayList<>();
 
-        widgetList.add(new PieWidget(jeVisDataSource, config));
-        widgetList.add(new TitleWidget(jeVisDataSource, config));
-        widgetList.add(new ChartWidget(jeVisDataSource, config));
-        widgetList.add(new ValueWidget(jeVisDataSource, config));
-        widgetList.add(new TableWidget(jeVisDataSource, config));
-        widgetList.add(new WebPieWidget(jeVisDataSource, config));
-        widgetList.add(new LinkerWidget(jeVisDataSource, config));
+        widgetList.add(new PieWidget(conrol, config));
+        widgetList.add(new TitleWidget(conrol, config));
+        widgetList.add(new ChartWidget(conrol, config));
+        widgetList.add(new ValueWidget(conrol, config));
+        widgetList.add(new TableWidget(conrol, config));
+        widgetList.add(new WebPieWidget(conrol, config));
+        widgetList.add(new LinkerWidget(conrol, config));
 
         return widgetList;
     }

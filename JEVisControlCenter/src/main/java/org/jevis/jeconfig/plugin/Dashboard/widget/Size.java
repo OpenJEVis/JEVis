@@ -15,11 +15,32 @@ public class Size {
     }
 
     public double getHeight() {
-        return height;
+        return this.height;
     }
 
     public double getWidth() {
-        return width;
+        return this.width;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Size size = (Size) o;
+
+        if (Double.compare(size.height, this.height) != 0) return false;
+        return Double.compare(size.width, this.width) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(this.height);
+        result = (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(this.width);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }

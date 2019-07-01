@@ -103,7 +103,7 @@ public class DashBordModel {
     /**
      * Enable snap to grid
      */
-    public final BooleanProperty snapToGridProperty = new SimpleBooleanProperty(Boolean.class, "Snap to Grid", true);
+    public final BooleanProperty snapToGridProperty = new SimpleBooleanProperty(Boolean.class, "trze", true);
     /**
      * Show the snap to grid lines
      */
@@ -145,11 +145,11 @@ public class DashBordModel {
         @Override
         public void set(double value) {
 
-            if (value < zoomLimit[0]) {
-                value = zoomLimit[0];
+            if (value < DashBordModel.this.zoomLimit[0]) {
+                value = DashBordModel.this.zoomLimit[0];
             }
-            if (value > zoomLimit[1]) {
-                value = zoomLimit[1];
+            if (value > DashBordModel.this.zoomLimit[1]) {
+                value = DashBordModel.this.zoomLimit[1];
             }
             super.set(value);
         }
@@ -159,11 +159,11 @@ public class DashBordModel {
             if (value == null) {
                 // depending on requirements, throw exception, set to default value, etc.
             } else {
-                if (value.doubleValue() < zoomLimit[0]) {
-                    value = new Double(zoomLimit[0]);
+                if (value.doubleValue() < DashBordModel.this.zoomLimit[0]) {
+                    value = new Double(DashBordModel.this.zoomLimit[0]);
                 }
-                if (value.doubleValue() > zoomLimit[1]) {
-                    value = new Double(zoomLimit[1]);
+                if (value.doubleValue() > DashBordModel.this.zoomLimit[1]) {
+                    value = new Double(DashBordModel.this.zoomLimit[1]);
                 }
                 super.setValue(value);
             }
@@ -174,27 +174,27 @@ public class DashBordModel {
     public DashBordModel(JEVisDataSource jeVisDataSource) {
         this.jeVisDataSource = jeVisDataSource;
         this.timeFrames = new TimeFrames(jeVisDataSource);
-        this.timeFrameProperty = new SimpleObjectProperty<>(timeFrames.day());
+        this.timeFrameProperty = new SimpleObjectProperty<>(this.timeFrames.day());
     }
 
     public DashBordModel(JEVisObject analysisObject) throws JEVisException {
         this.analysisObject = analysisObject;
         this.jeVisDataSource = analysisObject.getDataSource();
-        this.timeFrames = new TimeFrames(jeVisDataSource);
-        this.timeFrameProperty = new SimpleObjectProperty<>(timeFrames.day());
+        this.timeFrames = new TimeFrames(this.jeVisDataSource);
+        this.timeFrameProperty = new SimpleObjectProperty<>(this.timeFrames.day());
 
 
         load();
     }
 
     public JEVisDataSource getDataSource() {
-        return jeVisDataSource;
+        return this.jeVisDataSource;
     }
 
 
     private void load() {
         try {
-            JEVisSample lastConfigSample = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
+            JEVisSample lastConfigSample = this.analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
             if (lastConfigSample == null || lastConfigSample.getValueAsFile() == null || lastConfigSample.getValueAsFile().getBytes() == null) {
                 logger.error("Missing Json File configuration");
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -208,9 +208,9 @@ public class DashBordModel {
 
 
             JEVisFile file = lastConfigSample.getValueAsFile();
-            JsonNode jsonNode = mapper.readTree(file.getBytes());
+            JsonNode jsonNode = this.mapper.readTree(file.getBytes());
 
-//            this.timeFrameProperty.addListener((observable, oldValue, newValue) -> {
+//            this.timeFrame.addListener((observable, oldValue, newValue) -> {
 //                System.out.println("DashBoardModel.timframe.changed: " + oldValue.getID() + " to " + newValue.getID());
 //                intervalProperty.setValue(newValue.getInterval(new DateTime()));
 //            });
@@ -219,7 +219,7 @@ public class DashBordModel {
                 String defaultPeriodStrg = jsonNode.get("defaultPeriod").asText(Period.days(1).toString());
 //                System.out.println("Default period: " + defaultPeriodStrg);
 
-                for (TimeFrameFactory timeFrameFactory : timeFrames.getAll()) {
+                for (TimeFrameFactory timeFrameFactory : this.timeFrames.getAll()) {
                     if (timeFrameFactory.getID().equals(defaultPeriodStrg)) {
                         this.timeFrameProperty.setValue(timeFrameFactory);
                     }
@@ -227,7 +227,7 @@ public class DashBordModel {
 
 
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", defaultPeriod.getName(), ex);
+                logger.error("Could not parse {}: {}", this.defaultPeriod.getName(), ex);
             }
 
 
@@ -235,55 +235,55 @@ public class DashBordModel {
                 Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
                 Size newSize = new Size(jsonNode.get("height").asDouble(primaryScreenBounds.getHeight() - 80)
                         , jsonNode.get("width").asDouble(primaryScreenBounds.getWidth() - 35));
-                pageSize.setValue(newSize);
+                this.pageSize.setValue(newSize);
             } catch (Exception ex) {
                 logger.error("Could not parse Size: {}", ex);
             }
 
             try {
-                colorDashBoardBackground.setValue(Color.valueOf(jsonNode.get(colorDashBoardBackground.getName()).asText(colorDashBoardBackground.toString())));
+                this.colorDashBoardBackground.setValue(Color.valueOf(jsonNode.get(this.colorDashBoardBackground.getName()).asText(this.colorDashBoardBackground.toString())));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", colorDashBoardBackground.getName(), ex);
+                logger.error("Could not parse {}: {}", this.colorDashBoardBackground.getName(), ex);
             }
             try {
-                xGridInterval.setValue(jsonNode.get(xGridInterval.getName()).asDouble(xGridInterval.doubleValue()));
+                this.xGridInterval.setValue(jsonNode.get(this.xGridInterval.getName()).asDouble(this.xGridInterval.doubleValue()));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", xGridInterval.getName(), ex);
+                logger.error("Could not parse {}: {}", this.xGridInterval.getName(), ex);
             }
             try {
-                yGridInterval.setValue(jsonNode.get(yGridInterval.getName()).asDouble(yGridInterval.doubleValue()));
+                this.yGridInterval.setValue(jsonNode.get(this.yGridInterval.getName()).asDouble(this.yGridInterval.doubleValue()));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", yGridInterval.getName(), ex);
+                logger.error("Could not parse {}: {}", this.yGridInterval.getName(), ex);
             }
             try {
-                zoomFactor.setValue(jsonNode.get(zoomFactor.getName()).asDouble(zoomFactor.doubleValue()));
+                this.zoomFactor.setValue(jsonNode.get(this.zoomFactor.getName()).asDouble(this.zoomFactor.doubleValue()));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", zoomFactor.getName(), ex);
+                logger.error("Could not parse {}: {}", this.zoomFactor.getName(), ex);
             }
             try {
-                updateRate.setValue(jsonNode.get(updateRate.getName()).asInt(updateRate.intValue()));
+                this.updateRate.setValue(jsonNode.get(this.updateRate.getName()).asInt(this.updateRate.intValue()));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", updateRate.getName(), ex);
+                logger.error("Could not parse {}: {}", this.updateRate.getName(), ex);
             }
             try {
-                snapToGridProperty.setValue(jsonNode.get(snapToGridProperty.getName()).asBoolean(snapToGridProperty.getValue()));
+                this.snapToGridProperty.setValue(jsonNode.get(this.snapToGridProperty.getName()).asBoolean(this.snapToGridProperty.getValue()));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", snapToGridProperty.getName(), ex);
+                logger.error("Could not parse {}: {}", this.snapToGridProperty.getName(), ex);
             }
             try {
-                showGridProperty.setValue(jsonNode.get(showGridProperty.getName()).asBoolean(showGridProperty.getValue()));
+                this.showGridProperty.setValue(jsonNode.get(this.showGridProperty.getName()).asBoolean(this.showGridProperty.getValue()));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", showGridProperty.getName(), ex);
+                logger.error("Could not parse {}: {}", this.showGridProperty.getName(), ex);
             }
             try {
-                dataPeriodProperty.setValue(ISOPeriodFormat.standard().parsePeriod(jsonNode.get(dataPeriodProperty.getName()).asText(dataPeriodProperty.toString())));
+                this.dataPeriodProperty.setValue(ISOPeriodFormat.standard().parsePeriod(jsonNode.get(this.dataPeriodProperty.getName()).asText(this.dataPeriodProperty.toString())));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", dataPeriodProperty.getName(), ex);
+                logger.error("Could not parse {}: {}", this.dataPeriodProperty.getName(), ex);
             }
             try {
-                disableIntervalUI.setValue(jsonNode.get("disableIntervalUI").asBoolean(snapToGridProperty.getValue()));
+                this.disableIntervalUI.setValue(jsonNode.get("disableIntervalUI").asBoolean(this.snapToGridProperty.getValue()));
             } catch (Exception ex) {
-                logger.error("Could not parse {}: {}", disableIntervalUI.getName(), ex.getMessage());
+                logger.error("Could not parse {}: {}", this.disableIntervalUI.getName(), ex.getMessage());
             }
 
 
@@ -292,7 +292,7 @@ public class DashBordModel {
             if (widgets.isArray()) {
                 for (final JsonNode objNode : widgets) {
                     WidgetConfig newConfig = new WidgetConfig(objNode);
-                    widgetList.add(newConfig);
+                    this.widgetList.add(newConfig);
                 }
             }
 
@@ -304,7 +304,7 @@ public class DashBordModel {
                 @Override
                 public Image call() throws InterruptedException {
                     try {
-                        JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
+                        JEVisAttribute bgFile = DashBordModel.this.analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
                         if (bgFile != null && bgFile.hasSample()) {
                             JEVisSample backgroundImage = bgFile.getLatestSample();
                             if (backgroundImage != null) {
@@ -322,7 +322,7 @@ public class DashBordModel {
                 }
             };
 
-            imageLoadTask.setOnSucceeded(e -> imageBoardBackground.setValue(imageLoadTask.getValue()));
+            imageLoadTask.setOnSucceeded(e -> this.imageBoardBackground.setValue(imageLoadTask.getValue()));
             new Thread(imageLoadTask).start();
 
 
@@ -334,11 +334,11 @@ public class DashBordModel {
 
 
     public List<WidgetConfig> getWidgets() {
-        return widgetList;
+        return this.widgetList;
     }
 
     public JEVisObject getAnalysisObject() {
-        return analysisObject;
+        return this.analysisObject;
     }
 
 
@@ -347,25 +347,25 @@ public class DashBordModel {
     }
 
     public void save() {
-        save(analysisObject);
+        save(this.analysisObject);
     }
 
     public void save(JEVisObject analysisObject) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode jsonNode = mapper.createObjectNode();
-        jsonNode.put(colorDashBoardBackground.getName(), colorDashBoardBackground.getValue().toString());
-        jsonNode.put(xGridInterval.getName(), xGridInterval.getValue().toString());
-        jsonNode.put(yGridInterval.getName(), yGridInterval.getValue().toString());
-        jsonNode.put(snapToGridProperty.getName(), snapToGridProperty.getValue().toString());
-        jsonNode.put(showGridProperty.getName(), showGridProperty.getValue().toString());
-        jsonNode.put(dataPeriodProperty.getName(), dataPeriodProperty.getValue().toString());
-        jsonNode.put(zoomFactor.getName(), zoomFactor.getValue().toString());
-        jsonNode.put(updateRate.getName(), updateRate.getValue().toString());
-        jsonNode.put("height", pageSize.getValue().getHeight());
-        jsonNode.put("width", pageSize.getValue().getWidth());
+        jsonNode.put(this.colorDashBoardBackground.getName(), this.colorDashBoardBackground.getValue().toString());
+        jsonNode.put(this.xGridInterval.getName(), this.xGridInterval.getValue().toString());
+        jsonNode.put(this.yGridInterval.getName(), this.yGridInterval.getValue().toString());
+        jsonNode.put(this.snapToGridProperty.getName(), this.snapToGridProperty.getValue().toString());
+        jsonNode.put(this.showGridProperty.getName(), this.showGridProperty.getValue().toString());
+        jsonNode.put(this.dataPeriodProperty.getName(), this.dataPeriodProperty.getValue().toString());
+        jsonNode.put(this.zoomFactor.getName(), this.zoomFactor.getValue().toString());
+        jsonNode.put(this.updateRate.getName(), this.updateRate.getValue().toString());
+        jsonNode.put("height", this.pageSize.getValue().getHeight());
+        jsonNode.put("width", this.pageSize.getValue().getWidth());
 
         ArrayNode widgetJson = jsonNode.putArray("Widget");
-        widgetList.forEach(widgetConfig -> {
+        this.widgetList.forEach(widgetConfig -> {
             widgetJson.add(widgetConfig.toJsonNode());
         });
 
@@ -379,7 +379,7 @@ public class DashBordModel {
 
 
             /** TODO: check if the image changed **/
-            if (imageBoardBackground.getValue() != null) {
+            if (this.imageBoardBackground.getValue() != null) {
                 BufferedImage bImage = SwingFXUtils.fromFXImage(this.imageBoardBackground.getValue(), null);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 javax.imageio.ImageIO.write(bImage, "png", bos);
@@ -404,15 +404,15 @@ public class DashBordModel {
     }
 
     public void zoomIn() {
-        zoomFactor.setValue(zoomFactor.getValue() + 0.1d);
+        this.zoomFactor.setValue(this.zoomFactor.getValue() + 0.1d);
     }
 
     public void zoomOut() {
-        zoomFactor.setValue(zoomFactor.getValue() - 0.1d);
+        this.zoomFactor.setValue(this.zoomFactor.getValue() - 0.1d);
     }
 
     public void addChangeListener(ChangeListener listener) {
-        changeListeners.add(listener);
+        this.changeListeners.add(listener);
     }
 
 
@@ -424,13 +424,13 @@ public class DashBordModel {
      */
     public boolean openConfig() {
         Map<String, ConfigSheet.Property> userConfig = new LinkedHashMap<>();
-        userConfig.put(xGridInterval.getName(), new ConfigSheet.Property("X-Grid Interval", GENERAL_GROUP, xGridInterval.getValue(), "Help"));
-        userConfig.put(yGridInterval.getName(), new ConfigSheet.Property("Y-Grid Interval", GENERAL_GROUP, yGridInterval.getValue(), "Help"));
-        userConfig.put(snapToGridProperty.getName(), new ConfigSheet.Property("Snap to Grid", GENERAL_GROUP, snapToGridProperty.getValue(), "Help"));
-        userConfig.put(showGridProperty.getName(), new ConfigSheet.Property("Show Grid", GENERAL_GROUP, showGridProperty.getValue(), "Help"));
-        userConfig.put(updateRate.getName(), new ConfigSheet.Property("Update Rate (sec)", GENERAL_GROUP, updateRate.getValue(), "Help"));
-        userConfig.put("Height", new ConfigSheet.Property("Height", GENERAL_GROUP, pageSize.getValue().getHeight(), "Help"));
-        userConfig.put("Width", new ConfigSheet.Property("Width", GENERAL_GROUP, pageSize.getValue().getWidth(), "Help"));
+        userConfig.put(this.xGridInterval.getName(), new ConfigSheet.Property("X-Grid Interval", GENERAL_GROUP, this.xGridInterval.getValue(), "Help"));
+        userConfig.put(this.yGridInterval.getName(), new ConfigSheet.Property("Y-Grid Interval", GENERAL_GROUP, this.yGridInterval.getValue(), "Help"));
+        userConfig.put(this.snapToGridProperty.getName(), new ConfigSheet.Property("Snap to Grid", GENERAL_GROUP, this.snapToGridProperty.getValue(), "Help"));
+        userConfig.put(this.showGridProperty.getName(), new ConfigSheet.Property("Show Grid", GENERAL_GROUP, this.showGridProperty.getValue(), "Help"));
+        userConfig.put(this.updateRate.getName(), new ConfigSheet.Property("Update Rate (sec)", GENERAL_GROUP, this.updateRate.getValue(), "Help"));
+        userConfig.put("Height", new ConfigSheet.Property("Height", GENERAL_GROUP, this.pageSize.getValue().getHeight(), "Help"));
+        userConfig.put("Width", new ConfigSheet.Property("Width", GENERAL_GROUP, this.pageSize.getValue().getWidth(), "Help"));
 
 
         Dialog configDia = new Dialog();
@@ -460,12 +460,12 @@ public class DashBordModel {
         Optional<ButtonType> opt = configDia.showAndWait();
         if (opt.get().equals(buttonTypeOk)) {
 
-            showGridProperty.setValue((boolean) userConfig.get(showGridProperty.getName()).getObject());
-            snapToGridProperty.setValue((boolean) userConfig.get(snapToGridProperty.getName()).getObject());
-            xGridInterval.setValue((Double) userConfig.get(xGridInterval.getName()).getObject());
-            yGridInterval.setValue((Double) userConfig.get(yGridInterval.getName()).getObject());
-            updateRate.setValue((Integer) userConfig.get(updateRate.getName()).getObject());
-            changeListeners.forEach(listener -> {
+            this.showGridProperty.setValue((boolean) userConfig.get(this.showGridProperty.getName()).getObject());
+            this.snapToGridProperty.setValue((boolean) userConfig.get(this.snapToGridProperty.getName()).getObject());
+            this.xGridInterval.setValue((Double) userConfig.get(this.xGridInterval.getName()).getObject());
+            this.yGridInterval.setValue((Double) userConfig.get(this.yGridInterval.getName()).getObject());
+            this.updateRate.setValue((Integer) userConfig.get(this.updateRate.getName()).getObject());
+            this.changeListeners.forEach(listener -> {
                 listener.stateChanged(new ChangeEvent(this));
             });
 

@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard.timeframe;
 
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -12,22 +11,15 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
+import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
 
 public class ToolBarIntervalSelector extends HBox {
 
     private static final Logger logger = LogManager.getLogger(ToolBarIntervalSelector.class);
-    private final DashBordModel analysis;
-    private final JEVisDataSource ds;
     private TimeFrameEdior popup;
 
-    public ToolBarIntervalSelector(JEVisDataSource dataSource, DashBordModel analysis, Double iconSize, final Interval interval) {
+    public ToolBarIntervalSelector(JEVisDataSource ds, DashboardControl controller, Double iconSize) {
         super();
-        this.ds = dataSource;
-        this.analysis = analysis;
-
 
         Button dateButton = new Button("");
         dateButton.setMinWidth(100);
@@ -59,43 +51,33 @@ public class ToolBarIntervalSelector extends HBox {
                             setText(item.getListName());
                             setGraphic(null);
                         }
-
-
                     }
                 };
 
                 return cell;
             }
-
         };
 
 
         TimeFrames timeFrames = new TimeFrames(ds);
-        timeFrames.setWorkdays(analysis.getAnalysisObject());
+        timeFrames.setWorkdays(controller.getActiveDashboard().getDashboardObject());
         timeFrameBox.setItems(timeFrames.getAll());
 
+        dateButton.setText(controller.getActiveTimeFrame().format(controller.getInterval()));
 
-        analysis.intervalProperty.addListener((observable, oldValue, newValue) -> {
-            try {
-                if (analysis.timeFrameProperty.getValue() != null) {
-                    Platform.runLater(() -> {
-                        dateButton.setText(analysis.timeFrameProperty.getValue().format(analysis.intervalProperty.getValue()));
-                    });
-                }
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
+
+        this.popup = new TimeFrameEdior(controller.getActiveTimeFrame(), controller.getInterval());
+        this.popup.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
+            controller.setInterval(newValue);
         });
 
-        popup = new TimeFrameEdior(analysis.timeFrameProperty, analysis.intervalProperty);
-
         dateButton.setOnAction(event -> {
-            if (popup.isShowing()) {
-                popup.hide();
+            if (this.popup.isShowing()) {
+                this.popup.hide();
             } else {
-                popup.setDate(analysis.intervalProperty.getValue().getEnd());
+                this.popup.setDate(controller.getInterval().getEnd());
                 Point2D point = dateButton.localToScreen(0.0, 0.0);
-                popup.show(dateButton, point.getX() - 40, point.getY() + 40);
+                this.popup.show(dateButton, point.getX() - 40, point.getY() + 40);
             }
         });
 
@@ -106,29 +88,16 @@ public class ToolBarIntervalSelector extends HBox {
             if (oldValue != null && oldValue.getID().equals(newValue.getID())) {
                 return;
             }
-            analysis.timeFrameProperty.setValue(newValue);
-            if (analysis.intervalProperty.get() != null) {
-                analysis.intervalProperty.setValue(newValue.getInterval(analysis.intervalProperty.get().getEnd()));
-            } else {
-                analysis.intervalProperty.setValue(newValue.getInterval(new DateTime()));
-            }
-
+            controller.setActiveTimeFrame(newValue);
         });
 
 
         prevButton.setOnAction(event -> {
-            Interval nextInterval = analysis.timeFrameProperty.getValue().previousPeriod(analysis.intervalProperty.get(),1);
-            if(nextInterval.getStart().isBeforeNow()){
-                analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().previousPeriod(analysis.intervalProperty.get(), 1));
-            }
+            controller.setPrevInteval();
         });
 
         nextButton.setOnAction(event -> {
-            Interval nextInterval = analysis.timeFrameProperty.getValue().nextPeriod(analysis.intervalProperty.get(),1);
-//            analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().nextPeriod(analysis.intervalProperty.get(), 1));
-            if(nextInterval.getStart().isBeforeNow()){
-                analysis.intervalProperty.setValue(analysis.timeFrameProperty.getValue().nextPeriod(analysis.intervalProperty.get(), 1));
-            }
+            controller.setNextInterval();
         });
 
         Region spacer = new Region();
@@ -139,14 +108,14 @@ public class ToolBarIntervalSelector extends HBox {
 
 
         Platform.runLater(() -> {
-            ToolBarIntervalSelector.this.setDisable(analysis.disableIntervalUI.get());
-            nextButton.setDisable(analysis.disableIntervalUI.get());
-            prevButton.setDisable(analysis.disableIntervalUI.get());
-            dateButton.setDisable(analysis.disableIntervalUI.get());
-            timeFrameBox.setDisable(analysis.disableIntervalUI.get());
+//            ToolBarIntervalSelector.this.setDisable(controller.disableIntervalUI.get());
+//            nextButton.setDisable(controller.disableIntervalUI.get());
+//            prevButton.setDisable(controller.disableIntervalUI.get());
+//            dateButton.setDisable(controller.disableIntervalUI.get());
+//            timeFrameBox.setDisable(controller.disableIntervalUI.get());
 
             timeFrameBox.getItems().forEach(timeFrameFactory -> {
-                if (analysis.timeFrameProperty.getValue().getID().equals(timeFrameFactory.getID())) {
+                if (controller.getActiveTimeFrame().getID().equals(timeFrameFactory.getID())) {
                     timeFrameBox.getSelectionModel().select(timeFrameFactory);
                     return;
                 }
@@ -155,11 +124,6 @@ public class ToolBarIntervalSelector extends HBox {
         });
 
 
-    }
-
-
-    public ObjectProperty<Interval> getIntervalProperty() {
-        return analysis.intervalProperty;
     }
 
 

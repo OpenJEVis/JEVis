@@ -9,13 +9,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
 
@@ -31,38 +32,24 @@ public class TableWidget extends Widget {
     private TableView<TableData> table;
 
 
-    public TableWidget(JEVisDataSource jeVisDataSource) {
-        super(jeVisDataSource, new WidgetConfig(WIDGET_ID));
-    }
-
-
-    public TableWidget(JEVisDataSource jeVisDataSource, WidgetConfig config) {
-        super(jeVisDataSource, config);
+    public TableWidget(DashboardControl control, WidgetPojo config) {
+        super(control, config);
     }
 
     @Override
     public void update(Interval interval) {
         logger.debug("Table.Update: {}", interval);
 
-        sampleHandler.setInterval(interval);
-        sampleHandler.update();
+        this.sampleHandler.setInterval(interval);
+        this.sampleHandler.update();
 
-        //if config changed
-        if (config.hasChanged("")) {
-//            Platform.runLater(() -> {
-//                Background bgColor = new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY));
-//                label.setBackground(bgColor);
-//                label.setTextFill(config.fontColor.getValue());
-//
-//                label.setContentDisplay(ContentDisplay.CENTER);
-//            });
 
-            nf.setMinimumFractionDigits(config.decimals.getValue());
-            nf.setMaximumFractionDigits(config.decimals.getValue());
-        }
+        this.nf.setMinimumFractionDigits(this.config.getDecimals());
+        this.nf.setMaximumFractionDigits(this.config.getDecimals());
+
 
         ObservableList<TableData> tableDatas = FXCollections.observableArrayList();
-        sampleHandler.getDataModel().forEach(chartDataModel -> {
+        this.sampleHandler.getDataModel().forEach(chartDataModel -> {
             try {
                 List<JEVisSample> results;
                 if (chartDataModel.getEnPI()) {
@@ -84,7 +71,7 @@ public class TableWidget extends Widget {
 
                     tableDatas.add(new TableData(
                             chartDataModel.getObject().getName(),
-                            nf.format(DataModelDataHandler.getTotal(results)),
+                            this.nf.format(DataModelDataHandler.getTotal(results)),
                             chartDataModel.getUnitLabel()));
 
 
@@ -102,8 +89,8 @@ public class TableWidget extends Widget {
         });
 
         Platform.runLater(() -> {
-            table.getItems().clear();
-            table.setItems(tableDatas);
+            this.table.getItems().clear();
+            this.table.setItems(tableDatas);
 
         });
 
@@ -113,11 +100,11 @@ public class TableWidget extends Widget {
     @Override
     public void init() {
 
-        sampleHandler = new DataModelDataHandler(getDataSource(), config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
-        sampleHandler.setMultiSelect(false);
+        this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
+        this.sampleHandler.setMultiSelect(false);
 
-        table = new TableView<TableData>();
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        this.table = new TableView<TableData>();
+        this.table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         TableColumn<TableData, String> nameCol = new TableColumn<TableData, String>("Name");
         nameCol.setMinWidth(225);
@@ -133,12 +120,12 @@ public class TableWidget extends Widget {
         TableColumn<TableData, String> unitCol = new TableColumn<TableData, String>("Einheit");
         unitCol.setCellValueFactory(new PropertyValueFactory<>("unit"));
 
-        table.getColumns().setAll(nameCol, valueCol, unitCol);
+        this.table.getColumns().setAll(nameCol, valueCol, unitCol);
 
         TableData dummy = new TableData("", "", "");
 
-        table.setItems(FXCollections.observableArrayList(dummy));
-        setGraphic(table);
+        this.table.setItems(FXCollections.observableArrayList(dummy));
+        setGraphic(this.table);
 
 
     }
@@ -151,7 +138,7 @@ public class TableWidget extends Widget {
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/ValueWidget.png", previewSize.getHeight(), previewSize.getWidth());
+        return JEConfig.getImage("widget/ValueWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
     /**
@@ -169,7 +156,7 @@ public class TableWidget extends Widget {
         }
 
         public String getName() {
-            return name;
+            return this.name;
         }
 
         public void setName(String name) {
@@ -177,7 +164,7 @@ public class TableWidget extends Widget {
         }
 
         public String getValue() {
-            return value;
+            return this.value;
         }
 
         public void setValue(String value) {
@@ -185,7 +172,7 @@ public class TableWidget extends Widget {
         }
 
         public String getUnit() {
-            return unit;
+            return this.unit;
         }
 
         public void setUnit(String unit) {

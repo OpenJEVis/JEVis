@@ -1,172 +1,89 @@
 package org.jevis.jeconfig.plugin.Dashboard;
 
-import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.geometry.Bounds;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
-import javafx.stage.*;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
-import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
-import org.jevis.jeconfig.plugin.Dashboard.config.DashBordModel;
+import org.jevis.jeconfig.plugin.Dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.Dashboard.timeframe.ToolBarIntervalSelector;
 import org.jevis.jeconfig.tool.I18n;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.jevis.jeconfig.application.Chart.data.GraphDataModel.BUILDING_CLASS_NAME;
-import static org.jevis.jeconfig.application.Chart.data.GraphDataModel.ORGANIZATION_CLASS_NAME;
 
 public class DashBoardToolbar extends ToolBar {
 
     private static final Logger logger = LogManager.getLogger(DashBoardToolbar.class);
-    private final JEVisDataSource dataSource;
-    private final DashBordPlugIn dashBordPlugIn;
     private ComboBox<JEVisObject> listAnalysesComboBox;
     private double iconSize = 20;
-    ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", iconSize, iconSize));
+    private ToggleButton backgroundButton = new ToggleButton("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
+    private final DashboardControl dashboardControl;
 
-    public DashBoardToolbar(JEVisDataSource dataSource, DashBordPlugIn dashBordPlugIn) {
-        this.dataSource = dataSource;
-        this.dashBordPlugIn = dashBordPlugIn;
+    final ImageView lockIcon = JEConfig.getImage("if_lock_blue_68757.png", this.iconSize, this.iconSize);
+    final ImageView unlockIcon = JEConfig.getImage("if_lock-unlock_blue_68758.png", this.iconSize, this.iconSize);
+    final ToggleButton unlockB = new ToggleButton("", this.lockIcon);
+    final ImageView pauseIcon = JEConfig.getImage("pause_32.png", this.iconSize, this.iconSize);
+    final ImageView playIcon = JEConfig.getImage("play_32.png", this.iconSize, this.iconSize);
+    ToggleButton runUpdateButton = new ToggleButton("", this.playIcon);
 
+    public DashBoardToolbar(DashboardControl dashboardControl) {
+        this.dashboardControl = dashboardControl;
     }
-
 
 
     public ComboBox<JEVisObject> getListAnalysesComboBox() {
-        return listAnalysesComboBox;
+        return this.listAnalysesComboBox;
     }
 
-    public void updateToolbar(final DashBordModel analyses) {
-
-        ObservableList<JEVisObject> observableList = FXCollections.emptyObservableList();
-
-        try {
-            JEVisClass scadaAnalysis = dataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
-            List<JEVisObject> allAnalyses = dataSource.getObjects(scadaAnalysis, false);
-            observableList = FXCollections.observableList(allAnalyses);
-            List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
-            boolean multipleDirectories = false;
-
-            try {
-                JEVisClass analysesDirectory = dataSource.getJEVisClass(GraphDataModel.ANALYSES_DIRECTORY_CLASS_NAME);
-                listAnalysesDirectories = dataSource.getObjects(analysesDirectory, false);
-
-                if (listAnalysesDirectories.size() > 1) {
-                    multipleDirectories = true;
-                }
-            } catch (JEVisException e) {
-                logger.error("Error: could not get analyses directories", e);
+    public void setUpdateRunning(boolean updateRunning) {
+        Platform.runLater(() -> {
+            if (updateRunning) {
+                this.runUpdateButton.setGraphic(this.pauseIcon);
+            } else {
+                this.runUpdateButton.setGraphic(this.playIcon);
             }
+        });
+    }
 
-            AlphanumComparator ac = new AlphanumComparator();
-            if (!multipleDirectories) observableList.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
-            else {
-                observableList.sort((o1, o2) -> {
-
-                    String prefix1 = "";
-                    String prefix2 = "";
-
-                    try {
-                        JEVisObject secondParent1 = o1.getParents().get(0).getParents().get(0);
-                        JEVisClass buildingClass = dataSource.getJEVisClass(BUILDING_CLASS_NAME);
-                        JEVisClass organisationClass = dataSource.getJEVisClass(ORGANIZATION_CLASS_NAME);
-
-                        if (secondParent1.getJEVisClass().equals(buildingClass)) {
-                            try {
-                                JEVisObject organisationParent = secondParent1.getParents().get(0).getParents().get(0);
-                                if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                    prefix1 += organisationParent.getName() + " / " + secondParent1.getName() + " / ";
-                                }
-                            } catch (JEVisException e) {
-                                logger.error("Could not get Organization parent of " + secondParent1.getName() + ":" + secondParent1.getID());
-
-                                prefix1 += secondParent1.getName() + " / ";
-                            }
-                        } else if (secondParent1.getJEVisClass().equals(organisationClass)) {
-
-                            prefix1 += secondParent1.getName() + " / ";
-
-                        }
-
-                    } catch (Exception e) {
-                    }
-                    prefix1 = prefix1 + o1.getName();
-
-                    try {
-                        JEVisObject secondParent2 = o2.getParents().get(0).getParents().get(0);
-                        JEVisClass buildingClass = dataSource.getJEVisClass(BUILDING_CLASS_NAME);
-                        JEVisClass organisationClass = dataSource.getJEVisClass(ORGANIZATION_CLASS_NAME);
-
-                        if (secondParent2.getJEVisClass().equals(buildingClass)) {
-                            try {
-                                JEVisObject organisationParent = secondParent2.getParents().get(0).getParents().get(0);
-                                if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                    prefix2 += organisationParent.getName() + " / " + secondParent2.getName() + " / ";
-                                }
-                            } catch (JEVisException e) {
-                                logger.error("Could not get Organization parent of " + secondParent2.getName() + ":" + secondParent2.getID());
-
-                                prefix2 += secondParent2.getName() + " / ";
-                            }
-                        } else if (secondParent2.getJEVisClass().equals(organisationClass)) {
-
-                            prefix2 += secondParent2.getName() + " / ";
-
-                        }
-
-                    } catch (Exception e) {
-                    }
-                    prefix2 = prefix2 + o2.getName();
-
-                    return ac.compare(prefix1, prefix2);
-                });
+    public void setEditable(boolean editable) {
+        Platform.runLater(() -> {
+            if (editable) {
+                this.unlockB.setGraphic(this.unlockIcon);
+            } else {
+                this.unlockB.setGraphic(this.lockIcon);
             }
+        });
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+    }
+
+    public void updateView(final DashboardPojo dashboardSettings) {
+        logger.error("updateDashboard: {}", dashboardSettings);
+        ObservableList<JEVisObject> observableList = this.dashboardControl.getAllDashboards();
+
+
+        this.listAnalysesComboBox = new ComboBox<>(observableList);
+        this.listAnalysesComboBox.setPrefWidth(300);
+        this.listAnalysesComboBox.setMinWidth(300);
+        if (dashboardSettings.getDashboardObject() != null) {
+            this.listAnalysesComboBox.getSelectionModel().select(dashboardSettings.getDashboardObject());
         }
 
-        listAnalysesComboBox = new ComboBox<>(observableList);
-        listAnalysesComboBox.setPrefWidth(300);
-        listAnalysesComboBox.setMinWidth(300);
-        listAnalysesComboBox.getSelectionModel().select(analyses.getAnalysisObject());
         setCellFactoryForComboBox();
 
-        ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
+        ToggleButton treeButton = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(treeButton);
 
-        listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+        this.listAnalysesComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                DashBordModel analysis = new DashBordModel(newValue);
+                this.dashboardControl.selectDashboard(newValue);
 
-                dashBordPlugIn.loadAnalysis(analysis,false);
                 Platform.runLater(() -> {
-                    backgroundButton.requestFocus();
+                    this.backgroundButton.requestFocus();
                 });
 
             } catch (Exception ex) {
@@ -174,202 +91,102 @@ public class DashBoardToolbar extends ToolBar {
             }
         });
 
-        ToggleButton settingsButton = new ToggleButton("", JEConfig.getImage("Service Manager.png", iconSize, iconSize));
+        ToggleButton settingsButton = new ToggleButton("", JEConfig.getImage("Service Manager.png", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(settingsButton);
 
-        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
+        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
 
-        ToggleButton exportPDF = new ToggleButton("", JEConfig.getImage("pdf_32_32.png", iconSize, iconSize));
+        ToggleButton exportPDF = new ToggleButton("", JEConfig.getImage("pdf_32_32.png", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPDF);
 
 
-        ToggleButton newButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", iconSize, iconSize));
+        ToggleButton newButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newButton);
 
-        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
+        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
 
-        ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", iconSize, iconSize));
+        ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomIn);
 
-        ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", iconSize, iconSize));
+        ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(zoomOut);
 
-        ToggleButton enlarge = new ToggleButton("", JEConfig.getImage("enlarge_32.png", iconSize, iconSize));
+        ToggleButton enlarge = new ToggleButton("", JEConfig.getImage("enlarge_32.png", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(enlarge);
 
 
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
         reload.setTooltip(reloadTooltip);
 
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(this.backgroundButton);
 
-        ToggleButton newWidgetButton = new ToggleButton("", JEConfig.getImage("Data.png", iconSize, iconSize));
+        ToggleButton newWidgetButton = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newWidgetButton);
 
 
-        final ImageView lockIcon = JEConfig.getImage("if_lock_blue_68757.png", iconSize, iconSize);
-        final ImageView unlockIcon = JEConfig.getImage("if_lock-unlock_blue_68758.png", iconSize, iconSize);
-
-        final ToggleButton unlockB = new ToggleButton("", lockIcon);
-//        unlockB.setSelected(analyses.editProperty.get());
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(unlockB);
-        analyses.editProperty.addListener((observable, oldValue, newValue) -> {
-            if (!oldValue.equals(newValue)) {
-                if (newValue) {
-                    unlockB.setGraphic(unlockIcon);
-                } else {
-                    unlockB.setGraphic(lockIcon);
-                }
-            }
-
-        });
-
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(this.unlockB);
 
 
         reload.setOnAction(event -> {
-            dashBordPlugIn.loadAnalysis(analyses,true);
+            this.dashboardControl.reload();
         });
 
         exportPDF.setOnAction(event -> {
-            dashBordPlugIn.toPDF();
+//            this.dashboardControl.toPDF();
         });
 
         save.setOnAction(event -> {
-
-            if (analyses.isNew()) {
-                NewAnalyseDialog newAnalyseDialog = new NewAnalyseDialog();
-                try {
-
-                    NewAnalyseDialog.Response response = newAnalyseDialog.show((Stage) this.getScene().getWindow(), dataSource);
-                    if (response == NewAnalyseDialog.Response.YES) {
-                        JEVisClass analisisDirClass = dataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS_DIR);
-                        List<JEVisObject> analisisDir = dataSource.getObjects(analisisDirClass, true);
-                        JEVisClass analisisClass = dataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
-
-
-                        JEVisObject newObject = newAnalyseDialog.getParent().buildObject(newAnalyseDialog.getCreateName(), analisisClass);
-                        newObject.commit();
-                        analyses.save(newObject);
-                        listAnalysesComboBox.getItems().add(newObject);
-                        listAnalysesComboBox.getSelectionModel().select(newObject);
-
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            } else {
-                analyses.save();
-            }
-
-
+            this.dashboardControl.save();
         });
 
-        unlockB.onActionProperty().addListener((observable, oldValue, newValue) -> {
-            analyses.editProperty.setValue(!analyses.editProperty.getValue());
+        this.unlockB.onActionProperty().addListener((observable, oldValue, newValue) -> {
+            this.dashboardControl.setEditable(!this.unlockB.isSelected());
         });
 
-        ImageView pauseIcon = JEConfig.getImage("pause_32.png", iconSize, iconSize);
-        ImageView playIcon = JEConfig.getImage("play_32.png", iconSize, iconSize);
 
-        ToggleButton runUpdateButton = new ToggleButton("", playIcon);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(runUpdateButton);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(this.runUpdateButton);
 
-        analyses.updateIsRunningProperty.addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> {
-                if (newValue) {
-                    runUpdateButton.setGraphic(pauseIcon);
-                } else {
-                    runUpdateButton.setGraphic(playIcon);
-                }
-            });
 
-        });
-
-        runUpdateButton.setOnAction(event -> {
-            analyses.updateIsRunningProperty.setValue(!analyses.updateIsRunningProperty.getValue());
+        this.runUpdateButton.setOnAction(event -> {
+            this.dashboardControl.switchUpdating();
         });
 
 
         newWidgetButton.setOnAction(event -> {
-
-            PopupWindow popupWindow = new Popup();
-            popupWindow.show(newWidgetButton, 0, 50);
-
-            Stage newWidget = new Stage();
-            newWidget.initStyle(StageStyle.UNDECORATED);
-            FlowPane flowPane = new FlowPane();
-            flowPane.getChildren().addAll(new JFXButton("Test"), new JFXButton("blub"));
-            Scene newScene = new Scene(flowPane);
-
-            Bounds boundsInScreen = this.localToScene(this.getBoundsInLocal());
-            System.out.println("Bounds: " + boundsInScreen);
-
-            System.out.println("B1: " + newWidgetButton.getBoundsInLocal());
-            System.out.println("B2: " + newWidgetButton.getBoundsInParent());
-            System.out.println("B3: " + newWidgetButton.layoutBoundsProperty().get());
-//            boundsInScreen = newWidget.setScene(newScene);
-            newWidget.setAlwaysOnTop(true);
-            newWidget.initOwner(JEConfig.getStage());
-            newWidget.setX(boundsInScreen.getMaxX());
-            newWidget.setY(boundsInScreen.getMaxY());
-            newWidget.show();
-
-//            Wizard wizzard = new Wizard(JEConfig.getDataSource());
-//            Optional<Widget> newWidget = wizzard.show(null);
-//
-//            if (newWidget.isPresent()) {
-//                dashBordPlugIn.addWidget(newWidget.get().getConfig());
-//            }
-
+            this.dashboardControl.startWizard();
         });
 
-        backgroundButton.setOnAction(event -> {
+        this.backgroundButton.setOnAction(event -> {
 
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Pictures", "*.png", "*.gif", "*.jpg", "*.bmp"));
-            File newBackground = fileChooser.showOpenDialog(JEConfig.getStage());
-            if (newBackground != null) {
-                try {
-                    BufferedImage bufferedImage = ImageIO.read(newBackground);
-                    javafx.scene.image.Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
-                    analyses.imageBoardBackground.setValue(fxImage);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
+            this.dashboardControl.startWallpaperSelection();
 
         });
 
         settingsButton.setOnAction(event -> {
-            analyses.openConfig();
+//            dashboardSettings.openConfig();
         });
 
-        unlockB.setOnAction(event -> {
-            analyses.editProperty.setValue(!analyses.editProperty.getValue());
-        });
 
         zoomIn.setOnAction(event -> {
-            analyses.zoomIn();
+            this.dashboardControl.zoomIn();
+            ;
         });
 
         zoomOut.setOnAction(event -> {
-            analyses.zoomOut();
+            this.dashboardControl.zoomOut();
         });
 
-        ToolBarIntervalSelector toolBarIntervalSelector = new ToolBarIntervalSelector(dataSource, analyses, iconSize, new Interval(new DateTime(), new DateTime()));
+        ToolBarIntervalSelector toolBarIntervalSelector = new ToolBarIntervalSelector(
+                this.dashboardControl.getDataSource(), this.dashboardControl, this.iconSize);
 
-        toolBarIntervalSelector.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
 
-            analyses.updateIsRunningProperty.setValue(false);
-            analyses.dataPeriodProperty.setValue(newValue.toPeriod());
-            analyses.displayedIntervalProperty.setValue(newValue);
-
-        });
+//        toolBarIntervalSelector.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
+//            this.dashboardControl.setInterval(newValue);
+//        });
 
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
@@ -384,11 +201,11 @@ public class DashBoardToolbar extends ToolBar {
 
         getItems().clear();
         getItems().addAll(
-                listAnalysesComboBox
+                this.listAnalysesComboBox
                 , sep3, toolBarIntervalSelector
-                , sep1, zoomOut, zoomIn,reload
-                , sep4, newButton, save, delete, newWidgetButton, settingsButton, backgroundButton, exportPDF
-                , sep2, runUpdateButton, unlockB);
+                , sep1, zoomOut, zoomIn, reload
+                , sep4, newButton, save, delete, newWidgetButton, settingsButton, this.backgroundButton, exportPDF
+                , sep2, this.runUpdateButton, this.unlockB);
     }
 
     private void setCellFactoryForComboBox() {
@@ -406,8 +223,8 @@ public class DashBoardToolbar extends ToolBar {
                             try {
 
                                 JEVisObject secondParent = obj.getParents().get(0).getParents().get(0);
-                                JEVisClass buildingClass = dataSource.getJEVisClass("Building");
-                                JEVisClass organisationClass = dataSource.getJEVisClass("Organization");
+                                JEVisClass buildingClass = DashBoardToolbar.this.dashboardControl.getDataSource().getJEVisClass("Building");
+                                JEVisClass organisationClass = DashBoardToolbar.this.dashboardControl.getDataSource().getJEVisClass("Organization");
 
                                 if (secondParent.getJEVisClass().equals(buildingClass)) {
 
@@ -439,11 +256,11 @@ public class DashBoardToolbar extends ToolBar {
             }
         };
 
-        listAnalysesComboBox.setCellFactory(cellFactory);
-        listAnalysesComboBox.setButtonCell(cellFactory.call(null));
+        this.listAnalysesComboBox.setCellFactory(cellFactory);
+        this.listAnalysesComboBox.setButtonCell(cellFactory.call(null));
     }
 
     public ToggleButton getBackgroundButton() {
-        return backgroundButton;
+        return this.backgroundButton;
     }
 }
