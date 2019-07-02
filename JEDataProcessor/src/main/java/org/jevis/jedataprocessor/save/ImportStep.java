@@ -8,6 +8,7 @@ package org.jevis.jedataprocessor.save;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
@@ -88,13 +89,28 @@ public class ImportStep implements ProcessStep {
         }
         if (cleanSamples.size() > 0) {
             logger.info("[{}] Start import of new Samples: {}", resourceManager.getID(), cleanSamples.size());
-            attribute.addSamples(cleanSamples);
+            insertSamples(attribute, cleanSamples);
             logger.info("[{}] Import finished for samples: {}", resourceManager.getID(), cleanSamples.size());
             LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
         } else {
             logger.info("[{}] No new Samples.", resourceManager.getID());
             LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
         }
+    }
+
+    private void insertSamples(JEVisAttribute attribute, List<JEVisSample> samples) throws JEVisException {
+        int perChunk = 30000;
+        for (int i = 0; i < samples.size(); i += perChunk) {
+            if ((i + perChunk) < samples.size()) {
+                List<JEVisSample> chunk = samples.subList(i, i + perChunk);
+                attribute.addSamples(chunk);
+            } else {
+                List<JEVisSample> chunk = samples.subList(i, samples.size());
+                attribute.addSamples(chunk);
+                break;
+            }
+        }
+        samples.clear();
     }
 
 }
