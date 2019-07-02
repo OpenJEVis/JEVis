@@ -60,6 +60,7 @@ public abstract class AbstractCliApp {
     protected ConcurrentHashMap<Long, String> runningJobs = new ConcurrentHashMap();
     protected ConcurrentHashMap<Long, String> plannedJobs = new ConcurrentHashMap();
     private int threadCount = 4;
+    private String emergency_config;
 
     /**
      * @param args start params
@@ -84,16 +85,24 @@ public abstract class AbstractCliApp {
      */
     public void execute() {
         init();
-        setServiceStatus(comm.getProgramName(), 1L);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> setServiceStatus(comm.getProgramName(), 0L)));
-        if (active) {
-            if (settings.servicemode.equals(BasicSettings.SINGLE)) {
+
+        if (isActive()) {
+            setServiceStatus(comm.getProgramName(), 1L);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> setServiceStatus(comm.getProgramName(), 0L)));
+        } else {
+            if (settings.emergency_Config != null) emergency_config = settings.emergency_Config;
+        }
+
+        switch (settings.servicemode) {
+            case BasicSettings.SINGLE:
                 runSingle(settings.jevisid);
-            } else if (settings.servicemode.equals(BasicSettings.SERVICE)) {
+                break;
+            case BasicSettings.SERVICE:
                 runService();
-            } else if (settings.servicemode.equals(BasicSettings.COMPLETE)) {
+                break;
+            case BasicSettings.COMPLETE:
                 runComplete();
-            }
+                break;
         }
     }
 
@@ -109,7 +118,7 @@ public abstract class AbstractCliApp {
         }
 
         handleBasic();
-        if (active) {
+        if (isActive()) {
             handleAdditionalCommands();
         }
     }
@@ -145,14 +154,16 @@ public abstract class AbstractCliApp {
 
             try {
                 active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
-            } catch (JEVisException ex) {
+            } catch (Exception ex) {
                 logger.fatal("Could not connect! Check login and password.", ex);
             }
 
-            try {
-                ds.preload();
-            } catch (JEVisException e) {
-                logger.fatal("Could not preload items!", e);
+            if (isActive()) {
+                try {
+                    ds.preload();
+                } catch (JEVisException e) {
+                    logger.fatal("Could not preload items!", e);
+                }
             }
         }
     }
@@ -301,5 +312,13 @@ public abstract class AbstractCliApp {
 
     public int getThreadCount() {
         return threadCount;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public String getEmergency_config() {
+        return emergency_config;
     }
 }

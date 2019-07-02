@@ -38,6 +38,10 @@ public class Config {
     public static final String CONFIG = "config";
     public static final String ALARM = "alarm";
     private static final Logger logger = LogManager.getLogger(Config.class);
+    private String message;
+    private String greeting;
+    private String subject;
+    private String[] recipient;
     String smtpFrom;
     private String jevisUser;
     private String jevisPW;
@@ -82,6 +86,11 @@ public class Config {
             smtpFrom = configFile.getString("sender.from");
             smtpSignatur = configFile.getString("sender.signatur");
             smtpStartTLS = configFile.getBoolean("sender.starttls");
+
+            recipient = configFile.getStringArray("alarm.recipient");
+            subject = configFile.getString("alarm.subject");
+            greeting = configFile.getString("alarm.greeting");
+            message = configFile.getString("alarm.message");
 
 //            logger.info("jevisUser: " + jevisUser);
 //            logger.info("jevisPW: " + jevisPW);
@@ -253,5 +262,21 @@ public class Config {
 
     public boolean isSmtpStartTLS() {
         return smtpStartTLS;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getGreeting() {
+        return greeting;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public String[] getRecipient() {
+        return recipient;
     }
 }

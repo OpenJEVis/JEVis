@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+    <sender>
+        <user></user>
+        <password></password>
+        <smtp></smtp>
+        <from></from>
+        <ssl></ssl>
+        <port></port>
+        <starttls></starttls>
+        <signatur>
+        </signatur>
+    </sender>
+    <alarm>
+        <recipient></recipient>
+        <subject></subject>
+        <greeting></greeting>
+        <message></message>
+    </alarm>
+</configuration>

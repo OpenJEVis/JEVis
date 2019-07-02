@@ -21,6 +21,7 @@ package org.jevis.jestatus;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
@@ -51,10 +52,10 @@ public class Launcher extends AbstractCliApp {
     private Config config;
     private Long furthestReported;
     private Long latestReported;
+    private String emergencyConfig = "";
 
     public Launcher(String[] args, String appname) {
         super(args, appname);
-
     }
 
     public static void main(String[] args) {
@@ -88,7 +89,7 @@ public class Launcher extends AbstractCliApp {
     @Override
     protected void runServiceHelp() {
 
-        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+        if (plannedJobs.size() == 0 && runningJobs.size() == 0 && isActive()) {
             try {
                 ds.clearCache();
                 ds.preload();
@@ -110,8 +111,17 @@ public class Launcher extends AbstractCliApp {
             } else {
                 logger.info("Service is disabled.");
             }
-        } else {
+        } else if (isActive()) {
             logger.info("Still running queue. Going to sleep again.");
+        } else if (getEmergency_config() != null) {
+            AlarmHandler ah = new AlarmHandler();
+            Config conf = null;
+            try {
+                conf = new Config(getEmergency_config());
+                ah.sendAlarm(conf, "Webservice is offline.");
+            } catch (ConfigurationException e) {
+                e.printStackTrace();
+            }
         }
 
         try {
