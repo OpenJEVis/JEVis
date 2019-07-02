@@ -776,9 +776,14 @@ public class GraphPluginView implements Plugin {
 
                     org.jevis.commons.ws.json.JsonObject newJsonObject = new JsonObject();
                     newJsonObject.setName("Temp");
-                    newJsonObject.setId(999999999999l);
+                    newJsonObject.setId(0l);
                     newJsonObject.setJevisClass("Analysis");
-                    JEVisObjectWS newObject = new JEVisObjectWS((JEVisDataSourceWS) ds, newJsonObject);
+                    JEVisObject newObject = new JEVisObjectWS((JEVisDataSourceWS) ds, newJsonObject) {
+                        @Override
+                        public String toString() {
+                            return I18n.getInstance().getString("plugin.graph.analysis.tempanalysis");
+                        }
+                    };
                     dataModel.setCurrentAnalysis(newObject);
                     dataModel.setCharts(chartSettingsList);
                     dataModel.setData(chartDataModels);
