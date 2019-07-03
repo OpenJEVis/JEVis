@@ -10,13 +10,12 @@ import java.util.*;
 
 public class CalculationTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CalculationTable.class);
-    private final JEVisDataSource ds;
     private final List<JEVisObject> dataServerObjects;
     private final DateTime furthestReported;
     private final DateTime latestReported;
 
     public CalculationTable(JEVisDataSource ds, DateTime furthestReported, DateTime latestReported, List<JEVisObject> dataServerObjects) {
-        this.ds = ds;
+        super(ds);
         this.dataServerObjects = dataServerObjects;
         this.furthestReported = furthestReported;
         this.latestReported = latestReported;
@@ -55,10 +54,9 @@ public class CalculationTable extends AlarmTable {
         List<JEVisObject> calcObjects = getCalcObjects();
 
         Map<JEVisObject, JEVisObject> calcAndTarget = new HashMap<>();
-        JEVisClass outputClass = ds.getJEVisClass("Output");
 
         for (JEVisObject calcObject : calcObjects) {
-            List<JEVisObject> results = new ArrayList<>(calcObject.getChildren(outputClass, true));
+            List<JEVisObject> results = new ArrayList<>(calcObject.getChildren(getOutputClass(), true));
             if (!results.isEmpty()) {
                 calcAndTarget.put(calcObject, results.get(0));
             }
@@ -70,7 +68,7 @@ public class CalculationTable extends AlarmTable {
         for (JEVisObject calculation : calcObjects) {
             JEVisObject result = calcAndTarget.get(calculation);
             if (result != null) {
-                JEVisAttribute lastAtt = result.getAttribute("Output");
+                JEVisAttribute lastAtt = result.getAttribute(OUTPUT_ATTRIBUTE_NAME);
                 if (lastAtt != null) {
                     JEVisSample lastSampleOutput = lastAtt.getLatestSample();
                     TargetHelper th = null;
@@ -85,7 +83,7 @@ public class CalculationTable extends AlarmTable {
 
                             calcAndResult.put(calculation, target);
 
-                            JEVisAttribute resultAtt = target.getAttribute("Value");
+                            JEVisAttribute resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
                             if (resultAtt != null) {
                                 if (resultAtt.hasSample()) {
                                     JEVisSample lastSample = resultAtt.getLatestSample();
@@ -103,12 +101,10 @@ public class CalculationTable extends AlarmTable {
         }
 
         Map<JEVisObject, JEVisObject> allInputs = new HashMap<>();
-        JEVisClass inputClass = ds.getJEVisClass("Input");
-        JEVisClass rawDataClass = ds.getJEVisClass("Data");
-        JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
+
         for (JEVisObject calcObject : outOfBounds) {
-            for (JEVisObject input : calcObject.getChildren(inputClass, true)) {
-                JEVisAttribute lastAtt = input.getAttribute("Input Data");
+            for (JEVisObject input : calcObject.getChildren(getInputClass(), true)) {
+                JEVisAttribute lastAtt = input.getAttribute(INPUT_DATA_ATTRIBUTE_NAME);
                 if (lastAtt != null) {
                     JEVisSample lastSampleOutput = lastAtt.getLatestSample();
                     TargetHelper th = null;
@@ -119,9 +115,9 @@ public class CalculationTable extends AlarmTable {
                             target = th.getObject().get(0);
                         }
                         if (target != null) {
-                            if (target.getJEVisClass().equals(rawDataClass)) {
+                            if (target.getJEVisClass().equals(getRawDataClass())) {
                                 allInputs.put(target, calcObject);
-                            } else if (target.getJEVisClass().equals(cleanDataClass)) {
+                            } else if (target.getJEVisClass().equals(getCleanDataClass())) {
                                 for (JEVisObject parent : target.getParents()) {
                                     allInputs.put(parent, calcObject);
                                     break;
@@ -146,7 +142,7 @@ public class CalculationTable extends AlarmTable {
                 try {
                     JEVisObject o1tar = calcAndResult.get(o1);
                     if (o1tar != null) {
-                        JEVisAttribute o1att = o1tar.getAttribute("Value");
+                        JEVisAttribute o1att = o1tar.getAttribute(VALUE_ATTRIBUTE_NAME);
                         if (o1att != null) {
                             o1ts = o1att.getTimestampFromLastSample();
                         }
@@ -158,7 +154,7 @@ public class CalculationTable extends AlarmTable {
                 try {
                     JEVisObject o2tar = calcAndResult.get(o2);
                     if (o2tar != null) {
-                        JEVisAttribute o2att = o2tar.getAttribute("Value");
+                        JEVisAttribute o2att = o2tar.getAttribute(VALUE_ATTRIBUTE_NAME);
                         if (o2att != null) {
                             o2ts = o2att.getTimestampFromLastSample();
                         }
@@ -172,9 +168,6 @@ public class CalculationTable extends AlarmTable {
                 else return 0;
             }
         });
-
-        JEVisClass organizationClass = ds.getJEVisClass("Organization");
-        JEVisClass buildingClass = ds.getJEVisClass("Monitored Object");
 
         boolean odd = false;
         for (JEVisObject currentCalculation : outOfBounds) {
@@ -200,7 +193,7 @@ public class CalculationTable extends AlarmTable {
             sb.append("<td style=\"");
             sb.append(css);
             sb.append("\">");
-            sb.append(getParentName(currentCalculation, organizationClass));
+            sb.append(getParentName(currentCalculation, getOrganizationClass()));
             sb.append("</td>");
             /**
              * Building Column
@@ -208,7 +201,7 @@ public class CalculationTable extends AlarmTable {
             sb.append("<td style=\"");
             sb.append(css);
             sb.append("\">");
-            sb.append(getParentName(currentCalculation, buildingClass));
+            sb.append(getParentName(currentCalculation, getBuildingClass()));
             sb.append("</td>");
             /**
              * Calculation
@@ -233,7 +226,7 @@ public class CalculationTable extends AlarmTable {
             sb.append(css);
             sb.append("\">");
             if (resultObject != null) {
-                JEVisAttribute resultAtt = resultObject.getAttribute("Value");
+                JEVisAttribute resultAtt = resultObject.getAttribute(VALUE_ATTRIBUTE_NAME);
                 if (resultAtt != null) {
                     if (resultAtt.hasSample()) {
                         sb.append(dtf.print(resultAtt.getLatestSample().getTimestamp()));
@@ -255,7 +248,6 @@ public class CalculationTable extends AlarmTable {
     }
 
     private List<JEVisObject> getCalcObjects() throws JEVisException {
-        JEVisClass calculationClass = ds.getJEVisClass("Calculation");
-        return new ArrayList<>(ds.getObjects(calculationClass, false));
+        return new ArrayList<>(ds.getObjects(getCalculationClass(), false));
     }
 }

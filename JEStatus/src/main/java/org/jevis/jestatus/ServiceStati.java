@@ -10,10 +10,9 @@ import java.util.List;
 public class ServiceStati extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ServiceStati.class);
     private static final String timestampFormat = "yyyy-MM-dd HH:MM:ss";
-    private final JEVisDataSource ds;
 
     public ServiceStati(JEVisDataSource ds) {
-        this.ds = ds;
+        super(ds);
 
         try {
             createTableString();

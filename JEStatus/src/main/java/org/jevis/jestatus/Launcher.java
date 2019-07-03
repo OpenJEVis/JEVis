@@ -23,10 +23,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.cli.AbstractCliApp;
+import org.joda.time.DateTime;
 
 import java.util.List;
 
@@ -53,6 +52,7 @@ public class Launcher extends AbstractCliApp {
     private Long furthestReported;
     private Long latestReported;
     private String emergencyConfig = "";
+    private JEVisObject serviceObject;
 
     public Launcher(String[] args, String appname) {
         super(args, appname);
@@ -89,7 +89,16 @@ public class Launcher extends AbstractCliApp {
     @Override
     protected void runServiceHelp() {
 
-        if (plannedJobs.size() == 0 && runningJobs.size() == 0 && isActive()) {
+        JEVisClass serviceClass = null;
+        try {
+            serviceClass = ds.getJEVisClass(APP_SERVICE_CLASS_NAME);
+            List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
+            serviceObject = listServices.get(0);
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        if (isActive() && isReady(serviceObject)) {
             try {
                 ds.clearCache();
                 ds.preload();
@@ -104,6 +113,7 @@ public class Launcher extends AbstractCliApp {
                 try {
                     AlarmHandler ah = new AlarmHandler(ds, furthestReported, latestReported);
                     ah.checkAlarm();
+                    finishCurrentRun(serviceObject);
 
                 } catch (JEVisException ex) {
                     logger.fatal(ex);
@@ -111,8 +121,6 @@ public class Launcher extends AbstractCliApp {
             } else {
                 logger.info("Service is disabled.");
             }
-        } else if (isActive()) {
-            logger.info("Still running queue. Going to sleep again.");
         } else if (getEmergency_config() != null) {
             AlarmHandler ah = new AlarmHandler();
             Config conf = null;
@@ -148,5 +156,45 @@ public class Launcher extends AbstractCliApp {
     @Override
     protected void runComplete() {
 
+    }
+
+    private boolean isReady(JEVisObject object) {
+        DateTime lastRun = getLastRun(object);
+        DateTime nextRun = lastRun.plusMillis(cycleTime);
+        return DateTime.now().equals(nextRun) || DateTime.now().isAfter(nextRun);
+    }
+
+    private DateTime getLastRun(JEVisObject object) {
+        DateTime dateTime = new DateTime(2001, 1, 1, 0, 0, 0);
+
+        try {
+            JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
+            if (lastRunAttribute != null) {
+                JEVisSample lastSample = lastRunAttribute.getLatestSample();
+                if (lastSample != null) {
+                    dateTime = new DateTime(lastSample.getValueAsString());
+                }
+            }
+
+        } catch (JEVisException e) {
+            logger.error("Could not get data source last run time: " + e);
+        }
+
+        return dateTime;
+    }
+
+    private void finishCurrentRun(JEVisObject object) {
+        DateTime lastRun = getLastRun(object);
+        try {
+            JEVisAttribute lastRunAttribute = object.getAttribute("Last Run");
+            if (lastRunAttribute != null) {
+                DateTime dateTime = lastRun.plusMillis(cycleTime);
+                JEVisSample newSample = lastRunAttribute.buildSample(DateTime.now(), dateTime);
+                newSample.commit();
+            }
+
+        } catch (JEVisException e) {
+            logger.error("Could not get data source last run time: " + e);
+        }
     }
 }
