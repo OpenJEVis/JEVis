@@ -2,6 +2,8 @@ package org.jevis.jeconfig.plugin.Dashboard;
 
 import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -28,7 +30,10 @@ import org.joda.time.Interval;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,8 +47,8 @@ public class DashboardControl {
     private final JEVisDataSource jevisDataSource;
     private TimerTask updateTask;
     private final ObservableList<Task> runningUpdateTaskList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
-    //    private ObservableList<Widget> widgetList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
-    private List<Widget> widgetList = Collections.synchronizedList(new ArrayList<>());
+    private ObservableList<Widget> widgetList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
+//    private List<Widget> widgetList = Collections.synchronizedList(new ArrayList<>());
 
     private Timer updateTimer = new Timer(true);
     private DashboardPojo activeDashboard;
@@ -55,6 +60,7 @@ public class DashboardControl {
     private final TimeFrames timeFrames;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
     private boolean fitToParent = false;
+    public BooleanProperty highligtProperty = new SimpleBooleanProperty(false);
 
     public DashboardControl(DashBordPlugIn plugin) {
         this.configManager = new ConfigManager(plugin.getDataSource());
@@ -65,6 +71,15 @@ public class DashboardControl {
         this.activeTimeFrame = this.timeFrames.day();
 
 
+        this.highligtProperty.addListener((observable, oldValue, newValue) -> {
+            System.out.println("disable highligt");
+            if (!newValue) {
+                this.widgetList.forEach(widget -> {
+                    widget.setGlow(true);
+//                    highlightWidgetInView(widget, false);
+                });
+            }
+        });
     }
 
     public void loadFirstDashboard() {
@@ -89,6 +104,12 @@ public class DashboardControl {
             this.dashBordPlugIn.getDashBoardPane().zoomToParent(width, height);
         }
 
+    }
+
+    public void highlightWidgetInView(Widget widget, boolean highlight) {
+        if (this.highligtProperty.getValue()) {
+            widget.setGlow(highlight);
+        }
     }
 
 
@@ -161,6 +182,7 @@ public class DashboardControl {
         });
 
         this.widgetList.forEach(widget -> {
+            widget.updateConfig();
             this.dashBordPlugIn.getDashBoardPane().addWidget(widget);
         });
         this.widgetList.forEach(widget -> {
@@ -227,6 +249,13 @@ public class DashboardControl {
 
     }
 
+
+    public void requestViewUpdate(Widget widget) {
+//        widget.updateData(getInterval());
+        widget.updateConfig(widget.getConfig(), this.dashBordPlugIn.getDashBoardPane());
+        widget.updateConfig();
+    }
+
     public Interval getInterval() {
         return this.activeInterval;
     }
@@ -267,7 +296,7 @@ public class DashboardControl {
 
         if (run) {
             this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(run);
-            logger.info("Start update scheduler: {} sec", this.activeDashboard.getUpdateRate());
+            logger.info("Start updateData scheduler: {} sec", this.activeDashboard.getUpdateRate());
             this.updateTimer.scheduleAtFixedRate(this.updateTask, 1000, this.activeDashboard.getUpdateRate() * 1000);
         }
 
@@ -285,7 +314,7 @@ public class DashboardControl {
                 try {
                     logger.debug("addWidgetUpdateTask: " + widget.typeID());
                     widget.showProgressIndicator(true);
-                    widget.update(interval);
+                    widget.updateData(interval);
                     widget.showProgressIndicator(false);
                 } catch (Exception ex) {
                     logger.error(ex);
@@ -299,6 +328,10 @@ public class DashboardControl {
 
 
         this.executor.execute(updateTask);
+    }
+
+    public ObservableList<Widget> getWidgetList() {
+        return this.widgetList;
     }
 
     public List<Widget> getWidgets() {

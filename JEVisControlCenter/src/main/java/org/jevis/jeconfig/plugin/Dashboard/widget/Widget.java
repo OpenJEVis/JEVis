@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
@@ -9,6 +10,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -50,8 +52,10 @@ public abstract class Widget extends Group {
         } else {
             this.config.setType(typeID());
         }
+        this.getChildren().add(this.editPane);
         getChildren().add(this.contentRoot);
     }
+
 
     public void updateConfig(WidgetPojo config, DashBoardPane parent) {
         this.config = config;
@@ -85,6 +89,76 @@ public abstract class Widget extends Group {
         });
     }
 
+
+    public void setShadow() {
+        Platform.runLater(() -> {
+
+        });
+    }
+
+    public void setGlow(boolean glow) {
+//        Platform.runLater(() -> {
+//            if (glow) {
+//                Glow glowEffect = new Glow();
+//                glowEffect.setLevel(0.9);
+//                InnerShadow is = new InnerShadow();
+//                is.setOffsetX(2.0f);
+//                is.setOffsetY(2.0f);
+//
+//                int depth = 30;
+//
+//                DropShadow borderGlow = new DropShadow();
+//                borderGlow.setOffsetY(-0f);
+//                borderGlow.setOffsetX(-0f);
+//                borderGlow.setColor(Color.BLUE);
+//                borderGlow.setWidth(depth);
+//                borderGlow.setHeight(depth);
+//
+//                borderGlow.setInput(is);
+//
+//                this.setEffect(borderGlow);
+//            } else {
+//                this.setEffect(null);
+//            }
+//
+//        });
+
+
+        Platform.runLater(() -> {
+
+            if (glow) {
+                this.setEffect(null);
+
+//                FadeTransition animation = new FadeTransition(Duration.millis(150), this);
+//                animation.setFromValue(0);
+//                animation.setToValue(1);
+//                animation.setCycleCount(2);
+//                animation.setAutoReverse(false);
+//                animation.playFromStart();
+//                InnerShadow is = new InnerShadow();
+//                is.setOffsetX(2.0f);
+//                is.setOffsetY(2.0f);
+//                is.setColor(Color.RED);
+
+                DropShadow borderGlow = new DropShadow();
+                borderGlow.setOffsetY(-0f);
+                borderGlow.setOffsetX(-0f);
+                borderGlow.setColor(Color.BLUE);
+                borderGlow.setWidth(30);
+                borderGlow.setHeight(30);
+
+                this.setEffect(borderGlow);
+            } else {
+
+
+                GaussianBlur gaussianBlur = new GaussianBlur();
+                gaussianBlur.setRadius(5d);
+                this.setEffect(gaussianBlur);
+
+            }
+        });
+
+    }
 
     public WidgetPojo getConfig() {
         return this.config;
@@ -166,8 +240,6 @@ public abstract class Widget extends Group {
         };
         windowHeader.setOnMouseClicked(openConfigEvent);
         this.editPane.setOnMouseClicked(openConfigEvent);
-
-        this.getChildren().add(this.editPane);
     }
 
     private void setNodeSize(Region node, double width, double height) {
@@ -241,9 +313,11 @@ public abstract class Widget extends Group {
     /**
      * This function will be called if a new Value arrives
      */
-    public abstract void update(Interval interval);
+    public abstract void updateData(Interval interval);
 
-//    public abstract void updateConfig(WidgetPojo config);
+    public abstract void updateLayout();
+
+    public abstract void updateConfig();
 
     /**
      * Init will be called ones if the the widget will be created

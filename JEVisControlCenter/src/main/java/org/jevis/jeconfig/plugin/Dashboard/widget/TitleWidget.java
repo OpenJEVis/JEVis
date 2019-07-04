@@ -29,8 +29,8 @@ public class TitleWidget extends Widget {
 
 
     @Override
-    public void update(Interval interval) {
-        logger.error("Update titleWidget: {}", this.config.getTitle());
+    public void updateData(Interval interval) {
+        logger.debug("Update titleWidget: {}", this.config.getTitle());
         Platform.runLater(() -> {
             Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
             this.label.setBackground(bgColor);
@@ -40,6 +40,17 @@ public class TitleWidget extends Widget {
             this.label.setAlignment(this.config.getTitlePosition());
             this.label.setText(this.config.getTitle());
         });
+    }
+
+    @Override
+    public void updateLayout() {
+
+
+    }
+
+    @Override
+    public void updateConfig() {
+
     }
 
 

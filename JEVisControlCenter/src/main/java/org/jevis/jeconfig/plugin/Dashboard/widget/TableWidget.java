@@ -37,7 +37,7 @@ public class TableWidget extends Widget {
     }
 
     @Override
-    public void update(Interval interval) {
+    public void updateData(Interval interval) {
         logger.debug("Table.Update: {}", interval);
 
         this.sampleHandler.setInterval(interval);
@@ -94,6 +94,16 @@ public class TableWidget extends Widget {
 
         });
 
+
+    }
+
+    @Override
+    public void updateLayout() {
+
+    }
+
+    @Override
+    public void updateConfig() {
 
     }
 

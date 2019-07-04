@@ -73,9 +73,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     public GenericAttributeExtension(JEVisObject obj, JEVisTree tree) {
         this.tree = tree;
-        _obj = obj;
-        _attributesEditor = new ArrayList<>();
-        _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        this._obj = obj;
+        this._attributesEditor = new ArrayList<>();
+        this._view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
     }
 
     @Override
@@ -88,17 +88,17 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     @Override
     public BooleanProperty getValueChangedProperty() {
-        return _changed;
+        return this._changed;
     }
 
     @Override
     public Node getView() {
-        return _view;
+        return this._view;
     }
 
     @Override
     public void setVisible() {
-        Platform.runLater(() -> buildGui(_obj));
+        Platform.runLater(() -> buildGui(this._obj));
     }
 
     @Override
@@ -108,22 +108,22 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     @Override
     public boolean needSave() {
-        return _changed.getValue();
+        return this._changed.getValue();
 //        return true;//TODO: implement
     }
 
     @Override
     public void dismissChanges() {
-        _changed.setValue(false);
+        this._changed.setValue(false);
         //TODO delete changes
     }
 
     @Override
     public boolean save() {
-        logger.debug("Extensions: {}", _attributesEditor.size());
+        logger.debug("Extensions: {}", this._attributesEditor.size());
 
         boolean allValid = true;
-        for (AttributeEditor editor : _attributesEditor) {
+        for (AttributeEditor editor : this._attributesEditor) {
             if (!editor.isValid()) {
                 allValid = false;
             }
@@ -156,7 +156,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     }
 
     private boolean saveAll() {
-        for (AttributeEditor editor : _attributesEditor) {
+        for (AttributeEditor editor : this._attributesEditor) {
             try {
                 logger.debug("{}.save(): {}", this.getTitle(), editor.getAttribute().getName());
                 editor.commit();
@@ -174,8 +174,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             }
 
         }
-        _changed.setValue(false);
-        _needSave = false;
+        this._changed.setValue(false);
+        this._needSave = false;
         return true;
     }
 
@@ -190,7 +190,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     private void buildGui(JEVisObject obj) {
         logger.trace("load: {}", obj.getID());
-        _needSave = false;
+        this._needSave = false;
 
         boolean readOnly = true;
         try {
@@ -238,9 +238,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                                         editor = new DateEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_OBJECT.getId())) {
-                                        editor = new TargetEditor(att, SelectTargetDialog.MODE.OBJECT, tree);
+                                        editor = new TargetEditor(att, SelectTargetDialog.MODE.OBJECT, this.tree);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_ATTRIBUTE.getId())) {
-                                        editor = new TargetEditor(att, SelectTargetDialog.MODE.ATTRIBUTE, tree);
+                                        editor = new TargetEditor(att, SelectTargetDialog.MODE.ATTRIBUTE, this.tree);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_PASSWORD.getId())) {
                                         editor = new ReadablePasswordEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.DATE_TIME.getId())) {
@@ -352,7 +352,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     name.setAlignment(Pos.CENTER_RIGHT);
 
                     coloum++;
-                    _attributesEditor.add(editor);
+                    this._attributesEditor.add(editor);
                     logger.trace("done: {}", obj.getID());
 
 //                    try {
@@ -367,7 +367,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 //                                    JEVisAttribute source = (JEVisAttribute) event.getSource();
 //                                    if (att.equals(source)) {
 //                                        logger.error("Update attribute: " + att + " " + ediorReditor);
-//                                        ediorReditor.get().update();
+//                                        ediorReditor.get().updateData();
 //                                    }
 //
 //
@@ -398,9 +398,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         gridPane.setStyle("-fx-background-color: transparent;");
 
         scroll.getStylesheets().add("/styles/Styles.css");
-        _view.setStyle("-fx-background-color: transparent;");
+        this._view.setStyle("-fx-background-color: transparent;");
 
-        _view.setCenter(scroll);
+        this._view.setCenter(scroll);
 
     }
 }

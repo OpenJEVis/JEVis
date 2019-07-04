@@ -56,7 +56,7 @@ public class ChartView implements Observer {
     private ChartDataModel singleRow;
     private List<ChartDataModel> currentSelectedChartDataModels;
     private final double VALUE_COLUMNS_PREF_SIZE = 200;
-    private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 70;
+    private final double VALUE_COLUMNS_MIN_SIZE = this.VALUE_COLUMNS_PREF_SIZE - 70;
     private TableColumn<TableEntry, String> nameCol;
     private TableColumn<TableEntry, Color> colorCol;
     private TableColumn<TableEntry, String> periodCol;
@@ -78,53 +78,53 @@ public class ChartView implements Observer {
     }
 
     private void init() {
-        tableView = new TableView<>();
+        this.tableView = new TableView<>();
 
-        tableView.setBorder(null);
-        tableView.setStyle(
+        this.tableView.setBorder(null);
+        this.tableView.setStyle(
                 ".table-view:focused {" +
                         "-fx-padding: 0; " +
                         "-fx-background-color: transparent, -fx-box-border, -fx-control-inner-background; " +
                         "-fx-background-insets: -1.4,0,1;" +
                         "}");
-        tableView.getStylesheets().add
+        this.tableView.getStylesheets().add
                 (ChartView.class.getResource("/styles/TableViewNoScrollbar.css").toExternalForm());
-        tableView.setSortPolicy(param -> {
+        this.tableView.setSortPolicy(param -> {
             Comparator<TableEntry> comparator = (t1, t2) -> getAlphanumComparator().compare(t1.getName(), t2.getName());
             FXCollections.sort(getTableView().getItems(), comparator);
             return true;
         });
 
-        tableView.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
+        this.tableView.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 
         /** Disabled because of out TableViewNoScrollbar.css
 
          /**
          * Table Column 0
          */
-        colorCol = buildColorColumn();
-        colorCol.setSortable(false);
-        colorCol.setPrefWidth(25);
-        colorCol.setMinWidth(25);
+        this.colorCol = buildColorColumn();
+        this.colorCol.setSortable(false);
+        this.colorCol.setPrefWidth(25);
+        this.colorCol.setMinWidth(25);
 
         /**
          * Table Column 1
          */
-        nameCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
-        nameCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
-        nameCol.setSortable(false);
-        nameCol.setPrefWidth(500);
-        nameCol.setMinWidth(100);
+        this.nameCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
+        this.nameCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
+        this.nameCol.setSortable(false);
+        this.nameCol.setPrefWidth(500);
+        this.nameCol.setMinWidth(100);
 
         /**
          * Table Column 2
          */
-        periodCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.period"));
-        periodCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("period"));
-        periodCol.setStyle("-fx-alignment: CENTER-RIGHT");
-        periodCol.setSortable(false);
-        periodCol.setPrefWidth(100);
-        periodCol.setMinWidth(100);
+        this.periodCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.period"));
+        this.periodCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("period"));
+        this.periodCol.setStyle("-fx-alignment: CENTER-RIGHT");
+        this.periodCol.setSortable(false);
+        this.periodCol.setPrefWidth(100);
+        this.periodCol.setMinWidth(100);
 
         /**
          * Table Column 3
@@ -134,28 +134,28 @@ public class ChartView implements Observer {
         value.setStyle("-fx-alignment: CENTER-RIGHT");
         value.setSortable(false);
 
-        value.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        value.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+        value.setPrefWidth(this.VALUE_COLUMNS_PREF_SIZE);
+        value.setMinWidth(this.VALUE_COLUMNS_MIN_SIZE);
 
         /**
          * Table Column 4
          */
-        dateCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.date"));
-        dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("date"));
-        dateCol.setStyle("-fx-alignment: CENTER");
-        dateCol.setSortable(false);
-        dateCol.setPrefWidth(160);
-        dateCol.setMinWidth(160);
+        this.dateCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.date"));
+        this.dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("date"));
+        this.dateCol.setStyle("-fx-alignment: CENTER");
+        this.dateCol.setSortable(false);
+        this.dateCol.setPrefWidth(160);
+        this.dateCol.setMinWidth(160);
 
         /**
          * Table Column 5
          */
-        noteCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.note"));
-        noteCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
-        noteCol.setStyle("-fx-alignment: CENTER");
-        noteCol.setPrefWidth(50);
-        noteCol.setMinWidth(50);
-        noteCol.setSortable(false);
+        this.noteCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.note"));
+        this.noteCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
+        this.noteCol.setStyle("-fx-alignment: CENTER");
+        this.noteCol.setPrefWidth(50);
+        this.noteCol.setMinWidth(50);
+        this.noteCol.setSortable(false);
 
         /**
          * Table Column 6
@@ -164,8 +164,8 @@ public class ChartView implements Observer {
         minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
         minCol.setStyle("-fx-alignment: CENTER-RIGHT");
         minCol.setSortable(false);
-        minCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        minCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+        minCol.setPrefWidth(this.VALUE_COLUMNS_PREF_SIZE);
+        minCol.setMinWidth(this.VALUE_COLUMNS_MIN_SIZE);
 
         /**
          * Table Column 7
@@ -174,8 +174,8 @@ public class ChartView implements Observer {
         maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
         maxCol.setStyle("-fx-alignment: CENTER-RIGHT");
         maxCol.setSortable(false);
-        maxCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        maxCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+        maxCol.setPrefWidth(this.VALUE_COLUMNS_PREF_SIZE);
+        maxCol.setMinWidth(this.VALUE_COLUMNS_MIN_SIZE);
 
         /**
          * Table Column 8
@@ -184,8 +184,8 @@ public class ChartView implements Observer {
         avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
         avgCol.setStyle("-fx-alignment: CENTER-RIGHT");
         avgCol.setSortable(false);
-        avgCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        avgCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+        avgCol.setPrefWidth(this.VALUE_COLUMNS_PREF_SIZE);
+        avgCol.setMinWidth(this.VALUE_COLUMNS_MIN_SIZE);
 
         /**
          * Table Column 9
@@ -194,8 +194,8 @@ public class ChartView implements Observer {
         enPICol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("enpi"));
         enPICol.setStyle("-fx-alignment: CENTER-RIGHT");
         enPICol.setSortable(false);
-        enPICol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        enPICol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+        enPICol.setPrefWidth(this.VALUE_COLUMNS_PREF_SIZE);
+        enPICol.setMinWidth(this.VALUE_COLUMNS_MIN_SIZE);
         enPICol.setVisible(false);
 
         /**
@@ -205,19 +205,19 @@ public class ChartView implements Observer {
         sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
         sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
         sumCol.setSortable(false);
-        sumCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        sumCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+        sumCol.setPrefWidth(this.VALUE_COLUMNS_PREF_SIZE);
+        sumCol.setMinWidth(this.VALUE_COLUMNS_MIN_SIZE);
 
         final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
         TableEntry tableEntry = new TableEntry("empty");
         tableData.add(tableEntry);
-        tableView.setItems(tableData);
+        this.tableView.setItems(tableData);
 
-        tableView.getColumns().addAll(colorCol, nameCol, periodCol, value, dateCol, noteCol, minCol, maxCol, avgCol, enPICol, sumCol);
-        tableView.setTableMenuButtonVisible(true);
-        contextMenuHelper = new TableViewContextMenuHelper(tableView);
+        this.tableView.getColumns().addAll(this.colorCol, this.nameCol, this.periodCol, value, this.dateCol, this.noteCol, minCol, maxCol, avgCol, enPICol, sumCol);
+        this.tableView.setTableMenuButtonVisible(true);
+        this.contextMenuHelper = new TableViewContextMenuHelper(this.tableView);
 
-        tableView.widthProperty().addListener((observable, oldValue, newValue) -> {
+        this.tableView.widthProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(this::updateColumnCaptionWidths);
         });
 
@@ -229,12 +229,12 @@ public class ChartView implements Observer {
     }
 
     public void updateColumnCaptionWidths() {
-        TableViewUtils.allToMin(tableView);
-        TableViewUtils.growColumns(tableView, Collections.singletonList(nameCol));
-        if (contextMenuHelper.getTableHeaderRow() != null) {
-            contextMenuHelper.getTableHeaderRow().setOnMouseClicked(event -> {
+        TableViewUtils.allToMin(this.tableView);
+        TableViewUtils.growColumns(this.tableView, Collections.singletonList(this.nameCol));
+        if (this.contextMenuHelper.getTableHeaderRow() != null) {
+            this.contextMenuHelper.getTableHeaderRow().setOnMouseClicked(event -> {
                 if (event.getButton() == MouseButton.SECONDARY) {
-                    contextMenuHelper.showContextMenu();
+                    this.contextMenuHelper.showContextMenu();
                 }
             });
         }
@@ -289,34 +289,34 @@ public class ChartView implements Observer {
     }
 
     public Chart getChart() {
-        return chart;
+        return this.chart;
     }
 
     private void disableTable() {
-        tableView.setVisible(false);
-        tableView.setItems(chart.getTableData());
-        tableView.setFixedCellSize(25);
-        tableView.prefHeightProperty().unbind();
-        tableView.setPrefHeight(0);
+        this.tableView.setVisible(false);
+        this.tableView.setItems(this.chart.getTableData());
+        this.tableView.setFixedCellSize(25);
+        this.tableView.prefHeightProperty().unbind();
+        this.tableView.setPrefHeight(0);
     }
 
     private void setTableStandard() {
-        tableView.setVisible(true);
-        tableView.setItems(chart.getTableData());
-        tableView.setFixedCellSize(25);
-        tableView.prefHeightProperty().bind(Bindings.size(tableView.getItems()).multiply(tableView.getFixedCellSize()).add(30));
+        this.tableView.setVisible(true);
+        this.tableView.setItems(this.chart.getTableData());
+        this.tableView.setFixedCellSize(25);
+        this.tableView.prefHeightProperty().bind(Bindings.size(this.tableView.getItems()).multiply(this.tableView.getFixedCellSize()).add(30));
     }
 
     public Region getChartRegion() {
 //        StackPane stackPane = new StackPane();
 
-        if (chart != null) {
-            if (chart.getRegion() != null) {
+        if (this.chart != null) {
+            if (this.chart.getRegion() != null) {
 //                stackPane.getChildren().add(chart.getRegion());
-                return chart.getRegion();
+                return this.chart.getRegion();
             } else {
 //                stackPane.getChildren().add(chart.getChart());
-                return chart.getChart();
+                return this.chart.getChart();
             }
 
 
@@ -346,7 +346,7 @@ public class ChartView implements Observer {
 //
 //                ChangeListener<LocalDate> localDateChangeListener = (observable, oldValue, newValue) -> {
 //                    pickerBox.setVisible(false);
-//                    dataModel.update();
+//                    dataModel.updateData();
 //                    iconBox.setVisible(true);
 //                };
 //                startDatePicker.valueProperty().addListener(localDateChangeListener);
@@ -371,27 +371,27 @@ public class ChartView implements Observer {
     }
 
     public TableView<TableEntry> getLegend() {
-        return tableView;
+        return this.tableView;
     }
 
     public void drawAreaChart(Integer chartId, ChartType chartType) {
         this.chartId = chartId;
 
-        chart = null;
+        this.chart = null;
 
-        currentSelectedChartDataModels = new ArrayList<>();
+        this.currentSelectedChartDataModels = new ArrayList<>();
 
-        for (ChartDataModel singleRow : dataModel.getSelectedData()) {
+        for (ChartDataModel singleRow : this.dataModel.getSelectedData()) {
             for (int i : singleRow.getSelectedcharts()) {
                 if (i == chartId) {
-                    currentSelectedChartDataModels.add(singleRow);
+                    this.currentSelectedChartDataModels.add(singleRow);
                 }
             }
         }
 
-        generateChart(chartId, chartType, currentSelectedChartDataModels);
+        generateChart(chartId, chartType, this.currentSelectedChartDataModels);
 
-        tableView.sort();
+        this.tableView.sort();
     }
 
     public void drawAreaChart(Integer chartId, ChartDataModel model, ChartType chartType) {
@@ -399,12 +399,12 @@ public class ChartView implements Observer {
         this.chart = null;
         this.singleRow = model;
 
-        currentSelectedChartDataModels = new ArrayList<>();
-        currentSelectedChartDataModels.add(model);
+        this.currentSelectedChartDataModels = new ArrayList<>();
+        this.currentSelectedChartDataModels.add(model);
 
-        generateChart(chartId, chartType, currentSelectedChartDataModels);
+        generateChart(chartId, chartType, this.currentSelectedChartDataModels);
 
-        tableView.sort();
+        this.tableView.sort();
     }
 
     private void generateChart(Integer chartId, ChartType chartType, List<ChartDataModel> chartDataModels) {
@@ -412,71 +412,71 @@ public class ChartView implements Observer {
         boolean containsEnPI = chartDataModels.stream().anyMatch(ChartDataModel::getEnPI);
         switch (chartType) {
             case AREA:
-                chart = new AreaChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                this.chart = new AreaChart(chartDataModels, this.dataModel.getShowRawData(), this.dataModel.getShowSum(), this.dataModel.getHideShowIcons(), this.dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case LOGICAL:
-                chart = new LogicalChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
-                if (showTable) {
+                this.chart = new LogicalChart(chartDataModels, this.dataModel.getHideShowIcons(), this.dataModel.getAddSeries(), chartId, getChartName());
+                if (this.showTable) {
                     setTableStandard();
-                    tableView.getColumns().get(2).setVisible(false);
-                    tableView.getColumns().get(5).setVisible(false);
-                    tableView.getColumns().get(6).setVisible(false);
-                    tableView.getColumns().get(7).setVisible(false);
-                    tableView.getColumns().get(8).setVisible(false);
-                    tableView.getColumns().get(9).setVisible(false);
-                    tableView.getColumns().get(10).setVisible(false);
+                    this.tableView.getColumns().get(2).setVisible(false);
+                    this.tableView.getColumns().get(5).setVisible(false);
+                    this.tableView.getColumns().get(6).setVisible(false);
+                    this.tableView.getColumns().get(7).setVisible(false);
+                    this.tableView.getColumns().get(8).setVisible(false);
+                    this.tableView.getColumns().get(9).setVisible(false);
+                    this.tableView.getColumns().get(10).setVisible(false);
                 } else disableTable();
                 break;
             case LINE:
-                chart = new LineChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                this.chart = new LineChart(chartDataModels, this.dataModel.getShowRawData(), this.dataModel.getShowSum(), this.dataModel.getHideShowIcons(), this.dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case BAR:
-                chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
+                this.chart = new BarChart(chartDataModels, this.dataModel.getHideShowIcons(), chartId, getChartName());
                 setTableStandard();
-                tableView.getColumns().get(4).setVisible(false);
-                tableView.getColumns().get(5).setVisible(false);
-                tableView.getColumns().get(6).setVisible(false);
-                tableView.getColumns().get(7).setVisible(false);
-                tableView.getColumns().get(8).setVisible(false);
-                tableView.getColumns().get(9).setVisible(false);
-                tableView.getColumns().get(10).setVisible(false);
+                this.tableView.getColumns().get(4).setVisible(false);
+                this.tableView.getColumns().get(5).setVisible(false);
+                this.tableView.getColumns().get(6).setVisible(false);
+                this.tableView.getColumns().get(7).setVisible(false);
+                this.tableView.getColumns().get(8).setVisible(false);
+                this.tableView.getColumns().get(9).setVisible(false);
+                this.tableView.getColumns().get(10).setVisible(false);
                 break;
             case COLUMN:
-                chart = new ColumnChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), chartId, getChartName());
+                this.chart = new ColumnChart(chartDataModels, this.dataModel.getShowRawData(), this.dataModel.getShowSum(), this.dataModel.getHideShowIcons(), chartId, getChartName());
                 setTableStandard();
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case BUBBLE:
-                chart = new BubbleChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), chartId, getChartName());
+                this.chart = new BubbleChart(chartDataModels, this.dataModel.getShowRawData(), this.dataModel.getShowSum(), this.dataModel.getHideShowIcons(), chartId, getChartName());
                 disableTable();
                 break;
             case SCATTER:
-                chart = new ScatterChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                this.chart = new ScatterChart(chartDataModels, this.dataModel.getShowRawData(), this.dataModel.getShowSum(), this.dataModel.getHideShowIcons(), this.dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case PIE:
-                chart = new PieChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), chartId, getChartName());
+                this.chart = new PieChart(chartDataModels, this.dataModel.getShowRawData(), this.dataModel.getShowSum(), this.dataModel.getHideShowIcons(), chartId, getChartName());
                 disableTable();
                 break;
             case TABLE:
-                chart = new TableChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                this.chart = new TableChart(chartDataModels, this.dataModel.getShowRawData(), this.dataModel.getShowSum(), this.dataModel.getHideShowIcons(), this.dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
-                tableView.getColumns().get(0).setVisible(false);
-                tableView.getColumns().get(2).setVisible(false);
-                tableView.getColumns().get(5).setVisible(false);
-                tableView.getColumns().get(6).setVisible(false);
-                tableView.getColumns().get(7).setVisible(false);
-                tableView.getColumns().get(8).setVisible(false);
-                tableView.getColumns().get(9).setVisible(false);
-                tableView.getColumns().get(10).setVisible(false);
+                this.tableView.getColumns().get(0).setVisible(false);
+                this.tableView.getColumns().get(2).setVisible(false);
+                this.tableView.getColumns().get(5).setVisible(false);
+                this.tableView.getColumns().get(6).setVisible(false);
+                this.tableView.getColumns().get(7).setVisible(false);
+                this.tableView.getColumns().get(8).setVisible(false);
+                this.tableView.getColumns().get(9).setVisible(false);
+                this.tableView.getColumns().get(10).setVisible(false);
                 break;
             default:
-                chart = new AreaChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                this.chart = new AreaChart(chartDataModels, this.dataModel.getShowRawData(), this.dataModel.getShowSum(), this.dataModel.getHideShowIcons(), this.dataModel.getAddSeries(), chartId, getChartName());
                 setTableStandard();
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
@@ -484,28 +484,28 @@ public class ChartView implements Observer {
     }
 
     public void updateTablesSimultaneously(MouseEvent mouseEvent, DateTime valueForDisplay) {
-        chart.updateTable(mouseEvent, valueForDisplay);
+        this.chart.updateTable(mouseEvent, valueForDisplay);
     }
 
 
     public TableView<TableEntry> getTableView() {
-        return tableView;
+        return this.tableView;
     }
 
 
     public DateTime getValueForDisplay() {
-        return chart.getValueForDisplay();
+        return this.chart.getValueForDisplay();
     }
 
     public ChartType getChartType() {
-        return chartType;
+        return this.chartType;
     }
 
     public String getChartName() {
 
-        for (ChartSettings set : dataModel.getCharts()) {
-            if (set.getId().equals(chartId)) {
-                chartName = set.getName();
+        for (ChartSettings set : this.dataModel.getCharts()) {
+            if (set.getId().equals(this.chartId)) {
+                this.chartName = set.getName();
                 break;
             }
         }
@@ -514,34 +514,34 @@ public class ChartView implements Observer {
     }
 
     public AlphanumComparator getAlphanumComparator() {
-        return alphanumComparator;
+        return this.alphanumComparator;
     }
 
     public void updateChart() {
-        if (chart != null) {
-            currentSelectedChartDataModels = new ArrayList<>();
+        if (this.chart != null) {
+            this.currentSelectedChartDataModels = new ArrayList<>();
 
-            for (ChartDataModel singleRow : dataModel.getSelectedData()) {
+            for (ChartDataModel singleRow : this.dataModel.getSelectedData()) {
                 for (int i : singleRow.getSelectedcharts()) {
-                    if (i == chartId) {
-                        currentSelectedChartDataModels.add(singleRow);
+                    if (i == this.chartId) {
+                        this.currentSelectedChartDataModels.add(singleRow);
                     }
                 }
             }
             if (!getChanged()) {
-                chart.setTitle(getChartName());
-                chart.setHideShowIcons(dataModel.getHideShowIcons());
-                chart.setDataModels(currentSelectedChartDataModels);
-                boolean containsEnPI = currentSelectedChartDataModels.stream().anyMatch(ChartDataModel::getEnPI);
+                this.chart.setTitle(getChartName());
+                this.chart.setHideShowIcons(this.dataModel.getHideShowIcons());
+                this.chart.setDataModels(this.currentSelectedChartDataModels);
+                boolean containsEnPI = this.currentSelectedChartDataModels.stream().anyMatch(ChartDataModel::getEnPI);
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
 
-                chart.updateChart();
+                this.chart.updateChart();
             } else {
 
-                generateChart(getChartId(), getChartType(), currentSelectedChartDataModels);
+                generateChart(getChartId(), getChartType(), this.currentSelectedChartDataModels);
             }
 
-            tableView.sort();
+            this.tableView.sort();
         }
     }
 
@@ -553,7 +553,7 @@ public class ChartView implements Observer {
     }
 
     public boolean getChanged() {
-        return changed;
+        return this.changed;
     }
 
     public void setChanged(boolean changed) {
@@ -561,11 +561,11 @@ public class ChartView implements Observer {
     }
 
     public Boolean getShowTable() {
-        return showTable;
+        return this.showTable;
     }
 
     public boolean getFirstLogical() {
-        return firstLogical;
+        return this.firstLogical;
     }
 
     public void setFirstLogical(boolean firstLogical) {
@@ -573,7 +573,7 @@ public class ChartView implements Observer {
     }
 
     public ChartDataModel getSingleRow() {
-        return singleRow;
+        return this.singleRow;
     }
 
     public void setSingleRow(ChartDataModel singleRow) {
@@ -585,7 +585,7 @@ public class ChartView implements Observer {
     }
 
     public Integer getChartId() {
-        return chartId;
+        return this.chartId;
     }
 
     public void setChartId(Integer chartId) {

@@ -49,7 +49,7 @@ public class WebPieWidget extends Widget {
 
 
     @Override
-    public void update(Interval interval) {
+    public void updateData(Interval interval) {
         logger.debug("WebPie.Update: {}", interval);
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
@@ -131,6 +131,16 @@ public class WebPieWidget extends Widget {
         Platform.runLater(() -> {
             webEngine.loadContent(buildHTMLPie2(pieDataList), "text/html");
         });
+    }
+
+    @Override
+    public void updateLayout() {
+
+    }
+
+    @Override
+    public void updateConfig() {
+
     }
 
 

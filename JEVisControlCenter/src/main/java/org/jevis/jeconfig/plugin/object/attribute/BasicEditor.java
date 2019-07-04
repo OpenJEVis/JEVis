@@ -57,7 +57,7 @@ public abstract class BasicEditor implements AttributeEditor {
      */
     public BasicEditor(JEVisAttribute att) {
         this.attribute = att;
-        orgSample = att.getLatestSample();
+        this.orgSample = att.getLatestSample();
 
 
     }
@@ -67,8 +67,8 @@ public abstract class BasicEditor implements AttributeEditor {
     public void update() {
         logger.trace("Update()");
         Platform.runLater(() -> {
-            editorNode.getChildren().removeAll(editorNode.getChildren());
-            editorNode.getChildren().add(buildGui(attribute));
+            this.editorNode.getChildren().removeAll(this.editorNode.getChildren());
+            this.editorNode.getChildren().add(buildGui(this.attribute));
         });
     }
 
@@ -86,14 +86,14 @@ public abstract class BasicEditor implements AttributeEditor {
                     ) {
 
                         if (valueField.validate()) {
-                            isValid.setValue(true);
-                            finalNewValue = parseValue(valueField.getText());
+                            this.isValid.setValue(true);
+                            this.finalNewValue = parseValue(valueField.getText());
                             BasicEditor.this.changedProperty.setValue(true);
                         } else {
-                            isValid.setValue(false);
+                            this.isValid.setValue(false);
                         }
                     } else {
-                        isValid.setValue(true);
+                        this.isValid.setValue(true);
                     }
 
                 } catch (Exception ex) {
@@ -103,15 +103,15 @@ public abstract class BasicEditor implements AttributeEditor {
         });
 
 
-        valueField.setPrefWidth(maxWidth);
+        valueField.setPrefWidth(this.maxWidth);
         valueField.setAlignment(Pos.CENTER_RIGHT);
 
         try {
-            if (orgSample != null) {
-                valueField.setText(formatSample(orgSample));
-                isValid.setValue(true);
+            if (this.orgSample != null) {
+                valueField.setText(formatSample(this.orgSample));
+                this.isValid.setValue(true);
 
-                Tooltip tt = new Tooltip("TimeStamp: " + orgSample.getTimestamp());
+                Tooltip tt = new Tooltip("TimeStamp: " + this.orgSample.getTimestamp());
                 tt.setOpacity(0.5);
                 valueField.setTooltip(tt);
             }
@@ -128,9 +128,9 @@ public abstract class BasicEditor implements AttributeEditor {
                 ubutton.setPrefWidth(40);
                 ubutton.setEditable(false);
                 if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
-                    ubutton.setText(attribute.getDisplayUnit().getLabel());
+                    ubutton.setText(this.attribute.getDisplayUnit().getLabel());
                 } else {
-                    ubutton.setText(attribute.getInputUnit().getLabel());
+                    ubutton.setText(this.attribute.getInputUnit().getLabel());
                 }
 
                 hbox.getChildren().add(ubutton);
@@ -168,14 +168,14 @@ public abstract class BasicEditor implements AttributeEditor {
 
     @Override
     public boolean hasChanged() {
-        return changedProperty.getValue();
+        return this.changedProperty.getValue();
     }
 
     @Override
     public void commit() throws JEVisException {
         logger.debug("Commit() ");
         if (hasChanged() && isValid()) {
-            JEVisSample newSample = attribute.buildSample(new DateTime(), finalNewValue);
+            JEVisSample newSample = this.attribute.buildSample(new DateTime(), this.finalNewValue);
             newSample.commit();
         }
     }
@@ -183,23 +183,23 @@ public abstract class BasicEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         update();
-        return editorNode;
+        return this.editorNode;
     }
 
     @Override
     public BooleanProperty getValueChangedProperty() {
-        return changedProperty;
+        return this.changedProperty;
     }
 
     @Override
     public void setReadOnly(boolean canRead) {
         this.readonly = canRead;
-//        update();
+//        updateData();
     }
 
     @Override
     public JEVisAttribute getAttribute() {
-        return attribute;
+        return this.attribute;
     }
 
 
@@ -221,6 +221,6 @@ public abstract class BasicEditor implements AttributeEditor {
 
     @Override
     public boolean isValid() {
-        return isValid.getValue();
+        return this.isValid.getValue();
     }
 }

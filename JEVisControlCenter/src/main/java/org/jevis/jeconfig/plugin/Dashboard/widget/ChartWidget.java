@@ -47,7 +47,7 @@ public class ChartWidget extends Widget {
     }
 
     @Override
-    public void update(Interval interval) {
+    public void updateData(Interval interval) {
         logger.info("Update: {}", interval);
 
         this.lineChart.setChartSettings(chart1 -> {
@@ -97,7 +97,7 @@ public class ChartWidget extends Widget {
                 }
             });
             /**
-             * Linechart does not support update so we need to create an new one every time;
+             * Linechart does not support updateData so we need to create an new one every time;
              */
             this.lineChart = new LineChart(this.sampleHandler.getDataModel(), false, false, false, ManipulationMode.NONE, 0, "");
 //            this.lineChart.updateChart();
@@ -105,6 +105,16 @@ public class ChartWidget extends Widget {
             this.lineChart.getChart().layout();
             this.borderPane.setCenter(this.lineChart.getChart());
         });
+
+    }
+
+    @Override
+    public void updateLayout() {
+
+    }
+
+    @Override
+    public void updateConfig() {
 
     }
 

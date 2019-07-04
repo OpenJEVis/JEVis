@@ -29,7 +29,7 @@ public class OpenAnalysisWidget extends Widget {
     }
 
     @Override
-    public void update(Interval interval) {
+    public void updateData(Interval interval) {
         Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
         this.label.setBackground(bgColor);
         this.label.setTextFill(this.config.getFontColor());
@@ -37,6 +37,16 @@ public class OpenAnalysisWidget extends Widget {
         this.label.setFont(new Font(this.config.getFontSize()));
         this.label.setAlignment(this.config.getTitlePosition());
 
+
+    }
+
+    @Override
+    public void updateLayout() {
+
+    }
+
+    @Override
+    public void updateConfig() {
 
     }
 

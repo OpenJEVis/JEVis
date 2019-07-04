@@ -42,7 +42,7 @@ public class ValueWidget extends Widget {
 
 
     @Override
-    public void update(Interval interval) {
+    public void updateData(Interval interval) {
         logger.debug("Value.Update: {}", interval);
         Platform.runLater(() -> {
             this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
@@ -52,21 +52,15 @@ public class ValueWidget extends Widget {
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
 
-        Platform.runLater(() -> {
-            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
-            this.label.setBackground(bgColor);
-            this.label.setTextFill(this.config.getFontColor());
-
-            this.label.setContentDisplay(ContentDisplay.CENTER);
-        });
+//        updateConfig();
 
         /*** TODO: replace null check if hasChanged is working **/
 //            System.out.println("jnode: "+config.getConfigNode(LimitColoring.JNODE_NAME));
-        if (this.limitColoring == null && this.config.getConfigNode(LimitColoring.JNODE_NAME) != null) {
-            System.out.println("Create new LimitColoring: " + this.config.getConfigNode(LimitColoring.JNODE_NAME));
-            this.limitColoring = new LimitColoring(
-                    this.config.getConfigNode(LimitColoring.JNODE_NAME), this.config.getFontColor(), this.config.getBackgroundColor());
-        }
+//        if (this.limitColoring == null && this.config.getConfigNode(LimitColoring.JNODE_NAME) != null) {
+//            System.out.println("Create new LimitColoring: " + this.config.getConfigNode(LimitColoring.JNODE_NAME));
+//            this.limitColoring = new LimitColoring(
+//                    this.config.getConfigNode(LimitColoring.JNODE_NAME), this.config.getFontColor(), this.config.getBackgroundColor());
+//        }
 
 
         this.nf.setMinimumFractionDigits(this.config.getDecimals());
@@ -103,6 +97,24 @@ public class ValueWidget extends Widget {
         });
 
 
+    }
+
+    @Override
+    public void updateLayout() {
+
+    }
+
+    @Override
+    public void updateConfig() {
+        Platform.runLater(() -> {
+            Platform.runLater(() -> {
+                Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+                this.label.setBackground(bgColor);
+                this.label.setTextFill(this.config.getFontColor());
+
+                this.label.setContentDisplay(ContentDisplay.CENTER);
+            });
+        });
     }
 
 

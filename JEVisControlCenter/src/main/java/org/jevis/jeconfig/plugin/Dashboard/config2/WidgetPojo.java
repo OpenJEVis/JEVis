@@ -51,7 +51,9 @@ public class WidgetPojo {
 
 
             try {
+//                System.out.println("Parse Type: " + jsonNode.get(TYPE) + "     " + jsonNode);
                 this.type = jsonNode.get(TYPE).asText("");
+//                System.out.println("p: " + this.type);
             } catch (Exception ex) {
                 logger.debug("Could not parse {}: {}", "WidgetType", ex.getMessage());
             }
@@ -223,6 +225,9 @@ public class WidgetPojo {
     }
 
     public void setType(String type) {
+
+        System.out.println("set Type: " + type);
+
         this.type = type;
     }
 

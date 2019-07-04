@@ -175,7 +175,7 @@ public class ConfigManager {
         for (Widget availableWidget : Widgets.getAvabableWidgets(control, widget)) {
             try {
                 if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
-                    widget.setType(availableWidget.getId());
+//                    widget.setType(availableWidget.getId());
                     availableWidget.init();
 
                     return availableWidget;

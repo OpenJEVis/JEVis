@@ -34,7 +34,7 @@ public class LinkerWidget extends Widget {
 
 
     @Override
-    public void update(Interval interval) {
+    public void updateData(Interval interval) {
 
         try {
             if (this.config.getConfigNode(GraphAnalysisLinker.ANALYSIS_LINKER_NODE) != null) {
@@ -59,6 +59,16 @@ public class LinkerWidget extends Widget {
             Layouts.setAnchor(this.openAnalysisButton, 0);
         });
 
+
+    }
+
+    @Override
+    public void updateLayout() {
+
+    }
+
+    @Override
+    public void updateConfig() {
 
     }
 

@@ -13,6 +13,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config2.DashboardPojo;
+import org.jevis.jeconfig.plugin.Dashboard.config2.Navigator;
 import org.jevis.jeconfig.plugin.Dashboard.timeframe.ToolBarIntervalSelector;
 import org.jevis.jeconfig.tool.I18n;
 
@@ -168,6 +169,8 @@ public class DashBoardToolbar extends ToolBar {
 
         settingsButton.setOnAction(event -> {
 //            dashboardSettings.openConfig();
+            Navigator navigator = new Navigator(this.dashboardControl);
+            navigator.show();
         });
 
 

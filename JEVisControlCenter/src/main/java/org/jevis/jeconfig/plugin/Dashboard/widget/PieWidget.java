@@ -43,7 +43,7 @@ public class PieWidget extends Widget {
 
 
     @Override
-    public void update(Interval interval) {
+    public void updateData(Interval interval) {
         logger.debug("Pie.Update: {}", interval);
 
         this.sampleHandler.setAutoAggregation(true);
@@ -140,6 +140,16 @@ public class PieWidget extends Widget {
             this.chart.setData(series);
             applyColors(colors);
         });
+    }
+
+    @Override
+    public void updateLayout() {
+
+    }
+
+    @Override
+    public void updateConfig() {
+
     }
 
 
