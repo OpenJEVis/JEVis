@@ -6,10 +6,7 @@ package org.jevis.jedatacollector;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.driver.DataCollectorTypes;
@@ -19,6 +16,7 @@ import org.jevis.commons.driver.DriverHelper;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,38 +70,27 @@ public class Launcher extends AbstractCliApp {
 
                     DataSource dataSource = DataSourceFactory.getDataSource(object);
                     if (dataSource.isReady(object)) {
-                        runningJobs.put(object.getID(), "true");
-                        LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
-
-                        logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
-
-                        dataSource.initialize(object);
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.RUNNING);
-                        dataSource.run();
-
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
-                        runningJobs.remove(object.getID());
-                        plannedJobs.remove(object.getID());
-                        dataSource.finishCurrentRun(object);
-                        logger.info("----------------Finished DataSource " + object.getName() + "-----------------");
-
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
-
-                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                            logger.info("Last job. Clearing cache.");
-                            ds.clearCache();
-                        }
+                        logger.debug("DataSource {}:{} is ready.", object.getName(), object.getID());
+                        runDataSource(object, dataSource, true);
                     } else {
-                        logger.error("Still waiting for next DataSource Cycle " + object.getName() + ":" + object.getID());
-
-                        plannedJobs.remove(object.getID());
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
-
-                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                            logger.info("Last job. Clearing cache.");
-                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                            ds.clearCache();
+                        logger.debug("DataSource {}:{} is not ready.", object.getName(), object.getID());
+                        if (plannedJobs.containsKey(object.getID())) {
+                            String value = plannedJobs.get(object.getID());
+                            if (value.equals("manual")) {
+                                logger.debug("DataSource {}:{} has active manual trigger.", object.getName(), object.getID());
+                                runDataSource(object, dataSource, false);
+                                try {
+                                    JEVisAttribute attribute = object.getAttribute(DataCollectorTypes.DataSource.MANUAL_TRIGGER);
+                                    JEVisSample sample = attribute.buildSample(DateTime.now(), false);
+                                    sample.commit();
+                                } catch (JEVisException e) {
+                                    logger.error("Could not disable manual trigger for datasource {}:{}", object.getName(), object.getID());
+                                }
+                            } else {
+                                removeWaiting(object);
+                            }
+                        } else {
+                            removeWaiting(object);
                         }
                     }
 
@@ -115,6 +102,47 @@ public class Launcher extends AbstractCliApp {
 
         logger.info("---------------------finish------------------------");
 
+    }
+
+    private void removeWaiting(JEVisObject object) {
+        logger.error("Still waiting for next DataSource Cycle " + object.getName() + ":" + object.getID());
+
+        plannedJobs.remove(object.getID());
+        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+            logger.info("Last job. Clearing cache.");
+            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
+            ds.clearCache();
+        }
+    }
+
+    private void runDataSource(JEVisObject object, DataSource dataSource, boolean finish) {
+        runningJobs.put(object.getID(), "true");
+        LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
+
+        logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
+        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
+
+        dataSource.initialize(object);
+        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.RUNNING);
+        dataSource.run();
+
+        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
+        runningJobs.remove(object.getID());
+        plannedJobs.remove(object.getID());
+
+        if (finish) {
+            dataSource.finishCurrentRun(object);
+        }
+        logger.info("----------------Finished DataSource " + object.getName() + "-----------------");
+
+        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+            logger.info("Last job. Clearing cache.");
+            ds.clearCache();
+        }
     }
 
 
@@ -205,10 +233,19 @@ public class Launcher extends AbstractCliApp {
             for (JEVisObject dataSource : allDataSources) {
                 try {
                     Boolean enabled = sampleHandler.getLastSample(dataSource, DataCollectorTypes.DataSource.ENABLE, false);
-                    if (enabled && DataSourceFactory.containDataSource(dataSource)) {
+                    Boolean manualTrigger = sampleHandler.getLastSample(dataSource, DataCollectorTypes.DataSource.MANUAL_TRIGGER, false);
+                    if (enabled && DataSourceFactory.containDataSource(dataSource) || (manualTrigger && DataSourceFactory.containDataSource(dataSource))) {
                         enabledDataSources.add(dataSource);
                         if (!plannedJobs.containsKey(dataSource.getID())) {
-                            plannedJobs.put(dataSource.getID(), "true");
+                            if (enabled) {
+                                if (!manualTrigger) {
+                                    plannedJobs.put(dataSource.getID(), "true");
+                                } else {
+                                    plannedJobs.put(dataSource.getID(), "manual");
+                                }
+                            } else if (manualTrigger) {
+                                plannedJobs.put(dataSource.getID(), "manual");
+                            }
                         }
                     }
                 } catch (Exception ex) {

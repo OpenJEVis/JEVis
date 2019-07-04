@@ -7,4 +7,5 @@ java -Dname=JEStatus -Dlog4j.configurationFile=${JEVIS_HOME}/etc/log4j2_service.
      -XX:+UseG1GC \
      -jar ${JEVIS_HOME}/JEStatus/target/JEStatus-1.0-jar-with-dependencies.jar \
      -c ${JEVIS_HOME}/etc/jevis.xml \
-     -sm service
+     -sm service \
+     -ec ${JEVIS_HOME}/etc/jestatus.xml

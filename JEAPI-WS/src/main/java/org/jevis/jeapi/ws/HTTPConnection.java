@@ -423,7 +423,7 @@ public class HTTPConnection {
         logger.debug("HTTP request {}", conn.getURL());
 
         int responseCode = conn.getResponseCode();
-        logger.trace("resonseCode {}", responseCode);
+        logger.trace("responseCode {}", responseCode);
         return conn;
 
     }

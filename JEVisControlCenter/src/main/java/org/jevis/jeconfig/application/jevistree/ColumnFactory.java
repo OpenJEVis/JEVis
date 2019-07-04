@@ -43,6 +43,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.filter.DirectoryHelper;
 import org.jevis.jeconfig.application.resource.ResourceLoader;

@@ -44,8 +44,8 @@ import java.util.Properties;
  */
 public class AlarmHandler {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(AlarmHandler.class);
-    private final Long furthestReported;
-    private final Long latestReported;
+    private Long furthestReported;
+    private Long latestReported;
     private final DateTime now;
 
     private JEVisDataSource _ds;
@@ -62,6 +62,10 @@ public class AlarmHandler {
         _ds = ds;
         this.furthestReported = furthestReported;
         this.latestReported = latestReported;
+        this.now = DateTime.now();
+    }
+
+    public AlarmHandler() {
         this.now = DateTime.now();
     }
 
@@ -300,10 +304,9 @@ public class AlarmHandler {
      * Send the Alarm mail
      *
      * @param conf
-     * @param alarm
      * @param body
      */
-    private void sendAlarm(Config conf, Alarm alarm, String body) {
+    public void sendAlarm(Config conf, String body) {
         try {
 
             Properties props = System.getProperties();
@@ -311,54 +314,37 @@ public class AlarmHandler {
             props.put("mail.smtp.host", conf.getSmtpServer());
 
             Session session;
-            if (conf.isSmtpStartTLS()) {
-                props.put("mail.smtp.port", conf.getSmtpPort()); //TLS Port
-                props.put("mail.smtp.auth", "true"); //enable authentication
-                props.put("mail.smtp.starttls.enable", "true"); //enable STARTTLS
+            props.put("mail.smtp.port", conf.getSmtpPort()); //TLS Port
+            props.put("mail.smtp.auth", "true"); //enable authentication
+            props.put("mail.smtp.starttls.enable", "true"); //enable STARTTLS
 
-                //create Authenticator object to pass in Session.getInstance argument
-                Authenticator auth = new Authenticator() {
-                    //override the getPasswordAuthentication method
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(conf.getSmtpUser(), conf.getSmtpPW());
-                    }
-                };
-                session = Session.getInstance(props, auth);
-            } else if (conf.isSmtpSSL()) {
-                props.put("mail.smtp.socketFactory.port", conf.getSmtpPort()); //SSL Port
-                props.put("mail.smtp.socketFactory.class",
-                        "javax.net.ssl.SSLSocketFactory"); //SSL Factory Class
-                props.put("mail.smtp.auth", "true"); //Enabling SMTP Authentication
-                props.put("mail.smtp.port", conf.getSmtpPort()); //SMTP Port
-
-                Authenticator auth = new Authenticator() {
-                    //override the getPasswordAuthentication method
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(conf.getSmtpUser(), conf.getSmtpPW());
-                    }
-                };
-
-                session = Session.getDefaultInstance(props, auth);
-
-            } else session = Session.getInstance(props, null);
+            //create Authenticator object to pass in Session.getInstance argument
+            Authenticator auth = new Authenticator() {
+                //override the getPasswordAuthentication method
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(conf.getSmtpUser(), conf.getSmtpPW());
+                }
+            };
+            session = Session.getInstance(props, auth);
 
             MimeMessage msg = new MimeMessage(session);
             //set message headers
             msg.addHeader("Content-type", "text/HTML; charset=UTF-8");
             msg.addHeader("format", "flowed");
             msg.addHeader("Content-Transfer-Encoding", "8bit");
+            msg.addHeader("X-Priority", "2");
 
             msg.setFrom(new InternetAddress(conf.smtpFrom, "NoReply"));
 
             msg.setReplyTo(InternetAddress.parse(conf.getSmtpFrom(), false));
 
-            msg.setSubject(alarm.getSubject(), "UTF-8");
+            msg.setSubject(conf.getSubject(), "UTF-8");
 
-            msg.setContent(body, "text/html; charset=UTF-8");
+            msg.setContent(conf.getGreeting() + "\n" + conf.getMessage(), "text/html; charset=UTF-8");
 
             msg.setSentDate(new Date());
 
-            for (String recipient : alarm.getRecipient()) {
+            for (String recipient : conf.getRecipient()) {
                 InternetAddress address = new InternetAddress();
                 address.setAddress(recipient);
                 msg.addRecipient(Message.RecipientType.TO, address);
@@ -378,4 +364,6 @@ public class AlarmHandler {
     private DateTime getLatestReported() {
         return now.minus(Period.hours(latestReported.intValue()));
     }
+
+
 }

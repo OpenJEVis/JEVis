@@ -29,173 +29,173 @@ public interface DataCollectorTypes {
 
     interface DataSourceDriverDirectory {
 
-        public final static String NAME = "Data Source Driver Directory";
+        String NAME = "Data Source Driver Directory";
     }
 
     interface ParserDriverDirectory {
 
-        public final static String NAME = "Parser Driver Directory";
+        String NAME = "Parser Driver Directory";
     }
 
     interface ConverterDriverDirectory {
 
-        public final static String NAME = "Converter Driver Directory";
+        String NAME = "Converter Driver Directory";
     }
 
     interface ImporterDriverDirectory {
 
-        public final static String NAME = "Importer Driver Directory";
+        String NAME = "Importer Driver Directory";
     }
 
     interface ChannelDirectory {
 
-        public final static String NAME = "Channel Directory";
+        String NAME = "Channel Directory";
 
         interface SOAPChannelDirectory extends ChannelDirectory {
 
-            public final static String NAME = "SOAP Channel Directory";
+            String NAME = "SOAP Channel Directory";
         }
 
         interface FTPChannelDirectory extends ChannelDirectory {
 
-            public final static String NAME = "FTP Channel Directory";
+            String NAME = "FTP Channel Directory";
         }
 
         interface sFTPChannelDirectory extends ChannelDirectory {
 
-            public final static String NAME = "sFTP Channel Directory";
+            String NAME = "sFTP Channel Directory";
         }
     }
 
     interface JEDataCollector {
 
-        public final static String NAME = "JEDataCollector";
-        public final static String MAX_NUMBER_THREADS = "Max Number Threads";
-        public final static String DATA_SOURCE_TIMEOUT = "Data Source Timeout";
-        public final static String ENABLE = "Enable";
+        String NAME = "JEDataCollector";
+        String MAX_NUMBER_THREADS = "Max Number Threads";
+        String DATA_SOURCE_TIMEOUT = "Data Source Timeout";
+        String ENABLE = "Enable";
     }
 
     interface Driver {
 
-        public final static String NAME = "Driver";
-        public final static String SOURCE_FILE = "Source File";
-        public final static String MAIN_CLASS = "Main Class";
-        public final static String JEVIS_CLASS = "JEVis Class";
-        public final static String ENABLED = "Enabled";
+        String NAME = "Driver";
+        String SOURCE_FILE = "Source File";
+        String MAIN_CLASS = "Main Class";
+        String JEVIS_CLASS = "JEVis Class";
+        String ENABLED = "Enabled";
 
         interface DataSourceDriver extends Driver {
 
-            public final static String NAME = "Data Source Driver";
+            String NAME = "Data Source Driver";
         }
 
         interface ParserDriver extends Driver {
 
-            public final static String NAME = "Parser Driver";
+            String NAME = "Parser Driver";
         }
 
         interface ConverterDriver extends Driver {
 
-            public final static String NAME = "Converter Driver";
+            String NAME = "Converter Driver";
         }
 
         interface ImporterDriver extends Driver {
 
-            public final static String NAME = "Importer Driver";
+            String NAME = "Importer Driver";
         }
     }
 
     interface Parser {
 
-        public final static String NAME = "Parser";
-        public final static String CHARSET = "Charset";
+        String NAME = "Parser";
+        String CHARSET = "Charset";
     }
 
     interface Converter {
 
-        public final static String NAME = "Converter";
+        String NAME = "Converter";
     }
 
     interface DataSource {
 
-        public final static String NAME = "Data Source";
-        public final static String TIMEZONE = "Timezone";
-        public final static String ENABLE = "Enabled";
-        public static String MANUEL_TRIGGER = "Manual Triggered";
+        String NAME = "Data Source";
+        String TIMEZONE = "Timezone";
+        String ENABLE = "Enabled";
+        String MANUAL_TRIGGER = "Manual Trigger";
 
         interface DataServer extends DataSource {
 
-            public final static String NAME = "Data Server";
-            public final static String CONNECTION_TIMEOUT = "Connection Timeout";
-            public final static String READ_TIMEOUT = "Read Timeout";
-            public final static String HOST = "Host";
-            public final static String PORT = "Port";
+            String NAME = "Data Server";
+            String CONNECTION_TIMEOUT = "Connection Timeout";
+            String READ_TIMEOUT = "Read Timeout";
+            String HOST = "Host";
+            String PORT = "Port";
 
             interface FTP extends DataServer {
 
-                public final static String NAME = "FTP Server";
-                public final static String PASSWORD = "Password";
-                public final static String SSL = "SSL";
-                public final static String USER = "User";
+                String NAME = "FTP Server";
+                String PASSWORD = "Password";
+                String SSL = "SSL";
+                String USER = "User";
             }
 
             interface sFTP extends DataServer {
 
-                public final static String NAME = "sFTP Server";
-                public final static String PASSWORD = "Password";
-                public final static String SSL = "SSL";
-                public final static String USER = "User";
+                String NAME = "sFTP Server";
+                String PASSWORD = "Password";
+                String SSL = "SSL";
+                String USER = "User";
             }
 
             interface SOAP extends DataServer {
 
-                public final static String NAME = "SOAP Server";
-                public final static String PASSWORD = "Password";
-                public final static String SSL = "SSL";
-                public final static String USER = "User";
+                String NAME = "SOAP Server";
+                String PASSWORD = "Password";
+                String SSL = "SSL";
+                String USER = "User";
             }
         }
     }
 
-    public static interface Channel {
+    interface Channel {
 
-        public final static String NAME = "Channel";
-        public final static String LAST_READOUT = "Last Readout";
+        String NAME = "Channel";
+        String LAST_READOUT = "Last Readout";
 
         interface FTPChannel extends Channel {
 
-            public final static String NAME = "FTP Channel";
-            public final static String PATH = "Path";
+            String NAME = "FTP Channel";
+            String PATH = "Path";
         }
 
         interface sFTPChannel extends Channel {
 
-            public final static String NAME = "sFTP Channel";
-            public final static String PATH = "Path";
+            String NAME = "sFTP Channel";
+            String PATH = "Path";
         }
 
         interface SOAPChannel extends Channel {
 
-            public final static String NAME = "SOAP Channel";
-            public final static String TEMPLATE = "Template";
-            public final static String PATH = "Path";
+            String NAME = "SOAP Channel";
+            String TEMPLATE = "Template";
+            String PATH = "Path";
         }
     }
 
-    public static interface Importer {
+    interface Importer {
 
-        public final static String NAME = "Importer";
+        String NAME = "Importer";
     }
 
-    public static interface DataPointDirectory {
+    interface DataPointDirectory {
 
-        public final static String NAME = "Data Point Directory";
+        String NAME = "Data Point Directory";
     }
 
-    public static interface DataPoint {
+    interface DataPoint {
 
-        public final static String NAME = "Data Point";
+        String NAME = "Data Point";
 
-        public void setDataPointObject(JEVisObject dp);
+        void setDataPointObject(JEVisObject dp);
     }
 
 }
