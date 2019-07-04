@@ -53,9 +53,9 @@ public class SimpleTargetPlugin implements TreePlugin {
         for (SimpleTargetPluginData data : _data) {
             if (data.isSelected()) {
 //                _preselect.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
-                if (mode == MODE.OBJECT) {
+                if (data.getAtt() == null) {
                     result.add(new UserSelection(UserSelection.SelectionType.Object, data.getObj()));
-                } else if (mode == MODE.ATTRIBUTE) {
+                } else {
                     result.add(new UserSelection(UserSelection.SelectionType.Attribute, data.getAtt(), null, null));
                 }
             }
@@ -106,7 +106,7 @@ public class SimpleTargetPlugin implements TreePlugin {
             }
         }
         for (UserSelection us : _preselect) {
-            if (row.getJEVisObject().equals(us.getSelectedObject())) {
+            if (row.getJEVisObject().equals(us.getSelectedObject()) && row.getJEVisAttribute().equals(us.getSelectedAttribute())) {
                 SimpleTargetPluginData data = new SimpleTargetPluginData(row);
                 data.setSelected(true);
                 _data.add(data);
