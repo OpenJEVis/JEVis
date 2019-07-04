@@ -100,7 +100,7 @@ public class ResourceObject {
             }
 
             if (rel) {
-                this.ds.addRelationhsipsToObjects(this.returnList, this.ds.getUserManager().filterReadRelationships(this.ds.getRelationships()));
+                this.ds.addRelationshipsToObjects(this.returnList, this.ds.getUserManager().filterReadRelationships(this.ds.getRelationships()));
             }
 
             if (detailed) {
