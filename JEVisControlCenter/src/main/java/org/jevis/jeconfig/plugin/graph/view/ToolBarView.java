@@ -535,7 +535,7 @@ public class ToolBarView {
                 smp.commit();
                 smp2.commit();
 
-                if (noOfChartsPerScreen != null && !noOfChartsPerScreen.equals(0L) && !noOfChartsPerScreen.equals(2L)) {
+                if (noOfChartsPerScreen != null && !noOfChartsPerScreen.equals(0L)) {
                     JEVisSample smp3 = noOfChartsPerScreenAttribute.buildSample(now, noOfChartsPerScreen);
                     smp3.commit();
                 }
