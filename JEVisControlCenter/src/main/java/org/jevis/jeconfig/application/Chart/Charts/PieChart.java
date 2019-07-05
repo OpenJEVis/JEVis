@@ -18,6 +18,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
@@ -84,8 +85,33 @@ public class PieChart implements Chart {
                     Double sumPiePiece = 0d;
                     QuantityUnits qu = new QuantityUnits();
                     boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
+                    boolean isSummable = qu.isSumCalculable(singleRow.getUnit());
 
                     List<JEVisSample> samples = singleRow.getSamples();
+                    if (!isQuantity && isSummable) {
+
+                        JEVisUnit sumUnit = qu.getSumUnit(singleRow.getUnit());
+                        String outputUnit = UnitManager.getInstance().format(sumUnit).replace("·", "");
+                        if (outputUnit.equals("")) outputUnit = sumUnit.getLabel();
+
+                        String inputUnit = UnitManager.getInstance().format(singleRow.getUnit()).replace("·", "");
+                        if (inputUnit.equals("")) inputUnit = singleRow.getUnit().getLabel();
+
+                        ChartUnits cu = new ChartUnits();
+                        Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
+                        samples.forEach(sample -> {
+                            try {
+                                sample.setValue(sample.getValueAsDouble() * finalFactor);
+                            } catch (Exception e) {
+                                try {
+                                    logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue());
+                                } catch (Exception e1) {
+                                    logger.fatal(e1);
+                                }
+                            }
+                        });
+                    }
+
                     int samplecount = samples.size();
                     for (JEVisSample sample : samples) {
                         try {
@@ -95,12 +121,16 @@ public class PieChart implements Chart {
                         }
                     }
 
-                    if (!isQuantity) {
+                    if (!isQuantity && !isSummable) {
                         sumPiePiece = sumPiePiece / samplecount;
                     }
 
                     listSumsPiePieces.add(sumPiePiece);
-                    listTableEntryNames.add(singleRow.getObject().getName());
+                    if (!listTableEntryNames.contains(singleRow.getObject().getName())) {
+                        listTableEntryNames.add(singleRow.getObject().getName());
+                    } else {
+                        listTableEntryNames.add(singleRow.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
+                    }
                     hexColors.add(singleRow.getColor());
                 }
             }
