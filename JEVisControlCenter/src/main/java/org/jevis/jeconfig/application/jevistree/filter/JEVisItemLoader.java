@@ -370,7 +370,7 @@ public class JEVisItemLoader {
                     }
                     break;
                 case OBJECT_CHILD_DELETED:
-                    update(object);
+                    Platform.runLater(() -> update(object));
                     break;
                 case OBJECT_UPDATED:
                     JEVisTreeItem itemToUpdate = itemObjectLinker.get(object);

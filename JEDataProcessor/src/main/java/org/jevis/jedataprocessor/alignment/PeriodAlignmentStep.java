@@ -77,7 +77,14 @@ public class PeriodAlignmentStep implements ProcessStep {
                 while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
                     JEVisSample rawSample = rawSamples.get(currentSamplePointer);
                     try {
-                        DateTime timestamp = rawSample.getTimestamp().plusSeconds(periodOffset);
+                        DateTime timestamp = rawSample.getTimestamp();
+
+                        int offset = Math.abs(periodOffset);
+                        if (periodOffset >= 0) {
+                            timestamp = timestamp.plusSeconds(offset);
+                        } else {
+                            timestamp = timestamp.minusSeconds(offset);
+                        }
                         if (timestamp.equals(snapToGridStart)
                                 || (timestamp.isAfter(snapToGridStart) && timestamp.isBefore(snapToGridEnd))
                                 || timestamp.equals(snapToGridEnd)) { //sample is in interval

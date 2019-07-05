@@ -105,9 +105,9 @@
     {
       "type": "Period Offset",
       "descriptions": {
-        "de": "Definiert den zeitlichen Offset, z.B. zum Vorziehen eines Wertes auf den Anfang der Messperiode",
+        "de": "Definiert den zeitlichen Offset in Sekunden, z.B. zum Vorziehen eines Wertes auf den Anfang der Messperiode",
         "ru": "Period Offset description",
-        "en": "Defines the time offset, i.e. for moving a value to the beginning of the metering period."
+        "en": "Defines the time offset in seconds, i.e. for moving a value to the beginning of the metering period."
       },
       "names": {
         "de": "Period Offset",

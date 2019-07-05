@@ -401,7 +401,7 @@ public class TreeHelper {
                         for (int i = 0; i < createCount; i++) {
                             String name = newName;
                             if (createCount > 1) {
-                                name += (" " + (i + 2));
+                                name += (" " + (i + 1));
                             }
                             copyObjectUnder(toCopyObj, newParent, name, includeContent, recursive);
                         }
