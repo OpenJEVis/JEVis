@@ -88,7 +88,7 @@ public class PieChart implements Chart {
                     boolean isSummable = qu.isSumCalculable(singleRow.getUnit());
 
                     List<JEVisSample> samples = singleRow.getSamples();
-                    if (isSummable) {
+                    if (!isQuantity && isSummable) {
 
                         JEVisUnit sumUnit = qu.getSumUnit(singleRow.getUnit());
                         String outputUnit = UnitManager.getInstance().format(sumUnit).replace("·", "");
@@ -126,7 +126,11 @@ public class PieChart implements Chart {
                     }
 
                     listSumsPiePieces.add(sumPiePiece);
-                    listTableEntryNames.add(singleRow.getObject().getName());
+                    if (!listTableEntryNames.contains(singleRow.getObject().getName())) {
+                        listTableEntryNames.add(singleRow.getObject().getName());
+                    } else {
+                        listTableEntryNames.add(singleRow.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
+                    }
                     hexColors.add(singleRow.getColor());
                 }
             }

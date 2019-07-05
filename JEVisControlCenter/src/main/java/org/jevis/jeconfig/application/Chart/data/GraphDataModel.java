@@ -241,6 +241,42 @@ public class GraphDataModel {
                             }
                         }
                     }
+                    if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME))) {
+                        JEVisSample noOfHorizontalPies = getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME).getLatestSample();
+                        if (noOfHorizontalPies != null) {
+                            setHorizontalPies(noOfHorizontalPies.getValueAsLong());
+                        } else {
+                            JEVisClass graphServiceClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+                            List<JEVisObject> graphServiceList = ds.getObjects(graphServiceClass, true);
+                            for (JEVisObject graphPlugin : graphServiceList) {
+                                JEVisAttribute noOfHorizontalPiesAttribute = graphPlugin.getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME);
+                                if (noOfHorizontalPiesAttribute != null) {
+                                    JEVisSample lastSample = noOfHorizontalPiesAttribute.getLatestSample();
+                                    if (lastSample != null) {
+                                        setHorizontalPies(lastSample.getValueAsLong());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME))) {
+                        JEVisSample noOfHorizontalTables = getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME).getLatestSample();
+                        if (noOfHorizontalTables != null) {
+                            setHorizontalTables(noOfHorizontalTables.getValueAsLong());
+                        } else {
+                            JEVisClass graphServiceClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+                            List<JEVisObject> graphServiceList = ds.getObjects(graphServiceClass, true);
+                            for (JEVisObject graphPlugin : graphServiceList) {
+                                JEVisAttribute noOfHorizontalTablesAttribute = graphPlugin.getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME);
+                                if (noOfHorizontalTablesAttribute != null) {
+                                    JEVisSample lastSample = noOfHorizontalTablesAttribute.getLatestSample();
+                                    if (lastSample != null) {
+                                        setHorizontalTables(lastSample.getValueAsLong());
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     WorkDays wd = new WorkDays(getCurrentAnalysis());
                     if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
@@ -794,22 +830,6 @@ public class GraphDataModel {
                             }
                         } catch (Exception e) {
                             logger.error("Error: could not read data model", e);
-                        }
-                    }
-                }
-                if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME))) {
-                    if (getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME).hasSample()) {
-                        Long no = getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME).getLatestSample().getValueAsLong();
-                        if (no != null) {
-                            setHorizontalPies(no);
-                        }
-                    }
-                }
-                if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME))) {
-                    if (getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME).hasSample()) {
-                        Long no = getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME).getLatestSample().getValueAsLong();
-                        if (no != null) {
-                            setHorizontalPies(no);
                         }
                     }
                 }
