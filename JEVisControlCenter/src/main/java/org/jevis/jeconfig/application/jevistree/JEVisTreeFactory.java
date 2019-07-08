@@ -28,6 +28,7 @@ import javafx.scene.input.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.*;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.filter.BasicCellFilter;
@@ -61,6 +62,7 @@ public class JEVisTreeFactory {
         final KeyCombination add = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
         final KeyCombination rename = new KeyCodeCombination(KeyCode.F2);
         final KeyCombination delete = new KeyCodeCombination(KeyCode.DELETE);
+        final KeyCombination deleteAllCleanAndRaw = new KeyCodeCombination(KeyCode.DELETE, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination pageDown = new KeyCodeCombination(KeyCode.PAGE_DOWN);
 
         tree.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
@@ -85,6 +87,8 @@ public class JEVisTreeFactory {
                     TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
                 } else if (delete.match(t)) {
                     TreeHelper.EventDelete(tree);
+                } else if (deleteAllCleanAndRaw.match(t) && JEConfig.getExpert()) {
+                    TreeHelper.EventDeleteAllCleanAndRaw(tree);
                 } else if (copyObj.match(t)) {
                     tree.setCopyObject(selectedObj.getValue().getJEVisObject(), false);
                     final Clipboard clipboard = Clipboard.getSystemClipboard();
