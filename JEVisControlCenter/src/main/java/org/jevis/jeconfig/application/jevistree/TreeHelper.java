@@ -26,12 +26,10 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TreeItem;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
@@ -48,6 +46,7 @@ import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -111,6 +110,69 @@ public class TreeHelper {
                     // ... user chose CANCEL or closed the dialog
                 }
             });
+        }
+    }
+
+    public static void EventDeleteAllCleanAndRaw(JEVisTree tree) {
+        logger.error("EventDelete");
+        if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
+            String question = I18n.getInstance().getString("jevistree.dialog.delete.message");
+            ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
+            for (TreeItem<JEVisTreeRow> item : items) {
+                question += item.getValue().getJEVisObject().getName();
+            }
+            question += "?";
+
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));
+            alert.setHeaderText(null);
+            alert.setContentText(question);
+            GridPane gp = new GridPane();
+            gp.setHgap(4);
+            gp.setVgap(6);
+            Label cleanDataLabel = new Label("Clean Data");
+            ToggleSwitchPlus cleanData = new ToggleSwitchPlus();
+            cleanData.setSelected(true);
+            Label rawDataLabel = new Label("Raw Data");
+            ToggleSwitchPlus rawData = new ToggleSwitchPlus();
+            rawData.setSelected(false);
+
+            gp.add(rawDataLabel, 0, 0);
+            gp.add(rawData, 1, 0);
+            gp.add(cleanDataLabel, 0, 1);
+            gp.add(cleanData, 1, 1);
+
+            alert.getDialogPane().setContent(gp);
+
+            alert.showAndWait().ifPresent(buttonType -> {
+                if (buttonType.equals(ButtonType.OK)) {
+                    try {
+                        for (TreeItem<JEVisTreeRow> item : items) {
+                            deleteAllSamples(item.getValue().getJEVisObject(), rawData.selectedProperty().get(), cleanData.selectedProperty().get());
+                        }
+
+                    } catch (Exception ex) {
+                        logger.catching(ex);
+                        CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
+                                I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                    }
+                } else {
+                    // ... user chose CANCEL or closed the dialog
+                }
+            });
+        }
+    }
+
+    private static void deleteAllSamples(JEVisObject object, boolean rawData, boolean cleanData) throws JEVisException {
+        JEVisAttribute value = object.getAttribute("Value");
+        if (value != null) {
+            if ((object.getJEVisClassName().equals("Clean Data") && cleanData)
+                    || (object.getJEVisClassName().equals("Data") && rawData)) {
+                value.deleteAllSample();
+            }
+        }
+        for (JEVisObject child : object.getChildren()) {
+            deleteAllSamples(child, rawData, cleanData);
         }
     }
 
