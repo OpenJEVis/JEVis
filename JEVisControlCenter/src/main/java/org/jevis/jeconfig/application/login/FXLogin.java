@@ -204,7 +204,7 @@ public class FXLogin extends AnchorPane {
                     });
 
                 } else {
-                    throw new RuntimeException("Error while connection to the JEVis Server");
+                    throw new RuntimeException("Error while connecting to the JEVis Server");
                 }
             } catch (Exception ex) {
                 logger.trace("Login failed with error: {}", ex);
@@ -213,7 +213,7 @@ public class FXLogin extends AnchorPane {
                     public void run() {
                         Alert alert = new Alert(Alert.AlertType.ERROR);
                         alert.setTitle("Error");
-                        alert.setHeaderText("Error while connection to the JEVis Server");
+                        alert.setHeaderText("Error while connecting to the JEVis Server");
                         alert.setContentText(ex.getMessage());
                         alert.showAndWait();
 
@@ -315,11 +315,14 @@ public class FXLogin extends AnchorPane {
         List<Locale> availableLang = new ArrayList<>();
         availableLang.add(UK);
         availableLang.add(GERMANY);
+        availableLang.add(Locale.forLanguageTag("ru"));
+        availableLang.add(Locale.forLanguageTag("uk"));
+        availableLang.add(Locale.forLanguageTag("th"));
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override
             public ListCell<Locale> call(ListView<Locale> param) {
-                final ListCell<Locale> cell = new ListCell<Locale>() {
+                return new ListCell<Locale>() {
                     {
                         super.setPrefWidth(260);
                     }
@@ -347,7 +350,6 @@ public class FXLogin extends AnchorPane {
                         }
                     }
                 };
-                return cell;
             }
         };
 
@@ -357,10 +359,12 @@ public class FXLogin extends AnchorPane {
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
 
+        if (availableLang.contains(Locale.getDefault())) {
+            comboBox.getSelectionModel().select(Locale.getDefault());
+        }
 
         comboBox.setMinWidth(250);
         comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
-
 
         comboBox.valueProperty().addListener(new ChangeListener<Locale>() {
             @Override
@@ -369,16 +373,6 @@ public class FXLogin extends AnchorPane {
                 //TODO reload UI
             }
         });
-
-        for (Locale l : comboBox.getItems()) {
-            if (l.equals(Locale.getDefault())) {
-                comboBox.getSelectionModel().select(l);
-                break;
-            } else if (l.getLanguage().equals(Locale.getDefault().getLanguage())) {
-                comboBox.getSelectionModel().select(l);
-            }
-        }
-
 
         return comboBox;
 
@@ -452,7 +446,7 @@ public class FXLogin extends AnchorPane {
         footer.setId("fx-login-footer");
         setDefaultStyle(footer, "-fx-background-color: " + Color.LIGHT_BLUE);
 
-        Node buildInfo = buldBuildInfos();
+        Node buildInfo = buildBuildInfo();
         buildInfo.setId("fx-login-footer-info");
         AnchorPane.setBottomAnchor(buildInfo, 5.0);
         AnchorPane.setRightAnchor(buildInfo, 5.0);
@@ -816,20 +810,20 @@ public class FXLogin extends AnchorPane {
      *
      * @return
      */
-    public Node buldBuildInfos() {
+    public Node buildBuildInfo() {
         VBox vbox = new VBox();
         setDefaultStyle(vbox, "-fx-background-color: transparent;");
         logger.info(app.toString());
-        Label coypLeft = new Label(app.getName() + " " + app.getVersion());//©Envidatec GmbH 2014-2016");
+        Label copyLeft = new Label(app.getName() + " " + app.getVersion());//©Envidatec GmbH 2014-2016");
         Label java = new Label("Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
         Label javafxlabel = new Label("JavaFX: " + System.getProperties().get("javafx.runtime.version"));
 
 
-        coypLeft.setTextFill(javafx.scene.paint.Color.WHITE);
+        copyLeft.setTextFill(javafx.scene.paint.Color.WHITE);
         java.setTextFill(javafx.scene.paint.Color.WHITE);
         javafxlabel.setTextFill(javafx.scene.paint.Color.WHITE);
 
-        vbox.getChildren().setAll(coypLeft, java, javafxlabel);
+        vbox.getChildren().setAll(copyLeft, java, javafxlabel);
         return vbox;
     }
 
@@ -843,8 +837,8 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Stroe the current setting like username and password in the java
-     * preferenc contex. Warning the password is in plantext i guess, maye be
+     * Store the current setting like username and password in the java
+     * preference context. Warning the password is in plaintext i guess, maye be
      * find a better solution but the JEVisDataSource needs an plaintext pw.
      */
     private void storePreference() {
@@ -863,7 +857,7 @@ public class FXLogin extends AnchorPane {
 
     /**
      * Temporary solution the get the clear text password. The JEConfig will use this
-     * to login into the ISO 50001 webservice. Will be relofed if an better plays way
+     * to login into the ISO 50001 webservice. Will be reloaded if an better way
      * is found. Maybe the JEVisDataSource will give acces to it.
      *
      * @return
