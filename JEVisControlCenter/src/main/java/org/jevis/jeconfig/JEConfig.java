@@ -19,7 +19,6 @@
  */
 package org.jevis.jeconfig;
 
-import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
@@ -43,8 +42,6 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.application.ApplicationInfo;
-import org.jevis.commons.unit.JEVisUnitImp;
-import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
@@ -59,7 +56,6 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.prefs.Preferences;
@@ -273,7 +269,6 @@ public class JEConfig extends Application {
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
-        I18n.getInstance().loadBundel(Locale.getDefault());
         PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
@@ -330,15 +325,11 @@ public class JEConfig extends Application {
         login.getLoginStatus().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
 
-                Gson gson = new Gson();
-                String problemUnit = "{\"formula\":\"var\",\"label\":\"var\",\"prefix\":\"None\"}";
-                JEVisUnitImp unit = new JEVisUnitImp(gson.fromJson(problemUnit, JsonUnit.class));
-
                 logger.debug("Start JEVis Control Center");
                 _mainDS = login.getDataSource();
 
                 JEConfig.userpassword = login.getUserPassword();
-                I18n.getInstance().loadBundel(login.getSelectedLocale());
+                I18n.getInstance().loadBundle(login.getSelectedLocale());
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
 
@@ -427,12 +418,12 @@ public class JEConfig extends Application {
                     }
                     logger.info("Time to start: " + ((new Date()).getTime() - start.getTime()));
                 });
-                Date startAllob = new Date();
-                try {
-                    _mainDS.getObjects();
-                    logger.error("Time to get all Objects: {}ms", ((new Date()).getTime() - startAllob.getTime()));
-                } catch (Exception ex) {
-                }
+//                Date startAllob = new Date();
+//                try {
+//                    _mainDS.getObjects();
+//                    logger.error("Time to get all Objects: {}ms", ((new Date()).getTime() - startAllob.getTime()));
+//                } catch (Exception ex) {
+//                }
                 System.gc();
 
             } else {
