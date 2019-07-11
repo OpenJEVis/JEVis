@@ -23,12 +23,8 @@ package org.jevis.jeconfig.application.login;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -167,14 +163,11 @@ public class FXLogin extends AnchorPane {
      */
     private void doLogin() {
 
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                loginButton.setDisable(true);
-                authGrid.setDisable(true);
-                progress.setVisible(true);
-                progress.setVisible(true);
-            }
+        Platform.runLater(() -> {
+            loginButton.setDisable(true);
+            authGrid.setDisable(true);
+            progress.setVisible(true);
+            progress.setVisible(true);
         });
         //start animation, todo make an own thred..
         Runnable runnable = () -> {
@@ -195,12 +188,9 @@ public class FXLogin extends AnchorPane {
                         storePreference();
                     }
 
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            loginStatus.setValue(Boolean.TRUE);
-                            statusDialog.hide();
-                        }
+                    Platform.runLater(() -> {
+                        loginStatus.setValue(Boolean.TRUE);
+                        statusDialog.hide();
                     });
 
                 } else {
@@ -208,20 +198,17 @@ public class FXLogin extends AnchorPane {
                 }
             } catch (Exception ex) {
                 logger.trace("Login failed with error: {}", ex);
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setHeaderText("Error while connecting to the JEVis Server");
-                        alert.setContentText(ex.getMessage());
-                        alert.showAndWait();
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Error while connecting to the JEVis Server");
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
 
-                        loginButton.setDisable(false);
-                        authGrid.setDisable(false);
-                        progress.setVisible(false);
-                        progress.setVisible(false);
-                    }
+                    loginButton.setDisable(false);
+                    authGrid.setDisable(false);
+                    progress.setVisible(false);
+                    progress.setVisible(false);
                 });
 
             }
@@ -283,8 +270,7 @@ public class FXLogin extends AnchorPane {
      * @return
      */
     private List<JEVisOption> parseConfig(Application.Parameters parameter) {
-        List<JEVisOption> config = ParameterHelper.ParseJEVisConfiguration(parameter);
-        return config;
+        return ParameterHelper.ParseJEVisConfiguration(parameter);
     }
 
     /**
@@ -366,12 +352,9 @@ public class FXLogin extends AnchorPane {
         comboBox.setMinWidth(250);
         comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
 
-        comboBox.valueProperty().addListener(new ChangeListener<Locale>() {
-            @Override
-            public void changed(ObservableValue<? extends Locale> observable, Locale oldValue, Locale newValue) {
-                selectedLocale = newValue;
-                //TODO reload UI
-            }
+        comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            selectedLocale = newValue;
+            //TODO reload UI
         });
 
         return comboBox;
@@ -423,7 +406,9 @@ public class FXLogin extends AnchorPane {
         } else {
             logo = new ImageView(new Image(defaultLogo));
         }
-        logo.setPreserveRatio(true);
+        if (logo != null) {
+            logo.setPreserveRatio(true);
+        }
 
         logo.fitWidthProperty().bind(mainStage.widthProperty());
 
@@ -505,26 +490,18 @@ public class FXLogin extends AnchorPane {
         userPassword.setId("fxlogin-form-password");
         authGrid.setId("fxlogin-form");
 
-        closeButton.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-                loginStatus.setValue(Boolean.FALSE);
-                statusDialog.hide();
-                System.exit(0);//Not the fine ways but ok for now
-            }
+        closeButton.setOnAction(event -> {
+            loginStatus.setValue(Boolean.FALSE);
+            statusDialog.hide();
+            System.exit(0);//Not the fine ways but ok for now
         });
 
         userName.requestFocus();
 
-        loginButton.setOnAction(new EventHandler<ActionEvent>() {
+        loginButton.setOnAction(event -> {
+            loginButton.setDisable(true);
+            doLogin();
 
-            @Override
-            public void handle(ActionEvent event) {
-                loginButton.setDisable(true);
-                doLogin();
-
-            }
         });
 
         authGrid.setHgap(10);
@@ -715,27 +692,11 @@ public class FXLogin extends AnchorPane {
         HBox.setHgrow(configureServer, Priority.NEVER);
 //        HBox.setHgrow(serverSelection, Priority.ALWAYS);
 
-        ok.setOnAction(new EventHandler<ActionEvent>() {
+        ok.setOnAction(event -> serverConfigPop.hide(Duration.seconds(0.3)));
+        cancel.setOnAction(event -> serverConfigPop.hide(Duration.seconds(1)));
 
-            @Override
-            public void handle(ActionEvent event) {
-                serverConfigPop.hide(Duration.seconds(0.3));
-            }
-        });
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
+        addNewButton.setOnAction(event -> {
 
-            @Override
-            public void handle(ActionEvent event) {
-                serverConfigPop.hide(Duration.seconds(1));
-            }
-        });
-
-        addNewButton.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-
-            }
         });
 
         return serverConfBox;
