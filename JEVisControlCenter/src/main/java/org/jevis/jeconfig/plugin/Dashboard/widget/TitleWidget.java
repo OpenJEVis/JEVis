@@ -11,6 +11,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
@@ -42,8 +43,8 @@ public class TitleWidget extends Widget {
             label.setTextFill(config.fontColor.getValue());
             label.setText(config.title.getValue());
             label.setFont(new Font(config.fontSize.getValue()));
-            label.setAlignment(config.titlePosition.getValue());
-
+//            label.setAlignment(config.titlePosition.getValue());
+            label.setTextAlignment(TextAlignment.LEFT);
         }
 
 
