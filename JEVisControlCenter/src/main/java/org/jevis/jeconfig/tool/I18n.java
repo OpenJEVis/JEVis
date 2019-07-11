@@ -4,7 +4,10 @@ import org.apache.commons.beanutils.locale.LocaleBeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 
@@ -18,7 +21,7 @@ public class I18n {
     private Locale locale = LocaleBeanUtils.getDefaultLocale();
     private ResourceBundle bundle;
     private ResourceBundle defaultBundle;
-
+    Reader reader;
 
     public static synchronized I18n getInstance() {
         if (i18n == null)
@@ -36,7 +39,22 @@ public class I18n {
 
     public void loadBundle(Locale local) {
         this.locale = local;
-        bundle = ResourceBundle.getBundle("JEVisCC", local);
+//        bundle = ResourceBundle.getBundle("JEVisCC", local);
+
+        try {
+            String s = "JEVisCC_" + local.getLanguage() + ".properties";
+
+            InputStream resourceAsStream = ClassLoader.getSystemClassLoader().getResourceAsStream(s);
+            if (resourceAsStream != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8);
+                reader = new BufferedReader(inputStreamReader);
+                bundle = new PropertyResourceBundle(reader);
+            } else bundle = defaultBundle;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public Locale getLocale() {
