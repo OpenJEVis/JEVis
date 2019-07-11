@@ -21,6 +21,7 @@ import org.jevis.commons.dataprocessing.ProcessChain;
 import org.jevis.commons.dataprocessing.ProcessChains;
 import org.jevis.commons.dataprocessing.ProcessOption;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -56,6 +57,8 @@ public class AddProcessChainOptionMenuItem extends Menu {
 //                            ProcessOptions.ption(pf, key, defaultOption)
                         } catch (JEVisException ex) {
                             logger.fatal(ex);
+                        } catch (IOException e) {
+                            logger.fatal(e);
                         }
                     }
                 });

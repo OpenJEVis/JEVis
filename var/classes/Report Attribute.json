@@ -13,7 +13,7 @@
     {
       "name": "Attribute Name",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Report Attribute"

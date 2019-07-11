@@ -20,15 +20,16 @@
  */
 package org.jevis.rest;
 
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.ws.json.JsonI18nClass;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,7 @@ import java.util.List;
 public class ResourceI18n {
 
     private static final Logger logger = LogManager.getLogger(ResourceI18n.class);
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
 
     /**
@@ -94,11 +96,10 @@ public class ResourceI18n {
 
     }
 
-    private JsonI18nClass loadFile(File file) throws FileNotFoundException, UnsupportedEncodingException {
-        Gson gson = new Gson();
-        JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(file), "UTF8"));
-        JsonI18nClass data = gson.fromJson(reader, JsonI18nClass.class);
-        return data;
+    private JsonI18nClass loadFile(File file) throws IOException {
+//        Gson gson = new Gson();
+//        JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(file), "UTF8"));
+        return objectMapper.readValue(file, JsonI18nClass.class);
     }
 
 

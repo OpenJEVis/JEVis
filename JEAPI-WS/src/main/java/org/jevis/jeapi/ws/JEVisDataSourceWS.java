@@ -19,10 +19,9 @@
  */
 package org.jevis.jeapi.ws;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -35,8 +34,6 @@ import org.joda.time.DateTime;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -44,6 +41,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * @author fs
@@ -66,10 +64,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private String host = "http://localhost";
     private HTTPConnection con;
-    private Gson gson = new Gson();
+    //    private Gson gson = new Gson();
     private JEVisUser user;
     private List<JEVisOption> config = new ArrayList<>();
-    private List<JEVisRelationship> objectRelCache = Collections.synchronizedList(new ArrayList<JEVisRelationship>());
+    //    private List<JEVisRelationship> objectRelCache = Collections.synchronizedList(new ArrayList<JEVisRelationship>());
     private ConcurrentHashMap<String, JEVisClass> classCache = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Long, JEVisObject> objectCache = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Long, List<JEVisRelationship>> objectRelMapCache = new ConcurrentHashMap<>();
@@ -104,11 +102,12 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     + HTTPConnection.RESOURCE_CLASSES + "/" + jclass.getName()
                     + "/" + HTTPConnection.RESOURCE_TYPES;
 
-            StringBuffer response = this.con.getRequest(resource);
-
-            Type listType = new TypeToken<List<JsonType>>() {
-            }.getType();
-            List<JsonType> jsons = this.gson.fromJson(response.toString(), listType);
+            JsonType[] jsons = this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonType[].class);
+//            StringBuffer response = this.con.getRequest(resource);
+//
+//            Type listType = new TypeToken<List<JsonType>>() {
+//            }.getType();
+//            List<JsonType> jsons = this.gson.fromJson(response.toString(), listType);
             List<JEVisType> types = new ArrayList<>();
             for (JsonType type : jsons) {
 //                logger.trace("Type: {}", type);
@@ -251,20 +250,21 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.RELATIONSHIPS.PATH;
 
-            logger.debug("payload: {}", this.gson.toJson(newJsonRel));
-            StringBuffer response = getHTTPConnection().postRequest(resource, this.gson.toJson(newJsonRel));
+//            logger.debug("payload: {}", this.gson.toJson(newJsonRel));
+//            StringBuffer response = getHTTPConnection().postRequest(resource, this.gson.toJson(newJsonRel));
 
-            JsonRelationship newJson = this.gson.fromJson(response.toString(), JsonRelationship.class);
+            JsonRelationship newJson = this.objectMapper.readValue(this.getHTTPConnection().postRequest(resource, this.objectMapper.writeValueAsString(newJsonRel)).toString(), JsonRelationship.class);
+
+//            JsonRelationship newJson = this.gson.fromJson(response.toString(), JsonRelationship.class);
             JEVisRelationship newRel = new JEVisRelationshipWS(this, newJson);
+
+            this.objectRelMapCache.get(newRel.getStartID()).add(newRel);
+            this.objectRelMapCache.get(newRel.getEndID()).add(newRel);
 
             if ((newRel.getType() >= JEVisConstants.ObjectRelationship.MEMBER_READ
                     && newRel.getType() <= JEVisConstants.ObjectRelationship.MEMBER_DELETE) || newRel.getType() == JEVisConstants.ObjectRelationship.OWNER) {
                 getCurrentUser().reload();
             }
-
-
-            this.objectRelMapCache.get(newRel.getStartID()).add(newRel);
-            this.objectRelMapCache.get(newRel.getEndID()).add(newRel);
 
             return newRel;
 
@@ -301,7 +301,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         logger.trace("Get ALL ObjectsWS");
         try {
             this.objectRelMapCache.clear();
-            this.objectRelCache = getRelationshipsWS();
+            getRelationshipsWS();
 
             String resource = HTTPConnection.API_PATH_V1
                     + REQUEST.OBJECTS.PATH
@@ -401,10 +401,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         if (!this.orLoaded) {
 
             this.objectRelMapCache.clear();
-            this.objectRelCache = getRelationshipsWS();
 
 
-            this.objectRelCache.parallelStream().forEach(re -> {
+            this.getRelationshipsWS().parallelStream().forEach(re -> {
                 try {
                     long startID = re.getStartID();
                     long endID = re.getEndID();
@@ -424,13 +423,55 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 }
             });
 
-
             logger.debug("Relationship amount: {}", this.objectRelMapCache.size());
 
             this.orLoaded = true;
         }
 
-        return this.objectRelCache;
+        return relationshipMapToList();
+    }
+
+    private List<JEVisRelationship> relationshipMapToList() {
+        return objectRelMapCache.entrySet().stream().flatMap(entry -> entry.getValue().stream()).distinct().collect(Collectors.toList());
+    }
+
+    public void reloadRelationships(JsonObject object) {
+        logger.debug("getAllRelationships");
+        String resource = HTTPConnection.API_PATH_V1
+                + REQUEST.RELATIONSHIPS.PATH
+                + object.getId();
+        try {
+            List<JsonRelationship> jsons = new ArrayList<>(Arrays.asList(this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonRelationship[].class)));
+            List<JEVisRelationship> rels = new ArrayList<>();
+
+
+            for (JsonRelationship re : jsons) {
+                rels.add(new JEVisRelationshipWS(JEVisDataSourceWS.this, re));
+            }
+
+            for (JEVisRelationship re : rels) {
+                long startID = re.getStartID();
+                long endID = re.getEndID();
+
+                if (!this.objectRelMapCache.containsKey(startID)) {
+                    this.objectRelMapCache.put(startID, new CopyOnWriteArrayList<>());
+                }
+
+                if (!this.objectRelMapCache.containsKey(endID)) {
+                    this.objectRelMapCache.put(endID, new CopyOnWriteArrayList<>());
+                }
+
+                this.objectRelMapCache.get(startID).add(re);
+                this.objectRelMapCache.get(endID).add(re);
+            }
+
+        } catch (JsonParseException e) {
+            logger.error("Json parse exception. Error reloading relationship for {}", object.getId(), e);
+        } catch (JsonMappingException e) {
+            logger.error("Json mapping exception. Error reloading relationship for {}", object.getId(), e);
+        } catch (IOException e) {
+            logger.error("IO exception. Error reloading relationship for {}", object.getId(), e);
+        }
     }
 
 
@@ -482,6 +523,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     public List<JEVisRelationship> getRelationshipsWS() {
         logger.debug("Get ALL RelationshipsWS");
+        //TODO: throw excption?! so the other function can handle it?
         try {
 //            Benchmark bm = new Benchmark();
             List<JEVisRelationship> relationships = Collections.synchronizedList(new ArrayList<>());
@@ -495,7 +537,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 //            List<JsonRelationship> jsons = gson.fromJson(response.toString(), listType);
 
 //            ObjectMapper objectMapper = new ObjectMapper();
-            List<JsonRelationship> jsons = Arrays.asList(this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonRelationship[].class));
+            List<JsonRelationship> jsons = new ArrayList<>(Arrays.asList(this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonRelationship[].class)));
 
             jsons.parallelStream().forEach(jsonRelationship -> {
                 try {
@@ -520,9 +562,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 //            bm.printBenchmarkDetail("Time to get Relationships");
             return relationships;
 
-        } catch (ProtocolException ex) {
+        } catch (JsonParseException ex) {
             logger.error(ex);
-            //TODO: throw excption?! so the other function can handel it?
+            return new ArrayList<>();
+        } catch (JsonMappingException ex) {
+            logger.error(ex);
             return new ArrayList<>();
         } catch (IOException ex) {
             logger.error(ex);
@@ -577,23 +621,24 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         logger.debug("Get attribute from Webservice: {}", objectID);
         List<JEVisAttribute> attributes = new ArrayList<>();
 
-        StringBuffer response = new StringBuffer();
+//        StringBuffer response = new StringBuffer();
         try {
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.OBJECTS.PATH
                     + objectID + "/"
                     + REQUEST.OBJECTS.ATTRIBUTES.PATH;
 //                    + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS;
-            response = this.con.getRequest(resource);
+//            response = this.con.getRequest(resource);
+//
+//            if (response == null || response.toString().isEmpty()) {
+//                logger.debug("Empty response for {}.attributes ", objectID);
+//                return new ArrayList<>();
+//            }
 
-            if (response == null || response.toString().isEmpty()) {
-                logger.debug("Empty response for {}.attributes ", objectID);
-                return new ArrayList<>();
-            }
-
-            Type listType = new TypeToken<List<JsonAttribute>>() {
-            }.getType();
-            List<JsonAttribute> jsons = this.gson.fromJson(response.toString(), listType);
+            JsonAttribute[] jsons = this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonAttribute[].class);
+//            Type listType = new TypeToken<List<JsonAttribute>>() {
+//            }.getType();
+//            List<JsonAttribute> jsons = this.gson.fromJson(response.toString(), listType);
             for (JsonAttribute att : jsons) {
                 try {
                     attributes.add(updateAttributeCache(att));
@@ -770,7 +815,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                     + REQUEST.CLASSES.PATH
                     + jclass;
 
-            Gson gson = new Gson();
             HttpURLConnection conn = getHTTPConnection().getDeleteConnection(resource);
 
             return conn.getResponseCode() == HttpURLConnection.HTTP_OK;
@@ -941,7 +985,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
 
         List<Long> groupIds = new ArrayList<>();
-        for (JEVisRelationship rel : this.objectRelCache) {
+        List<JEVisRelationship> jeVisRelationships = this.relationshipMapToList();
+        for (JEVisRelationship rel : jeVisRelationships) {
             try {
                 if (rel.isType(JEVisConstants.ObjectRelationship.MEMBER_READ)
                         && getCurrentUser().getUserID() == rel.getStartID()) {
@@ -953,7 +998,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
         }
 
-        for (JEVisRelationship rel : this.objectRelCache) {
+        for (JEVisRelationship rel : jeVisRelationships) {
             try {
                 //group to root
                 if (rel.isType(JEVisConstants.ObjectRelationship.ROOT) && groupIds.contains(rel.getStartID())) {
@@ -974,16 +1019,17 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         try {
             String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_OBJECTS + "?root=true";
             List<JEVisObject> objs = new ArrayList<>();
-            StringBuffer response = this.con.getRequest(resource);
+//            StringBuffer response = this.con.getRequest(resource);
+//
+//            //TODO: make an exception handling
+//            if (response == null) {
+//                return objs;
+//            }
 
-            //TODO: make an exception handling
-            if (response == null) {
-                return objs;
-            }
-
-            Type listType = new TypeToken<List<JsonObject>>() {
-            }.getType();
-            List<JsonObject> jsons = this.gson.fromJson(response.toString(), listType);
+            JsonObject[] jsons = this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonObject[].class);
+//            Type listType = new TypeToken<List<JsonObject>>() {
+//            }.getType();
+//            List<JsonObject> jsons = this.gson.fromJson(response.toString(), listType);
 
             for (JsonObject jobj : jsons) {
                 try {
@@ -1046,16 +1092,17 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
 
             List<JEVisObject> objs = new ArrayList<>();
-            StringBuffer response = this.con.getRequest(resource);
+//            StringBuffer response = this.con.getRequest(resource);
+//
+//            //TODO: make an exception handling
+//            if (response == null) {
+//                return objs;
+//            }
 
-            //TODO: make an exception handling
-            if (response == null) {
-                return objs;
-            }
-
-            Type listType = new TypeToken<List<JsonObject>>() {
-            }.getType();
-            List<JsonObject> jsons = this.gson.fromJson(response.toString(), listType);
+            JsonObject[] jsons = this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonObject[].class);
+//            Type listType = new TypeToken<List<JsonObject>>() {
+//            }.getType();
+//            List<JsonObject> jsons = this.gson.fromJson(response.toString(), listType);
 
             for (JsonObject jobj : jsons) {
                 try {
@@ -1155,32 +1202,31 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     @Override
     public JEVisObject getObject(Long id) {
 
-        JEVisObject obj = this.objectCache.getOrDefault(id, null);
-        if (obj != null) {
-            return obj;
-        } else {
-            System.out.println("Object without cache: " + id);
-            return getObjectWS(id);
-        }
-
+        if (id != null) {
+            JEVisObject obj = this.objectCache.getOrDefault(id, null);
+            if (obj != null) {
+                return obj;
+            } else {
+                logger.debug("Object without cache: " + id);
+                return getObjectWS(id);
+            }
+        } else return null;
 
     }
 
-    public JEVisObject getObjectWS(Long id) {
+    public JEVisObject getObjectWS(long id) {
         logger.debug("GetObject: {}", id);
         String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_OBJECTS + "/" + id
                 + "?"
                 + REQUEST.OBJECTS.OPTIONS.INCLUDE_CHILDREN + "true";
         try {
 
-            StringBuffer response = this.con.getRequest(resource);
-            JsonObject json = this.gson.fromJson(response.toString(), JsonObject.class);
+            JsonObject json = this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonObject.class);
+//            StringBuffer response = this.con.getRequest(resource);
+//            JsonObject json = this.gson.fromJson(response.toString(), JsonObject.class);
 
 
             if (this.objectCache.containsKey(json.getId())) {
-                /**
-                 * cast needs to be removed
-                 */
                 ((JEVisObjectWS) this.objectCache.get(json.getId())).update(json);
                 return this.objectCache.get(json.getId());
             } else {
@@ -1189,10 +1235,12 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 return obj;
             }
 
-        } catch (ProtocolException ex) {
-            logger.error("Error while fetching Object", ex);
+        } catch (JsonParseException ex) {
+            logger.error("Json parse exception. Error while fetching Object: {}", id, ex);
+        } catch (JsonMappingException ex) {
+            logger.error("Json mapping exception. Error while fetching Object: {}", id, ex);
         } catch (IOException ex) {
-            logger.error("Error while fetching Object", ex);
+            logger.error("IO exception. Error while fetching Object: {}", id, ex);
         }
         return null;
     }
@@ -1213,9 +1261,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         try {
 
             String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.RESOURCE_CLASSES + "/" + name;
-            StringBuffer response = this.con.getRequest(resource);
+//            StringBuffer response = this.con.getRequest(resource);
 
-            JsonJEVisClass json = this.gson.fromJson(response.toString(), JsonJEVisClass.class);
+            JsonJEVisClass json = this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonJEVisClass.class);
+//            JsonJEVisClass json = this.gson.fromJson(response.toString(), JsonJEVisClass.class);
             return new JEVisClassWS(this, json);
 
         } catch (ProtocolException ex) {
@@ -1324,10 +1373,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.debug("Login Response: {}", conn.getResponseCode());
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
-                logger.debug("Login response: {}", conn.getContent().toString());
-                String payload = IOUtils.toString((InputStream) conn.getContent(), "UTF-8");
+//                logger.debug("Login response: {}", conn.getContent().toString());
+//                String payload = IOUtils.toString((InputStream) conn.getContent(), "UTF-8");
 
-                JsonObject json = this.gson.fromJson(payload, JsonObject.class);
+                JsonObject json = this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonObject.class);
+//                JsonObject json = this.gson.fromJson(payload, JsonObject.class);
 
                 /** We will now always preload the JEVisDataSource **/
                 this.preload();
@@ -1444,13 +1494,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         logger.trace("Get I18n");
         try {
             String resource = HTTPConnection.API_PATH_V1 + HTTPConnection.REAOURCE_I18N;//+"?jclass="+Organisation;
-            StringBuffer response = this.con.getRequest(resource);
+//            StringBuffer response = this.con.getRequest(resource);
+//
+//            logger.trace("raw response: '{}'", response.toString());
 
-            logger.trace("raw response: '{}'", response.toString());
-
-            Type listType = new TypeToken<List<JsonI18nClass>>() {
-            }.getType();
-            return this.gson.fromJson(response.toString(), listType);
+            return new ArrayList<>(Arrays.asList(this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonI18nClass[].class)));
+//            Type listType = new TypeToken<List<JsonI18nClass>>() {
+//            }.getType();
+//            return this.gson.fromJson(response.toString(), listType);
 
         } catch (Exception ex) {
             logger.fatal(ex);
@@ -1475,7 +1526,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 //        classCache.clear();
 
         this.objectRelMapCache.clear();
-        this.objectRelCache.clear();
+//        this.objectRelCache.clear();
         this.objectCache.clear();
         this.attributeCache.clear();
 
@@ -1487,5 +1538,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
         System.gc();
         Optimization.getInstance().clearCache();
+    }
+
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
     }
 }

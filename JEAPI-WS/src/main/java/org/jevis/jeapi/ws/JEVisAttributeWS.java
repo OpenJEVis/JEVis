@@ -19,8 +19,6 @@
  */
 package org.jevis.jeapi.ws;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -129,10 +127,12 @@ public class JEVisAttributeWS implements JEVisAttribute {
                         + getName() + "/"
                         + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.PATH;
 
-                String requestjson = new Gson().toJson(jsonSamples, new TypeToken<List<JsonSample>>() {
-                }.getType());
-                logger.debug("Payload. {}", requestjson);
-                StringBuffer response = ds.getHTTPConnection().postRequest(resource, requestjson);
+//                String requestjson = new Gson().toJson(jsonSamples, new TypeToken<List<JsonSample>>() {
+//                }.getType());
+                String json = this.ds.getObjectMapper().writeValueAsString(jsonSamples);
+
+//                logger.debug("Payload. {}", requestjson);
+                StringBuffer response = ds.getHTTPConnection().postRequest(resource, json);
 
                 logger.trace("Response.payload: {}", response);
 
@@ -427,7 +427,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public void commit() throws JEVisException {
         try {
-            Gson gson = new Gson();
+//            Gson gson = new Gson();
 
             //Path("/JEWebService/v1/objects/{id}/attributes")
             String resource = REQUEST.API_PATH_V1
@@ -436,10 +436,11 @@ public class JEVisAttributeWS implements JEVisAttribute {
                     + REQUEST.OBJECTS.ATTRIBUTES.PATH
                     + getName();
 
-            logger.debug("Payload: {}", gson.toJson(json));
-            StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
+//            logger.debug("Payload: {}", gson.toJson(json));
+//            StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
+            StringBuffer response = ds.getHTTPConnection().postRequest(resource, this.ds.getObjectMapper().writeValueAsString(json));
 
-            this.json = gson.fromJson(response.toString(), JsonAttribute.class);
+            this.json = this.ds.getObjectMapper().readValue(response.toString(), JsonAttribute.class);
 
         } catch (Exception ex) {
             logger.catching(ex);

@@ -5,7 +5,8 @@
  */
 package org.jevis.rest;
 
-import com.google.gson.Gson;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -31,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 public class RLF implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final Logger logger = LogManager.getLogger(RLF.class);
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -59,7 +61,7 @@ public class RLF implements ContainerRequestFilter, ContainerResponseFilter {
                 }
                 if (responseContext.getMediaType() != null && responseContext.getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)) {
                     logger.trace("Payload: \n{}",
-                            (new Gson()).toJson(responseContext.getEntity())
+                            objectMapper.writeValueAsString(responseContext.getEntity())
                     );
 
                 }

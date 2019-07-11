@@ -20,9 +20,9 @@
  */
 package org.jevis.ws.sql;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisConstants;
 import org.jevis.commons.unit.JEVisUnitImp;
@@ -57,7 +57,8 @@ public class SQLtoJsonFactory {
      * Default date format for attribute dates
      */
     private static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
-    private static final Gson gson = new Gson();
+    //    private static final Gson gson = new Gson();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static JsonAttribute buildAttributeThisLastValue(ResultSet rs) throws SQLException {
         JsonType type = JEVisClassHelper.getType(rs.getString(ObjectTable.COLUMN_CLASS), rs.getString(AttributeTable.COLUMN_NAME));
@@ -85,14 +86,14 @@ public class SQLtoJsonFactory {
         jatt.setObjectID(objectID);
 
         try {
-            JEVisUnitImp imputUnit = new JEVisUnitImp(gson.fromJson(rs.getString(AttributeTable.COLUMN_INPUT_UNIT), JsonUnit.class));
+            JEVisUnitImp imputUnit = new JEVisUnitImp(objectMapper.readValue(rs.getString(AttributeTable.COLUMN_INPUT_UNIT), JsonUnit.class));
             jatt.setInputUnit(JsonFactory.buildUnit(imputUnit));
         } catch (Exception ex) {
 
         }
 
         try {
-            JEVisUnitImp displayUnit = new JEVisUnitImp(gson.fromJson(rs.getString(AttributeTable.COLUMN_DISPLAY_UNIT), JsonUnit.class));
+            JEVisUnitImp displayUnit = new JEVisUnitImp(objectMapper.readValue(rs.getString(AttributeTable.COLUMN_DISPLAY_UNIT), JsonUnit.class));
             jatt.setDisplayUnit(JsonFactory.buildUnit(displayUnit));
         } catch (Exception ex) {
 
@@ -149,7 +150,7 @@ public class SQLtoJsonFactory {
         json.setFrom(rs.getLong(RelationshipTable.COLUMN_START));
         json.setTo(rs.getLong(RelationshipTable.COLUMN_END));
         json.setType(rs.getInt(RelationshipTable.COLUMN_TYPE));
-        
+
 
         return json;
     }
@@ -194,5 +195,4 @@ public class SQLtoJsonFactory {
 
         return json;
     }
-
 }

@@ -39,7 +39,7 @@ public class JEVisUserWS implements JEVisUser {
     public JEVisUserWS(JEVisDataSourceWS ds, JEVisObjectWS obj) throws Exception {
         this.ds = ds;
         this.obj = obj;
-        this.urm = new UserRightManager(ds, this, ds.getRelationships());
+        this.urm = new UserRightManager(ds, this);
         fetchData();
     }
 

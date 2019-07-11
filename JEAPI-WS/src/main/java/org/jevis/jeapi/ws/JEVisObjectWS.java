@@ -19,7 +19,6 @@
  */
 package org.jevis.jeapi.ws;
 
-import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -394,8 +393,8 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public void commit() throws JEVisException {
         try {
-            Gson gson = new Gson();
-            logger.trace("Commit: {}", gson.toJson(this.json));
+//            Gson gson = new Gson();
+//            logger.trace("Commit: {}", gson.toJson(this.json));
 
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.OBJECTS.PATH;
@@ -404,20 +403,24 @@ public class JEVisObjectWS implements JEVisObject {
 
             if (this.json.getId() > 0) {//update existing
                 resource += getID();
+//                resource += REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS;
+//                resource += "true";
                 update = true;
             }
 
-            StringBuffer response = this.ds.getHTTPConnection().postRequest(resource, gson.toJson(this.json));
-            //TODO: remove the relationship from the post json, like in the Webservice JSonFactory
+//            StringBuffer response = ;
+//            //TODO: remove the relationship from the post json, like in the Webservice JSonFactory
 
-            JsonObject newJson = gson.fromJson(response.toString(), JsonObject.class);
+            JsonObject newJson = this.ds.getObjectMapper().readValue(this.ds.getHTTPConnection().postRequest(resource, this.ds.getObjectMapper().writeValueAsString(this.json)).toString(), JsonObject.class);
+//            JsonObject newJson = gson.fromJson(response.toString(), JsonObject.class);
             logger.debug("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
             this.json = newJson;
 
-            this.ds.reloadRelationships();
+            /** TODO: only reload relationships of this object*/
+//            this.ds.reloadRelationships();
+            this.ds.reloadRelationships(this.json);
 
-
-            /** reload object to be sure all evens will be handelt and the cache is working correctly **/
+            /** reload object to be sure all evens will be handled and the cache is working correctly **/
             this.ds.addToObjectCache(this);
 
             if (update) {

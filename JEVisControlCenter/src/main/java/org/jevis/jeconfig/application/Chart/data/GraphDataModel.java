@@ -5,8 +5,8 @@
  */
 package org.jevis.jeconfig.application.Chart.data;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -45,6 +45,7 @@ import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -94,11 +95,16 @@ public class GraphDataModel {
     private Boolean showSum = false;
     private Boolean runUpdate = false;
     private Long finalSeconds = 60L;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
         this.graphPluginView = graphPluginView;
         this.globalAnalysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
+        /**
+         * objectMapper configuration for backwards compatibility. Can be removed in the future.
+         */
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
         if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
         if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
@@ -211,12 +217,12 @@ public class GraphDataModel {
                             String str = getCurrentAnalysis().getAttribute(CHARTS_ATTRIBUTE_NAME).getLatestSample().getValueAsString();
                             try {
                                 if (str.startsWith("[")) {
-                                    listChartsSettings = new Gson().fromJson(str, new TypeToken<List<JsonChartSettings>>() {
-                                    }.getType());
+                                    listChartsSettings = Arrays.asList(objectMapper.readValue(str, JsonChartSettings[].class));
+
 
                                 } else {
                                     listChartsSettings = new ArrayList<>();
-                                    listChartsSettings.add(new Gson().fromJson(str, JsonChartSettings.class));
+                                    listChartsSettings.add(objectMapper.readValue(str, JsonChartSettings.class));
                                 }
                             } catch (Exception e) {
                                 logger.error("Error: could not read chart settings", e);
@@ -815,17 +821,15 @@ public class GraphDataModel {
                         try {
                             if (str.startsWith("[")) {
                                 tempModel = new JsonChartDataModel();
-                                List<JsonAnalysisDataRow> listOld = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisDataRow>>() {
-                                }.getType());
+                                List<JsonAnalysisDataRow> listOld = Arrays.asList(objectMapper.readValue(str, JsonAnalysisDataRow[].class));
                                 tempModel.setListDataRows(listOld);
                             } else {
                                 try {
-                                    tempModel = new Gson().fromJson(str, new TypeToken<JsonChartDataModel>() {
-                                    }.getType());
+                                    tempModel = objectMapper.readValue(str, JsonChartDataModel.class);
                                 } catch (Exception e) {
                                     logger.error(e);
                                     tempModel = new JsonChartDataModel();
-                                    tempModel.getListAnalyses().add(new Gson().fromJson(str, JsonAnalysisDataRow.class));
+                                    tempModel.getListAnalyses().add(objectMapper.readValue(str, JsonAnalysisDataRow.class));
                                 }
                             }
                         } catch (Exception e) {
@@ -954,7 +958,7 @@ public class GraphDataModel {
                     JEVisObject obj = ds.getObject(id);
                     JEVisObject obj_dp = null;
                     if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
-                    JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
+                    JEVisUnit unit = new JEVisUnitImp(objectMapper.readValue(mdl.getUnit(), JsonUnit.class));
                     newData.setObject(obj);
 
                     newData.setColor(Color.valueOf(mdl.getColor()));
@@ -995,6 +999,8 @@ public class GraphDataModel {
                     data.put(obj.getID().toString(), newData);
                 } catch (JEVisException e) {
                     logger.error("Error: could not get chart data model", e);
+                } catch (IOException e) {
+                    logger.error("Error: could not parse unit", e);
                 }
             }
 

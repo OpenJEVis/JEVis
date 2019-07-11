@@ -19,7 +19,7 @@
       "name": "Chiller Control",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"
@@ -28,7 +28,7 @@
       "name": "Composite or single Plant",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"
@@ -37,7 +37,7 @@
       "name": "Cooling Capacity",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"
@@ -46,7 +46,7 @@
       "name": "Heat Recovery",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"
@@ -55,7 +55,7 @@
       "name": "Number of Compressors",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"
@@ -64,7 +64,7 @@
       "name": "Performance Number Compressor",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"
@@ -73,7 +73,7 @@
       "name": "Power",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"
@@ -82,7 +82,7 @@
       "name": "Refrigerant",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"
@@ -91,7 +91,7 @@
       "name": "Remark",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"
@@ -100,7 +100,7 @@
       "name": "Served Area",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"
@@ -109,7 +109,7 @@
       "name": "Standby Consumption",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"
@@ -118,7 +118,7 @@
       "name": "Type",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"
@@ -127,7 +127,7 @@
       "name": "Year and Serial Number",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Cooler"

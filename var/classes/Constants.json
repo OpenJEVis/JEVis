@@ -13,7 +13,7 @@
       "name": "Attribute",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Constants"
@@ -22,7 +22,7 @@
       "name": "Editable",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Constants"
@@ -31,7 +31,7 @@
       "name": "Entries",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Constants"

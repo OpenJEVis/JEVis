@@ -44,11 +44,12 @@ public class UserRightManager {
     private List<Long> writeGIDS;
     private List<JEVisObject> objects;
 
-    public UserRightManager(JEVisDataSource ds, JEVisUser user, List<JEVisRelationship> permissions) {
+    //    public UserRightManager(JEVisDataSource ds, JEVisUser user, List<JEVisRelationship> permissions) {
+    public UserRightManager(JEVisDataSource ds, JEVisUser user) {
         logger.trace("Init UserRightManager for user: [{}]{} {}", user.getUserID());
         this.user = user;
         this.ds = ds;
-        this.permissions = permissions;
+
     }
 
     public boolean isSysAdmin() {
@@ -56,23 +57,23 @@ public class UserRightManager {
     }
 
     public boolean canRead(long objectID) {
-        return checkMebershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_READ);
+        return checkMembershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_READ);
     }
 
     public boolean canWrite(long objectID) {
-        return checkMebershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_WRITE);
+        return checkMembershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_WRITE);
     }
 
     public boolean canCreate(long objectID) {
-        return checkMebershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_CREATE);
+        return checkMembershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_CREATE);
     }
 
     public boolean canExecute(long objectID) {
-        return checkMebershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);
+        return checkMembershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);
     }
 
     public boolean canDelete(long objectID) {
-        return checkMebershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_DELETE);
+        return checkMembershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_DELETE);
     }
 
     public boolean canDeleteClass(String jclass) {
@@ -80,6 +81,11 @@ public class UserRightManager {
     }
 
     public List<Long> getGroupsRead() {
+        try {
+            permissions = ds.getRelationships();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
         getGroupPermissions();
         return readGIDS;
     }
@@ -221,7 +227,7 @@ public class UserRightManager {
      * @param type   type of the membership(read,write,exe...)
      * @return
      */
-    private boolean checkMebershipForType(long object, int type) {
+    private boolean checkMembershipForType(long object, int type) {
         logger.trace("CheckMembership user:{} object:{} type:{}", user.getUserID(), object, type);
         if (isSysAdmin()) {
             //Sys Admins can do everything wihout questions
@@ -229,6 +235,7 @@ public class UserRightManager {
         }
 
         try {
+            permissions = ds.getRelationships();
             getGroupPermissions();
             boolean can = false;
 

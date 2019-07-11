@@ -5,6 +5,7 @@
  */
 package org.jevis.ws.sql;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
@@ -57,6 +58,7 @@ public class SQLDataSource {
     private List<JsonRelationship> allRelationships = Collections.synchronizedList(new LinkedList<>());
     private List<JsonObject> allObjects = Collections.synchronizedList(new LinkedList<>());
     private UserRightManagerForWS um;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url) throws AuthenticationException, JEVisException {
 
@@ -684,5 +686,7 @@ public class SQLDataSource {
         ALL_REL, ALL_CLASSES, ALL_OBJECT
     }
 
-
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
+    }
 }

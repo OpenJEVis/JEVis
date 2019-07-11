@@ -19,14 +19,13 @@
  */
 package org.jevis.ws.sql.tables;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonAttribute;
-import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.ws.sql.SQLDataSource;
 import org.jevis.ws.sql.SQLtoJsonFactory;
 import org.joda.time.Period;
@@ -52,10 +51,10 @@ public class AttributeTable {
     public final static String COLUMN_DISPLAY_UNIT = "displayunit";
     public final static String COLUMN_DISPLAY_RATE = "displayrate";
     private static final Logger logger = LogManager.getLogger(AttributeTable.class);
-    private final SQLDataSource _connection;
+    private final SQLDataSource ds;
 
     public AttributeTable(SQLDataSource ds) {
-        _connection = ds;
+        this.ds = ds;
     }
 
 
@@ -74,7 +73,7 @@ public class AttributeTable {
                 "left join object o on (o.id=a.object) where a.object=?;");
 
 
-        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
             ps.setLong(1, object);
 
             logger.debug("SQL {}", ps);
@@ -111,7 +110,7 @@ public class AttributeTable {
                 "left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts ) " +
                 "left join object o on (o.id=a.object)");
 
-        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
 
             logger.debug("SQL {}", ps);
             ResultSet rs = ps.executeQuery();
@@ -157,7 +156,7 @@ public class AttributeTable {
                 COLUMN_MIN_TS, COLUMN_MIN_TS, COLUMN_MAX_TS, COLUMN_MAX_TS, COLUMN_COUNT, COLUMN_COUNT);
 
 
-        try (PreparedStatement ps = _connection.getConnection().prepareStatement(selectSQL)) {
+        try (PreparedStatement ps = ds.getConnection().prepareStatement(selectSQL)) {
 
 
             ps.setLong(1, objectID);
@@ -171,7 +170,7 @@ public class AttributeTable {
                 long count = rs.getLong("count");
                 logger.debug("count: {},min: {}", count, mindate);
 
-                try (PreparedStatement psUpdate = _connection.getConnection().prepareStatement(sqlUpdate)) {
+                try (PreparedStatement psUpdate = ds.getConnection().prepareStatement(sqlUpdate)) {
                     /** values */
                     if (mindate != null) {
                         psUpdate.setTimestamp(1, mindate);
@@ -214,21 +213,21 @@ public class AttributeTable {
 
         String sql = String.format("insert into %s( %s,%s,%s,%s,%s,%s) Values ( ?,?,?,?,?,?)  ON DUPLICATE KEY UPDATE %s=?,%s=?,%s=?,%s=?", TABLE, COLUMN_DISPLAY_UNIT, COLUMN_INPUT_UNIT, COLUMN_DISPLAY_RATE, COLUMN_INPUT_RATE, COLUMN_OBJECT, COLUMN_NAME, COLUMN_DISPLAY_UNIT, COLUMN_INPUT_UNIT, COLUMN_DISPLAY_RATE, COLUMN_INPUT_RATE);
 
-        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
-            Gson gson = new Gson();
+        try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
+//            Gson gson = new Gson();
             JEVisUnit fallbackUnit = new JEVisUnitImp(Unit.ONE);
 
             if (att.getDisplayUnit() != null && att.getDisplayUnit() != null) {
-                ps.setString(1, gson.toJson(att.getDisplayUnit(), JsonUnit.class));
-                ps.setString(7, gson.toJson(att.getDisplayUnit(), JsonUnit.class));
+                ps.setString(1, ds.getObjectMapper().writeValueAsString(att.getDisplayUnit()));
+                ps.setString(7, ds.getObjectMapper().writeValueAsString(att.getDisplayUnit()));
             } else {
                 ps.setString(1, fallbackUnit.toJSON());
                 ps.setString(7, fallbackUnit.toJSON());
             }
 
             if (att.getInputUnit() != null && att.getInputUnit() != null) {
-                ps.setString(2, gson.toJson(att.getInputUnit(), JsonUnit.class));
-                ps.setString(8, gson.toJson(att.getInputUnit(), JsonUnit.class));
+                ps.setString(2, ds.getObjectMapper().writeValueAsString(att.getInputUnit()));
+                ps.setString(8, ds.getObjectMapper().writeValueAsString(att.getInputUnit()));
 
             } else {
                 ps.setString(2, fallbackUnit.toJSON());
@@ -264,6 +263,8 @@ public class AttributeTable {
             ps.executeUpdate();
         } catch (SQLException ex) {
             logger.error(ex);
+        } catch (JsonProcessingException e) {
+            logger.error(e);
         }
 
 

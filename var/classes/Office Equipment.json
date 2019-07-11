@@ -19,7 +19,7 @@
       "name": "Measurement",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Office Equipment"
@@ -28,7 +28,7 @@
       "name": "Name",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Office Equipment"
@@ -37,7 +37,7 @@
       "name": "Number",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Office Equipment"
@@ -46,7 +46,7 @@
       "name": "Power",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Office Equipment"
@@ -55,7 +55,7 @@
       "name": "Sector",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Office Equipment"
@@ -64,7 +64,7 @@
       "name": "Standby Consumption",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Office Equipment"

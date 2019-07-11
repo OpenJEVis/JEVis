@@ -79,7 +79,7 @@ public class JEConfig extends Application {
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
      */
     public static String userpassword;
-    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", JEConfig.class.getPackage().getImplementationVersion());//can be ignored
+    static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", JEConfig.class.getPackage().getImplementationVersion());//can be ignored
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
@@ -249,14 +249,11 @@ public class JEConfig extends Application {
      * @param working
      */
     public static void loadNotification(final boolean working) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                if (working) {
-                    getStage().getScene().setCursor(Cursor.WAIT);
-                } else {
-                    getStage().getScene().setCursor(Cursor.DEFAULT);
-                }
+        Platform.runLater(() -> {
+            if (working) {
+                getStage().getScene().setCursor(Cursor.WAIT);
+            } else {
+                getStage().getScene().setCursor(Cursor.DEFAULT);
             }
         });
 
@@ -269,7 +266,7 @@ public class JEConfig extends Application {
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
-        PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
+//        PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
 
@@ -332,6 +329,7 @@ public class JEConfig extends Application {
                 I18n.getInstance().loadBundle(login.getSelectedLocale());
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
+                PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
 
                 _config.setLocale(login.getSelectedLocale());
 
@@ -381,7 +379,7 @@ public class JEConfig extends Application {
                     }
                 });
 
-                GlobalToolBar toolbar = new GlobalToolBar(pluginManager);
+//                GlobalToolBar toolbar = new GlobalToolBar(pluginManager);
                 try {
                     pluginManager.addPluginsByUserSetting(_mainDS.getCurrentUser());
                 } catch (JEVisException jex) {
@@ -424,7 +422,7 @@ public class JEConfig extends Application {
 //                    logger.error("Time to get all Objects: {}ms", ((new Date()).getTime() - startAllob.getTime()));
 //                } catch (Exception ex) {
 //                }
-                System.gc();
+//                System.gc();
 
             } else {
                 System.exit(0);

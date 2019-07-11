@@ -5,8 +5,10 @@
  */
 package org.jevis.commons.dataprocessing;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -18,10 +20,8 @@ import org.jevis.commons.task.LogTaskManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 import static org.jevis.commons.dataprocessing.CleanDataObject.AttributeName.*;
 
@@ -33,6 +33,7 @@ public class CleanDataObject {
     public static final String CLASS_NAME = "Clean Data";
     public static final String VALUE_ATTRIBUTE_NAME = "Value";
     private static final Logger logger = LogManager.getLogger(CleanDataObject.class);
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final JEVisObject cleanObject;
     private JEVisObject rawDataObject;
     //attributes
@@ -357,8 +358,18 @@ public class CleanDataObject {
         if (jsonGapFillingConfig == null) {
             String gapFillingConfig = sampleHandler.getLastSample(getCleanObject(), GAP_FILLING_CONFIG.getAttributeName(), "");
             if (gapFillingConfig != null && !gapFillingConfig.equals("")) {
-                jsonGapFillingConfig = new Gson().fromJson(gapFillingConfig, new TypeToken<List<JsonGapFillingConfig>>() {
-                }.getType());
+                try {
+                    jsonGapFillingConfig = Arrays.asList(objectMapper.readValue(gapFillingConfig, JsonGapFillingConfig[].class));
+                } catch (JsonParseException e) {
+                    logger.error("Could not parse gapFillingConfig because of JsonParseException: {}", gapFillingConfig, e);
+                    return new ArrayList<>();
+                } catch (JsonMappingException e) {
+                    logger.error("Could not parse gapFillingConfig because of JsonMappingException: {}", gapFillingConfig, e);
+                    return new ArrayList<>();
+                } catch (IOException e) {
+                    logger.error("Could not parse gapFillingConfig because of IOException: {}", gapFillingConfig, e);
+                    return new ArrayList<>();
+                }
             } else {
                 return new ArrayList<>();
             }
@@ -370,8 +381,18 @@ public class CleanDataObject {
         if (jsonLimitsConfig == null) {
             String limitsConfiguration = sampleHandler.getLastSample(getCleanObject(), LIMITS_CONFIGURATION.getAttributeName(), "");
             if (limitsConfiguration != null && !limitsConfiguration.equals("")) {
-                jsonLimitsConfig = new Gson().fromJson(limitsConfiguration, new TypeToken<List<JsonLimitsConfig>>() {
-                }.getType());
+                try {
+                    jsonLimitsConfig = Arrays.asList(objectMapper.readValue(limitsConfiguration, JsonLimitsConfig[].class));
+                } catch (JsonParseException e) {
+                    logger.error("Could not parse gapFillingConfig because of JsonParseException: {}", limitsConfiguration, e);
+                    return new ArrayList<>();
+                } catch (JsonMappingException e) {
+                    logger.error("Could not parse gapFillingConfig because of JsonMappingException: {}", limitsConfiguration, e);
+                    return new ArrayList<>();
+                } catch (IOException e) {
+                    logger.error("Could not parse gapFillingConfig because of IOException: {}", limitsConfiguration, e);
+                    return new ArrayList<>();
+                }
             } else {
                 return new ArrayList<>();
             }

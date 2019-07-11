@@ -1,11 +1,10 @@
 package org.jevis.jeconfig.plugin.scada;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.json.JsonTools;
 import org.jevis.jeconfig.plugin.scada.data.ScadaAnalysisData;
 import org.jevis.jeconfig.plugin.scada.data.ScadaElementData;
 
@@ -62,14 +61,13 @@ public class SCADAAnalysis {
         title = jevisObject.getName();
 
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try {
 
             JEVisAttribute dataModel = jevisObject.getAttribute(SCADAPlugin.ATTRIBUTE_DATA_MODEL);
             JEVisSample dmSample = dataModel.getLatestSample();
             if (dmSample != null && !dmSample.getValueAsString().isEmpty()) {
 
-                ScadaAnalysisData jsonData = gson.fromJson(dmSample.getValueAsString(), ScadaAnalysisData.class);
+                ScadaAnalysisData jsonData = JsonTools.prettyObjectMapper().readValue(dmSample.getValueAsString(), ScadaAnalysisData.class);
                 jsonData.getElements().forEach(scadaElementData -> {
                     logger.info("Add element: " + scadaElementData.getType());
                     elements.add(getElement(scadaElementData));

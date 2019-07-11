@@ -22,7 +22,7 @@
     {
       "name": "Charset",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "DWD Parser"

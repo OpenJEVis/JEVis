@@ -24,7 +24,7 @@
       "name": "JEVis ID",
       "primitiveType": 0,
       "guiType": "Object Target",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Report Link"
@@ -33,7 +33,7 @@
       "name": "Optional",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Report Link"
@@ -42,7 +42,7 @@
       "name": "Template Variable Name",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Report Link"

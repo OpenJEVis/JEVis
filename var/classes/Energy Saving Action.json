@@ -23,7 +23,7 @@
       "name": "Investment Costs",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Saving Action"
@@ -32,7 +32,7 @@
       "name": "Measure",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Saving Action"
@@ -41,7 +41,7 @@
       "name": "Payback Time",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Saving Action"
@@ -50,7 +50,7 @@
       "name": "Reponsible Person",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Saving Action"
@@ -59,7 +59,7 @@
       "name": "Savings Potential Capital",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Saving Action"
@@ -68,7 +68,7 @@
       "name": "Savings Potential CO2",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Saving Action"
@@ -77,7 +77,7 @@
       "name": "Savings Potential Energy",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Saving Action"

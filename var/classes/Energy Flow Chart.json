@@ -18,7 +18,7 @@
       "name": "Created On",
       "primitiveType": 0,
       "guiType": "Date",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Flow Chart"
@@ -27,7 +27,7 @@
       "name": "Image File",
       "primitiveType": 3,
       "guiType": "File Selector",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Flow Chart"
@@ -36,7 +36,7 @@
       "name": "Original File",
       "primitiveType": 3,
       "guiType": "File Selector",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Flow Chart"

@@ -53,7 +53,7 @@
       "name": "Address",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building"
@@ -62,7 +62,7 @@
       "name": "Building Area",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building"
@@ -71,7 +71,7 @@
       "name": "Location",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building"
@@ -80,7 +80,7 @@
       "name": "Year of Construction",
       "primitiveType": 0,
       "guiType": "Date",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building"
@@ -89,7 +89,7 @@
       "name": "Workday Beginning",
       "primitiveType": 0,
       "guiType": "Time",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building"
@@ -98,7 +98,7 @@
       "name": "Workday End",
       "primitiveType": 0,
       "guiType": "Time",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building"

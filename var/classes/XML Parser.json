@@ -47,7 +47,7 @@
     {
       "name": "Date Attribute",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -55,7 +55,7 @@
     {
       "name": "Date Element",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -63,7 +63,7 @@
     {
       "name": "Date Format",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -72,7 +72,7 @@
       "name": "Date in Element",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -80,7 +80,7 @@
     {
       "name": "Decimal Separator",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -88,7 +88,7 @@
     {
       "name": "Main Attribute",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -96,7 +96,7 @@
     {
       "name": "Main Element",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -104,7 +104,7 @@
     {
       "name": "Thousand Separator",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -112,7 +112,7 @@
     {
       "name": "Time Attribute",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -120,7 +120,7 @@
     {
       "name": "Time Element",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -128,7 +128,7 @@
     {
       "name": "Time Format",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -137,7 +137,7 @@
       "name": "Time in Element",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -145,7 +145,7 @@
     {
       "name": "Value Attribute",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -153,7 +153,7 @@
     {
       "name": "Value Element",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"
@@ -162,7 +162,7 @@
       "name": "Value in Element",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "XML Parser"

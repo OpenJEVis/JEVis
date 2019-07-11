@@ -23,7 +23,7 @@
       "name": "Content of Meeting and Results",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Meeting"
@@ -32,7 +32,7 @@
       "name": "Meeting Date",
       "primitiveType": 0,
       "guiType": "Date",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Meeting"
@@ -41,7 +41,7 @@
       "name": "Meeting Participants",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Meeting"
@@ -50,7 +50,7 @@
       "name": "Meeting Time",
       "primitiveType": 0,
       "guiType": "Schedule",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Meeting"
@@ -59,7 +59,7 @@
       "name": "Minutes of Meeting",
       "primitiveType": 3,
       "guiType": "File Selector",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Meeting"

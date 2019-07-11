@@ -24,7 +24,7 @@
       "name": "Flow",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Compressor"
@@ -33,7 +33,7 @@
       "name": "Fuel",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Compressor"
@@ -42,7 +42,7 @@
       "name": "Full Load Speed",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Compressor"
@@ -51,7 +51,7 @@
       "name": "Normal Operating Preasure",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Compressor"
@@ -60,7 +60,7 @@
       "name": "Power at Full Load",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Compressor"
@@ -69,7 +69,7 @@
       "name": "Standby Consumption",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Compressor"
@@ -78,7 +78,7 @@
       "name": "Type",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Compressor"

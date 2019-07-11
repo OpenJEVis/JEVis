@@ -14,7 +14,7 @@
       "name": "Data Model",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Analysis"
@@ -23,7 +23,7 @@
       "name": "Charts",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Analysis"
@@ -32,7 +32,7 @@
       "name": "Number of Charts per Screen",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Analysis"
@@ -41,7 +41,7 @@
       "name": "Number of Horizontal Pies",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Analysis"
@@ -50,7 +50,7 @@
       "name": "Number of Horizontal Tables",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Analysis"

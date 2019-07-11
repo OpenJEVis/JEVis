@@ -13,7 +13,7 @@
       "name": "Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Calculation"
@@ -22,7 +22,7 @@
       "name": "Expression",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Calculation"
@@ -31,7 +31,7 @@
       "name": "DIV0 Handling",
       "primitiveType": 0,
       "guiType": "String Enum",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Calculation"
@@ -40,7 +40,7 @@
       "name": "Static Value",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Calculation"
@@ -49,7 +49,7 @@
       "name": "All Zero Value",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Calculation"
