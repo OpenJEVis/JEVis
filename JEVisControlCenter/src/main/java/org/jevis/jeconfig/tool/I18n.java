@@ -44,7 +44,7 @@ public class I18n {
         try {
             String s = "JEVisCC_" + local.getLanguage() + ".properties";
 
-            InputStream resourceAsStream = ClassLoader.getSystemClassLoader().getResourceAsStream(s);
+            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(s);
             if (resourceAsStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8);
                 reader = new BufferedReader(inputStreamReader);
