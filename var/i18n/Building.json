@@ -2,7 +2,9 @@
   "jevisclass": "Building",
   "names": {
     "de": "Gebäude",
-    "ru": "Building",
+    "ru": "постройки",
+    "uk": "Будівля",
+    "th": "อาคาร",
     "en": "Building"
   },
   "descriptions": {},
@@ -11,12 +13,16 @@
       "type": "Address",
       "descriptions": {
         "de": "Postanschrift des Gebäudes",
-        "ru": "Postal address of the building",
+        "ru": "Почтовый адрес здания",
+        "uk": "Поштова адреса будівлі",
+        "th": "ที่อยู่ทางไปรษณีย์ของอาคาร",
         "en": "Postal address of the building"
       },
       "names": {
         "de": "Adresse",
-        "ru": "Address",
+        "ru": "Адрес",
+        "uk": "Адреса",
+        "th": "ที่อยู่",
         "en": "Address"
       }
     },
@@ -24,12 +30,16 @@
       "type": "Building Area",
       "descriptions": {
         "de": "Grundfläche des Gebäudes",
-        "ru": "Floor space of the building",
+        "ru": "Площадь здания",
+        "uk": "Опалювальна площа",
+        "th": "ฐานของอาคา",
         "en": "Floor space of the building"
       },
       "names": {
         "de": "Gebäudefläche",
-        "ru": "Building Area",
+        "ru": "строительная площадка",
+        "uk": "Будівельна площа",
+        "th": "พื้นที่อาคาร",
         "en": "Building Area"
       }
     },
@@ -37,12 +47,16 @@
       "type": "Location",
       "descriptions": {
         "de": "GPS-Position des Gebäudes",
-        "ru": "GPS position of the building",
+        "ru": "GPS-положение здания",
+        "uk": "GPS координати будівлі",
+        "th": "ตำแหน่ง GPS ของอาคาร",
         "en": "GPS position of the building"
       },
       "names": {
         "de": "GPS-Position",
-        "ru": "GPS Position",
+        "ru": "GPS-положение",
+        "uk": "GPS координати",
+        "th": "จีพีเอสตำแหน่ง",
         "en": "GPS Position"
       }
     },
@@ -50,12 +64,16 @@
       "type": "Year of Construction",
       "descriptions": {
         "de": "Baujahr oder Jahr der letzten Modernisierung des Gebäudes",
-        "ru": "Year of construction or year of the last retrofitting of the building",
+        "ru": "год постройки или последняя модернизация здания",
+        "uk": "Рік побудови або реконструкції",
+        "th": "ปีของการก่อสร้างหรือปีของการดัดแปลงครั้งสุดท้ายของอาคาร",
         "en": "Year of construction or year of the last retrofitting of the building"
       },
       "names": {
         "de": "Baujahr",
-        "ru": "Year of Construction",
+        "ru": "год постройки",
+        "uk": "Рік побудови",
+        "th": "ปีที่ก่อสร้าง",
         "en": "Year of Construction"
       }
     },
@@ -63,12 +81,16 @@
       "type": "Workday Beginning",
       "descriptions": {
         "de": "Der Tagesbeginn am Standort",
-        "ru": "The workday at this site starts at this time",
+        "ru": "Начало дня в точке расположения",
+        "uk": "Робочий день починається у цей час",
+        "th": "วันทำงานของไซต์นี้เริ่มต้นในเวลานี้",
         "en": "The workday at this site starts at this time"
       },
       "names": {
         "de": "Tagesbeginn",
-        "ru": "Workday Beginning",
+        "ru": "начало дня",
+        "uk": "Початок робочого дня",
+        "th": "วันทำงานเริ่มต้น",
         "en": "Workday Beginning"
       }
     },
@@ -76,12 +98,16 @@
       "type": "Workday End",
       "descriptions": {
         "de": "Ende des Tages am Standort",
-        "ru": "The workday at this site ends at this time",
+        "ru": "Конец дня на площадке",
+        "uk": "Робочий день закінчується у цей час",
+        "th": "วันทำงานของไซต์นี้สิ้นสุดในเวลานี้",
         "en": "The workday at this site ends at this time"
       },
       "names": {
         "de": "Tagesende",
-        "ru": "Workday End",
+        "ru": "конец дня",
+        "uk": "Кінець робочого дня",
+        "th": "สิ้นสุดวันทำงาน",
         "en": "Workday End"
       }
     }
