@@ -19,7 +19,6 @@
  */
 package org.jevis.jeapi.ws;
 
-import com.google.gson.Gson;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -423,10 +422,11 @@ public class JEVisClassWS implements JEVisClass {
                     + REQUEST.CLASSES.PATH
                     + getName();
 
-            Gson gson = new Gson();
-            StringBuffer response = ds.getHTTPConnection().postRequest(resource, gson.toJson(json));
+//            Gson gson = new Gson();
 
-            this.json = gson.fromJson(response.toString(), JsonJEVisClass.class);
+            StringBuffer response = ds.getHTTPConnection().postRequest(resource, this.ds.getObjectMapper().writeValueAsString(json));
+
+            this.json = this.ds.getObjectMapper().readValue(response.toString(), JsonJEVisClass.class);
 
             if (iconChanged) {
                 commitIconToWS();

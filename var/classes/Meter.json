@@ -18,7 +18,7 @@
       "name": "Conversion Factor",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Meter"
@@ -27,7 +27,7 @@
       "name": "Current Transformer",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Meter"
@@ -36,7 +36,7 @@
       "name": "Installation Date",
       "primitiveType": 0,
       "guiType": "Date",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Meter"
@@ -45,7 +45,7 @@
       "name": "Interface",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Meter"
@@ -54,7 +54,7 @@
       "name": "Type",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Meter"
@@ -63,7 +63,7 @@
       "name": "Voltage Transformer",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Meter"

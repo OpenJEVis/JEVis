@@ -20,8 +20,9 @@
  */
 package org.jevis.rest;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.*;
@@ -40,6 +41,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -54,6 +56,7 @@ public class ResourceSample {
     private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
     private SQLDataSource ds = null;
     private List<JsonSample> list;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * Get the samples from an object/Attribute
@@ -331,48 +334,62 @@ public class ResourceSample {
             @PathParam("attribute") String attribute,
             String input) {
 
-        try {
-            ds = new SQLDataSource(httpHeaders, request, url);
+        if (input != null && input.length() > 0) {
+            try {
+                ds = new SQLDataSource(httpHeaders, request, url);
 
-            JsonObject object = ds.getObject(id);
+                JsonObject object = ds.getObject(id);
 
-            if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
-                if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
-                    throw new JEVisException("permission denied", 3022);
+                if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
+                    if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
+                        throw new JEVisException("permission denied", 3022);
+                    }
+                } else {
+                    ds.getUserManager().canWrite(object);//can throw exception
                 }
-            } else {
-                ds.getUserManager().canWrite(object);//can throw exception
-            }
 
-            if (object.getJevisClass().equals("User") && !ds.getUserManager().isSysAdmin()) {
-                if (attribute.equals("Sys Admin")) {
-                    throw new JEVisException("permission denied", 3023);
+                if (object.getJevisClass().equals("User") && !ds.getUserManager().isSysAdmin()) {
+                    if (attribute.equals("Sys Admin")) {
+                        throw new JEVisException("permission denied", 3023);
+                    }
                 }
-            }
 
-            List<JsonAttribute> atts = ds.getAttributes(id);
-            for (JsonAttribute att : atts) {
-                if (att.getType().equals(attribute)) {
-                    List<JsonSample> samples = new Gson().fromJson(input, new TypeToken<List<JsonSample>>() {
-                    }.getType());
-                    JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
-                    int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
-                    samples.clear();
-                    samples = null;
+                List<JsonAttribute> atts = ds.getAttributes(id);
+                for (JsonAttribute att : atts) {
+                    if (att.getType().equals(attribute)) {
+//                    List<JsonSample> samples = new Gson().fromJson(input, new TypeToken<List<JsonSample>>() {
+//                    }.getType());
+                        List<JsonSample> samples = new ArrayList<>(Arrays.asList(objectMapper.readValue(input, JsonSample[].class)));
+                        JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
+                        int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
+                        samples.clear();
+//                    samples = null;
 
-                    return Response.status(Status.CREATED).build();
+                        return Response.status(Status.CREATED).build();
+                    }
                 }
+
+                return Response.status(Status.NOT_MODIFIED).build();
+
+            } catch (AuthenticationException ex) {
+                return Response.status(Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+            } catch (JsonParseException jex) {
+                logger.error("Json parse exception. Error while posting sample(s) ", jex);
+                return Response.status(Status.BAD_REQUEST).build();
+            } catch (JsonMappingException jex) {
+                logger.error("Json mapping exception. Error while posting sample(s) ", jex);
+                return Response.status(Status.BAD_REQUEST).build();
+            } catch (IOException jex) {
+                logger.error("IO exception. Error while posting sample(s) ", jex);
+                return Response.status(Status.BAD_REQUEST).build();
+            } catch (JEVisException jex) {
+                logger.catching(jex);
+                return Response.serverError().build();
+            } finally {
+                Config.CloseDS(ds);
             }
-
-            return Response.status(Status.NOT_MODIFIED).build();
-
-        } catch (JEVisException jex) {
-            jex.printStackTrace();
-            return Response.serverError().build();
-        } catch (AuthenticationException ex) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
-        } finally {
-            Config.CloseDS(ds);
+        } else {
+            return Response.status(Status.NO_CONTENT).build();
         }
     }
 

@@ -103,10 +103,14 @@ public class ImportStep implements ProcessStep {
         for (int i = 0; i < samples.size(); i += perChunk) {
             if ((i + perChunk) < samples.size()) {
                 List<JEVisSample> chunk = samples.subList(i, i + perChunk);
-                attribute.addSamples(chunk);
+                if (chunk.size() > 0) {
+                    attribute.addSamples(chunk);
+                }
             } else {
                 List<JEVisSample> chunk = samples.subList(i, samples.size());
-                attribute.addSamples(chunk);
+                if (chunk.size() > 0) {
+                    attribute.addSamples(chunk);
+                }
                 break;
             }
         }

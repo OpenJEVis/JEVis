@@ -28,7 +28,7 @@
       "name": "Action Plan File",
       "primitiveType": 3,
       "guiType": "File Selector",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Action Plan"
@@ -37,7 +37,7 @@
       "name": "Participants",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Action Plan"

@@ -19,7 +19,7 @@
       "name": "Authenticator",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "EMail Plugin"
@@ -28,7 +28,7 @@
       "name": "Password",
       "primitiveType": 0,
       "guiType": "Password",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "User"
@@ -37,7 +37,7 @@
       "name": "Port",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "EMail Plugin"
@@ -46,7 +46,7 @@
       "name": "SMTP Server",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "EMail Plugin"
@@ -55,7 +55,7 @@
       "name": "Server User Name",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "EMail Plugin"
@@ -64,7 +64,7 @@
       "name": "Transport Security",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "EMail Plugin"

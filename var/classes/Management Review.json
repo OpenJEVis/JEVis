@@ -18,7 +18,7 @@
       "name": "Content",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Management Review"
@@ -27,7 +27,7 @@
       "name": "Management Review File",
       "primitiveType": 3,
       "guiType": "File Selector",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Management Review"
@@ -36,7 +36,7 @@
       "name": "Management Review PDF",
       "primitiveType": 3,
       "guiType": "File Selector",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Management Review"
@@ -45,7 +45,7 @@
       "name": "Participants",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Management Review"
@@ -54,7 +54,7 @@
       "name": "Review Date",
       "primitiveType": 0,
       "guiType": "Date",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Management Review"

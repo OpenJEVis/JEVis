@@ -33,7 +33,7 @@
       "name": "Attachments",
       "primitiveType": 3,
       "guiType": "File Selector",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "E-Mail Notification"
@@ -42,7 +42,7 @@
       "name": "Blind Carbon Copys",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "E-Mail Notification"
@@ -51,7 +51,7 @@
       "name": "Carbon Copys",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "E-Mail Notification"
@@ -60,7 +60,7 @@
       "name": "Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "E-Mail Notification"
@@ -69,7 +69,7 @@
       "name": "HTML E-Mail",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "E-Mail Notification"
@@ -78,7 +78,7 @@
       "name": "Message",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "E-Mail Notification"
@@ -87,7 +87,7 @@
       "name": "Recipients",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "E-Mail Notification"
@@ -96,7 +96,7 @@
       "name": "Subject",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "E-Mail Notification"

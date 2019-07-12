@@ -13,7 +13,7 @@
       "name": "Output",
       "primitiveType": 0,
       "guiType": "Attribute Target",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Output"

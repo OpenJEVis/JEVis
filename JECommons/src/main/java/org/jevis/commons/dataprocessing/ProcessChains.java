@@ -19,13 +19,15 @@
  */
 package org.jevis.commons.dataprocessing;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.function.*;
+import org.jevis.commons.json.JsonTools;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +42,7 @@ public class ProcessChains {
     public static final String CLASS_PROCESS_CHAIN = "Process Chain";
     public static final String ATTRIBUTE_DATA = "Data";
 
-    public static Process getProcessChain(JEVisDataSource ds, String name) throws JEVisException {
+    public static Process getProcessChain(JEVisDataSource ds, String name) throws JEVisException, IOException {
 
         List<JEVisObject> pcs = ds.getObjects(ds.getJEVisClass(CLASS_PROCESS_CHAIN), true);
         for (JEVisObject obj : pcs) {
@@ -59,7 +61,7 @@ public class ProcessChains {
      * @return
      * @throws JEVisException
      */
-    public static Process getProcessChain(JEVisObject object) throws JEVisException {
+    public static Process getProcessChain(JEVisObject object) throws JEVisException, IOException {
         if (!object.getJEVisClass().getName().equalsIgnoreCase(CLASS_PROCESS_CHAIN)) {
             throw new IllegalArgumentException("Object is not from the Class " + CLASS_PROCESS_CHAIN);
         }
@@ -67,10 +69,10 @@ public class ProcessChains {
         JEVisAttribute taskAttribute = object.getAttribute(ATTRIBUTE_DATA);
         String jsonString = taskAttribute.getLatestSample().getValueAsString();
 
-        Gson gson = new Gson();
-        JsonProcess jTask = gson.fromJson(jsonString, JsonProcess.class);
-        Process newTask = new BasicProcess(object.getDataSource(), jTask, null, object);
-        return newTask;
+//        Gson gson = new Gson();
+//        JsonProcess jTask = gson.fromJson(jsonString, JsonProcess.class);
+        JsonProcess jTask = JsonTools.objectMapper().readValue(jsonString, JsonProcess.class);
+        return new BasicProcess(object.getDataSource(), jTask, null, object);
     }
 
     public static Process BuildProcessChain(JEVisDataSource ds, String functionName, String id, Process parent) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
@@ -256,13 +258,13 @@ public class ProcessChains {
      * @param task
      * @return
      */
-    public static String processChainToJSon(Process task) {
+    public static String processChainToJSon(Process task) throws JsonProcessingException {
         BasicProcess json = new BasicProcess();
         json.setFunction(new NullFunction(ManipulationMode.NONE, AggregationPeriod.NONE));
 //        Gson gson = new GsonBuilder().create();
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        return gson.toJson(new JsonProcess(task), JsonProcess.class);
+        return JsonTools.prettyObjectMapper().writeValueAsString(new JsonProcess(task));
     }
 
     /**
@@ -272,11 +274,11 @@ public class ProcessChains {
      * @param json
      * @return
      */
-    public static Process jsonToProcessChain(JEVisDataSource ds, String json) {
-        JsonProcess jTask = new Gson().fromJson(json, JsonProcess.class);
-        Process newTask = new BasicProcess(ds, jTask, null);
+    public static Process jsonToProcessChain(JEVisDataSource ds, String json) throws IOException {
+//        JsonProcess jTask = new Gson().fromJson(json, JsonProcess.class);
+        JsonProcess jTask = JsonTools.objectMapper().readValue(json, JsonProcess.class);
 
-        return newTask;
+        return new BasicProcess(ds, jTask, null);
     }
 
     /**

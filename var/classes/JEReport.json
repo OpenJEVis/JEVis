@@ -19,7 +19,7 @@
       "name": "Notification File",
       "primitiveType": 3,
       "guiType": "File Selector",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEReport"
@@ -28,7 +28,7 @@
       "name": "Notification ID",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEReport"
@@ -37,7 +37,7 @@
       "name": "Enable",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEReport"
@@ -45,7 +45,7 @@
     {
       "name": "Max Number Threads",
       "primitiveType": 2,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEReport"
@@ -53,7 +53,7 @@
     {
       "name": "Cycle Time",
       "primitiveType": 2,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEReport"
@@ -61,7 +61,7 @@
     {
       "name": "Status",
       "primitiveType": 2,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEReport"
@@ -70,7 +70,7 @@
       "name": "Template",
       "primitiveType": 3,
       "guiType": "File Selector",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Report"

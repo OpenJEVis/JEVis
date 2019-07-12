@@ -7,7 +7,6 @@ package org.jevis.commons.datatype.scheduler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import org.jevis.commons.datatype.scheduler.cron.CronRule;
 import org.jevis.commons.datatype.scheduler.cron.CronScheduler;
 import org.jevis.commons.json.JsonScheduler;
@@ -170,7 +169,7 @@ public class SchedulerHandler {
         if (obj != null) {
             if (obj instanceof String) {
                 String json = (String) obj;
-                jsonObj = new Gson().fromJson(json, JsonScheduler.class);
+                jsonObj = objectMapper.readValue(json, JsonScheduler.class);
             } else if (obj instanceof File) {
                 File jsonFile = (File) obj;
                 jsonObj = objectMapper.readValue(jsonFile, JsonScheduler.class);

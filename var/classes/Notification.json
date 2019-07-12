@@ -13,7 +13,7 @@
       "name": "Sent Time",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Notification"

@@ -18,7 +18,7 @@
       "name": "Device ID",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Station"
@@ -27,7 +27,7 @@
       "name": "IP Address",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Station"
@@ -36,7 +36,7 @@
       "name": "SubNet Mask",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Station"
@@ -45,7 +45,7 @@
       "name": "Type",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Station"

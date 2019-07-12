@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
@@ -40,13 +38,16 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
+import org.jevis.commons.json.JsonTools;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 import org.joda.time.DateTime;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.jevis.commons.constants.JEDataProcessorConstants.*;
@@ -208,17 +209,16 @@ public class GapFillingEditor implements AttributeEditor {
      * @param jsonstring
      * @return
      */
-    private List<JsonGapFillingConfig> parseJson(String jsonstring) {
+    private List<JsonGapFillingConfig> parseJson(String jsonstring) throws IOException {
         List<JsonGapFillingConfig> list = new ArrayList<>();
 
 
         if (jsonstring.endsWith("]")) {
-            list = new Gson().fromJson(jsonstring, new TypeToken<List<JsonGapFillingConfig>>() {
-            }.getType());
-        } else {
-            list.add(new Gson().fromJson(jsonstring, JsonGapFillingConfig.class));
-        }
+            list = Arrays.asList(JsonTools.objectMapper().readValue(jsonstring, JsonGapFillingConfig[].class));
 
+        } else {
+            list.add(JsonTools.objectMapper().readValue(jsonstring, JsonGapFillingConfig.class));
+        }
 
         return list;
     }
@@ -230,7 +230,11 @@ public class GapFillingEditor implements AttributeEditor {
      */
     private void show() throws JEVisException {
         if (_lastSample != null && !_lastSample.getValueAsString().isEmpty()) {
-            _listConfig = parseJson(_lastSample.getValueAsString());
+            try {
+                _listConfig = parseJson(_lastSample.getValueAsString());
+            } catch (IOException e) {
+                logger.error("Could not parse Json: {}", _lastSample.getValueAsString(), e);
+            }
         } else {
             _listConfig = createDefaultConfig();
         }

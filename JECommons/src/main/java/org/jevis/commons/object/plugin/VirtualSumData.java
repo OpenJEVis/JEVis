@@ -19,8 +19,8 @@
  */
 package org.jevis.commons.object.plugin;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -55,16 +55,18 @@ public class VirtualSumData {
     private Operator _operator;
     private String _version;
     private List<Input> _inputs;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public VirtualSumData() {
         _operator = Operator.PLUS;
         _version = "1";
         _inputs = new ArrayList<>();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
     public VirtualSumData(JEVisObject obj) throws JEVisException {
         String json = obj.getAttribute("Formula").getLatestSample().getValueAsString();
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
     }
 

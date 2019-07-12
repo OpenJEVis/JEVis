@@ -33,7 +33,7 @@
       "name": "Index",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "VIDA350 Channel"
@@ -42,7 +42,7 @@
       "name": "Target",
       "primitiveType": 0,
       "guiType": "Attribute Target",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "VIDA350 Channel"

@@ -24,7 +24,7 @@
       "name": "Domain",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Heater"
@@ -33,7 +33,7 @@
       "name": "Standby Consumption",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Heater"
@@ -42,7 +42,7 @@
       "name": "Type",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Heater"
@@ -51,7 +51,7 @@
       "name": "Year of Construction",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Heater"

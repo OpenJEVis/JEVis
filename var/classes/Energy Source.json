@@ -28,7 +28,7 @@
       "name": "CO2 Emission Factor",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Source"

@@ -20,6 +20,7 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author broder
@@ -118,7 +119,7 @@ public class Launcher extends AbstractCliApp {
     }
 
     private void runDataSource(JEVisObject object, DataSource dataSource, boolean finish) {
-        runningJobs.put(object.getID(), "true");
+        runningJobs.put(object.getID(), DateTime.now().toString());
         LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
 
         logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
@@ -200,7 +201,31 @@ public class Launcher extends AbstractCliApp {
                 logger.info("Service is disabled.");
             }
         } else {
-            logger.info("Still running queue. Going to sleep again.");
+            int size = runningJobs.size();
+            AtomicInteger overTime = new AtomicInteger(0);
+            runningJobs.forEach((key, value) -> {
+                try {
+                    DateTime start = new DateTime(value);
+                    DateTime now = DateTime.now();
+                    SampleHandler sampleHandler = new SampleHandler();
+                    Long maxTime = sampleHandler.getLastSample(ds.getObject(key), "Max thread time", 900000L);
+                    if (now.getMillis() - start.getMillis() > maxTime) {
+                        overTime.getAndIncrement();
+                    }
+
+                } catch (Exception e) {
+                    logger.error("Could not parse datetime for {}", key, e);
+                }
+            });
+
+            if (size == overTime.get()) {
+                forkJoinPool.shutdownNow();
+                plannedJobs.clear();
+                runningJobs.clear();
+                runServiceHelp();
+            } else {
+                logger.info("Still running queue. Going to sleep again.");
+            }
         }
 
         try {

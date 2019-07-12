@@ -23,7 +23,7 @@
       "name": "Password",
       "primitiveType": 0,
       "guiType": "Password",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "EMail Server"
@@ -32,7 +32,7 @@
       "name": "SSL",
       "primitiveType": 0,
       "guiType": "String Enum",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "EMail Server"
@@ -40,7 +40,7 @@
     {
       "name": "User",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "EMail Server"

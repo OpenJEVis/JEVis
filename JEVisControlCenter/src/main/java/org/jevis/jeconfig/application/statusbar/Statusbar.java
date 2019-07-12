@@ -53,14 +53,14 @@ public class Statusbar extends ToolBar {
     private static final Logger logger = LogManager.getLogger(Statusbar.class);
 
     private final int ICON_SIZE = 20;
-    private final int WAIT_TIME = 2000;//60000;//MSEC
+    private final int WAIT_TIME = 3000;//60000;//MSEC
     private final int RETRY_COUNT = 720;//count
     public BooleanProperty connectedProperty = new SimpleBooleanProperty(true);
-    Label userName = new Label("");
-    Label onlineInfo = new Label("Online");
-    HBox conBox = new HBox();
-    ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
-    ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
+    private Label userName = new Label("");
+    private Label onlineInfo = new Label("Online");
+    private HBox conBox = new HBox();
+    private ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
+    private ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
     private JEVisDataSource _ds;
     private String lastUsername = "";
     private String lastPassword = "";

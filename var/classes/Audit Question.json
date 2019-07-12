@@ -38,7 +38,7 @@
       "name": "Audit Observation",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Audit Question"
@@ -47,7 +47,7 @@
       "name": "Evaluation 000 points",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Audit Question"
@@ -56,7 +56,7 @@
       "name": "Evaluation 025 points",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Audit Question"
@@ -65,7 +65,7 @@
       "name": "Evaluation 050 points",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Audit Question"
@@ -74,7 +74,7 @@
       "name": "Evaluation 075 points",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Audit Question"
@@ -83,7 +83,7 @@
       "name": "Evaluation 100 points",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Audit Question"
@@ -92,7 +92,7 @@
       "name": "Norm Chapter",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Audit Question"
@@ -101,7 +101,7 @@
       "name": "Proposed Measures",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Audit Question"
@@ -110,7 +110,7 @@
       "name": "Question",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Audit Question"

@@ -19,8 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
@@ -41,11 +40,14 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.json.JsonLimitsConfig;
+import org.jevis.commons.json.JsonTools;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.jevis.commons.constants.JEDataProcessorConstants.*;
@@ -202,17 +204,15 @@ public class LimitEditor implements AttributeEditor {
      * @param jsonstring
      * @return
      */
-    private List<JsonLimitsConfig> parseJson(String jsonstring) {
+    private List<JsonLimitsConfig> parseJson(String jsonstring) throws IOException {
         List<JsonLimitsConfig> list = new ArrayList<>();
 
 
         if (jsonstring.endsWith("]")) {
-            list = new Gson().fromJson(jsonstring, new TypeToken<List<JsonLimitsConfig>>() {
-            }.getType());
+            list = Arrays.asList(JsonTools.objectMapper().readValue(jsonstring, JsonLimitsConfig[].class));
         } else {
-            list.add(new Gson().fromJson(jsonstring, JsonLimitsConfig.class));
+            list.add(JsonTools.objectMapper().readValue(jsonstring, JsonLimitsConfig.class));
         }
-
 
         return list;
     }
@@ -224,7 +224,11 @@ public class LimitEditor implements AttributeEditor {
      */
     private void show() throws JEVisException {
         if (_lastSample != null && !_lastSample.getValueAsString().isEmpty()) {
-            _listConfig = parseJson(_lastSample.getValueAsString());
+            try {
+                _listConfig = parseJson(_lastSample.getValueAsString());
+            } catch (IOException e) {
+                logger.error("Could not parse Json: {}", _lastSample.getValueAsString(), e);
+            }
         } else {
             _listConfig = createDefaultConfig();
         }

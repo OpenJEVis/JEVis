@@ -7,7 +7,6 @@ package org.jevis.soapdatasource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.commons.driver.DataSourceHelper;
 import org.jevis.commons.driver.Importer;
 import org.jevis.commons.driver.Parser;
@@ -25,8 +24,9 @@ import javax.xml.transform.dom.DOMSource;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -37,8 +37,8 @@ public class SOAPDataSource {
 
     private String _host;
     private Integer _port;
-    private Integer _connectionTimeout;
-    private Integer _readTimeout;
+    private Integer _connectionTimeout = 30;
+    private Integer _readTimeout = 60;
     private String _userName;
     private String _password;
     private Boolean _ssl = false;
@@ -56,6 +56,7 @@ public class SOAPDataSource {
     public List<InputStream> sendSampleRequest(Channel channel) {
         String uri = "";
         List<InputStream> answer = new ArrayList<InputStream>();
+        javax.xml.soap.SOAPConnection conn = null;
         try {
             String path = channel.getPath();
             DateTime lastReadout = channel.getLastReadout();
@@ -85,21 +86,32 @@ public class SOAPDataSource {
                 uri = uri.replace("http", "https");
             }
             logger.info("SOAP Uri: " + uri);
-            URL serverURL = new URL(uri);
+            URL serverURL = new URL(new URL(uri),
+                    "",
+                    new URLStreamHandler() {
+                        @Override
+                        protected URLConnection openConnection(URL url) throws IOException {
+                            URL target = new URL(url.toString());
+                            URLConnection connection = target.openConnection();
+                            // Connection settings
+                            connection.setConnectTimeout(_connectionTimeout * 1000); // 10 sec
+                            connection.setReadTimeout(_readTimeout * 1000); // 1 min
+                            return (connection);
+                        }
+                    });
+
 
 //            DateTimeFormatter fmt = null;
 //            if (_dateFormat != null && !_dateFormat.equals("")) {
 //                fmt = DateTimeFormat.forPattern(_dateFormat);
 //            }
-            List<SOAPMessage> soapResponses = new LinkedList<SOAPMessage>();
 
-            String templateQuery = template;
-            boolean containsToken = DataSourceHelper.containsTokens(templateQuery);
+            boolean containsToken = DataSourceHelper.containsTokens(template);
             String realQuery = null;
             if (containsToken) {
-                realQuery = DataSourceHelper.replaceDateFrom(templateQuery, lastReadout, _timezone);
+                realQuery = DataSourceHelper.replaceDateFrom(template, lastReadout, _timezone);
             } else {
-                realQuery = templateQuery;
+                realQuery = template;
             }
 
             Document doc = buildDocument(realQuery);
@@ -108,29 +120,33 @@ public class SOAPDataSource {
             if (_ssl) {
                 DataSourceHelper.doTrustToCertificates();
             }
-            javax.xml.soap.SOAPConnection conn = SOAPConnectionFactory.newInstance().createConnection();
+            conn = SOAPConnectionFactory.newInstance().createConnection();
             SOAPMessage call = conn.call(buildSOAPMessage, serverURL);
-            soapResponses.add(call);
+            SOAPFault fault = call.getSOAPBody().getFault();
+
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             call.writeTo(out);
             InputStream input = new ByteArrayInputStream(out.toByteArray());
 
-            //        soapRequests.add(buildSOAPMessage);
-            //        for (int i = 0; i < soapRequests.size(); i++) {
-            //        }
-            //        }
-//            inputHandler.add(InputHandlerFactory.getInputConverter(soapResponses));
             answer.add(input);
-        } catch (JEVisException ex) {
-            logger.error("SOAP Uri: " + uri + " and host: " + _host);
-            logger.error(ex);
         } catch (MalformedURLException ex) {
-            logger.error("SOAP Uri: " + uri + " and host: " + _host);
-            logger.error(ex);
+            logger.error("Malformed URL exception. SOAP Uri: {}  and host: {}", uri, _host, ex);
+        } catch (IOException ex) {
+            logger.error("IO exception. SOAP Uri: {}  and host: {}", uri, _host, ex);
+        } catch (UnsupportedOperationException ex) {
+            logger.error("Unsupported operation exception. SOAP Uri: {}  and host: {}", uri, _host, ex);
+        } catch (SOAPException ex) {
+            logger.error("SOAP exception. SOAP Uri: {}  and host: {}", uri, _host, ex);
         } catch (Exception ex) {
-            logger.error("SOAP Uri: " + uri);
-            logger.error("SOAP Uri: " + uri + " and host: " + _host);
-            logger.error(ex);
+            logger.error("Exception. SOAP Uri: {}  and host: {}", uri, _host, ex);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SOAPException e) {
+                    logger.error(e);
+                }
+            }
         }
         return answer;
     }
@@ -143,15 +159,13 @@ public class SOAPDataSource {
             DocumentBuilder builder = factory.newDocumentBuilder();
             document = builder.parse(new InputSource(
                     new StringReader(s)));
+            return document;
         } catch (SAXException ex) {
-            logger.error("Host: " + _host);
-            logger.error(ex);
+            logger.error("SAX exception. Host: {}", _host, ex);
         } catch (IOException ex) {
-            logger.error("Host: " + _host);
-            logger.error(ex);
+            logger.error("IO exception. Host: {}", _host, ex);
         } catch (ParserConfigurationException ex) {
-            logger.error("Host: " + _host);
-            logger.error(ex);
+            logger.error("Parser configuration exception. Host: {}", _host, ex);
         } finally {
             return document;
         }
@@ -176,8 +190,13 @@ public class SOAPDataSource {
             logger.error(ex);
         }
 
-        MimeHeaders headers = message.getMimeHeaders();
-        headers.addHeader("SOAPAction", "\"\"");
+        MimeHeaders headers = null;
+        if (message != null) {
+            headers = message.getMimeHeaders();
+        }
+        if (headers != null) {
+            headers.addHeader("SOAPAction", "\"\"");
+        }
 
         return message;
     }

@@ -1,7 +1,8 @@
 package org.jevis.commons.export;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -109,7 +110,9 @@ public class ExportMaster {
     public void export(File outputfile) throws IOException {
         //zip Files...
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         logger.info("Export object count: " + metaObjects.size());
         for (Map.Entry<String, MetaObject> mo : metaObjects.entrySet()) {
             MetaObject metaObject = mo.getValue();
@@ -118,7 +121,8 @@ public class ExportMaster {
             logger.info("write File: " + newFile);
             try (Writer writer = new FileWriter(newFile)) {
 //                Gson gson = new GsonBuilder().create();
-                gson.toJson(mo.getValue(), writer);
+                objectMapper.writeValue(writer, mo.getValue());
+//                gson.toJson(mo.getValue(), writer);
             }
 
             //write Samples

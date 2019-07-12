@@ -1,7 +1,8 @@
 package org.jevis.commons.alarm;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -15,7 +16,9 @@ import org.jevis.commons.json.JsonAlarmConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CleanDataAlarm {
@@ -31,6 +34,7 @@ public class CleanDataAlarm {
     private List<JsonAlarmConfig> jsonList = new ArrayList<>();
     private AlarmType alarmType;
     private List<UsageSchedule> usageSchedules = new ArrayList<>();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public CleanDataAlarm(JEVisObject cleanDataObject) throws JEVisException {
         this.cleanDataObject = cleanDataObject;
@@ -95,14 +99,22 @@ public class CleanDataAlarm {
                 if (latestSample != null) {
                     String latestSampleString = latestSample.getValueAsString();
                     if (latestSampleString.startsWith("[")) {
-                        jsonList = new Gson().fromJson(latestSampleString, new TypeToken<List<JsonAlarmConfig>>() {
-                        }.getType());
+//                        jsonList = new Gson().fromJson(latestSampleString, new TypeToken<List<JsonAlarmConfig>>() {
+//                        }.getType());
+                        jsonList = Arrays.asList(objectMapper.readValue(latestSampleString, JsonAlarmConfig[].class));
                     } else {
-                        jsonList.add(new Gson().fromJson(latestSampleString, JsonAlarmConfig.class));
+//                        jsonList.add(new Gson().fromJson(latestSampleString, JsonAlarmConfig.class));
+                        jsonList.add(objectMapper.readValue(latestSampleString, JsonAlarmConfig.class));
                     }
                 }
             }
         } catch (JEVisException e) {
+            e.printStackTrace();
+        } catch (JsonParseException e) {
+            e.printStackTrace();
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
