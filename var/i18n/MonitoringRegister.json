@@ -1,8 +1,10 @@
 {
   "jevisclass": "Monitoring Register",
   "names": {
-    "de": "Monitoring Register",
-    "ru": "Monitoring Register",
+    "de": "Überwachungsverzeichnis",
+    "ru": "Регистр мониторинга",
+    "uk": "Реєстр моніторингу",
+    "th": "ตรวจสอบทะเบียน",
     "en": "Monitoring Register"
   },
   "descriptions": {},
