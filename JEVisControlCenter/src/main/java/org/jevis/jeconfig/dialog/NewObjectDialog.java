@@ -259,6 +259,7 @@ public class NewObjectDialog {
 
             count.setDisable(true);
             comboBox.getSelectionModel().select(jclass);
+            comboBox.setDisable(true);
         }
 
 

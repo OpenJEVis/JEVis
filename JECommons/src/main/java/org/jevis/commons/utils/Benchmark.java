@@ -58,7 +58,7 @@ public class Benchmark {
 
 //        System.out.printf("[  |%4d|%n  %s  ] for - %s", milis, unit, text);
 //        System.out.printf("[%4d %s] %s\n", milis, unit, text);
-        logger.debug("[{} {}] {}", milis, unit, text);
+        logger.error("[{} {}] {}", milis, unit, text);
 //        logger.info("[" + (milis) + unit + "] for - " + text);
     }
 
@@ -84,7 +84,7 @@ public class Benchmark {
         }
 
 //        System.out.printf("[%4d %s | %4d %s] %s\n", milisSPrint, unitPrint, milisSStart, unit, text);
-        logger.debug("[{} {} | {} {}] {}", milisSPrint, unitPrint, milisSStart, unit, text);
+        logger.error("[{} {} | {} {}] {}", milisSPrint, unitPrint, milisSStart, unit, text);
         _lastPrint = DateTime.now();
 
     }

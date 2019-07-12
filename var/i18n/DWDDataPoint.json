@@ -119,9 +119,9 @@
         "en": "Precipitation of last 12 hours"
       },
       "names": {
-        "de": "Niederschlag",
-        "ru": "Precipitation",
-        "en": "Precipitation"
+        "de": "Niederschlag 12h",
+        "ru": "Precipitation 12h",
+        "en": "Precipitation 12h"
       }
     },
     {

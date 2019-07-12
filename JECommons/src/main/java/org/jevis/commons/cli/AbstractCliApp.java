@@ -59,6 +59,7 @@ public abstract class AbstractCliApp {
 
     protected ConcurrentHashMap<Long, String> runningJobs = new ConcurrentHashMap();
     protected ConcurrentHashMap<Long, String> plannedJobs = new ConcurrentHashMap();
+    protected List<Thread> activeThreads = new ArrayList<>();
     private int threadCount = 4;
     private String emergency_config;
 
