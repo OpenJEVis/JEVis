@@ -220,6 +220,7 @@ public class Launcher extends AbstractCliApp {
 
             if (size == overTime.get()) {
                 forkJoinPool.shutdownNow();
+                initializeThreadPool(APP_SERVICE_CLASS_NAME);
                 plannedJobs.clear();
                 runningJobs.clear();
                 runServiceHelp();

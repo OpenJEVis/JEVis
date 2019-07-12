@@ -47,6 +47,7 @@ public class JEVisImporterAdapter {
                 JEVisAttribute statusLog = channel.getAttribute(statusLogType);
                 statusLog.addSamples(statusResults);
                 statusDate = statusResults.get(statusResults.size() - 1).getTimestamp();
+
             } catch (JEVisException e) {
                 logger.error("Could not add Status Log Samples", e);
             }
@@ -54,7 +55,9 @@ public class JEVisImporterAdapter {
         if (statusDate == null) {
             setLastReadout(channel, date);
         } else {
-            if (statusDate.isAfter(date)) {
+            if (date == null) {
+                setLastReadout(channel, statusDate);
+            } else if (statusDate.isAfter(date)) {
                 setLastReadout(channel, statusDate);
             } else {
                 setLastReadout(channel, date);
