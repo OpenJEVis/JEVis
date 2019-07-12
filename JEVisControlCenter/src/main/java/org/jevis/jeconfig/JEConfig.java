@@ -219,7 +219,6 @@ public class JEConfig extends Application {
      */
     public static Image getImage(String icon) {
         try {
-            logger.debug("getIcon: " + "/icons/" + icon);
             return new Image(JEConfig.class.getResourceAsStream("/icons/" + icon));
 //            return new Image(JEConfig.class.getResourceAsStream("/org/jevis/jeconfig/image/" + icon));
         } catch (Exception ex) {
@@ -289,7 +288,7 @@ public class JEConfig extends Application {
                 java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
                 Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
                 awtAppClassNameField.setAccessible(true);
-                awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("appname"));
+                awtAppClassNameField.set(xToolkit, "JEVis Control Center");
 
             } catch (Exception e) {
                 // TODO
@@ -329,7 +328,6 @@ public class JEConfig extends Application {
                 I18n.getInstance().loadBundle(login.getSelectedLocale());
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
-                PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
 
                 _config.setLocale(login.getSelectedLocale());
 
@@ -343,6 +341,18 @@ public class JEConfig extends Application {
                 logger.error("start GUI");
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
+                PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
+                Platform.runLater(() -> {
+                    primaryStage.setTitle(I18n.getInstance().getString("appname"));
+                    try {
+                        java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
+                        Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
+                        awtAppClassNameField.setAccessible(true);
+                        awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("appname"));
+                    } catch (NoSuchFieldException | IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                });
 
                 ExecutorService exe = Executors.newSingleThreadExecutor();
                 exe.submit(() -> {
@@ -437,8 +447,7 @@ public class JEConfig extends Application {
 
         scene.getStylesheets().add("/styles/Styles.css");
         primaryStage.getIcons().add(getImage("JEVisIconBlue.png"));
-
-        primaryStage.setTitle(I18n.getInstance().getString("appname"));
+        primaryStage.setTitle("JEVis Control Center");
 
         primaryStage.setMaximized(true);
         primaryStage.show();

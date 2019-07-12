@@ -356,7 +356,7 @@ public class JEVisItemLoader {
 
 
                     if (newObject != null && itemObjectLinker.containsKey(newObject)) {
-                        logger.error("Remove item from cache: {}", newObject);
+                        logger.error("Remove item from jevis tree cache: {}", newObject);
                         itemObjectLinker.remove(newObject);
                         buildItems(newObject);
 

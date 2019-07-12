@@ -165,7 +165,9 @@ public class ResourceRelationship {
 
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            List<JsonRelationship> jsonRelationships = ds.getUserManager().filterRelationships(ds.getRelationships());
+
+//            List<JsonRelationship> jsonRelationships = ds.getUserManager().filterRelationships(ds.getRelationshipTable().getAllForObject(id));
+            List<JsonRelationship> jsonRelationships = ds.getRelationshipTable().getAllForObject(id);
             this.jsonRelationships = new ArrayList<>();
             for (JsonRelationship rel : jsonRelationships) {
                 if (rel.getFrom() == id || rel.getTo() == id) {

@@ -20,7 +20,6 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author broder
@@ -67,7 +66,7 @@ public class Launcher extends AbstractCliApp {
         dataSources.parallelStream().forEach(object -> {
             forkJoinPool.submit(() -> {
                 if (!runningJobs.containsKey(object.getID())) {
-                    Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
+                    Thread.currentThread().setName(object.getID().toString());
 
                     DataSource dataSource = DataSourceFactory.getDataSource(object);
                     if (dataSource.isReady(object)) {
@@ -120,6 +119,7 @@ public class Launcher extends AbstractCliApp {
 
     private void runDataSource(JEVisObject object, DataSource dataSource, boolean finish) {
         runningJobs.put(object.getID(), DateTime.now().toString());
+        activeThreads.add(Thread.currentThread());
         LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
 
         logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
@@ -132,6 +132,7 @@ public class Launcher extends AbstractCliApp {
         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
         runningJobs.remove(object.getID());
         plannedJobs.remove(object.getID());
+        activeThreads.remove(Thread.currentThread());
 
         if (finish) {
             dataSource.finishCurrentRun(object);
@@ -201,32 +202,40 @@ public class Launcher extends AbstractCliApp {
                 logger.info("Service is disabled.");
             }
         } else {
-            int size = runningJobs.size();
-            AtomicInteger overTime = new AtomicInteger(0);
+            List<Long> toBeRemoved = new ArrayList<>();
             runningJobs.forEach((key, value) -> {
                 try {
+                    Thread thread = null;
+                    for (Thread activeThread : activeThreads) {
+                        if (activeThread.getName().equals(key.toString())) {
+                            thread = activeThread;
+                            break;
+                        }
+                    }
+
                     DateTime start = new DateTime(value);
                     DateTime now = DateTime.now();
+
                     SampleHandler sampleHandler = new SampleHandler();
                     Long maxTime = sampleHandler.getLastSample(ds.getObject(key), "Max thread time", 900000L);
                     if (now.getMillis() - start.getMillis() > maxTime) {
-                        overTime.getAndIncrement();
+                        if (thread != null) {
+                            thread.interrupt();
+                            toBeRemoved.add(key);
+                        }
                     }
 
                 } catch (Exception e) {
-                    logger.error("Could not parse datetime for {}", key, e);
+                    logger.error("Error in thread alive check {}", key, e);
                 }
             });
 
-            if (size == overTime.get()) {
-                forkJoinPool.shutdownNow();
-                initializeThreadPool(APP_SERVICE_CLASS_NAME);
-                plannedJobs.clear();
-                runningJobs.clear();
-                runServiceHelp();
-            } else {
-                logger.info("Still running queue. Going to sleep again.");
-            }
+            toBeRemoved.forEach(aLong -> {
+                runningJobs.remove(aLong);
+                plannedJobs.remove(aLong);
+            });
+
+            runServiceHelp();
         }
 
         try {
