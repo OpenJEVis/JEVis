@@ -2,12 +2,16 @@
   "jevisclass": "Clean Data",
   "names": {
     "de": "Bereinigte Daten",
-    "ru": "Clean Data",
+    "ru": "Откорректированные данные",
+    "uk": "Чисті дані",
+    "th": "ทำความสะอาดข้อมูล",
     "en": "Clean Data"
   },
   "descriptions": {
     "de": "Bereinigte Daten ist ein Datenobjekt für manipulierten Datenreihen.",
-    "ru": "Clean Data is a data object for manipulated data.",
+    "ru": "Очищенные данные - это объект данных для рядов манипулируемых данных.",
+    "uk": "Чисті дані - це об'єкт даних для операцій з даними.",
+    "th": "ข้อมูลที่ถูกล้างข้อมูลเป็นวัตถุข้อมูลสำหรับชุดข้อมูลที่ถูกจัดการ",
     "en": "Clean Data is a data object for manipulated data."
   },
   "types": [
@@ -15,12 +19,16 @@
       "type": "Conversion to Differential",
       "descriptions": {
         "de": "Aktiviert/Deaktiviert die Umwandlung von kumulative Daten zu differenziellen Daten",
-        "ru": "Conversion to Differential description",
+        "ru": "Разрешает/запрещает преобразование накопленных данных в дифференциальные данные.",
+        "uk": "Ввімкнути / Вимкнути перетворення сукупних даних на диференціальні значення",
+        "th": "เปิดใช้งาน / ปิดใช้งานการแปลงข้อมูลสะสมเป็นข้อมูลส่วนต่าง",
         "en": "Enables/Disables the conversion of cumulative data to differential values."
       },
       "names": {
         "de": "Umwandlung zu Differenz",
-        "ru": "Conversion to Differential",
+        "ru": "Преобразование в разницу",
+        "uk": "Перетворення на диференціальні значення",
+        "th": "การแปลงไปสู่ความแตกต่าง",
         "en": "Conversion to Differential"
       }
     },
@@ -28,12 +36,16 @@
       "type": "Enabled",
       "descriptions": {
         "de": "Aktiviert/Deaktiviert die Datenbereinigung",
-        "ru": "Enables/Disables the data cleaning",
+        "ru": "Включает/выключает очистку данных.",
+        "uk": "Ввімкнути / Вимкнути очищення даних",
+        "th": "เปิดใช้งาน / ปิดใช้งานการล้างข้อมูล",
         "en": "Enables/Disables the data cleaning"
       },
       "names": {
         "de": "Aktiviert",
-        "ru": "Enabled",
+        "ru": "Активированный",
+        "uk": "Увімкнено",
+        "th": "เปิดการใช้งาน",
         "en": "Enabled"
       }
     },
@@ -41,25 +53,33 @@
       "type": "Limits Enabled",
       "descriptions": {
         "de": "Aktiviert/Deaktiviert die Begrenzung der Datenreihe auf Min/Max-Werte, definiert in der Konfiguration",
-        "ru": "Enables/Disables the limitation of the data series to min/max values, defined in the configuration",
+        "ru": "Разрешает/запрещает ограничение рядов данных минимальными/максовыми значениями, заданными в конфигурации.",
+        "uk": "Ввімкнути / Вимкнути обмеження серії даних на значення min / max, визначені в конфігурації",
+        "th": "เปิด / ปิดการใช้งานข้อ จำกัด ของชุดข้อมูลเป็นค่าต่ำสุด / สูงสุดที่กำหนดไว้ในการกำหนดค่า",
         "en": "Enables/Disables the limitation of the data series to min/max values, defined in the configuration"
       },
       "names": {
         "de": "Grenzwerte aktiv",
-        "ru": "Limits Enabled",
+        "ru": "Предельные значения активны",
+        "uk": "Обмеження ввімкнено",
+        "th": "จำกัด การใช้งาน",
         "en": "Limits Enabled"
       }
     },
     {
       "type": "Limits Configuration",
       "descriptions": {
-        "de": "Einstellmöglichkeiten für Methode zur Ersatzwertbildung bei über-/unterschreitung der Grenzen",
-        "ru": "Gap Filling description",
+        "de": "Einstellmöglichkeiten für Methode zur Ersatzwertbildung bei Über-/Unterschreitung der Grenzen",
+        "ru": "Установка вариантов способа формирования стоимости замещения в случае превышения или снижения предельных значений",
+        "uk": "Опис заповнення розриву",
+        "th": "การตั้งค่าตัวเลือกสำหรับวิธีการสร้างค่าทดแทนเมื่อเกินหรือลดลงต่ำกว่าขีด จำกัด",
         "en": "Define the method for the gap filling"
       },
       "names": {
         "de": "Grenzwertkontrolle",
-        "ru": "Limit Configuration",
+        "ru": "контроль лимитов",
+        "uk": "Конфігурація обмежень",
+        "th": "ควบคุมขีด จำกัด",
         "en": "Limit Configuration"
       }
     },
@@ -67,12 +87,16 @@
       "type": "GapFilling Enabled",
       "descriptions": {
         "de": "Aktiviert/Deaktiviert die Ersatzwertbildung bei Lücken der Datenreihe, definiert in der Konfiguration",
-        "ru": "Enables/Disables the gap filling of the data series, defined in the configuration",
+        "ru": "Активирует/деактивирует создание стоимости замещения пробелов в серии данных, определенных в конфигурации.",
+        "uk": "Ввімкнути / вимкнути заповнення розриву рядків даних, визначених у конфігурації",
+        "th": "เปิด / ปิดการสร้างค่าทดแทนสำหรับช่องว่างในชุดข้อมูลที่กำหนดไว้ในการกำหนดค่า",
         "en": "Enables/Disables the replacement value methods of the data series, defined in the configuration"
       },
       "names": {
         "de": "Ersatzwertbildung aktiv",
-        "ru": "Gap Filling enabled",
+        "ru": "Создание альтернативной стоимости активно",
+        "uk": "Заповнення розриву ввімкнено",
+        "th": "การสร้างค่าทดแทนใช้งานได้",
         "en": "Replacement value method enabled"
       }
     },
@@ -80,12 +104,16 @@
       "type": "Gap Filling Config",
       "descriptions": {
         "de": "Definiert die Methode zur Ersatzwertbildung bei Datenlücken",
-        "ru": "Define the method for the filling of data gaps",
+        "ru": "Определяет метод создания стоимости замещения пробелов в данных.",
+        "uk": "Визначте метод заповнення розриву даних",
+        "th": "กำหนดวิธีการสร้างมูลค่าทดแทนในกรณีที่ช่องว่างข้อมูล",
         "en": "Define the method for replacement values for data gaps"
       },
       "names": {
         "de": "Ersatzwertbildung",
-        "ru": "Gap filling configuration",
+        "ru": "создание восстановительной стоимости",
+        "uk": "Конфігурація заповнення розривів",
+        "th": "ค่าทดแทน",
         "en": "Replacement value configuration"
       }
     },
@@ -93,12 +121,16 @@
       "type": "Period Alignment",
       "descriptions": {
         "de": "Definiert die zeitliche Ausrichtung auf die erwartete Periode bei abweichenden Zeitstempeln",
-        "ru": "Period Alignment description",
+        "ru": "Определяет соответствие времени ожидаемому периоду для различных временных меток.",
+        "uk": "Опис вирівнювання періоду",
+        "th": "กำหนดการจัดเรียงเวลากับช่วงเวลาที่คาดไว้สำหรับการประทับเวลาที่แตกต่างกัน",
         "en": "Defines the alignment of timestemp if they differ from the expected period."
       },
       "names": {
         "de": "Zeitliche Ausrichtung",
-        "ru": "Period Alignment",
+        "ru": "Выравнивание по времени",
+        "uk": "Вирівнювання періоду",
+        "th": "เวลาการจัดตำแหน่ง",
         "en": "Period Alignment"
       }
     },
@@ -106,12 +138,16 @@
       "type": "Period Offset",
       "descriptions": {
         "de": "Definiert den zeitlichen Offset in Sekunden, z.B. zum Vorziehen eines Wertes auf den Anfang der Messperiode",
-        "ru": "Period Offset description",
+        "ru": "Определяет смещение времени в секундах, например, для переноса значения на начало периода измерения.",
+        "uk": "Опис зміщення періоду",
+        "th": "กำหนดเวลาชดเชยเป็นวินาทีเช่น เพื่อเพิ่มมูลค่าให้กับจุดเริ่มต้นของระยะเวลาการวัด",
         "en": "Defines the time offset in seconds, i.e. for moving a value to the beginning of the metering period."
       },
       "names": {
-        "de": "Period Offset",
-        "ru": "Period Offset",
+        "de": "Perioden Verzögerung",
+        "ru": "Периоды Задержки",
+        "uk": "Зміщення періоду",
+        "th": "ระยะเวลาล่าช้า",
         "en": "Period Offset"
       }
     },
@@ -119,12 +155,16 @@
       "type": "Value",
       "descriptions": {
         "de": "Beinhaltet die Werteserie",
-        "ru": "Value description",
+        "ru": "Содержит ряд значений",
+        "uk": "Опис значення",
+        "th": "มีชุดค่า",
         "en": "Contains the series of values"
       },
       "names": {
         "de": "Wert",
-        "ru": "Value",
+        "ru": "ценность",
+        "uk": "Значення",
+        "th": "ความคุ้มค่า",
         "en": "Value"
       }
     },
@@ -132,12 +172,16 @@
       "type": "Value is a Quantity",
       "descriptions": {
         "de": "Definiert ob es sich bei den Wert um eine Mengenangabe handelt, wie z.B. kWh.",
-        "ru": "Value is a Quantity description",
+        "ru": "Определяет, является ли это значение количеством, например, кВтч.",
+        "uk": "Значення кількісно описує",
+        "th": "กำหนดว่าค่าเป็นการบ่งบอกปริมาณเช่น กิโลวัตต์ต่อชั่วโมง",
         "en": "Defines if the value represents a quantity, such as kWh."
       },
       "names": {
         "de": "Mengeneinheit",
-        "ru": "Value is a Quantity",
+        "ru": "агрегат",
+        "uk": "Значення це кількість",
+        "th": "หน่วย",
         "en": "Value is a Quantity"
       }
     },
@@ -145,12 +189,16 @@
       "type": "Value Multiplier",
       "descriptions": {
         "de": "Definiert einen Multiplikator zur Interpretation des Messwertes.",
-        "ru": "Value Multiplier description",
+        "ru": "Определяет множитель для интерпретации измеренного значения.",
+        "uk": "Значення описує множник",
+        "th": "กำหนดตัวคูณสำหรับการตีความค่าที่วัดได้",
         "en": "Defines a multiplicator for the interpretation of the metering value."
       },
       "names": {
         "de": "Werte Multiplikator",
-        "ru": "Value Multiplier",
+        "ru": "Значения Мультипликатор",
+        "uk": "Значення множника",
+        "th": "ตัวคูณค่า",
         "en": "Value Multiplier"
       }
     },
@@ -158,12 +206,16 @@
       "type": "Value Offset",
       "descriptions": {
         "de": "Definiert einen Offset zur Interpretation des Messwertes",
-        "ru": "Value Offset description",
+        "ru": "Определяет смещение для интерпретации измеренной величины",
+        "uk": "Опис значення зміщення",
+        "th": "กำหนดออฟเซ็ตสำหรับการตีความค่าที่วัดได้",
         "en": "Defines a offset for the interpretation of the metering value."
       },
       "names": {
         "de": "Werte Offset",
-        "ru": "Value Offset",
+        "ru": "Значения Смещение",
+        "uk": "Значення зміщення",
+        "th": "ชดเชยค่า",
         "en": "Value Offset"
       }
     },
@@ -171,12 +223,16 @@
       "type": "Counter Overflow",
       "descriptions": {
         "de": "Definiert einen Zählerwert, an dem der Zähler zurückgesetzt wurde.",
-        "ru": "Defines a counter value at which the counter was reset.",
+        "ru": "Свойство определяет значение счетчика, при котором счетчик был сброшен.",
+        "uk": "Властивість визначає значення, при якому був скинутий лічильник.",
+        "th": "กำหนดค่าตัวนับที่รีเซ็ตตัวนับ",
         "en": "Defines a counter value at which the counter was reset."
       },
       "names": {
         "de": "Zähler Überlauf",
-        "ru": "Counter Overflow",
+        "ru": "Переполнение счетчика",
+        "uk": "Переповнення лічильника",
+        "th": "เคาน์เตอร์ล้น",
         "en": "Counter Overflow"
       }
     }
