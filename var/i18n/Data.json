@@ -2,12 +2,16 @@
   "jevisclass": "Data",
   "names": {
     "de": "Daten",
-    "ru": "Data",
+    "ru": "данные",
+    "uk": "Дані",
+    "th": "ข้อมูล",
     "en": "Data"
   },
   "descriptions": {
     "de": "In Daten werden numerische Datenreihen gespeichert.",
-    "ru": "Storage of numerical data.",
+    "ru": "Численные ряды данных хранятся в данных.",
+    "uk": "Зберігання числових даних.",
+    "th": "Data เก็บชุดข้อมูลตัวเลข",
     "en": "Storage of numerical data."
   },
   "types": [
@@ -15,12 +19,16 @@
       "type": "Value",
       "descriptions": {
         "de": "Wert der Datenreihe",
-        "ru": "Value of the data series",
+        "ru": "Значение ряда данных",
+        "uk": "Значення ряду даних",
+        "th": "ค่าของชุดข้อมูล",
         "en": "Value of the data series"
       },
       "names": {
         "de": "Wert",
-        "ru": "Value",
+        "ru": "ценность",
+        "uk": "Значення",
+        "th": "ความคุ้มค่า",
         "en": "Value"
       }
     }
