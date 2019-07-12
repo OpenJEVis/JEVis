@@ -40,6 +40,8 @@ public class sFTPDataSource implements DataSource {
 
     private ChannelSftp _channel;
     private Session _session;
+    private Integer _connectionTimeout;
+    private Integer _readTimeout;
 
     @Override
     public void parse(List<InputStream> input) {
@@ -112,7 +114,8 @@ public class sFTPDataSource implements DataSource {
             _session = ssh.getSession(login, hostname, _port);
             _session.setConfig(config);
             _session.setPassword(password);
-            _session.connect();
+            _session.setTimeout(_readTimeout * 1000);
+            _session.connect(_connectionTimeout * 1000);
             _channel = (ChannelSftp) _session.openChannel("sftp");
             _channel.connect();
         } catch (JSchException ex) {
@@ -197,8 +200,8 @@ public class sFTPDataSource implements DataSource {
                 _port = DatabaseHelper.getObjectAsInteger(sftpObject, port);
             }
 
-            Integer _connectionTimeout = DatabaseHelper.getObjectAsInteger(sftpObject, connectionTimeout);
-            Integer _readTimeout = DatabaseHelper.getObjectAsInteger(sftpObject, readTimeout);
+            _connectionTimeout = DatabaseHelper.getObjectAsInteger(sftpObject, connectionTimeout);
+            _readTimeout = DatabaseHelper.getObjectAsInteger(sftpObject, readTimeout);
             //            if (node.getAttribute(maxRequest).hasSample()) {
             //                _maximumDayRequest = Integer.parseInt((String) node.getAttribute(maxRequest).getLatestSample().getValue());
             //            }
