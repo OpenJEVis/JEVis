@@ -235,6 +235,40 @@
         "th": "เคาน์เตอร์ล้น",
         "en": "Counter Overflow"
       }
+    },
+    {
+      "type": "Alarm Config",
+      "descriptions": {
+        "de": "Ermöglicht die Konfiguration eines Alarms, bezogen auf eine Reihe von Soll-Werten (dynamisch) oder eine statische Grenze (statisch)",
+        "ru": "Позволяет конфигурировать аварийный сигнал в соответствии с рядом заданных значений (динамическое) или статическое ограничение (статическое).",
+        "uk": "Дозволяє налаштувати сигнал на основі набору значень (динамічних) або статичних (статичних) кордонів",
+        "th": "ช่วยให้คุณสามารถกำหนดค่าการเตือนตามขอบเขตของ setpoints (ไดนามิก) หรือขอบเขตคงที่ (คงที่)็ตตัวนับ",
+        "en": "Allows you to configure an alarm based on a set of setpoints (dynamic) or a static (static) boundary"
+      },
+      "names": {
+        "de": "Alarmkonfiguration",
+        "ru": "Конфигурация сигнализации",
+        "uk": "Конфігурація сигналізації",
+        "th": "การกำหนดค่าการเตือนภัยย์ล้น",
+        "en": "Alarm configuration"
+      }
+    },
+    {
+      "type": "Alarm Log",
+      "descriptions": {
+        "de": "Wertereihe, in der die von der Alarmkonfiguration definierten Stati gespeichert werden.",
+        "ru": "Серия значений, в которой сохраняются состояния, определенные конфигурацией аварийной сигнализации.",
+        "uk": "Серії значень, в яких збережені статуси, визначені конфігурацією сигналу.",
+        "th": "ชุดค่าที่สถานะที่กำหนดโดยการกำหนดค่าการเตือนภัยถูกบันทึกไว้็ตตัวนับ",
+        "en": "Value series in which the statuses defined by the alarm configuration are saved."
+      },
+      "names": {
+        "de": "Alarm Log",
+        "ru": "Журнал тревог",
+        "uk": "Журнал будильника",
+        "th": "บันทึกการเตือนภัยล้น",
+        "en": "Alarm Log"
+      }
     }
   ]
 }
