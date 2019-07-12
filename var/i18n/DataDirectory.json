@@ -2,12 +2,16 @@
   "jevisclass": "Data Directory",
   "names": {
     "de": "Daten",
-    "ru": "Data Directory",
+    "ru": "Каталог данных",
+    "uk": "Каталог даних",
+    "th": "ไดเรกทอรีข้อมูล",
     "en": "Data Directory"
   },
   "descriptions": {
     "de": "Im Datenverzeichnis werden die Datenreihen verwaltet.",
-    "ru": "In the Data Directory data series are managed.",
+    "ru": "Управление сериями данных осуществляется в каталоге данных.",
+    "uk": "В каталозі даних йде управління серією даних.",
+    "th": "ในไดเรกทอรีข้อมูลชุดข้อมูลได้รับการจัดการ",
     "en": "In the Data Directory data series are managed."
   },
   "types": []
