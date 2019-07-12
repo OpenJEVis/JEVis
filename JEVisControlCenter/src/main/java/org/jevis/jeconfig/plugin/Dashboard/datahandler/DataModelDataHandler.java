@@ -69,21 +69,21 @@ public class DataModelDataHandler {
             logger.error(ex);
         }
 
-        if (!dataModelNode.getForcedInterval().isEmpty()) {
-            forcedInterval = true;
+        if (!this.dataModelNode.getForcedInterval().isEmpty()) {
+            this.forcedInterval = true;
             //if PTx than new Interval
             //if number then jevisObject for custom intervals
 
             try {
 //                forcedPeriod = Period.parse(dataModelNode.getForcedInterval());
-                forcedPeriod = dataModelNode.getForcedInterval();
+                this.forcedPeriod = this.dataModelNode.getForcedInterval();
 
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
 
-        dataModelNode.getData().forEach(dataPointNode -> {
+        this.dataModelNode.getData().forEach(dataPointNode -> {
             try {
                 logger.debug("Add attribute: {}:{}", dataPointNode.getObjectID(), dataPointNode.getAttribute());
                 JEVisObject jevisobject = jeVisDataSource.getObject(dataPointNode.getObjectID());
@@ -123,10 +123,10 @@ public class DataModelDataHandler {
                         }
 
 
-                        chartDataModels.add(chartDataModel);
+                        this.chartDataModels.add(chartDataModel);
 
 
-                        attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
+                        this.attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
 
                         if (dataPointNode.isEnpi()) {
                             chartDataModel.setEnPI(dataPointNode.isEnpi());
@@ -150,9 +150,11 @@ public class DataModelDataHandler {
 
         });
 
-        timeFrames = new TimeFrames(jeVisDataSource);
-        timeFrames.setWorkdays(chartDataModels.stream().findFirst().map(ChartDataModel::getObject).orElse(null));
-        timeFrameFactories.addAll(timeFrames.getAll());
+        this.timeFrames = new TimeFrames(jeVisDataSource);
+        this.timeFrames.setWorkdays(this.chartDataModels.stream().findFirst().map(ChartDataModel::getObject).orElse(null));
+        this.timeFrameFactories.addAll(this.timeFrames.getAll());
+
+
     }
 
     /**
@@ -166,7 +168,7 @@ public class DataModelDataHandler {
      * @param enable
      */
     public void setAutoAggregation(boolean enable) {
-        autoAggregation = enable;
+        this.autoAggregation = enable;
     }
 
     public static String generateValueKey(JEVisAttribute attribute) {
@@ -179,9 +181,9 @@ public class DataModelDataHandler {
 
         WidgetTreePlugin widgetTreePlugin = new WidgetTreePlugin();
 
-        JEVisTree tree = JEVisTreeFactory.buildDefaultWidgetTree(jeVisDataSource, widgetTreePlugin);
+        JEVisTree tree = JEVisTreeFactory.buildDefaultWidgetTree(this.jeVisDataSource, widgetTreePlugin);
         tab.setContent(tree);
-        widgetTreePlugin.setUserSelection(dataModelNode.getData());
+        widgetTreePlugin.setUserSelection(this.dataModelNode.getData());
 
 
         return tab;
@@ -191,12 +193,12 @@ public class DataModelDataHandler {
     public void setInterval(Interval interval) {
 
 
-        if (forcedInterval) {
+        if (this.forcedInterval) {
 
             boolean foundFactory = false;
 
-            for (TimeFrameFactory timeFrameFactory : timeFrameFactories) {
-                if (timeFrameFactory.getID().equals(forcedPeriod)) {
+            for (TimeFrameFactory timeFrameFactory : this.timeFrameFactories) {
+                if (timeFrameFactory.getID().equals(this.forcedPeriod)) {
                     interval = timeFrameFactory.getInterval(interval.getEnd());
                     foundFactory = true;
                 }
@@ -204,7 +206,7 @@ public class DataModelDataHandler {
 
             if (!foundFactory) {
                 try {
-                    LastPeriod lastPeriod = new LastPeriod(Period.parse(forcedPeriod));
+                    LastPeriod lastPeriod = new LastPeriod(Period.parse(this.forcedPeriod));
                     interval = lastPeriod.getInterval(interval.getEnd());
 
                 } catch (Exception ex) {
@@ -221,7 +223,7 @@ public class DataModelDataHandler {
 
             AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
             ManipulationMode manipulationMode = ManipulationMode.NONE;
-            if (autoAggregation) {
+            if (this.autoAggregation) {
 
                 /** less then an week take original **/
                 if (interval.toDuration().getStandardDays() < 6) {
@@ -251,7 +253,7 @@ public class DataModelDataHandler {
 
     public JsonNode toJsonNode() {
         ArrayNode dataArrayNode = JsonNodeFactory.instance.arrayNode();
-        attributeMap.forEach((s, jeVisAttribute) -> {
+        this.attributeMap.forEach((s, jeVisAttribute) -> {
             ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
             dataNode.put("object", jeVisAttribute.getObjectID());
             dataNode.put("attribute", jeVisAttribute.getName());
@@ -268,25 +270,25 @@ public class DataModelDataHandler {
     }
 
     public Map<String, JEVisAttribute> getAttributeMap() {
-        return attributeMap;
+        return this.attributeMap;
     }
 
     public List<ChartDataModel> getDataModel() {
-        return chartDataModels;
+        return this.chartDataModels;
     }
 
     public void update() {
-        logger.debug("Update Samples: {}", durationProperty.getValue());
+        logger.debug("Update Samples: {}", this.durationProperty.getValue());
 //        logger.error("AttributeMap: {}", attributeMap.size());
 
-        chartDataModels.forEach(chartDataModel -> {
+        this.chartDataModels.forEach(chartDataModel -> {
 
-            chartDataModel.setSelectedStart(durationProperty.getValue().getStart());
-            chartDataModel.setSelectedEnd(durationProperty.getValue().getEnd());
+            chartDataModel.setSelectedStart(this.durationProperty.getValue().getStart());
+            chartDataModel.setSelectedEnd(this.durationProperty.getValue().getEnd());
 
         });
 
-        lastUpdate.setValue(new DateTime());
+        this.lastUpdate.setValue(new DateTime());
     }
 
     public void setMultiSelect(boolean enable) {
@@ -295,7 +297,7 @@ public class DataModelDataHandler {
 
 
     public StringProperty getUnitProperty() {
-        return unitProperty;
+        return this.unitProperty;
     }
 
 

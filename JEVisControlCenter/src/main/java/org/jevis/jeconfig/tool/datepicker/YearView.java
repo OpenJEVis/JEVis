@@ -27,7 +27,7 @@ final class YearView extends DatePane {
 
         getStyleClass().add(CSS_CALENDAR_YEAR_VIEW);
 
-        // When the locale changes, update the contents (month names).
+        // When the locale changes, updateData the contents (month names).
         calendarView.localeProperty().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
@@ -43,7 +43,7 @@ final class YearView extends DatePane {
     protected void buildContent() {
 
         // Get the number of months. I read, there are some lunar calendars, with more than 12 months.
-        int numberOfMonths = calendarView.getCalendar().getMaximum(Calendar.MONTH) + 1;
+        int numberOfMonths = this.calendarView.getCalendar().getMaximum(Calendar.MONTH) + 1;
 
         int numberOfColumns = 3;
 
@@ -61,10 +61,10 @@ final class YearView extends DatePane {
             button.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
-                    if (calendarView.currentlyViewing.get() == Calendar.YEAR) {
-                        calendarView.getCalendar().set(Calendar.MONTH, j);
-                        calendarView.currentlyViewing.set(Calendar.MONTH);
-                        calendarView.calendarDate.set(calendarView.getCalendar().getTime());
+                    if (YearView.this.calendarView.currentlyViewing.get() == Calendar.YEAR) {
+                        YearView.this.calendarView.getCalendar().set(Calendar.MONTH, j);
+                        YearView.this.calendarView.currentlyViewing.set(Calendar.MONTH);
+                        YearView.this.calendarView.calendarDate.set(YearView.this.calendarView.getCalendar().getTime());
                     }
                 }
             });
@@ -79,12 +79,12 @@ final class YearView extends DatePane {
      */
     @Override
     protected void updateContent() {
-        DateFormatSymbols symbols = new DateFormatSymbols(calendarView.localeProperty().get());
+        DateFormatSymbols symbols = new DateFormatSymbols(this.calendarView.localeProperty().get());
         String[] monthNames = symbols.getShortMonths();
         for (int i = 1; i < monthNames.length; i++) {
             Button button = (Button) getChildren().get(i - 1);
             button.setText(monthNames[i - 1]);
         }
-        title.set(getDateFormat("yyyy").format(calendarView.getCalendar().getTime()));
+        this.title.set(getDateFormat("yyyy").format(this.calendarView.getCalendar().getTime()));
     }
 }

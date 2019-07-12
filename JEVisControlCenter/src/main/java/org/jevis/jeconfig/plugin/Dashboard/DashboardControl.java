@@ -39,6 +39,8 @@ import java.util.concurrent.Executors;
 
 public class DashboardControl {
 
+    static public int table = 0;//DELETE!
+
     private static final Logger logger = LogManager.getLogger(DashboardControl.class);
     private double zoomFactor = 1.0d;
     private final DashBordPlugIn dashBordPlugIn;
@@ -80,6 +82,16 @@ public class DashboardControl {
                 });
             }
         });
+    }
+
+    public static synchronized int nextTableID() {
+        if (table == 6) {
+            table = 1;
+        } else {
+            table++;
+        }
+
+        return table;
     }
 
     public void loadFirstDashboard() {

@@ -70,26 +70,32 @@ public class ValueWidget extends Widget {
         this.labelText.setValue("n.a.");
 
         try {
-            ChartDataModel dataModel = this.sampleHandler.getDataModel().get(0);
+            if (!this.sampleHandler.getDataModel().isEmpty()) {
+                ChartDataModel dataModel = this.sampleHandler.getDataModel().get(0);
 //            dataModel.setAbsolute(true);
-            List<JEVisSample> results;
+                List<JEVisSample> results;
 
-            String unit = dataModel.getUnitLabel();
+                String unit = dataModel.getUnitLabel();
 
 
-            results = dataModel.getSamples();
-            if (!results.isEmpty()) {
-                Double total = DataModelDataHandler.getTotal(results);
-                this.labelText.setValue((this.nf.format(total)) + " " + unit);
-                if (this.limitColoring != null) {
-                    System.out.println("limitColoring formate");
-                    this.limitColoring.formateLabel(this.label, total);
+                results = dataModel.getSamples();
+                if (!results.isEmpty()) {
+                    Double total = DataModelDataHandler.getTotal(results);
+                    this.labelText.setValue((this.nf.format(total)) + " " + unit);
+                    if (this.limitColoring != null) {
+                        System.out.println("limitColoring formate");
+                        this.limitColoring.formateLabel(this.label, total);
+                    }
                 }
+
+            } else {
+                logger.warn("ValueWidget is missing SampleHandler.datamodel: {}", this.sampleHandler);
             }
 
 
         } catch (Exception ex) {
             logger.error(ex);
+            ex.printStackTrace();
         }
 
         Platform.runLater(() -> {
@@ -120,7 +126,7 @@ public class ValueWidget extends Widget {
 
     @Override
     public void init() {
-
+        logger.debug("init");
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);
         this.label.setPadding(new Insets(0, 8, 0, 8));

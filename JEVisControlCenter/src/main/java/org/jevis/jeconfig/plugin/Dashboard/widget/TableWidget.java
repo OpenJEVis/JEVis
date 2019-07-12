@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,9 +16,12 @@ import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.Dashboard.config.DataModelNode;
+import org.jevis.jeconfig.plugin.Dashboard.config.DataPointNode;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.plugin.Dashboard.wizzard.ExampleConverter;
 import org.joda.time.Interval;
 
 import java.text.NumberFormat;
@@ -136,6 +140,28 @@ public class TableWidget extends Widget {
 
         this.table.setItems(FXCollections.observableArrayList(dummy));
         setGraphic(this.table);
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            DataModelNode dataModelNode = mapper.treeToValue(this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), DataModelNode.class);
+//            System.out.println("Json: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataModelNode));
+
+            boolean isStickstoff = false;
+            for (DataPointNode dataPointNode : dataModelNode.getData()) {
+                if (dataPointNode.getObjectID().equals(1076)) {
+                    isStickstoff = true;
+                }
+            }
+
+            if (!isStickstoff) {
+                ExampleConverter exampleConverter = new ExampleConverter();
+                exampleConverter.sampleHandlerToValue(dataModelNode);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
 
     }

@@ -208,7 +208,7 @@ public class JEVisTreeFactory {
 
                 List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = createAttributeColumns(prioAttribute);
                 attributeColumns.addAll(createAttributeColumns(allAttributes));
-//                List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = createAttributeColumns(allAttributes);
+//                List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = xAttributeColumn(allAttributes);
                 tree.getColumns().addAll(attributeColumns);
 
             } catch (Exception e) {

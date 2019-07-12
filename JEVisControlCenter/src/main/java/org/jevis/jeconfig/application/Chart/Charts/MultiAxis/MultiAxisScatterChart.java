@@ -42,7 +42,7 @@ public class MultiAxisScatterChart<X, Y> extends MultiAxisChart<X, Y> {
      */
     public MultiAxisScatterChart(Axis<X> xAxis, Axis<Y> y1Axis, Axis<Y> y2Axis, ObservableList<Series<X, Y>> data) {
         super(xAxis, y1Axis, y2Axis);
-        setLegend(legend);
+        setLegend(this.legend);
         setData(data);
     }
 
@@ -124,7 +124,7 @@ public class MultiAxisScatterChart<X, Y> extends MultiAxisChart<X, Y> {
      */
     @Override
     protected void layoutPlotChildren() {
-        // update symbol positions
+        // updateData symbol positions
         for (int seriesIndex = 0; seriesIndex < getDataSize(); seriesIndex++) {
             MultiAxisChart.Series<X, Y> series = getData().get(seriesIndex);
             for (Iterator<Data<X, Y>> it = getDisplayedDataIterator(series); it.hasNext(); ) {
@@ -166,7 +166,7 @@ public class MultiAxisScatterChart<X, Y> extends MultiAxisChart<X, Y> {
      */
     @Override
     protected void updateLegend() {
-        legend.getItems().clear();
+        this.legend.getItems().clear();
         if (getData() != null) {
             for (int seriesIndex = 0; seriesIndex < getData().size(); seriesIndex++) {
                 MultiAxisChart.Series<X, Y> series = getData().get(seriesIndex);
@@ -174,12 +174,12 @@ public class MultiAxisScatterChart<X, Y> extends MultiAxisChart<X, Y> {
                 if (!series.getData().isEmpty() && series.getData().get(0).getNode() != null) {
                     legenditem.getSymbol().getStyleClass().addAll(series.getData().get(0).getNode().getStyleClass());
                 }
-                legend.getItems().add(legenditem);
+                this.legend.getItems().add(legenditem);
             }
         }
-        if (legend.getItems().size() > 0) {
+        if (this.legend.getItems().size() > 0) {
             if (getLegend() == null) {
-                setLegend(legend);
+                setLegend(this.legend);
             }
         } else {
             setLegend(null);

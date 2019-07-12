@@ -282,7 +282,7 @@ public class SampleExportExtension implements SampleEditorExtension {
 
             @Override
             public void handle(KeyEvent t) {
-                logger.info("update linesep");
+                logger.info("updateData linesep");
                 try {
                     DateTimeFormat.forPattern(fDateTimeFormat.getText());
                     updatePreview();
@@ -297,7 +297,7 @@ public class SampleExportExtension implements SampleEditorExtension {
 
             @Override
             public void handle(KeyEvent t) {
-                logger.info("update linesep");
+                logger.info("updateData linesep");
                 try {
                     DateTimeFormat.forPattern(fDateFormat.getText());
                     updatePreview();
@@ -312,7 +312,7 @@ public class SampleExportExtension implements SampleEditorExtension {
 
             @Override
             public void handle(KeyEvent t) {
-                logger.info("update linesep");
+                logger.info("updateData linesep");
                 try {
                     DateTimeFormat.forPattern(fTimeFormate.getText());
                     updatePreview();

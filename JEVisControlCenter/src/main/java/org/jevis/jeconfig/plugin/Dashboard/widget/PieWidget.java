@@ -111,6 +111,7 @@ public class PieWidget extends Widget {
 
                     } catch (Exception ex) {
                         logger.error(ex);
+                        ex.printStackTrace();
                     }
                 } else {
                     logger.debug("Empty Samples for: {}", this.config.getTitle());

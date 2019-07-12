@@ -119,24 +119,24 @@ public class FXLogin extends AnchorPane {
 
 
     private FXLogin() {
-        mainStage = null;
+        this.mainStage = null;
     }
 
     public FXLogin(Stage stage, Application.Parameters parameters, ApplicationInfo app) {
         super();
-        mainStage = stage;
+        this.mainStage = stage;
         this.app = app;
         this.parameters = parameters;
 
-        configuration = parseConfig(parameters);
-        for (JEVisOption opt : configuration) {
+        this.configuration = parseConfig(parameters);
+        for (JEVisOption opt : this.configuration) {
             if (opt.equals(CommonOptions.FXLogin.FXLogin)) {
-                fxoptions = opt;
+                this.fxoptions = opt;
             }
         }
 
         try {
-            _ds = loadDataSource(configuration);
+            this._ds = loadDataSource(this.configuration);
 
         } catch (ClassNotFoundException ex) {
             logger.fatal(ex);
@@ -170,10 +170,10 @@ public class FXLogin extends AnchorPane {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                loginButton.setDisable(true);
-                authGrid.setDisable(true);
-                progress.setVisible(true);
-                progress.setVisible(true);
+                FXLogin.this.loginButton.setDisable(true);
+                FXLogin.this.authGrid.setDisable(true);
+                FXLogin.this.progress.setVisible(true);
+                FXLogin.this.progress.setVisible(true);
             }
         });
         //start animation, todo make an own thred..
@@ -189,17 +189,17 @@ public class FXLogin extends AnchorPane {
 //                    }
 //                });
 
-                if (_ds.connect(userName.getText(), userPassword.getText())) {
+                if (this._ds.connect(this.userName.getText(), this.userPassword.getText())) {
                     logger.trace("Login succeeded");
-                    if (storeConfig.isSelected()) {
+                    if (this.storeConfig.isSelected()) {
                         storePreference();
                     }
 
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
-                            loginStatus.setValue(Boolean.TRUE);
-                            statusDialog.hide();
+                            FXLogin.this.loginStatus.setValue(Boolean.TRUE);
+                            FXLogin.this.statusDialog.hide();
                         }
                     });
 
@@ -217,10 +217,10 @@ public class FXLogin extends AnchorPane {
                         alert.setContentText(ex.getMessage());
                         alert.showAndWait();
 
-                        loginButton.setDisable(false);
-                        authGrid.setDisable(false);
-                        progress.setVisible(false);
-                        progress.setVisible(false);
+                        FXLogin.this.loginButton.setDisable(false);
+                        FXLogin.this.authGrid.setDisable(false);
+                        FXLogin.this.progress.setVisible(false);
+                        FXLogin.this.progress.setVisible(false);
                     }
                 });
 
@@ -263,11 +263,11 @@ public class FXLogin extends AnchorPane {
      */
     private void setStyleSheet() {
         try {
-            if (fxoptions != null) {
-                if (fxoptions.hasOption(CommonOptions.FXLogin.URL_CSS.getKey())) {
-                    JEVisOption opt = fxoptions.getOption(CommonOptions.FXLogin.URL_CSS.getKey());
-                    mainStage.getScene().getStylesheets().add(opt.getValue());
-                    useCSSFile = true;
+            if (this.fxoptions != null) {
+                if (this.fxoptions.hasOption(CommonOptions.FXLogin.URL_CSS.getKey())) {
+                    JEVisOption opt = this.fxoptions.getOption(CommonOptions.FXLogin.URL_CSS.getKey());
+                    this.mainStage.getScene().getStylesheets().add(opt.getValue());
+                    this.useCSSFile = true;
                 }
             }
 
@@ -293,7 +293,7 @@ public class FXLogin extends AnchorPane {
      * @return List of every JEVisClass on the server
      */
     public List<JEVisClass> getAllClasses() {
-        return classes;
+        return this.classes;
     }
 
     /**
@@ -303,7 +303,7 @@ public class FXLogin extends AnchorPane {
      * @return
      */
     public List<JEVisObject> getRootObjects() {
-        return rootObjects;
+        return this.rootObjects;
     }
 
     /**
@@ -315,6 +315,7 @@ public class FXLogin extends AnchorPane {
         List<Locale> availableLang = new ArrayList<>();
         availableLang.add(UK);
         availableLang.add(GERMANY);
+        availableLang.add(Locale.forLanguageTag("uk"));
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override
@@ -328,22 +329,24 @@ public class FXLogin extends AnchorPane {
                     public void updateItem(Locale item, boolean empty) {
                         super.updateItem(item, empty);
                         if (item != null) {
+                            try {
+                                HBox box = new HBox(5);
+                                box.setAlignment(Pos.CENTER_LEFT);
 
-                            HBox box = new HBox(5);
-                            box.setAlignment(Pos.CENTER_LEFT);
+                                Image img = new Image("/icons/" + item.getLanguage() + ".png");
+                                ImageView iv = new ImageView(img);
+                                iv.fitHeightProperty().setValue(20);
+                                iv.fitWidthProperty().setValue(20);
+                                iv.setSmooth(true);
 
-                            Image img = new Image("/icons/" + item.getLanguage() + ".png");
-                            ImageView iv = new ImageView(img);
-                            iv.fitHeightProperty().setValue(20);
-                            iv.fitWidthProperty().setValue(20);
-                            iv.setSmooth(true);
+                                Label name = new Label(item.getDisplayLanguage());
+                                name.setTextFill(javafx.scene.paint.Color.BLACK);
 
-                            Label name = new Label(item.getDisplayLanguage());
-                            name.setTextFill(javafx.scene.paint.Color.BLACK);
-
-                            box.getChildren().setAll(iv, name);
-                            setGraphic(box);
-
+                                box.getChildren().setAll(iv, name);
+                                setGraphic(box);
+                            } catch (Exception ex) {
+                                setGraphic(null);
+                            }
                         }
                     }
                 };
@@ -365,7 +368,7 @@ public class FXLogin extends AnchorPane {
         comboBox.valueProperty().addListener(new ChangeListener<Locale>() {
             @Override
             public void changed(ObservableValue<? extends Locale> observable, Locale oldValue, Locale newValue) {
-                selectedLocale = newValue;
+                FXLogin.this.selectedLocale = newValue;
                 //TODO reload UI
             }
         });
@@ -390,11 +393,11 @@ public class FXLogin extends AnchorPane {
      * @return
      */
     public JEVisDataSource getDataSource() {
-        return _ds;
+        return this._ds;
     }
 
     private void setDefaultStyle(Node node, String style) {
-        if (!useCSSFile) {
+        if (!this.useCSSFile) {
             node.setStyle(style);
         }
     }
@@ -413,9 +416,9 @@ public class FXLogin extends AnchorPane {
 
         String defaultLogo = "/icons/openjevis_longlogo.png";
 
-        if (fxoptions != null) {
-            if (fxoptions.hasOption(CommonOptions.FXLogin.URL_LOGO.getKey())) {
-                JEVisOption opt = fxoptions.getOption(CommonOptions.FXLogin.URL_LOGO.getKey());
+        if (this.fxoptions != null) {
+            if (this.fxoptions.hasOption(CommonOptions.FXLogin.URL_LOGO.getKey())) {
+                JEVisOption opt = this.fxoptions.getOption(CommonOptions.FXLogin.URL_LOGO.getKey());
                 if (opt.getValue() != null && !opt.getValue().isEmpty()) {
                     try {
                         logo = new ImageView(new Image(opt.getValue()));
@@ -431,7 +434,7 @@ public class FXLogin extends AnchorPane {
         }
         logo.setPreserveRatio(true);
 
-        logo.fitWidthProperty().bind(mainStage.widthProperty());
+        logo.fitWidthProperty().bind(this.mainStage.widthProperty());
 
         header.getChildren().add(logo);
         AnchorPane.setBottomAnchor(logo, 0.0);
@@ -472,10 +475,10 @@ public class FXLogin extends AnchorPane {
 
         HBox buttonBox = new HBox(10);
         Node link = buildLink();
-        buttonBox.getChildren().setAll(link, spacer, loginButton, closeButton);
+        buttonBox.getChildren().setAll(link, spacer, this.loginButton, this.closeButton);
         HBox.setHgrow(link, Priority.NEVER);
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox.setHgrow(loginButton, Priority.NEVER);
+        HBox.setHgrow(this.loginButton, Priority.NEVER);
         return buttonBox;
     }
 
@@ -501,79 +504,79 @@ public class FXLogin extends AnchorPane {
         Label languageL = new Label("Language: ");
         languageL.setId("fxlogin-form-language-label");
 
-        loginButton.setDefaultButton(true);
-        closeButton.setCancelButton(true);
+        this.loginButton.setDefaultButton(true);
+        this.closeButton.setCancelButton(true);
 
         langSelect.setId("fxlogin-form-language");
-        loginButton.setId("fxlogin-form-login");
-        closeButton.setId("fxlogin-form-close");
-        userName.setId("fxlogin-form-username");
-        userPassword.setId("fxlogin-form-password");
-        authGrid.setId("fxlogin-form");
+        this.loginButton.setId("fxlogin-form-login");
+        this.closeButton.setId("fxlogin-form-close");
+        this.userName.setId("fxlogin-form-username");
+        this.userPassword.setId("fxlogin-form-password");
+        this.authGrid.setId("fxlogin-form");
 
-        closeButton.setOnAction(new EventHandler<ActionEvent>() {
+        this.closeButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent event) {
-                loginStatus.setValue(Boolean.FALSE);
-                statusDialog.hide();
+                FXLogin.this.loginStatus.setValue(Boolean.FALSE);
+                FXLogin.this.statusDialog.hide();
                 System.exit(0);//Not the fine ways but ok for now
             }
         });
 
-        userName.requestFocus();
+        this.userName.requestFocus();
 
-        loginButton.setOnAction(new EventHandler<ActionEvent>() {
+        this.loginButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
             public void handle(ActionEvent event) {
-                loginButton.setDisable(true);
+                FXLogin.this.loginButton.setDisable(true);
                 doLogin();
 
             }
         });
 
-        authGrid.setHgap(10);
-        authGrid.setVgap(5);
-        authGrid.setPadding(new Insets(10, 10, 10, 10));
+        this.authGrid.setHgap(10);
+        this.authGrid.setVgap(5);
+        this.authGrid.setPadding(new Insets(10, 10, 10, 10));
 
         int columns = 2;
         //x,x...
         int row = 0;
-        authGrid.add(userL, 0, row);
-        authGrid.add(userName, 1, row);
+        this.authGrid.add(userL, 0, row);
+        this.authGrid.add(this.userName, 1, row);
 
         row++;
-        authGrid.add(passwordL, 0, row);
-        authGrid.add(userPassword, 1, row);
+        this.authGrid.add(passwordL, 0, row);
+        this.authGrid.add(this.userPassword, 1, row);
 
         row++;
-        authGrid.add(languageL, 0, row);
-        authGrid.add(langSelect, 1, row);
+        this.authGrid.add(languageL, 0, row);
+        this.authGrid.add(langSelect, 1, row);
 
         row++;
 //        authGrid.add(serverL, 0, row);
 //        authGrid.add(serverConfigBox, 1, row);
-        authGrid.add(new Region(), 0, row);
-        authGrid.add(new Region(), 1, row);
+        this.authGrid.add(new Region(), 0, row);
+        this.authGrid.add(new Region(), 1, row);
 
         row++;
 //        grid.add(serverL, 0, row);
-        authGrid.add(storeConfig, 1, row);
+        this.authGrid.add(this.storeConfig, 1, row);
 
         Region cTobSpacer = new Region();
         setDefaultStyle(cTobSpacer, "-fx-background-color: transparent;");
         cTobSpacer.setPrefHeight(30);
 
         row++;
-        authGrid.add(cTobSpacer, 0, row, columns, 1);
+        this.authGrid.add(cTobSpacer, 0, row, columns, 1);
 
         row++;
-        authGrid.add(buttonBox, 0, row, columns, 1);
+        this.authGrid.add(buttonBox, 0, row, columns, 1);
 
-        storeConfig.setId("fxlogin-form-remeberme");
+        this.storeConfig.setId("fxlogin-form-remeberme");
 
-        return authGrid;
+        return this.authGrid;
     }
 
     /**
@@ -591,13 +594,13 @@ public class FXLogin extends AnchorPane {
 
         leftSpacer.setId("fxlogin-body-left");
         rightSpacer.setId("fxlogin-body-right");
-        progress.setId("fxlogin-body-progress");
+        this.progress.setId("fxlogin-body-progress");
 
-        progress.setPrefSize(80, 80);
-        progress.setVisible(false);
-        AnchorPane.setTopAnchor(progress, 70d);
-        AnchorPane.setLeftAnchor(progress, 100d);
-        rightSpacer.getChildren().setAll(progress);
+        this.progress.setPrefSize(80, 80);
+        this.progress.setVisible(false);
+        AnchorPane.setTopAnchor(this.progress, 70d);
+        AnchorPane.setLeftAnchor(this.progress, 100d);
+        rightSpacer.getChildren().setAll(this.progress);
 
         leftSpacer.setMinWidth(200);//todo 20%
 
@@ -613,8 +616,8 @@ public class FXLogin extends AnchorPane {
         Node header = buildHeader();
         Node footer = buildFooter();
 
-        mainHBox = new VBox();
-        mainHBox.getChildren().setAll(header, body, footer);
+        this.mainHBox = new VBox();
+        this.mainHBox.getChildren().setAll(header, body, footer);
         VBox.setVgrow(body, Priority.NEVER);
         VBox.setVgrow(header, Priority.ALWAYS);
         VBox.setVgrow(footer, Priority.ALWAYS);
@@ -622,14 +625,14 @@ public class FXLogin extends AnchorPane {
         setDefaultStyle(body, "-fx-background-color: white;");
         setDefaultStyle(leftSpacer, "-fx-background-color: white;");
         setDefaultStyle(rightSpacer, "-fx-background-color: white;");
-        setDefaultStyle(mainHBox, "-fx-background-color: yellow;");
+        setDefaultStyle(this.mainHBox, "-fx-background-color: yellow;");
 
-        AnchorPane.setTopAnchor(mainHBox, 0.0);
-        AnchorPane.setRightAnchor(mainHBox, 0.0);
-        AnchorPane.setLeftAnchor(mainHBox, 0.0);
-        AnchorPane.setBottomAnchor(mainHBox, 0.0);
+        AnchorPane.setTopAnchor(this.mainHBox, 0.0);
+        AnchorPane.setRightAnchor(this.mainHBox, 0.0);
+        AnchorPane.setLeftAnchor(this.mainHBox, 0.0);
+        AnchorPane.setBottomAnchor(this.mainHBox, 0.0);
 
-        getChildren().setAll(mainHBox);
+        getChildren().setAll(this.mainHBox);
 
     }
 
@@ -754,18 +757,18 @@ public class FXLogin extends AnchorPane {
      */
     private void loadPreference(boolean showServer) {
 //        logger.info("load from disk");
-        if (!jevisPref.get("JEVisUser", "").isEmpty()) {
-            storeConfig.setSelected(true);
+        if (!this.jevisPref.get("JEVisUser", "").isEmpty()) {
+            this.storeConfig.setSelected(true);
 //            logger.info("username: " + jevisPref.get("JEVisUser", ""));
-            userName.setText(jevisPref.get("JEVisUser", ""));
-            userPassword.setText(jevisPref.get("JEVisPW", ""));
+            this.userName.setText(this.jevisPref.get("JEVisUser", ""));
+            this.userPassword.setText(this.jevisPref.get("JEVisPW", ""));
         } else {
-            storeConfig.setSelected(false);
+            this.storeConfig.setSelected(false);
         }
     }
 
     public Locale getSelectedLocale() {
-        return selectedLocale;
+        return this.selectedLocale;
     }
 
     /**
@@ -780,9 +783,9 @@ public class FXLogin extends AnchorPane {
 
         final String url;
 
-        if (fxoptions != null) {
-            if (fxoptions.hasOption(CommonOptions.FXLogin.URL_REGISTER.getKey())) {
-                JEVisOption opt = fxoptions.getOption(CommonOptions.FXLogin.URL_REGISTER.getKey());
+        if (this.fxoptions != null) {
+            if (this.fxoptions.hasOption(CommonOptions.FXLogin.URL_REGISTER.getKey())) {
+                JEVisOption opt = this.fxoptions.getOption(CommonOptions.FXLogin.URL_REGISTER.getKey());
                 if (opt.getValue().equals("off")) {
                     link.setText("");
                     link.setVisible(false);
@@ -819,8 +822,8 @@ public class FXLogin extends AnchorPane {
     public Node buldBuildInfos() {
         VBox vbox = new VBox();
         setDefaultStyle(vbox, "-fx-background-color: transparent;");
-        logger.info(app.toString());
-        Label coypLeft = new Label(app.getName() + " " + app.getVersion());//©Envidatec GmbH 2014-2016");
+        logger.info(this.app.toString());
+        Label coypLeft = new Label(this.app.getName() + " " + this.app.getVersion());//©Envidatec GmbH 2014-2016");
         Label java = new Label("Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
         Label javafxlabel = new Label("JavaFX: " + System.getProperties().get("javafx.runtime.version"));
 
@@ -839,7 +842,7 @@ public class FXLogin extends AnchorPane {
      * @return
      */
     public SimpleBooleanProperty getLoginStatus() {
-        return loginStatus;
+        return this.loginStatus;
     }
 
     /**
@@ -848,13 +851,13 @@ public class FXLogin extends AnchorPane {
      * find a better solution but the JEVisDataSource needs an plaintext pw.
      */
     private void storePreference() {
-        final String jevisUser = userName.getText();
-        final String jevisPW = userPassword.getText();
+        final String jevisUser = this.userName.getText();
+        final String jevisPW = this.userPassword.getText();
 
-        jevisPref.put("JEVisUser", jevisUser);
-        jevisPref.put("JEVisPW", jevisPW);
+        this.jevisPref.put("JEVisUser", jevisUser);
+        this.jevisPref.put("JEVisPW", jevisPW);
         try {
-            jevisPref.sync();
+            this.jevisPref.sync();
         } catch (BackingStoreException ex) {
             logger.fatal(ex);
         }
@@ -869,7 +872,7 @@ public class FXLogin extends AnchorPane {
      * @return
      */
     public String getUserPassword() {
-        return userPassword.getText();
+        return this.userPassword.getText();
     }
 
     public interface Color {

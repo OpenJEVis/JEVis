@@ -19,35 +19,40 @@ public class ToggleSwitchPlus extends GridPane {
     public ToggleSwitchPlus() {
         super();
         setHgap(0);
-        labelOn.setVisible(false);
-        labelOff.setVisible(true);
+        this.labelOn.setVisible(false);
+        this.labelOff.setVisible(true);
         selectedProperty().setValue(false);
 
         selectedProperty().addListener((observable, oldValue, newValue) -> {
-            labelOn.setVisible(newValue);
-            labelOff.setVisible(!newValue);
+            this.labelOn.setVisible(newValue);
+            this.labelOff.setVisible(!newValue);
         });
 
-        add(labelOn, 0, 0);
-        add(labelOff, 0, 0);
-        add(button, 1, 0);
+        add(this.labelOn, 0, 0);
+        add(this.labelOff, 0, 0);
+        add(this.button, 1, 0);
 
-        GridPane.setHgrow(labelOn, Priority.NEVER);
-        GridPane.setHgrow(labelOff, Priority.NEVER);
-        GridPane.setHalignment(button, HPos.LEFT);
+        GridPane.setHgrow(this.labelOn, Priority.NEVER);
+        GridPane.setHgrow(this.labelOff, Priority.NEVER);
+        GridPane.setHalignment(this.button, HPos.LEFT);
 
+    }
+
+    public void setLabels(String onText, String offText) {
+        this.labelOn.setText(onText);
+        this.labelOff.setText(offText);
     }
 
     public final BooleanProperty selectedProperty() {
-        return button.selectedProperty();
+        return this.button.selectedProperty();
     }
 
     public final boolean isSelected() {
-        return button.isSelected();
+        return this.button.isSelected();
     }
 
     public final void setSelected(boolean value) {
-        button.selectedProperty().setValue(value);
+        this.button.selectedProperty().setValue(value);
     }
 
 }

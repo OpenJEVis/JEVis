@@ -880,13 +880,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL + HTTPConnection.FMT.print(until);
             }
 
-//            StringBuffer response = con.getRequest(resource);
-//
-//            Type listType = new TypeToken<List<JsonSample>>() {
-//            }.getType();
-//            List<JsonSample> jsons = gson.fromJson(response.toString(), listType);
-
-            //            ObjectMapper objectMapper = new ObjectMapper();
             JsonSample[] jsons = this.objectMapper.readValue(this.con.getInputStreamRequest(resource), JsonSample[].class);
 
 

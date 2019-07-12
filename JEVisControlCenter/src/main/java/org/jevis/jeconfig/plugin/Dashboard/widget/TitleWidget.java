@@ -37,8 +37,48 @@ public class TitleWidget extends Widget {
             this.label.setTextFill(this.config.getFontColor());
             this.label.setText(this.config.getTitle());
             this.label.setFont(new Font(this.config.getFontSize()));
+            this.label.setPrefWidth(this.config.getSize().getWidth());
+
             this.label.setAlignment(this.config.getTitlePosition());
-            this.label.setText(this.config.getTitle());
+
+//            switch (this.config.getTitlePosition()) {
+//                case TOP_LEFT:
+//                case BOTTOM_LEFT:
+//                case CENTER_LEFT:
+//                case BASELINE_LEFT:
+//                    System.out.println("Case 1");
+//                    this.label.setTextAlignment(TextAlignment.LEFT);
+//                    break;
+//                case CENTER:
+//                case BASELINE_CENTER:
+//                case BOTTOM_CENTER:
+//                case TOP_CENTER:
+//                    System.out.println("case 2");
+//                    this.label.setTextAlignment(TextAlignment.CENTER);
+//                    break;
+//                case TOP_RIGHT:
+//                case BOTTOM_RIGHT:
+//                case CENTER_RIGHT:
+//                case BASELINE_RIGHT:
+//                    System.out.println("case 3");
+//                    this.label.setTextAlignment(TextAlignment.RIGHT);
+//                    break;
+
+//
+//            }
+
+//            System.out.println("TestPOs: " + this.config.getTitlePosition().toString());
+//            if (this.config.getTitlePosition().toString().contains("LEFT")) {
+//                this.label.setTextAlignment(TextAlignment.LEFT);
+//            } else if (this.config.getTitlePosition().toString().contains("CENTER")) {
+//                this.label.setTextAlignment(TextAlignment.CENTER);
+//            } else if (this.config.getTitlePosition().toString().contains("RIGHT")) {
+//                this.label.setTextAlignment(TextAlignment.RIGHT);
+//            }
+
+
+//            this.label.setTextAlignment(TextAlignment.LEFT);
+//            this.label.setText(this.config.getTitle());
         });
     }
 
