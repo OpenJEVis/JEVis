@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.commons.utils.Benchmark;
 import org.jevis.commons.ws.json.JsonObject;
 
 import javax.swing.event.EventListenerList;
@@ -401,7 +400,7 @@ public class JEVisObjectWS implements JEVisObject {
             System.out.println("Object.commit()");
 //            Gson gson = new Gson();
 //            logger.trace("Commit: {}", gson.toJson(this.json));
-            Benchmark benchmark = new Benchmark();
+//            Benchmark benchmark = new Benchmark();
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.OBJECTS.PATH;
 
@@ -421,10 +420,10 @@ public class JEVisObjectWS implements JEVisObject {
 //            JsonObject newJson = gson.fromJson(response.toString(), JsonObject.class);
             logger.debug("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
             this.json = newJson;
-            benchmark.printBenchmarkDetail("After ws call");
+//            benchmark.printBenchmarkDetail("After ws call");
 //            this.ds.reloadRelationships();
             this.ds.reloadRelationships(this.json.getId());
-            benchmark.printBenchmarkDetail("After reloadRel");
+//            benchmark.printBenchmarkDetail("After reloadRel");
             /** reload object to be sure all events will be handled and the cache is working correctly **/
             this.ds.addToObjectCache(this);
             if (update) {
@@ -441,7 +440,7 @@ public class JEVisObjectWS implements JEVisObject {
             }
 
 
-            benchmark.printBenchmarkDetail("done commit");
+//            benchmark.printBenchmarkDetail("done commit");
         } catch (JsonParseException ex) {
             throw new JEVisException("Json parse exception. Could not commit to server", 8236341, ex);
         } catch (JsonMappingException ex) {
