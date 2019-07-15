@@ -42,7 +42,7 @@ public class PieChart implements Chart {
     private String unit;
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
-    private ObservableList<javafx.scene.chart.PieChart.Data> series = FXCollections.observableArrayList();
+    private List<javafx.scene.chart.PieChart.Data> series = new ArrayList<>();
     private PieChartExtended pieChart;
     private List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
@@ -144,7 +144,7 @@ public class PieChart implements Chart {
         for (Double d : listSumsPiePieces) whole += d;
         for (Double d : listSumsPiePieces) listPercentages.add(d / whole);
 
-        series.clear();
+        series = new ArrayList<>();
         seriesNames.clear();
         for (String name : listTableEntryNames) {
             QuantityUnits qu = new QuantityUnits();
@@ -162,21 +162,20 @@ public class PieChart implements Chart {
             seriesNames.add(name);
         }
 
-
         if (pieChart == null) {
-            pieChart = new PieChartExtended(series);
-        }
+            pieChart = new PieChartExtended(FXCollections.observableArrayList(series));
+        } else pieChart.setData(FXCollections.observableArrayList(series));
 
         pieChart.setTitle(chartName);
         pieChart.setLegendVisible(false);
         pieChart.applyCss();
 
-        applyColors();
-
         pieChart.setTitle(chartName);
         pieChart.setLegendVisible(true);
         pieChart.setLegendSide(Side.BOTTOM);
         pieChart.setLabelsVisible(true);
+
+        applyColors();
 
         chartSettingsFunction.applySetting(pieChart);
 
@@ -268,7 +267,100 @@ public class PieChart implements Chart {
 
     @Override
     public void updateTableZoom(Long lowerBound, Long upperBound) {
+        Platform.runLater(() -> {
+            if (lowerBound != null && upperBound != null) {
+                DateTime start = new DateTime(lowerBound);
+                DateTime end = new DateTime(upperBound);
+                if (chartDataModels != null) {
+                    List<Double> listSumsPiePieces = new ArrayList<>();
+                    List<String> listTableEntryNames = new ArrayList<>();
 
+                    for (ChartDataModel singleRow : chartDataModels) {
+                        if (!singleRow.getSelectedcharts().isEmpty()) {
+                            singleRow.setSelectedStart(start);
+                            singleRow.setSelectedEnd(end);
+                            singleRow.setSomethingChanged(true);
+
+                            Double sumPiePiece = 0d;
+                            QuantityUnits qu = new QuantityUnits();
+                            boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
+                            boolean isSummable = qu.isSumCalculable(singleRow.getUnit());
+
+                            List<JEVisSample> samples = singleRow.getSamples();
+                            if (!isQuantity && isSummable) {
+
+                                JEVisUnit sumUnit = qu.getSumUnit(singleRow.getUnit());
+                                String outputUnit = UnitManager.getInstance().format(sumUnit).replace("·", "");
+                                if (outputUnit.equals("")) outputUnit = sumUnit.getLabel();
+
+                                String inputUnit = UnitManager.getInstance().format(singleRow.getUnit()).replace("·", "");
+                                if (inputUnit.equals("")) inputUnit = singleRow.getUnit().getLabel();
+
+                                ChartUnits cu = new ChartUnits();
+                                Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
+                                samples.forEach(sample -> {
+                                    try {
+                                        sample.setValue(sample.getValueAsDouble() * finalFactor);
+                                    } catch (Exception e) {
+                                        try {
+                                            logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue());
+                                        } catch (Exception e1) {
+                                            logger.fatal(e1);
+                                        }
+                                    }
+                                });
+                            }
+
+                            int samplecount = samples.size();
+                            for (JEVisSample sample : samples) {
+                                try {
+                                    sumPiePiece += sample.getValueAsDouble();
+                                } catch (JEVisException e) {
+                                    logger.error(e);
+                                }
+                            }
+
+                            if (!isQuantity && !isSummable) {
+                                sumPiePiece = sumPiePiece / samplecount;
+                            }
+
+                            listSumsPiePieces.add(sumPiePiece);
+                            if (!listTableEntryNames.contains(singleRow.getObject().getName())) {
+                                listTableEntryNames.add(singleRow.getObject().getName());
+                            } else {
+                                listTableEntryNames.add(singleRow.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
+                            }
+                        }
+
+                        Double whole = 0d;
+                        List<Double> listPercentages = new ArrayList<>();
+                        NumberFormat nf = NumberFormat.getInstance();
+                        nf.setMinimumFractionDigits(2);
+                        nf.setMaximumFractionDigits(2);
+                        for (Double d : listSumsPiePieces) whole += d;
+                        for (Double d : listSumsPiePieces) listPercentages.add(d / whole);
+
+                        for (String name : listTableEntryNames) {
+                            QuantityUnits qu = new QuantityUnits();
+                            JEVisUnit currentUnit = chartDataModels.get(listTableEntryNames.indexOf(name)).getUnit();
+                            String currentUnitString = "";
+                            if (qu.isQuantityUnit(currentUnit)) currentUnitString = getUnit(currentUnit);
+                            else currentUnitString = getUnit(qu.getSumUnit(currentUnit));
+
+                            String seriesName = nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
+                                    + " " + currentUnitString
+                                    + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + " %)";
+
+                            pieChart.getData().get(listTableEntryNames.indexOf(name)).setName(seriesName);
+                            pieChart.getData().get(listTableEntryNames.indexOf(name)).setPieValue(listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
+                        }
+                    }
+
+                    makeCustomLegend();
+                }
+
+            }
+        });
     }
 
     @Override
@@ -285,15 +377,20 @@ public class PieChart implements Chart {
             String hexColor = toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = pieChart.lookup(preIdent + ".chart-pie");
+
             if (node != null) {
                 node.setStyle("-fx-pie-color: " + hexColor + ";");
             }
         }
 
+        makeCustomLegend();
+    }
+
+    public void makeCustomLegend() {
         ObservableList<Legend.LegendItem> items = pieChart.getPieLegend().getItems();
-        for (int i = 0; i < items.size(); i++) {
-            Legend.LegendItem legendItem = items.get(i);
-            int finalI = i;
+        for (int j = 0; j < items.size(); j++) {
+            Legend.LegendItem legendItem = items.get(j);
+            int finalI = j;
             Platform.runLater(() -> {
                 legendItem.setSymbol(new Rectangle(8, 8, hexColors.get(finalI)));
                 legendItem.setText(seriesNames.get(finalI));
