@@ -21,6 +21,7 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
@@ -396,6 +397,9 @@ public class PieChart implements Chart {
                 legendItem.setText(seriesNames.get(finalI));
             });
         }
+
+        AlphanumComparator ac = new AlphanumComparator();
+        Platform.runLater(() -> items.sort((o1, o2) -> ac.compare(o1.getText(), o2.getText())));
     }
 
 
