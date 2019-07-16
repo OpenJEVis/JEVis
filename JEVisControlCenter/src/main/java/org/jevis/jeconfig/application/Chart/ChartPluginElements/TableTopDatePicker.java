@@ -66,6 +66,25 @@ public class TableTopDatePicker extends HBox {
         selectionBox.setCellFactory(cellFactory);
         selectionBox.setButtonCell(cellFactory.call(null));
 
+        selectionBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                if (!dates.contains(newValue)) {
+                    DateTime correctTimestamp = null;
+                    for (DateTime dateTime : dates) {
+                        if (dateTime.isAfter(newValue)) {
+                            correctTimestamp = dateTime;
+                            break;
+                        }
+                    }
+                    if (correctTimestamp != null) {
+                        selectionBox.getSelectionModel().select(correctTimestamp);
+                    } else {
+                        selectionBox.getSelectionModel().select(dates.get(dates.size() - 1));
+                    }
+                }
+            }
+        });
+
         leftImage = JEConfig.getImage("left.png", 20, 20);
         rightImage = JEConfig.getImage("right.png", 20, 20);
         Separator sep1 = new Separator(Orientation.VERTICAL);

@@ -27,17 +27,21 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.ValueAxis;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
 
 /**
  * ChartZoomManager manages a zooming selection rectangle and the bounds of the graph. It can be
@@ -118,11 +122,16 @@ public class ChartZoomManager {
     private final ValueAxis<?> y2Axis;
     private final XYChartInfo chartInfo;
     private final Timeline zoomAnimation = new Timeline();
+    private final StackPane chartPane;
     private AxisConstraint zoomMode = AxisConstraint.None;
     private AxisConstraintStrategy axisConstraintStrategy = AxisConstraintStrategies.getIgnoreOutsideChart();
     private AxisConstraintStrategy mouseWheelAxisConstraintStrategy = AxisConstraintStrategies.getDefault();
     private EventHandler<? super MouseEvent> mouseFilter = DEFAULT_FILTER;
     private Rectangle2D zoomWindow1;
+    private final String maxStr = I18n.getInstance().getString("plugin.graph.table.max") + " ";
+    private final String minStr = I18n.getInstance().getString("plugin.graph.table.min") + " ";
+    private Label startLabel = new Label();
+    private Label endLabel = new Label();
 
     /**
      * Construct a new ChartZoomManager. See {@link ChartZoomManager} documentation for normal usage.
@@ -131,8 +140,12 @@ public class ChartZoomManager {
      * @param selectRect A Rectangle whose layoutX/Y makes it line up with the chart
      * @param chart      Chart to manage, where both X and Y axis are a {@link ValueAxis}.
      */
-    public ChartZoomManager(Pane chartPane, Rectangle selectRect, MultiAxisChart<?, ?> chart) {
+    public ChartZoomManager(StackPane chartPane, Rectangle selectRect, MultiAxisChart<?, ?> chart) {
         this.selectRect = selectRect;
+        this.chartPane = chartPane;
+        this.chartPane.getChildren().addAll(startLabel, endLabel);
+        StackPane.setAlignment(startLabel, Pos.TOP_LEFT);
+        StackPane.setAlignment(endLabel, Pos.TOP_RIGHT);
         if (chart.getXAxis() instanceof ValueAxis) xAxis = (ValueAxis<?>) chart.getXAxis();
         else {
             /**
@@ -351,6 +364,8 @@ public class ChartZoomManager {
         selectRect.widthProperty().bind(rectX.subtract(selectRect.translateXProperty()));
         selectRect.heightProperty().bind(rectY.subtract(selectRect.translateYProperty()));
         selectRect.visibleProperty().bind(selecting);
+        startLabel.visibleProperty().bind(selecting);
+        endLabel.visibleProperty().bind(selecting);
     }
 
     /**
@@ -363,6 +378,8 @@ public class ChartZoomManager {
         selectRect.widthProperty().unbind();
         selectRect.heightProperty().unbind();
         selectRect.visibleProperty().unbind();
+        startLabel.visibleProperty().unbind();
+        endLabel.visibleProperty().unbind();
     }
 
     private boolean passesFilter(MouseEvent event) {
@@ -388,7 +405,6 @@ public class ChartZoomManager {
             selectRect.setTranslateY(y);
             rectX.set(x);
             rectY.set(y);
-
         } else if (zoomMode == AxisConstraint.Horizontal) {
             selectRect.setTranslateX(x);
             selectRect.setTranslateY(plotArea.getMinY());
@@ -401,7 +417,11 @@ public class ChartZoomManager {
             rectX.set(plotArea.getMaxX());
             rectY.set(y);
         }
+
+        Point2D dataCoordinatesY1 = chartInfo.getDataCoordinatesY1(x, y);
+        startLabel.setText(minStr + new DateTime((long) dataCoordinatesY1.getX()).toString("yyyy-MM-dd HH:mm"));
     }
+
 
     private void onDragStart() {
         //Don't actually start the selecting process until it's officially a drag
@@ -433,6 +453,9 @@ public class ChartZoomManager {
             y = Math.min(y, plotArea.getMaxY());
             rectY.set(y);
         }
+
+        Point2D dataCoordinatesY1 = chartInfo.getDataCoordinatesY1(rectX.get(), rectY.get());
+        endLabel.setText(maxStr + new DateTime((long) dataCoordinatesY1.getX()).toString("yyyy-MM-dd HH:mm"));
     }
 
     private void onMouseReleased() {
