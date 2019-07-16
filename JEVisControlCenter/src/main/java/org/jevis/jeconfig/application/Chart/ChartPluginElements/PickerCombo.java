@@ -2,6 +2,8 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
+import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
@@ -24,7 +26,6 @@ import java.time.format.FormatStyle;
 import java.util.List;
 
 import static org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM_START_END;
-import static org.jevis.jeconfig.application.Chart.TimeFrame.PREVIEW;
 
 public class PickerCombo {
 
@@ -48,6 +49,16 @@ public class PickerCombo {
         this.chartDataModels = chartDataModels;
 
         this.dateHelper = new DateHelper();
+
+        this.presetDateBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) this.presetDateBox.getSkin();
+                ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+                if (popupContent != null) {
+                    popupContent.scrollTo(this.presetDateBox.getSelectionModel().getSelectedIndex());
+                }
+            });
+        });
 
         final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
         final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
@@ -75,7 +86,7 @@ public class PickerCombo {
                         setText(null);
                         setGraphic(null);
 
-                        if (timeFrame != null) {
+                        if (timeFrame != null && !empty) {
                             String text = "";
                             switch (timeFrame) {
                                 case CUSTOM:
@@ -113,16 +124,16 @@ public class PickerCombo {
                                     break;
                                 case CUSTOM_START_END:
                                     text = customStartEnd;
+                                    setTextFill(Color.LIGHTGRAY);
+                                    setDisable(true);
                                     break;
                                 case PREVIEW:
                                     text = preview;
+                                    setTextFill(Color.LIGHTGRAY);
+                                    setDisable(true);
                                     break;
                             }
                             setText(text);
-                            if (timeFrame == CUSTOM_START_END || timeFrame == PREVIEW) {
-                                setTextFill(Color.LIGHTGRAY);
-                                setDisable(true);
-                            }
                         }
                     }
                 };
@@ -422,8 +433,6 @@ public class PickerCombo {
         switch (newValue) {
             //Custom
             case CUSTOM:
-
-
                 break;
             //today
             case TODAY:
@@ -477,7 +486,6 @@ public class PickerCombo {
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             case CUSTOM_START_END:
-                break;
             default:
                 break;
         }
