@@ -105,6 +105,7 @@ public class GraphDataModel {
          * objectMapper configuration for backwards compatibility. Can be removed in the future.
          */
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
         if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
         if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
@@ -829,7 +830,7 @@ public class GraphDataModel {
                                 } catch (Exception e) {
                                     logger.error(e);
                                     tempModel = new JsonChartDataModel();
-                                    tempModel.getListAnalyses().add(objectMapper.readValue(str, JsonAnalysisDataRow.class));
+                                    tempModel.getListDataRows().add(objectMapper.readValue(str, JsonAnalysisDataRow.class));
                                 }
                             }
                         } catch (Exception e) {
@@ -948,7 +949,7 @@ public class GraphDataModel {
         if (jsonChartDataModel != null) {
             Map<String, ChartDataModel> data = new HashMap<>();
 
-            for (JsonAnalysisDataRow mdl : jsonChartDataModel.getListAnalyses()) {
+            for (JsonAnalysisDataRow mdl : jsonChartDataModel.getListDataRows()) {
                 ChartDataModel newData = new ChartDataModel(ds);
 
                 try {

@@ -9,8 +9,8 @@ public class JsonChartDataModel {
 
     private List<JsonAnalysisDataRow> listDataRows;
 
-    @XmlElement(name = "arrayAnalyses")
-    public List<JsonAnalysisDataRow> getListAnalyses() {
+    @XmlElement(name = "listDataRows")
+    public List<JsonAnalysisDataRow> getListDataRows() {
         return listDataRows;
     }
 
