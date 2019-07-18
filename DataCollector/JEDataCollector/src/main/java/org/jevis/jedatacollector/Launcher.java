@@ -20,6 +20,9 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author broder
@@ -64,7 +67,10 @@ public class Launcher extends AbstractCliApp {
         }
 
         dataSources.parallelStream().forEach(object -> {
-            forkJoinPool.submit(() -> {
+            SampleHandler sampleHandler = new SampleHandler();
+            Long maxTime = sampleHandler.getLastSample(object, "Max thread time", 900000L);
+            try {
+                executor.submit(() -> {
                 if (!runningJobs.containsKey(object.getID())) {
                     Thread.currentThread().setName(object.getID().toString());
 
@@ -97,7 +103,14 @@ public class Launcher extends AbstractCliApp {
                 } else {
                     logger.error("Still processing DataSource " + object.getName() + ":" + object.getID());
                 }
-            });
+                }).get(maxTime, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                logger.error("Job interrupted. ", e);
+            } catch (ExecutionException e) {
+                logger.error("Job with error. ", e);
+            } catch (TimeoutException e) {
+                logger.error("Job timed out. ", e);
+            }
         });
 
         logger.info("---------------------finish------------------------");
@@ -110,16 +123,11 @@ public class Launcher extends AbstractCliApp {
         plannedJobs.remove(object.getID());
         logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
 
-        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            logger.info("Last job. Clearing cache.");
-            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-            ds.clearCache();
-        }
+        checkLastJob();
     }
 
     private void runDataSource(JEVisObject object, DataSource dataSource, boolean finish) {
         runningJobs.put(object.getID(), DateTime.now().toString());
-        activeThreads.add(Thread.currentThread());
         LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
 
         logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
@@ -132,7 +140,6 @@ public class Launcher extends AbstractCliApp {
         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
         runningJobs.remove(object.getID());
         plannedJobs.remove(object.getID());
-        activeThreads.remove(Thread.currentThread());
 
         if (finish) {
             dataSource.finishCurrentRun(object);
@@ -141,8 +148,13 @@ public class Launcher extends AbstractCliApp {
 
         logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
 
+        checkLastJob();
+    }
+
+    private void checkLastJob() {
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
             logger.info("Last job. Clearing cache.");
+            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
             ds.clearCache();
         }
     }
@@ -202,40 +214,7 @@ public class Launcher extends AbstractCliApp {
                 logger.info("Service is disabled.");
             }
         } else {
-            List<Long> toBeRemoved = new ArrayList<>();
-            runningJobs.forEach((key, value) -> {
-                try {
-                    Thread thread = null;
-                    for (Thread activeThread : activeThreads) {
-                        if (activeThread.getName().equals(key.toString())) {
-                            thread = activeThread;
-                            break;
-                        }
-                    }
-
-                    DateTime start = new DateTime(value);
-                    DateTime now = DateTime.now();
-
-                    SampleHandler sampleHandler = new SampleHandler();
-                    Long maxTime = sampleHandler.getLastSample(ds.getObject(key), "Max thread time", 900000L);
-                    if (now.getMillis() - start.getMillis() > maxTime) {
-                        if (thread != null) {
-                            thread.interrupt();
-                            toBeRemoved.add(key);
-                        }
-                    }
-
-                } catch (Exception e) {
-                    logger.error("Error in thread alive check {}", key, e);
-                }
-            });
-
-            toBeRemoved.forEach(aLong -> {
-                runningJobs.remove(aLong);
-                plannedJobs.remove(aLong);
-            });
-
-            runServiceHelp();
+            logger.info("Cycle not finished.");
         }
 
         try {
@@ -252,7 +231,7 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runComplete() {
-        logger.info("Start Compete Mode");
+        logger.info("Start Complete Mode");
         List<JEVisObject> dataSources = new ArrayList<JEVisObject>();
         dataSources = getEnabledDataSources(ds);
         executeDataSources(dataSources);

@@ -20,6 +20,7 @@ import org.jevis.jedataprocessor.workflow.ProcessManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author broder
@@ -49,38 +50,44 @@ public class Launcher extends AbstractCliApp {
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         processes.parallelStream().forEach(currentCleanDataObject -> {
-            forkJoinPool.submit(() -> {
-                if (!runningJobs.containsKey(currentCleanDataObject.getID())) {
-                    Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
-                    runningJobs.put(currentCleanDataObject.getID(), "true");
+            try {
+                executor.submit(() -> {
+                    if (!runningJobs.containsKey(currentCleanDataObject.getID())) {
+                        Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
+                        runningJobs.put(currentCleanDataObject.getID(), "true");
 
-                    try {
-                        LogTaskManager.getInstance().buildNewTask(currentCleanDataObject.getID(), currentCleanDataObject.getName());
-                        LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.STARTED);
+                        try {
+                            LogTaskManager.getInstance().buildNewTask(currentCleanDataObject.getID(), currentCleanDataObject.getName());
+                            LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.STARTED);
 
-                        ProcessManager currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds));
-                        currentProcess.start();
-                    } catch (Exception ex) {
-                        logger.debug(ex);
-                        LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
+                            ProcessManager currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds));
+                            currentProcess.start();
+                        } catch (Exception ex) {
+                            logger.debug(ex);
+                            LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
+                        }
+
+                        LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
+                        runningJobs.remove(currentCleanDataObject.getID());
+                        plannedJobs.remove(currentCleanDataObject.getID());
+
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                            logger.info("Last job. Clearing cache.");
+                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
+                            ds.clearCache();
+                        }
+
+                    } else {
+                        logger.info("Still processing Job " + currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID());
                     }
-
-                    LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
-                    runningJobs.remove(currentCleanDataObject.getID());
-                    plannedJobs.remove(currentCleanDataObject.getID());
-
-                    logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
-
-                    if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                        logger.info("Last job. Clearing cache.");
-                        setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                        ds.clearCache();
-                    }
-
-                } else {
-                    logger.info("Still processing Job " + currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID());
-                }
-            });
+                }).get();
+            } catch (InterruptedException e) {
+                logger.error("Job interrupted. ", e);
+            } catch (ExecutionException e) {
+                logger.error("Job with error. ", e);
+            }
         });
 
         logger.info("---------------------finish------------------------");

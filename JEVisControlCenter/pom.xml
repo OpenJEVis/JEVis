@@ -15,7 +15,6 @@
         <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
         <additionalparam>-Xdoclint:none</additionalparam>
         <skipjnlp>none</skipjnlp>
-        <openfx.version>11.0.2</openfx.version>
     </properties>
 
     <organization>

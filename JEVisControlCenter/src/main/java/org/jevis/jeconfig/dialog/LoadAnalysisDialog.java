@@ -90,6 +90,10 @@ public class LoadAnalysisDialog {
 //        stage.setWidth(maxScreenWidth - 250);
 
         analysisListView = new ListView<>(graphDataModel.getObservableListAnalyses());
+        analysisListView.getSelectionModel().selectedIndexProperty().addListener(
+                (observable, oldValue, newValue) ->
+                        Platform.runLater(() ->
+                                analysisListView.scrollTo(analysisListView.getSelectionModel().getSelectedIndex())));
 
         analysisListView.setCellFactory(param -> new ListCell<JEVisObject>() {
 

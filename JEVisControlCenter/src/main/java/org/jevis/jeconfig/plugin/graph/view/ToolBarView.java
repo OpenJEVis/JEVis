@@ -7,6 +7,7 @@ package org.jevis.jeconfig.plugin.graph.view;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
+import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -616,6 +617,18 @@ public class ToolBarView {
         Platform.runLater(() -> {
 
             listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
+            listAnalysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+                Platform.runLater(() -> {
+                    ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) listAnalysesComboBox.getSkin();
+                    if (skin != null) {
+                        ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+                        if (popupContent != null) {
+                            popupContent.scrollTo(listAnalysesComboBox.getSelectionModel().getSelectedIndex());
+                        }
+                    }
+                });
+            });
+
             listAnalysesComboBox.setPrefWidth(300);
 
             setCellFactoryForComboBox();
