@@ -48,9 +48,9 @@ public class Launcher extends AbstractCliApp {
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         processes.parallelStream().forEach(alarmConfiguration -> {
-            try {
-                executor.submit(() -> {
-                    if (!runningJobs.containsKey(alarmConfiguration.getId())) {
+            if (!runningJobs.containsKey(alarmConfiguration.getId())) {
+                try {
+                    executor.submit(() -> {
                         Thread.currentThread().setName(alarmConfiguration.getName() + ":" + alarmConfiguration.getId().toString());
                         runningJobs.put(alarmConfiguration.getId(), "true");
 
@@ -78,14 +78,14 @@ public class Launcher extends AbstractCliApp {
                             ds.clearCache();
                         }
 
-                    } else {
-                        logger.error("Still processing Job " + alarmConfiguration.getName() + ":" + alarmConfiguration.getId());
-                    }
-                }).get();
-            } catch (InterruptedException e) {
-                logger.error("Job interrupted. ", e);
-            } catch (ExecutionException e) {
-                logger.error("Job with error. ", e);
+                    }).get();
+                } catch (InterruptedException e) {
+                    logger.error("Job interrupted. ", e);
+                } catch (ExecutionException e) {
+                    logger.error("Job with error. ", e);
+                }
+            } else {
+                logger.error("Still processing Job " + alarmConfiguration.getName() + ":" + alarmConfiguration.getId());
             }
         });
 

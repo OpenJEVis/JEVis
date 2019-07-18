@@ -84,9 +84,9 @@ public class CalcLauncher extends AbstractCliApp {
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         enabledCalcObject.parallelStream().forEach(object -> {
-            try {
-                executor.submit(() -> {
-                    if (!runningJobs.containsKey(object.getID())) {
+            if (!runningJobs.containsKey(object.getID())) {
+                try {
+                    executor.submit(() -> {
 
                         Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
                         runningJobs.put(object.getID(), "true");
@@ -119,14 +119,15 @@ public class CalcLauncher extends AbstractCliApp {
                             ds.clearCache();
                         }
 
-                    } else {
-                        logger.error("Still processing Calc Object " + object.getName() + ":" + object.getID());
-                    }
-                }).get();
-            } catch (InterruptedException e) {
-                logger.error("Job interrupted. ", e);
-            } catch (ExecutionException e) {
-                logger.error("Job with error. ", e);
+                    }).get();
+                } catch (InterruptedException e) {
+                    logger.error("Job interrupted. ", e);
+                } catch (ExecutionException e) {
+                    logger.error("Job with error. ", e);
+                }
+            } else {
+                logger.error("Still processing Calc Object " + object.getName() + ":" + object.getID());
+
             }
         });
 
