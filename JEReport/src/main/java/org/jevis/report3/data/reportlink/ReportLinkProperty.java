@@ -344,8 +344,9 @@ public class ReportLinkProperty implements ReportData {
             if (linkObject.getAttribute("Optional") != null && linkObject.getAttribute("Optional").getLatestSample() != null) {
                 optional = linkObject.getAttribute("Optional").getLatestSample().getValueAsBoolean();
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.error(ex);
+            return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
         }
 
         if (attributeProperties.isEmpty() || optional) {
@@ -374,8 +375,9 @@ public class ReportLinkProperty implements ReportData {
                     } else {
                         return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
                     }
-                } catch (JEVisException ex) {
+                } catch (Exception ex) {
                     logger.error(ex);
+                    return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());
                 }
             }
         }

@@ -50,9 +50,9 @@ public class Launcher extends AbstractCliApp {
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         processes.parallelStream().forEach(currentCleanDataObject -> {
-            try {
-                executor.submit(() -> {
-                    if (!runningJobs.containsKey(currentCleanDataObject.getID())) {
+            if (!runningJobs.containsKey(currentCleanDataObject.getID())) {
+                try {
+                    executor.submit(() -> {
                         Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
                         runningJobs.put(currentCleanDataObject.getID(), "true");
 
@@ -79,14 +79,15 @@ public class Launcher extends AbstractCliApp {
                             ds.clearCache();
                         }
 
-                    } else {
-                        logger.info("Still processing Job " + currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID());
-                    }
-                }).get();
-            } catch (InterruptedException e) {
-                logger.error("Job interrupted. ", e);
-            } catch (ExecutionException e) {
-                logger.error("Job with error. ", e);
+
+                    }).get();
+                } catch (InterruptedException e) {
+                    logger.error("Job interrupted. ", e);
+                } catch (ExecutionException e) {
+                    logger.error("Job with error. ", e);
+                }
+            } else {
+                logger.info("Still processing Job " + currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID());
             }
         });
 

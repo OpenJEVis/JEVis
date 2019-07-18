@@ -79,13 +79,14 @@ public class ReportExecutor {
 
         AtomicBoolean isDataAvailable = new AtomicBoolean(true);
         logger.info("Creating report link stati.");
-        reportLinks.forEach(curData -> {
+        for (ReportData curData : reportLinks) {
             ReportData.LinkStatus reportLinkStatus = curData.getReportLinkStatus(end);
             if (!reportLinkStatus.isSanityCheck()) {
                 logger.info(reportLinkStatus.getMessage());
                 isDataAvailable.set(false);
+                break;
             }
-        });
+        }
         logger.info("Created report link stati.");
 
         if (!isDataAvailable.get()) {
