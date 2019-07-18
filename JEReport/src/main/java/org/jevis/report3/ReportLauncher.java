@@ -22,7 +22,6 @@ import org.jevis.report3.policy.ReportPolicy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -64,64 +63,58 @@ public class ReportLauncher extends AbstractCliApp {
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         reportObjects.parallelStream().forEach(reportObject -> {
-            if (!runningJobs.containsKey(reportObject.getID())) {
-                try {
-                    executor.submit(() -> {
-                                Thread.currentThread().setName(reportObject.getName() + ":" + reportObject.getID().toString());
-                                runningJobs.put(reportObject.getID(), "true");
+            forkJoinPool.submit(() -> {
+                if (!runningJobs.containsKey(reportObject.getID())) {
+                    Thread.currentThread().setName(reportObject.getName() + ":" + reportObject.getID().toString());
+                    runningJobs.put(reportObject.getID(), "true");
 
-                                LogTaskManager.getInstance().buildNewTask(reportObject.getID(), reportObject.getName());
-                                LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.STARTED);
+                    LogTaskManager.getInstance().buildNewTask(reportObject.getID(), reportObject.getName());
+                    LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.STARTED);
 
-                                logger.info("---------------------------------------------------------------------");
-                                logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
-                                //check if the report is enabled
-                                ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
-                                Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
-                                if (!reportEnabled) {
-                                    logger.info("Report is not enabled");
-                                } else {
+                    logger.info("---------------------------------------------------------------------");
+                    logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
+                    //check if the report is enabled
+                    ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
+                    Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
+                    if (!reportEnabled) {
+                        logger.info("Report is not enabled");
+                    } else {
 
-                                    ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
+                        ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
 
-                                    try {
-                                        if (executor != null) {
-                                            executor.executeReport();
-                                        }
-                                    } catch (Exception e) {
-                                        logger.error(e);
-                                        LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
-                                        LogTaskManager.getInstance().getTask(reportObject.getID()).setException(e);
-                                    }
-
-                                    logger.info("---------------------------------------------------------------------");
-                                    logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());
-                                }
-
-                                LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
-                                runningJobs.remove(reportObject.getID());
-                                plannedJobs.remove(reportObject.getID());
-
-                                logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
-
-                                if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                                    logger.info("Last job. Clearing cache.");
-                                    ReportLauncher.this.setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                                    ds.clearCache();
-                                }
-
+                        try {
+                            if (executor != null) {
+                                executor.executeReport();
                             }
-                    ).get();
-                } catch (InterruptedException e) {
-                    logger.error("Job interrupted. ", e);
-                } catch (ExecutionException e) {
-                    logger.error("Job with error. ", e);
+                        } catch (Exception e) {
+                            logger.error(e);
+                            LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
+                            LogTaskManager.getInstance().getTask(reportObject.getID()).setException(e);
+                        }
+
+                        logger.info("---------------------------------------------------------------------");
+                        logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());
+                    }
+
+                    LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
+                    runningJobs.remove(reportObject.getID());
+                    plannedJobs.remove(reportObject.getID());
+
+                    logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                    if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                        logger.info("Last job. Clearing cache.");
+                        setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
+                        ds.clearCache();
+                    }
+
+                } else {
+                    logger.error("Still processing Report " + reportObject.getName() + ":" + reportObject.getID());
                 }
-            } else {
-                logger.error("Still processing Report " + reportObject.getName() + ":" + reportObject.getID());
-            }
-            logger.info("---------------------finish------------------------");
+            });
         });
+
+        logger.info("---------------------finish------------------------");
     }
 
     @Override
