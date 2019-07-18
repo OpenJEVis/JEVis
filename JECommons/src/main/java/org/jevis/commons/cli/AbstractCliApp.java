@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * @author Artur Iablokov
@@ -56,6 +57,7 @@ public abstract class AbstractCliApp {
     protected BasicSettings settings = new BasicSettings();
     protected String[] args;
     protected ExecutorService executor;
+    protected ForkJoinPool forkJoinPool;
     protected int cycleTime = 900000;
 
     protected ConcurrentHashMap<Long, String> runningJobs = new ConcurrentHashMap();
@@ -247,7 +249,8 @@ public abstract class AbstractCliApp {
         } catch (Exception e) {
             logger.error("Couldn't get Service thread count from the JEVis System");
         }
-        executor = Executors.newFixedThreadPool(4);
+        executor = Executors.newFixedThreadPool(threadCount);
+        forkJoinPool = new ForkJoinPool(threadCount);
     }
 
     /**

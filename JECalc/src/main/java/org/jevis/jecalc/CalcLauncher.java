@@ -20,7 +20,6 @@ import org.jevis.commons.task.TaskPrinter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * @author broder
@@ -84,51 +83,44 @@ public class CalcLauncher extends AbstractCliApp {
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         enabledCalcObject.parallelStream().forEach(object -> {
-            if (!runningJobs.containsKey(object.getID())) {
-                try {
-                    executor.submit(() -> {
+            forkJoinPool.submit(() -> {
+                if (!runningJobs.containsKey(object.getID())) {
 
-                        Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
-                        runningJobs.put(object.getID(), "true");
+                    Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
+                    runningJobs.put(object.getID(), "true");
 
-                        try {
-                            LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
-                            LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
+                    try {
+                        LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
 
-                            CalcJob calcJob;
-                            CalcJobFactory calcJobCreator = new CalcJobFactory();
-                            do {
-                                calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
-                                calcJob.execute();
-                            } while (!calcJob.hasProcessedAllInputSamples());
+                        CalcJob calcJob;
+                        CalcJobFactory calcJobCreator = new CalcJobFactory();
+                        do {
+                            calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, object);
+                            calcJob.execute();
+                        } while (!calcJob.hasProcessedAllInputSamples());
 
-                        } catch (Exception e) {
-                            logger.debug(e);
-                            LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
-                        }
+                    } catch (Exception e) {
+                        logger.debug(e);
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
+                    }
 
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
-                        runningJobs.remove(object.getID());
-                        plannedJobs.remove(object.getID());
+                    LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
+                    runningJobs.remove(object.getID());
+                    plannedJobs.remove(object.getID());
 
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+                    logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
 
-                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                            logger.info("Last job. Clearing cache.");
-                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                            ds.clearCache();
-                        }
+                    if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                        logger.info("Last job. Clearing cache.");
+                        setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
+                        ds.clearCache();
+                    }
 
-                    }).get();
-                } catch (InterruptedException e) {
-                    logger.error("Job interrupted. ", e);
-                } catch (ExecutionException e) {
-                    logger.error("Job with error. ", e);
+                } else {
+                    logger.error("Still processing Calc Object " + object.getName() + ":" + object.getID());
                 }
-            } else {
-                logger.error("Still processing Calc Object " + object.getName() + ":" + object.getID());
-
-            }
+            });
         });
 
         logger.info("---------------------finish------------------------");
