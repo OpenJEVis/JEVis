@@ -18,6 +18,7 @@ import org.jevis.commons.task.TaskPrinter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -47,10 +48,8 @@ public class Launcher extends AbstractCliApp {
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         processes.parallelStream().forEach(alarmConfiguration -> {
-            forkJoinPool.submit(new Runnable() {
-
-                @Override
-                public void run() {
+            try {
+                executor.submit(() -> {
                     if (!runningJobs.containsKey(alarmConfiguration.getId())) {
                         Thread.currentThread().setName(alarmConfiguration.getName() + ":" + alarmConfiguration.getId().toString());
                         runningJobs.put(alarmConfiguration.getId(), "true");
@@ -82,8 +81,12 @@ public class Launcher extends AbstractCliApp {
                     } else {
                         logger.error("Still processing Job " + alarmConfiguration.getName() + ":" + alarmConfiguration.getId());
                     }
-                }
-            });
+                }).get();
+            } catch (InterruptedException e) {
+                logger.error("Job interrupted. ", e);
+            } catch (ExecutionException e) {
+                logger.error("Job with error. ", e);
+            }
         });
 
         logger.info("---------------------finish------------------------");
