@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisAreaChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 
 import java.util.List;
 
@@ -12,8 +13,8 @@ public class AreaChart extends org.jevis.jeconfig.application.Chart.Charts.XYCha
     private static final Logger logger = LogManager.getLogger(AreaChart.class);
 
 
-    public AreaChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, showRawData, showSum, hideShowIcons, addSeriesOfType, chartId, chartName);
+    public AreaChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+        super(chartDataModels, showRawData, showSum, hideShowIcons, calcRegression, regressionType, polyRegressionDegree, addSeriesOfType, chartId, chartName);
     }
 
     @Override

@@ -8,13 +8,14 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYScatterChartSerie;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisScatterChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 
 import java.util.List;
 
 public class ScatterChart extends XYChart {
 
-    public ScatterChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, showRawData, showSum, hideShowIcons, addSeriesOfType, chartId, chartName);
+    public ScatterChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+        super(chartDataModels, showRawData, showSum, hideShowIcons, calcRegression, regressionType, polyRegressionDegree, addSeriesOfType, chartId, chartName);
     }
 
     @Override
@@ -57,11 +58,13 @@ public class ScatterChart extends XYChart {
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
             String hexColor = toRGBCode(currentColor);
-            String preIdent = ".default-color" + i;
-            Node node = getChart().lookup(preIdent + ".chart-symbol");
-            String style = node.getStyle();
 
-            node.setStyle("-fx-background-color: " + hexColor + ";");
+            Node node = getChart().lookup(".default-color" + i + ".chart-symbol");
+//            String style = node.getStyle();
+
+            if (node != null) {
+                node.setStyle("-fx-background-color: " + hexColor + ";");
+            }
         }
     }
 }

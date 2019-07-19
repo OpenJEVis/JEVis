@@ -53,9 +53,11 @@ public class PickerCombo {
         this.presetDateBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
                 ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) this.presetDateBox.getSkin();
-                ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
-                if (popupContent != null) {
-                    popupContent.scrollTo(this.presetDateBox.getSelectionModel().getSelectedIndex());
+                if (skin != null) {
+                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+                    if (popupContent != null) {
+                        popupContent.scrollTo(this.presetDateBox.getSelectionModel().getSelectedIndex());
+                    }
                 }
             });
         });
@@ -293,18 +295,31 @@ public class PickerCombo {
         DateTime timeStampFromFirstSample = att.getTimestampFromFirstSample();
         DateTime timeStampFromLastSample = att.getTimestampFromLastSample();
 
-        LocalDate min_check = LocalDate.of(
-                timeStampFromFirstSample.getYear(),
-                timeStampFromFirstSample.getMonthOfYear(),
-                timeStampFromFirstSample.getDayOfMonth());
+        LocalDate min_check = null;
+        if (timeStampFromFirstSample != null) {
+            min_check = LocalDate.of(
+                    timeStampFromFirstSample.getYear(),
+                    timeStampFromFirstSample.getMonthOfYear(),
+                    timeStampFromFirstSample.getDayOfMonth());
+        }
 
-        LocalDate max_check = LocalDate.of(
-                timeStampFromLastSample.getYear(),
-                timeStampFromLastSample.getMonthOfYear(),
-                timeStampFromLastSample.getDayOfMonth());
+        LocalDate max_check = null;
+        if (timeStampFromLastSample != null) {
+            max_check = LocalDate.of(
+                    timeStampFromLastSample.getYear(),
+                    timeStampFromLastSample.getMonthOfYear(),
+                    timeStampFromLastSample.getDayOfMonth());
+        }
 
-        if (minDate == null || min_check.isBefore(minDate)) minDate = min_check;
-        if (maxDate == null || max_check.isAfter(maxDate)) maxDate = max_check;
+
+        if (min_check != null && (minDate == null || min_check.isBefore(minDate))) {
+            minDate = min_check;
+        }
+
+        if (max_check != null && (maxDate == null || max_check.isAfter(maxDate))) {
+            maxDate = max_check;
+        }
+
     }
 
     public void updateCellFactory() {

@@ -33,7 +33,10 @@ import javafx.beans.NamedArg;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.chart.*;
+import javafx.scene.chart.Axis;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.ValueAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
@@ -117,6 +120,22 @@ public class BubbleChart<X, Y> extends XYChart<X, Y> {
      */
     @Override
     protected void layoutPlotChildren() {
+        //get max size
+        double min = Double.MAX_VALUE;
+        double max = -Double.MAX_VALUE;
+        for (int seriesIndex = 0; seriesIndex < getDataSize(); seriesIndex++) {
+            Series<X, Y> series = getData().get(seriesIndex);
+            Iterator<Data<X, Y>> iter = getDisplayedDataIterator(series);
+            while (iter.hasNext()) {
+                Data<X, Y> item = iter.next();
+                double doubleValue = getDoubleValue(item.getExtraValue(), 0);
+                max = Math.max(doubleValue, max);
+                min = Math.min(doubleValue, min);
+            }
+        }
+        if (min == 1) min = min + 1;
+        double factor = 1 / max;
+
         // update bubble positions
         for (int seriesIndex = 0; seriesIndex < getDataSize(); seriesIndex++) {
             Series<X, Y> series = getData().get(seriesIndex);
@@ -141,7 +160,14 @@ public class BubbleChart<X, Y> extends XYChart<X, Y> {
                         } else {
                             return;
                         }
-                        circle.setRadius(getDoubleValue(item.getExtraValue(), 1) * ((getXAxis() instanceof NumberAxis) ? Math.abs(((NumberAxis) getXAxis()).getScale()) : 1));
+
+                        double r = getDoubleValue(item.getExtraValue(), 1) * factor * 90;
+                        if (r < 30) {
+                            r = 30;
+                        }
+                        circle.setRadius(r);
+
+//                        circle.setRadius(getDoubleValue(item.getExtraValue(), 1) * ((getXAxis() instanceof NumberAxis) ? Math.abs(((NumberAxis) getXAxis()).getScale()) : 1));
                         // Note: workaround for RT-7689 - saw this in ProgressControlSkin
                         // The region doesn't update itself when the shape is mutated in place, so we
                         // null out and then restore the shape in order to force invalidation.

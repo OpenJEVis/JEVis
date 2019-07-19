@@ -63,6 +63,9 @@ public class JEVisTreeFactory {
         final KeyCombination rename = new KeyCodeCombination(KeyCode.F2);
         final KeyCombination delete = new KeyCodeCombination(KeyCode.DELETE);
         final KeyCombination deleteAllCleanAndRaw = new KeyCodeCombination(KeyCode.DELETE, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+        final KeyCombination enableAll = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+        final KeyCombination disableAll = new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+
         final KeyCombination pageDown = new KeyCodeCombination(KeyCode.PAGE_DOWN);
 
         tree.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
@@ -89,6 +92,12 @@ public class JEVisTreeFactory {
                     TreeHelper.EventDelete(tree);
                 } else if (deleteAllCleanAndRaw.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventDeleteAllCleanAndRaw(tree);
+                } else if ((enableAll.match(t) || disableAll.match(t)) && JEConfig.getExpert()) {
+                    if (enableAll.match(t)) {
+                        TreeHelper.EventSetEnableAll(tree, true);
+                    } else {
+                        TreeHelper.EventSetEnableAll(tree, false);
+                    }
                 } else if (copyObj.match(t)) {
                     tree.setCopyObject(selectedObj.getValue().getJEVisObject(), false);
                     final Clipboard clipboard = Clipboard.getSystemClipboard();

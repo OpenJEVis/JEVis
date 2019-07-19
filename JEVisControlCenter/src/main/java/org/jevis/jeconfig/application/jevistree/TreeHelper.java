@@ -934,4 +934,100 @@ public class TreeHelper {
         EventNew(tree, parent.getValue().getJEVisObject());
     }
 
+    public static void EventSetEnableAll(JEVisTree tree, boolean b) {
+        logger.debug("EventSetEnable:" + b);
+        try {
+            if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
+                String question = "";
+                if (b) {
+                    question = I18n.getInstance().getString("jevistree.dialog.enable.message");
+                } else {
+                    question = I18n.getInstance().getString("jevistree.dialog.disable.message");
+                }
+                ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
+                for (TreeItem<JEVisTreeRow> item : items) {
+                    if (items.indexOf(item) > 0 && items.indexOf(item) < items.size() - 1)
+                        question += item.getValue().getJEVisObject().getName();
+                }
+                question += "?";
+
+                if (tree.getJEVisDataSource().getCurrentUser().canWrite(items.get(0).getValue().getJEVisObject().getID())) {
+
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle(I18n.getInstance().getString("jevistree.dialog.enable.title"));
+                    alert.setHeaderText(null);
+                    alert.setContentText(question);
+
+                    alert.showAndWait().ifPresent(buttonType -> {
+                        if (buttonType.equals(ButtonType.OK)) {
+                            try {
+
+                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.enable.title") + "...");
+
+                                Task<Void> reload = new Task<Void>() {
+                                    @Override
+                                    protected Void call() {
+                                        for (TreeItem<JEVisTreeRow> item : items) {
+                                            setEnabled(item.getValue().getJEVisObject(), b);
+                                        }
+
+                                        return null;
+                                    }
+                                };
+                                reload.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+                                reload.setOnCancelled(event -> {
+                                    logger.debug("Set enabled Cancelled");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                reload.setOnFailed(event -> {
+                                    logger.debug("Set enabled failed");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                pForm.activateProgressBar(reload);
+                                pForm.getDialogStage().show();
+
+                                new Thread(reload).start();
+
+                            } catch (Exception ex) {
+                                logger.catching(ex);
+                                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
+                                        I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                            }
+                        } else {
+                            // ... user chose CANCEL or closed the dialog
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        alert1.showAndWait();
+                    });
+
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not get JEVis data source.", e);
+        }
+    }
+
+    private static void setEnabled(JEVisObject object, boolean b) {
+        try {
+            JEVisAttribute enabled = object.getAttribute("Enabled");
+            if (enabled != null) {
+                if (object.getJEVisClassName().equals("Periodic Report")) {
+                    JEVisSample sample = enabled.buildSample(new DateTime(), b);
+                    sample.commit();
+                }
+            }
+            for (JEVisObject child : object.getChildren()) {
+                setEnabled(child, b);
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not set enabled for {}:{}", object.getName(), object.getID());
+        }
+    }
 }
