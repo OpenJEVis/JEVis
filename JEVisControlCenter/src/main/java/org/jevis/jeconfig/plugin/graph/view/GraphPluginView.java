@@ -601,7 +601,7 @@ public class GraphPluginView implements Plugin {
                         BubbleChart.Series bubbleChartSeries = (BubbleChart.Series) numberNumberSeries;
                         bubbleChartSeries.getData().forEach(numberNumberData -> {
                             Node bubble = ((BubbleChart.Data) numberNumberData).getNode();
-                            if (bubble != null && bubble instanceof StackPane) {
+                            if (bubble instanceof StackPane) {
                                 StackPane stackPane = (StackPane) bubble;
                                 if (stackPane.getShape() != null && stackPane.getShape() instanceof Circle) {
                                     Circle circle = (Circle) stackPane.getShape();
@@ -610,29 +610,33 @@ public class GraphPluginView implements Plugin {
                                     NumberFormat nf = NumberFormat.getInstance();
                                     nf.setMinimumFractionDigits(0);
                                     nf.setMaximumFractionDigits(0);
-                                    String value = nf.format(((BubbleChart.Data) numberNumberData).getExtraValue());
+                                    String countValue = nf.format(((BubbleChart.Data) numberNumberData).getExtraValue());
+                                    nf.setMinimumFractionDigits(2);
+                                    nf.setMaximumFractionDigits(2);
+                                    String yValue = nf.format(((BubbleChart.Data) numberNumberData).getYValue());
 
-                                    Label label = new Label(value);
-                                    label.setAlignment(Pos.CENTER);
-                                    label.setBackground(
+                                    Label labelCount = new Label(countValue);
+                                    Tooltip tooltipYValue = new Tooltip(yValue);
+                                    labelCount.setAlignment(Pos.CENTER);
+                                    labelCount.setBackground(
                                             new Background(
                                                     new BackgroundFill(Color.WHITE, new CornerRadii(5), new Insets(1, 1, 1, 1))
                                             )
                                     );
 
+                                    labelCount.setMinWidth((countValue.length() + 1) * 20d);
 
-                                    label.setMinWidth(value.length() * 20d);
-
-                                    if (circle.radiusProperty().get() / 5 > 16d) {
-                                        fontSize.bind(Bindings.divide(circle.radiusProperty(), 5));
-                                        label.minWidthProperty().bind(Bindings.divide(circle.radiusProperty(), 5).add(4));
-                                    } else {
+//                                    if (circle.radiusProperty().get() / 5 > 18d) {
+//                                        fontSize.bind(Bindings.divide(circle.radiusProperty(), 5));
+//                                        labelCount.minWidthProperty().bind(Bindings.divide(circle.radiusProperty(), 5).add(4));
+//                                    } else {
                                         fontSize.set(16d);
-                                    }
+//                                    }
 
-                                    label.styleProperty().bind(Bindings.concat("-fx-font-size:", fontSize.asString(), ";"));
+                                    labelCount.styleProperty().bind(Bindings.concat("-fx-font-size:", fontSize.asString(), ";"));
 //                                    label.styleProperty().bind(Bindings.concat("-fx-font-size:", 20d, ";"));
-                                    stackPane.getChildren().setAll(label);
+                                    Tooltip.install(bubble, tooltipYValue);
+                                    stackPane.getChildren().setAll(labelCount);
                                 }
                                 bubble.setOnMouseClicked(event -> bubble.toFront());
                             }

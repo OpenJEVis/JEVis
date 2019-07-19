@@ -34,6 +34,7 @@ import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisAreaChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
@@ -57,6 +58,9 @@ public class XYChart implements Chart {
     private static final Logger logger = LogManager.getLogger(XYChart.class);
     private final Boolean showRawData;
     private final Boolean showSum;
+    final int polyRegressionDegree;
+    final RegressionType regressionType;
+    final Boolean calcRegression;
     Boolean hideShowIcons;
     //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
     List<Color> hexColors = new ArrayList<>();
@@ -94,11 +98,14 @@ public class XYChart implements Chart {
     private JFXChartUtil jfxChartUtil;
     private DateTime nearest;
 
-    public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+    public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
         this.showRawData = showRawData;
         this.showSum = showSum;
+        this.regressionType = regressionType;
         this.hideShowIcons = hideShowIcons;
+        this.calcRegression = calcRegression;
+        this.polyRegressionDegree = polyRegressionDegree;
         this.chartName = chartName;
         this.addSeriesOfType = addSeriesOfType;
         if (!chartDataModels.isEmpty()) {
@@ -110,6 +117,10 @@ public class XYChart implements Chart {
 
     public void init() {
         initializeChart();
+        if (calcRegression) {
+            chart.setRegression(0, regressionType, polyRegressionDegree);
+        }
+
         hexColors.clear();
         chart.getData().clear();
         tableData.clear();

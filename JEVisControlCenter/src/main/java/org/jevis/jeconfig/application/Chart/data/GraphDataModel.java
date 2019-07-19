@@ -39,6 +39,7 @@ import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
@@ -93,6 +94,9 @@ public class GraphDataModel {
     private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
     private Boolean showRawData = false;
     private Boolean showSum = false;
+    private Boolean calcRegression = false;
+    private RegressionType regressionType = RegressionType.NONE;
+    private int polyRegressionDegree = -1;
     private Boolean runUpdate = false;
     private Long finalSeconds = 60L;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -413,6 +417,20 @@ public class GraphDataModel {
         this.showSum = show;
 
         if (show) {
+            update();
+        } else {
+            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+        }
+    }
+
+    public Boolean calcRegression() {
+        return calcRegression;
+    }
+
+    public void setCalcRegression(Boolean calc) {
+        this.calcRegression = calc;
+
+        if (calc) {
             update();
         } else {
             graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
@@ -1152,6 +1170,20 @@ public class GraphDataModel {
         return changed;
     }
 
+    public int getPolyRegressionDegree() {
+        return polyRegressionDegree;
+    }
 
+    public void setPolyRegressionDegree(int polyRegressionDegree) {
+        this.polyRegressionDegree = polyRegressionDegree;
+    }
+
+    public RegressionType getRegressionType() {
+        return regressionType;
+    }
+
+    public void setRegressionType(RegressionType regressionType) {
+        this.regressionType = regressionType;
+    }
 }
 

@@ -12,6 +12,7 @@ public class NoteConstants {
 
     public interface Differential {
         String DIFFERENTIAL_ON = "diff";
+        String COUNTER_OVERFLOW = "cof";
     }
 
     public interface Scaling {

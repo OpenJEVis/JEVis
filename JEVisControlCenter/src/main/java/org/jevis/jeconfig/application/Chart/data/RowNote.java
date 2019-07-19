@@ -7,6 +7,7 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
 
 import java.util.List;
 
@@ -132,7 +133,41 @@ public class RowNote {
                             formattedNote.append(System.getProperty("line.separator"));
                         }
                     }
+
+                    DateTime timestamp = sample.getTimestamp();
+                    JEVisAttribute rawDataValueAttribute = object.getParents().get(0).getAttribute("Value");
+                    if (!cleanDataObject.getConversionDifferential().isEmpty()) {
+                        for (JEVisSample jeVisSample : cleanDataObject.getConversionDifferential()) {
+                            if (jeVisSample.getValueAsBoolean()) {
+                                if (timestamp.isAfter(jeVisSample.getTimestamp())) {
+                                    List<JEVisSample> samples = rawDataValueAttribute.getSamples(timestamp.minus(rawDataValueAttribute.getInputSampleRate()), timestamp);
+                                    if (samples.size() == 2) {
+                                        formattedNote.append("Original Value: ");
+                                        formattedNote.append(samples.get(1).getValueAsDouble() - samples.get(0).getValueAsDouble());
+                                        formattedNote.append(System.getProperty("line.separator"));
+                                    }
+                                }
+                            } else {
+                                if (timestamp.isAfter(jeVisSample.getTimestamp())) {
+                                    List<JEVisSample> samples = rawDataValueAttribute.getSamples(timestamp, timestamp);
+                                    if (!samples.isEmpty()) {
+                                        formattedNote.append("Original: ");
+                                        formattedNote.append(samples.get(0).getValueAsDouble());
+                                        formattedNote.append(System.getProperty("line.separator"));
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        List<JEVisSample> samples = rawDataValueAttribute.getSamples(timestamp, timestamp);
+                        if (!samples.isEmpty()) {
+                            formattedNote.append("Original: ");
+                            formattedNote.append(samples.get(0).getValueAsDouble());
+                            formattedNote.append(System.getProperty("line.separator"));
+                        }
+                    }
                 }
+
             } catch (Exception e) {
             }
         }
@@ -164,6 +199,11 @@ public class RowNote {
         }
         if (note.contains(NoteConstants.Limits.LIMIT_MAX)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit2.max"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+
+        if (note.contains(NoteConstants.Differential.COUNTER_OVERFLOW)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.counteroverflow"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 

@@ -27,7 +27,7 @@ public class LogicalChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(LogicalChart.class);
 
     public LogicalChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, false, false, hideShowIcons, addSeriesOfType, chartId, chartName);
+        super(chartDataModels, false, false, hideShowIcons, false, null, -1, addSeriesOfType, chartId, chartName);
     }
 
     @Override

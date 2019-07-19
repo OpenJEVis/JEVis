@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.jedataprocessor.data.CleanInterval;
@@ -140,6 +141,7 @@ public class DifferentialStep implements ProcessStep {
                                                 if (counterOverflow != null && curSample.getTimestamp().isAfter(counterOverflow.getTimestamp())
                                                         && counterOverflow.getValueAsDouble() != 0.0) {
                                                     cleanedVal = (counterOverflow.getValueAsDouble() - lastDiffVal) + rawValue;
+                                                    note += "," + NoteConstants.Differential.COUNTER_OVERFLOW;
                                                     break;
                                                 }
                                             }
@@ -147,7 +149,7 @@ public class DifferentialStep implements ProcessStep {
 
                                         curSample.setValue(cleanedVal);
 
-                                        note += ",diff";
+                                        note += "," + NoteConstants.Differential.DIFFERENTIAL_ON;
                                         curSample.setNote(note);
                                         lastDiffVal = rawValue;
 

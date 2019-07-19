@@ -19,7 +19,7 @@ public class TableChart extends XYChart {
     private TableTopDatePicker tableTopDatePicker;
 
     public TableChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, showRawData, showSum, hideShowIcons, addSeriesOfType, chartId, chartName);
+        super(chartDataModels, showRawData, showSum, hideShowIcons, false, null, -1, addSeriesOfType, chartId, chartName);
 
         tableTopDatePicker = new TableTopDatePicker(singleRow);
         tableTopDatePicker.setAlignment(Pos.CENTER);

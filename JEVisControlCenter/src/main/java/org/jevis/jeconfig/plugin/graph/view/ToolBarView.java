@@ -13,6 +13,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.*;
@@ -36,16 +37,19 @@ import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.NumberSpinner;
 import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -99,6 +103,7 @@ public class ToolBarView {
     private ImageView playIcon;
     private ToggleButton showRawData;
     private ToggleButton showSum;
+    private ToggleButton calcRegression;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.model = model;
@@ -233,6 +238,59 @@ public class ToolBarView {
 
     private void showSumInGraph() {
         model.setShowSum(!model.getShowSum());
+    }
+
+    private void calcRegression() {
+
+        if (!model.calcRegression()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+
+            Label polyDegreeLabel = new Label("Degree:");
+            NumberSpinner polyDegreeNumberSpinner = new NumberSpinner(new BigDecimal(0), new BigDecimal(1));
+            polyDegreeNumberSpinner.setMin(new BigDecimal(0));
+            polyDegreeNumberSpinner.setMax(new BigDecimal(11));
+
+            Label regressionTypeLabel = new Label("Type");
+            ObservableList<RegressionType> regressionTypes = FXCollections.observableArrayList(RegressionType.values());
+            regressionTypes.remove(0);
+            ComboBox<RegressionType> regressionTypeComboBox = new ComboBox<>(regressionTypes);
+            regressionTypeComboBox.getSelectionModel().select(RegressionType.POLY);
+
+            GridPane gridPane = new GridPane();
+            gridPane.setVgap(4);
+            gridPane.setHgap(4);
+
+            gridPane.add(regressionTypeLabel, 0, 0);
+            gridPane.add(regressionTypeComboBox, 1, 0);
+
+            gridPane.add(polyDegreeLabel, 0, 1);
+            gridPane.add(polyDegreeNumberSpinner, 1, 1);
+
+            regressionTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.equals(oldValue)) {
+                    if (newValue.equals(RegressionType.POLY)) {
+                        gridPane.add(polyDegreeLabel, 0, 1);
+                        gridPane.add(polyDegreeNumberSpinner, 1, 1);
+                    } else {
+                        gridPane.getChildren().removeAll(polyDegreeLabel, polyDegreeNumberSpinner);
+                    }
+                }
+            });
+
+            alert.getDialogPane().setContent(gridPane);
+
+            alert.showAndWait().ifPresent(buttonType -> {
+                if (buttonType.getButtonData().isDefaultButton()) {
+                    model.setPolyRegressionDegree(polyDegreeNumberSpinner.getNumber().toBigInteger().intValue());
+                    model.setRegressionType(regressionTypeComboBox.getSelectionModel().getSelectedItem());
+                    model.setCalcRegression(!model.calcRegression());
+                }
+            });
+        } else {
+            model.setPolyRegressionDegree(-1);
+            model.setRegressionType(RegressionType.NONE);
+            model.setCalcRegression(!model.calcRegression());
+        }
     }
 
     private ComboBox<JEVisObject> getListAnalysesComboBox() {
@@ -600,6 +658,7 @@ public class ToolBarView {
         select.setDisable(bool);
         showRawData.setDisable(bool);
         showSum.setDisable(bool);
+        calcRegression.setDisable(bool);
         disableIcons.setDisable(bool);
         zoomOut.setDisable(bool);
         presetDateBox.setDisable(bool);
@@ -664,13 +723,13 @@ public class ToolBarView {
                         sep1, presetDateBox, pickerDateStart, pickerDateEnd,
                         sep2, reload, zoomOut,
                         sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                        sep4, showSum, disableIcons, autoResize, runUpdateButton);
+                        sep4, calcRegression, showSum, disableIcons, autoResize, runUpdateButton);
             } else {
                 toolBar.getItems().addAll(listAnalysesComboBox,
                         sep1, presetDateBox, pickerDateStart, pickerDateEnd,
                         sep2, reload, zoomOut,
                         sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                        sep4, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
+                        sep4, calcRegression, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
             }
 
             setupAnalysisComboBoxListener();
@@ -744,6 +803,8 @@ public class ToolBarView {
         showRawData.setOnAction(event -> showRawDataInGraph());
 
         showSum.setOnAction(event -> showSumInGraph());
+
+        calcRegression.setOnAction(event -> calcRegression());
 
         disableIcons.setOnAction(event -> hideShowIconsInGraph());
 
@@ -852,6 +913,21 @@ public class ToolBarView {
                                 new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
                         .otherwise(Bindings
                                 .when(showSum.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
+        calcRegression = new ToggleButton("", JEConfig.getImage("regression.png", iconSize, iconSize));
+        Tooltip calcRegressionTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));
+        calcRegression.setTooltip(calcRegressionTooltip);
+        calcRegression.setSelected(model.calcRegression());
+        calcRegression.styleProperty().bind(
+                Bindings
+                        .when(calcRegression.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(calcRegression.selectedProperty())
                                 .then("-fx-background-insets: 1 1 1;")
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
