@@ -709,7 +709,7 @@ public class XYChart implements Chart {
                             formattedDouble = nf.format(valueAsDouble);
                             tableEntry.setValue(formattedDouble + " " + unit);
                         } else {
-                            tableEntry.setValue(sample.getValueAsString());
+                            tableEntry.setValue(sample.getValueAsString() + " " + unit);
                         }
 
                     } else tableEntry.setValue("- " + unit);
