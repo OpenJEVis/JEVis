@@ -293,6 +293,7 @@ public class ChartView implements Observer {
     }
 
     private void disableTable() {
+        showTable = false;
         tableView.setVisible(false);
         tableView.setItems(chart.getTableData());
         tableView.setFixedCellSize(25);
@@ -301,6 +302,7 @@ public class ChartView implements Observer {
     }
 
     private void setTableStandard() {
+        showTable = true;
         tableView.setVisible(true);
         tableView.setItems(chart.getTableData());
         tableView.setFixedCellSize(25);
@@ -308,14 +310,14 @@ public class ChartView implements Observer {
     }
 
     public Region getChartRegion() {
-        StackPane stackPane = new StackPane();
+//        StackPane stackPane = new StackPane();
 
         if (chart != null) {
             if (chart.getRegion() != null) {
-                stackPane.getChildren().add(chart.getRegion());
+//                stackPane.getChildren().add(chart.getRegion());
                 return chart.getRegion();
             } else {
-                stackPane.getChildren().add(chart.getChart());
+//                stackPane.getChildren().add(chart.getChart());
                 return chart.getChart();
             }
 
@@ -474,6 +476,10 @@ public class ChartView implements Observer {
                 tableView.getColumns().get(8).setVisible(false);
                 tableView.getColumns().get(9).setVisible(false);
                 tableView.getColumns().get(10).setVisible(false);
+                break;
+            case HEAT_MAP:
+                chart = new HeatMapChart(chartDataModels);
+                disableTable();
                 break;
             default:
                 chart = new AreaChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.calcRegression(), dataModel.getRegressionType(), dataModel.getPolyRegressionDegree(), dataModel.getAddSeries(), chartId, getChartName());

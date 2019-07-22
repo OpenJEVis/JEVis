@@ -879,10 +879,10 @@ public class GraphPluginView implements Plugin {
                 case BAR:
                     break;
                 case BUBBLE:
-
                     break;
-
                 case PIE:
+                    break;
+                case HEAT_MAP:
                     break;
                 default:
                     break;

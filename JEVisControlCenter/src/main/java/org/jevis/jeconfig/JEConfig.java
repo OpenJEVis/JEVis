@@ -344,14 +344,14 @@ public class JEConfig extends Application {
                 PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
                 Platform.runLater(() -> {
                     primaryStage.setTitle(I18n.getInstance().getString("appname"));
-                    try {
-                        java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
-                        Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
-                        awtAppClassNameField.setAccessible(true);
-                        awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("appname"));
-                    } catch (NoSuchFieldException | IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
+//                    try {
+//                        java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
+//                        Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
+//                        awtAppClassNameField.setAccessible(true);
+//                        awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("appname"));
+//                    } catch (NoSuchFieldException | IllegalAccessException e) {
+//                        e.printStackTrace();
+//                    }
                 });
 
                 ExecutorService exe = Executors.newSingleThreadExecutor();

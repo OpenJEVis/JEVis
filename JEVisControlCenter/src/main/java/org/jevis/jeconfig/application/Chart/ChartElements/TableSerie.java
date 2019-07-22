@@ -117,7 +117,7 @@ public class TableSerie extends XYChartSerie {
     }
 
     public String getUnit() {
-        return "";
+        return super.getUnit();
     }
 
     public TreeMap<DateTime, JEVisSample> getSampleMap() {

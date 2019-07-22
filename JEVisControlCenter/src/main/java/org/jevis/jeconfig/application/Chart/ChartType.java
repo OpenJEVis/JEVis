@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum ChartType {
-    AREA, LOGICAL, LINE, BAR, COLUMN, BUBBLE, SCATTER, PIE, TABLE;
+    AREA, LOGICAL, LINE, BAR, COLUMN, BUBBLE, SCATTER, PIE, TABLE, HEAT_MAP;
 
     public static ChartType parseChartType(Integer chartTypeIndex) {
         switch (chartTypeIndex) {
@@ -30,6 +30,8 @@ public enum ChartType {
                 return PIE;
             case (8):
                 return TABLE;
+            case (9):
+                return HEAT_MAP;
             default:
                 return AREA;
         }
@@ -55,6 +57,8 @@ public enum ChartType {
                 return PIE;
             case ("TABLE"):
                 return TABLE;
+            case ("HEAT_MAP"):
+                return HEAT_MAP;
             default:
                 return AREA;
         }
@@ -81,6 +85,8 @@ public enum ChartType {
                 return 7;
             case ("TABLE"):
                 return 8;
+            case ("HEAT_MAP"):
+                return 9;
             default:
                 return 0;
         }
@@ -117,6 +123,8 @@ public enum ChartType {
                 case ("TABLE"):
                     tempList.add(I18n.getInstance().getString("plugin.graph.charttype.table.name"));
                     break;
+                case ("HEAT_MAP"):
+                    tempList.add(I18n.getInstance().getString("plugin.graph.charttype.heatmap.name"));
                 default:
                     break;
             }
