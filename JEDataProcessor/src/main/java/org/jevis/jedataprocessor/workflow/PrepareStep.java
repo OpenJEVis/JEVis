@@ -131,10 +131,12 @@ public class PrepareStep implements ProcessStep {
                         currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), currentDate.getSecondOfMinute());
 
                 if (periodCleanHasYear) {
-                    startInterval = startInterval.minusYears(periodCleanData.getYears());
+                    startInterval = startInterval.minusYears(periodCleanData.getYears()).withMonthOfYear(1).withDayOfMonth(1);
+                    endInterval = startInterval.plusYears(periodCleanData.getYears()).withMonthOfYear(1).withDayOfMonth(1).minusMillis(1);
                 }
                 if (periodCleanHasMonths) {
-                    startInterval = startInterval.minusMonths(periodCleanData.getMonths());
+                    startInterval = startInterval.minusMonths(periodCleanData.getMonths()).withDayOfMonth(1);
+                    endInterval = startInterval.plusMonths(periodCleanData.getMonths()).withDayOfMonth(1).minusMillis(1);
                 }
                 if (periodCleanHasDays) {
                     startInterval = startInterval.minusDays(periodCleanData.getDays());
@@ -156,12 +158,15 @@ public class PrepareStep implements ProcessStep {
                     endInterval = new DateTime(endInterval.getYear(), endInterval.getMonthOfYear(), endInterval.getDayOfMonth(),
                             dtEnd.getHour(), dtEnd.getMinute(), dtEnd.getSecond());
 
-                    if (dtEnd.isBefore(dtStart)) startInterval.minusDays(1);
+                    if (dtEnd.isBefore(dtStart)) {
+                        startInterval = startInterval.minusDays(1);
+                        endInterval = endInterval.minusDays(1);
+                    }
                 }
 
                 if (startInterval != null && endInterval != null) {
                     Interval interval = new Interval(startInterval, endInterval);
-                    CleanInterval currentInterval = new CleanInterval(interval, currentDate);
+                    CleanInterval currentInterval = new CleanInterval(interval, startInterval);
                     cleanIntervals.add(currentInterval);
                 }
 

@@ -46,116 +46,134 @@ public class PeriodAlignmentStep implements ProcessStep {
         Period periodCleanData = cleanDataObject.getCleanDataPeriodAlignment();
         Period periodRawData = cleanDataObject.getRawDataPeriodAlignment();
 
-        long millisClean = periodCleanData.toStandardDuration().getMillis();
-        long millisRaw = periodRawData.toStandardDuration().getMillis();
-        long stepsInPeriod = millisRaw / millisClean;
+        long millisClean;
+        long stepsInPeriod = 0;
         boolean downSampling = true;
 
-        PeriodComparator periodComparator = new PeriodComparator();
-        int compare = periodComparator.compare(periodCleanData, periodRawData);
-        // if clean data period is longer (e.g. 1 day) or equal than raw data period (e.g. 15 minutes)
-        // the down sampling method will be used, else the other
+        if (periodCleanData.getMonths() == 0) {
+            millisClean = periodCleanData.toStandardDuration().getMillis();
 
-        if (compare < 0) {
-            downSampling = false;
-        }
+            long millisRaw = periodRawData.toStandardDuration().getMillis();
+            stepsInPeriod = millisRaw / millisClean;
 
-        if (downSampling) {
-            rawSamples = resourceManager.getRawSamplesDown();
-            int currentSamplePointer = 0;
-            for (CleanInterval cleanInterval : intervals) {
-                boolean samplesInInterval = true;
-                DateTime snapToGridStart = null;
-                DateTime snapToGridEnd = null;
-                DateTime date = cleanInterval.getDate();
-                long start = cleanInterval.getInterval().getStartMillis();
-                long end = cleanInterval.getInterval().getEndMillis();
-                long halfDiff = (end - start) / 2;
-                snapToGridStart = date.minus(halfDiff).minusMillis(1);
-                snapToGridEnd = date.plus(halfDiff);
+            PeriodComparator periodComparator = new PeriodComparator();
+            int compare = periodComparator.compare(periodCleanData, periodRawData);
+            // if clean data period is longer (e.g. 1 day) or equal than raw data period (e.g. 15 minutes)
+            // the down sampling method will be used, else the other
 
-                while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
-                    JEVisSample rawSample = rawSamples.get(currentSamplePointer);
-                    try {
-                        DateTime timestamp = rawSample.getTimestamp();
+            if (compare < 0) {
+                downSampling = false;
+            }
 
-                        int offset = Math.abs(periodOffset);
-                        if (periodOffset >= 0) {
-                            timestamp = timestamp.plusSeconds(offset);
-                        } else {
-                            timestamp = timestamp.minusSeconds(offset);
+            if (downSampling) {
+                rawSamples = resourceManager.getRawSamplesDown();
+                int currentSamplePointer = 0;
+                for (CleanInterval cleanInterval : intervals) {
+                    boolean samplesInInterval = true;
+                    DateTime snapToGridStart = null;
+                    DateTime snapToGridEnd = null;
+                    DateTime date = cleanInterval.getDate();
+                    long start = cleanInterval.getInterval().getStartMillis();
+                    long end = cleanInterval.getInterval().getEndMillis();
+                    long halfDiff = (end - start) / 2;
+                    snapToGridStart = date.minus(halfDiff).minusMillis(1);
+                    snapToGridEnd = date.plus(halfDiff);
+
+                    while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
+                        JEVisSample rawSample = rawSamples.get(currentSamplePointer);
+                        try {
+                            DateTime timestamp = rawSample.getTimestamp();
+
+                            int offset = Math.abs(periodOffset);
+                            if (periodOffset >= 0) {
+                                timestamp = timestamp.plusSeconds(offset);
+                            } else {
+                                timestamp = timestamp.minusSeconds(offset);
+                            }
+                            if (timestamp.equals(snapToGridStart)
+                                    || (timestamp.isAfter(snapToGridStart) && timestamp.isBefore(snapToGridEnd))
+                                    || timestamp.equals(snapToGridEnd)) { //sample is in interval
+                                cleanInterval.addRawSample(rawSample);
+                                currentSamplePointer++;
+                            } else if (timestamp.isBefore(snapToGridStart)) { //sample is before interval start --just find the start
+                                currentSamplePointer++;
+                            } else {
+                                samplesInInterval = false;
+                            }
+                        } catch (Exception ex) {
+                            throw new Exception("error while align the raw samples to the interval, no timestamp found", ex);
                         }
-                        if (timestamp.equals(snapToGridStart)
-                                || (timestamp.isAfter(snapToGridStart) && timestamp.isBefore(snapToGridEnd))
-                                || timestamp.equals(snapToGridEnd)) { //sample is in interval
-                            cleanInterval.addRawSample(rawSample);
-                            currentSamplePointer++;
-                        } else if (timestamp.isBefore(snapToGridStart)) { //sample is before interval start --just find the start
-                            currentSamplePointer++;
-                        } else {
-                            samplesInInterval = false;
-                        }
-                    } catch (Exception ex) {
-                        throw new Exception("error while align the raw samples to the interval, no timestamp found", ex);
                     }
+                }
+            } else {
+                rawSamples = resourceManager.getRawSamplesUp();
+
+                for (JEVisSample rawSample : rawSamples) {
+                    try {
+                        DateTime currentTS = rawSample.getTimestamp();
+                        double currentValue = rawSample.getValueAsDouble();
+
+                        JEVisSample nextSample = null;
+                        if (rawSamples.indexOf(rawSample) + 1 < rawSamples.size()) {
+                            nextSample = rawSamples.get(rawSamples.indexOf(rawSample) + 1);
+                        }
+
+                        double nextSampleValue = 0.0;
+                        if (nextSample != null) {
+                            nextSampleValue = nextSample.getValueAsDouble();
+
+                        }
+                        Interval rawInterval = new Interval(rawSample.getTimestamp(), Objects.requireNonNull(nextSample).getTimestamp());
+
+                        long c = 0;
+                        List<DateTime> lastAddedDT = new ArrayList<>();
+                        for (CleanInterval ci : intervals) {
+                            if (ci.getDate().isBefore(rawInterval.getStart())) {
+                            } else if (ci.getDate().isBefore(rawInterval.getEnd())) {
+                                ci.addRawSample(rawSample);
+                                rawSamplesMap.put(ci.getDate(), rawSample);
+                                lastAddedDT.add(ci.getDate());
+                                c++;
+                            } else {
+                                if (ci.getDate().isAfter(rawInterval.getEnd()))
+                                    break;
+                            }
+                        }
+
+                        if (c > 0) {
+                            int startInt = (int) stepsInPeriod - (int) c;
+                            double step = (nextSampleValue - currentValue) / stepsInPeriod;
+                            for (int i = 0; i < lastAddedDT.size(); i++) {
+                                DateTime curDate = lastAddedDT.get(i);
+                                rawSamplesSteps.put(curDate, currentValue + (step * (startInt + i)));
+                            }
+
+                        }
+
+                        if (!counter.containsKey(currentTS)) {
+                            counter.put(currentTS, c);
+                        } else {
+                            Long val = counter.get(currentTS);
+                            counter.remove(currentTS);
+                            counter.put(currentTS, c + val);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Error while processing raw samples.");
+                    }
+
                 }
             }
         } else {
-            rawSamples = resourceManager.getRawSamplesUp();
-
-            for (JEVisSample rawSample : rawSamples) {
-                try {
-                    DateTime currentTS = rawSample.getTimestamp();
-                    double currentValue = rawSample.getValueAsDouble();
-
-                    JEVisSample nextSample = null;
-                    if (rawSamples.indexOf(rawSample) + 1 < rawSamples.size()) {
-                        nextSample = rawSamples.get(rawSamples.indexOf(rawSample) + 1);
+            rawSamples = resourceManager.getRawSamplesDown();
+            for (CleanInterval cleanInterval : intervals) {
+                DateTime start = cleanInterval.getInterval().getStart();
+                DateTime end = cleanInterval.getInterval().getEnd();
+                for (JEVisSample jeVisSample : rawSamples) {
+                    DateTime ts = jeVisSample.getTimestamp();
+                    if (ts.isAfter(start) && ts.isBefore(end)) {
+                        cleanInterval.addRawSample(jeVisSample);
                     }
-
-                    double nextSampleValue = 0.0;
-                    if (nextSample != null) {
-                        nextSampleValue = nextSample.getValueAsDouble();
-
-                    }
-                    Interval rawInterval = new Interval(rawSample.getTimestamp(), Objects.requireNonNull(nextSample).getTimestamp());
-
-                    long c = 0;
-                    List<DateTime> lastAddedDT = new ArrayList<>();
-                    for (CleanInterval ci : intervals) {
-                        if (ci.getDate().isBefore(rawInterval.getStart())) {
-                        } else if (ci.getDate().isBefore(rawInterval.getEnd())) {
-                            ci.addRawSample(rawSample);
-                            rawSamplesMap.put(ci.getDate(), rawSample);
-                            lastAddedDT.add(ci.getDate());
-                            c++;
-                        } else {
-                            if (ci.getDate().isAfter(rawInterval.getEnd()))
-                                break;
-                        }
-                    }
-
-                    if (c > 0) {
-                        int startInt = (int) stepsInPeriod - (int) c;
-                        double step = (nextSampleValue - currentValue) / stepsInPeriod;
-                        for (int i = 0; i < lastAddedDT.size(); i++) {
-                            DateTime curDate = lastAddedDT.get(i);
-                            rawSamplesSteps.put(curDate, currentValue + (step * (startInt + i)));
-                        }
-
-                    }
-
-                    if (!counter.containsKey(currentTS)) {
-                        counter.put(currentTS, c);
-                    } else {
-                        Long val = counter.get(currentTS);
-                        counter.remove(currentTS);
-                        counter.put(currentTS, c + val);
-                    }
-                } catch (Exception e) {
-                    logger.error("Error while processing raw samples.");
                 }
-
             }
         }
 
