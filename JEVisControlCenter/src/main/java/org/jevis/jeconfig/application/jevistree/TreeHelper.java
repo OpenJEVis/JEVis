@@ -584,10 +584,17 @@ public class TreeHelper {
 
                     List<JEVisSample> newSamples = new ArrayList<>();
                     for (JEVisSample sample : originalAtt.getAllSamples()) {
-                        if (!originalAtt.getName().equals("Value")) {
-                            logger.info("Copy sample: " + originalAtt.getName() + " Value: " + sample.getValue() + "  TS: " + sample.getTimestamp());
+                        // TODO: file copy not working
+                        if (originalAtt.getName().equals("Value")) {
+                            newSamples.add(newAtt.buildSample(sample.getTimestamp(), sample.getValueAsDouble(), sample.getNote()));
+                        } else {
+                            try {
+                                newSamples.add(newAtt.buildSample(sample.getTimestamp(), sample.getValue(), sample.getNote()));
+                            } catch (Exception e) {
+                                logger.error("Could not copy sample {} with value: {} and note: {} of attribute {}:{}",
+                                        sample.getTimestamp(), sample.getValue(), sample.getNote(), toCopyObj.getID(), originalAtt.getName(), e);
+                            }
                         }
-                        newSamples.add(newAtt.buildSample(sample.getTimestamp(), sample.getValue(), sample.getNote()));
                     }
                     logger.debug("Add samples: {}", newSamples.size());
                     newAtt.addSamples(newSamples);

@@ -27,6 +27,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -59,6 +60,22 @@ public class AggregatorFunction implements ProcessFunction {
             return result;
         }
         List<Interval> intervals = ProcessOptions.getIntervals(mainTask, allTimestamps.get(0), allTimestamps.get(allTimestamps.size() - 1));
+
+        WorkDays workDays = new WorkDays(mainTask.getObject());
+        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+            Period period = intervals.get(0).toPeriod();
+            if (period.getDays() > 0 || period.getWeeks() > 0 || period.getMonths() > 0 || period.getYears() > 0) {
+                List<Interval> newIntervals = new ArrayList<>();
+                for (Interval interval : intervals) {
+                    newIntervals.add(new Interval(interval.getStart().minusDays(1), interval.getEnd().minusDays(1)));
+                }
+                if (newIntervals.size() > 0) {
+                    Interval lastInterval = newIntervals.get(newIntervals.size() - 1);
+                    newIntervals.add(new Interval(lastInterval.getEnd(), lastInterval.getEnd().plus(period)));
+                    intervals = newIntervals;
+                }
+            }
+        }
 
         JEVisAttribute attribute = null;
         if (allSamples.size() > 0) {

@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.jedataprocessor.aggregation.AggregationAlignmentStep;
 import org.jevis.jedataprocessor.alignment.PeriodAlignmentStep;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.differential.DifferentialStep;
@@ -59,6 +60,9 @@ public class ProcessManager {
 
         ProcessStep multiStep = new ScalingStep();
         processSteps.add(multiStep);
+
+        ProcessStep aggregationAlignmentStep = new AggregationAlignmentStep();
+        processSteps.add(aggregationAlignmentStep);
 
         ProcessStep gapStep = new FillGapStep();
         processSteps.add(gapStep);

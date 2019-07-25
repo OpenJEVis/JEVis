@@ -195,18 +195,27 @@ public class VirtualSample implements JEVisSample {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof VirtualSample)) {
+        if (!(o instanceof JEVisSample)) {
             return false;
         }
-        VirtualSample otherSample = (VirtualSample) o;
-        return otherSample.getTimestamp().equals(this.getTimestamp()) && otherSample.getValue().equals(this.getValue());
+        if (o instanceof VirtualSample) {
+            VirtualSample otherSample = (VirtualSample) o;
+            return otherSample.getTimestamp().equals(this.getTimestamp());
+        } else {
+            JEVisSample otherSample = (JEVisSample) o;
+            try {
+                return otherSample.getTimestamp().equals(this.getTimestamp());
+            } catch (JEVisException e) {
+                return false;
+            }
+        }
     }
 
     @Override
     public String toString() {
         return "VirtualSample{" +
                 "value=" + _value +
-                ", timeSatmp=" + _timeStamp +
+                ", timeStamp=" + _timeStamp +
                 ", note='" + _note + '\'' +
                 '}';
     }

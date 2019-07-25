@@ -136,7 +136,7 @@ public class SampleEditor {
         if (attribute.hasSample()) {
             try {
                 DateTime from = attribute.getTimestampFromLastSample().minusDays(1);
-                DateTime until = attribute.getTimestampFromLastSample();
+                DateTime until = attribute.getTimestampFromLastSample().plusDays(1);
 
                 startDate.valueProperty().set(LocalDate.of(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth()));
                 endDate.valueProperty().set(LocalDate.of(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth()));
@@ -235,15 +235,6 @@ public class SampleEditor {
                 }
             }
         });
-
-
-        if (attribute.hasSample()) {
-            DateTime lastSample = attribute.getTimestampFromLastSample();
-            endDate.setValue(LocalDate.of(lastSample.getYear(), lastSample.getMonthOfYear(), lastSample.getDayOfMonth()));
-            DateTime startDateTMP = lastSample.minusDays(1);
-            startDate.setValue(LocalDate.of(startDateTMP.getYear(), startDateTMP.getMonthOfYear(), startDateTMP.getDayOfMonth()));
-        }
-
 
         startDate.valueProperty().addListener((observable, oldValue, newValue) -> {
 //            _from = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 0, 0);

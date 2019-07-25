@@ -119,6 +119,8 @@ public class JEVisHTTPDataSource implements DataSource {
 //            _lastReadout = DatabaseHelper.getObjectAsDate(httpObject, lastReadout, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"));
 
             _httpdatasource = new HTTPDataSource();
+            _httpdatasource.setId(httpObject.getID());
+            _httpdatasource.setName(httpObject.getName());
             _httpdatasource.setConnectionTimeout(connectionTimeout);
             _httpdatasource.setPassword(password);
             _httpdatasource.setPort(port);

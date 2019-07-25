@@ -1,15 +1,19 @@
 package org.jevis.jeconfig.plugin.graph.view;
 
+import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
@@ -46,6 +50,7 @@ public class GraphExportCSV {
     final ObservableList<Locale> choices = FXCollections.observableArrayList(Locale.getAvailableLocales());
     private Locale selectedLocale;
     private NumberFormat numberFormat;
+    private SimpleBooleanProperty withUserNotes = new SimpleBooleanProperty(false);
 
     public GraphExportCSV(JEVisDataSource ds, GraphDataModel model) {
         this.model = model;
@@ -102,9 +107,15 @@ public class GraphExportCSV {
         VBox vBox = new VBox();
 
         Label selection = new Label(I18n.getInstance().getString("plugin.graph.dialog.export.decimalseparator.selection"));
+        Label withUserNotesLabel = new Label(I18n.getInstance().getString("plugin.graph.dialog.export.withusernotes"));
+        JFXCheckBox withUserNotes = new JFXCheckBox();
         Label emptyLine = new Label("");
 
-        vBox.getChildren().addAll(selection, emptyLine, decimalSeparatorChoiceBox);
+        withUserNotes.selectedProperty().bind(withUserNotes.selectedProperty());
+
+        HBox hBox = new HBox(withUserNotesLabel, withUserNotes);
+
+        vBox.getChildren().addAll(selection, emptyLine, decimalSeparatorChoiceBox, emptyLine, hBox);
 
         selectDecimalSeparators.getDialogPane().setContent(vBox);
 
@@ -194,6 +205,9 @@ public class GraphExportCSV {
                 currentUnit = mdl.getUnit().getLabel();
             }
             header.append(currentUnit);
+            if (withUserNotes.get()) {
+                header.append(";Note");
+            }
         }
         sb.append(header);
         sb.append(System.getProperty("line.separator"));
@@ -213,6 +227,21 @@ public class GraphExportCSV {
         for (ChartDataModel mdl : model.getSelectedData()) {
             map.put(mdl.getObject().getName(), mdl.getSamples());
         }
+        Map<String, List<JEVisSample>> mapNotes = new HashMap<>();
+        for (ChartDataModel mdl : model.getSelectedData()) {
+            mdl.getObject().getParents().get(0).getChildren().forEach(jeVisObject -> {
+                try {
+                    if (jeVisObject.getJEVisClassName().equals("Data Notes")) {
+                        JEVisAttribute notes = jeVisObject.getAttribute("User Notes");
+                        if (notes != null && notes.hasSample()) {
+                            map.put(mdl.getObject().getName(), notes.getAllSamples());
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
 
         for (int i = 0; i < dateColumn.size(); i++) {
             StringBuilder s = new StringBuilder();
@@ -227,6 +256,14 @@ public class GraphExportCSV {
                     s.append(formattedValue);
                 }
                 s.append(";");
+                if (withUserNotes.get()) {
+                    List<JEVisSample> notes = mapNotes.get(name);
+                    if (i < notes.size()) {
+                        JEVisSample sample = notes.get(i);
+                        s.append(sample.getValueAsString());
+                        s.append(";");
+                    }
+                }
             }
             sb.append(s);
             sb.append(System.getProperty("line.separator"));
@@ -256,6 +293,9 @@ public class GraphExportCSV {
                         currentUnit = mdl.getUnit().getLabel();
                     }
                     header.append(currentUnit);
+                    if (withUserNotes.get()) {
+                        header.append(";Note");
+                    }
                 }
             }
             header.append(";");
@@ -291,6 +331,7 @@ public class GraphExportCSV {
         }
 
         List<Map<String, List<JEVisSample>>> listMaps = new ArrayList<>();
+        List<Map<String, List<JEVisSample>>> listNotes = new ArrayList<>();
         for (ChartSettings cset : charts) {
             Map<String, List<JEVisSample>> map = new HashMap<>();
             for (ChartDataModel mdl : model.getSelectedData()) {
@@ -299,6 +340,25 @@ public class GraphExportCSV {
                 }
             }
             listMaps.add(map);
+
+            Map<String, List<JEVisSample>> mapNotes = new HashMap<>();
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                if (mdl.getSelectedcharts().contains(cset.getId())) {
+                    mdl.getObject().getParents().get(0).getChildren().forEach(jeVisObject -> {
+                        try {
+                            if (jeVisObject.getJEVisClassName().equals("Data Notes")) {
+                                JEVisAttribute notes = jeVisObject.getAttribute("User Notes");
+                                if (notes != null && notes.hasSample()) {
+                                    map.put(mdl.getObject().getName(), notes.getAllSamples());
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+            }
+            listNotes.add(mapNotes);
         }
 
         for (int i = 0; i < size; i++) {
@@ -306,6 +366,7 @@ public class GraphExportCSV {
             for (ChartSettings cset : charts) {
                 int chartsIndex = cset.getId();
                 boolean hasValues = i < listDateColumns.get(chartsIndex).size();
+                boolean hasNotes = i < listNotes.get(chartsIndex).size();
 
                 if (hasValues) {
                     str.append(listDateColumns.get(chartsIndex).get(i)).append(";");
@@ -319,8 +380,15 @@ public class GraphExportCSV {
                         if (hasValues) {
                             String formattedValue = numberFormat.format(listMaps.get(chartsIndex).get(objName).get(i).getValueAsDouble());
                             str.append(formattedValue).append(";");
+                            if (withUserNotes.get() && hasNotes) {
+                                str.append(listNotes.get(chartsIndex).get(objName).get(i).getValueAsString());
+                                str.append(";");
+                            }
                         } else {
                             str.append(";");
+                            if (withUserNotes.get()) {
+                                str.append(";");
+                            }
                         }
                     }
                 }

@@ -11,6 +11,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
@@ -119,7 +120,6 @@ public class DifferentialStep implements ProcessStep {
 
                         DateTime nextTimeStampOfConversion = null;
                         Boolean conversionToDifferential = cd.getValueAsBoolean();
-//                    Boolean conversionToDifferential = (cd.getValueAsString().equals("1") || cd.getValueAsBoolean()) ? true : false;
                         if (listConversionToDifferential.size() > (i + 1)) {
                             nextTimeStampOfConversion = (listConversionToDifferential.get(i + 1)).getTimestamp();
                         }
@@ -128,8 +128,15 @@ public class DifferentialStep implements ProcessStep {
                             if (currentInt.getDate().equals(timeStampOfConversion)
                                     || currentInt.getDate().isAfter(timeStampOfConversion)
                                     && ((nextTimeStampOfConversion == null) || currentInt.getDate().isBefore(nextTimeStampOfConversion))) {
-                                if (!currentInt.getTmpSamples().isEmpty()) {
-                                    for (JEVisSample curSample : currentInt.getTmpSamples()) {
+                                if (!currentInt.getRawSamples().isEmpty()) {
+                                    List<JEVisSample> currentTmpSamples = new ArrayList<>(currentInt.getTmpSamples());
+                                    currentInt.getTmpSamples().clear();
+                                    for (JEVisSample curSample : currentInt.getRawSamples()) {
+                                        int index = currentInt.getRawSamples().indexOf(curSample);
+                                        DateTime tmpTimeStamp = curSample.getTimestamp();
+                                        if (currentTmpSamples.size() > index) {
+                                            tmpTimeStamp = currentTmpSamples.get(index).getTimestamp();
+                                        }
 
                                         Double rawValue = curSample.getValueAsDouble();
                                         double cleanedVal = rawValue - lastDiffVal;
@@ -147,31 +154,24 @@ public class DifferentialStep implements ProcessStep {
                                             }
                                         }
 
-                                        curSample.setValue(cleanedVal);
-
                                         note += "," + NoteConstants.Differential.DIFFERENTIAL_ON;
-                                        curSample.setNote(note);
+
+                                        JEVisSample newTmpSample = new VirtualSample(tmpTimeStamp, cleanedVal);
+                                        newTmpSample.setNote(note);
                                         lastDiffVal = rawValue;
 
-                                        if (wasEmpty) {
-                                            emptyIntervals.add(currentInt);
-                                            wasEmpty = false;
-                                        }
-
-                                    }
-                                } else {
-                                    if (lastDiffVal != null) {
-                                        wasEmpty = true;
+                                        currentInt.addTmpSample(newTmpSample);
                                     }
                                 }
                             }
-                        }
-                    }
-                }
-                for (CleanInterval ci : intervals) {
-                    for (CleanInterval ce : emptyIntervals) {
-                        if (ci.getDate().equals(ce.getDate())) {
-                            ci.getTmpSamples().clear();
+                        } else {
+//                            if (currentInt.getDate().equals(timeStampOfConversion)
+//                                    || currentInt.getDate().isAfter(timeStampOfConversion)
+//                                    && ((nextTimeStampOfConversion == null) || currentInt.getDate().isBefore(nextTimeStampOfConversion))) {
+//                                if (!currentInt.getRawSamples().isEmpty() && compare != 0) {
+//                                    currentInt.getTmpSamples().addAll(currentInt.getRawSamples());
+//                                }
+//                            }
                         }
                     }
                 }
