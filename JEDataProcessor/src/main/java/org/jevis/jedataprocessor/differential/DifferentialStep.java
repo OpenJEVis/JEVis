@@ -7,7 +7,6 @@ package org.jevis.jedataprocessor.differential;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
@@ -56,11 +55,13 @@ public class DifferentialStep implements ProcessStep {
 
                 List<JEVisSample> rawSamples = new ArrayList<>();
 
-                DateTime firstTS = cleanDataObject.getFirstDate();
+                DateTime firstTS = intervals.get(0).getDate();
                 boolean found = false;
 
                 if (downSampling) {
-                    rawSamples = cleanDataObject.getRawSamplesDown();
+                    DateTime startInt = intervals.get(0).getDate().minus(periodCleanData).minus(periodCleanData);
+                    DateTime endInt = intervals.get(1).getDate();
+                    rawSamples = cleanDataObject.getRawAttribute().getSamples(startInt, endInt);
                     JEVisSample lastSample = null;
                     for (JEVisSample smp : rawSamples) {
                         DateTime timestamp = smp.getTimestamp();
@@ -102,7 +103,34 @@ public class DifferentialStep implements ProcessStep {
                             lastDiffVal = sample.getValueAsDouble();
                         }
                     } else {
-                        throw new JEVisException("No raw samples!", 232134093);
+                        logger.warn("No raw samples! Assuming starting value .");
+                        lastDiffVal = 0d;
+                        if (intervals.size() > 1) {
+                            Double value1 = null;
+                            if (!intervals.get(0).getRawSamples().isEmpty()) {
+                                value1 = intervals.get(0).getRawSamples().get(0).getValueAsDouble();
+                            } else if (!intervals.get(0).getTmpSamples().isEmpty()) {
+                                value1 = intervals.get(0).getTmpSamples().get(0).getValueAsDouble();
+                            }
+
+                            Double value2 = null;
+                            if (intervals.get(0).getRawSamples().size() > 1) {
+                                if (!intervals.get(0).getRawSamples().isEmpty()) {
+                                    value2 = intervals.get(0).getRawSamples().get(1).getValueAsDouble();
+                                } else if (!intervals.get(0).getTmpSamples().isEmpty()) {
+                                    value2 = intervals.get(0).getTmpSamples().get(1).getValueAsDouble();
+                                }
+                            } else {
+                                if (!intervals.get(1).getRawSamples().isEmpty()) {
+                                    value2 = intervals.get(1).getRawSamples().get(0).getValueAsDouble();
+                                } else if (!intervals.get(1).getTmpSamples().isEmpty()) {
+                                    value2 = intervals.get(1).getTmpSamples().get(0).getValueAsDouble();
+                                }
+                            }
+                            if (value1 != null && value2 != null) {
+                                lastDiffVal = value1 - (value2 - value1);
+                            }
+                        }
                     }
                 }
 
