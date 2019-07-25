@@ -62,7 +62,7 @@ public class ScalingStep implements ProcessStep {
                             productDec = productDec.add(offset);
                             sample.setValue(productDec.doubleValue());
                             String note = sample.getNote();
-                            note += ",scale";
+                            note += ",scale(" + multi + ")";
                             sample.setNote(note);
                         }
                     }

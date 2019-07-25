@@ -110,12 +110,12 @@ public class PrepareStep implements ProcessStep {
                 DateTime endInterval = null;
                 lastDate = currentDate;
 
-                boolean periodRawHasMonths = periodRawData.getMonths() > 1;
-                boolean periodRawHasYear = periodRawData.getYears() > 1;
-                boolean periodRawHasDays = periodRawData.getDays() > 1;
-                boolean periodRawHasHours = periodRawData.getHours() > 1;
-                boolean periodRawHasMinutes = periodRawData.getMinutes() > 1;
-                boolean periodRawHasSeconds = periodRawData.getSeconds() > 1;
+                boolean periodRawHasMonths = periodRawData.getMonths() > 0;
+                boolean periodRawHasYear = periodRawData.getYears() > 0;
+                boolean periodRawHasDays = periodRawData.getDays() > 0;
+                boolean periodRawHasHours = periodRawData.getHours() > 0;
+                boolean periodRawHasMinutes = periodRawData.getMinutes() > 0;
+                boolean periodRawHasSeconds = periodRawData.getSeconds() > 0;
 
                 boolean periodCleanHasMonths = periodCleanData.getMonths() > 0;
                 boolean periodCleanHasYear = periodCleanData.getYears() > 0;
@@ -126,17 +126,17 @@ public class PrepareStep implements ProcessStep {
 
 
                 startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
-                        currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), currentDate.getSecondOfMinute()).plusMillis(1);
+                        currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), currentDate.getSecondOfMinute());
                 endInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
                         currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), currentDate.getSecondOfMinute());
 
                 if (periodCleanHasYear) {
                     startInterval = startInterval.minusYears(periodCleanData.getYears()).withMonthOfYear(1).withDayOfMonth(1);
-                    endInterval = startInterval.plusYears(periodCleanData.getYears()).withMonthOfYear(1).withDayOfMonth(1).minusMillis(1);
+                    endInterval = startInterval.plusYears(periodCleanData.getYears()).withMonthOfYear(1).withDayOfMonth(1);
                 }
                 if (periodCleanHasMonths) {
                     startInterval = startInterval.minusMonths(periodCleanData.getMonths()).withDayOfMonth(1);
-                    endInterval = startInterval.plusMonths(periodCleanData.getMonths()).withDayOfMonth(1).minusMillis(1);
+                    endInterval = startInterval.plusMonths(periodCleanData.getMonths()).withDayOfMonth(1);
                 }
                 if (periodCleanHasDays) {
                     startInterval = startInterval.minusDays(periodCleanData.getDays());
@@ -168,6 +168,7 @@ public class PrepareStep implements ProcessStep {
                     Interval interval = new Interval(startInterval, endInterval);
                     CleanInterval currentInterval = new CleanInterval(interval, startInterval);
                     cleanIntervals.add(currentInterval);
+
                 }
 
                 currentDate = currentDate.plus(periodCleanData);

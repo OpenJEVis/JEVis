@@ -8,9 +8,11 @@ package org.jevis.httpdatasource;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
@@ -19,13 +21,13 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.jevis.commons.driver.DataSourceHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -39,6 +41,25 @@ import java.util.List;
  */
 public class HTTPDataSource {
     private static final Logger logger = LogManager.getLogger(HTTPDataSource.class);
+
+    // member variables
+    private Long id;
+
+    public void setDateTimeZone(DateTimeZone timeZone) {
+        logger.info("TIMEZONE: " + timeZone);
+        _timeZone = timeZone;
+    }
+
+    // interfaces
+    interface HTTP extends DataCollectorTypes.DataSource.DataServer {
+
+        String NAME = "HTTP Server";
+        String PASSWORD = "Password";
+        String SSL = "SSL";
+        String USER = "User";
+    }
+
+    private String name;
 
     /**
      * komplett überarbeiten!!!!!
@@ -136,33 +157,19 @@ public class HTTPDataSource {
             }
 //        List<InputHandler> answerList = new ArrayList<InputHandler>();
 //        answerList.add(InputHandlerFactory.getInputConverter(answer));
-        } catch (JEVisException ex) {
-            logger.error(ex);
         } catch (MalformedURLException ex) {
-            logger.error(ex);
+            logger.error("MalformedURLException. For channel {}:{}", getId(), getName(), ex);
+        } catch (ClientProtocolException ex) {
+            logger.error("Exception. For channel {}:{}", getId(), getName(), ex);
+        } catch (IOException ex) {
+            logger.error("IO Exception. For channel {}:{}", getId(), getName(), ex);
+        } catch (ParseException ex) {
+            logger.error("Parse Exception. For channel {}:{}", getId(), getName(), ex);
         } catch (Exception ex) {
-            logger.error(ex);
+            logger.error("Exception. For channel {}:{}", getId(), getName(), ex);
         }
         return answer;
     }
-
-    public void setDateTimeZone(DateTimeZone timeZone) {
-        logger.info("TIMEZONE: " + timeZone);
-        _timeZone = timeZone;
-    }
-
-    // interfaces
-    interface HTTP extends DataCollectorTypes.DataSource.DataServer {
-
-        String NAME = "HTTP Server";
-        String PASSWORD = "Password";
-        String SSL = "SSL";
-        String USER = "User";
-    }
-
-    // member variables
-    private Long _id;
-    private String _name;
     private String _serverURL;
     private Integer _port;
     private Integer _connectionTimeout;
@@ -177,8 +184,8 @@ public class HTTPDataSource {
         String NAME = "HTTP Channel Directory";
     }
 
-    public void setName(String _name) {
-        this._name = _name;
+    public Long getId() {
+        return id;
     }
 
     public void setServerURL(String _serverURL) {
@@ -207,6 +214,18 @@ public class HTTPDataSource {
 
     public void setSsl(Boolean _ssl) {
         this._ssl = _ssl;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String _name) {
+        this.name = _name;
     }
 
     interface HTTPChannel extends DataCollectorTypes.Channel {

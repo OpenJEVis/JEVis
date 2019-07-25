@@ -5,9 +5,16 @@
  */
 package org.jevis.jedataprocessor.data;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.Interval;
+import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +25,7 @@ import java.util.Map;
  */
 public class ResourceManager {
 
+    private static final Logger logger = LogManager.getLogger(ResourceManager.class);
     public List<CleanInterval> intervals = new ArrayList<>();
     private CleanDataObject cleanDataObject;
     private List<JEVisSample> rawSamplesDown;
@@ -69,5 +77,35 @@ public class ResourceManager {
             return -1L;
         }
         return cleanDataObject.getCleanObject().getID();
+    }
+
+    public List<CleanInterval> getRawIntervals() {
+        Period periodAlignment = getCleanDataObject().getRawDataPeriodAlignment();
+        Duration duration = periodAlignment.toStandardDuration();
+        //the interval with date x begins at x - (duration/2) and ends at x + (duration/2)
+        //Todo Month has no well defined duration -> cant handle months atm
+        long halfDuration = duration.getMillis() / 2;
+
+        List<CleanInterval> cleanIntervals = new ArrayList<>();
+        DateTime currentDate = getCleanDataObject().getFirstDate().minus(getCleanDataObject().getCleanDataPeriodAlignment()).minus(getCleanDataObject().getCleanDataPeriodAlignment());
+        DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+        DateTime maxEndDate = getCleanDataObject().getMaxEndDate();
+        if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
+            throw new IllegalStateException("Cant calculate the intervals with startdate " + datePattern.print(currentDate) + " and enddate " + datePattern.print(maxEndDate));
+        }
+        logger.info("Calc interval between startdate {} and enddate {}", datePattern.print(currentDate), datePattern.print(maxEndDate));
+        while (currentDate.isBefore(maxEndDate)) {
+            DateTime startInterval = currentDate.minus(halfDuration);
+            DateTime endInterval = currentDate.plus(halfDuration);
+            Interval interval = new Interval(startInterval, endInterval);
+
+            CleanInterval currentInterval = new CleanInterval(interval, currentDate);
+            cleanIntervals.add(currentInterval);
+
+            //calculate the next date
+            currentDate = currentDate.plus(periodAlignment);
+        }
+        logger.info("{} intervals calculated", cleanIntervals.size());
+        return cleanIntervals;
     }
 }
