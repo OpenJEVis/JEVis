@@ -156,20 +156,28 @@ public class GapsAndLimits {
                 case JEDataProcessorConstants.GapFillingType.MINIMUM:
                     Double minValue = listSamples.get(0).getValueAsDouble();
                     for (JEVisSample sample : listSamples) {
-                        minValue = Math.min(minValue, sample.getValueAsDouble());
+                        if (sample.getValueAsDouble() != null) {
+                            minValue = Math.min(minValue, sample.getValueAsDouble());
+                        }
                     }
                     return minValue;
                 case JEDataProcessorConstants.GapFillingType.MAXIMUM:
                     Double maxValue = listSamples.get(0).getValueAsDouble();
                     for (JEVisSample sample : listSamples) {
-                        maxValue = Math.max(maxValue, sample.getValueAsDouble());
+                        if (sample.getValueAsDouble() != null) {
+                            if (sample.getValueAsDouble() != null) {
+                                maxValue = Math.max(maxValue, sample.getValueAsDouble());
+                            }
+                        }
                     }
                     return maxValue;
                 case JEDataProcessorConstants.GapFillingType.MEDIAN:
                     Double medianValue = 0d;
                     List<Double> sortedArray = new ArrayList<>();
                     for (JEVisSample sample : listSamples) {
-                        sortedArray.add(sample.getValueAsDouble());
+                        if (sample.getValueAsDouble() != null) {
+                            sortedArray.add(sample.getValueAsDouble());
+                        }
                     }
                     Collections.sort(sortedArray);
                     if (!sortedArray.isEmpty()) {
@@ -181,7 +189,9 @@ public class GapsAndLimits {
                 case JEDataProcessorConstants.GapFillingType.AVERAGE:
                     Double averageValue = 0d;
                     for (JEVisSample sample : listSamples) {
-                        averageValue += sample.getValueAsDouble();
+                        if (sample.getValueAsDouble() != null) {
+                            averageValue += sample.getValueAsDouble();
+                        }
                     }
                     //logger.info("sum: " + averageValue + " listSize: " + listSamples.size());
                     averageValue = averageValue / listSamples.size();
