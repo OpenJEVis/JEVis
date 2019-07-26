@@ -45,13 +45,14 @@ public class HeatMapChart implements Chart {
 
         ChartDataModel chartDataModel = chartDataModels.get(0);
         Period period = new Period(chartDataModel.getSelectedStart(), chartDataModel.getSelectedEnd());
-        HeatMapXY heatMapXY = getHeatMapXY(period);
+        Period inputSampleRate = chartDataModel.getAttribute().getInputSampleRate();
+
+        HeatMapXY heatMapXY = getHeatMapXY(period, inputSampleRate);
         X_MAX = heatMapXY.getX();
         Y_MAX = heatMapXY.getY();
         chartDataModel.setAggregationPeriod(heatMapXY.getAggregationPeriod());
 
         List<JEVisSample> samples = chartDataModel.getSamples();
-        Period inputSampleRate = null;
         try {
             inputSampleRate = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
 
@@ -99,7 +100,7 @@ public class HeatMapChart implements Chart {
         MatrixItemSeries<MatrixChartItem> matrixItemSeries1 = new MatrixItemSeries<>(matrixData1, ChartType.MATRIX_HEATMAP);
 
         MatrixPane matrixHeatMap = new MatrixPane<>(matrixItemSeries1);
-        matrixHeatMap.setColorMapping(ColorMapping.INFRARED_1);
+        matrixHeatMap.setColorMapping(ColorMapping.GREEN_YELLOW_RED);
         matrixHeatMap.getMatrix().setUseSpacer(false);
         matrixHeatMap.getMatrix().setColsAndRows(X_MAX.intValue(), Y_MAX.intValue());
         setRegion(matrixHeatMap);
@@ -227,44 +228,86 @@ public class HeatMapChart implements Chart {
         return null;
     }
 
-    private HeatMapXY getHeatMapXY(Period period) {
+    private HeatMapXY getHeatMapXY(Period period, Period inputSampleRate) {
         long y;
         long x;
         AggregationPeriod aggregationPeriod;
 
         if (period.getYears() > 1) {
-            y = period.getYears();
-            x = 12;
-            aggregationPeriod = AggregationPeriod.MONTHLY;
+            int years = period.getYears();
+            int months = period.getMonths();
+            Period newPeriod = period.minusYears(years).minusMonths(months);
+            y = newPeriod.toStandardDays().getDays();
+            y += (years * 365.25) + (months * 30.25);
+            if (inputSampleRate.equals(Period.minutes(15))) {
+                x = 24 * 4;
+                aggregationPeriod = AggregationPeriod.NONE;
+            } else {
+                x = 24;
+                aggregationPeriod = AggregationPeriod.HOURLY;
+            }
         } else if (period.getYears() == 1) {
             int months = period.getMonths();
-            Period newPeriod = period.minusMonths(months);
-            y = newPeriod.toStandardWeeks().getWeeks();
-            y += months * 4;
-            x = 7;
-            aggregationPeriod = AggregationPeriod.DAILY;
+            Period newPeriod = period.minusYears(1).minusMonths(months);
+            y = newPeriod.toStandardDays().getDays();
+            y += months * 30.25;
+            if (inputSampleRate.equals(Period.minutes(15))) {
+                x = 24 * 4;
+                aggregationPeriod = AggregationPeriod.NONE;
+            } else {
+                x = 24;
+                aggregationPeriod = AggregationPeriod.HOURLY;
+            }
         } else if (period.getMonths() > 1) {
-            y = period.getMonths();
-            x = 31;
-            aggregationPeriod = AggregationPeriod.DAILY;
+            int months = period.getMonths();
+            Period newPeriod = period.minusMonths(months);
+            y = newPeriod.toStandardDays().getDays();
+            y += months * 30.25;
+            if (inputSampleRate.equals(Period.minutes(15))) {
+                x = 24 * 4;
+                aggregationPeriod = AggregationPeriod.NONE;
+            } else {
+                x = 24;
+                aggregationPeriod = AggregationPeriod.HOURLY;
+            }
         } else if (period.getMonths() == 1) {
             Period newPeriod = period.minusMonths(1);
-            y = newPeriod.toStandardWeeks().getWeeks();
-            y += 4;
-            x = 7;
-            aggregationPeriod = AggregationPeriod.DAILY;
+            y = newPeriod.toStandardDays().getDays() * 7;
+            y += 4 * 7;
+            if (inputSampleRate.equals(Period.minutes(15))) {
+                x = 24 * 4;
+                aggregationPeriod = AggregationPeriod.NONE;
+            } else {
+                x = 24;
+                aggregationPeriod = AggregationPeriod.HOURLY;
+            }
         } else if (period.getWeeks() > 1) {
-            y = period.getWeeks();
-            x = 7 * 24;
-            aggregationPeriod = AggregationPeriod.HOURLY;
+            y = period.getWeeks() * 7;
+            if (inputSampleRate.equals(Period.minutes(15))) {
+                x = 24 * 4;
+                aggregationPeriod = AggregationPeriod.NONE;
+            } else {
+                x = 24;
+                aggregationPeriod = AggregationPeriod.HOURLY;
+            }
         } else if (period.getWeeks() == 1) {
             y = period.toStandardDays().getDays();
-            x = 24;
-            aggregationPeriod = AggregationPeriod.HOURLY;
+            if (inputSampleRate.equals(Period.minutes(15))) {
+                x = 24 * 4;
+                aggregationPeriod = AggregationPeriod.NONE;
+            } else {
+                x = 24;
+                aggregationPeriod = AggregationPeriod.HOURLY;
+            }
         } else if (period.getDays() > 1) {
             y = period.getDays();
-            x = 24;
-            aggregationPeriod = AggregationPeriod.HOURLY;
+            if (inputSampleRate.equals(Period.minutes(15))) {
+                x = 24 * 4;
+                aggregationPeriod = AggregationPeriod.NONE;
+            } else {
+                x = 24;
+                aggregationPeriod = AggregationPeriod.HOURLY;
+            }
         } else if (period.getDays() == 1) {
             y = period.toStandardHours().getHours();
             x = 4;
