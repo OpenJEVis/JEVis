@@ -779,7 +779,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
             }
             return true;
         } catch (Exception ex) {
-            logger.fatal(ex);
+            logger.fatal("Could not save attributes", ex);
         }
         return false;
     }
