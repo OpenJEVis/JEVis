@@ -46,7 +46,7 @@ public class ChartDataModel {
     private BubbleType bubbleType = BubbleType.NONE;
     private boolean isStringData = false;
     private double timeFactor = 1.0;
-    private Double scaleFactor;
+    private Double scaleFactor = 1d;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
