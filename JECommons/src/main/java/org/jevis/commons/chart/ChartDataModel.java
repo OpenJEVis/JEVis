@@ -45,6 +45,8 @@ public class ChartDataModel {
     private Boolean absolute = false;
     private BubbleType bubbleType = BubbleType.NONE;
     private boolean isStringData = false;
+    private double timeFactor = 1.0;
+    private Double scaleFactor;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -181,8 +183,8 @@ public class ChartDataModel {
             if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
 
             ChartUnits cu = new ChartUnits();
-            Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
-            double finalTimeFactor = 1.0;
+            scaleFactor = cu.scaleValue(inputUnit, outputUnit);
+            timeFactor = 1.0;
 
             Double millisInput = null;
             Double millisOutput = null;
@@ -218,17 +220,17 @@ public class ChartDataModel {
                     }
 
                     if (millisOutput != null && millisOutput > 0 && millisInput > 0) {
-                        finalTimeFactor = millisInput / millisOutput;
+                        timeFactor = millisInput / millisOutput;
                     }
                 }
             } catch (Exception e) {
                 logger.error("Could not get calculate time scaling factor: ", e);
             }
 
-            double finalTimeFactor1 = finalTimeFactor;
+            double finalTimeFactor1 = timeFactor;
             inputList.forEach(sample -> {
                 try {
-                    sample.setValue(sample.getValueAsDouble() * finalFactor * finalTimeFactor1);
+                    sample.setValue(sample.getValueAsDouble() * scaleFactor * finalTimeFactor1);
                 } catch (Exception e) {
                     try {
                         logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue()
@@ -504,5 +506,13 @@ public class ChartDataModel {
 
     public boolean isStringData() {
         return isStringData;
+    }
+
+    public double getTimeFactor() {
+        return timeFactor;
+    }
+
+    public Double getScaleFactor() {
+        return scaleFactor;
     }
 }
