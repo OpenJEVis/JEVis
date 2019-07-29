@@ -27,6 +27,7 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.Chart;
 import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -658,46 +659,48 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
     private void dataItemsChanged(MultiAxisChart.Series<X, Y> series, List<Data<X, Y>> removed, int addedFrom,
                                   int addedTo, boolean permutation) {
-        if (HiddenConfig.CHART_PRECESSION_ON && series.getDataSize() > HiddenConfig.CHART_PRECESSION_LIMIT) {
+        if (HiddenConfig.CHART_PRECISION_ON && series.getDataSize() > HiddenConfig.CHART_PRECISION_LIMIT) {
             /**
              * This experimental code will use the "Douglas Peucker Algorithm" to improve drawing performance.
              * Enable via HiddenConfig editor STRG+H
              */
 
             logger.debug("Drawing-Optimization UI-Nodes before : " + series.getDataSize());
-            List<Data<X, Y>> newData = new ArrayList<>();
+//            List<Data<X, Y>> newData = new ArrayList<>();
             Map<Coordinate, Data<X, Y>> map = new HashMap<>();
+//            for (int i = addedFrom; i < addedTo; i++) {
+//                Data<X, Y> item = series.getData().get(i);
+//                newData.add(item);
+//            }
+
+            Coordinate[] coordinates = new Coordinate[series.getData().size()];
+//            for (int i = 0; i < newData.size(); i++) {
             for (int i = addedFrom; i < addedTo; i++) {
                 Data<X, Y> item = series.getData().get(i);
-                newData.add(item);
-            }
-
-            Coordinate[] coordinates = new Coordinate[newData.size()];
-            for (int i = 0; i < newData.size(); i++) {
                 Double xValue = null;
                 Double yValue = null;
-                if (newData.get(i).currentX.getValue() instanceof Long) {
-                    xValue = ((Long) newData.get(i).currentX.getValue()).doubleValue();
-                } else if (newData.get(i).currentX.getValue() instanceof Double) {
-                    xValue = (Double) newData.get(i).currentX.getValue();
+                if (item.currentX.getValue() instanceof Long) {
+                    xValue = ((Long) item.currentX.getValue()).doubleValue();
+                } else if (item.currentX.getValue() instanceof Double) {
+                    xValue = (Double) item.currentX.getValue();
                 }
 
 
-                if (newData.get(i).currentY.getValue() instanceof Long) {
-                    yValue = ((Long) newData.get(i).currentY.getValue()).doubleValue();
-                } else if (newData.get(i).currentY.getValue() instanceof Double) {
-                    yValue = (Double) newData.get(i).currentY.getValue();
+                if (item.currentY.getValue() instanceof Long) {
+                    yValue = ((Long) item.currentY.getValue()).doubleValue();
+                } else if (item.currentY.getValue() instanceof Double) {
+                    yValue = (Double) item.currentY.getValue();
                 }
 
                 if (xValue != null && yValue != null) {
                     coordinates[i] = new Coordinate(xValue, yValue);
-                    map.put(coordinates[i], newData.get(i));
+                    map.put(coordinates[i], item);
                 }
             }
 
             GeometryFactory gf = new GeometryFactory();
             Geometry geom = new LineString(new CoordinateArraySequence(coordinates), gf);
-            Geometry simplified = DouglasPeuckerSimplifier.simplify(geom, HiddenConfig.CHART_PRECESSION);//0.00001)
+            Geometry simplified = DouglasPeuckerSimplifier.simplify(geom, HiddenConfig.CHART_PRECISION);//0.00001)
             List<MultiAxisChart.Data<X, Y>> update = new ArrayList<>();
 
             for (Coordinate each : simplified.getCoordinates()) {
@@ -705,8 +708,21 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                     update.add(map.get(each));
                 }
             }
-            logger.debug("Drawing-Optimization UI-Nodes after Douglas Peucker : " + update.size());
+            logger.debug("Drawing-Optimization Nodes after Douglas Peucker: " + update.size());
 
+            /**
+             * adding nodes
+             */
+            for (int i = addedFrom; i < addedTo; i++) {
+                Data<X, Y> item = series.getData().get(i);
+                if (item.getNode() instanceof HBox && !update.contains(item)) {
+                    update.add(item);
+                }
+            }
+
+            logger.debug("Drawing-Optimization Nodes with info nodes: " + update.size());
+
+            List<Data<X, Y>> toBeRemoved = new ArrayList<>();
             for (int i = 0; i < coordinates.length; i++) {
                 boolean isIn = false;
                 for (Coordinate each : simplified.getCoordinates()) {
@@ -717,10 +733,9 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 }
                 if (!isIn) {
                     Data<X, Y> item = map.get(coordinates[i]);
-                    item.setNode(null);
-//                    item.setExtraValue(null);
-//                item.setXValue(null);
-//                item.setYValue(null);
+                    if (!(item.getNode() instanceof HBox)) {
+                        toBeRemoved.add(item);
+                    }
                 }
 
             }
@@ -733,7 +748,9 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
             for (int i = 0; i < update.size(); i++) {
                 Data<X, Y> item = update.get(i);
-                dataItemAdded(series, i, item);
+                if (!toBeRemoved.contains(item)) {
+                    dataItemAdded(series, i, item);
+                }
             }
             logger.debug("Drawing-Optimization - Done");
 

@@ -372,7 +372,7 @@ public class LoadAnalysisDialog {
         });
 
         drawOptimization.setOnAction(event -> {
-            HiddenConfig.CHART_PRECESSION_ON = drawOptimization.isSelected();
+            HiddenConfig.CHART_PRECISION_ON = drawOptimization.isSelected();
         });
     }
 
@@ -624,7 +624,7 @@ public class LoadAnalysisDialog {
             loadButton = new Button(I18n.getInstance().getString("plugin.graph.analysis.load"));
             newButton = new Button(I18n.getInstance().getString("plugin.graph.analysis.new"));
             drawOptimization = new CheckBox(I18n.getInstance().getString("plugin.graph.analysis.drawopt"));
-            drawOptimization.setSelected(HiddenConfig.CHART_PRECESSION_ON);
+            drawOptimization.setSelected(HiddenConfig.CHART_PRECISION_ON);
 
             loadButton.setDefaultButton(true);
 

@@ -21,6 +21,7 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -138,10 +139,18 @@ public class XYChartSerie {
     public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, double min, double max, double avg, Double sum) throws JEVisException {
 
         DateTime firstTS = null;
+        DateTime secondTS = null;
         DateTime lastTS = null;
         if (!samples.isEmpty()) {
             firstTS = samples.get(0).getTimestamp();
+            if (samples.size() > 1) {
+                secondTS = samples.get(1).getTimestamp();
+            }
             lastTS = samples.get(samples.size() - 1).getTimestamp();
+        }
+
+        if (firstTS != null && secondTS != null) {
+            tableEntry.setPeriod(new Period(firstTS, secondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
         }
 
         QuantityUnits qu = new QuantityUnits();
@@ -187,7 +196,7 @@ public class XYChartSerie {
                 tableEntry.setEnpi(nf_out.format(avg) + " " + getUnit());
             }
             if (isQuantity) {
-                tableEntry.setSum(nf_out.format(sum) + " " + getUnit());
+                tableEntry.setSum(nf_out.format(sum / singleRow.getScaleFactor() / singleRow.getTimeFactor()) + " " + getUnit());
             } else {
                 if (qu.isSumCalculable(unit) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
                     try {
@@ -196,7 +205,8 @@ public class XYChartSerie {
                             long periodMillis = period.toStandardDuration().getMillis();
                             long hourMillis = Period.hours(1).toStandardDuration().getMillis();
                             Double factor = (double) hourMillis / (double) periodMillis;
-                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
+//                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
+                            tableEntry.setSum(nf_out.format(sum / singleRow.getScaleFactor() / singleRow.getTimeFactor()) + " " + qu.getSumUnit(unit));
                         } else {
                             double periodMillis = 0.0;
 
@@ -210,7 +220,8 @@ public class XYChartSerie {
 
                             long hourMillis = Period.hours(1).toStandardDuration().getMillis();
                             Double factor = (double) hourMillis / periodMillis;
-                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
+//                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
+                            tableEntry.setSum(nf_out.format(sum / singleRow.getScaleFactor() / singleRow.getTimeFactor()) + " " + qu.getSumUnit(unit));
                         }
                     } catch (Exception e) {
                         logger.error("Couldn't calculate periods");

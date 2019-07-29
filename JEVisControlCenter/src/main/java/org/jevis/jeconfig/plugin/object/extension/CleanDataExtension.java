@@ -725,7 +725,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
                         savedAttributes.add(periodAlignmentAttribute);
                     } else if (attribute.equals(periodOffsetAttribute)) {
                         LongValidator validator = LongValidator.getInstance();
-                        Long value = validator.validate(valueMultiplier.getText(), I18n.getInstance().getLocale());
+                        Long value = validator.validate(periodOffset.getText(), I18n.getInstance().getLocale());
                         JEVisSample newSample = periodOffsetAttribute.buildSample(DateTime.now(), value);
                         newSample.commit();
                         savedAttributes.add(periodOffsetAttribute);
@@ -752,13 +752,13 @@ public class CleanDataExtension implements ObjectEditorExtension {
                         savedAttributes.add(valueMultiplierAttribute);
                     } else if (attribute.equals(valueOffsetAttribute)) {
                         DoubleValidator validator = DoubleValidator.getInstance();
-                        Double value = validator.validate(valueMultiplier.getText(), I18n.getInstance().getLocale());
+                        Double value = validator.validate(valueOffset.getText(), I18n.getInstance().getLocale());
                         JEVisSample newSample = valueOffsetAttribute.buildSample(DateTime.now(), value);
                         newSample.commit();
                         savedAttributes.add(valueOffsetAttribute);
                     } else if (attribute.equals(counterOverflowAttribute)) {
                         DoubleValidator validator = DoubleValidator.getInstance();
-                        Double value = validator.validate(valueMultiplier.getText(), I18n.getInstance().getLocale());
+                        Double value = validator.validate(counterOverflow.getText(), I18n.getInstance().getLocale());
                         JEVisSample newSample = counterOverflowAttribute.buildSample(DateTime.now(), value);
                         newSample.commit();
                         savedAttributes.add(counterOverflowAttribute);
@@ -779,7 +779,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
             }
             return true;
         } catch (Exception ex) {
-            logger.fatal(ex);
+            logger.fatal("Could not save attributes", ex);
         }
         return false;
     }

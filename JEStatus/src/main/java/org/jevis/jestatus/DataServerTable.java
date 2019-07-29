@@ -6,6 +6,7 @@ import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.ArrayList;
@@ -132,6 +133,19 @@ public class DataServerTable extends AlarmTable {
         }
 
 //        outOfBounds.sort(getObjectComparator());
+
+        List<JEVisObject> asyncTargets = new ArrayList<>();
+        for (JEVisObject currentChannel : outOfBounds) {
+            JEVisObject target = channelAndTarget.get(currentChannel);
+            if (target != null) {
+                JEVisAttribute attribute = target.getAttribute(VALUE_ATTRIBUTE_NAME);
+                if (attribute.getInputSampleRate().equals(Period.ZERO)) {
+                    asyncTargets.add(currentChannel);
+                }
+            }
+        }
+
+        outOfBounds.removeAll(asyncTargets);
 
         boolean odd = false;
         List<DataServerLine> dataServerLines = new ArrayList<>();

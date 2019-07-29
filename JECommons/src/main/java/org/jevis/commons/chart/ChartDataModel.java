@@ -45,6 +45,8 @@ public class ChartDataModel {
     private Boolean absolute = false;
     private BubbleType bubbleType = BubbleType.NONE;
     private boolean isStringData = false;
+    private double timeFactor = 1.0;
+    private Double scaleFactor = 1d;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -181,54 +183,54 @@ public class ChartDataModel {
             if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
 
             ChartUnits cu = new ChartUnits();
-            Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
-            double finalTimeFactor = 1.0;
+            scaleFactor = cu.scaleValue(inputUnit, outputUnit);
+            timeFactor = 1.0;
 
             Double millisInput = null;
             Double millisOutput = null;
-//            try {
-//                if (inputList.size() > 1 && !finalFactor.equals(1d)) {
-//                    Period inputPeriod = attribute.getDisplaySampleRate();
-//                    if (inputPeriod.getYears() != 1 && inputPeriod.getMonths() != 3 && inputPeriod.getMonths() != 1) {
-//                        millisInput = (double) inputPeriod.toStandardDuration().getMillis();
-//                    } else if (inputPeriod.getMonths() == 1) {
-//                        /**
-//                         * TODO: change to on the fly duration of current month for exact values
-//                         */
-//                        millisInput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
-//                    } else if (inputPeriod.getMonths() == 3) {
-//                        millisInput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 3;
-//                    } else if (inputPeriod.getYears() == 1) {
-//                        millisInput = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
-//                    }
-//
-//                    Period outputPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
-//
-//                    if (outputPeriod.getYears() != 1 && outputPeriod.getMonths() != 3 && outputPeriod.getMonths() != 1) {
-//                        millisOutput = (double) outputPeriod.toStandardDuration().getMillis();
-//                    } else if (outputPeriod.getMonths() == 1) {
-//                        /**
-//                         * TODO: change to on the fly duration of current month for exact values
-//                         */
-//                        millisOutput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
-//                    } else if (outputPeriod.getMonths() == 3) {
-//                        millisOutput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 3;
-//                    } else if (outputPeriod.getYears() == 1) {
-//                        millisOutput = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
-//                    }
-//
-//                    if (millisOutput != null && millisOutput > 0 && millisInput > 0) {
-//                        finalTimeFactor = millisInput / millisOutput;
-//                    }
-//                }
-//            } catch (Exception e) {
-//                logger.error("Could not get calculate time scaling factor: ", e);
-//            }
+            try {
+                if (inputList.size() > 1 && aggregationPeriod != AggregationPeriod.NONE) {
+                    Period inputPeriod = attribute.getDisplaySampleRate();
+                    if (inputPeriod.getYears() != 1 && inputPeriod.getMonths() != 3 && inputPeriod.getMonths() != 1) {
+                        millisInput = (double) inputPeriod.toStandardDuration().getMillis();
+                    } else if (inputPeriod.getMonths() == 1) {
+                        /**
+                         * TODO: change to on the fly duration of current month for exact values
+                         */
+                        millisInput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
+                    } else if (inputPeriod.getMonths() == 3) {
+                        millisInput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 3;
+                    } else if (inputPeriod.getYears() == 1) {
+                        millisInput = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
+                    }
 
-            double finalTimeFactor1 = finalTimeFactor;
+                    Period outputPeriod = new Period(inputList.get(0).getTimestamp(), inputList.get(1).getTimestamp());
+
+                    if (outputPeriod.getYears() != 1 && outputPeriod.getMonths() != 3 && outputPeriod.getMonths() != 1) {
+                        millisOutput = (double) outputPeriod.toStandardDuration().getMillis();
+                    } else if (outputPeriod.getMonths() == 1) {
+                        /**
+                         * TODO: change to on the fly duration of current month for exact values
+                         */
+                        millisOutput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
+                    } else if (outputPeriod.getMonths() == 3) {
+                        millisOutput = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 3;
+                    } else if (outputPeriod.getYears() == 1) {
+                        millisOutput = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
+                    }
+
+                    if (millisOutput != null && millisOutput > 0 && millisInput > 0) {
+                        timeFactor = millisInput / millisOutput;
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Could not get calculate time scaling factor: ", e);
+            }
+
+            double finalTimeFactor1 = timeFactor;
             inputList.forEach(sample -> {
                 try {
-                    sample.setValue(sample.getValueAsDouble() * finalFactor * finalTimeFactor1);
+                    sample.setValue(sample.getValueAsDouble() * scaleFactor * finalTimeFactor1);
                 } catch (Exception e) {
                     try {
                         logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue()
@@ -504,5 +506,13 @@ public class ChartDataModel {
 
     public boolean isStringData() {
         return isStringData;
+    }
+
+    public double getTimeFactor() {
+        return timeFactor;
+    }
+
+    public Double getScaleFactor() {
+        return scaleFactor;
     }
 }
