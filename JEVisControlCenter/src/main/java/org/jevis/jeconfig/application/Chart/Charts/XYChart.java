@@ -44,7 +44,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.PeriodFormat;
 
 import javax.measure.unit.Unit;
 import java.text.NumberFormat;
@@ -714,7 +713,7 @@ public class XYChart implements Chart {
 
                     } else tableEntry.setValue("- " + unit);
 
-                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
+//                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
 
                 } catch (Exception ex) {
                 }
