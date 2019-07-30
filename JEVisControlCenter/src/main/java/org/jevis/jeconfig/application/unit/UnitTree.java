@@ -104,7 +104,7 @@ public class UnitTree extends TreeView<UnitObject> {
                 }
             });
 
-            //TODO: give this his own id
+            //TODO: give this its own id
             setId("objecttree");
 //            getStylesheets().add("/styles/Styles.css");
 
@@ -249,9 +249,9 @@ public class UnitTree extends TreeView<UnitObject> {
                     list.add(newItem);
                 }
 
-                //TODO add addional Units from Datasource
+                //TODO add additional Units from data source
                 for (JEVisUnit child : UnitManager.getInstance().getCompatibleAdditionalUnit(item.getValue().getUnit())) {
-//                    logger.info("------add Additonal Unit childList: " + child);
+//                    logger.info("------add Additional Unit childList: " + child);
                     UnitObject quant = new UnitObject(UnitObject.Type.NonSIUnit, child, item.getValue().getID() + child.toString());
                     TreeItem<UnitObject> newItem = buildItem(quant);
                     list.add(newItem);

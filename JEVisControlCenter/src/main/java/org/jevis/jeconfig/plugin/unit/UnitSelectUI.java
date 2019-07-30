@@ -83,8 +83,8 @@ public class UnitSelectUI {
         changeBaseUnit.setText(UnitManager.getInstance().format(unit));
         labelField.setText(unit.getLabel());
 
-        unitProperty.addListener((observable, oldValue, newValue) -> {
-        });
+//        unitProperty.addListener((observable, oldValue, newValue) -> {
+//        });
 
         prefixBox.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
 //                unitProperty.getValue().setPrefix(prefix);
