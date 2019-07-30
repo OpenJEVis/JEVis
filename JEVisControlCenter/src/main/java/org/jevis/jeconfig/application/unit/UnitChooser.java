@@ -190,7 +190,7 @@ public class UnitChooser {
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
 
-        //TODO: load default lange from Configfile or so
+        //TODO: load default language from config file or so
         comboBox.getSelectionModel().selectFirst();
 
         comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
@@ -237,7 +237,7 @@ public class UnitChooser {
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
 
-        //TODO: load default lange from Configfile or so
+        //TODO: load default language from config file or so
         comboBox.getSelectionModel().selectFirst();
 
         comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
