@@ -91,30 +91,44 @@ public class ResourceManager {
     }
 
     public List<CleanInterval> getRawIntervals() {
-        if (rawIntervals == null) {
+        if (rawIntervals.isEmpty()) {
             Period periodAlignment = getCleanDataObject().getRawDataPeriodAlignment();
-            Duration duration = periodAlignment.toStandardDuration();
-            //the interval with date x begins at x - (duration/2) and ends at x + (duration/2)
-            //Todo Month has no well defined duration -> cant handle months atm
-            long halfDuration = duration.getMillis() / 2;
+            if (periodAlignment.getMonths() == 0 && periodAlignment.getYears() == 0) {
+                Duration duration = periodAlignment.toStandardDuration();
+                if (periodAlignment.toStandardMinutes().getMinutes() < 1) {
+                    throw new IllegalStateException("Cant calculate the intervals with rawDataPeriodAlignment " + periodAlignment);
+                }
+                //the interval with date x begins at x - (duration/2) and ends at x + (duration/2)
+                //Todo Month has no well defined duration -> cant handle months atm
+                long halfDuration = duration.getMillis() / 2;
 
-            DateTime currentDate = getCleanDataObject().getFirstDate().minus(getCleanDataObject().getCleanDataPeriodAlignment()).minus(getCleanDataObject().getCleanDataPeriodAlignment());
-            DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-            DateTime maxEndDate = getCleanDataObject().getMaxEndDate();
-            if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
-                throw new IllegalStateException("Cant calculate the intervals with startdate " + datePattern.print(currentDate) + " and enddate " + datePattern.print(maxEndDate));
-            }
-            logger.info("Calc interval between startdate {} and enddate {}", datePattern.print(currentDate), datePattern.print(maxEndDate));
-            while (currentDate.isBefore(maxEndDate)) {
-                DateTime startInterval = currentDate.minus(halfDuration);
-                DateTime endInterval = currentDate.plus(halfDuration);
-                Interval interval = new Interval(startInterval, endInterval);
+                Period cleanDataPeriodAlignment = getCleanDataObject().getCleanDataPeriodAlignment();
+                if (cleanDataPeriodAlignment.toStandardMinutes().getMinutes() < 1) {
+                    throw new IllegalStateException("Cant calculate the intervals with cleanDataPeriodAlignment " + cleanDataPeriodAlignment);
+                }
+                DateTime currentDate = getCleanDataObject().getFirstDate().minus(cleanDataPeriodAlignment).minus(cleanDataPeriodAlignment);
+                DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+                DateTime maxEndDate = getCleanDataObject().getMaxEndDate();
+                if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
+                    throw new IllegalStateException("Cant calculate the intervals with startdate " + datePattern.print(currentDate) + " and enddate " + datePattern.print(maxEndDate));
+                }
+                logger.info("Calc interval between startdate {} and enddate {}", datePattern.print(currentDate), datePattern.print(maxEndDate));
 
-                CleanInterval currentInterval = new CleanInterval(interval, currentDate);
-                rawIntervals.add(currentInterval);
+                while (currentDate.isBefore(maxEndDate)) {
+                    DateTime startInterval = currentDate.minus(halfDuration);
+                    DateTime endInterval = currentDate.plus(halfDuration);
+                    Interval interval = new Interval(startInterval, endInterval);
 
-                //calculate the next date
-                currentDate = currentDate.plus(periodAlignment);
+                    CleanInterval currentInterval = new CleanInterval(interval, currentDate);
+                    rawIntervals.add(currentInterval);
+
+                    //calculate the next date
+                    currentDate = currentDate.plus(periodAlignment);
+                }
+            } else {
+                /**
+                 * TODO: months and years
+                 */
             }
             logger.info("{} intervals calculated", rawIntervals.size());
         }
