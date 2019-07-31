@@ -49,41 +49,42 @@ public class Launcher extends AbstractCliApp {
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         processes.parallelStream().forEach(currentCleanDataObject -> {
-            forkJoinPool.submit(() -> {
-                if (!runningJobs.containsKey(currentCleanDataObject.getID())) {
-                    Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
-                    runningJobs.put(currentCleanDataObject.getID(), "true");
+            if (!runningJobs.containsKey(currentCleanDataObject.getID())) {
+                executor.submit(() -> {
+                            Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
+                            runningJobs.put(currentCleanDataObject.getID(), "true");
 
-                    try {
-                        LogTaskManager.getInstance().buildNewTask(currentCleanDataObject.getID(), currentCleanDataObject.getName());
-                        LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.STARTED);
+                            ProcessManager currentProcess = null;
+                            try {
+                                LogTaskManager.getInstance().buildNewTask(currentCleanDataObject.getID(), currentCleanDataObject.getName());
+                                LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.STARTED);
 
-                        ProcessManager currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds));
-                        currentProcess.start();
-                    } catch (Exception ex) {
-                        logger.debug(ex);
-                        LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
-                    }
+                                currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds));
+                                currentProcess.start();
+                            } catch (Exception ex) {
+                                logger.debug(ex);
+                                LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
+                            }
 
-                    LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
-                    runningJobs.remove(currentCleanDataObject.getID());
-                    plannedJobs.remove(currentCleanDataObject.getID());
+                            LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
+                            runningJobs.remove(currentCleanDataObject.getID());
+                            plannedJobs.remove(currentCleanDataObject.getID());
+                            currentProcess = null;
 
-                    logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+                            logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
 
-                    if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                        logger.info("Last job. Clearing cache.");
-                        setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                        ds.clearCache();
-                    }
+                            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                                logger.info("Last job. Clearing cache.");
+                                setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
+                                ds.clearCache();
+                            }
 
-                } else {
-                    logger.info("Still processing Job " + currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID());
-                }
-            });
+                        }
+                );
+            } else {
+                logger.info("Still processing Job {}:{}", currentCleanDataObject.getName(), currentCleanDataObject.getID());
+            }
         });
-
-        logger.info("---------------------finish------------------------");
     }
 
 
@@ -144,9 +145,11 @@ public class Launcher extends AbstractCliApp {
 
             TaskPrinter.printJobStatus(LogTaskManager.getInstance());
             runServiceHelp();
-        } catch (InterruptedException e) {
+        } catch (
+                InterruptedException e) {
             logger.error("Interrupted sleep: ", e);
         }
+
     }
 
     @Override

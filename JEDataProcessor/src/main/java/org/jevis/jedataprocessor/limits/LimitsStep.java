@@ -31,7 +31,6 @@ import static org.jevis.commons.constants.JEDataProcessorConstants.GapFillingTyp
 public class LimitsStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(LimitsStep.class);
-    private List<JEVisSample> sampleCache;
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
@@ -42,6 +41,7 @@ public class LimitsStep implements ProcessStep {
             return;
         }
         List<CleanInterval> intervals = resourceManager.getIntervals();
+        List<JEVisSample> sampleCache = resourceManager.getSampleCache();
         JEVisAttribute cleanAttribute = cleanDataObject.getValueAttribute();
         Double firstValue = 0.0;
         if (cleanAttribute != null) {
@@ -75,14 +75,6 @@ public class LimitsStep implements ProcessStep {
         logger.info("{} limit breaks for step 1 identified", limitBreaksStep1.size());
         logger.info("{} limit breaks for step 2 identified", limitBreaksStep2.size());
 
-        try {
-            DateTime minDateForCache = cleanDataObject.getFirstDate().minusMonths(6);
-            DateTime lastDateForCache = cleanDataObject.getFirstDate();
-
-            sampleCache = cleanDataObject.getCleanObject().getAttribute(CleanDataObject.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
-        } catch (Exception e) {
-            logger.info("No caching possible: " + e);
-        }
         for (JsonLimitsConfig limitsConfig : cleanDataObject.getLimitsConfig()) {
             if (cleanDataObject.getLimitsConfig().indexOf(limitsConfig) == 0) {
                 for (LimitBreak limitBreak : limitBreaksStep1) {
@@ -144,6 +136,8 @@ public class LimitsStep implements ProcessStep {
                                 default:
                                     break;
                             }
+
+                            gal.clearLists();
                             logger.info("[{}] Done", resourceManager.getID());
                         }
                         if (limitBreaksStep2.size() != filledLimitBreaks.size())
@@ -154,9 +148,7 @@ public class LimitsStep implements ProcessStep {
                 }
             }
         }
-        sampleCache = null;
         logger.info("[{}] finished filling gaps", cleanDataObject.getCleanObject().getID());
-
     }
 
     private Long defaultValue(String s) {

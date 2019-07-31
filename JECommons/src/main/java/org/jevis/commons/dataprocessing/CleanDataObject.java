@@ -570,6 +570,11 @@ public class CleanDataObject {
         return counterOverflowAttribute;
     }
 
+    public void clearLists() {
+        rawSamplesDown = null;
+        rawSamplesUp = null;
+    }
+
     public enum AttributeName {
 
         PERIOD_OFFSET("Period Offset"),
