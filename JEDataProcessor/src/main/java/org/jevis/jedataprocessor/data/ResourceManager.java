@@ -29,8 +29,9 @@ public class ResourceManager {
     public List<CleanInterval> intervals = new ArrayList<>();
     private CleanDataObject cleanDataObject;
     private List<JEVisSample> rawSamplesDown;
-    private List<JEVisSample> rawSamplesUp;
     private Map<DateTime, JEVisSample> notesMap;
+    private List<JEVisSample> sampleCache = new ArrayList<>();
+    private List<CleanInterval> rawIntervals = new ArrayList<>();
 
     public List<CleanInterval> getIntervals() {
         return intervals;
@@ -64,12 +65,22 @@ public class ResourceManager {
         this.notesMap = notesMap;
     }
 
-    public List<JEVisSample> getRawSamplesUp() {
-        return rawSamplesUp;
+    public List<JEVisSample> getSampleCache() {
+        if (sampleCache.isEmpty()) {
+            try {
+                DateTime minDateForCache = getCleanDataObject().getFirstDate().minusMonths(6);
+                DateTime lastDateForCache = getCleanDataObject().getFirstDate();
+
+                sampleCache = getCleanDataObject().getValueAttribute().getSamples(minDateForCache, lastDateForCache);
+            } catch (Exception e) {
+                logger.error("No caching possible: " + e);
+            }
+        }
+        return sampleCache;
     }
 
-    public void setRawSamplesUp(List<JEVisSample> rawSamplesUp) {
-        this.rawSamplesUp = rawSamplesUp;
+    public void setSampleCache(List<JEVisSample> sampleCache) {
+        this.sampleCache = sampleCache;
     }
 
     public Long getID() {
@@ -80,32 +91,37 @@ public class ResourceManager {
     }
 
     public List<CleanInterval> getRawIntervals() {
-        Period periodAlignment = getCleanDataObject().getRawDataPeriodAlignment();
-        Duration duration = periodAlignment.toStandardDuration();
-        //the interval with date x begins at x - (duration/2) and ends at x + (duration/2)
-        //Todo Month has no well defined duration -> cant handle months atm
-        long halfDuration = duration.getMillis() / 2;
+        if (rawIntervals == null) {
+            Period periodAlignment = getCleanDataObject().getRawDataPeriodAlignment();
+            Duration duration = periodAlignment.toStandardDuration();
+            //the interval with date x begins at x - (duration/2) and ends at x + (duration/2)
+            //Todo Month has no well defined duration -> cant handle months atm
+            long halfDuration = duration.getMillis() / 2;
 
-        List<CleanInterval> cleanIntervals = new ArrayList<>();
-        DateTime currentDate = getCleanDataObject().getFirstDate().minus(getCleanDataObject().getCleanDataPeriodAlignment()).minus(getCleanDataObject().getCleanDataPeriodAlignment());
-        DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-        DateTime maxEndDate = getCleanDataObject().getMaxEndDate();
-        if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
-            throw new IllegalStateException("Cant calculate the intervals with startdate " + datePattern.print(currentDate) + " and enddate " + datePattern.print(maxEndDate));
+            DateTime currentDate = getCleanDataObject().getFirstDate().minus(getCleanDataObject().getCleanDataPeriodAlignment()).minus(getCleanDataObject().getCleanDataPeriodAlignment());
+            DateTimeFormatter datePattern = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+            DateTime maxEndDate = getCleanDataObject().getMaxEndDate();
+            if (currentDate == null || maxEndDate == null || !currentDate.isBefore(maxEndDate)) {
+                throw new IllegalStateException("Cant calculate the intervals with startdate " + datePattern.print(currentDate) + " and enddate " + datePattern.print(maxEndDate));
+            }
+            logger.info("Calc interval between startdate {} and enddate {}", datePattern.print(currentDate), datePattern.print(maxEndDate));
+            while (currentDate.isBefore(maxEndDate)) {
+                DateTime startInterval = currentDate.minus(halfDuration);
+                DateTime endInterval = currentDate.plus(halfDuration);
+                Interval interval = new Interval(startInterval, endInterval);
+
+                CleanInterval currentInterval = new CleanInterval(interval, currentDate);
+                rawIntervals.add(currentInterval);
+
+                //calculate the next date
+                currentDate = currentDate.plus(periodAlignment);
+            }
+            logger.info("{} intervals calculated", rawIntervals.size());
         }
-        logger.info("Calc interval between startdate {} and enddate {}", datePattern.print(currentDate), datePattern.print(maxEndDate));
-        while (currentDate.isBefore(maxEndDate)) {
-            DateTime startInterval = currentDate.minus(halfDuration);
-            DateTime endInterval = currentDate.plus(halfDuration);
-            Interval interval = new Interval(startInterval, endInterval);
+        return rawIntervals;
+    }
 
-            CleanInterval currentInterval = new CleanInterval(interval, currentDate);
-            cleanIntervals.add(currentInterval);
-
-            //calculate the next date
-            currentDate = currentDate.plus(periodAlignment);
-        }
-        logger.info("{} intervals calculated", cleanIntervals.size());
-        return cleanIntervals;
+    public void setRawIntervals(List<CleanInterval> rawIntervals) {
+        this.rawIntervals = rawIntervals;
     }
 }

@@ -44,21 +44,20 @@ public class PrepareStep implements ProcessStep {
         //get the raw samples for the cleaning
         logger.info("[{}] Request raw samples", resourceManager.getID());
         List<JEVisSample> rawSamplesDown = cleanDataObject.getRawSamplesDown();
-        List<JEVisSample> rawSamplesUp = cleanDataObject.getRawSamplesUp();
+//        List<JEVisSample> rawSamplesUp = cleanDataObject.getRawSamplesUp();
         logger.info("[{}] raw samples found for cleaning: {}", resourceManager.getID(), rawSamplesDown.size());
         LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("Raw S.", rawSamplesDown.size() + "");
 
-        if (rawSamplesDown.isEmpty() || rawSamplesUp.isEmpty()) {
-            logger.info("[{}] No new raw date stopping this job", resourceManager.getID());
+//        if (rawSamplesDown.isEmpty() || rawSamplesUp.isEmpty()) {
+        if (rawSamplesDown.isEmpty()) {
+            logger.info("[{}] No new raw date. Stopping this job", resourceManager.getID());
             return;
         }
 
         resourceManager.setRawSamplesDown(rawSamplesDown);
-        resourceManager.setRawSamplesUp(rawSamplesUp);
 
         Map<DateTime, JEVisSample> notesMap = cleanDataObject.getNotesMap();
         resourceManager.setNotesMap(notesMap);
-
 
         Period periodCleanData = cleanDataObject.getCleanDataPeriodAlignment();
         Period periodRawData = cleanDataObject.getRawDataPeriodAlignment();

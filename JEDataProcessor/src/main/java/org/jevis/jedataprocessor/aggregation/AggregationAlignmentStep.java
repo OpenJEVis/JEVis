@@ -37,19 +37,14 @@ public class AggregationAlignmentStep implements ProcessStep {
         CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
 
         Map<DateTime, JEVisSample> notesMap = resourceManager.getNotesMap();
-        List<JEVisSample> rawSamples = new ArrayList<>();
         List<CleanInterval> intervals = resourceManager.getIntervals();
 
         //align the raw samples to the intervals
-        Map<DateTime, Long> counter = new HashMap<>();
-        Map<DateTime, JEVisSample> rawSamplesMap = new HashMap<>();
-        Map<DateTime, Double> rawSamplesSteps = new HashMap<>();
         Period periodCleanData = cleanDataObject.getCleanDataPeriodAlignment();
         Period periodRawData = cleanDataObject.getRawDataPeriodAlignment();
 
 
         boolean downSampling = true;
-        long stepsInPeriod = 0;
         Boolean valueIsQuantity = cleanDataObject.getValueIsQuantity();
 
         PeriodComparator periodComparator = new PeriodComparator();
@@ -62,7 +57,6 @@ public class AggregationAlignmentStep implements ProcessStep {
         }
 
         if (!downSampling) {
-            rawSamples = resourceManager.getRawSamplesUp();
 
             boolean periodRawHasMonths = periodRawData.getMonths() > 0;
             boolean periodRawHasYear = periodRawData.getYears() > 0;
@@ -79,12 +73,8 @@ public class AggregationAlignmentStep implements ProcessStep {
             boolean periodCleanHasSeconds = periodCleanData.getSeconds() > 0;
 
             if (!periodRawHasMonths && !periodRawHasYear && !periodCleanHasMonths && !periodCleanHasYear) {
-                long millisClean = periodCleanData.toStandardDuration().getMillis();
-                long millisRaw = periodRawData.toStandardDuration().getMillis();
-                stepsInPeriod = millisRaw / millisClean;
 
                 List<JEVisSample> list = new ArrayList<>();
-                double lastValue = 0;
                 String lastNote = null;
                 for (CleanInterval ci : intervals) {
                     if (!ci.getTmpSamples().isEmpty()) {

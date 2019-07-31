@@ -56,7 +56,6 @@ public class GapsAndLimits {
         List<JEVisSample> boundListSamples = new ArrayList<>();
         DateTime firstDate;
 
-        boundListSamples.clear();
         firstDate = getFirstDate(lastDate);
         List<JEVisSample> listSamplesNew = new ArrayList<>();
         switch (bindToSpecificValue) {
@@ -450,6 +449,15 @@ public class GapsAndLimits {
             default:
                 return lastDate.minusMonths(referencePeriodCount);
         }
+    }
+
+    public void clearLists() {
+        this.intervals = null;
+        this.gapsAndLimitsType = null;
+        this.gapList = null;
+        this.limitBreaksList = null;
+        this.c = null;
+        this.sampleCache = null;
     }
 
     public enum GapsAndLimitsType {
