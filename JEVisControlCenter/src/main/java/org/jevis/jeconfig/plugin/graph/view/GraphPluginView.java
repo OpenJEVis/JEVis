@@ -63,9 +63,9 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePick
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.BubbleChart;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
@@ -595,12 +595,12 @@ public class GraphPluginView implements Plugin {
         Platform.runLater(() -> {
             for (ChartView cv : charts) {
                 if (cv.getChartType().equals(ChartType.BUBBLE)) {
-                    BubbleChart bubbleChart = (BubbleChart) cv.getChart().getChart();
+                    MultiAxisBubbleChart bubbleChart = (MultiAxisBubbleChart) cv.getChart().getChart();
 
                     bubbleChart.getData().forEach(numberNumberSeries -> {
-                        BubbleChart.Series bubbleChartSeries = (BubbleChart.Series) numberNumberSeries;
+                        MultiAxisBubbleChart.Series bubbleChartSeries = (MultiAxisBubbleChart.Series) numberNumberSeries;
                         bubbleChartSeries.getData().forEach(numberNumberData -> {
-                            Node bubble = ((BubbleChart.Data) numberNumberData).getNode();
+                            Node bubble = ((MultiAxisBubbleChart.Data) numberNumberData).getNode();
                             if (bubble instanceof StackPane) {
                                 StackPane stackPane = (StackPane) bubble;
                                 if (stackPane.getShape() != null && stackPane.getShape() instanceof Circle) {
@@ -610,10 +610,10 @@ public class GraphPluginView implements Plugin {
                                     NumberFormat nf = NumberFormat.getInstance();
                                     nf.setMinimumFractionDigits(0);
                                     nf.setMaximumFractionDigits(0);
-                                    String countValue = nf.format(((BubbleChart.Data) numberNumberData).getExtraValue());
+                                    String countValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getExtraValue());
                                     nf.setMinimumFractionDigits(2);
                                     nf.setMaximumFractionDigits(2);
-                                    String yValue = nf.format(((BubbleChart.Data) numberNumberData).getYValue());
+                                    String yValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getYValue());
 
                                     Label labelCount = new Label(countValue);
                                     Tooltip tooltipYValue = new Tooltip(yValue);

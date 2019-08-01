@@ -502,7 +502,7 @@ public class ChartView implements Observer {
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case BUBBLE:
-                chart = new BubbleChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), chartId, getChartName());
+                chart = new BubbleChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.calcRegression(), dataModel.getRegressionType(), dataModel.getPolyRegressionDegree(), chartId, getChartName());
                 setTableStandard();
                 break;
             case SCATTER:

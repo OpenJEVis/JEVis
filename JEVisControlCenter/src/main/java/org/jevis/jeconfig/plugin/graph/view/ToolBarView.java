@@ -255,6 +255,7 @@ public class ToolBarView {
             regressionTypes.remove(0);
             ComboBox<RegressionType> regressionTypeComboBox = new ComboBox<>(regressionTypes);
             regressionTypeComboBox.getSelectionModel().select(RegressionType.POLY);
+            regressionTypeComboBox.setDisable(true);
 
             GridPane gridPane = new GridPane();
             gridPane.setVgap(4);
