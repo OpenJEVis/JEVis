@@ -306,7 +306,7 @@ public class XYChartSerie {
         String unit = UnitManager.getInstance().format(singleRow.getUnit());
 
         if (unit.equals("")) unit = singleRow.getUnit().getLabel();
-        if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
+//        if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
 
         return unit;
     }
