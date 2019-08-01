@@ -45,7 +45,6 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import javax.measure.unit.Unit;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -330,8 +329,6 @@ public class XYChart implements Chart {
         for (XYChartSerie serie : xyChartSerieList) {
             if (serie.getUnit() != null) {
                 String currentUnit = UnitManager.getInstance().format(serie.getUnit());
-                if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString()))
-                    currentUnit = serie.getUnit();
                 if (serie.getyAxis() == 0) {
                     if (!unitY1.contains(currentUnit)) {
                         unitY1.add(currentUnit);
@@ -348,8 +345,12 @@ public class XYChart implements Chart {
 
         if (chartDataModels != null && chartDataModels.size() > 0) {
 
-            if (unitY1.isEmpty() && unitY2.isEmpty())
+            if (unitY1.isEmpty() && unitY2.isEmpty()) {
                 unitY1.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
+                unitY2.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
+            } else if (unitY1.isEmpty()) {
+                unitY1.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
+            }
 
         }
 
