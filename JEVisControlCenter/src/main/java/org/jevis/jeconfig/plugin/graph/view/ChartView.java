@@ -66,15 +66,6 @@ public class ChartView implements Observer {
 
     public ChartView(GraphDataModel dataModel) {
         this.dataModel = dataModel;
-
-        init();
-    }
-
-    public ChartView(GraphDataModel dataModel, Boolean showTable) {
-        this.dataModel = dataModel;
-        this.showTable = showTable;
-
-        init();
     }
 
     private void init() {
@@ -116,116 +107,173 @@ public class ChartView implements Observer {
         nameCol.setPrefWidth(500);
         nameCol.setMinWidth(100);
 
-        /**
-         * Table Column 2
-         */
-        periodCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.period"));
-        periodCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("period"));
-        periodCol.setStyle("-fx-alignment: CENTER-RIGHT");
-        periodCol.setSortable(false);
-        periodCol.setPrefWidth(100);
-        periodCol.setMinWidth(100);
-
-        /**
-         * Table Column 3
-         */
-        TableColumn<TableEntry, String> value = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.value"));
-        value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
-        value.setStyle("-fx-alignment: CENTER-RIGHT");
-        value.setSortable(false);
-
-        value.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        value.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
-
-        /**
-         * Table Column 4
-         */
-        dateCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.date"));
-        dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("date"));
-        dateCol.setStyle("-fx-alignment: CENTER");
-        dateCol.setSortable(false);
-        dateCol.setPrefWidth(160);
-        dateCol.setMinWidth(160);
-
-        /**
-         * Table Column 5
-         */
-        noteCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.note"));
-        noteCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
-        noteCol.setStyle("-fx-alignment: CENTER");
-        noteCol.setPrefWidth(50);
-        noteCol.setMinWidth(50);
-        noteCol.setSortable(false);
-
-        /**
-         * Table Column 6
-         */
-        TableColumn<TableEntry, String> minCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.min"));
-        minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
-        minCol.setStyle("-fx-alignment: CENTER-RIGHT");
-        minCol.setSortable(false);
-        minCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        minCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
-
-        /**
-         * Table Column 7
-         */
-        TableColumn<TableEntry, String> maxCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.max"));
-        maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
-        maxCol.setStyle("-fx-alignment: CENTER-RIGHT");
-        maxCol.setSortable(false);
-        maxCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        maxCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
-
-        /**
-         * Table Column 8
-         */
-        TableColumn<TableEntry, String> avgCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.avg"));
-        avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
-        avgCol.setStyle("-fx-alignment: CENTER-RIGHT");
-        avgCol.setSortable(false);
-        avgCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        avgCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
-
-        /**
-         * Table Column 9
-         */
-        TableColumn<TableEntry, String> enPICol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.enpi"));
-        enPICol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("enpi"));
-        enPICol.setStyle("-fx-alignment: CENTER-RIGHT");
-        enPICol.setSortable(false);
-        enPICol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        enPICol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
-        enPICol.setVisible(false);
-
-        /**
-         * Table Column 10
-         */
-        TableColumn<TableEntry, String> sumCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.sum"));
-        sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
-        sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
-        sumCol.setSortable(false);
-        sumCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
-        sumCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
-
         final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
         TableEntry tableEntry = new TableEntry("empty");
         tableData.add(tableEntry);
         tableView.setItems(tableData);
 
-        tableView.getColumns().addAll(colorCol, nameCol, periodCol, value, dateCol, noteCol, minCol, maxCol, avgCol, enPICol, sumCol);
-        tableView.setTableMenuButtonVisible(true);
-        contextMenuHelper = new TableViewContextMenuHelper(tableView);
+        switch (chartType) {
+            case BUBBLE:
+                /**
+                 * Table Column 2
+                 */
 
-        tableView.widthProperty().addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(this::updateColumnCaptionWidths);
-        });
+                TableColumn<TableEntry, String> xValue = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.xValue"));
+                xValue.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("xValue"));
+                xValue.setStyle("-fx-alignment: CENTER-RIGHT");
+                xValue.setSortable(false);
 
-        enPICol.visibleProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != oldValue) {
-                Platform.runLater(this::updateColumnCaptionWidths);
-            }
-        });
+                xValue.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+                xValue.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+
+                /**
+                 * Table Column 3
+                 */
+
+                TableColumn<TableEntry, String> yValue = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.yValue"));
+                yValue.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("yValue"));
+                yValue.setStyle("-fx-alignment: CENTER-RIGHT");
+                yValue.setSortable(false);
+
+                yValue.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+                yValue.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+
+                /**
+                 * Table Column 4
+                 */
+
+                TableColumn<TableEntry, String> standardDeviation = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.standardDeviation"));
+                standardDeviation.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("standardDeviation"));
+                standardDeviation.setStyle("-fx-alignment: CENTER-RIGHT");
+                standardDeviation.setSortable(false);
+
+                standardDeviation.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+                standardDeviation.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+
+                /**
+                 * Table Column 5
+                 */
+
+                TableColumn<TableEntry, String> variance = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.variance"));
+                variance.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("variance"));
+                variance.setStyle("-fx-alignment: CENTER-RIGHT");
+                variance.setSortable(false);
+
+                variance.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+                variance.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+
+                tableView.getColumns().addAll(colorCol, nameCol, xValue, yValue, standardDeviation, variance);
+                break;
+            default:
+                /**
+                 * Table Column 2
+                 */
+                periodCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.period"));
+                periodCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("period"));
+                periodCol.setStyle("-fx-alignment: CENTER-RIGHT");
+                periodCol.setSortable(false);
+                periodCol.setPrefWidth(100);
+                periodCol.setMinWidth(100);
+
+                /**
+                 * Table Column 3
+                 */
+                TableColumn<TableEntry, String> value = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.value"));
+                value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
+                value.setStyle("-fx-alignment: CENTER-RIGHT");
+                value.setSortable(false);
+
+                value.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+                value.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+
+                /**
+                 * Table Column 4
+                 */
+                dateCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.date"));
+                dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("date"));
+                dateCol.setStyle("-fx-alignment: CENTER");
+                dateCol.setSortable(false);
+                dateCol.setPrefWidth(160);
+                dateCol.setMinWidth(160);
+
+                /**
+                 * Table Column 5
+                 */
+                noteCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.note"));
+                noteCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
+                noteCol.setStyle("-fx-alignment: CENTER");
+                noteCol.setPrefWidth(50);
+                noteCol.setMinWidth(50);
+                noteCol.setSortable(false);
+
+                /**
+                 * Table Column 6
+                 */
+                TableColumn<TableEntry, String> minCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.min"));
+                minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
+                minCol.setStyle("-fx-alignment: CENTER-RIGHT");
+                minCol.setSortable(false);
+                minCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+                minCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+
+                /**
+                 * Table Column 7
+                 */
+                TableColumn<TableEntry, String> maxCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.max"));
+                maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
+                maxCol.setStyle("-fx-alignment: CENTER-RIGHT");
+                maxCol.setSortable(false);
+                maxCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+                maxCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+
+                /**
+                 * Table Column 8
+                 */
+                TableColumn<TableEntry, String> avgCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.avg"));
+                avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
+                avgCol.setStyle("-fx-alignment: CENTER-RIGHT");
+                avgCol.setSortable(false);
+                avgCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+                avgCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+
+                /**
+                 * Table Column 9
+                 */
+                TableColumn<TableEntry, String> enPICol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.enpi"));
+                enPICol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("enpi"));
+                enPICol.setStyle("-fx-alignment: CENTER-RIGHT");
+                enPICol.setSortable(false);
+                enPICol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+                enPICol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+                enPICol.setVisible(false);
+
+                /**
+                 * Table Column 10
+                 */
+                TableColumn<TableEntry, String> sumCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.sum"));
+                sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
+                sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
+                sumCol.setSortable(false);
+                sumCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
+                sumCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
+
+                tableView.getColumns().addAll(colorCol, nameCol, periodCol, value, dateCol, noteCol, minCol, maxCol, avgCol, enPICol, sumCol);
+                tableView.setTableMenuButtonVisible(true);
+                contextMenuHelper = new TableViewContextMenuHelper(tableView);
+
+                tableView.widthProperty().addListener((observable, oldValue, newValue) -> {
+                    Platform.runLater(this::updateColumnCaptionWidths);
+                });
+
+                enPICol.visibleProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue != oldValue) {
+                        Platform.runLater(this::updateColumnCaptionWidths);
+                    }
+                });
+                break;
+        }
+
+
     }
 
     public void updateColumnCaptionWidths() {
@@ -411,6 +459,7 @@ public class ChartView implements Observer {
 
     private void generateChart(Integer chartId, ChartType chartType, List<ChartDataModel> chartDataModels) {
         this.chartType = chartType;
+        init();
         boolean containsEnPI = chartDataModels.stream().anyMatch(ChartDataModel::getEnPI);
         switch (chartType) {
             case AREA:
@@ -454,7 +503,7 @@ public class ChartView implements Observer {
                 break;
             case BUBBLE:
                 chart = new BubbleChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), chartId, getChartName());
-                disableTable();
+                setTableStandard();
                 break;
             case SCATTER:
                 chart = new ScatterChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.calcRegression(), dataModel.getRegressionType(), dataModel.getPolyRegressionDegree(), dataModel.getAddSeries(), chartId, getChartName());

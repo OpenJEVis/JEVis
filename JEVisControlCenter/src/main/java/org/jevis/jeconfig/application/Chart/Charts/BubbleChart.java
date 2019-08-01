@@ -2,12 +2,15 @@ package org.jevis.jeconfig.application.Chart.Charts;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.calculation.CalcJob;
@@ -22,6 +25,7 @@ import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,6 +35,13 @@ public class BubbleChart implements Chart {
     org.jevis.jeconfig.application.Chart.Charts.jfx.BubbleChart<Number, Number> chart;
     private Region chartRegion;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
+    private final Map<Integer, Integer> modifiedX;
+    private final Map<Integer, Double> modifiedY;
+    private final TreeMap<Double, Double> sampleTreeMap = new TreeMap<>();
+    private TableEntry tableEntry;
+    private Double nearest = 0d;
+    private String xUnit;
+    private String yUnit;
 
     public BubbleChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Integer chartId, String chartName) {
         final NumberAxis xAxis = new NumberAxis();
@@ -69,8 +80,8 @@ public class BubbleChart implements Chart {
             }
         }
 
-        Map<Integer, Integer> modifiedX = new HashMap<>();
-        Map<Integer, Double> modifiedY = new HashMap<>();
+        modifiedX = new HashMap<>();
+        modifiedY = new HashMap<>();
         Map<Integer, List<DateTime>> yDates = new HashMap<>();
         for (int i = 0; i < maxX.get() + 30; i = i + 30) {
             double upperBound = i + 30;
@@ -165,9 +176,12 @@ public class BubbleChart implements Chart {
         }
 
         List<Bubble> bubbles = new ArrayList<>();
+        List<Double> arrayList = new ArrayList<>();
         modifiedX.forEach((aInteger, aInteger2) -> {
             minX.set(Math.min(minX.get(), aInteger));
             bubbles.add(new Bubble(aInteger.doubleValue(), modifiedY.get(aInteger), aInteger2.doubleValue()));
+            sampleTreeMap.put(aInteger.doubleValue(), modifiedY.get(aInteger));
+            arrayList.add(modifiedY.get(aInteger));
         });
 
         chart = new org.jevis.jeconfig.application.Chart.Charts.jfx.BubbleChart<Number, Number>(xAxis, yAxis);
@@ -175,12 +189,16 @@ public class BubbleChart implements Chart {
         chart.setLegendVisible(false);
 
         String xAxisTitle = "";
+        xUnit = "";
         String yAxisTitle = "";
+        yUnit = "";
         for (ChartDataModel model : chartDataModels) {
             if (model.getBubbleType() == BubbleType.X) {
                 xAxisTitle = model.getObject().getName();
+                xUnit = model.getUnitLabel();
             } else if (model.getBubbleType() == BubbleType.Y) {
                 yAxisTitle = model.getObject().getName();
+                yUnit = model.getUnitLabel();
             }
         }
 
@@ -193,6 +211,15 @@ public class BubbleChart implements Chart {
         yAxis.setAutoRanging(true);
         yAxis.setForceZeroInRange(false);
 
+        tableEntry = new TableEntry(yAxisTitle + " : " + xAxisTitle);
+        tableEntry.setColor(hexColors.get(0));
+        Double[] item = arrayList.toArray(new Double[arrayList.size()]);
+        double[] doubleArray = ArrayUtils.toPrimitive(item);
+        DescriptiveStatistics descriptiveStatistics = new DescriptiveStatistics(doubleArray);
+        tableEntry.setStandardDeviation(String.valueOf(descriptiveStatistics.getStandardDeviation()));
+        tableEntry.setVariance(String.valueOf(descriptiveStatistics.getVariance()));
+
+        tableData.add(tableEntry);
         javafx.scene.chart.XYChart.Series series1 = new javafx.scene.chart.XYChart.Series();
 //        series1.setName("Arabica");
 
@@ -226,7 +253,53 @@ public class BubbleChart implements Chart {
 
     @Override
     public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
+        Point2D mouseCoordinates = null;
+        if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
 
+        double x = ((org.jevis.jeconfig.application.Chart.Charts.jfx.BubbleChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
+
+        Double displayValue = ((NumberAxis) ((org.jevis.jeconfig.application.Chart.Charts.jfx.BubbleChart) getChart()).getXAxis()).getValueForDisplay(x).doubleValue();
+
+        if (displayValue != null) {
+            setValueForDisplay(valueForDisplay);
+            double finalDisplayValue = displayValue;
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setMinimumFractionDigits(2);
+            nf.setMaximumFractionDigits(2);
+
+            try {
+
+                nearest = null;
+                if (sampleTreeMap.get(finalDisplayValue) != null) {
+                    nearest = finalDisplayValue;
+                } else {
+                    nearest = sampleTreeMap.lowerKey(finalDisplayValue);
+                }
+
+                Double yValue = sampleTreeMap.get(nearest);
+                AtomicReference<Double> xValue = new AtomicReference<>(finalDisplayValue);
+                sampleTreeMap.forEach((aDouble, aDouble2) -> {
+                    if (aDouble2.equals(yValue)) {
+                        xValue.set(aDouble);
+                    }
+                });
+
+                String formattedX = nf.format(xValue.get());
+                String formattedY = nf.format(yValue);
+                if (!xUnit.equals("")) {
+                    tableEntry.setxValue(formattedX + " " + xUnit);
+                } else {
+                    tableEntry.setxValue(formattedX);
+                }
+                if (!yUnit.equals("")) {
+                    tableEntry.setyValue(formattedY + " " + yUnit);
+                } else {
+                    tableEntry.setyValue(formattedY);
+                }
+
+            } catch (Exception ex) {
+            }
+        }
     }
 
     @Override

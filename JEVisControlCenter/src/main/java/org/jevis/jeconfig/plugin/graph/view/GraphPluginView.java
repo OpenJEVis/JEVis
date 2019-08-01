@@ -879,6 +879,7 @@ public class GraphPluginView implements Plugin {
                 case BAR:
                     break;
                 case BUBBLE:
+                    setupMouseMovedBubble(cv);
                     break;
                 case PIE:
                     break;
@@ -888,6 +889,12 @@ public class GraphPluginView implements Plugin {
                     break;
             }
         }
+    }
+
+    private void setupMouseMovedBubble(ChartView cv) {
+        cv.getChart().getChart().setOnMouseMoved(event -> {
+            cv.updateTablesSimultaneously(event, null);
+        });
     }
 
     private void setupNoteDialog(ChartView cv) {
