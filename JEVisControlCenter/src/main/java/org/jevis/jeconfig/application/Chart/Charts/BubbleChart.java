@@ -52,6 +52,8 @@ public class BubbleChart implements Chart {
 
         AtomicReference<Double> minX = new AtomicReference<>(Double.MAX_VALUE);
         AtomicReference<Double> maxX = new AtomicReference<>(-Double.MAX_VALUE);
+        AtomicReference<Double> minY = new AtomicReference<>(Double.MAX_VALUE);
+        AtomicReference<Double> maxY = new AtomicReference<>(-Double.MAX_VALUE);
         boolean isEnPI = false;
         ChartDataModel chartDataModelY = null;
 
@@ -179,6 +181,8 @@ public class BubbleChart implements Chart {
         List<Double> arrayList = new ArrayList<>();
         modifiedX.forEach((aInteger, aInteger2) -> {
             minX.set(Math.min(minX.get(), aInteger));
+            minY.set(Math.min(minY.get(), modifiedY.get(aInteger)));
+            maxY.set(Math.max(maxY.get(), modifiedY.get(aInteger)));
             bubbles.add(new Bubble(aInteger.doubleValue(), modifiedY.get(aInteger), aInteger2.doubleValue()));
             sampleTreeMap.put(aInteger.doubleValue(), modifiedY.get(aInteger));
             arrayList.add(modifiedY.get(aInteger));
@@ -204,11 +208,13 @@ public class BubbleChart implements Chart {
 
         xAxis.setLabel(xAxisTitle);
         xAxis.setAutoRanging(false);
-        xAxis.setLowerBound(minX.get() - 30);
+        xAxis.setLowerBound(Math.max(minX.get() - 30, 0d));
         xAxis.setUpperBound(maxX.get() + 30);
 
         yAxis.setLabel(yAxisTitle);
-        yAxis.setAutoRanging(true);
+        yAxis.setAutoRanging(false);
+        yAxis.setLowerBound(Math.max(minY.get(), 0d) * 0.75);
+        yAxis.setUpperBound(maxY.get() * 1.25);
         yAxis.setForceZeroInRange(false);
 
         tableEntry = new TableEntry(yAxisTitle + " : " + xAxisTitle);
