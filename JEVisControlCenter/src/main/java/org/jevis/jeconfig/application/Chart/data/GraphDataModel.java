@@ -427,6 +427,10 @@ public class GraphDataModel {
         return calcRegression;
     }
 
+    public void setCalcRegression_NO_EVENT(Boolean calcRegression) {
+        this.calcRegression = calcRegression;
+    }
+
     public void setCalcRegression(Boolean calc) {
         this.calcRegression = calc;
 
@@ -529,6 +533,7 @@ public class GraphDataModel {
         setHideShowIconsNO_EVENT(true);
         setShowRawDataNO_EVENT(false);
         setShowSumNO_EVENT(false);
+        setCalcRegression_NO_EVENT(false);
         setAutoResizeNO_EVENT(true);
         setRunUpdate(false);
         if (service.isRunning()) {

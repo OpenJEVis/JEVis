@@ -1459,7 +1459,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         return new Label(sb.toString());
     }
 
-    private WeightedObservedPoints getWeightedObservedPoints(Series<X, Y> s, int yAxisIndex) {
+    public WeightedObservedPoints getWeightedObservedPoints(Series<X, Y> s, int yAxisIndex) {
         double zero = getData().get(getData().indexOf(s)).getData().stream().findFirst().map(xyData -> getValue(xyData.getXValue())).orElse(0.0);
         final WeightedObservedPoints obs = new WeightedObservedPoints();
         double index = 0;
@@ -1480,7 +1480,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         return obs;
     }
 
-    private Path calcPolyRegression(Series<X, Y> s, int yAxisIndex, int polyDegree) {
+    public Path calcPolyRegression(Series<X, Y> s, int yAxisIndex, int polyDegree) {
 
         if (yAxisIndex == Y2_AXIS && y2Axis == null)
             throw new NullPointerException("Y2 Axis is not defined.");
@@ -1595,7 +1595,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         }
     }
 
-    private double getYFromFitter(double[] coefficient, double x) {
+    double getYFromFitter(double[] coefficient, double x) {
         double result = 0d;
         for (int power = coefficient.length - 1; power >= 0; power--) {
             result += coefficient[power] * (Math.pow(x, power));
@@ -1604,13 +1604,13 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         return result;
     }
 
-    private double findXChartCord(double x) {
+    double findXChartCord(double x) {
         double chartX = -1;
         chartX = ((ValueAxis) getXAxis()).getDisplayPosition(x);
         return chartX;
     }
 
-    private double findXCategoryChartCord(double x, double xMin, double xMax) {
+    double findXCategoryChartCord(double x, double xMin, double xMax) {
         CategoryAxis xAxis = (CategoryAxis) getXAxis();
         double xStartPos = xAxis.getDisplayPosition(xAxis.getCategories().get(0));
         double xEndPos = xAxis.getDisplayPosition(xAxis.getCategories().get(xAxis.getCategories().size() - 1));
@@ -1620,7 +1620,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         return (xEndPos - xStartPos) * ratio + xStartPos;
     }
 
-    private double findYChartCord(Double y, Axis<?> yAxis) {
+    double findYChartCord(Double y, Axis<?> yAxis) {
         double chartY = -1;
         chartY = ((ValueAxis) yAxis).getDisplayPosition(y);
         return chartY;
@@ -1634,7 +1634,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         }
     }
 
-    private double getValue(Object x) {
+    double getValue(Object x) {
         try {
             return (double) x;
         } catch (Exception e) {
