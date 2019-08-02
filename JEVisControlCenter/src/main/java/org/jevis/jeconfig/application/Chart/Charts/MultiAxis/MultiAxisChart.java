@@ -93,6 +93,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
     private RegressionType y1AxisRegressionType;
     private int y2AxisPolyRegressionDegree;
     private ArrayList<Shape> y1RegressionLines = new ArrayList<>();
+    public ArrayList<LimitLine> limitLines = new ArrayList<>();
+    public ArrayList<Line> limitLinesList = new ArrayList<>();
     private RegressionType y2AxisRegressionType;
 
     // -------------- PUBLIC PROPERTIES -------------------------------------
@@ -1071,6 +1073,29 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             horizontalZeroLine.setEndY(top + yAxisZero + 0.5);
             horizontalZeroLine.setVisible(true);
         }
+
+        if (!limitLines.isEmpty()) {
+            plotArea.getChildren().removeAll(limitLinesList);
+            limitLinesList.clear();
+            for (LimitLine limitLine : limitLines) {
+                Line line = new Line();
+                line.setStroke(limitLine.getColor());
+                line.getStrokeDashArray().addAll(limitLine.getStrokeDashArray());
+                line.setStartX(left);
+                Double scaleY = null;
+                if (limitLine.getyAxisIndex() == 0) {
+                    scaleY = getY1Axis().getScaleY();
+                } else {
+                    scaleY = getY2Axis().getScaleY();
+                }
+                line.setStartY(top + yAxisZero + 0.5 - limitLine.getValue() * scaleY);
+                line.setEndX(left + xAxisWidth);
+                line.setEndY(top + yAxisZero + 0.5 - limitLine.getValue() * scaleY);
+                line.setVisible(true);
+                limitLinesList.add(line);
+            }
+            plotArea.getChildren().addAll(limitLinesList);
+        }
         // layout plot background
         plotBackground.resizeRelocate(left, top, xAxisWidth, yAxisHeight);
         // update clip
@@ -1685,6 +1710,10 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             this.y2AxisRegressionType = regressionType;
             y2AxisPolyRegressionDegree = degree;
         }
+    }
+
+    public void setLimitLine(Double value, Color color, Integer yAxisindex, ObservableList<Double> observableList) {
+        limitLines.add(new LimitLine(value, color, yAxisindex, observableList));
     }
 
     /**

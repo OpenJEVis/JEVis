@@ -87,7 +87,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
             List<ChartDataModel> chartDataModelList = new ArrayList<>();
             chartDataModelList.add(chartDataModel);
 
-            LineChart lc = new LineChart(chartDataModelList, false, false, false, false, null, -1, ManipulationMode.NONE, 0, "");
+            LineChart lc = new LineChart(chartDataModelList, false, false, false, false, false, null, -1, ManipulationMode.NONE, 0, "");
             lc.setRegion(lc.getJfxChartUtil().setupZooming((MultiAxisChart<?, ?>) lc.getChart()));
 
             bp.setCenter(lc.getRegion());

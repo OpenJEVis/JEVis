@@ -21,9 +21,12 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
@@ -59,6 +62,7 @@ public class XYChart implements Chart {
     final int polyRegressionDegree;
     final RegressionType regressionType;
     final Boolean calcRegression;
+    private final Boolean showL1L2;
     Boolean hideShowIcons;
     //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
     List<Color> hexColors = new ArrayList<>();
@@ -96,10 +100,11 @@ public class XYChart implements Chart {
     private JFXChartUtil jfxChartUtil;
     private DateTime nearest;
 
-    public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+    public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean showL1L2, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
         this.showRawData = showRawData;
         this.showSum = showSum;
+        this.showL1L2 = showL1L2;
         this.regressionType = regressionType;
         this.hideShowIcons = hideShowIcons;
         this.calcRegression = calcRegression;
@@ -147,6 +152,39 @@ public class XYChart implements Chart {
                     if (calcRegression) {
                         chart.setRegressionColor(singleRow.getAxis(), singleRow.getColor());
                         chart.setRegression(singleRow.getAxis(), regressionType, polyRegressionDegree);
+                    }
+
+                    if (showL1L2 && singleRow.getDataProcessor() != null) {
+                        CleanDataObject cleanDataObject = new CleanDataObject(singleRow.getDataProcessor(), new ObjectHandler(singleRow.getObject().getDataSource()));
+                        if (cleanDataObject.getLimitsEnabled()) {
+                            List<JsonLimitsConfig> limitsConfigs = cleanDataObject.getLimitsConfig();
+                            for (int i = 0; i < limitsConfigs.size(); i++) {
+                                JsonLimitsConfig limitsConfig = limitsConfigs.get(i);
+                                String max = limitsConfig.getMax();
+                                if (max != null && !max.equals("")) {
+                                    Double value = Double.parseDouble(max);
+                                    List<Double> list = Arrays.asList(25d, 20d, 5d, 20d);
+                                    ObservableList<Double> doubles = FXCollections.observableList(list);
+                                    if (i == 0) {
+                                        chart.setLimitLine(value, singleRow.getColor().brighter(), singleRow.getAxis(), doubles);
+                                    } else {
+                                        chart.setLimitLine(value, singleRow.getColor().darker(), singleRow.getAxis(), doubles);
+                                    }
+                                }
+
+                                String min = limitsConfig.getMin();
+                                if (min != null && !min.equals("")) {
+                                    Double value = Double.parseDouble(min);
+                                    List<Double> list = Arrays.asList(2d, 21d);
+                                    ObservableList<Double> doubles = FXCollections.observableList(list);
+                                    if (i == 0) {
+                                        chart.setLimitLine(value, singleRow.getColor().brighter(), singleRow.getAxis(), doubles);
+                                    } else {
+                                        chart.setLimitLine(value, singleRow.getColor().darker(), singleRow.getAxis(), doubles);
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     if (showSum && sumModel == null) {

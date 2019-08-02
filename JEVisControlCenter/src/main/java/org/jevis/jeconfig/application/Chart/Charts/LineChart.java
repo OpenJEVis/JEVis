@@ -14,8 +14,8 @@ import java.util.List;
 public class LineChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(LineChart.class);
 
-    public LineChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, showRawData, showSum, hideShowIcons, calcRegression, regressionType, polyRegressionDegree, addSeriesOfType, chartId, chartName);
+    public LineChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean showL1L2, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+        super(chartDataModels, showRawData, showSum, showL1L2, hideShowIcons, calcRegression, regressionType, polyRegressionDegree, addSeriesOfType, chartId, chartName);
     }
 
     @Override

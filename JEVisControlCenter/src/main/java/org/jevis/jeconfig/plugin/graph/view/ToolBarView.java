@@ -116,6 +116,7 @@ public class ToolBarView {
     private ImageView playIcon;
     private ToggleButton showRawData;
     private ToggleButton showSum;
+    private ToggleButton showL1L2;
     private ToggleButton calcRegression;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
@@ -250,6 +251,10 @@ public class ToolBarView {
 
     private void showSumInGraph() {
         model.setShowSum(!model.getShowSum());
+    }
+
+    private void showL1L2InGraph() {
+        model.setShowL1L2(!model.getShowL1L2());
     }
 
     private void calcRegression() {
@@ -675,6 +680,7 @@ public class ToolBarView {
         select.setDisable(bool);
         showRawData.setDisable(bool);
         showSum.setDisable(bool);
+        showL1L2.setDisable(bool);
         calcRegression.setDisable(bool);
         disableIcons.setDisable(bool);
         zoomOut.setDisable(bool);
@@ -740,13 +746,13 @@ public class ToolBarView {
                         sep1, presetDateBox, pickerDateStart, pickerDateEnd,
                         sep2, reload, zoomOut,
                         sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                        sep4, calcRegression, showSum, disableIcons, autoResize, runUpdateButton);
+                        sep4, calcRegression, showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
             } else {
                 toolBar.getItems().addAll(listAnalysesComboBox,
                         sep1, presetDateBox, pickerDateStart, pickerDateEnd,
                         sep2, reload, zoomOut,
                         sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                        sep4, calcRegression, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
+                        sep4, calcRegression, showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
             }
 
             setupAnalysisComboBoxListener();
@@ -820,6 +826,8 @@ public class ToolBarView {
         showRawData.setOnAction(event -> showRawDataInGraph());
 
         showSum.setOnAction(event -> showSumInGraph());
+
+        showL1L2.setOnAction(event -> showL1L2InGraph());
 
         calcRegression.setOnAction(event -> calcRegression());
 
@@ -930,6 +938,21 @@ public class ToolBarView {
                                 new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
                         .otherwise(Bindings
                                 .when(showSum.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
+        showL1L2 = new ToggleButton("", JEConfig.getImage("l1l2.png", iconSize, iconSize));
+        Tooltip showL1L2Tooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showl1l2"));
+        showL1L2.setTooltip(showL1L2Tooltip);
+        showL1L2.setSelected(model.getShowL1L2());
+        showL1L2.styleProperty().bind(
+                Bindings
+                        .when(showL1L2.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(showL1L2.selectedProperty())
                                 .then("-fx-background-insets: 1 1 1;")
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
