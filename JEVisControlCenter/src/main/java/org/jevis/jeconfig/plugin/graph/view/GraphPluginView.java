@@ -802,6 +802,7 @@ public class GraphPluginView implements Plugin {
 
                 }
 
+                toolBarView.setChanged(true);
                 toolBarView.setDisableToolBarIcons(false);
             }
 
