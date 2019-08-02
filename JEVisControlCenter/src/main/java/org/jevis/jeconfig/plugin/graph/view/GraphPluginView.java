@@ -34,6 +34,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -995,6 +996,12 @@ public class GraphPluginView implements Plugin {
                 notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
                         && !chartView.getChartType().equals(ChartType.BAR)
                         && !chartView.getChartType().equals(ChartType.BUBBLE)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateValueAxis) chart.getXAxis()).forEach(xAxis -> xAxis.setAutoRanging(true));
+                notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
+                        && !chartView.getChartType().equals(ChartType.BAR)
+                        && !chartView.getChartType().equals(ChartType.BUBBLE)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (ValueAxis) chart.getY1Axis()).forEach(yAxis -> yAxis.setAutoRanging(true));
+                notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
+                        && !chartView.getChartType().equals(ChartType.BAR)
+                        && !chartView.getChartType().equals(ChartType.BUBBLE)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (ValueAxis) chart.getY2Axis()).forEach(yAxis -> yAxis.setAutoRanging(true));
                 cv.getChart().getJfxChartUtil().doubleClickedProperty().setValue(false);
 
 

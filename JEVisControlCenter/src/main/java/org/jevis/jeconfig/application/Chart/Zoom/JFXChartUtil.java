@@ -134,12 +134,23 @@ public class JFXChartUtil {
                 if (event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY) {
                     double x = event.getX();
                     double y = event.getY();
-                    if (!chartInfo.getXAxisArea().contains(x, y)) {
-                        chartInfo.getChart().getY1Axis().setAutoRanging(true);
-                        chartInfo.getChart().getY2Axis().setAutoRanging(true);
-                    }
-                    if (!chartInfo.getY1AxisArea().contains(x, y) || !chartInfo.getY2AxisArea().contains(x, y)) {
+                    if (chartInfo.getXAxisArea().contains(x, y)) {
                         chartInfo.getChart().getXAxis().setAutoRanging(true);
+//                        chartInfo.getChart().getY1Axis().setAutoRanging(true);
+//                        chartInfo.getChart().getY2Axis().setAutoRanging(true);
+                    } else if (chartInfo.getY1AxisArea().contains(x, y) || chartInfo.getY2AxisArea().contains(x, y)) {
+                        if (chartInfo.getChart().getY2Axis() != null) {
+                            chartInfo.getChart().getY1Axis().setAutoRanging(true);
+                        }
+                        if (chartInfo.getChart().getY2Axis() != null) {
+                            chartInfo.getChart().getY2Axis().setAutoRanging(true);
+                        }
+                    } else {
+                        chartInfo.getChart().getXAxis().setAutoRanging(true);
+                        chartInfo.getChart().getY1Axis().setAutoRanging(true);
+                        if (chartInfo.getChart().getY2Axis() != null) {
+                            chartInfo.getChart().getY2Axis().setAutoRanging(true);
+                        }
                     }
 
                     doubleClicked.setValue(true);
