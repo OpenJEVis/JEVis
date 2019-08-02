@@ -115,9 +115,6 @@ public class XYChart implements Chart {
 
     public void init() {
         initializeChart();
-        if (calcRegression) {
-            chart.setRegression(0, regressionType, polyRegressionDegree);
-        }
 
         hexColors.clear();
         chart.getData().clear();
@@ -146,6 +143,11 @@ public class XYChart implements Chart {
                     }
 
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
+
+                    if (calcRegression) {
+                        chart.setRegressionColor(singleRow.getAxis(), singleRow.getColor());
+                        chart.setRegression(singleRow.getAxis(), regressionType, polyRegressionDegree);
+                    }
 
                     if (showSum && sumModel == null) {
                         sumModel = singleRow.clone();

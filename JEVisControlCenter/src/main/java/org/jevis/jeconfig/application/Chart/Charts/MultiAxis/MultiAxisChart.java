@@ -17,11 +17,11 @@ import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.css.CssMetaData;
 import javafx.css.StyleableBooleanProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.Chart;
@@ -29,7 +29,7 @@ import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.util.Duration;
@@ -38,9 +38,11 @@ import org.apache.commons.math3.fitting.WeightedObservedPoint;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.*;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 
+import java.text.NumberFormat;
 import java.util.*;
 
 public abstract class MultiAxisChart<X, Y> extends Chart {
@@ -82,10 +84,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
     private final Axis<X> xAxis;
     private final Axis<Y> y1Axis;
     private final Axis<Y> y2Axis;
-    public String[] y1RegressionSeriesColors = {"#f3622d", "#fba71b", "#57b757", "#41a9c9", "#4258c9", "#9a42c8",
-            "#c84164", "#888888"};
-    public String[] y2RegressionSeriesColors = {"#f3622d", "#fba71b", "#57b757", "#41a9c9", "#4258c9", "#9a42c8",
-            "#c84164", "#888888"};
+    public List<Color> y1RegressionSeriesColors = new ArrayList<>();
+    public List<Color> y2RegressionSeriesColors = new ArrayList<>();
     private boolean hasY1AxisRegression;
     private boolean hasY2AxisRegression;
     private final Label formulaLabel = new Label();
@@ -384,6 +384,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         }
     };
     private ArrayList<Label> y2RegressionFormulas = new ArrayList<>();
+    private VBox flowPaneY1Formulas = new VBox();
+    private VBox flowPaneY2Formulas = new VBox();
 
     /**
      * Constructs a MultiAxisChart given the two axes. The initial content for the
@@ -442,6 +444,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         // add children to plot area
         plotArea.getChildren().addAll(verticalRowFill, horizontalRowFill, verticalGridLines, horizontalGridLines,
                 verticalZeroLine, horizontalZeroLine, plotContent);
+        plotContent.getChildren().addAll(flowPaneY1Formulas, flowPaneY2Formulas);
         // setup css style classes
         plotContent.getStyleClass().setAll("plot-content");
         plotBackground.getStyleClass().setAll("chart-plot-background");
@@ -451,6 +454,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         horizontalGridLines.getStyleClass().setAll("chart-horizontal-grid-lines");
         verticalZeroLine.getStyleClass().setAll("chart-vertical-zero-line");
         horizontalZeroLine.getStyleClass().setAll("chart-horizontal-zero-line");
+        flowPaneY1Formulas.getStyleClass().setAll("chart-flowpane-y1formulas");
+        flowPaneY2Formulas.getStyleClass().setAll("chart-flowpane-y2formulas");
         // mark plotContent as unmanaged as its preferred size changes do not effect our
         // layout
         plotContent.setManaged(false);
@@ -1078,6 +1083,21 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         plotContent.setLayoutX(left);
         plotContent.setLayoutY(top);
         plotContent.requestLayout(); // Note: not sure this is right, maybe plotContent should be resizeable
+        flowPaneY1Formulas.toFront();
+        flowPaneY1Formulas.setAlignment(Pos.TOP_LEFT);
+        flowPaneY1Formulas.setPadding(new Insets(3, 0, 0, 3));
+        flowPaneY1Formulas.setLayoutX(0);
+        flowPaneY1Formulas.setLayoutY(0);
+        flowPaneY1Formulas.setPrefWidth(xAxisWidth / 2);
+        flowPaneY1Formulas.requestLayout();
+        flowPaneY2Formulas.toFront();
+        flowPaneY2Formulas.setAlignment(Pos.TOP_LEFT);
+        flowPaneY2Formulas.setPadding(new Insets(3, 0, 0, 3));
+        flowPaneY2Formulas.setLayoutX(xAxisWidth / 2);
+        flowPaneY2Formulas.setLayoutY(0);
+        flowPaneY2Formulas.setPrefWidth(xAxisWidth / 2);
+        flowPaneY2Formulas.requestLayout();
+
         // update vertical grid lines
         verticalGridLines.getElements().clear();
         if (getVerticalGridLinesVisible()) {
@@ -1183,12 +1203,9 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
         getPlotChildren().removeAll(y1RegressionLines);
         getPlotChildren().removeAll(y2RegressionLines);
-        Parent parent = this.getParent();
-        if (parent instanceof StackPane) {
-            ((StackPane) parent).getChildren().removeAll(y1RegressionFormulas);
-            ((StackPane) parent).getChildren().removeAll(y2RegressionFormulas);
-        }
 
+        flowPaneY1Formulas.getChildren().clear();
+        flowPaneY2Formulas.getChildren().clear();
 
         y1RegressionLines.clear();
         y2RegressionLines.clear();
@@ -1198,33 +1215,33 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         if (hasY1AxisRegression) {
             ObservableList<MultiAxisChart.Series<X, Y>> series = getData();
             for (MultiAxisChart.Series<X, Y> s : series) {
-                Path p = null;
-                Label n = null;
-                switch (y1AxisRegressionType) {
-                    case NONE:
-                        break;
-                    case POLY:
-                        p = calcPolyRegression(s, MultiAxisChart.Y1_AXIS, y1AxisPolyRegressionDegree);
-                        n = getPolyRegressionFormula(s, MultiAxisChart.Y1_AXIS, y1AxisPolyRegressionDegree);
-                        break;
-                    case EXP:
-                        p = createRegression(s, MultiAxisChart.Y1_AXIS, y1AxisRegressionType);
-                        break;
-                    case LOG:
-                        p = createRegression(s, MultiAxisChart.Y1_AXIS, y1AxisRegressionType);
-                        break;
-                    case POW:
-                        p = createRegression(s, MultiAxisChart.Y1_AXIS, y1AxisRegressionType);
-                        break;
-                }
+                if (s.getAxisIndex() == 0) {
+                    Path p = null;
+                    Label n = null;
+                    switch (y1AxisRegressionType) {
+                        case NONE:
+                            break;
+                        case POLY:
+                            p = calcPolyRegression(s, MultiAxisChart.Y1_AXIS, y1AxisPolyRegressionDegree);
+                            n = getPolyRegressionFormula(s, MultiAxisChart.Y1_AXIS, y1AxisPolyRegressionDegree);
+                            break;
+                        case EXP:
+                            p = createRegression(s, MultiAxisChart.Y1_AXIS, y1AxisRegressionType);
+                            break;
+                        case LOG:
+                            p = createRegression(s, MultiAxisChart.Y1_AXIS, y1AxisRegressionType);
+                            break;
+                        case POW:
+                            p = createRegression(s, MultiAxisChart.Y1_AXIS, y1AxisRegressionType);
+                            break;
+                    }
+                    if (p != null) {
+                        y1RegressionLines.add(p);
+                    }
 
-
-                if (p != null) {
-                    y1RegressionLines.add(p);
-                }
-
-                if (n != null) {
-                    y1RegressionFormulas.add(n);
+                    if (n != null) {
+                        y1RegressionFormulas.add(n);
+                    }
                 }
             }
         }
@@ -1232,45 +1249,48 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         if (hasY2AxisRegression) {
             ObservableList<MultiAxisChart.Series<X, Y>> series = getData();
             for (MultiAxisChart.Series<X, Y> s : series) {
-                Path p = null;
-                Label n = null;
-                switch (y2AxisRegressionType) {
-                    case NONE:
-                        break;
-                    case POLY:
-                        p = calcPolyRegression(s, MultiAxisChart.Y2_AXIS, y2AxisPolyRegressionDegree);
-                        n = getPolyRegressionFormula(s, MultiAxisChart.Y2_AXIS, y2AxisPolyRegressionDegree);
-                        break;
-                    case EXP:
-                        p = createRegression(s, MultiAxisChart.Y2_AXIS, y2AxisRegressionType);
-                        break;
-                    case LOG:
-                        p = createRegression(s, MultiAxisChart.Y2_AXIS, y2AxisRegressionType);
-                        break;
-                    case POW:
-                        p = createRegression(s, MultiAxisChart.Y2_AXIS, y2AxisRegressionType);
-                        break;
-                }
+                if (s.getAxisIndex() == 1) {
+                    Path p = null;
+                    Label n = null;
+                    switch (y2AxisRegressionType) {
+                        case NONE:
+                            break;
+                        case POLY:
+                            p = calcPolyRegression(s, MultiAxisChart.Y2_AXIS, y2AxisPolyRegressionDegree);
+                            n = getPolyRegressionFormula(s, MultiAxisChart.Y2_AXIS, y2AxisPolyRegressionDegree);
+                            break;
+                        case EXP:
+                            p = createRegression(s, MultiAxisChart.Y2_AXIS, y2AxisRegressionType);
+                            break;
+                        case LOG:
+                            p = createRegression(s, MultiAxisChart.Y2_AXIS, y2AxisRegressionType);
+                            break;
+                        case POW:
+                            p = createRegression(s, MultiAxisChart.Y2_AXIS, y2AxisRegressionType);
+                            break;
+                    }
 
-                if (p != null) {
-                    y2RegressionLines.add(p);
-                }
+                    if (p != null) {
+                        y2RegressionLines.add(p);
+                    }
 
-                if (n != null) {
-                    y2RegressionFormulas.add(n);
+                    if (n != null) {
+                        y2RegressionFormulas.add(n);
+                    }
                 }
             }
         }
 
-        int index = 0;
         for (Shape s : y1RegressionLines) {
             s.setStrokeWidth(2);
-            s.setStroke(Color.web(y1RegressionSeriesColors[index++]));
+            s.setStroke(y1RegressionSeriesColors.get(y1RegressionLines.indexOf(s)));
             getPlotChildren().add(s);
-            if (parent instanceof StackPane && !y1RegressionFormulas.isEmpty()) {
+            if (!y1RegressionFormulas.isEmpty()) {
+                HBox hBox = new HBox();
+                hBox.setMinWidth(getXAxis().getWidth() / 2);
                 Label label = y1RegressionFormulas.get(y1RegressionLines.indexOf(s));
-                ((StackPane) parent).getChildren().add(label);
-                StackPane.setAlignment(label, Pos.BOTTOM_LEFT);
+                hBox.getChildren().add(label);
+                flowPaneY1Formulas.getChildren().add(hBox);
                 label.setVisible(true);
                 label.setWrapText(true);
                 label.toFront();
@@ -1278,15 +1298,16 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
         }
 
-        index = 0;
         for (Shape s : y2RegressionLines) {
             s.setStrokeWidth(2);
-            s.setStroke(Color.web(y2RegressionSeriesColors[index++]));
+            s.setStroke(y2RegressionSeriesColors.get(y2RegressionLines.indexOf(s)));
             getPlotChildren().add(s);
-            if (parent instanceof StackPane && !y2RegressionFormulas.isEmpty()) {
+            if (!y2RegressionFormulas.isEmpty()) {
+                HBox hBox = new HBox();
+                hBox.setMinWidth(getXAxis().getWidth() / 2);
                 Label label = y2RegressionFormulas.get(y2RegressionLines.indexOf(s));
-                ((StackPane) parent).getChildren().add(label);
-                StackPane.setAlignment(label, Pos.BOTTOM_RIGHT);
+                hBox.getChildren().add(label);
+                flowPaneY2Formulas.getChildren().add(hBox);
                 label.setVisible(true);
                 label.setWrapText(true);
                 label.toFront();
@@ -1438,13 +1459,21 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
         StringBuilder sb = new StringBuilder();
         sb.append("f(x) = ");
-        for (
-                int p = coefficient.length - 1;
-                p >= 0; p--) {
+        NumberFormat nf2 = NumberFormat.getInstance(JEConfig.getConfig().getLocale());
+        nf2.setMaximumFractionDigits(2);
+        nf2.setMinimumFractionDigits(2);
+        NumberFormat nf4 = NumberFormat.getInstance(JEConfig.getConfig().getLocale());
+        nf4.setMaximumFractionDigits(4);
+        nf4.setMinimumFractionDigits(4);
+        for (int p = coefficient.length - 1; p >= 0; p--) {
             if (p > 0) {
                 sb.append(" ");
             }
-            sb.append(coefficient[p]);
+            if (p > 0) {
+                sb.append(nf2.format(coefficient[p]));
+            } else {
+                sb.append(nf4.format(coefficient[p]));
+            }
             if (p > 0) {
                 if (p > 1) {
                     sb.append(" * x^");
@@ -1626,11 +1655,11 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         return chartY;
     }
 
-    public void setRegressionColor(int axisPos, int index, String webColor) {
+    public void setRegressionColor(int axisPos, Color color) {
         if (axisPos == Y1_AXIS) {
-            y1RegressionSeriesColors[index] = webColor;
+            y1RegressionSeriesColors.add(color.darker());
         } else {
-            y2RegressionSeriesColors[index] = webColor;
+            y2RegressionSeriesColors.add(color.darker());
         }
     }
 
@@ -2057,6 +2086,14 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         private List<Data<X, Y>> displayedData = new ArrayList<>();
 
         // -------------- PUBLIC PROPERTIES ----------------------------------------
+
+        /**
+         *
+         */
+        public int getAxisIndex() {
+            return data.get().stream().findFirst().map(xyData -> (int) xyData.getExtraValue()).orElse(0);
+        }
+
         /**
          * ObservableList of data items that make up this series
          */
