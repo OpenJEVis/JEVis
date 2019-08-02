@@ -631,7 +631,7 @@ public class GraphPluginView implements Plugin {
 //                                        fontSize.bind(Bindings.divide(circle.radiusProperty(), 5));
 //                                        labelCount.minWidthProperty().bind(Bindings.divide(circle.radiusProperty(), 5).add(4));
 //                                    } else {
-                                        fontSize.set(16d);
+                                    fontSize.set(16d);
 //                                    }
 
                                     labelCount.styleProperty().bind(Bindings.concat("-fx-font-size:", fontSize.asString(), ";"));
@@ -844,7 +844,7 @@ public class GraphPluginView implements Plugin {
                     ChartDataModel singleRow = chart.getSingleRow();
                     datePicker.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                         if (datePicker.getSelectionModel().selectedIndexProperty().get() < singleRow.getSamples().size()
-                                && datePicker.getSelectionModel().selectedIndexProperty().get() > -1) {
+                                && datePicker.getSelectionModel().selectedIndexProperty().get() > -1 && !chart.isBlockDatePickerEvent()) {
                             Platform.runLater(() -> {
                                 cv.updateTablesSimultaneously(null, newValue);
 
@@ -854,10 +854,6 @@ public class GraphPluginView implements Plugin {
                                             && !na.getChartType().equals(ChartType.BUBBLE)) {
                                         na.updateTablesSimultaneously(null, newValue);
                                     }
-//                                    else if (na.getChartType().equals(ChartType.TABLE)) {
-//                                        TableChart naChart = (TableChart) na.getChart();
-//                                        naChart.getTableTopDatePicker().getDatePicker().getSelectionModel().select(newValue);
-//                                    }
                                 });
                             });
                         }
@@ -937,8 +933,13 @@ public class GraphPluginView implements Plugin {
                         && !na.getChartType().equals(ChartType.TABLE)) {
                     na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                 } else if (na.getChartType().equals(ChartType.TABLE)) {
-                    TableChart naChart = (TableChart) na.getChart();
-                    naChart.getTableTopDatePicker().getDatePicker().getSelectionModel().select(cv.getChart().getNearest());
+                    na.updateTablesSimultaneously(null, cv.getValueForDisplay());
+                    TableChart chart = (TableChart) na.getChart();
+                    chart.setBlockDatePickerEvent(true);
+                    TableTopDatePicker tableTopDatePicker = chart.getTableTopDatePicker();
+                    ComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
+                    datePicker.getSelectionModel().select(cv.getValueForDisplay());
+                    chart.setBlockDatePickerEvent(false);
                 }
             });
         });
