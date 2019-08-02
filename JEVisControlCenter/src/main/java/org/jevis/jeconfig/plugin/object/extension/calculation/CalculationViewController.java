@@ -405,7 +405,7 @@ public class CalculationViewController {
 
         formulaBox.setOutputButton(buttonOutput);
 
-        variablesBox.bindVaribaleBox(formulaBox, obj);
+        variablesBox.bindVariableBox(formulaBox, obj);
 
     }
 

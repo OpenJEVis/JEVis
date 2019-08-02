@@ -133,7 +133,7 @@ public class SelectTargetDialog {
     }
 
 
-    public static JEVisTreeFilter buildAllDataFilter() {
+    public static JEVisTreeFilter buildAllDataAndCleanDataFilter() {
         BasicCellFilter onlyData = new BasicCellFilter(I18n.getInstance().getString("tree.filter.data"));
         ObjectAttributeFilter d1 = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
         ObjectAttributeFilter d2 = new ObjectAttributeFilter("Clean Data", ObjectAttributeFilter.NONE);
@@ -141,6 +141,15 @@ public class SelectTargetDialog {
         onlyData.addItemFilter(d2);
         onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d1);
         onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d2);
+
+        return onlyData;
+    }
+
+    public static JEVisTreeFilter buildAllDataFilter() {
+        BasicCellFilter onlyData = new BasicCellFilter(I18n.getInstance().getString("tree.filter.data"));
+        ObjectAttributeFilter d1 = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
+        onlyData.addItemFilter(d1);
+        onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d1);
 
         return onlyData;
     }
@@ -258,6 +267,10 @@ public class SelectTargetDialog {
 
     public enum MODE {
         OBJECT, ATTRIBUTE, FILTER
+    }
+
+    public JEVisTreeFilter getSelectedFilter() {
+        return tree.getFilter();
     }
 
     public void setFilter(JEVisTreeFilter filter) {

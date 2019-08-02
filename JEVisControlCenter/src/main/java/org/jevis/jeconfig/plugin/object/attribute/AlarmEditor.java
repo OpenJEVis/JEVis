@@ -346,7 +346,7 @@ public class AlarmEditor implements AttributeEditor {
             }
 
             List<JEVisTreeFilter> allFilter = new ArrayList<>();
-            JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataFilter();
+            JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
             JEVisTreeFilter allAttributesFilter = SelectTargetDialog.buildAllAttributesFilter();
             allFilter.add(allDataFilter);
             allFilter.add(allAttributesFilter);
