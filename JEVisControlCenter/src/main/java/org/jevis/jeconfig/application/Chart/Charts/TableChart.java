@@ -95,4 +95,14 @@ public class TableChart extends XYChart {
     public ChartDataModel getSingleRow() {
         return singleRow;
     }
+
+    private boolean blockDatePickerEvent = false;
+
+    public boolean isBlockDatePickerEvent() {
+        return blockDatePickerEvent;
+    }
+
+    public void setBlockDatePickerEvent(boolean blockDatePickerEvent) {
+        this.blockDatePickerEvent = blockDatePickerEvent;
+    }
 }

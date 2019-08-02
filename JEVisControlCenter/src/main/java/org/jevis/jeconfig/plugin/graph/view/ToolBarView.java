@@ -86,16 +86,29 @@ public class ToolBarView {
     private JFXTimePicker pickerTimeEnd;
     private DateHelper dateHelper = new DateHelper();
     private ToolBar toolBar;
-
+    private Boolean changed = false;
 
     private ToggleButton runUpdateButton;
     private ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
+            if (changed) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setContentText(I18n.getInstance().getString("plugin.graph.dialog.changed.text"));
+
+                alert.showAndWait().ifPresent(buttonType -> {
+                    if (buttonType.equals(ButtonType.OK)) {
+                        saveCurrentAnalysis();
+                    } else {
+
+                    }
+                });
+            }
             model.setCurrentAnalysis(newValue);
             model.resetToolbarSettings();
             model.setGlobalAnalysisTimeFrame(model.getGlobalAnalysisTimeFrame());
             Platform.runLater(this::updateLayout);
+            changed = false;
         }
     };
     private ToggleButton addSeriesRunningMean;
@@ -109,7 +122,6 @@ public class ToolBarView {
         this.model = model;
         this.ds = ds;
         this.graphPluginView = graphPluginView;
-
     }
 
 
@@ -216,7 +228,7 @@ public class ToolBarView {
                 model.setCurrentAnalysis(null);
                 model.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
                 model.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
-
+                changed = true;
             }
         } else if (dialog.getResponse() == Response.LOAD) {
 
@@ -305,6 +317,7 @@ public class ToolBarView {
 
             model.setCharts(dia.getChartPlugin().getData().getCharts());
             model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
+            changed = true;
         }
     }
 
@@ -400,17 +413,18 @@ public class ToolBarView {
             }
         });
 
+        parentsDirectories.getSelectionModel().selectFirst();
         if (model.getCurrentAnalysis() != null) {
             try {
-                parentsDirectories.getSelectionModel().select(model.getCurrentAnalysis().getParents().get(0));
+                if (model.getCurrentAnalysis().getParents() != null && !model.getCurrentAnalysis().getParents().isEmpty()) {
+                    parentsDirectories.getSelectionModel().select(model.getCurrentAnalysis().getParents().get(0));
+                }
             } catch (JEVisException e) {
                 logger.error("Couldn't select current Analysis Directory: " + e);
             }
-        } else {
-            parentsDirectories.getSelectionModel().selectFirst();
         }
 
-        if (model.getCurrentAnalysis() != null && model.getCurrentAnalysis().getName() != null && model.getCurrentAnalysis().getName() != "")
+        if (model.getCurrentAnalysis() != null && model.getCurrentAnalysis().getName() != null && !model.getCurrentAnalysis().getName().equals(""))
             name.setText(model.getCurrentAnalysis().getName());
 
         name.focusedProperty().addListener((ov, t, t1) -> Platform.runLater(() -> {
@@ -611,6 +625,8 @@ public class ToolBarView {
                     JEVisSample smp5 = horizontalTablesAttribute.buildSample(now, horizontalTables);
                     smp5.commit();
                 }
+
+                changed = false;
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));
                 alert.showAndWait();
@@ -976,5 +992,13 @@ public class ToolBarView {
 
             _initialized = true;
         }
+    }
+
+    public Boolean getChanged() {
+        return changed;
+    }
+
+    public void setChanged(Boolean changed) {
+        this.changed = changed;
     }
 }

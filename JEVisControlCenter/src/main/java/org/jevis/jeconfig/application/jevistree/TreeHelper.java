@@ -66,6 +66,7 @@ import java.util.regex.Pattern;
 public class TreeHelper {
 
     private static final Logger logger = LogManager.getLogger(TreeHelper.class);
+    public static final String VALUE_ATTRIBUTE = "Value";
 
     private static long lastSearchIndex = 0L;
     private static String lastSearch = "";
@@ -244,7 +245,7 @@ public class TreeHelper {
 
     private static void deleteAllSamples(JEVisObject object, boolean rawData, boolean cleanData) {
         try {
-            JEVisAttribute value = object.getAttribute("Value");
+            JEVisAttribute value = object.getAttribute(VALUE_ATTRIBUTE);
             if (value != null) {
                 if ((object.getJEVisClassName().equals("Clean Data") && cleanData)
                         || (object.getJEVisClassName().equals("Data") && rawData)) {
@@ -585,7 +586,7 @@ public class TreeHelper {
                     List<JEVisSample> newSamples = new ArrayList<>();
                     for (JEVisSample sample : originalAtt.getAllSamples()) {
                         // TODO: file copy not working
-                        if (originalAtt.getName().equals("Value")) {
+                        if (originalAtt.getName().equals(VALUE_ATTRIBUTE)) {
                             newSamples.add(newAtt.buildSample(sample.getTimestamp(), sample.getValueAsDouble(), sample.getNote()));
                         } else {
                             try {
@@ -713,7 +714,7 @@ public class TreeHelper {
                                     JEVisClass reportAttributeClass = newObject.getDataSource().getJEVisClass("Report Attribute");
                                     JEVisClass reportPeriodConfigurationClass = newObject.getDataSource().getJEVisClass("Report Period Configuration");
                                     if (createClass.equals(dataClass) || createClass.equals(cleanDataClass)) {
-                                        JEVisAttribute valueAttribute = newObject.getAttribute("Value");
+                                        JEVisAttribute valueAttribute = newObject.getAttribute(VALUE_ATTRIBUTE);
                                         valueAttribute.setInputSampleRate(Period.minutes(15));
                                         valueAttribute.setDisplaySampleRate(Period.minutes(15));
                                         valueAttribute.commit();
@@ -722,7 +723,7 @@ public class TreeHelper {
                                             JEVisObject newCleanObject = newObject.buildObject(I18nWS.getInstance().getClassName(cleanDataClass), cleanDataClass);
                                             newCleanObject.commit();
 
-                                            JEVisAttribute cleanDataValueAttribute = newCleanObject.getAttribute("Value");
+                                            JEVisAttribute cleanDataValueAttribute = newCleanObject.getAttribute(VALUE_ATTRIBUTE);
                                             cleanDataValueAttribute.setInputSampleRate(Period.minutes(15));
                                             cleanDataValueAttribute.setDisplaySampleRate(Period.minutes(15));
                                             cleanDataValueAttribute.commit();
@@ -839,7 +840,7 @@ public class TreeHelper {
 
     public static void EventExportTree(JEVisObject obj) throws JEVisException {
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
-        JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllDataFilter();
+        JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
         allFilter.add(basicFilter);
         SelectTargetDialog dia = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE);
         List<UserSelection> userSelection = new ArrayList<>();
@@ -897,6 +898,11 @@ public class TreeHelper {
         ) == SelectTargetDialog.Response.OK) {
             if (selectTargetDialog.getUserSelection() != null && !selectTargetDialog.getUserSelection().isEmpty()) {
                 for (UserSelection us : selectTargetDialog.getUserSelection()) {
+                    JEVisObject correspondingCleanObject = null;
+                    if (selectTargetDialog.getSelectedFilter().equals(allDataFilter)) {
+                        JEVisClass cleanDataClass = us.getSelectedObject().getDataSource().getJEVisClass("Clean Data");
+                        correspondingCleanObject = us.getSelectedObject().getChildren(cleanDataClass, false).get(0);
+                    }
 
                     String inputName = CalculationNameFormatter.createVariableName(us.getSelectedObject());
 
@@ -914,9 +920,17 @@ public class TreeHelper {
 
                     JEVisAttribute targetAtt = us.getSelectedAttribute();
                     if (targetAtt == null) {
-                        targetAtt = us.getSelectedObject().getAttribute("Value");
+                        targetAtt = us.getSelectedObject().getAttribute(VALUE_ATTRIBUTE);
                     }
-                    TargetHelper th = new TargetHelper(us.getSelectedObject().getDataSource(), us.getSelectedObject(), targetAtt);
+
+                    TargetHelper th = null;
+                    if (correspondingCleanObject == null) {
+                        th = new TargetHelper(us.getSelectedObject().getDataSource(), us.getSelectedObject(), targetAtt);
+                    } else {
+                        targetAtt = correspondingCleanObject.getAttribute(VALUE_ATTRIBUTE);
+                        th = new TargetHelper(us.getSelectedObject().getDataSource(), correspondingCleanObject, targetAtt);
+                    }
+
                     if (th.isValid() && th.targetAccessible()) {
                         logger.info("Target Is valid");
                         JEVisSample newTarget = aInputData.buildSample(now, th.getSourceString());

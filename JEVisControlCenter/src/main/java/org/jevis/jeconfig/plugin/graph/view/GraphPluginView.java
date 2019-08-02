@@ -34,6 +34,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -630,7 +631,7 @@ public class GraphPluginView implements Plugin {
 //                                        fontSize.bind(Bindings.divide(circle.radiusProperty(), 5));
 //                                        labelCount.minWidthProperty().bind(Bindings.divide(circle.radiusProperty(), 5).add(4));
 //                                    } else {
-                                        fontSize.set(16d);
+                                    fontSize.set(16d);
 //                                    }
 
                                     labelCount.styleProperty().bind(Bindings.concat("-fx-font-size:", fontSize.asString(), ";"));
@@ -801,6 +802,7 @@ public class GraphPluginView implements Plugin {
 
                 }
 
+                toolBarView.setChanged(true);
                 toolBarView.setDisableToolBarIcons(false);
             }
 
@@ -842,7 +844,7 @@ public class GraphPluginView implements Plugin {
                     ChartDataModel singleRow = chart.getSingleRow();
                     datePicker.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                         if (datePicker.getSelectionModel().selectedIndexProperty().get() < singleRow.getSamples().size()
-                                && datePicker.getSelectionModel().selectedIndexProperty().get() > -1) {
+                                && datePicker.getSelectionModel().selectedIndexProperty().get() > -1 && !chart.isBlockDatePickerEvent()) {
                             Platform.runLater(() -> {
                                 cv.updateTablesSimultaneously(null, newValue);
 
@@ -852,10 +854,6 @@ public class GraphPluginView implements Plugin {
                                             && !na.getChartType().equals(ChartType.BUBBLE)) {
                                         na.updateTablesSimultaneously(null, newValue);
                                     }
-//                                    else if (na.getChartType().equals(ChartType.TABLE)) {
-//                                        TableChart naChart = (TableChart) na.getChart();
-//                                        naChart.getTableTopDatePicker().getDatePicker().getSelectionModel().select(newValue);
-//                                    }
                                 });
                             });
                         }
@@ -935,8 +933,13 @@ public class GraphPluginView implements Plugin {
                         && !na.getChartType().equals(ChartType.TABLE)) {
                     na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                 } else if (na.getChartType().equals(ChartType.TABLE)) {
-                    TableChart naChart = (TableChart) na.getChart();
-                    naChart.getTableTopDatePicker().getDatePicker().getSelectionModel().select(cv.getChart().getNearest());
+                    na.updateTablesSimultaneously(null, cv.getValueForDisplay());
+                    TableChart chart = (TableChart) na.getChart();
+                    chart.setBlockDatePickerEvent(true);
+                    TableTopDatePicker tableTopDatePicker = chart.getTableTopDatePicker();
+                    ComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
+                    datePicker.getSelectionModel().select(cv.getValueForDisplay());
+                    chart.setBlockDatePickerEvent(false);
                 }
             });
         });
@@ -995,6 +998,12 @@ public class GraphPluginView implements Plugin {
                 notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
                         && !chartView.getChartType().equals(ChartType.BAR)
                         && !chartView.getChartType().equals(ChartType.BUBBLE)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateValueAxis) chart.getXAxis()).forEach(xAxis -> xAxis.setAutoRanging(true));
+                notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
+                        && !chartView.getChartType().equals(ChartType.BAR)
+                        && !chartView.getChartType().equals(ChartType.BUBBLE)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (ValueAxis) chart.getY1Axis()).forEach(yAxis -> yAxis.setAutoRanging(true));
+                notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
+                        && !chartView.getChartType().equals(ChartType.BAR)
+                        && !chartView.getChartType().equals(ChartType.BUBBLE)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (ValueAxis) chart.getY2Axis()).forEach(yAxis -> yAxis.setAutoRanging(true));
                 cv.getChart().getJfxChartUtil().doubleClickedProperty().setValue(false);
 
 

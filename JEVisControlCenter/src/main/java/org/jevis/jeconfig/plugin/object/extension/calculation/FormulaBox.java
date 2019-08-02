@@ -186,7 +186,7 @@ public class FormulaBox extends HBox {
                 }
             }
             List<JEVisTreeFilter> allFilter = new ArrayList<>();
-            JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllDataFilter();
+            JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
             allFilter.add(basicFilter);
 
             SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE);

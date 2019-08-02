@@ -183,7 +183,7 @@ public class ObjectPlugin implements Plugin {
 
             List<JEVisTreeFilter> allObjects = new ArrayList<>();
             allObjects.add(SelectTargetDialog.buildAllObjects());
-            allObjects.add(SelectTargetDialog.buildAllDataFilter());
+            allObjects.add(SelectTargetDialog.buildAllDataAndCleanDataFilter());
             allObjects.add(SelectTargetDialog.buildAllAttributesFilter());
             allObjects.add(SelectTargetDialog.buildCalendarFilter());
             allObjects.add(SelectTargetDialog.buildAllDataSources(this.ds));
