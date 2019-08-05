@@ -166,9 +166,9 @@ public class XYChart implements Chart {
                                     List<Double> list = Arrays.asList(25d, 20d, 5d, 20d);
                                     ObservableList<Double> doubles = FXCollections.observableList(list);
                                     if (i == 0) {
-                                        chart.setLimitLine(value, singleRow.getColor().brighter(), singleRow.getAxis(), doubles);
+                                        chart.setLimitLine("L1 MAX", value, singleRow.getColor().brighter(), singleRow.getAxis(), doubles);
                                     } else {
-                                        chart.setLimitLine(value, singleRow.getColor().darker(), singleRow.getAxis(), doubles);
+                                        chart.setLimitLine("L2 MAX", value, singleRow.getColor().darker(), singleRow.getAxis(), doubles);
                                     }
                                 }
 
@@ -178,9 +178,9 @@ public class XYChart implements Chart {
                                     List<Double> list = Arrays.asList(2d, 21d);
                                     ObservableList<Double> doubles = FXCollections.observableList(list);
                                     if (i == 0) {
-                                        chart.setLimitLine(value, singleRow.getColor().brighter(), singleRow.getAxis(), doubles);
+                                        chart.setLimitLine("L1 MIN", value, singleRow.getColor().brighter(), singleRow.getAxis(), doubles);
                                     } else {
-                                        chart.setLimitLine(value, singleRow.getColor().darker(), singleRow.getAxis(), doubles);
+                                        chart.setLimitLine("L2 MIN", value, singleRow.getColor().darker(), singleRow.getAxis(), doubles);
                                     }
                                 }
                             }

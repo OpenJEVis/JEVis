@@ -456,8 +456,6 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         horizontalGridLines.getStyleClass().setAll("chart-horizontal-grid-lines");
         verticalZeroLine.getStyleClass().setAll("chart-vertical-zero-line");
         horizontalZeroLine.getStyleClass().setAll("chart-horizontal-zero-line");
-        flowPaneY1Formulas.getStyleClass().setAll("chart-flowpane-y1formulas");
-        flowPaneY2Formulas.getStyleClass().setAll("chart-flowpane-y2formulas");
         // mark plotContent as unmanaged as its preferred size changes do not effect our
         // layout
         plotContent.setManaged(false);
@@ -1074,28 +1072,6 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             horizontalZeroLine.setVisible(true);
         }
 
-        if (!limitLines.isEmpty()) {
-            plotArea.getChildren().removeAll(limitLinesList);
-            limitLinesList.clear();
-            for (LimitLine limitLine : limitLines) {
-                Line line = new Line();
-                line.setStroke(limitLine.getColor());
-                line.getStrokeDashArray().addAll(limitLine.getStrokeDashArray());
-                line.setStartX(left);
-                Double scaleY = null;
-                if (limitLine.getyAxisIndex() == 0) {
-                    scaleY = getY1Axis().getScaleY();
-                } else {
-                    scaleY = getY2Axis().getScaleY();
-                }
-                line.setStartY(top + yAxisZero + 0.5 - limitLine.getValue() * scaleY);
-                line.setEndX(left + xAxisWidth);
-                line.setEndY(top + yAxisZero + 0.5 - limitLine.getValue() * scaleY);
-                line.setVisible(true);
-                limitLinesList.add(line);
-            }
-            plotArea.getChildren().addAll(limitLinesList);
-        }
         // layout plot background
         plotBackground.resizeRelocate(left, top, xAxisWidth, yAxisHeight);
         // update clip
@@ -1197,7 +1173,37 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             insertTickPositionsIntoHorizontalRow(top, left, xAxisHeight, tickPositionsNegative);
         }
 
+        drawLimitLines();
+
         drawRegressions();
+    }
+
+    private void drawLimitLines() {
+        if (!limitLines.isEmpty()) {
+//            plotArea.getChildren().removeAll(limitLinesList);
+            getPlotChildren().removeAll(limitLinesList);
+            limitLinesList.clear();
+            for (LimitLine limitLine : limitLines) {
+                Line line = new Line();
+                line.setStroke(limitLine.getColor());
+                line.getStrokeDashArray().addAll(limitLine.getStrokeDashArray());
+                double y = 0;
+                line.setStartX(0);
+                if (limitLine.getyAxisIndex() == 0) {
+                    y = findYChartCord(limitLine.getValue(), getY1Axis());
+                } else {
+                    y = findYChartCord(limitLine.getValue(), getY2Axis());
+                }
+                line.setStartY(y);
+                line.setEndX(getXAxis().getWidth());
+                line.setEndY(y);
+                line.setVisible(true);
+                line.toFront();
+                limitLinesList.add(line);
+            }
+//            plotArea.getChildren().addAll(limitLinesList);
+            getPlotChildren().addAll(limitLinesList);
+        }
     }
 
     private void insertTickPositionsIntoVerticalRow(double top, double left, double yAxisHeight, List<Double> tickPositions) {
@@ -1712,8 +1718,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         }
     }
 
-    public void setLimitLine(Double value, Color color, Integer yAxisindex, ObservableList<Double> observableList) {
-        limitLines.add(new LimitLine(value, color, yAxisindex, observableList));
+    public void setLimitLine(String name, Double value, Color color, Integer yAxisindex, ObservableList<Double> observableList) {
+        limitLines.add(new LimitLine(name, value, color, yAxisindex, observableList));
     }
 
     /**
@@ -2120,7 +2126,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
          *
          */
         public int getAxisIndex() {
-            return data.get().stream().findFirst().map(xyData -> (int) xyData.getExtraValue()).orElse(0);
+//            return data.get().stream().findFirst().map(xyData -> (int) xyData.getExtraValue()).orElse(0);
+            return 0;
         }
 
         /**

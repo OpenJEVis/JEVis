@@ -9,12 +9,22 @@ public class LimitLine {
     private Color color;
     private Integer yAxisIndex;
     private ObservableList<Double> strokeDashArray;
+    private String name;
 
-    public LimitLine(Double value, Color color, Integer yAxisIndex, ObservableList<Double> strokeDashArray) {
+    public LimitLine(String name, Double value, Color color, Integer yAxisIndex, ObservableList<Double> strokeDashArray) {
+        this.name = name;
         this.value = value;
         this.color = color;
         this.yAxisIndex = yAxisIndex;
         this.strokeDashArray = strokeDashArray;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Double getValue() {
