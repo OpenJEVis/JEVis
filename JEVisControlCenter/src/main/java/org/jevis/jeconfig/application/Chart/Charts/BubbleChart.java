@@ -198,6 +198,7 @@ public class BubbleChart implements Chart {
 
         chart = new MultiAxisBubbleChart<Number, Number>(xAxis, yAxis, null);
         if (calcRegression) {
+            chart.setRegressionColor(0, hexColors.get(0));
             chart.setRegression(0, regressionType, polyRegressionDegree);
         }
         chart.setTitle(chartName);
@@ -429,7 +430,7 @@ public class BubbleChart implements Chart {
 
     @Override
     public Region getRegion() {
-        return null;
+        return chart;
     }
 
     @Override

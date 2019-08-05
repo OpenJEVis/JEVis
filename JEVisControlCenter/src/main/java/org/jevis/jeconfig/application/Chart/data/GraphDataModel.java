@@ -95,6 +95,7 @@ public class GraphDataModel {
     private Boolean showRawData = false;
     private Boolean showSum = false;
     private Boolean calcRegression = false;
+    private Boolean showL1L2 = false;
     private RegressionType regressionType = RegressionType.NONE;
     private int polyRegressionDegree = -1;
     private Boolean runUpdate = false;
@@ -441,6 +442,24 @@ public class GraphDataModel {
         }
     }
 
+    public Boolean getShowL1L2() {
+        return showL1L2;
+    }
+
+    public void setShowL1L2(Boolean showL1L2) {
+        this.showL1L2 = showL1L2;
+
+        if (showL1L2) {
+            update();
+        } else {
+            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+        }
+    }
+
+    public void setShowL1L2_NO_EVENT(Boolean showL1L2) {
+        this.showL1L2 = showL1L2;
+    }
+
     public void setTimer() {
         if (service.isRunning()) {
             service.cancel();
@@ -533,6 +552,7 @@ public class GraphDataModel {
         setHideShowIconsNO_EVENT(true);
         setShowRawDataNO_EVENT(false);
         setShowSumNO_EVENT(false);
+        setShowL1L2_NO_EVENT(false);
         setCalcRegression_NO_EVENT(false);
         setAutoResizeNO_EVENT(true);
         setRunUpdate(false);
