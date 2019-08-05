@@ -93,7 +93,7 @@ public class ToolBarView {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
             if (changed) {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setContentText(I18n.getInstance().getString("plugin.graph.dialog.changed.text"));
 
                 alert.showAndWait().ifPresent(buttonType -> {
@@ -632,6 +632,7 @@ public class ToolBarView {
                 }
 
                 changed = false;
+                this.model.setTemporary(false);
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));
                 alert.showAndWait();
@@ -1024,4 +1025,6 @@ public class ToolBarView {
     public void setChanged(Boolean changed) {
         this.changed = changed;
     }
+
+
 }
