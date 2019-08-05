@@ -789,6 +789,7 @@ public class GraphPluginView implements Plugin {
                             return I18n.getInstance().getString("plugin.graph.analysis.tempanalysis");
                         }
                     };
+                    dataModel.setTemporary(true);
                     dataModel.setCurrentAnalysis(newObject);
                     dataModel.setCharts(chartSettingsList);
                     dataModel.setData(chartDataModels);

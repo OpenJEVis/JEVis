@@ -101,6 +101,7 @@ public class GraphDataModel {
     private Boolean runUpdate = false;
     private Long finalSeconds = 60L;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private Boolean temporary = false;
 
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
@@ -121,10 +122,12 @@ public class GraphDataModel {
             if (newValue != oldValue && newValue) {
                 changed.set(false);
 
-                if (getCurrentAnalysis() != null) {
+                if (getCurrentAnalysis() != null && !getTemporary()) {
                     selectedData = new HashSet<>();
                     charts = new ArrayList<>();
+
                     getSelectedData();
+
                 }
                 update();
             }
@@ -1209,6 +1212,14 @@ public class GraphDataModel {
 
     public void setRegressionType(RegressionType regressionType) {
         this.regressionType = regressionType;
+    }
+
+    public Boolean getTemporary() {
+        return temporary;
+    }
+
+    public void setTemporary(Boolean temporary) {
+        this.temporary = temporary;
     }
 }
 

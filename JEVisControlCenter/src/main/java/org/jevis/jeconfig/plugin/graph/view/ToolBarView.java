@@ -632,6 +632,7 @@ public class ToolBarView {
                 }
 
                 changed = false;
+                this.model.setTemporary(false);
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));
                 alert.showAndWait();
@@ -1024,4 +1025,6 @@ public class ToolBarView {
     public void setChanged(Boolean changed) {
         this.changed = changed;
     }
+
+
 }
