@@ -26,16 +26,22 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
@@ -146,6 +152,27 @@ public class ChartZoomManager {
         this.chartPane.getChildren().addAll(startLabel, endLabel);
         StackPane.setAlignment(startLabel, Pos.TOP_LEFT);
         StackPane.setAlignment(endLabel, Pos.TOP_RIGHT);
+
+        DropShadow dropShadowLeftToRight = new DropShadow();
+        dropShadowLeftToRight.setRadius(5.0);
+        dropShadowLeftToRight.setOffsetX(3.0);
+        dropShadowLeftToRight.setOffsetY(3.0);
+        dropShadowLeftToRight.setColor(Color.BLACK);
+        startLabel.setBackground(new Background(new BackgroundFill(Color.HOTPINK, new CornerRadii(0, 0, 5, 0, false), Insets.EMPTY)));
+        startLabel.setPadding(new Insets(3));
+        startLabel.setStyle("-fx-font-weight: bold;");
+        startLabel.setEffect(dropShadowLeftToRight);
+
+        DropShadow dropShadowRightToLeft = new DropShadow();
+        dropShadowRightToLeft.setRadius(5.0);
+        dropShadowRightToLeft.setOffsetX(-3.0);
+        dropShadowRightToLeft.setOffsetY(3.0);
+        dropShadowRightToLeft.setColor(Color.BLACK);
+        endLabel.setBackground(new Background(new BackgroundFill(Color.HOTPINK, new CornerRadii(0, 0, 0, 5, false), Insets.EMPTY)));
+        endLabel.setPadding(new Insets(3));
+        endLabel.setStyle("-fx-font-weight: bold;");
+        endLabel.setEffect(dropShadowRightToLeft);
+
         if (chart.getXAxis() instanceof ValueAxis) xAxis = (ValueAxis<?>) chart.getXAxis();
         else {
             /**
