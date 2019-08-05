@@ -1180,7 +1180,6 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
     private void drawLimitLines() {
         if (!limitLines.isEmpty()) {
-//            plotArea.getChildren().removeAll(limitLinesList);
             getPlotChildren().removeAll(limitLinesList);
             limitLinesList.clear();
             for (LimitLine limitLine : limitLines) {
@@ -1201,7 +1200,6 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 line.toFront();
                 limitLinesList.add(line);
             }
-//            plotArea.getChildren().addAll(limitLinesList);
             getPlotChildren().addAll(limitLinesList);
         }
     }
