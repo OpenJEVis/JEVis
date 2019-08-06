@@ -36,6 +36,7 @@ public class Report {
         TemplateTransformator templateTransformator = new TemplateTransformator();
 
         Context context = new Context(contextMap);
+        context.getConfig().setIsFormulaProcessingRequired(true);
 
         try {
             templateTransformator.transform(template.getBytes(), context);
