@@ -1,13 +1,17 @@
 {
   "jevisclass": "Parser Driver Directory",
   "names": {
-    "de": "Parser Treiberverzeichnis",
-    "ru": "Parser Driver Directory",
+    "de": "Parsertreiber",
+    "th": "ไดเรกทอรีไดร์เวอร์ Parser",
+    "uk": "Каталог драйверів парсера",
+    "ru": "Каталог драйверов парсера",
     "en": "Parser Driver Directory"
   },
   "descriptions": {
-    "de": "Die Klasse Parser Treiberverzeichnis stellt ein spezifisches Verzeichnis für die Verwaltung von Parser-Treiberdaten dar.",
-    "ru": "The class Parser Driver Directory represents a specific directory for the management of parser driver data.",
+    "de": "Die Klasse Parsertreiber stellt ein spezifisches Verzeichnis für die Verwaltung von Parser-Treibern dar.",
+    "ru": "Класс Parser Driver Directory представляет собой специальный каталог для управления данными драйвера синтаксического анализатора.",
+    "th": "คลาส Parser Driver Directory เป็นไดเรกทอรีเฉพาะสำหรับการจัดการข้อมูล parser driver",
+    "uk": "Каталог драйверів Parser класу представляє специфічний каталог для управління даними драйвера аналізатора.",
     "en": "The class Parser Driver Directory represents a specific directory for the management of parser driver data."
   },
   "types": []
