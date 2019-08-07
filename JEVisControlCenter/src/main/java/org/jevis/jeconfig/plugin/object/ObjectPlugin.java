@@ -167,64 +167,68 @@ public class ObjectPlugin implements Plugin {
     public Node getContentNode() {
         if (viewPane == null) {
 
-            tree = JEVisTreeFactory.buildBasicDefault(ds, true);
-            tree.setId("objecttree");
-//            tree.getStylesheets().add("/styles/Styles.css");
-            tree.setStyle("-fx-background-color: #E2E2E2;");
-            //tree.getSelectionModel().selectFirst();
-
-            VBox left = new VBox();
-            left.setPrefWidth(460);
-            left.setStyle("-fx-background-color: #E2E2E2;");
-
-            VBox.setVgrow(tree, Priority.ALWAYS);
-//            VBox.setVgrow(search, Priority.NEVER);
-
-
-            List<JEVisTreeFilter> allObjects = new ArrayList<>();
-            allObjects.add(SelectTargetDialog.buildAllObjects());
-            allObjects.add(SelectTargetDialog.buildAllDataAndCleanDataFilter());
-            allObjects.add(SelectTargetDialog.buildAllAttributesFilter());
-            allObjects.add(SelectTargetDialog.buildCalendarFilter());
-            allObjects.add(SelectTargetDialog.buildAllDataSources(this.ds));
-            allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Calculation"));
-            allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "User"));
-            allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Group"));
-            allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Analysis"));
-            allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Report"));
-
-
-            Finder finder = new Finder(tree);
-            SearchFilterBar searchBar = new SearchFilterBar(tree, allObjects, finder);
-            tree.setSearchFilterBar(searchBar);
-
-            treeLoadingPane.setContent(left);
-            editorLoadingPane.setContent(_editor.getView());
-            left.getChildren().addAll(tree, searchBar);
-
-            SplitPane sp = new SplitPane();
-            sp.setDividerPositions(.3d);
-            sp.setOrientation(Orientation.HORIZONTAL);
-            sp.setId("mainsplitpane");
-            sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-//            sp.getItems().setAll(left, tree.getEditor().getView());
-            sp.getItems().setAll(treeLoadingPane, editorLoadingPane);
-
-            treeLoadingPane.endLoading();
-            editorLoadingPane.endLoading();
-
-            viewPane = new BorderPane();
-            viewPane.setCenter(sp);
-            viewPane.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-
-            //public void changed(ObservableValue<? extends TreeItem<JEVisObject>> ov, TreeItem<JEVisObject> t, TreeItem<JEVisObject> t1) {
-            //TreeItem<JEVisTreeRow>
-
-            tree.getSelectionModel().selectedItemProperty().addListener(this::changed);
+            initGUI();
 
         }
 
         return viewPane;
+    }
+
+    public void initGUI() {
+        tree = JEVisTreeFactory.buildBasicDefault(ds, true);
+        tree.setId("objecttree");
+//            tree.getStylesheets().add("/styles/Styles.css");
+        tree.setStyle("-fx-background-color: #E2E2E2;");
+        //tree.getSelectionModel().selectFirst();
+
+        VBox left = new VBox();
+        left.setPrefWidth(460);
+        left.setStyle("-fx-background-color: #E2E2E2;");
+
+        VBox.setVgrow(tree, Priority.ALWAYS);
+//            VBox.setVgrow(search, Priority.NEVER);
+
+
+        List<JEVisTreeFilter> allObjects = new ArrayList<>();
+        allObjects.add(SelectTargetDialog.buildAllObjects());
+        allObjects.add(SelectTargetDialog.buildAllDataAndCleanDataFilter());
+        allObjects.add(SelectTargetDialog.buildAllAttributesFilter());
+        allObjects.add(SelectTargetDialog.buildCalendarFilter());
+        allObjects.add(SelectTargetDialog.buildAllDataSources(this.ds));
+        allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Calculation"));
+        allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "User"));
+        allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Group"));
+        allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Analysis"));
+        allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Report"));
+
+
+        Finder finder = new Finder(tree);
+        SearchFilterBar searchBar = new SearchFilterBar(tree, allObjects, finder);
+        tree.setSearchFilterBar(searchBar);
+
+        treeLoadingPane.setContent(left);
+        editorLoadingPane.setContent(_editor.getView());
+        left.getChildren().addAll(tree, searchBar);
+
+        SplitPane sp = new SplitPane();
+        sp.setDividerPositions(.3d);
+        sp.setOrientation(Orientation.HORIZONTAL);
+        sp.setId("mainsplitpane");
+        sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+//            sp.getItems().setAll(left, tree.getEditor().getView());
+        sp.getItems().setAll(treeLoadingPane, editorLoadingPane);
+
+        treeLoadingPane.endLoading();
+        editorLoadingPane.endLoading();
+
+        viewPane = new BorderPane();
+        viewPane.setCenter(sp);
+        viewPane.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+
+        //public void changed(ObservableValue<? extends TreeItem<JEVisObject>> ov, TreeItem<JEVisObject> t, TreeItem<JEVisObject> t1) {
+        //TreeItem<JEVisTreeRow>
+
+        tree.getSelectionModel().selectedItemProperty().addListener(this::changed);
     }
 
     @Override
@@ -417,8 +421,9 @@ public class ObjectPlugin implements Plugin {
                     TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
                     break;
                 case Constants.Plugin.Command.RELOAD:
-                    TreeHelper.EventReload(((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject(),
-                            ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()));
+                    ds.clearCache();
+                    ds.preload();
+                    initGUI();
                     break;
                 case Constants.Plugin.Command.ADD_TABLE:
                     fireEventCreateTable(((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject());
