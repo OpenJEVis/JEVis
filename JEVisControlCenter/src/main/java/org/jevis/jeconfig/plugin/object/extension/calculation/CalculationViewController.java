@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +17,8 @@ public class CalculationViewController {
 
     @FXML
     public Button atan2;
+    @FXML
+    public ScrollPane variablesScrollPane;
     @FXML
     private Button buttonCeil;
     @FXML
@@ -399,14 +402,15 @@ public class CalculationViewController {
     }
 
 
-    public void setData(JEVisObject obj) {
+    public void setData(JEVisObject obj, Button buttonOutput) {
         logger.info("setData: " + buttonOutput);
         formulaBox.setCalculation(obj);
 
         formulaBox.setOutputButton(buttonOutput);
-
         variablesBox.bindVariableBox(formulaBox, obj);
 
+        variablesScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        variablesScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     }
 
     public String getFormel() {

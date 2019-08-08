@@ -24,6 +24,7 @@ public class VariablesBox extends FlowPane {
         setVgap(8);
         setHgap(4);
         setPrefWrapLength(200);
+
     }
 
     public void bindVariableBox(FormulaBox expression, JEVisObject obj) {

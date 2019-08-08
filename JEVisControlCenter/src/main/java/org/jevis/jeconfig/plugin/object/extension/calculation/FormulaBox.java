@@ -40,6 +40,7 @@ public class FormulaBox extends HBox {
 //        errorArea.setPrefWidth(200);
         errorArea.setTextFill(Color.FIREBRICK);
         textArea.setWrapText(true);
+        textArea.setMinHeight(90d);
         getChildren().addAll(textArea);
         HBox.setHgrow(textArea, Priority.ALWAYS);
         textArea.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -144,8 +145,8 @@ public class FormulaBox extends HBox {
         }
     }
 
-    public void setOutputButton(Button butttonOutput) {
-        outputButton = butttonOutput;
+    public void setOutputButton(Button buttonOutput) {
+        outputButton = buttonOutput;
         try {
             JEVisClass outputClass = this.calcObj.getDataSource().getJEVisClass("Output");
             List<JEVisObject> outputs = this.calcObj.getChildren(outputClass, true);
@@ -161,13 +162,14 @@ public class FormulaBox extends HBox {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        logger.info("Button.text: " + butttonOutput.getText());
+        logger.info("Button.text: " + buttonOutput.getText());
         outputButton.textProperty().addListener((observable, oldValue, newValue) -> {
             logger.info("Button text changed: " + oldValue + " new: " + newValue);
         });
+        outputButton.setOnAction(event -> setOnOutputAction());
     }
 
-    public void setOnOutputAction() {
+    void setOnOutputAction() {
 
         try {
             JEVisClass outputClass = this.calcObj.getDataSource().getJEVisClass("Output");
