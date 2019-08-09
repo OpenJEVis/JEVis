@@ -410,8 +410,8 @@ public class CleanDataObject {
                     firstDate,
                     getLastRawDate());
 
-            if (rawSamplesDown.size() > 100000) {
-                rawSamplesDown.subList(0, 100000);
+            if (rawSamplesDown.size() > 10000) {
+                rawSamplesDown = rawSamplesDown.subList(0, 10000);
             }
         }
         return rawSamplesDown;

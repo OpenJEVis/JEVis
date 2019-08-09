@@ -20,6 +20,8 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTimePicker;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -32,11 +34,13 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.export.ExportMaster;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.ReportLink;
@@ -48,14 +52,14 @@ import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.math.BigDecimal;
+import java.time.format.FormatStyle;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -66,7 +70,6 @@ import java.util.regex.Pattern;
 public class TreeHelper {
 
     private static final Logger logger = LogManager.getLogger(TreeHelper.class);
-    public static final String VALUE_ATTRIBUTE = "Value";
 
     private static long lastSearchIndex = 0L;
     private static String lastSearch = "";
@@ -243,9 +246,139 @@ public class TreeHelper {
         }
     }
 
+    public static void EventCreateMultiplierAndDifferential(JEVisTree tree) {
+        logger.debug("EventCreateMultiplierAndDifferential");
+        try {
+            if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
+                ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
+
+
+                if (tree.getJEVisDataSource().getCurrentUser().canWrite(items.get(0).getValue().getJEVisObject().getID())) {
+
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle(I18n.getInstance().getString("jevistree.dialog.setMultiplierAndDifferential.title"));
+                    alert.setHeaderText(null);
+                    GridPane gp = new GridPane();
+                    gp.setHgap(4);
+                    gp.setVgap(6);
+                    Label multiplierLabel = new Label("Multiplier");
+                    TextField multiplier = new TextField();
+                    Label differentialLabel = new Label("Differential");
+                    ToggleSwitchPlus differential = new ToggleSwitchPlus();
+                    differential.setSelected(false);
+                    Label dateLabel = new Label("Date");
+                    JFXDatePicker datePicker = new JFXDatePicker();
+                    JFXTimePicker timePicker = new JFXTimePicker();
+                    timePicker.set24HourView(true);
+                    timePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+
+                    gp.add(differentialLabel, 0, 0);
+                    gp.add(differential, 1, 0, 2, 1);
+                    gp.add(multiplierLabel, 0, 1);
+                    gp.add(multiplier, 1, 1, 2, 1);
+                    gp.add(dateLabel, 0, 2);
+                    gp.add(datePicker, 1, 2);
+                    gp.add(timePicker, 2, 2);
+
+                    alert.getDialogPane().setContent(gp);
+
+                    alert.showAndWait().ifPresent(buttonType -> {
+                        if (buttonType.equals(ButtonType.OK)) {
+                            try {
+                                BigDecimal multiplierValue = new BigDecimal(multiplier.getText());
+                                Boolean differentialValue = differential.isSelected();
+
+                                DateTime dateTime = new DateTime(
+                                        datePicker.valueProperty().get().getYear(),
+                                        datePicker.valueProperty().get().getMonthValue(),
+                                        datePicker.valueProperty().get().getDayOfMonth(),
+                                        timePicker.valueProperty().get().getHour(),
+                                        timePicker.valueProperty().get().getMinute(),
+                                        timePicker.valueProperty().get().getSecond(), DateTimeZone.getDefault()); // is this timezone correct?
+
+                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.setMultiplierAndDifferential.title") + "...");
+
+                                Task<Void> set = new Task<Void>() {
+                                    @Override
+                                    protected Void call() {
+                                        for (TreeItem<JEVisTreeRow> item : items) {
+                                            setAllMultiplierAndDifferential(item.getValue().getJEVisObject(), multiplierValue, differentialValue, dateTime);
+                                        }
+
+                                        return null;
+                                    }
+                                };
+                                set.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+                                set.setOnCancelled(event -> {
+                                    logger.debug("Setting all multiplier and differential switches cancelled");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                set.setOnFailed(event -> {
+                                    logger.debug("Setting all multiplier and differential switches failed");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                pForm.activateProgressBar(set);
+                                pForm.getDialogStage().show();
+
+                                new Thread(set).start();
+
+                            } catch (Exception ex) {
+                                logger.catching(ex);
+                                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
+                                        I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                            }
+                        } else {
+                            // ... user chose CANCEL or closed the dialog
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        alert1.showAndWait();
+                    });
+
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not get JEVis data source.", e);
+        }
+    }
+
+    private static void setAllMultiplierAndDifferential(JEVisObject jeVisObject, BigDecimal multiplierValue, Boolean differentialValue, DateTime dateTime) {
+        try {
+            if (jeVisObject.getJEVisClassName().equals("Clean Data")) {
+                JEVisAttribute multiplierAttribute = jeVisObject.getAttribute(CleanDataObject.AttributeName.MULTIPLIER.getAttributeName());
+                JEVisAttribute differentialAttribute = jeVisObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
+                if (multiplierAttribute != null && differentialAttribute != null) {
+                    List<JEVisSample> previousMultiplierSamples = multiplierAttribute.getSamples(dateTime, dateTime);
+                    if (previousMultiplierSamples.size() > 0) {
+                        multiplierAttribute.deleteSamplesBetween(dateTime, dateTime);
+                    }
+                    multiplierAttribute.addSamples(Collections.singletonList(multiplierAttribute.buildSample(dateTime, multiplierValue.doubleValue())));
+
+                    List<JEVisSample> previousDifferentialSamples = differentialAttribute.getSamples(dateTime, dateTime);
+                    if (previousDifferentialSamples.size() > 0) {
+                        differentialAttribute.deleteSamplesBetween(dateTime, dateTime);
+                    }
+                    differentialAttribute.addSamples(Collections.singletonList(differentialAttribute.buildSample(dateTime, differentialValue)));
+                }
+
+            }
+            for (JEVisObject child : jeVisObject.getChildren()) {
+                setAllMultiplierAndDifferential(child, multiplierValue, differentialValue, dateTime);
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not delete value samples for {}:{}", jeVisObject.getName(), jeVisObject.getID());
+        }
+    }
+
     private static void deleteAllSamples(JEVisObject object, boolean rawData, boolean cleanData) {
         try {
-            JEVisAttribute value = object.getAttribute(VALUE_ATTRIBUTE);
+            JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
             if (value != null) {
                 if ((object.getJEVisClassName().equals("Clean Data") && cleanData)
                         || (object.getJEVisClassName().equals("Data") && rawData)) {
@@ -586,7 +719,7 @@ public class TreeHelper {
                     List<JEVisSample> newSamples = new ArrayList<>();
                     for (JEVisSample sample : originalAtt.getAllSamples()) {
                         // TODO: file copy not working
-                        if (originalAtt.getName().equals(VALUE_ATTRIBUTE)) {
+                        if (originalAtt.getName().equals(CleanDataObject.AttributeName.VALUE.getAttributeName())) {
                             newSamples.add(newAtt.buildSample(sample.getTimestamp(), sample.getValueAsDouble(), sample.getNote()));
                         } else {
                             try {
@@ -714,7 +847,7 @@ public class TreeHelper {
                                     JEVisClass reportAttributeClass = newObject.getDataSource().getJEVisClass("Report Attribute");
                                     JEVisClass reportPeriodConfigurationClass = newObject.getDataSource().getJEVisClass("Report Period Configuration");
                                     if (createClass.equals(dataClass) || createClass.equals(cleanDataClass)) {
-                                        JEVisAttribute valueAttribute = newObject.getAttribute(VALUE_ATTRIBUTE);
+                                        JEVisAttribute valueAttribute = newObject.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
                                         valueAttribute.setInputSampleRate(Period.minutes(15));
                                         valueAttribute.setDisplaySampleRate(Period.minutes(15));
                                         valueAttribute.commit();
@@ -723,7 +856,7 @@ public class TreeHelper {
                                             JEVisObject newCleanObject = newObject.buildObject(I18nWS.getInstance().getClassName(cleanDataClass), cleanDataClass);
                                             newCleanObject.commit();
 
-                                            JEVisAttribute cleanDataValueAttribute = newCleanObject.getAttribute(VALUE_ATTRIBUTE);
+                                            JEVisAttribute cleanDataValueAttribute = newCleanObject.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
                                             cleanDataValueAttribute.setInputSampleRate(Period.minutes(15));
                                             cleanDataValueAttribute.setDisplaySampleRate(Period.minutes(15));
                                             cleanDataValueAttribute.commit();
@@ -920,14 +1053,14 @@ public class TreeHelper {
 
                     JEVisAttribute targetAtt = us.getSelectedAttribute();
                     if (targetAtt == null) {
-                        targetAtt = us.getSelectedObject().getAttribute(VALUE_ATTRIBUTE);
+                        targetAtt = us.getSelectedObject().getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
                     }
 
                     TargetHelper th = null;
                     if (correspondingCleanObject == null) {
                         th = new TargetHelper(us.getSelectedObject().getDataSource(), us.getSelectedObject(), targetAtt);
                     } else {
-                        targetAtt = correspondingCleanObject.getAttribute(VALUE_ATTRIBUTE);
+                        targetAtt = correspondingCleanObject.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
                         th = new TargetHelper(us.getSelectedObject().getDataSource(), correspondingCleanObject, targetAtt);
                     }
 
