@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.graph.view;
 
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
@@ -13,10 +12,7 @@ import javafx.util.Callback;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -50,7 +46,7 @@ public class GraphExportCSV {
     final ObservableList<Locale> choices = FXCollections.observableArrayList(Locale.getAvailableLocales());
     private Locale selectedLocale;
     private NumberFormat numberFormat;
-    private SimpleBooleanProperty withUserNotes = new SimpleBooleanProperty(false);
+    private Boolean withUserNotes = false;
 
     public GraphExportCSV(JEVisDataSource ds, GraphDataModel model) {
         this.model = model;
@@ -109,13 +105,16 @@ public class GraphExportCSV {
         Label selection = new Label(I18n.getInstance().getString("plugin.graph.dialog.export.decimalseparator.selection"));
         Label withUserNotesLabel = new Label(I18n.getInstance().getString("plugin.graph.dialog.export.withusernotes"));
         JFXCheckBox withUserNotes = new JFXCheckBox();
-        Label emptyLine = new Label("");
+        Label emptyLine1 = new Label("");
+        Label emptyLine2 = new Label("");
 
-        withUserNotes.selectedProperty().bind(withUserNotes.selectedProperty());
+        withUserNotes.selectedProperty().addListener((observable, oldValue, newValue) -> this.withUserNotes = newValue);
 
-        HBox hBox = new HBox(withUserNotesLabel, withUserNotes);
+        HBox hBox = new HBox();
+        hBox.setSpacing(4);
+        hBox.getChildren().setAll(withUserNotesLabel, withUserNotes);
 
-        vBox.getChildren().addAll(selection, emptyLine, decimalSeparatorChoiceBox, emptyLine, hBox);
+        vBox.getChildren().setAll(selection, emptyLine1, decimalSeparatorChoiceBox, emptyLine2, hBox);
 
         selectDecimalSeparators.getDialogPane().setContent(vBox);
 
@@ -205,7 +204,7 @@ public class GraphExportCSV {
                 currentUnit = mdl.getUnit().getLabel();
             }
             header.append(currentUnit);
-            if (withUserNotes.get()) {
+            if (withUserNotes) {
                 header.append(";Note");
             }
         }
@@ -223,24 +222,28 @@ public class GraphExportCSV {
             }
         }
 
+        Map<String, Map<DateTime, JEVisSample>> mapNotes = new HashMap<>();
         Map<String, List<JEVisSample>> map = new HashMap<>();
         for (ChartDataModel mdl : model.getSelectedData()) {
             map.put(mdl.getObject().getName(), mdl.getSamples());
-        }
-        Map<String, List<JEVisSample>> mapNotes = new HashMap<>();
-        for (ChartDataModel mdl : model.getSelectedData()) {
-            mdl.getObject().getParents().get(0).getChildren().forEach(jeVisObject -> {
+
+            Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
+            for (JEVisObject jeVisObject : mdl.getObject().getChildren()) {
                 try {
                     if (jeVisObject.getJEVisClassName().equals("Data Notes")) {
                         JEVisAttribute notes = jeVisObject.getAttribute("User Notes");
                         if (notes != null && notes.hasSample()) {
-                            map.put(mdl.getObject().getName(), notes.getAllSamples());
+                            for (JEVisSample jeVisSample : notes.getAllSamples()) {
+                                sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
+                            }
+
                         }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            });
+            }
+            mapNotes.put(mdl.getObject().getName(), sampleMap);
         }
 
         for (int i = 0; i < dateColumn.size(); i++) {
@@ -250,19 +253,23 @@ public class GraphExportCSV {
             for (ChartDataModel mdl : model.getSelectedData()) {
                 String name = mdl.getObject().getName();
                 List<JEVisSample> jeVisSamples = map.get(name);
+                DateTime timeStamp = null;
                 if (i < jeVisSamples.size()) {
                     JEVisSample sample = jeVisSamples.get(i);
+                    timeStamp = sample.getTimestamp();
                     String formattedValue = numberFormat.format(sample.getValueAsDouble());
                     s.append(formattedValue);
                 }
                 s.append(";");
-                if (withUserNotes.get()) {
-                    List<JEVisSample> notes = mapNotes.get(name);
-                    if (i < notes.size()) {
-                        JEVisSample sample = notes.get(i);
+                if (withUserNotes && timeStamp != null) {
+                    Map<DateTime, JEVisSample> notes = mapNotes.get(name);
+                    JEVisSample sample = notes.get(timeStamp);
+                    if (sample != null) {
                         s.append(sample.getValueAsString());
-                        s.append(";");
                     }
+                    s.append(";");
+                } else if (withUserNotes) {
+                    s.append(";");
                 }
             }
             sb.append(s);
@@ -293,7 +300,7 @@ public class GraphExportCSV {
                         currentUnit = mdl.getUnit().getLabel();
                     }
                     header.append(currentUnit);
-                    if (withUserNotes.get()) {
+                    if (withUserNotes) {
                         header.append(";Note");
                     }
                 }
@@ -331,33 +338,34 @@ public class GraphExportCSV {
         }
 
         List<Map<String, List<JEVisSample>>> listMaps = new ArrayList<>();
-        List<Map<String, List<JEVisSample>>> listNotes = new ArrayList<>();
+        List<Map<String, Map<DateTime, JEVisSample>>> listNotes = new ArrayList<>();
         for (ChartSettings cset : charts) {
+            Map<String, Map<DateTime, JEVisSample>> mapNotes = new HashMap<>();
             Map<String, List<JEVisSample>> map = new HashMap<>();
             for (ChartDataModel mdl : model.getSelectedData()) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     map.put(mdl.getObject().getName(), mdl.getSamples());
-                }
-            }
-            listMaps.add(map);
 
-            Map<String, List<JEVisSample>> mapNotes = new HashMap<>();
-            for (ChartDataModel mdl : model.getSelectedData()) {
-                if (mdl.getSelectedcharts().contains(cset.getId())) {
-                    mdl.getObject().getParents().get(0).getChildren().forEach(jeVisObject -> {
+                    Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
+                    for (JEVisObject jeVisObject : mdl.getObject().getChildren()) {
                         try {
                             if (jeVisObject.getJEVisClassName().equals("Data Notes")) {
                                 JEVisAttribute notes = jeVisObject.getAttribute("User Notes");
                                 if (notes != null && notes.hasSample()) {
-                                    map.put(mdl.getObject().getName(), notes.getAllSamples());
+                                    for (JEVisSample jeVisSample : notes.getAllSamples()) {
+                                        sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
+                                    }
+
                                 }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    });
+                    }
+                    mapNotes.put(mdl.getObject().getName(), sampleMap);
                 }
             }
+            listMaps.add(map);
             listNotes.add(mapNotes);
         }
 
@@ -366,7 +374,6 @@ public class GraphExportCSV {
             for (ChartSettings cset : charts) {
                 int chartsIndex = cset.getId();
                 boolean hasValues = i < listDateColumns.get(chartsIndex).size();
-                boolean hasNotes = i < listNotes.get(chartsIndex).size();
 
                 if (hasValues) {
                     str.append(listDateColumns.get(chartsIndex).get(i)).append(";");
@@ -378,15 +385,19 @@ public class GraphExportCSV {
                     String objName = mdl.getObject().getName();
                     if (mdl.getSelectedcharts().contains(cset.getId())) {
                         if (hasValues) {
-                            String formattedValue = numberFormat.format(listMaps.get(chartsIndex).get(objName).get(i).getValueAsDouble());
+                            JEVisSample sample1 = listMaps.get(chartsIndex).get(objName).get(i);
+                            String formattedValue = numberFormat.format(sample1.getValueAsDouble());
                             str.append(formattedValue).append(";");
-                            if (withUserNotes.get() && hasNotes) {
-                                str.append(listNotes.get(chartsIndex).get(objName).get(i).getValueAsString());
+                            if (withUserNotes) {
+                                JEVisSample sample = listNotes.get(chartsIndex).get(objName).get(sample1.getTimestamp());
+                                if (sample != null) {
+                                    str.append(sample.getValueAsString());
+                                }
                                 str.append(";");
                             }
                         } else {
                             str.append(";");
-                            if (withUserNotes.get()) {
+                            if (withUserNotes) {
                                 str.append(";");
                             }
                         }

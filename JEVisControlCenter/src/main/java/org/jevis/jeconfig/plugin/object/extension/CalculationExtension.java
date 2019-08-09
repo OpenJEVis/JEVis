@@ -3,12 +3,14 @@ package org.jevis.jeconfig.plugin.object.extension;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.ToggleSwitch;
@@ -58,17 +60,7 @@ public class CalculationExtension implements ObjectEditorExtension {
 
     @Override
     public void setVisible() {
-        GridPane gridPane = new GridPane();
-        gridPane.setPadding(new Insets(5, 0, 20, 20));
-        gridPane.setHgap(7);
-        gridPane.setVgap(7);
 
-        ScrollPane scroll = new ScrollPane();
-        scroll.setStyle("-fx-background-color: transparent");
-        scroll.setMaxSize(10000, 10000);
-        scroll.setContent(gridPane);
-
-        AnchorPane ap = new AnchorPane();
 
         //    Button button = new Button();
         //  button.setText("Calc");
@@ -80,9 +72,10 @@ public class CalculationExtension implements ObjectEditorExtension {
         //fxmlLoader.setRoot();
         //fxmlLoader.setController(new CalculationViewController());
         try {
-            final Pane editConfigPane = fxmlLoader.load();
+            Button buttonOutput = new Button(I18n.getInstance().getString("plugin.object.calc.output"));
+            final ScrollPane editConfigPane = fxmlLoader.load();
             control = fxmlLoader.getController();
-            control.setData(_obj);
+            control.setData(_obj, buttonOutput);
 
             JEVisAttribute aExprsssion = _obj.getAttribute("Expression");
             JEVisSample lastValue = aExprsssion.getLatestSample();
@@ -138,18 +131,18 @@ public class CalculationExtension implements ObjectEditorExtension {
                 logger.fatal(ex);
             }
 
-            Label label = new Label("Aktiviert:");
+            Label label = new Label(I18n.getInstance().getString("plugin.scada.element.setting.label.lowerlimit.enable"));
+            Label labelOutput = new Label(I18n.getInstance().getString("plugin.object.calc.output"));
 
-            FlowPane flowPane = new FlowPane(Orientation.HORIZONTAL, 8, 12, label, enableButton);
+            FlowPane flowPane = new FlowPane(Orientation.HORIZONTAL, 8, 12, label, enableButton, labelOutput, buttonOutput);
+
             VBox vbox = new VBox(8, flowPane, editConfigPane);
-            ap.getChildren().addAll(vbox);
-
+//            ap.getChildren().addAll(vbox);
+            view.setCenter(vbox);
         } catch (Exception e) {
             logger.fatal(e);
         }
 
-
-        view.setCenter(new ScrollPane(ap));
 
     }
 

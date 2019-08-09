@@ -25,6 +25,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -421,9 +422,15 @@ public class ObjectPlugin implements Plugin {
                     TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
                     break;
                 case Constants.Plugin.Command.RELOAD:
+                    ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
                     ds.clearCache();
                     ds.preload();
                     initGUI();
+                    if (items.size() == 1) {
+                        JEVisObject findObj = items.get(0).getValue().getJEVisObject();
+                        List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(findObj);
+                        TreeHelper.openPath(tree, toOpen, tree.getRoot(), findObj);
+                    }
                     break;
                 case Constants.Plugin.Command.ADD_TABLE:
                     fireEventCreateTable(((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject());
