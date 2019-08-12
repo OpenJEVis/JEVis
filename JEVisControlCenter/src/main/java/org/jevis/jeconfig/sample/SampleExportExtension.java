@@ -35,6 +35,13 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFDataFormat;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.ExceptionDialog;
@@ -44,10 +51,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -88,7 +92,7 @@ public class SampleExportExtension implements SampleEditorExtension {
     Button export = new Button("Export");
     File destinationFile;
     List<JEVisSample> _samples = new ArrayList<>();
-    TableView tabel = new TableView();
+    TableView tablel = new TableView();
     TableColumn dateTimeColumn = new TableColumn("Datetime");
     TableColumn dateColum = new TableColumn("Date");
     TableColumn valueColum = new TableColumn("Value");
@@ -96,6 +100,7 @@ public class SampleExportExtension implements SampleEditorExtension {
     private JEVisAttribute _att;
     private boolean needSave = false;
     private boolean _isBuild = false;
+    private Boolean xlsx;
 
     public SampleExportExtension(JEVisAttribute att) {
         _att = att;
@@ -225,7 +230,7 @@ public class SampleExportExtension implements SampleEditorExtension {
         gp.add(fHeader, 1, y);
 
         gp.add(lFileOrder, 0, ++y);
-        gp.add(buildFildOrder(), 1, y);
+        gp.add(buildFieldOrder(), 1, y);
 
         gp.add(lPFilePath, 0, ++y);
         gp.add(fielBox, 1, y);
@@ -326,6 +331,10 @@ public class SampleExportExtension implements SampleEditorExtension {
             @Override
             public void handle(ActionEvent t) {
                 FileChooser fileChooser = new FileChooser();
+                FileChooser.ExtensionFilter csvFilter = new FileChooser.ExtensionFilter("CSV Files (*.csv)", "*.csv");
+                FileChooser.ExtensionFilter xlsxFilter = new FileChooser.ExtensionFilter("Excel Files (*.xlsx)", "*.xlsx");
+                fileChooser.getExtensionFilters().addAll(csvFilter, xlsxFilter);
+                fileChooser.setSelectedExtensionFilter(csvFilter);
                 fileChooser.setTitle("CSV File Destination");
                 DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
                 JEVisClass cleanDataClass = null;
@@ -343,6 +352,9 @@ public class SampleExportExtension implements SampleEditorExtension {
                     File file = fileChooser.showSaveDialog(JEConfig.getStage());
                     if (file != null) {
                         destinationFile = file;
+                        if (fileChooser.getSelectedExtensionFilter().equals(xlsxFilter)) {
+                            xlsx = true;
+                        }
                         fFile.setText(file.toString());
                         needSave = true;
                     }
@@ -423,15 +435,169 @@ public class SampleExportExtension implements SampleEditorExtension {
 
     public boolean doExport() throws FileNotFoundException, UnsupportedEncodingException {
 
-        String exportStrg = createCSVString(Integer.MAX_VALUE);
+        if (!xlsx) {
+            String exportStrg = createCSVString(Integer.MAX_VALUE);
+            if (!fFile.getText().isEmpty() && exportStrg.length() > 90) {
+                writeFile(fFile.getText(), exportStrg);
+                return true;
+            }
+        } else {
+            XSSFWorkbook workbook = new XSSFWorkbook(); //create workbook
 
-        if (!fFile.getText().isEmpty() && exportStrg.length() > 90) {
-            writeFile(fFile.getText(), exportStrg);
-            return true;
+            XSSFDataFormat dataFormatDates = workbook.createDataFormat();
+            dataFormatDates.putFormat((short) 165, "YYYY-MM-dd HH:MM:ss");
+            CellStyle cellStyleDateTime = workbook.createCellStyle();
+            cellStyleDateTime.setDataFormat((short) 165);
+
+            dataFormatDates.putFormat((short) 166, "YYYY-MM-dd");
+            CellStyle cellStyleDate = workbook.createCellStyle();
+            cellStyleDate.setDataFormat((short) 166);
+
+            dataFormatDates.putFormat((short) 167, "HH:MM:ss");
+            CellStyle cellStyleTime = workbook.createCellStyle();
+            cellStyleTime.setDataFormat((short) 167);
+
+            CellStyle cellStyleValues = workbook.createCellStyle();
+            cellStyleValues.setDataFormat((short) 4);
+
+            Sheet sheet = null;
+
+            JEVisClass cleanDataClass = null;
+            try {
+                cleanDataClass = _att.getObject().getDataSource().getJEVisClass("Clean Data");
+
+                if (_att.getObject().getJEVisClass().equals(cleanDataClass)) {
+                    sheet = workbook.createSheet(_att.getObject().getParents().get(0).getName() + "_"
+                            + _att.getObject().getName() + "_"
+                            + _att.getName());
+                } else {
+                    sheet = workbook.createSheet(_att.getObject().getName() + "_" + _att.getName());
+                }
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+
+            if (sheet != null) {
+                /**
+                 * create the table header
+                 */
+                Cell headerCell = getOrCreateCell(sheet, 0, 0);
+                headerCell.setCellValue(fHeader.getText());
+
+                DateTimeFormatter dtfDateTime = DateTimeFormat.forPattern("yyyy");
+                DateTimeFormatter dtfDate = DateTimeFormat.forPattern("yyyy");
+                DateTimeFormatter dtfTime = DateTimeFormat.forPattern("yyyy");
+
+                if (bDateTime.isSelected()) {
+                    dtfDateTime = DateTimeFormat.forPattern(fDateTimeFormat.getText());
+                } else {
+                    dtfDate = DateTimeFormat.forPattern(fDateFormat.getText());
+                    dtfTime = DateTimeFormat.forPattern(fTimeFormate.getText());
+                }
+                List<TableColumn> fieldOrder = new ArrayList<>();
+
+                for (Object column : tablel.getColumns()) {
+                    fieldOrder.add((TableColumn) column);
+                }
+                int primType = JEVisConstants.PrimitiveType.STRING;
+                int guiType = 0;
+                try {
+                    primType = _att.getType().getPrimitiveType();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                int count = 0;
+                for (TableColumn tableColumn : fieldOrder) {
+                    int i = fieldOrder.indexOf(tableColumn);
+                    if (tableColumn.equals(valueColum)) {
+                        ((XSSFSheet) sheet).getColumnHelper().setColDefaultStyle(i, cellStyleValues);
+                    } else if (tableColumn.equals(dateTimeColumn)) {
+                        ((XSSFSheet) sheet).getColumnHelper().setColDefaultStyle(i, cellStyleDateTime);
+                    } else if (tableColumn.equals(dateColum)) {
+                        ((XSSFSheet) sheet).getColumnHelper().setColDefaultStyle(i, cellStyleDate);
+                    } else if (tableColumn.equals(timeColum)) {
+                        ((XSSFSheet) sheet).getColumnHelper().setColDefaultStyle(i, cellStyleTime);
+                    }
+                }
+
+                for (JEVisSample sample : _samples) {
+                    count++;
+                    try {
+                        for (TableColumn column : fieldOrder) {
+                            if (column.equals(valueColum)) {
+                                switch (primType) {
+                                    case JEVisConstants.PrimitiveType.DOUBLE:
+                                        Cell doubleCell = getOrCreateCell(sheet, count, fieldOrder.indexOf(column));
+                                        doubleCell.setCellValue(sample.getValueAsDouble());
+                                        doubleCell.setCellStyle(cellStyleValues);
+                                        break;
+                                    case JEVisConstants.PrimitiveType.LONG:
+                                        Cell longCell = getOrCreateCell(sheet, count, fieldOrder.indexOf(column));
+                                        longCell.setCellValue(sample.getValueAsLong());
+                                        longCell.setCellStyle(workbook.getCellStyleAt(1));
+                                        break;
+                                    case JEVisConstants.PrimitiveType.STRING:
+                                        Cell stringCell = getOrCreateCell(sheet, count, fieldOrder.indexOf(column));
+                                        if (guiType == JEVisConstants.DisplayType.TEXT_PASSWORD) {
+                                            stringCell.setCellValue("**********");
+                                        }
+                                        stringCell.setCellValue(sample.getValueAsString());
+                                        break;
+                                    case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
+                                        Cell pbkdf2Cell = getOrCreateCell(sheet, count, fieldOrder.indexOf(column));
+                                        pbkdf2Cell.setCellValue("**********");
+                                        break;
+                                    default:
+                                        Cell defaultCell = getOrCreateCell(sheet, count, fieldOrder.indexOf(column));
+                                        defaultCell.setCellValue(sample.getValueAsString());
+                                }
+                            } else if (column.equals(dateTimeColumn)) {
+                                Cell dtfCell = getOrCreateCell(sheet, count, fieldOrder.indexOf(column));
+                                dtfCell.setCellValue(dtfDateTime.print(sample.getTimestamp()));
+                                dtfCell.setCellStyle(cellStyleDateTime);
+                            } else if (column.equals(dateColum)) {
+                                Cell dateCell = getOrCreateCell(sheet, count, fieldOrder.indexOf(column));
+                                dateCell.setCellValue(dtfDate.print(sample.getTimestamp()));
+                                dateCell.setCellStyle(cellStyleDate);
+                            } else if (column.equals(timeColum)) {
+                                Cell timeCell = getOrCreateCell(sheet, count, fieldOrder.indexOf(column));
+                                timeCell.setCellValue(dtfTime.print(sample.getTimestamp()));
+                                timeCell.setCellStyle(cellStyleTime);
+                            }
+                        }
+                    } catch (JEVisException ex) {
+                        logger.fatal(ex);
+                    }
+                }
+
+                File exportFile = new File(fFile.getText());
+                try {
+                    workbook.write(new FileOutputStream(exportFile));
+                    workbook.close();
+                    return true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+
 
         return false;
 
+    }
+
+    private org.apache.poi.ss.usermodel.Cell getOrCreateCell(Sheet sheet, int rowIdx, int colIdx) {
+        Row row = sheet.getRow(rowIdx);
+        if (row == null) {
+            row = sheet.createRow(rowIdx);
+        }
+
+        org.apache.poi.ss.usermodel.Cell cell = row.getCell(colIdx);
+        if (cell == null) {
+            cell = row.createCell(colIdx);
+        }
+
+        return cell;
     }
 
     private String createCSVString(int lineCount) {
@@ -454,7 +620,7 @@ public class SampleExportExtension implements SampleEditorExtension {
         String fSeperator = fLineSep.getText();
         List<TableColumn> fieldOrder = new ArrayList<>();
 
-        for (Object column : tabel.getColumns()) {
+        for (Object column : tablel.getColumns()) {
             fieldOrder.add((TableColumn) column);
         }
 
@@ -543,23 +709,23 @@ public class SampleExportExtension implements SampleEditorExtension {
             @Override
             public void run() {
                 if (bDateTime.isSelected()) {
-                    tabel.getColumns().removeAll(dateColum, timeColum, valueColum);
-                    tabel.getColumns().addAll(dateTimeColumn, valueColum);
+                    tablel.getColumns().removeAll(dateColum, timeColum, valueColum);
+                    tablel.getColumns().addAll(dateTimeColumn, valueColum);
                 } else {
-                    tabel.getColumns().removeAll(dateTimeColumn, valueColum);
-                    tabel.getColumns().addAll(dateColum, timeColum, valueColum);
+                    tablel.getColumns().removeAll(dateTimeColumn, valueColum);
+                    tablel.getColumns().addAll(dateColum, timeColum, valueColum);
                 }
             }
         });
 
     }
 
-    private Node buildFildOrder() {
+    private Node buildFieldOrder() {
         HBox root = new HBox();
 
 //        String help = "Use Drag&Drop to change the oder.";
-        tabel.setMaxHeight(18);
-        tabel.setPlaceholder(new Region());
+        tablel.setMaxHeight(18);
+        tablel.setPlaceholder(new Region());
 
         dateColum.setSortable(false);
         dateColum.setCellValueFactory(new PropertyValueFactory<CSVExportTableSampleTable.TableSample, String>("Date"));
@@ -573,11 +739,11 @@ public class SampleExportExtension implements SampleEditorExtension {
         dateTimeColumn.setSortable(false);
         dateTimeColumn.setCellValueFactory(new PropertyValueFactory<CSVExportTableSampleTable.TableSample, String>("Datetime"));
 
-        tabel.setMinWidth(555d);//TODo: replace Dirty workaround
-        tabel.setPrefHeight(200d);//TODo: replace Dirty workaround
-        tabel.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tablel.setMinWidth(555d);//TODo: replace Dirty workaround
+        tablel.setPrefHeight(200d);//TODo: replace Dirty workaround
+        tablel.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        tabel.getColumns().addListener(new ListChangeListener() {
+        tablel.getColumns().addListener(new ListChangeListener() {
 
             @Override
             public void onChanged(ListChangeListener.Change change) {
@@ -585,7 +751,7 @@ public class SampleExportExtension implements SampleEditorExtension {
             }
         });
 
-        root.getChildren().add(tabel);
+        root.getChildren().add(tablel);
 
         return root;
 
