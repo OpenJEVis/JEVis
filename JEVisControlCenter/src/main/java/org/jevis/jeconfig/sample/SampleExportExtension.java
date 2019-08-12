@@ -35,10 +35,7 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.ExceptionDialog;
 import org.jevis.jeconfig.sample.csvexporttable.CSVExportTableSampleTable;
@@ -331,13 +328,26 @@ public class SampleExportExtension implements SampleEditorExtension {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("CSV File Destination");
                 DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
+                JEVisClass cleanDataClass = null;
+                try {
+                    cleanDataClass = attribute.getObject().getDataSource().getJEVisClass("Clean data");
 
-                fileChooser.setInitialFileName(attribute.getObject().getName() + "_" + attribute.getName() + "_" + fmtDate.print(new DateTime()) + ".csv");
-                File file = fileChooser.showSaveDialog(JEConfig.getStage());
-                if (file != null) {
-                    destinationFile = file;
-                    fFile.setText(file.toString());
-                    needSave = true;
+                    if (attribute.getObject().getJEVisClass().equals(cleanDataClass)) {
+                        fileChooser.setInitialFileName(attribute.getObject().getParents().get(0).getName() + "_"
+                                + attribute.getObject().getName() + "_"
+                                + attribute.getName() + "_"
+                                + fmtDate.print(new DateTime()) + ".csv");
+                    } else {
+                        fileChooser.setInitialFileName(attribute.getObject().getName() + "_" + attribute.getName() + "_" + fmtDate.print(new DateTime()) + ".csv");
+                    }
+                    File file = fileChooser.showSaveDialog(JEConfig.getStage());
+                    if (file != null) {
+                        destinationFile = file;
+                        fFile.setText(file.toString());
+                        needSave = true;
+                    }
+                } catch (JEVisException e) {
+                    e.printStackTrace();
                 }
             }
         });
