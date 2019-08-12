@@ -176,14 +176,18 @@ public class LimitsStep implements ProcessStep {
 
                             if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
                                 if (currentLimitBreak == null) {
-                                    currentLimitBreak = new LimitBreak();
+                                    currentLimitBreak = new LimitBreak(min, max);
                                     if (lastInterval != null && !lastInterval.getTmpSamples().isEmpty() && Objects.nonNull(lastInterval.getTmpSamples().get(0)))
                                         currentLimitBreak.setFirstValue(lastInterval.getTmpSamples().get(0).getValueAsDouble());
                                     else currentLimitBreak.setFirstValue(firstValue);
                                     currentLimitBreak.addInterval(currentInterval);
                                     MinOrMax limit = null;
-                                    if (sampleValue < min) limit = MinOrMax.MIN;
-                                    if (sampleValue > max) limit = MinOrMax.MAX;
+                                    if (sampleValue < min) {
+                                        limit = MinOrMax.MIN;
+                                    }
+                                    if (sampleValue > max) {
+                                        limit = MinOrMax.MAX;
+                                    }
                                     currentLimitBreak.setMinOrMax(limit);
                                 } else {
                                     currentLimitBreak.addInterval(currentInterval);

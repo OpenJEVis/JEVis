@@ -221,6 +221,14 @@ public class GapsAndLimits {
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
                         Double value = getSpecificValue(currentInterval.getDate());
+
+                        if (currentLimitBreak.getMin() != null && value < currentLimitBreak.getMin()) {
+                            value = currentLimitBreak.getMin();
+                        }
+                        if (currentLimitBreak.getMax() != null && value > currentLimitBreak.getMax()) {
+                            value = currentLimitBreak.getMax();
+                        }
+
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                         String note = "";
                         note += getNote(currentInterval);
@@ -253,6 +261,14 @@ public class GapsAndLimits {
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
                         Double value = getSpecificValue(currentInterval.getDate());
+
+                        if (currentLimitBreak.getMin() != null && value < currentLimitBreak.getMin()) {
+                            value = currentLimitBreak.getMin();
+                        }
+                        if (currentLimitBreak.getMax() != null && value > currentLimitBreak.getMax()) {
+                            value = currentLimitBreak.getMax();
+                        }
+
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                         String note = "";
                         note += getNote(currentInterval);
@@ -285,6 +301,14 @@ public class GapsAndLimits {
                 for (LimitBreak currentLimitBreak : limitBreaksList) {
                     for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
                         Double value = getSpecificValue(currentInterval.getDate());
+
+                        if (currentLimitBreak.getMin() != null && value < currentLimitBreak.getMin()) {
+                            value = currentLimitBreak.getMin();
+                        }
+                        if (currentLimitBreak.getMax() != null && value > currentLimitBreak.getMax()) {
+                            value = currentLimitBreak.getMax();
+                        }
+
                         JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
                         String note = "";
                         note += getNote(currentInterval);
@@ -328,6 +352,13 @@ public class GapsAndLimits {
                         Double stepSize = (lastValue - firstValue) / size;
                         Double currentValue = firstValue;
                         for (CleanInterval currentInterval : currentLimitBreak.getIntervals()) {
+                            if (currentLimitBreak.getMin() != null && currentValue < currentLimitBreak.getMin()) {
+                                currentValue = currentLimitBreak.getMin();
+                            }
+                            if (currentLimitBreak.getMax() != null && currentValue > currentLimitBreak.getMax()) {
+                                currentValue = currentLimitBreak.getMax();
+                            }
+
                             JEVisSample sample = new VirtualSample(currentInterval.getDate(), currentValue);
                             String note = "";
                             note += getNote(currentInterval);
