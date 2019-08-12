@@ -19,6 +19,13 @@ public class LimitBreak {
     private Double lastValue;
     private Double firstValue;
     private MinOrMax minOrMax;
+    private Double min;
+    private Double max;
+
+    public LimitBreak(Double min, Double max) {
+        this.min = min;
+        this.max = max;
+    }
 
     public void addInterval(CleanInterval currentInterval) {
         intervals.add(currentInterval);
@@ -52,4 +59,19 @@ public class LimitBreak {
         this.minOrMax = choice;
     }
 
+    public Double getMin() {
+        return min;
+    }
+
+    public void setMin(Double min) {
+        this.min = min;
+    }
+
+    public Double getMax() {
+        return max;
+    }
+
+    public void setMax(Double max) {
+        this.max = max;
+    }
 }
