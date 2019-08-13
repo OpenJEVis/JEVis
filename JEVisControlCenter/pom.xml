@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.8.19</version>
+    <version>3.8.20</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -110,6 +110,11 @@
             <groupId>eu.hansolo</groupId>
             <artifactId>charts</artifactId>
             <version>1.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>64.2</version>
         </dependency>
         <!-- nice javafx stuff
         <dependency>

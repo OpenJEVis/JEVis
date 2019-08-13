@@ -197,12 +197,12 @@ public class XYChart implements Chart {
             }
         }
 
-        if (showSum && chartDataModels.size() > 1) {
+        if (showSum && chartDataModels.size() > 1 && sumModel != null) {
             try {
                 JsonObject json = new JsonObject();
                 json.setId(9999999999L);
-                json.setName("Summe");
-                JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) sumModel.getObject().getDataSource(), json);
+                json.setName(I18n.getInstance().getString("plugin.graph.table.sum"));
+                JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) chartDataModels.get(0).getObject().getDataSource(), json);
                 sumModel.setObject(test);
                 sumModel.setAxis(1);
                 sumModel.setColor(Color.BLACK);
@@ -227,23 +227,20 @@ public class XYChart implements Chart {
                     }
 
                 }
-                ArrayList arrayList = new ArrayList<>(sumSamples.values());
-                arrayList.sort(new Comparator<JEVisSample>() {
-                    @Override
-                    public int compare(JEVisSample o1, JEVisSample o2) {
-                        try {
-                            if (o1.getTimestamp().isBefore(o2.getTimestamp())) {
-                                return -1;
-                            } else if (o1.getTimestamp().equals(o2.getTimestamp())) {
-                                return 0;
-                            } else {
-                                return 1;
-                            }
-                        } catch (JEVisException e) {
-                            e.printStackTrace();
+                ArrayList<JEVisSample> arrayList = new ArrayList<>(sumSamples.values());
+                arrayList.sort((o1, o2) -> {
+                    try {
+                        if (o1.getTimestamp().isBefore(o2.getTimestamp())) {
+                            return -1;
+                        } else if (o1.getTimestamp().equals(o2.getTimestamp())) {
+                            return 0;
+                        } else {
+                            return 1;
                         }
-                        return -1;
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
                     }
+                    return -1;
                 });
 
                 sumModel.setSamples(arrayList);
