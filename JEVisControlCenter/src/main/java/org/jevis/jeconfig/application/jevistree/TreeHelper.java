@@ -60,6 +60,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.format.FormatStyle;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 /**
@@ -828,7 +831,7 @@ public class TreeHelper {
 
                     Task<Void> upload = new Task<Void>() {
                         @Override
-                        protected Void call() throws Exception {
+                        protected Void call() {
                             for (int i = 0; i < dia.getCreateCount(); i++) {
                                 try {
                                     String name = dia.getCreateName();
@@ -861,66 +864,78 @@ public class TreeHelper {
                                             cleanDataValueAttribute.setDisplaySampleRate(Period.minutes(15));
                                             cleanDataValueAttribute.commit();
                                         }
-
+                                        succeeded();
                                     } else if (createClass.equals(reportClass)) {
-                                        ReportWizardDialog rwd = new ReportWizardDialog(newObject);
+                                        Platform.runLater(() -> {
+                                            ReportWizardDialog rwd = new ReportWizardDialog(newObject);
 
-                                        rwd.showAndWait();
-                                        if (rwd.getSelections() != null) {
-                                            JEVisObject reportLinkDirectory = rwd.getReportLinkDirectory();
-                                            for (ReportLink rl : rwd.getReportLinkList()) {
-                                                Platform.runLater(() -> {
-                                                    try {
-                                                        String variableName = rl.getTemplateVariableName();
+                                            rwd.showAndWait();
+                                            if (rwd.getSelections() != null) {
+                                                ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-                                                        JEVisObject object = reportLinkDirectory.buildObject(variableName, reportLinkClass);
-                                                        object.commit();
+                                                JEVisObject reportLinkDirectory = rwd.getReportLinkDirectory();
+                                                ConcurrentHashMap<ReportLink, Boolean> completed = new ConcurrentHashMap<>();
+                                                rwd.getReportLinkList().parallelStream().forEach(rl -> {
+                                                    executorService.submit(() -> {
+                                                        try {
+                                                            String variableName = rl.getTemplateVariableName();
 
-                                                        JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
-                                                        JEVisSample sample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
-                                                        sample.commit();
+                                                            JEVisObject object = reportLinkDirectory.buildObject(variableName, reportLinkClass);
+                                                            object.commit();
 
-                                                        JEVisAttribute optionalAttribute = object.getAttribute("Optional");
-                                                        JEVisSample sampleOptional = optionalAttribute.buildSample(new DateTime(), rl.isOptional());
-                                                        sampleOptional.commit();
+                                                            JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
+                                                            JEVisSample sample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
+                                                            sample.commit();
 
-                                                        JEVisAttribute templateVariableName = object.getAttribute("Template Variable Name");
-                                                        JEVisSample sample1 = templateVariableName.buildSample(new DateTime(), variableName);
-                                                        sample1.commit();
+                                                            JEVisAttribute optionalAttribute = object.getAttribute("Optional");
+                                                            JEVisSample sampleOptional = optionalAttribute.buildSample(new DateTime(), rl.isOptional());
+                                                            sampleOptional.commit();
 
-                                                        JEVisObject reportAttribute = object.buildObject("Report Attribute", reportAttributeClass);
-                                                        reportAttribute.commit();
-                                                        JEVisAttribute attribute_name = reportAttribute.getAttribute("Attribute Name");
+                                                            JEVisAttribute templateVariableName = object.getAttribute("Template Variable Name");
+                                                            JEVisSample sample1 = templateVariableName.buildSample(new DateTime(), variableName);
+                                                            sample1.commit();
 
-                                                        JEVisSample sample4 = attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
-                                                        sample4.commit();
+                                                            JEVisObject reportAttribute = object.buildObject("Report Attribute", reportAttributeClass);
+                                                            reportAttribute.commit();
+                                                            JEVisAttribute attribute_name = reportAttribute.getAttribute("Attribute Name");
 
-                                                        JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", reportPeriodConfigurationClass);
-                                                        reportPeriodConfiguration.commit();
+                                                            JEVisSample sample4 = attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
+                                                            sample4.commit();
 
-                                                        JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute("Aggregation");
-                                                        JEVisSample sample2 = aggregationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
-                                                        sample2.commit();
+                                                            JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", reportPeriodConfigurationClass);
+                                                            reportPeriodConfiguration.commit();
 
-                                                        JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute("Period");
-                                                        JEVisSample sample3 = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
-                                                        sample3.commit();
-                                                    } catch (JEVisException e) {
-                                                        e.printStackTrace();
-                                                    }
+                                                            JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute("Aggregation");
+                                                            JEVisSample sample2 = aggregationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+                                                            sample2.commit();
+
+                                                            JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute("Period");
+                                                            JEVisSample sample3 = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
+                                                            sample3.commit();
+
+                                                            completed.put(rl, true);
+
+                                                            if (completed.size() == rwd.getReportLinkList().size()) {
+                                                                try {
+                                                                    JEVisFile template = rwd.createTemplate(newObject.getName());
+                                                                    JEVisAttribute templateAttribute = newObject.getAttribute("Template");
+                                                                    JEVisSample templateSample = templateAttribute.buildSample(new DateTime(), template);
+                                                                    templateSample.commit();
+
+                                                                    succeeded();
+                                                                } catch (IOException e) {
+                                                                    e.printStackTrace();
+                                                                } catch (JEVisException ex) {
+                                                                    logger.error(ex);
+                                                                }
+                                                            }
+                                                        } catch (JEVisException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    });
                                                 });
                                             }
-
-                                            try {
-                                                JEVisFile template = rwd.createTemplate(newObject.getName());
-                                                JEVisAttribute templateAttribute = newObject.getAttribute("Template");
-                                                JEVisSample sample = templateAttribute.buildSample(new DateTime(), template);
-                                                sample.commit();
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-
+                                        });
                                     }
 
                                 } catch (JEVisException ex) {
@@ -935,10 +950,10 @@ public class TreeHelper {
                                         errorDia.show("Error", ex.getLocalizedMessage(), ex.getLocalizedMessage(), ex, null);
 
                                     }
-
+                                    failed();
                                 }
                             }
-
+                            succeeded();
                             return null;
                         }
                     };
