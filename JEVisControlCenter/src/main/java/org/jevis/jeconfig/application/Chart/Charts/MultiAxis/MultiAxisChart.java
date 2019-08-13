@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.Charts.MultiAxis;
 
+import com.ibm.icu.text.DecimalFormat;
 import com.sun.javafx.collections.NonIterableChange;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -38,11 +39,9 @@ import org.apache.commons.math3.fitting.WeightedObservedPoint;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.*;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 
-import java.text.NumberFormat;
 import java.util.*;
 
 public abstract class MultiAxisChart<X, Y> extends Chart {
@@ -1488,20 +1487,18 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
         StringBuilder sb = new StringBuilder();
         sb.append("f(x) = ");
-        NumberFormat nf2 = NumberFormat.getInstance(JEConfig.getConfig().getLocale());
-        nf2.setMaximumFractionDigits(2);
-        nf2.setMinimumFractionDigits(2);
-        NumberFormat nf4 = NumberFormat.getInstance(JEConfig.getConfig().getLocale());
-        nf4.setMaximumFractionDigits(4);
-        nf4.setMinimumFractionDigits(4);
+        DecimalFormat formatter = new DecimalFormat();
+        formatter.setMaximumSignificantDigits(4);
+        formatter.setSignificantDigitsUsed(true);
+
         for (int p = coefficient.length - 1; p >= 0; p--) {
             if (p > 0) {
                 sb.append(" ");
             }
             if (p > 0) {
-                sb.append(nf2.format(coefficient[p]));
+                sb.append(formatter.format(coefficient[p]));
             } else {
-                sb.append(nf4.format(coefficient[p]));
+                sb.append(formatter.format(coefficient[p]));
             }
             if (p > 0) {
                 if (p > 1) {
