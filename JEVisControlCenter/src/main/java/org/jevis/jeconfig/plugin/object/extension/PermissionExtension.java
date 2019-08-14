@@ -204,8 +204,7 @@ public class PermissionExtension implements ObjectEditorExtension {
                                 I18n.getInstance().getString("plugin.object.permissions.share.message"));
 
                         if (re == ConfirmDialog.Response.YES) {
-                            addTooAllChildren(obj, rel.getOtherObject(obj));
-
+                            addToAllChildren(obj, rel.getOtherObject(obj));
                         }
 
                     } catch (JEVisException ex) {
@@ -273,6 +272,17 @@ public class PermissionExtension implements ObjectEditorExtension {
             try {
                 obj.setIsPublic(newValue);
                 obj.commit();
+
+                ConfirmDialog dia = new ConfirmDialog();
+                ConfirmDialog.Response re = dia.show(
+                        I18n.getInstance().getString("plugin.object.permissions.share.title"),
+                        I18n.getInstance().getString("plugin.object.permissions.share.title_long"),
+                        I18n.getInstance().getString("plugin.object.permissions.share.message"));
+
+                if (re == ConfirmDialog.Response.YES) {
+                    setPublicForAllChildren(obj, newValue);
+                }
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -290,20 +300,36 @@ public class PermissionExtension implements ObjectEditorExtension {
         _view.setCenter(scroll);
     }
 
+    private void setPublicForAllChildren(JEVisObject obj, Boolean newValue) {
+        try {
+            for (JEVisObject child : obj.getChildren()) {
+                try {
+                    child.setIsPublic(newValue);
+                    child.commit();
+                    setPublicForAllChildren(child, newValue);
+                } catch (JEVisException ex) {
+                    logger.warn("Error while creating user right", ex);
+                }
+            }
+        } catch (Exception ex) {
+            logger.fatal(ex);
+        }
+    }
+
     /**
-     * Alppys the same ower to all Children
+     * Applies the same owner to all Children
      *
      * @param obj
      * @param group
      */
-    private void addTooAllChildren(JEVisObject obj, JEVisObject group) {
+    private void addToAllChildren(JEVisObject obj, JEVisObject group) {
         try {
             for (JEVisObject children : obj.getChildren()) {
                 try {
                     JEVisRelationship newRel = children.buildRelationship(group, JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD);
-                    addTooAllChildren(children, group);
+                    addToAllChildren(children, group);
                 } catch (JEVisException ex) {
-                    logger.warn("Error while creating userright", ex);
+                    logger.warn("Error while creating user right", ex);
                 }
             }
         } catch (Exception ex) {
@@ -564,7 +590,7 @@ public class PermissionExtension implements ObjectEditorExtension {
 //                            logger.info("new Owner: " + newRel);
                         if (re == AddSharePermissionsDialog.Response.YES_ALL) {
 //                                logger.info("add also to all children");
-                            addTooAllChildren(obj, newRel.getOtherObject(obj));
+                            addToAllChildren(obj, newRel.getOtherObject(obj));
                         }
                     }
 
