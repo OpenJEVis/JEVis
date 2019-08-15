@@ -314,7 +314,7 @@ public class JEVisItemLoader {
                     }
                 }
             }
-            newChildrenList.sort(TreeItemComparator.getInstance());
+            newChildrenList.sort(JEVisTreeItem.jeVisTreeItemComparator);
             if (item.getChildren() == null) {
                 logger.error("Why is the list null");
 
@@ -363,11 +363,6 @@ public class JEVisItemLoader {
                             update(object);
                             itemObjectLinker.get(object).setExpanded(true);
 
-                            itemObjectLinker.forEach((jeVisObject, jeVisTreeItem) -> {
-                                if (!jeVisTreeItem.getChildren().isEmpty()) {
-                                    jeVisTreeItem.getChildren().sort(JEVisTreeItem.jeVisTreeItemComparator);
-                                }
-                            });
                             /** We do not want to select the new object for now, but maybe later in some cases **/
                             //jeVisTree.getSelectionModel().select(itemObjectLinker.get(newObject));
                         });
