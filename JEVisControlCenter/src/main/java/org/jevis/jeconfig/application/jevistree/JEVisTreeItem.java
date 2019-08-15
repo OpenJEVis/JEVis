@@ -94,7 +94,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
                         }
 
                         /** Sort by Classname **/
-                        int className = row1.getJEVisObject().getJEVisClassName().compareTo(row2.getJEVisObject().getJEVisClassName());
+                        int className = row1.getJEVisObject().getName().compareTo(row2.getJEVisObject().getName());
                         if (className == 0) {
                             /** if same class sort by name **/
                             return alphanumComparator.compare(row1.getJEVisObject().getName(), row2.getJEVisObject().getName());
