@@ -254,7 +254,7 @@ public class JEVisItemLoader {
 //        benchmark.printBenchmarkDetail("build children");
 
 
-        Comparator<TreeItem<JEVisTreeRow>> comparator = JEVisTreeItem.getComparator();
+        Comparator<TreeItem<JEVisTreeRow>> comparator = (o1, o2) -> JEVisTreeItem.getComparator().compare(o1.getValue(), o2.getValue());
         itemObjectLinker.forEach((object, jeVisTreeItem) -> {
             if (!jeVisTreeItem.getChildren().isEmpty()) {
                 jeVisTreeItem.getChildren().sort(comparator);
