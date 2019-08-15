@@ -13,6 +13,7 @@ import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -183,13 +184,14 @@ public class ChartDataModel {
             if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
 
             ChartUnits cu = new ChartUnits();
+            QuantityUnits qu = new QuantityUnits();
             scaleFactor = cu.scaleValue(inputUnit, outputUnit);
             timeFactor = 1.0;
 
             Double millisInput = null;
             Double millisOutput = null;
             try {
-                if (inputList.size() > 1 && aggregationPeriod != AggregationPeriod.NONE) {
+                if (scaleFactor != 1.0 && inputList.size() > 1 && aggregationPeriod != AggregationPeriod.NONE && !qu.isQuantityUnit(unit)) {
                     Period inputPeriod = attribute.getDisplaySampleRate();
                     if (inputPeriod.getYears() != 1 && inputPeriod.getMonths() != 3 && inputPeriod.getMonths() != 1) {
                         millisInput = (double) inputPeriod.toStandardDuration().getMillis();

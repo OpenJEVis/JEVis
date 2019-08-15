@@ -6,18 +6,19 @@
 package org.jevis.jeconfig.dialog;
 
 import javafx.concurrent.Task;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.jeconfig.JEConfig;
 
 /**
- *
  * @author fs
  */
 public class ProgressForm {
@@ -33,13 +34,16 @@ public class ProgressForm {
         dialogStage.initModality(Modality.APPLICATION_MODAL);
 
         // PROGRESS BAR
+        pb.setMinWidth(200);
         final Label label = new Label();
         label.setText(text);
 
         pb.setProgress(-1F);
 
         final HBox hb = new HBox();
+        hb.setPadding(new Insets(4));
         hb.setSpacing(10);
+        hb.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT, new Insets(2))));
         hb.setAlignment(Pos.CENTER);
         hb.getChildren().addAll(label, pb);
 
@@ -56,4 +60,7 @@ public class ProgressForm {
         return dialogStage;
     }
 
+    public void setProgress(double progress) {
+        pb.setProgress(progress);
+    }
 }

@@ -352,11 +352,11 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public boolean isAllowedUnder(JEVisObject otherObject) throws JEVisException {
         boolean classIsAllowedUnderClass = getJEVisClass().isAllowedUnder(otherObject.getJEVisClass());
-        boolean isDirectory = this.ds.getJEVisClass("Directory").getHeirs().contains(this);
+        boolean isDirectory = this.ds.getJEVisClass("Directory").getHeirs().contains(this.getJEVisClass());
         boolean isUnique = getJEVisClass().isUnique();
         boolean isAlreadyUnderParent = false;
-        if (getParents() != null) {
-            for (JEVisObject silvering : getParents().get(0).getChildren()) {
+        if (otherObject.getParents() != null) {
+            for (JEVisObject silvering : otherObject.getParents().get(0).getChildren()) {
                 try {
                     if (silvering.getJEVisClassName().equals(getJEVisClassName())) {
                         isAlreadyUnderParent = true;
@@ -373,7 +373,7 @@ public class JEVisObjectWS implements JEVisObject {
         if (classIsAllowedUnderClass) {
             if (!isUnique) {
                 /**
-                 * if its not unique its alweys allowed to be created
+                 * if its not unique its always allowed to be created
                  */
                 return true;
             } else /**
