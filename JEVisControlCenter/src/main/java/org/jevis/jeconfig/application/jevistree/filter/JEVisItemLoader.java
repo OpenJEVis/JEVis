@@ -253,11 +253,9 @@ public class JEVisItemLoader {
         });
 //        benchmark.printBenchmarkDetail("build children");
 
-
-        Comparator<TreeItem<JEVisTreeRow>> comparator = (o1, o2) -> JEVisTreeItem.getComparator().compare(o1.getValue(), o2.getValue());
         itemObjectLinker.forEach((object, jeVisTreeItem) -> {
             if (!jeVisTreeItem.getChildren().isEmpty()) {
-                jeVisTreeItem.getChildren().sort(comparator);
+                jeVisTreeItem.getChildren().sort(JEVisTreeItem.jeVisTreeItemComparator);
             }
         });
 
@@ -356,14 +354,20 @@ public class JEVisItemLoader {
 
 
                     if (newObject != null && itemObjectLinker.containsKey(newObject)) {
-                        logger.error("Remove item from jevis tree cache: {}", newObject);
-                        itemObjectLinker.remove(newObject);
-                        buildItems(newObject);
+//                        logger.error("Remove item from jevis tree cache: {}", newObject);
+//                        itemObjectLinker.remove(newObject);
+//                        buildItems(newObject);
 
 
                         Platform.runLater(() -> {
                             update(object);
                             itemObjectLinker.get(object).setExpanded(true);
+
+                            itemObjectLinker.forEach((jeVisObject, jeVisTreeItem) -> {
+                                if (!jeVisTreeItem.getChildren().isEmpty()) {
+                                    jeVisTreeItem.getChildren().sort(JEVisTreeItem.jeVisTreeItemComparator);
+                                }
+                            });
                             /** We do not want to select the new object for now, but maybe later in some cases **/
                             //jeVisTree.getSelectionModel().select(itemObjectLinker.get(newObject));
                         });

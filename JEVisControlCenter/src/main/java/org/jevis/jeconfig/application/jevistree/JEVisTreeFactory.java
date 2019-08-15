@@ -168,7 +168,6 @@ public class JEVisTreeFactory {
         tree.getSortOrder().addAll(nameCol);
         tree.setSortMode(TreeSortMode.ALL_DESCENDANTS);
 
-
         if (withMinMaxTSColumn) {
             tree.getColumns().addAll(minTS, maxTS);
         }

@@ -70,6 +70,7 @@ public class JEVisTreeItem extends TreeItem<JEVisTreeRow> {
         setValue(sobj);
     }
 
+    public static Comparator<TreeItem<JEVisTreeRow>> jeVisTreeItemComparator = (o1, o2) -> getComparator().compare(o1.getValue(), o2.getValue());
 
     public static Comparator<JEVisTreeRow> getComparator() {
 
