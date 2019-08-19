@@ -326,6 +326,30 @@ public class ToolBarView {
         }
     }
 
+    private JEVisObject getBuildingParent(JEVisObject object) throws JEVisException {
+        JEVisClass buildingClass = ds.getJEVisClass("Building");
+        for (JEVisObject parent : object.getParents()) {
+            if (parent.getJEVisClass().equals(buildingClass)) {
+                return parent;
+            } else {
+                return getBuildingParent(parent);
+            }
+        }
+        return null;
+    }
+
+    private JEVisObject getOrganisationParent(JEVisObject object) throws JEVisException {
+        JEVisClass organizationClass = ds.getJEVisClass("Organization");
+        for (JEVisObject parent : object.getParents()) {
+            if (parent.getJEVisClass().equals(organizationClass)) {
+                return parent;
+            } else {
+                return getOrganisationParent(parent);
+            }
+        }
+        return null;
+    }
+
     private void saveCurrentAnalysis() {
 
         Dialog<ButtonType> newAnalysis = new Dialog<>();
@@ -361,45 +385,25 @@ public class ToolBarView {
                                 try {
                                     String prefix = "";
 
-                                    JEVisObject firstParent = obj.getParents().get(0);
-
-                                    JEVisClass buildingClass = ds.getJEVisClass("Building");
-                                    JEVisClass organisationClass = ds.getJEVisClass("Organization");
-
-                                    if (firstParent.getJEVisClass().equals(buildingClass)) {
-
-                                        try {
-                                            List<JEVisObject> parents = firstParent.getParents();
-                                            if (!parents.isEmpty()) {
-                                                List<JEVisObject> parentsParents = parents.get(0).getParents();
-                                                if (!parentsParents.isEmpty()) {
-                                                    JEVisObject organisationParent = parentsParents.get(0);
-
-                                                    if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                                        prefix += organisationParent.getName() + " / " + firstParent.getName();
-                                                    } else {
-                                                        prefix += firstParent.getName();
-                                                    }
-                                                } else {
-                                                    prefix += firstParent.getName();
-                                                }
-                                            } else {
-                                                prefix += firstParent.getName();
-                                            }
-                                        } catch (JEVisException e) {
-                                            logger.error("Could not get Organization parent of " + firstParent.getName() + ":" + firstParent.getID());
-
-                                            prefix += firstParent.getName();
+                                    JEVisObject organisation = getOrganisationParent(obj);
+                                    if (organisation != null) {
+                                        JEVisObject motherOrganisation = getOrganisationParent(organisation);
+                                        if (motherOrganisation != null) {
+                                            prefix += motherOrganisation.getName();
+                                            prefix += " / ";
                                         }
-                                    } else if (firstParent.getJEVisClass().equals(organisationClass)) {
 
-                                        prefix += firstParent.getName();
-
+                                        prefix += organisation.getName();
+                                        prefix += " / ";
                                     }
 
+                                    JEVisObject building = getBuildingParent(obj);
+                                    if (building != null) {
+                                        prefix += building.getName();
+                                        prefix += " / ";
+                                    }
 
-                                    setText(prefix + " / " + obj.getName());
+                                    setText(prefix + obj.getName());
                                 } catch (Exception e) {
                                 }
                             }
