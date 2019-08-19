@@ -403,7 +403,11 @@ public class CleanDataObject {
 
     public List<JEVisSample> getRawSamplesDown() {
         if (rawSamplesDown == null) {
-            DateTime firstDate = getFirstDate().minus(getCleanDataPeriodAlignment()).minus(getCleanDataPeriodAlignment());
+            DateTime firstDate = getFirstDate()
+                    .minus(getCleanDataPeriodAlignment())
+                    .minus(getCleanDataPeriodAlignment())
+                    .minus(getCleanDataPeriodAlignment())
+                    .minus(getCleanDataPeriodAlignment());
             rawSamplesDown = sampleHandler.getSamplesInPeriod(
                     rawDataObject,
                     VALUE_ATTRIBUTE_NAME,
@@ -419,7 +423,11 @@ public class CleanDataObject {
 
     public List<JEVisSample> getRawSamplesUp() {
         if (rawSamplesUp == null) {
-            DateTime firstDate = getFirstDate().minus(getRawDataPeriodAlignment());
+            DateTime firstDate = getFirstDate()
+                    .minus(getRawDataPeriodAlignment())
+                    .minus(getRawDataPeriodAlignment())
+                    .minus(getRawDataPeriodAlignment())
+                    .minus(getRawDataPeriodAlignment());
             rawSamplesUp = sampleHandler.getSamplesInPeriod(
                     rawDataObject,
                     VALUE_ATTRIBUTE_NAME,

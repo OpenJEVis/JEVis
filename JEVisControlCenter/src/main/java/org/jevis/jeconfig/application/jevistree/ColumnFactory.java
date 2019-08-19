@@ -77,10 +77,10 @@ public class ColumnFactory {
                     TreeItem<JEVisTreeRow> item = p.getValue();
                     JEVisTreeRow selectionObject = item.getValue();
 
-                    return new ReadOnlyObjectWrapper<JEVisTreeRow>(selectionObject);
+                    return new ReadOnlyObjectWrapper<>(selectionObject);
 
                 } else {
-                    return new ReadOnlyObjectWrapper<JEVisTreeRow>();
+                    return new ReadOnlyObjectWrapper<>();
                 }
 
             } catch (Exception ex) {
@@ -253,17 +253,17 @@ public class ColumnFactory {
 
                     if (value != null && value.getLatestSample() != null) {
                         if (max) {
-                            return new ReadOnlyObjectWrapper<String>(dateTimeFormatter.print(value.getTimestampFromLastSample()));
+                            return new ReadOnlyObjectWrapper<>(dateTimeFormatter.print(value.getTimestampFromLastSample()));
                         } else {
-                            return new ReadOnlyObjectWrapper<String>(dateTimeFormatter.print(value.getTimestampFromFirstSample()));
+                            return new ReadOnlyObjectWrapper<>(dateTimeFormatter.print(value.getTimestampFromFirstSample()));
                         }
 
                     } else {
-                        return new ReadOnlyObjectWrapper<String>("");
+                        return new ReadOnlyObjectWrapper<>("");
                     }
 
                 } else {
-                    return new ReadOnlyObjectWrapper<String>("Null");
+                    return new ReadOnlyObjectWrapper<>("Null");
                 }
 
             } catch (Exception ex) {
@@ -337,22 +337,22 @@ public class ColumnFactory {
                     JEVisTreeRow selectionObject = item.getValue();
 
                     if (selectionObject.getType() == JEVisTreeRow.TYPE.OBJECT) {
-                        JEVisObject obj = selectionObject.getJEVisObject();
-                        return new ReadOnlyObjectWrapper<String>(p.getValue().getValue().getJEVisObject().getJEVisClass().getName());
+//                        JEVisObject obj = selectionObject.getJEVisObject();
+                        return new ReadOnlyObjectWrapper<>(p.getValue().getValue().getJEVisObject().getJEVisClass().getName());
                     } else if (selectionObject.getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
                         JEVisAttribute att = selectionObject.getJEVisAttribute();
-                        return new ReadOnlyObjectWrapper<String>(att.getType().getName());
+                        return new ReadOnlyObjectWrapper<>(att.getType().getName());
                     } else {
-                        return new ReadOnlyObjectWrapper<String>("");
+                        return new ReadOnlyObjectWrapper<>("");
                     }
 
                 } else {
-                    return new ReadOnlyObjectWrapper<String>("Null");
+                    return new ReadOnlyObjectWrapper<>("Null");
                 }
 
             } catch (Exception ex) {
                 logger.info("Error in Column Fatory: " + ex);
-                return new ReadOnlyObjectWrapper<String>("Error");
+                return new ReadOnlyObjectWrapper<>("Error");
             }
 
         });
@@ -371,15 +371,15 @@ public class ColumnFactory {
                         && p.getValue().getValue() != null
                         && p.getValue().getValue().getJEVisObject() != null) {
 
-                    return new ReadOnlyObjectWrapper<Long>(p.getValue().getValue().getJEVisObject().getID());
+                    return new ReadOnlyObjectWrapper<>(p.getValue().getValue().getJEVisObject().getID());
 
                 } else {
-                    return new ReadOnlyObjectWrapper<Long>(-2L);
+                    return new ReadOnlyObjectWrapper<>(-2L);
                 }
 
             } catch (Exception ex) {
-                logger.info("Error in Column Fatory: " + ex);
-                return new ReadOnlyObjectWrapper<Long>(-1L);
+                logger.info("Error in Column Factory: " + ex);
+                return new ReadOnlyObjectWrapper<>(-1L);
             }
 
         });
