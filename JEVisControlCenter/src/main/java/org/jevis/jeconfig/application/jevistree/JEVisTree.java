@@ -82,45 +82,41 @@ public class JEVisTree extends TreeTableView {
      */
     private void addCellFactory() {
 
-        setRowFactory(new javafx.util.Callback<TreeTableView, TreeTableRow>() {
+        setRowFactory(param -> {
+            final TreeTableRow row = new TreeTableRow();
 
 
-            @Override
-            public TreeTableRow call(TreeTableView param) {
-                final TreeTableRow row = new TreeTableRow();
-
-
-                row.setOnDragDetected(event -> {
-                    try {
-                        logger.debug("1. Drag go");
+            row.setOnDragDetected(event -> {
+                try {
+                    logger.debug("1. Drag go");
 //                        TreeItem selected = (TreeItem) getSelectionModel().getSelectedItem();
 //                        if (selected != null) {
 //                        JEVisTreeRow jevisRow = (JEVisTreeRow) row.getValue();
 
 //                        logger.debug("Drag Object: " + row.getValue().getClass());
 
-                        Dragboard db = row.startDragAndDrop(TransferMode.ANY);
+                    Dragboard db = row.startDragAndDrop(TransferMode.ANY);
 ////                        // create a miniature of the row you're dragging
 //                        db.setDragView(row.snapshot(null, null));
-                        ClipboardContent content = new ClipboardContent();
-                        content.putString("test");
-                        db.setContent(content);
+                    ClipboardContent content = new ClipboardContent();
+                    content.putString("test");
+                    db.setContent(content);
 //                        dragItem = jevisRow;
-                        event.consume();
-                        logger.debug("done");
+                    event.consume();
+                    logger.debug("done");
 //                        }
-                    } catch (Exception ex) {
-                        logger.error(ex);
-                    }
-                });
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            });
 
-                row.setOnDragOver(event -> {
-                    logger.debug("2. Drag over");
-                    try {
-                        if (event.getGestureSource() != row &&
-                                event.getDragboard().hasString()) {
-                            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-                        }
+            row.setOnDragOver(event -> {
+                logger.debug("2. Drag over");
+                try {
+                    if (event.getGestureSource() != row &&
+                            event.getDragboard().hasString()) {
+                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                    }
 
 
 //                        Dragboard db = event.getDragboard();
@@ -128,40 +124,37 @@ public class JEVisTree extends TreeTableView {
 //                    if (event.getDragboard().hasString()) {
 //                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
 //                    }
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                    event.consume();
-                });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                event.consume();
+            });
 
-                row.setOnDragEntered(event -> {
-                    logger.debug("3. Drag entert");
-                    event.consume();
-                });
+            row.setOnDragEntered(event -> {
+                logger.debug("3. Drag entert");
+                event.consume();
+            });
 
-                row.setOnDragDropped(event -> {
-                    logger.debug("4. Drag droped");
-                    try {
+            row.setOnDragDropped(event -> {
+                logger.debug("4. Drag droped");
+                try {
 //                        TreeItem selected = (TreeItem) getSelectionModel().getSelectedItem();
 //                        logger.debug("d-Target: " + row.getTreeItem());
 //                        logger.debug("d-select: " + selected);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                    event.setDropCompleted(true);
-                    event.consume();
-                });
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+                event.setDropCompleted(true);
+                event.consume();
+            });
 
-                row.setOnDragExited(value -> {
-                    logger.debug("5. Drag exit");
-                    // Reset the original color here
-                });
-
-
-                return row;
-            }
+            row.setOnDragExited(value -> {
+                logger.debug("5. Drag exit");
+                // Reset the original color here
+            });
 
 
+            return row;
         });
 
     }

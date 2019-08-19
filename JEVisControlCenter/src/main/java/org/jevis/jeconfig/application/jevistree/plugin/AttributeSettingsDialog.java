@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig.application.jevistree.plugin;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -150,37 +148,31 @@ public class AttributeSettingsDialog {
         //new Separator(Orientation.HORIZONTAL)
         root.getChildren().setAll(header, tabPane, new Separator(Orientation.HORIZONTAL), buttonPanel);
 
-        ok.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                response = Response.YES;
-                if (upInput.getSelectedUnit().isCompatible(upDisplay.getSelectedUnit())) {
-                    if (setDefault.isSelected()) {
-                        saveInDataSource();
-                    }
-                    stage.close();
-                } else {
-                    Alert alert = new Alert(AlertType.ERROR);
-                    alert.setTitle("Waring");
-                    alert.setHeaderText("Unit error");
-                    String s = "The display Unit '" + upDisplay.getSelectedUnit() + "' is not compatible with the input unit '" + upInput.getSelectedUnit() + "'.";
-                    alert.setContentText(s);
-                    alert.showAndWait();
+        ok.setOnAction(t -> {
+            response = Response.YES;
+            if (upInput.getSelectedUnit().isCompatible(upDisplay.getSelectedUnit())) {
+                if (setDefault.isSelected()) {
+                    saveInDataSource();
+                }
+                stage.close();
+            } else {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Waring");
+                alert.setHeaderText("Unit error");
+                String s = "The display Unit '" + upDisplay.getSelectedUnit() + "' is not compatible with the input unit '" + upInput.getSelectedUnit() + "'.";
+                alert.setContentText(s);
+                alert.showAndWait();
 
 //                    InfoDialog id = new InfoDialog();
 //                    id.show(JEConfig.getStage(), "Waring", "Unit error", "The display Unit '" + upDisplay.getSelectedUnit() + "' is not compatible with the input unit '" + upInput.getSelectedUnit() + "'.");
-                }
-
             }
+
         });
 
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                response = Response.CANCEL;
-                stage.close();
+        cancel.setOnAction(t -> {
+            response = Response.CANCEL;
+            stage.close();
 
-            }
         });
 
         stage.sizeToScene();

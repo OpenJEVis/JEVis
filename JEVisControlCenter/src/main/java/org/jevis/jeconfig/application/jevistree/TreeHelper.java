@@ -1199,4 +1199,114 @@ public class TreeHelper {
             logger.error("Could not set enabled for {}:{}", object.getName(), object.getID());
         }
     }
+
+    public static void EventDeleteBrokenTS(JEVisTree tree) {
+        logger.debug("EventDeleteBrokenTS");
+        try {
+            if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
+                String question = I18n.getInstance().getString("jevistree.dialog.delete.message");
+                ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
+                for (TreeItem<JEVisTreeRow> item : items) {
+                    if (items.indexOf(item) > 0 && items.indexOf(item) < items.size() - 1)
+                        question += item.getValue().getJEVisObject().getName();
+                }
+                question += "?";
+
+                if (tree.getJEVisDataSource().getCurrentUser().canWrite(items.get(0).getValue().getJEVisObject().getID())) {
+
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));
+                    alert.setHeaderText(null);
+                    alert.setContentText(question);
+
+                    alert.showAndWait().ifPresent(buttonType -> {
+                        if (buttonType.equals(ButtonType.OK)) {
+                            try {
+
+                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title") + "...");
+
+                                Task<Void> reload = new Task<Void>() {
+                                    @Override
+                                    protected Void call() {
+                                        for (TreeItem<JEVisTreeRow> item : items) {
+                                            deleteBrokenTSSamples(item.getValue().getJEVisObject());
+                                        }
+
+                                        return null;
+                                    }
+                                };
+                                reload.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+                                reload.setOnCancelled(event -> {
+                                    logger.debug("Delete all samples Cancelled");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                reload.setOnFailed(event -> {
+                                    logger.debug("Delete all samples failed");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                pForm.activateProgressBar(reload);
+                                pForm.getDialogStage().show();
+
+                                new Thread(reload).start();
+
+                            } catch (Exception ex) {
+                                logger.catching(ex);
+                                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
+                                        I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                            }
+                        } else {
+                            // ... user chose CANCEL or closed the dialog
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        alert1.showAndWait();
+                    });
+
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not get JEVis data source.", e);
+        }
+    }
+
+    private static void deleteBrokenTSSamples(JEVisObject object) {
+        try {
+            JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
+            if (value != null) {
+                if ((object.getJEVisClassName().equals("Clean Data"))
+                        || (object.getJEVisClassName().equals("Data"))) {
+                    List<JEVisSample> list = value.getSamples(new DateTime(2019, 8, 1, 0, 0, 0), DateTime.now());
+                    List<JEVisSample> toBeDeleted = new ArrayList<>();
+                    list.forEach(jeVisSample -> {
+                        try {
+                            if (jeVisSample.getTimestamp().getSecondOfMinute() != 0) {
+                                toBeDeleted.add(jeVisSample);
+                            }
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                    });
+
+                    toBeDeleted.forEach(jeVisSample -> {
+                        try {
+                            value.deleteSamplesBetween(jeVisSample.getTimestamp(), jeVisSample.getTimestamp());
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+            }
+            for (JEVisObject child : object.getChildren()) {
+                deleteBrokenTSSamples(child);
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
+        }
+    }
 }
