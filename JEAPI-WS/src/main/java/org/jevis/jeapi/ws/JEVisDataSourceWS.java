@@ -206,7 +206,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 /**
                  * Give objects which have no attributes an empty list
                  */
-                this.objectCache.keySet().parallelStream().forEach(aLong -> {
+                this.objectCache.keySet().forEach(aLong -> {
                     if (!this.attributeCache.containsKey(aLong)) {
                         this.attributeCache.put(aLong, new ArrayList<>());
                     }
@@ -223,9 +223,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             /**
              * Load from cache
              */
-            Collection<List<JEVisAttribute>> attributes = this.attributeCache.values();
             List<JEVisAttribute> result = new ArrayList<>();
-            attributes.forEach(result::addAll);
+            this.attributeCache.values().forEach(result::addAll);
 //                System.out.println("end get attributes");
             return result;
 

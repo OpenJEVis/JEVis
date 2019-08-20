@@ -37,6 +37,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.ToggleSwitch;
 import org.jevis.api.*;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.relationship.RelationsManagment;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
@@ -51,13 +52,13 @@ import org.jevis.jeconfig.tool.ImageConverter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class PermissionExtension implements ObjectEditorExtension {
     private static final Logger logger = LogManager.getLogger(PermissionExtension.class);
+    private ObjectRelations objectRelations;
 
     private static final String TITLE = I18n.getInstance().getString("plugin.object.permissions.title");
     private JEVisObject _obj;
@@ -67,6 +68,11 @@ public class PermissionExtension implements ObjectEditorExtension {
 
     public PermissionExtension(JEVisObject obj) {
         this._obj = obj;
+        try {
+            this.objectRelations = new ObjectRelations(obj.getDataSource());
+        } catch (JEVisException e) {
+            logger.error(e);
+        }
     }
 
     @Override
@@ -356,113 +362,13 @@ public class PermissionExtension implements ObjectEditorExtension {
         }
     }
 
-    /**
-     * Returns the Organization of an Group. TODO; this code is very static and
-     * could be more dynamic
-     *
-     * @param obj
-     * @return
-     * @throws JEVisException
-     */
-    private JEVisObject getOrganization(JEVisObject obj) throws JEVisException {
-        Objects.requireNonNull(obj, "getDisplayName: Missing Group Object");
-        if (obj.getJEVisClass().getName().equals(Constants.JEVisClass.GROUP)) {
-            for (JEVisObject p1 : obj.getParents()) {
-                if (p1.getJEVisClass().getName().equals(Constants.JEVisClass.GROUP_DIRECTORY)) {
-                    for (JEVisObject p2 : p1.getParents()) {
-                        if (p2.getJEVisClass().getName().equals(Constants.JEVisClass.ADMINISTRATION_DIRECTORY)) {
-                            for (JEVisObject p3 : p2.getParents()) {
-                                if (p3.getJEVisClass().getName().equals(Constants.JEVisClass.ORGANIZATION)
-                                        || p3.getJEVisClass().getName().equals(Constants.JEVisClass.SYSTEM)) {
-                                    return p3;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
-        return null;
-    }
-
-    private JEVisObject getBuilding(JEVisObject obj) throws JEVisException {
-        Objects.requireNonNull(obj, "getDisplayName: Missing Group Object");
-        if (obj.getJEVisClass().getName().equals(Constants.JEVisClass.GROUP)) {
-            for (JEVisObject p1 : obj.getParents()) {
-                if (p1.getJEVisClass().getName().equals(Constants.JEVisClass.GROUP_DIRECTORY)) {
-                    for (JEVisObject p2 : p1.getParents()) {
-                        if (p2.getJEVisClass().getName().equals(Constants.JEVisClass.ADMINISTRATION_DIRECTORY)) {
-                            for (JEVisObject p3 : p2.getParents()) {
-                                if (p3.getJEVisClass().getName().equals(Constants.JEVisClass.BUILDING)
-                                        || p3.getJEVisClass().getName().equals(Constants.JEVisClass.SYSTEM)
-                                        || p3.getJEVisClass().getName().equals(Constants.JEVisClass.MONITORED_OBJECT)) {
-                                    return p3;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
-        return null;
-    }
 
     private String getDisplayName(JEVisObject obj) {
         if (obj != null) {
-//            Objects.requireNonNull(obj, "getDisplayName: Missing Group Object");
-////        logger.info("get Diaplayname for: " + obj.getName());
-//            String dName = "";
-//
-//            try {
-//                JEVisObject org = getOrganization(obj);
-//                if (org != null) {
-////            logger.info("Using org: " + org.getName());
-//                    dName += "/ " + org.getName() + " / ";
-//
-//                    JEVisObject building = getBuilding(obj);
-//                    if (building != null) {
-//                        dName += " / " + building.getName() + " / ";
-//                    }
-//                } else {
-////            logger.info("is null");
-//                }
-//            } catch (JEVisException ex) {
-//                logger.fatal(ex);
-//            }
-//
-//            dName += obj.getName();
-
             String dName = "";
-            String prefix = "";
-            try {
 
-                JEVisObject thirdParent = obj.getParents().get(0).getParents().get(0).getParents().get(0);
-                JEVisClass buildingClass = obj.getDataSource().getJEVisClass("Building");
-                JEVisClass organisationClass = obj.getDataSource().getJEVisClass("Organization");
+            String prefix = objectRelations.getObjectPath(obj);
 
-                if (thirdParent.getJEVisClass().equals(buildingClass)) {
-
-                    try {
-                        JEVisObject organisationParent = thirdParent.getParents().get(0).getParents().get(0);
-                        if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                            prefix += organisationParent.getName() + " / " + thirdParent.getName() + " / ";
-                        }
-                    } catch (JEVisException e) {
-                        logger.error("Could not get Organization parent of " + thirdParent.getName() + ":" + thirdParent.getID());
-
-                        prefix += thirdParent.getName() + " / ";
-                    }
-                } else if (thirdParent.getJEVisClass().equals(organisationClass)) {
-
-                    prefix += thirdParent.getName() + " / ";
-
-                }
-
-            } catch (Exception e) {
-            }
             dName = prefix + obj.getName();
 
             return dName;
@@ -483,19 +389,7 @@ public class PermissionExtension implements ObjectEditorExtension {
         //ToDo
         final ComboBox<JEVisObject> groupsCBox = new ComboBox<>();
         groupsCBox.setMinWidth(300);
-//        groupsCBox.setButtonCell(new ListCell<JEVisObject>() {
-//
-//            @Override
-//            protected void updateItem(JEVisObject t, boolean bln) {
-//                super.updateItem(t, bln); //To change body of generated methods, choose Tools | Templates.
-//                if (!bln && t != null) {
-//                    setMinWidth(300);
-//                    setText(getDisplayName(t));
-////                    setText(t.getName());
-//                }
-//            }
-//
-//        });
+
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
@@ -506,37 +400,9 @@ public class PermissionExtension implements ObjectEditorExtension {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
+                            String prefix = objectRelations.getObjectPath(obj);
 
-                            String prefix = "";
-                            try {
-
-                                JEVisObject secondParent = obj.getParents().get(0).getParents().get(0).getParents().get(0);
-                                JEVisClass buildingClass = obj.getDataSource().getJEVisClass("Building");
-                                JEVisClass organisationClass = obj.getDataSource().getJEVisClass("Organization");
-
-                                if (secondParent.getJEVisClass().equals(buildingClass)) {
-
-                                    try {
-                                        JEVisObject organisationParent = secondParent.getParents().get(0).getParents().get(0);
-                                        if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                            prefix += organisationParent.getName() + " / " + secondParent.getName() + " / ";
-                                        }
-                                    } catch (JEVisException e) {
-                                        logger.error("Could not get Organization parent of " + secondParent.getName() + ":" + secondParent.getID());
-
-                                        prefix += secondParent.getName() + " / ";
-                                    }
-                                } else if (secondParent.getJEVisClass().equals(organisationClass)) {
-
-                                    prefix += secondParent.getName() + " / ";
-
-                                }
-
-                            } catch (Exception e) {
-                            }
                             setText(prefix + obj.getName());
-
                         }
                     }
                 };
@@ -547,17 +413,8 @@ public class PermissionExtension implements ObjectEditorExtension {
         groupsCBox.setButtonCell(cellFactory.call(null));
 
         try {
-//            List<JEVisObject> usersObjs = obj.getDataSource().getObjects(obj.getDataSource().getJEVisClass("User"), true);
             AlphanumComparator ac = new AlphanumComparator();
             allGroups.sort((o1, o2) -> ac.compare(getDisplayName(o1), getDisplayName(o2)));
-//            Collections.sort(allGroups, new Comparator<JEVisObject>() {
-//
-//                @Override
-//                public int compare(JEVisObject o1, JEVisObject o2) {
-//                    //                    return o1.getName().compareTo(o2.getName());
-//                    return getDisplayName(o1).compareTo(getDisplayName(o2));
-//                }
-//            });
 
             for (JEVisObject group : allGroups) {
                 if (!allreadyOwner.contains(group)) {

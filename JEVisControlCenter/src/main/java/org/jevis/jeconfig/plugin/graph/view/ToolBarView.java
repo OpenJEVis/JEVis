@@ -30,6 +30,7 @@ import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.json.JsonChartTimeFrame;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
@@ -64,6 +65,7 @@ public class ToolBarView {
     private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private final JEVisDataSource ds;
     private final GraphPluginView graphPluginView;
+    private final ObjectRelations objectRelations;
     private GraphDataModel model;
     private ComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean _initialized = false;
@@ -122,6 +124,7 @@ public class ToolBarView {
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.model = model;
         this.ds = ds;
+        this.objectRelations = new ObjectRelations(ds);
         this.graphPluginView = graphPluginView;
     }
 
@@ -171,35 +174,8 @@ public class ToolBarView {
                             setGraphic(null);
                             setText(null);
                         } else {
-                            String prefix = "";
-                            try {
+                            String prefix = objectRelations.getObjectPath(obj);
 
-                                JEVisObject secondParent = obj.getParents().get(0).getParents().get(0);
-                                JEVisClass buildingClass = ds.getJEVisClass("Building");
-                                JEVisClass organisationClass = ds.getJEVisClass("Organization");
-
-                                if (secondParent.getJEVisClass().equals(buildingClass)) {
-
-                                    try {
-                                        JEVisObject organisationParent = secondParent.getParents().get(0).getParents().get(0);
-
-                                        if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                            prefix += organisationParent.getName() + " / " + secondParent.getName() + " / ";
-                                        }
-                                    } catch (JEVisException e) {
-                                        logger.error("Could not get Organization parent of " + secondParent.getName() + ":" + secondParent.getID());
-
-                                        prefix += secondParent.getName() + " / ";
-                                    }
-                                } else if (secondParent.getJEVisClass().equals(organisationClass)) {
-
-                                    prefix += secondParent.getName() + " / ";
-
-                                }
-
-                            } catch (Exception e) {
-                            }
                             setText(prefix + obj.getName());
                         }
 
@@ -326,6 +302,7 @@ public class ToolBarView {
         }
     }
 
+
     private void saveCurrentAnalysis() {
 
         Dialog<ButtonType> newAnalysis = new Dialog<>();
@@ -358,50 +335,9 @@ public class ToolBarView {
                             if (!model.getMultipleDirectories())
                                 setText(obj.getName());
                             else {
-                                try {
-                                    String prefix = "";
+                                String prefix = objectRelations.getObjectPath(obj);
 
-                                    JEVisObject firstParent = obj.getParents().get(0);
-
-                                    JEVisClass buildingClass = ds.getJEVisClass("Building");
-                                    JEVisClass organisationClass = ds.getJEVisClass("Organization");
-
-                                    if (firstParent.getJEVisClass().equals(buildingClass)) {
-
-                                        try {
-                                            List<JEVisObject> parents = firstParent.getParents();
-                                            if (!parents.isEmpty()) {
-                                                List<JEVisObject> parentsParents = parents.get(0).getParents();
-                                                if (!parentsParents.isEmpty()) {
-                                                    JEVisObject organisationParent = parentsParents.get(0);
-
-                                                    if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                                        prefix += organisationParent.getName() + " / " + firstParent.getName();
-                                                    } else {
-                                                        prefix += firstParent.getName();
-                                                    }
-                                                } else {
-                                                    prefix += firstParent.getName();
-                                                }
-                                            } else {
-                                                prefix += firstParent.getName();
-                                            }
-                                        } catch (JEVisException e) {
-                                            logger.error("Could not get Organization parent of " + firstParent.getName() + ":" + firstParent.getID());
-
-                                            prefix += firstParent.getName();
-                                        }
-                                    } else if (firstParent.getJEVisClass().equals(organisationClass)) {
-
-                                        prefix += firstParent.getName();
-
-                                    }
-
-
-                                    setText(prefix + " / " + obj.getName());
-                                } catch (Exception e) {
-                                }
+                                setText(prefix + obj.getName());
                             }
                         }
 

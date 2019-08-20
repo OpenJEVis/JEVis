@@ -1282,6 +1282,7 @@ public class TreeHelper {
                 if ((object.getJEVisClassName().equals("Clean Data"))
                         || (object.getJEVisClassName().equals("Data"))) {
                     List<JEVisSample> list = value.getSamples(new DateTime(2019, 8, 1, 0, 0, 0), DateTime.now());
+                    logger.info("Found {} samples.", list.size());
                     List<JEVisSample> toBeDeleted = new ArrayList<>();
                     list.forEach(jeVisSample -> {
                         try {
@@ -1292,8 +1293,9 @@ public class TreeHelper {
                             e.printStackTrace();
                         }
                     });
+                    logger.info("{} samples have wrong timestamp.", toBeDeleted.size());
 
-                    toBeDeleted.forEach(jeVisSample -> {
+                    toBeDeleted.parallelStream().forEach(jeVisSample -> {
                         try {
                             value.deleteSamplesBetween(jeVisSample.getTimestamp(), jeVisSample.getTimestamp());
                         } catch (JEVisException e) {
