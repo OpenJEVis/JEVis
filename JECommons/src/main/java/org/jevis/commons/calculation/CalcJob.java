@@ -52,7 +52,7 @@ public class CalcJob {
             });
             Map<DateTime, List<Sample>> mergedSamples = sampleMerger.merge();
             logger.debug("{} mergable calculations found", mergedSamples.size());
-            ResultCalculator resultCalc = new ResultCalculator(mergedSamples, new CalcTemplate(expression));
+            ResultCalculator resultCalc = new ResultCalculator(mergedSamples, new CalcTemplate(calcObjID, expression));
             List<JEVisSample> calculateResult = resultCalc.calculateResult(DIV0Handling, staticValue, allZeroValue);
             logger.info("{} results calculated", calculateResult.size());
             saveToOutput(calculateResult);
@@ -72,7 +72,7 @@ public class CalcJob {
         });
         Map<DateTime, List<Sample>> mergedSamples = sampleMerger.merge();
         logger.debug("{} mergable calculations found", mergedSamples.size());
-        ResultCalculator resultCalc = new ResultCalculator(mergedSamples, new CalcTemplate(expression));
+        ResultCalculator resultCalc = new ResultCalculator(mergedSamples, new CalcTemplate(calcObjID, expression));
         List<JEVisSample> calculateResult = resultCalc.calculateResult(DIV0Handling, staticValue, allZeroValue);
         logger.info("{} results calculated", calculateResult.size());
         return calculateResult;
