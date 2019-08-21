@@ -8,7 +8,7 @@ public class ChartNameTextField extends TextField {
     public ChartNameTextField(ChartSettings chartSettings) {
         super();
 
-        this.setPrefWidth(120);
+        this.setPrefWidth(114);
         this.setText(chartSettings.getName());
 
         this.textProperty().addListener((observable, oldValue, newValue) -> {

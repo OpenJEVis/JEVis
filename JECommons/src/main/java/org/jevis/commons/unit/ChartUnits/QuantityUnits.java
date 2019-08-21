@@ -13,8 +13,14 @@ import java.util.List;
 
 public class QuantityUnits {
 
+    private final Unit _mg = SI.GRAM.divide(1000);
+    private final JEVisUnit mg = new JEVisUnitImp(_mg);
+    private final Unit _g = SI.GRAM;
+    private final JEVisUnit g = new JEVisUnitImp(_g);
     private final Unit _kg = SI.KILOGRAM;
     private final JEVisUnit kg = new JEVisUnitImp(_kg);
+    private final Unit _kkg = SI.KILOGRAM.times(1000);
+    private final JEVisUnit kkg = new JEVisUnitImp(_kkg);
     private final Unit _t = NonSI.METRIC_TON;
     private final JEVisUnit t = new JEVisUnitImp(_t);
     private final Unit _l = NonSI.LITER;
@@ -102,21 +108,24 @@ public class QuantityUnits {
         energyUnits = new ArrayList<>(Arrays.asList(W, kW, MW, GW));
 
         stringArrayList = new ArrayList<>(Arrays.asList(
-                kg.getLabel(), t.getLabel(),
+                mg.getLabel(), g.getLabel(),
+                kg.getLabel(), kkg.getLabel(), t.getLabel(),
                 l.getLabel(), m3.getLabel(),
                 Wh.getLabel(), kWh.getLabel(), MWh.getLabel(), GWh.getLabel(),
                 vah.getLabel(), varh.getLabel(), kvah.getLabel(), kvarh.getLabel()
         ));
 
         unitArrayList = new ArrayList<>(Arrays.asList(
-                _kg, _t,
+                _mg, _g,
+                _kg, _kkg, _t,
                 _l, _m3,
                 _Wh, _kWh, _MWh, _GWh,
                 _vah, _varh, _kvah, _kvarh
         ));
 
         jeVisUnitArrayList = new ArrayList<>(Arrays.asList(
-                kg, t,
+                mg, g,
+                kg, kkg, t,
                 l, m3,
                 Wh, kWh, MWh, GWh,
                 vah, varh, kvah, kvarh
@@ -160,6 +169,16 @@ public class QuantityUnits {
             return kvah;
         } else if (unit.equals(kvarh)) {
             return kvarh;
+        } else if (unit.equals(mg)) {
+            return mg;
+        } else if (unit.equals(g)) {
+            return g;
+        } else if (unit.equals(kg)) {
+            return kg;
+        } else if (unit.equals(kkg)) {
+            return kkg;
+        } else if (unit.equals(t)) {
+            return t;
         } else return null;
     }
 }
