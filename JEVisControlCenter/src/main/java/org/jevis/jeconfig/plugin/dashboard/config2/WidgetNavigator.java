@@ -17,12 +17,13 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.dashboard.widget.Widgets;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.Layouts;
 import org.jevis.jeconfig.tool.ScreenSize;
 
 
-public class Navigator {
+public class WidgetNavigator {
     private double iconSize = 20;
     final ImageView lockIcon = JEConfig.getImage("eye_visible.png", this.iconSize, this.iconSize);
     final ImageView unlockIcon = JEConfig.getImage("eye_hidden.png", this.iconSize, this.iconSize);
@@ -31,7 +32,7 @@ public class Navigator {
     private final DashboardControl control;
 
 
-    public Navigator(DashboardControl control) {
+    public WidgetNavigator(DashboardControl control) {
         this.control = control;
     }
 
@@ -136,8 +137,11 @@ public class Navigator {
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
 
+        NewWidgetSelector widgetSelector = new NewWidgetSelector(Widgets.getAvabableWidgets(control, new WidgetPojo()));
 
-        toolBar.getItems().addAll(unlockB, delete);
+        Separator sep1 = new Separator();
+        Separator sep2 = new Separator();
+        toolBar.getItems().addAll(unlockB, delete, sep1, widgetSelector, sep2);
 
         return toolBar;
     }
