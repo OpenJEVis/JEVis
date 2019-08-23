@@ -76,14 +76,16 @@ public class DashboardControl {
 
 
         this.highligtProperty.addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                this.widgetList.forEach(widget -> {
-                    widget.setGlow(false);
-//                    highlightWidgetInView(widget, false);
-                });
-            }
+            this.widgetList.forEach(widget -> {
+                if (newValue) {
+                    widget.setGlow(newValue);
+                } else {
+                    Platform.runLater(() -> {
+                        widget.setEffect(null);
+                    });
+                }
+            });
         });
-
 
     }
 
