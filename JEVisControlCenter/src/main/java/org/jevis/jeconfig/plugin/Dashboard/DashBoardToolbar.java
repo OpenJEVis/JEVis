@@ -30,7 +30,7 @@ public class DashBoardToolbar extends ToolBar {
     final ToggleButton unlockB = new ToggleButton("", this.lockIcon);
     final ImageView pauseIcon = JEConfig.getImage("pause_32.png", this.iconSize, this.iconSize);
     final ImageView playIcon = JEConfig.getImage("play_32.png", this.iconSize, this.iconSize);
-    ToggleButton runUpdateButton = new ToggleButton("", this.playIcon);
+    private ToggleButton runUpdateButton = new ToggleButton("", this.playIcon);
 
     public DashBoardToolbar(DashboardControl dashboardControl) {
         this.dashboardControl = dashboardControl;
@@ -68,8 +68,8 @@ public class DashBoardToolbar extends ToolBar {
 
 
         this.listAnalysesComboBox = new ComboBox<>(observableList);
-        this.listAnalysesComboBox.setPrefWidth(300);
-        this.listAnalysesComboBox.setMinWidth(300);
+        this.listAnalysesComboBox.setPrefWidth(350);
+        this.listAnalysesComboBox.setMinWidth(350);
         if (dashboardSettings.getDashboardObject() != null) {
             this.listAnalysesComboBox.getSelectionModel().select(dashboardSettings.getDashboardObject());
         }
@@ -199,7 +199,7 @@ public class DashBoardToolbar extends ToolBar {
 
         newButton.setDisable(true);
         delete.setDisable(true);
-        save.setDisable(true);
+//        save.setDisable(true);
         exportPDF.setVisible(false);
 
         getItems().clear();
