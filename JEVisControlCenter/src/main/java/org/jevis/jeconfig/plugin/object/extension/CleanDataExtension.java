@@ -367,12 +367,13 @@ public class CleanDataExtension implements ObjectEditorExtension {
         value.setDisable(true);
         if (valueLastSample != null) {
             value.setText(valueLastSample.getValueAsDouble().toString());
-            if (valueAttribute.getDisplayUnit() != null && !valueAttribute.getInputUnit().getLabel().isEmpty()) {
-                unitValue.setText(valueAttribute.getDisplayUnit().getLabel());
-            } else {
-                unitValue.setText(valueAttribute.getInputUnit().getLabel());
-            }
         }
+        if (valueAttribute.getDisplayUnit() != null && !valueAttribute.getInputUnit().getLabel().isEmpty()) {
+            unitValue.setText(valueAttribute.getDisplayUnit().getLabel());
+        } else {
+            unitValue.setText(valueAttribute.getInputUnit().getLabel());
+        }
+        unitValue.setDisable(true);
 
         /**
          *  Value Offset
@@ -723,7 +724,9 @@ public class CleanDataExtension implements ObjectEditorExtension {
                         newSample.commit();
                         savedAttributes.add(periodAlignmentAttribute);
                     } else if (attribute.equals(periodOffsetAttribute)) {
-                        JEVisSample newSample = periodOffsetAttribute.buildSample(DateTime.now(), Long.parseLong(periodOffset.getText()));
+                        LongValidator validator = LongValidator.getInstance();
+                        Long value = validator.validate(periodOffset.getText(), I18n.getInstance().getLocale());
+                        JEVisSample newSample = periodOffsetAttribute.buildSample(DateTime.now(), value);
                         newSample.commit();
                         savedAttributes.add(periodOffsetAttribute);
                     } else if (attribute.equals(valueIsAQuantityAttribute)) {
@@ -734,23 +737,29 @@ public class CleanDataExtension implements ObjectEditorExtension {
                         DateTime oldDateTime = valueMultiplierTimeStampEditor.getOriginalDateTime();
                         DateTime newDateTime = valueMultiplierTimeStampEditor.getDateTime();
                         List<JEVisSample> oldSamples = valueMultiplierAttribute.getSamples(oldDateTime, oldDateTime);
+                        DoubleValidator validator = DoubleValidator.getInstance();
+                        Double value = validator.validate(valueMultiplier.getText(), I18n.getInstance().getLocale());
                         if (oldSamples.isEmpty()) {
-                            JEVisSample newSample = valueMultiplierAttribute.buildSample(newDateTime, valueMultiplier.getText());
+                            JEVisSample newSample = valueMultiplierAttribute.buildSample(newDateTime, value);
                             newSample.commit();
                         } else {
                             if (!changedValueMultiplier) {
                                 valueMultiplierAttribute.deleteSamplesBetween(oldDateTime, oldDateTime);
                             }
-                            JEVisSample newSample = valueMultiplierAttribute.buildSample(newDateTime, valueMultiplier.getText());
+                            JEVisSample newSample = valueMultiplierAttribute.buildSample(newDateTime, value);
                             newSample.commit();
                         }
                         savedAttributes.add(valueMultiplierAttribute);
                     } else if (attribute.equals(valueOffsetAttribute)) {
-                        JEVisSample newSample = valueOffsetAttribute.buildSample(DateTime.now(), Double.parseDouble(valueOffset.getText()));
+                        DoubleValidator validator = DoubleValidator.getInstance();
+                        Double value = validator.validate(valueOffset.getText(), I18n.getInstance().getLocale());
+                        JEVisSample newSample = valueOffsetAttribute.buildSample(DateTime.now(), value);
                         newSample.commit();
                         savedAttributes.add(valueOffsetAttribute);
                     } else if (attribute.equals(counterOverflowAttribute)) {
-                        JEVisSample newSample = counterOverflowAttribute.buildSample(DateTime.now(), Double.parseDouble(counterOverflow.getText()));
+                        DoubleValidator validator = DoubleValidator.getInstance();
+                        Double value = validator.validate(counterOverflow.getText(), I18n.getInstance().getLocale());
+                        JEVisSample newSample = counterOverflowAttribute.buildSample(DateTime.now(), value);
                         newSample.commit();
                         savedAttributes.add(counterOverflowAttribute);
                     }
@@ -770,7 +779,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
             }
             return true;
         } catch (Exception ex) {
-            logger.fatal(ex);
+            logger.fatal("Could not save attributes", ex);
         }
         return false;
     }

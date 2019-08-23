@@ -72,5 +72,9 @@ public class BasicSettings {
     private static final String CYCLE_TIME = "Cycle Time";
     @Parameter(names = {"--cycle-time", "-ct"}, required = false, description = CYCLE_TIME)
     public Integer cycle_time;
+
+    private static final String EMERGENCY_CONFIG = "Emergency Config";
+    @Parameter(names = {"--emergency-config", "-ec"}, required = false, description = EMERGENCY_CONFIG)
+    public String emergency_Config;
 }
 

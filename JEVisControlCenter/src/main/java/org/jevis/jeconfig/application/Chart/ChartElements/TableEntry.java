@@ -14,32 +14,25 @@ import javafx.scene.paint.Color;
  */
 public class TableEntry {
 
-    private final SimpleStringProperty date;
-    private final SimpleStringProperty value;
-    private final SimpleStringProperty name;
-    private final SimpleObjectProperty<Color> color;
-    private final SimpleStringProperty min;
-    private final SimpleStringProperty max;
-    private final SimpleStringProperty avg;
-    private final SimpleStringProperty enpi;
-    private final SimpleStringProperty sum;
-    private final SimpleStringProperty note;
-    private final SimpleStringProperty period;
+    private final SimpleStringProperty date = new SimpleStringProperty("-");
+    private final SimpleStringProperty value = new SimpleStringProperty("-");
+    private final SimpleStringProperty name = new SimpleStringProperty("-");
+    //        this.color = new SimpleStringProperty("-");
+    private final SimpleObjectProperty<Color> color = new SimpleObjectProperty<>(Color.BLUE);
+    private final SimpleStringProperty min = new SimpleStringProperty();
+    private final SimpleStringProperty max = new SimpleStringProperty();
+    private final SimpleStringProperty avg = new SimpleStringProperty();
+    private final SimpleStringProperty enpi = new SimpleStringProperty();
+    private final SimpleStringProperty sum = new SimpleStringProperty();
+    private final SimpleStringProperty note = new SimpleStringProperty();
+    private final SimpleStringProperty period = new SimpleStringProperty();
+    private final SimpleStringProperty xValue = new SimpleStringProperty("-");
+    private final SimpleStringProperty yValue = new SimpleStringProperty("-");
+    private final SimpleStringProperty standardDeviation = new SimpleStringProperty("-");
+    private final SimpleStringProperty variance = new SimpleStringProperty("-");
 
     public TableEntry(String name) {
-        this.name = new SimpleStringProperty(name);
-        this.date = new SimpleStringProperty("-");
-        this.value = new SimpleStringProperty("-");
-//        this.color = new SimpleStringProperty("-");
-        this.color = new SimpleObjectProperty<>(Color.BLUE);
-
-        this.avg = new SimpleStringProperty();
-        this.enpi = new SimpleStringProperty();
-        this.min = new SimpleStringProperty();
-        this.max = new SimpleStringProperty();
-        this.sum = new SimpleStringProperty();
-        this.note = new SimpleStringProperty();
-        this.period = new SimpleStringProperty();
+        setName(name);
     }
 
     public String getPeriod() {
@@ -172,5 +165,53 @@ public class TableEntry {
 
     public SimpleStringProperty enpiProperty() {
         return enpi;
+    }
+
+    public String getxValue() {
+        return xValue.get();
+    }
+
+    public void setxValue(String xValue) {
+        this.xValue.set(xValue);
+    }
+
+    public SimpleStringProperty xValueProperty() {
+        return xValue;
+    }
+
+    public String getyValue() {
+        return yValue.get();
+    }
+
+    public void setyValue(String yValue) {
+        this.yValue.set(yValue);
+    }
+
+    public SimpleStringProperty yValueProperty() {
+        return yValue;
+    }
+
+    public String getStandardDeviation() {
+        return standardDeviation.get();
+    }
+
+    public void setStandardDeviation(String standardDeviation) {
+        this.standardDeviation.set(standardDeviation);
+    }
+
+    public SimpleStringProperty standardDeviationProperty() {
+        return standardDeviation;
+    }
+
+    public String getVariance() {
+        return variance.get();
+    }
+
+    public void setVariance(String variance) {
+        this.variance.set(variance);
+    }
+
+    public SimpleStringProperty varianceProperty() {
+        return variance;
     }
 }

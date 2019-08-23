@@ -2,6 +2,8 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
+import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
@@ -24,7 +26,6 @@ import java.time.format.FormatStyle;
 import java.util.List;
 
 import static org.jevis.jeconfig.application.Chart.TimeFrame.CUSTOM_START_END;
-import static org.jevis.jeconfig.application.Chart.TimeFrame.PREVIEW;
 
 public class PickerCombo {
 
@@ -49,12 +50,26 @@ public class PickerCombo {
 
         this.dateHelper = new DateHelper();
 
+        this.presetDateBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) this.presetDateBox.getSkin();
+                if (skin != null) {
+                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+                    if (popupContent != null) {
+                        popupContent.scrollTo(this.presetDateBox.getSelectionModel().getSelectedIndex());
+                    }
+                }
+            });
+        });
+
         final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
         final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
         final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
         final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
+        final String thisWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonthisweek");
         final String lastWeek = I18n.getInstance().getString("plugin.graph.changedate.buttonlastweek");
         final String last30Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast30days");
+        final String thisMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonthismonth");
         final String lastMonth = I18n.getInstance().getString("plugin.graph.changedate.buttonlastmonth");
         final String thisYear = I18n.getInstance().getString("plugin.graph.changedate.buttonthisyear");
         final String lastYear = I18n.getInstance().getString("plugin.graph.changedate.buttonlastyear");
@@ -73,7 +88,7 @@ public class PickerCombo {
                         setText(null);
                         setGraphic(null);
 
-                        if (timeFrame != null) {
+                        if (timeFrame != null && !empty) {
                             String text = "";
                             switch (timeFrame) {
                                 case CUSTOM:
@@ -88,11 +103,17 @@ public class PickerCombo {
                                 case LAST_7_DAYS:
                                     text = last7Days;
                                     break;
+                                case THIS_WEEK:
+                                    text = thisWeek;
+                                    break;
                                 case LAST_WEEK:
                                     text = lastWeek;
                                     break;
                                 case LAST_30_DAYS:
                                     text = last30Days;
+                                    break;
+                                case THIS_MONTH:
+                                    text = thisMonth;
                                     break;
                                 case LAST_MONTH:
                                     text = lastMonth;
@@ -105,16 +126,16 @@ public class PickerCombo {
                                     break;
                                 case CUSTOM_START_END:
                                     text = customStartEnd;
+                                    setTextFill(Color.LIGHTGRAY);
+                                    setDisable(true);
                                     break;
                                 case PREVIEW:
                                     text = preview;
+                                    setTextFill(Color.LIGHTGRAY);
+                                    setDisable(true);
                                     break;
                             }
                             setText(text);
-                            if (timeFrame == CUSTOM_START_END || timeFrame == PREVIEW) {
-                                setTextFill(Color.LIGHTGRAY);
-                                setDisable(true);
-                            }
                         }
                     }
                 };
@@ -274,18 +295,31 @@ public class PickerCombo {
         DateTime timeStampFromFirstSample = att.getTimestampFromFirstSample();
         DateTime timeStampFromLastSample = att.getTimestampFromLastSample();
 
-        LocalDate min_check = LocalDate.of(
-                timeStampFromFirstSample.getYear(),
-                timeStampFromFirstSample.getMonthOfYear(),
-                timeStampFromFirstSample.getDayOfMonth());
+        LocalDate min_check = null;
+        if (timeStampFromFirstSample != null) {
+            min_check = LocalDate.of(
+                    timeStampFromFirstSample.getYear(),
+                    timeStampFromFirstSample.getMonthOfYear(),
+                    timeStampFromFirstSample.getDayOfMonth());
+        }
 
-        LocalDate max_check = LocalDate.of(
-                timeStampFromLastSample.getYear(),
-                timeStampFromLastSample.getMonthOfYear(),
-                timeStampFromLastSample.getDayOfMonth());
+        LocalDate max_check = null;
+        if (timeStampFromLastSample != null) {
+            max_check = LocalDate.of(
+                    timeStampFromLastSample.getYear(),
+                    timeStampFromLastSample.getMonthOfYear(),
+                    timeStampFromLastSample.getDayOfMonth());
+        }
 
-        if (minDate == null || min_check.isBefore(minDate)) minDate = min_check;
-        if (maxDate == null || max_check.isAfter(maxDate)) maxDate = max_check;
+
+        if (min_check != null && (minDate == null || min_check.isBefore(minDate))) {
+            minDate = min_check;
+        }
+
+        if (max_check != null && (maxDate == null || max_check.isAfter(maxDate))) {
+            maxDate = max_check;
+        }
+
     }
 
     public void updateCellFactory() {
@@ -414,8 +448,6 @@ public class PickerCombo {
         switch (newValue) {
             //Custom
             case CUSTOM:
-
-
                 break;
             //today
             case TODAY:
@@ -433,6 +465,11 @@ public class PickerCombo {
                 dateHelper.setType(DateHelper.TransformType.LAST7DAYS);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
+            //this Week
+            case THIS_WEEK:
+                dateHelper.setType(DateHelper.TransformType.THISWEEK);
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
             //last Week
             case LAST_WEEK:
                 dateHelper.setType(DateHelper.TransformType.LASTWEEK);
@@ -441,6 +478,11 @@ public class PickerCombo {
             //last 30 days
             case LAST_30_DAYS:
                 dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
+            case THIS_MONTH:
+                //last Month
+                dateHelper.setType(DateHelper.TransformType.THISMONTH);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             case LAST_MONTH:
@@ -459,7 +501,6 @@ public class PickerCombo {
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;
             case CUSTOM_START_END:
-                break;
             default:
                 break;
         }

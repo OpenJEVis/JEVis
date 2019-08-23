@@ -9,6 +9,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.joda.time.DateTime;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,18 +34,22 @@ public class ResultCalculator {
             int numberOfInputs = value.size();
             Boolean[] arrayAllZero = new Boolean[numberOfInputs];
 
-            value.forEach(sample -> arrayAllZero[value.indexOf(sample)] = sample.getValue().equals(0d));
+            value.forEach(sample -> arrayAllZero[value.indexOf(sample)] = sample.getValue().equals(new BigDecimal(0)));
 
-            Boolean allZero = true;
+            boolean allZero = true;
             for (Boolean b : arrayAllZero) {
-                if (!b) allZero = b;
+                if (!b) {
+                    allZero = false;
+                    break;
+                }
             }
 
             if (!allZero || allZeroReplacementValue == null) {
                 value.forEach(sample -> template.put(sample.getVariable(), sample.getValue()));
 
-                Double evaluate = template.evaluate();
-                if (Double.isInfinite(evaluate) || Double.isNaN(evaluate)) {
+                BigDecimal evaluate = template.evaluate();
+//                if (Double.isInfinite(evaluate.doubleValue()) || Double.isNaN(evaluate.doubleValue())) {
+                if (evaluate == null) {
                     //TODO implement different handling switch...
 
                     VirtualSample smp = new VirtualSample(key, replacementValue);
@@ -59,7 +64,7 @@ public class ResultCalculator {
                     smp.setNote(note);
                     resultList.add(smp);
                 } else {
-                    VirtualSample newSample = new VirtualSample(key, evaluate);
+                    VirtualSample newSample = new VirtualSample(key, evaluate.doubleValue());
                     newSample.setNote("");
                     resultList.add(newSample);
                 }

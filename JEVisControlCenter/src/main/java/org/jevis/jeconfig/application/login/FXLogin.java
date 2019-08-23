@@ -23,12 +23,8 @@ package org.jevis.jeconfig.application.login;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -167,14 +163,11 @@ public class FXLogin extends AnchorPane {
      */
     private void doLogin() {
 
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                FXLogin.this.loginButton.setDisable(true);
-                FXLogin.this.authGrid.setDisable(true);
-                FXLogin.this.progress.setVisible(true);
-                FXLogin.this.progress.setVisible(true);
-            }
+        Platform.runLater(() -> {
+            this.loginButton.setDisable(true);
+            this.authGrid.setDisable(true);
+            this.progress.setVisible(true);
+            this.progress.setVisible(true);
         });
         //start animation, todo make an own thred..
         Runnable runnable = () -> {
@@ -195,33 +188,27 @@ public class FXLogin extends AnchorPane {
                         storePreference();
                     }
 
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            FXLogin.this.loginStatus.setValue(Boolean.TRUE);
-                            FXLogin.this.statusDialog.hide();
-                        }
+                    Platform.runLater(() -> {
+                        this.loginStatus.setValue(Boolean.TRUE);
+                        this.statusDialog.hide();
                     });
 
                 } else {
-                    throw new RuntimeException("Error while connection to the JEVis Server");
+                    throw new RuntimeException("Error while connecting to the JEVis Server");
                 }
             } catch (Exception ex) {
                 logger.trace("Login failed with error: {}", ex);
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        Alert alert = new Alert(Alert.AlertType.ERROR);
-                        alert.setTitle("Error");
-                        alert.setHeaderText("Error while connection to the JEVis Server");
-                        alert.setContentText(ex.getMessage());
-                        alert.showAndWait();
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Error while connecting to the JEVis Server");
+                    alert.setContentText(ex.getMessage());
+                    alert.showAndWait();
 
-                        FXLogin.this.loginButton.setDisable(false);
-                        FXLogin.this.authGrid.setDisable(false);
-                        FXLogin.this.progress.setVisible(false);
-                        FXLogin.this.progress.setVisible(false);
-                    }
+                    this.loginButton.setDisable(false);
+                    this.authGrid.setDisable(false);
+                    this.progress.setVisible(false);
+                    this.progress.setVisible(false);
                 });
 
             }
@@ -283,8 +270,7 @@ public class FXLogin extends AnchorPane {
      * @return
      */
     private List<JEVisOption> parseConfig(Application.Parameters parameter) {
-        List<JEVisOption> config = ParameterHelper.ParseJEVisConfiguration(parameter);
-        return config;
+        return ParameterHelper.ParseJEVisConfiguration(parameter);
     }
 
     /**
@@ -315,12 +301,14 @@ public class FXLogin extends AnchorPane {
         List<Locale> availableLang = new ArrayList<>();
         availableLang.add(UK);
         availableLang.add(GERMANY);
+        availableLang.add(Locale.forLanguageTag("ru"));
         availableLang.add(Locale.forLanguageTag("uk"));
+        availableLang.add(Locale.forLanguageTag("th"));
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override
             public ListCell<Locale> call(ListView<Locale> param) {
-                final ListCell<Locale> cell = new ListCell<Locale>() {
+                return new ListCell<Locale>() {
                     {
                         super.setPrefWidth(260);
                     }
@@ -350,7 +338,6 @@ public class FXLogin extends AnchorPane {
                         }
                     }
                 };
-                return cell;
             }
         };
 
@@ -360,28 +347,17 @@ public class FXLogin extends AnchorPane {
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
 
+        if (availableLang.contains(Locale.getDefault())) {
+            comboBox.getSelectionModel().select(Locale.getDefault());
+        }
 
         comboBox.setMinWidth(250);
         comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
 
-
-        comboBox.valueProperty().addListener(new ChangeListener<Locale>() {
-            @Override
-            public void changed(ObservableValue<? extends Locale> observable, Locale oldValue, Locale newValue) {
-                FXLogin.this.selectedLocale = newValue;
-                //TODO reload UI
-            }
+        comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            this.selectedLocale = newValue;
+            //TODO reload UI
         });
-
-        for (Locale l : comboBox.getItems()) {
-            if (l.equals(Locale.getDefault())) {
-                comboBox.getSelectionModel().select(l);
-                break;
-            } else if (l.getLanguage().equals(Locale.getDefault().getLanguage())) {
-                comboBox.getSelectionModel().select(l);
-            }
-        }
-
 
         return comboBox;
 
@@ -432,7 +408,9 @@ public class FXLogin extends AnchorPane {
         } else {
             logo = new ImageView(new Image(defaultLogo));
         }
-        logo.setPreserveRatio(true);
+        if (logo != null) {
+            logo.setPreserveRatio(true);
+        }
 
         logo.fitWidthProperty().bind(this.mainStage.widthProperty());
 
@@ -455,7 +433,7 @@ public class FXLogin extends AnchorPane {
         footer.setId("fx-login-footer");
         setDefaultStyle(footer, "-fx-background-color: " + Color.LIGHT_BLUE);
 
-        Node buildInfo = buldBuildInfos();
+        Node buildInfo = buildBuildInfo();
         buildInfo.setId("fx-login-footer-info");
         AnchorPane.setBottomAnchor(buildInfo, 5.0);
         AnchorPane.setRightAnchor(buildInfo, 5.0);
@@ -514,26 +492,18 @@ public class FXLogin extends AnchorPane {
         this.userPassword.setId("fxlogin-form-password");
         this.authGrid.setId("fxlogin-form");
 
-        this.closeButton.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-                FXLogin.this.loginStatus.setValue(Boolean.FALSE);
-                FXLogin.this.statusDialog.hide();
-                System.exit(0);//Not the fine ways but ok for now
-            }
+        this.closeButton.setOnAction(event -> {
+            this.loginStatus.setValue(Boolean.FALSE);
+            this.statusDialog.hide();
+            System.exit(0);//Not the fine ways but ok for now
         });
 
         this.userName.requestFocus();
 
-        this.loginButton.setOnAction(new EventHandler<ActionEvent>() {
+        this.loginButton.setOnAction(event -> {
+            this.loginButton.setDisable(true);
+            doLogin();
 
-            @Override
-            public void handle(ActionEvent event) {
-                FXLogin.this.loginButton.setDisable(true);
-                doLogin();
-
-            }
         });
 
         this.authGrid.setHgap(10);
@@ -724,27 +694,11 @@ public class FXLogin extends AnchorPane {
         HBox.setHgrow(configureServer, Priority.NEVER);
 //        HBox.setHgrow(serverSelection, Priority.ALWAYS);
 
-        ok.setOnAction(new EventHandler<ActionEvent>() {
+        ok.setOnAction(event -> serverConfigPop.hide(Duration.seconds(0.3)));
+        cancel.setOnAction(event -> serverConfigPop.hide(Duration.seconds(1)));
 
-            @Override
-            public void handle(ActionEvent event) {
-                serverConfigPop.hide(Duration.seconds(0.3));
-            }
-        });
-        cancel.setOnAction(new EventHandler<ActionEvent>() {
+        addNewButton.setOnAction(event -> {
 
-            @Override
-            public void handle(ActionEvent event) {
-                serverConfigPop.hide(Duration.seconds(1));
-            }
-        });
-
-        addNewButton.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-
-            }
         });
 
         return serverConfBox;
@@ -819,20 +773,20 @@ public class FXLogin extends AnchorPane {
      *
      * @return
      */
-    public Node buldBuildInfos() {
+    public Node buildBuildInfo() {
         VBox vbox = new VBox();
         setDefaultStyle(vbox, "-fx-background-color: transparent;");
         logger.info(this.app.toString());
-        Label coypLeft = new Label(this.app.getName() + " " + this.app.getVersion());//©Envidatec GmbH 2014-2016");
+        Label copyLeft = new Label(this.app.getName() + " " + this.app.getVersion());//©Envidatec GmbH 2014-2016");
         Label java = new Label("Java: " + System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
         Label javafxlabel = new Label("JavaFX: " + System.getProperties().get("javafx.runtime.version"));
 
 
-        coypLeft.setTextFill(javafx.scene.paint.Color.WHITE);
+        copyLeft.setTextFill(javafx.scene.paint.Color.WHITE);
         java.setTextFill(javafx.scene.paint.Color.WHITE);
         javafxlabel.setTextFill(javafx.scene.paint.Color.WHITE);
 
-        vbox.getChildren().setAll(coypLeft, java, javafxlabel);
+        vbox.getChildren().setAll(copyLeft, java, javafxlabel);
         return vbox;
     }
 
@@ -846,8 +800,8 @@ public class FXLogin extends AnchorPane {
     }
 
     /**
-     * Stroe the current setting like username and password in the java
-     * preferenc contex. Warning the password is in plantext i guess, maye be
+     * Store the current setting like username and password in the java
+     * preference context. Warning the password is in plaintext i guess, maye be
      * find a better solution but the JEVisDataSource needs an plaintext pw.
      */
     private void storePreference() {
@@ -866,7 +820,7 @@ public class FXLogin extends AnchorPane {
 
     /**
      * Temporary solution the get the clear text password. The JEConfig will use this
-     * to login into the ISO 50001 webservice. Will be relofed if an better plays way
+     * to login into the ISO 50001 webservice. Will be reloaded if an better way
      * is found. Maybe the JEVisDataSource will give acces to it.
      *
      * @return

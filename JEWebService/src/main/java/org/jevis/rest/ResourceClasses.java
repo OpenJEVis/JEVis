@@ -20,12 +20,11 @@
  */
 package org.jevis.rest;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.stream.JsonReader;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
+import org.jevis.commons.json.JsonTools;
 import org.jevis.commons.ws.json.JsonJEVisClass;
 import org.jevis.ws.sql.JEVisClassHelper;
 import org.jevis.ws.sql.SQLDataSource;
@@ -51,6 +50,7 @@ public class ResourceClasses {
 
     private static final Logger logger = LogManager.getLogger(ResourceClasses.class);
     private SQLDataSource ds = null;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * Returns an List of JEVisClasses as Json
@@ -174,11 +174,13 @@ public class ResourceClasses {
             ds = new SQLDataSource(httpHeaders, request, url);
 
             if (ds.getUserManager().isSysAdmin()) {
-                JsonJEVisClass json = (new Gson()).fromJson(input, JsonJEVisClass.class);//parse it again to be save and to make it pretty
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//                JsonJEVisClass json = (new Gson()).fromJson(input, JsonJEVisClass.class);//parse it again to be save and to make it pretty
+                JsonJEVisClass json = objectMapper.readValue(input, JsonJEVisClass.class);
+//                Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
                 PrintWriter writer = new PrintWriter(Config.getClassDir().getAbsoluteFile() + "/" + name + ".json", "UTF-8");
-                writer.println(gson.toJson(json));
+//                writer.println(gson.toJson(json));
+                JsonTools.prettyObjectMapper().writeValueAsString(json);
                 writer.close();
 
 
@@ -266,7 +268,7 @@ public class ResourceClasses {
     }
 
     public ConcurrentHashMap<String, JsonJEVisClass> loadJsonClasses() {
-        Gson gson = new GsonBuilder().create();
+//        Gson gson = new GsonBuilder().create();
         ConcurrentHashMap<String, JsonJEVisClass> classMap = new ConcurrentHashMap<>();
 
         File classDir = Config.getClassDir();
@@ -280,8 +282,9 @@ public class ResourceClasses {
             };
             Arrays.stream(Objects.requireNonNull(classDir.listFiles(jsonFilter))).parallel().forEach(jsonFile -> {
                 try {
-                    JsonReader reader = new JsonReader(new FileReader(jsonFile));
-                    JsonJEVisClass data = gson.fromJson(reader, JsonJEVisClass.class);
+//                    JsonReader reader = new JsonReader(new FileReader(jsonFile));
+//                    JsonJEVisClass data = gson.fromJson(reader, JsonJEVisClass.class);
+                    JsonJEVisClass data = objectMapper.readValue(jsonFile, JsonJEVisClass.class);
                     classMap.put(data.getName(), data);
 
                 } catch (Exception ex) {

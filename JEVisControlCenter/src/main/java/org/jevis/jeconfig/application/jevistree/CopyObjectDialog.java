@@ -82,11 +82,11 @@ public class CopyObjectDialog {
      */
     public Response show(Stage owner, final JEVisObject object, final JEVisObject newParent, DefaultAction defaultAction) {
 
-        boolean linkOK = false;
+//        boolean linkOK = false;
         try {
 
             if (!object.getDataSource().getCurrentUser().canCreate(object.getID())) {
-                showError("Permission denied", "You have no permission to create this object here");
+                showError(I18n.getInstance().getString("jevistree.dialog.copy.permission.denied"), I18n.getInstance().getString("jevistree.dialog.copy.permission.denied.message"));
                 return Response.CANCEL;
             }
 
@@ -95,12 +95,13 @@ public class CopyObjectDialog {
 //                linkOK = true;
 //            }
             /** links are now ok everywhere **/
-            linkOK = true;
+//            linkOK = true;
 
 
-            if (!linkOK && !object.isAllowedUnder(newParent)) {
-                showError("Rules Error", "Its not allowed to create an '" + object.getJEVisClass().getName() + "' under an '" + newParent.getJEVisClass().getName()
-                        + "' object");
+            if (!object.getJEVisClassName().equals("Link") && !object.isAllowedUnder(newParent)) {
+                showError(I18n.getInstance().getString("jevistree.dialog.copy.rules.error"),
+                        String.format(I18n.getInstance().getString("jevistree.dialog.copy.rules.error.message"), object.getJEVisClass().getName(),
+                                newParent.getJEVisClass().getName()));
                 return Response.CANCEL;
             }
             //Don't allow recursion if the process failed the recursion check
@@ -244,7 +245,7 @@ public class CopyObjectDialog {
         });
 
         try {
-            this.link.setDisable(!linkOK);
+//            this.link.setDisable(!linkOK);
 
             if (object.isAllowedUnder(newParent)) {
                 this.move.setDisable(false);
@@ -423,7 +424,7 @@ public class CopyObjectDialog {
 
     private void showError(String titleLong, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
+        alert.setTitle(I18n.getInstance().getString("jevistree.dialog.copy.recursion.alert.title"));
         alert.setHeaderText(titleLong);
         alert.setContentText(message);
         alert.setResizable(true);
@@ -442,7 +443,8 @@ public class CopyObjectDialog {
             //check if the obj its os own parent
             for (JEVisObject parent : target.getParents()) {
                 if (parent.equals(target)) {
-                    showError("Recursion Error", "Recursion error detected. ");
+                    showError(I18n.getInstance().getString("jevistree.dialog.copy.recursion.error"),
+                            I18n.getInstance().getString("jevistree.dialog.copy.recursion.error.message"));
                     return false;
                 }
                 if (!parentCheck(obj, parent)) {

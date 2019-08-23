@@ -288,7 +288,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
 
                                     setFieldsEditable(textFieldChartName, comboBoxChartType, checkBox.isSelected());
 
-                                    checkBox.setDisable(!data.isSelectable());
+//                                    checkBox.setDisable(!data.isSelectable());
 
                                     setText(null);
                                     setGraphic(stackPane);

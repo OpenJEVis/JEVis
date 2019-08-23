@@ -56,7 +56,6 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.prefs.Preferences;
@@ -80,7 +79,7 @@ public class JEConfig extends Application {
      * Dangerous workaround to get the password to the ISOBrowser Plugin.
      */
     public static String userpassword;
-    public static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", JEConfig.class.getPackage().getImplementationVersion());//can be ignored
+    static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", JEConfig.class.getPackage().getImplementationVersion());//can be ignored
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
@@ -220,7 +219,6 @@ public class JEConfig extends Application {
      */
     public static Image getImage(String icon) {
         try {
-            logger.debug("getIcon: " + "/icons/" + icon);
             return new Image(JEConfig.class.getResourceAsStream("/icons/" + icon));
 //            return new Image(JEConfig.class.getResourceAsStream("/org/jevis/jeconfig/image/" + icon));
         } catch (Exception ex) {
@@ -250,14 +248,11 @@ public class JEConfig extends Application {
      * @param working
      */
     public static void loadNotification(final boolean working) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                if (working) {
-                    getStage().getScene().setCursor(Cursor.WAIT);
-                } else {
-                    getStage().getScene().setCursor(Cursor.DEFAULT);
-                }
+        Platform.runLater(() -> {
+            if (working) {
+                getStage().getScene().setCursor(Cursor.WAIT);
+            } else {
+                getStage().getScene().setCursor(Cursor.DEFAULT);
             }
         });
 
@@ -270,8 +265,7 @@ public class JEConfig extends Application {
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
-        I18n.getInstance().loadBundel(Locale.getDefault());
-        PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
+//        PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
 
@@ -295,7 +289,7 @@ public class JEConfig extends Application {
                 java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
                 Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
                 awtAppClassNameField.setAccessible(true);
-                awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("appname"));
+                awtAppClassNameField.set(xToolkit, "JEVis Control Center");
 
             } catch (Exception e) {
                 // TODO
@@ -323,7 +317,7 @@ public class JEConfig extends Application {
                 _mainDS = login.getDataSource();
 
                 JEConfig.userpassword = login.getUserPassword();
-                I18n.getInstance().loadBundel(login.getSelectedLocale());
+                I18n.getInstance().loadBundle(login.getSelectedLocale());
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
 
@@ -344,7 +338,18 @@ public class JEConfig extends Application {
                 logger.error("start GUI");
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
-                PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
+                PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
+                Platform.runLater(() -> {
+                    primaryStage.setTitle(I18n.getInstance().getString("appname"));
+//                    try {
+//                        java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
+//                        Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
+//                        awtAppClassNameField.setAccessible(true);
+//                        awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("appname"));
+//                    } catch (NoSuchFieldException | IllegalAccessException e) {
+//                        e.printStackTrace();
+//                    }
+                });
 
                 ExecutorService exe = Executors.newSingleThreadExecutor();
                 exe.submit(() -> {
@@ -381,7 +386,7 @@ public class JEConfig extends Application {
                     }
                 });
 
-                GlobalToolBar toolbar = new GlobalToolBar(pluginManager);
+//                GlobalToolBar toolbar = new GlobalToolBar(pluginManager);
                 try {
                     pluginManager.addPluginsByUserSetting(_mainDS.getCurrentUser());
                 } catch (JEVisException jex) {
@@ -418,13 +423,13 @@ public class JEConfig extends Application {
                     }
                     logger.info("Time to start: " + ((new Date()).getTime() - start.getTime()));
                 });
-                Date startAllob = new Date();
-                try {
-                    _mainDS.getObjects();
-                    logger.error("Time to get all Objects: {}ms", ((new Date()).getTime() - startAllob.getTime()));
-                } catch (Exception ex) {
-                }
-                System.gc();
+//                Date startAllob = new Date();
+//                try {
+//                    _mainDS.getObjects();
+//                    logger.error("Time to get all Objects: {}ms", ((new Date()).getTime() - startAllob.getTime()));
+//                } catch (Exception ex) {
+//                }
+//                System.gc();
 
             } else {
                 System.exit(0);
@@ -439,8 +444,7 @@ public class JEConfig extends Application {
 
         scene.getStylesheets().add("/styles/Styles.css");
         primaryStage.getIcons().add(getImage("JEVisIconBlue.png"));
-
-        primaryStage.setTitle(I18n.getInstance().getString("appname"));
+        primaryStage.setTitle("JEVis Control Center");
 
         primaryStage.setMaximized(true);
         primaryStage.show();

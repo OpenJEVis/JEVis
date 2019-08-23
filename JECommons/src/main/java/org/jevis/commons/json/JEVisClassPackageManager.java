@@ -19,8 +19,7 @@
  */
 package org.jevis.commons.json;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -73,12 +72,12 @@ public class JEVisClassPackageManager {
                     try {
                         logger.info("File: " + entry.getName());
                         if (entry.getName().endsWith(".jcf")) {
-                            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//                            Gson gson = new GsonBuilder().setPrettyPrinting().create();
                             StringBuilder sb = new StringBuilder();
                             for (int c = zis.read(); c != -1; c = zis.read()) {
                                 sb.append((char) c);
                             }
-                            JsonJEVisClass newJClass = gson.fromJson(sb.toString(), JsonJEVisClass.class);
+                            JsonJEVisClass newJClass = JsonTools.objectMapper().readValue(sb.toString(), JsonJEVisClass.class);
                             classes.put(newJClass.getName(), newJClass);
                             logger.info("new Class: " + newJClass.getName());
                         } else if (entry.getName().endsWith(".icon")) {
@@ -191,26 +190,33 @@ public class JEVisClassPackageManager {
     public void setContent(List<JEVisClass> classes) {
         List<ZIPContent> content = new ArrayList<>();
         for (JEVisClass jc : classes) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//            Gson gson = new GsonBuilder().setPrettyPrinting().create();
             JsonJEVisClass jsclass = new JsonJEVisClass(jc);
-            String json = gson.toJson(jsclass);
+            String json = null;
             try {
+                json = JsonTools.prettyObjectMapper().writeValueAsString(jsclass);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            if (json != null) {
+                try {
 
-                BufferedImage bIcon = jc.getIcon();
+                    BufferedImage bIcon = jc.getIcon();
 
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(bIcon, "gif", baos);
-                baos.flush();
-                byte[] imageInByte = baos.toByteArray();
-                baos.close();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ImageIO.write(bIcon, "gif", baos);
+                    baos.flush();
+                    byte[] imageInByte = baos.toByteArray();
+                    baos.close();
 
-                content.add(new ZIPContent(json.getBytes(), jc.getName(), ZIPContent.TYPE.CLASS));
-                content.add(new ZIPContent(imageInByte, jc.getName(), ZIPContent.TYPE.ICON));
+                    content.add(new ZIPContent(json.getBytes(), jc.getName(), ZIPContent.TYPE.CLASS));
+                    content.add(new ZIPContent(imageInByte, jc.getName(), ZIPContent.TYPE.ICON));
 
-            } catch (JEVisException ex) {
-                logger.fatal(ex);
-            } catch (IOException ex) {
-                logger.fatal(ex);
+                } catch (JEVisException ex) {
+                    logger.fatal(ex);
+                } catch (IOException ex) {
+                    logger.fatal(ex);
+                }
             }
         }
 

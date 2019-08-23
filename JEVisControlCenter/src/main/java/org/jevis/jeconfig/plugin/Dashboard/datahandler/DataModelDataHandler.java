@@ -251,17 +251,17 @@ public class DataModelDataHandler {
                 /** less then an month take hour **/
                 else if (interval.toDuration().getStandardDays() < 32) {
                     aggregationPeriod = AggregationPeriod.HOURLY;
-                    manipulationMode = ManipulationMode.TOTAL;
+                    manipulationMode = ManipulationMode.NONE;
                 }
                 /** less than year take day **/
                 else if (interval.toDuration().getStandardDays() < 364) {
                     aggregationPeriod = AggregationPeriod.DAILY;
-                    manipulationMode = ManipulationMode.TOTAL;
+                    manipulationMode = ManipulationMode.NONE;
                 }
                 /** more than an year take week **/
                 else {
                     aggregationPeriod = AggregationPeriod.WEEKLY;
-                    manipulationMode = ManipulationMode.TOTAL;
+                    manipulationMode = ManipulationMode.NONE;
                 }
                 chartDataModel.setAggregationPeriod(aggregationPeriod);
                 chartDataModel.setManipulationMode(manipulationMode);

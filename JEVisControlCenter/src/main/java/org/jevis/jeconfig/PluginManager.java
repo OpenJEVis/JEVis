@@ -20,7 +20,6 @@
 package org.jevis.jeconfig;
 
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -42,7 +41,6 @@ import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -60,7 +58,7 @@ public class PluginManager {
     private Number _tabPos = 0;
     private Number _tabPosOld = 0;
     private AnchorPane toolbar = new AnchorPane();
-    private ObjectProperty<Plugin> selectedPluginProperty = new SimpleObjectProperty();
+    private SimpleObjectProperty selectedPluginProperty = new SimpleObjectProperty();
     private TopMenu menu;
     private TabPane tabPane = new TabPane();
 
@@ -200,20 +198,17 @@ public class PluginManager {
 
 
             try {
-                Comparator<Plugin> pluginComparator = new Comparator<Plugin>() {
-                    @Override
-                    public int compare(Plugin o1, Plugin o2) {
+                Comparator<Plugin> pluginComparator = (o1, o2) -> {
 
-                        if (o1.getPrefTapPos() < o2.getPrefTapPos()) {
-                            return -1;
-                        } else if (o1.getPrefTapPos() > o2.getPrefTapPos()) {
-                            return 1;
-                        } else {
-                            return 0;
-                        }
+                    if (o1.getPrefTapPos() < o2.getPrefTapPos()) {
+                        return -1;
+                    } else if (o1.getPrefTapPos() > o2.getPrefTapPos()) {
+                        return 1;
+                    } else {
+                        return 0;
                     }
                 };
-                Collections.sort(this._plugins, pluginComparator);
+                this._plugins.sort(pluginComparator);
 
 //                        Collections.swap(_plugins, 0, 1);
             } catch (Exception e) {
@@ -305,7 +300,7 @@ public class PluginManager {
     }
 
     Plugin getSelectedPlugin() {
-        return this.selectedPluginProperty.getValue();
+        return (Plugin) this.selectedPluginProperty.getValue();
 //        return _plugins.get(_tabPos.intValue());
     }
 

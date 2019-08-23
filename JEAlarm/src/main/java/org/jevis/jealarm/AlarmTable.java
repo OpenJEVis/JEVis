@@ -21,6 +21,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
     private final List<Alarm> alarms;
 
     public AlarmTable(JEVisDataSource ds, List<Alarm> alarms) {
+        super(ds);
         this.ds = ds;
         this.alarms = alarms;
 

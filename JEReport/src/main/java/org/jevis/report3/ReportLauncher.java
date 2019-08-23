@@ -187,7 +187,7 @@ public class ReportLauncher extends AbstractCliApp {
 
     private List<JEVisObject> getEnabledReports() {
         JEVisClass reportClass = null;
-        List<JEVisObject> reportObjects = null;
+        List<JEVisObject> reportObjects = new ArrayList<>();
         try {
             reportClass = ds.getJEVisClass(ReportAttributes.NAME);
             reportObjects = ds.getObjects(reportClass, true);

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp
+    spec="1.0+"
+    codebase="http://SERVERIP/jeviscc/3_8_19/"
+    href="jeviscc_3.8.19.jnlp?nocache=true">
+
+<information>
+    <title>JEVisControlCenter</title>
+    <vendor>Envidatec GmbH</vendor>
+    <homepage href="http://openjevis.org/JEVisControlCenter"/>
+
+        <!-- 
+        <icon href="icon.png" kind="default" />
+        <icon href="splash.png" kind="splash" />
+        -->
+
+</information>
+
+<security>
+     <all-permissions/>
+     <j2ee-application-client-permissions/>
+</security>
+
+<resources>
+    <j2se version="1.8+" href="http://java.sun.com/products/autodl/j2se"  java-vm-args="-XX:+UseG1GC"/>
+
+    <jar href="JEVisControlCenter-3.8.19-jar-with-dependencies.jar"/>
+
+</resources>
+
+ <jfx:javafx-desc main-class="org.jevis.jeconfig.JEConfig"  name="JEConfig">
+          <fx:param name="datasource.class" value="org.jevis.jeapi.ws.JEVisDataSourceWS"/>
+          <fx:param name="datasource.host" value="http://SERVERIP:8000"/>
+          <fx:param name="fxlogin.logo" value="http://SERVERIP/images/logo.jpg"/>
+          <fx:param name="fxlogin.css" value="http://SERVERIP/css/fxlogin.css"/>
+          <fx:param name="fxlogin.register" value="off"/>
+          <fx:param name="jeconfig.welcomeurl" value="http://www.openjevis.org"/>
+  </jfx:javafx-desc>
+
+</jnlp>
+

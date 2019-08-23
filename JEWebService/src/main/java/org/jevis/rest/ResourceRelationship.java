@@ -20,7 +20,8 @@
  */
 package org.jevis.rest;
 
-import com.google.gson.Gson;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -32,6 +33,7 @@ import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,6 +47,7 @@ public class ResourceRelationship {
     private static final Logger logger = LogManager.getLogger(ResourceRelationship.class);
     private SQLDataSource ds = null;
     private List<JsonRelationship> jsonRelationships;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @GET
     @Logged
@@ -71,6 +74,7 @@ public class ResourceRelationship {
 
     }
 
+
     @POST
     @Logged
     @Produces(MediaType.APPLICATION_JSON)
@@ -83,7 +87,8 @@ public class ResourceRelationship {
 
         try {
             ds = new SQLDataSource(httpHeaders, request, url);
-            JsonRelationship json = (new Gson()).fromJson(input, JsonRelationship.class);
+//            JsonRelationship json = (new Gson()).fromJson(input, JsonRelationship.class);
+            JsonRelationship json = objectMapper.readValue(input, JsonRelationship.class);
             JsonObject fromObj = ds.getObject(json.getFrom());
             JsonObject toObj = ds.getObject(json.getTo());
 
@@ -142,6 +147,41 @@ public class ResourceRelationship {
         } catch (Exception jex) {
             logger.catching(jex);
             return Response.serverError().build();
+        } finally {
+            Config.CloseDS(ds);
+        }
+
+    }
+
+    @GET
+    @Logged
+    @Path("{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSingleRel(
+            @Context HttpHeaders httpHeaders,
+            @Context Request request,
+            @Context UriInfo url,
+            @PathParam("id") long id) {
+
+        try {
+            ds = new SQLDataSource(httpHeaders, request, url);
+
+//            List<JsonRelationship> jsonRelationships = ds.getUserManager().filterRelationships(ds.getRelationshipTable().getAllForObject(id));
+            List<JsonRelationship> jsonRelationships = ds.getRelationshipTable().getAllForObject(id);
+            this.jsonRelationships = new ArrayList<>();
+            for (JsonRelationship rel : jsonRelationships) {
+                if (rel.getFrom() == id || rel.getTo() == id) {
+                    this.jsonRelationships.add(rel);
+                }
+            }
+
+            return Response.ok(this.jsonRelationships).build();
+
+        } catch (JEVisException jex) {
+            jex.printStackTrace();
+            return Response.serverError().build();
+        } catch (AuthenticationException ex) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
         } finally {
             Config.CloseDS(ds);
         }

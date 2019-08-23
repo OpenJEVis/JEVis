@@ -16,6 +16,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.io.*;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -166,15 +167,11 @@ public class FTPDataSource implements DataSource {
 
             }
         } catch (JEVisException ex) {
-            logger.error(ex);
+            logger.error("JEVis Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
+        } catch (SocketException ex) {
+            logger.error("Socket Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
         } catch (IOException ex) {
-            logger.error(ex);
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
-
-        if (answerList.isEmpty()) {
-            logger.error("Cant get any data from the device");
+            logger.error("IO Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
         }
 
         return answerList;

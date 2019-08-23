@@ -19,7 +19,7 @@
       "name": "User",
       "primitiveType": 0,
       "guiType": "String Enum",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Loytec XML-DL Server"
@@ -28,7 +28,7 @@
       "name": "Password",
       "primitiveType": 0,
       "guiType": "Password",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Loytec XML-DL Server"
@@ -37,7 +37,7 @@
       "name": "LogHandle Base Path",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Loytec XML-DL Server"
@@ -46,7 +46,7 @@
       "name": "SSL",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Loytec XML-DL Server"
@@ -55,7 +55,7 @@
       "name": "Connection Timeout",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": true,
       "jevisClass": "Loytec XML-DL Server"

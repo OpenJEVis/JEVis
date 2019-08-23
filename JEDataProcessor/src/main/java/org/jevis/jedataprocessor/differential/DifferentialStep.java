@@ -7,9 +7,10 @@ package org.jevis.jedataprocessor.differential;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.PeriodComparator;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
@@ -54,11 +55,13 @@ public class DifferentialStep implements ProcessStep {
 
                 List<JEVisSample> rawSamples = new ArrayList<>();
 
-                DateTime firstTS = cleanDataObject.getFirstDate();
+                DateTime firstTS = intervals.get(0).getDate();
                 boolean found = false;
 
                 if (downSampling) {
-                    rawSamples = cleanDataObject.getRawSamplesDown();
+                    DateTime startInt = intervals.get(0).getDate().minus(periodCleanData).minus(periodCleanData);
+                    DateTime endInt = intervals.get(1).getDate();
+                    rawSamples = cleanDataObject.getRawAttribute().getSamples(startInt, endInt);
                     JEVisSample lastSample = null;
                     for (JEVisSample smp : rawSamples) {
                         DateTime timestamp = smp.getTimestamp();
@@ -100,7 +103,34 @@ public class DifferentialStep implements ProcessStep {
                             lastDiffVal = sample.getValueAsDouble();
                         }
                     } else {
-                        throw new JEVisException("No raw samples!", 232134093);
+                        logger.warn("No raw samples! Assuming starting value .");
+                        lastDiffVal = 0d;
+                        if (intervals.size() > 1) {
+                            Double value1 = null;
+                            if (!intervals.get(0).getRawSamples().isEmpty()) {
+                                value1 = intervals.get(0).getRawSamples().get(0).getValueAsDouble();
+                            } else if (!intervals.get(0).getTmpSamples().isEmpty()) {
+                                value1 = intervals.get(0).getTmpSamples().get(0).getValueAsDouble();
+                            }
+
+                            Double value2 = null;
+                            if (intervals.get(0).getRawSamples().size() > 1) {
+                                if (!intervals.get(0).getRawSamples().isEmpty()) {
+                                    value2 = intervals.get(0).getRawSamples().get(1).getValueAsDouble();
+                                } else if (!intervals.get(0).getTmpSamples().isEmpty()) {
+                                    value2 = intervals.get(0).getTmpSamples().get(1).getValueAsDouble();
+                                }
+                            } else {
+                                if (!intervals.get(1).getRawSamples().isEmpty()) {
+                                    value2 = intervals.get(1).getRawSamples().get(0).getValueAsDouble();
+                                } else if (!intervals.get(1).getTmpSamples().isEmpty()) {
+                                    value2 = intervals.get(1).getTmpSamples().get(0).getValueAsDouble();
+                                }
+                            }
+                            if (value1 != null && value2 != null) {
+                                lastDiffVal = value1 - (value2 - value1);
+                            }
+                        }
                     }
                 }
 
@@ -118,7 +148,6 @@ public class DifferentialStep implements ProcessStep {
 
                         DateTime nextTimeStampOfConversion = null;
                         Boolean conversionToDifferential = cd.getValueAsBoolean();
-//                    Boolean conversionToDifferential = (cd.getValueAsString().equals("1") || cd.getValueAsBoolean()) ? true : false;
                         if (listConversionToDifferential.size() > (i + 1)) {
                             nextTimeStampOfConversion = (listConversionToDifferential.get(i + 1)).getTimestamp();
                         }
@@ -127,8 +156,15 @@ public class DifferentialStep implements ProcessStep {
                             if (currentInt.getDate().equals(timeStampOfConversion)
                                     || currentInt.getDate().isAfter(timeStampOfConversion)
                                     && ((nextTimeStampOfConversion == null) || currentInt.getDate().isBefore(nextTimeStampOfConversion))) {
-                                if (!currentInt.getTmpSamples().isEmpty()) {
-                                    for (JEVisSample curSample : currentInt.getTmpSamples()) {
+                                if (!currentInt.getRawSamples().isEmpty()) {
+                                    List<JEVisSample> currentTmpSamples = new ArrayList<>(currentInt.getTmpSamples());
+                                    currentInt.getTmpSamples().clear();
+                                    for (JEVisSample curSample : currentInt.getRawSamples()) {
+                                        int index = currentInt.getRawSamples().indexOf(curSample);
+                                        DateTime tmpTimeStamp = curSample.getTimestamp();
+                                        if (currentTmpSamples.size() > index) {
+                                            tmpTimeStamp = currentTmpSamples.get(index).getTimestamp();
+                                        }
 
                                         Double rawValue = curSample.getValueAsDouble();
                                         double cleanedVal = rawValue - lastDiffVal;
@@ -140,36 +176,30 @@ public class DifferentialStep implements ProcessStep {
                                                 if (counterOverflow != null && curSample.getTimestamp().isAfter(counterOverflow.getTimestamp())
                                                         && counterOverflow.getValueAsDouble() != 0.0) {
                                                     cleanedVal = (counterOverflow.getValueAsDouble() - lastDiffVal) + rawValue;
+                                                    note += "," + NoteConstants.Differential.COUNTER_OVERFLOW;
                                                     break;
                                                 }
                                             }
                                         }
 
-                                        curSample.setValue(cleanedVal);
+                                        note += "," + NoteConstants.Differential.DIFFERENTIAL_ON;
 
-                                        note += ",diff";
-                                        curSample.setNote(note);
+                                        JEVisSample newTmpSample = new VirtualSample(tmpTimeStamp, cleanedVal);
+                                        newTmpSample.setNote(note);
                                         lastDiffVal = rawValue;
 
-                                        if (wasEmpty) {
-                                            emptyIntervals.add(currentInt);
-                                            wasEmpty = false;
-                                        }
-
-                                    }
-                                } else {
-                                    if (lastDiffVal != null) {
-                                        wasEmpty = true;
+                                        currentInt.addTmpSample(newTmpSample);
                                     }
                                 }
                             }
-                        }
-                    }
-                }
-                for (CleanInterval ci : intervals) {
-                    for (CleanInterval ce : emptyIntervals) {
-                        if (ci.getDate().equals(ce.getDate())) {
-                            ci.getTmpSamples().clear();
+                        } else {
+//                            if (currentInt.getDate().equals(timeStampOfConversion)
+//                                    || currentInt.getDate().isAfter(timeStampOfConversion)
+//                                    && ((nextTimeStampOfConversion == null) || currentInt.getDate().isBefore(nextTimeStampOfConversion))) {
+//                                if (!currentInt.getRawSamples().isEmpty() && compare != 0) {
+//                                    currentInt.getTmpSamples().addAll(currentInt.getRawSamples());
+//                                }
+//                            }
                         }
                     }
                 }

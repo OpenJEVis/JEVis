@@ -65,23 +65,25 @@ public class JEVisClassHelper {
                     && rel.getEnd().equals(superClass.getName())) {
 
                 JsonJEVisClass subClass = classMap.get(rel.getStart());
-                addHeirs(classMap, subClass);
+                if (subClass != null) {
+                    addHeirs(classMap, subClass);
 
-                if (superClass.getTypes() == null) {
-                    superClass.setTypes(new ArrayList<JsonType>());
-                }
-                for (JsonType type : superClass.getTypes()) {
-                    try {
-                        if (!subClass.getTypes().contains(type)) {
-                            JsonType clone = cloneType(type);
+                    if (superClass.getTypes() == null) {
+                        superClass.setTypes(new ArrayList<JsonType>());
+                    }
+                    for (JsonType type : superClass.getTypes()) {
+                        try {
+                            if (!subClass.getTypes().contains(type)) {
+                                JsonType clone = cloneType(type);
 //                            clone.setInherited(true);
-                            subClass.getTypes().add(clone);
-                        } else {
+                                subClass.getTypes().add(clone);
+                            } else {
 //                            logger.info("Waring, redudant type in "+subClass.getName()+ ": "+type.getName());
-                        }
-                    } catch (Exception ex) {
+                            }
+                        } catch (Exception ex) {
 //                        logger.warn(ex);
-                        ex.printStackTrace();
+                            ex.printStackTrace();
+                        }
                     }
                 }
             }
@@ -131,11 +133,11 @@ public class JEVisClassHelper {
                 JsonJEVisClass startClass = classMap.get(rel.getValue().getStart());
                 JsonJEVisClass endClass = classMap.get(rel.getValue().getEnd());
 
-                if (!startClass.getRelationships().contains(rel.getValue())) {
+                if (startClass != null && !startClass.getRelationships().contains(rel.getValue())) {
                     startClass.getRelationships().add(rel.getValue());
                 }
 
-                if (!endClass.getRelationships().contains(rel.getValue())) {
+                if (endClass != null && !endClass.getRelationships().contains(rel.getValue())) {
                     endClass.getRelationships().add(rel.getValue());
                 }
             } catch (Exception ex) {
@@ -148,7 +150,9 @@ public class JEVisClassHelper {
                 try {
                     if (rel.getType() == JEVisConstants.ClassRelationship.INHERIT) {
                         JsonJEVisClass superClass = classMap.get(rel.getEnd());
-                        addHeirs(classMap, superClass);
+                        if (superClass != null) {
+                            addHeirs(classMap, superClass);
+                        }
                     }
                 } catch (Exception ex) {
                     logger.error("Error while listing classes relationships[]", jc.getKey(), ex);

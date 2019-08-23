@@ -1,9 +1,10 @@
 package org.jevis.commons.dimpex;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.unit.JEVisUnitImp;
@@ -13,9 +14,9 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -58,15 +59,17 @@ public class DimpEX {
 
     public static List<DimpexObject> readFile(File file) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
+        ObjectMapper objectMapper = new ObjectMapper();
 
-        Gson gson = new Gson();
-        Type listType = new TypeToken<List<DimpexObject>>() {
-        }.getType();
+//        Gson gson = new Gson();
+//        Type listType = new TypeToken<List<DimpexObject>>() {
+//        }.getType();
         try {
-            List<DimpexObject> objetcs = gson.fromJson(bufferedReader, listType);
-            return objetcs;
-        } catch (JsonSyntaxException ie) {
-            DimpexObject object = gson.fromJson(bufferedReader, DimpexObject.class);
+//            List<DimpexObject> objetcs = gson.fromJson(bufferedReader, listType);
+
+            return Arrays.asList(objectMapper.readValue(bufferedReader, DimpexObject[].class));
+        } catch (JsonParseException | JsonMappingException ie) {
+            DimpexObject object = objectMapper.readValue(bufferedReader, DimpexObject.class);
             List<DimpexObject> objects = new ArrayList<>();
             objects.add(object);
             return objects;
@@ -142,12 +145,14 @@ public class DimpEX {
     }
 
     public static void writeFile(List<DimpexObject> objects, File output, boolean gzip) throws IOException {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         try (FileOutputStream fos = new FileOutputStream(output);
              OutputStreamWriter isr = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
 
 
-            gson.toJson(objects, isr);
+            objectMapper.writeValue(isr, objects);
 
             if (gzip) {
                 gzipIt(output.getName(), output.toString() + ".zip");

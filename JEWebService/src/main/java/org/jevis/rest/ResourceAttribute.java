@@ -20,7 +20,7 @@
  */
 package org.jevis.rest;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
@@ -32,6 +32,7 @@ import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -46,6 +47,7 @@ public class ResourceAttribute {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ResourceAttribute.class);
     private SQLDataSource ds = null;
     private List<JsonAttribute> attributes;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * Returns an list of all attributes under the given object
@@ -149,32 +151,35 @@ public class ResourceAttribute {
             @PathParam("id") long id,
             @PathParam("attribute") String attribute,
             String payload) {
+        if (payload != null && payload.length() > 0) {
+            try {
 
-        try {
+                ds = new SQLDataSource(httpHeaders, request, url);
 
-            ds = new SQLDataSource(httpHeaders, request, url);
+                JsonObject obj = ds.getObject(id);
+                if (obj == null) {
+                    logger.debug("Can not access Object: {}", id);
+                    return Response.status(Response.Status.NOT_FOUND).build();
+                }
 
-            JsonObject obj = ds.getObject(id);
-            if (obj == null) {
-                logger.debug("Can not access Object: {}", id);
+                if (ds.getUserManager().canWrite(obj)) {
+//                JsonAttribute json = (new Gson()).fromJson(payload, JsonAttribute.class);
+                    JsonAttribute json = objectMapper.readValue(payload, JsonAttribute.class);
+                    ds.setAttribute(id, json);
+                    return Response.ok(json).build();
+                }
                 return Response.status(Response.Status.NOT_FOUND).build();
-            }
 
-            if (ds.getUserManager().canWrite(obj)) {
-                JsonAttribute json = (new Gson()).fromJson(payload, JsonAttribute.class);
-                ds.setAttribute(id, json);
-                return Response.ok(json).build();
+            } catch (AuthenticationException ex) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+            } catch (JEVisException | IOException jex) {
+                return Response.serverError().entity(ExceptionUtils.getStackTrace(jex)).build();
+            } finally {
+                Config.CloseDS(ds);
             }
-            return Response.status(Response.Status.NOT_FOUND).build();
-
-        } catch (JEVisException jex) {
-            return Response.serverError().entity(ExceptionUtils.getStackTrace(jex)).build();
-        } catch (AuthenticationException ex) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
-        } finally {
-            Config.CloseDS(ds);
+        } else {
+            return Response.status(Response.Status.NO_CONTENT).build();
         }
-
     }
 
     @PostConstruct

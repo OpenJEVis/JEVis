@@ -21,23 +21,48 @@ package org.jevis.commons.driver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.joda.time.DateTime;
 
 import java.util.List;
 
 /**
- *
  * @author bf
  */
 public class JEVisImporterAdapter {
     private static final Logger logger = LogManager.getLogger(JEVisImporterAdapter.class);
+    private static String STATUS_LOG = "Status Log";
 
     public synchronized static void importResults(List<Result> results, Importer importer, JEVisObject channel) {
         DateTime date = importer.importResult(results);
         setLastReadout(channel, date);
+    }
+
+    public synchronized static void importResults(List<Result> results, List<JEVisSample> statusResults, Importer importer, JEVisObject channel) {
+        DateTime date = importer.importResult(results);
+        DateTime statusDate = null;
+        if (!statusResults.isEmpty()) {
+            try {
+                JEVisType statusLogType = channel.getJEVisClass().getType(STATUS_LOG);
+                JEVisAttribute statusLog = channel.getAttribute(statusLogType);
+                statusLog.addSamples(statusResults);
+                statusDate = statusResults.get(statusResults.size() - 1).getTimestamp();
+
+            } catch (JEVisException e) {
+                logger.error("Could not add Status Log Samples", e);
+            }
+        }
+        if (statusDate == null) {
+            setLastReadout(channel, date);
+        } else {
+            if (date == null) {
+                setLastReadout(channel, statusDate);
+            } else if (statusDate.isAfter(date)) {
+                setLastReadout(channel, statusDate);
+            } else {
+                setLastReadout(channel, date);
+            }
+        }
     }
 
     private static void setLastReadout(JEVisObject channel, DateTime lastDateTime) {

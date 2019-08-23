@@ -129,6 +129,14 @@ public class TimeStampEditor implements AttributeEditor {
                 logger.catching(ex);
             }
 
+        } else {
+            originalDateTime = new DateTime(2001, 1, 1, 0, 0, 0);
+            LocalDateTime lDate = LocalDateTime.of(
+                    originalDateTime.get(DateTimeFieldType.year()), originalDateTime.get(DateTimeFieldType.monthOfYear()), originalDateTime.get(DateTimeFieldType.dayOfMonth()),
+                    originalDateTime.get(DateTimeFieldType.hourOfDay()), originalDateTime.get(DateTimeFieldType.minuteOfHour()), originalDateTime.get(DateTimeFieldType.secondOfMinute()));
+            lDate.atZone(ZoneId.of(originalDateTime.getZone().getID()));
+            pickerDate.valueProperty().setValue(lDate.toLocalDate());
+            pickerTime.valueProperty().setValue(lDate.toLocalTime());
         }
 
         pickerDate.valueProperty().addListener((observable, oldValue, newValue) -> {

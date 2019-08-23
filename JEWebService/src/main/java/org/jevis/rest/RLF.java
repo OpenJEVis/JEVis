@@ -5,10 +5,12 @@
  */
 package org.jevis.rest;
 
-import com.google.gson.Gson;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.message.internal.ReaderWriter;
 import org.joda.time.DateTime;
 
@@ -20,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author fs
@@ -28,7 +31,8 @@ import java.io.InputStream;
 @Provider
 public class RLF implements ContainerRequestFilter, ContainerResponseFilter {
 
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(RLF.class);
+    private static final Logger logger = LogManager.getLogger(RLF.class);
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -57,7 +61,7 @@ public class RLF implements ContainerRequestFilter, ContainerResponseFilter {
                 }
                 if (responseContext.getMediaType() != null && responseContext.getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)) {
                     logger.trace("Payload: \n{}",
-                            (new Gson()).toJson(responseContext.getEntity())
+                            objectMapper.writeValueAsString(responseContext.getEntity())
                     );
 
                 }
@@ -109,7 +113,7 @@ public class RLF implements ContainerRequestFilter, ContainerResponseFilter {
             auth = auth.replaceFirst("[Bb]asic ", "");
             byte[] decoded = Base64.decodeBase64(auth);
 
-            String decodeS = (new String(decoded, "UTF-8"));
+            String decodeS = (new String(decoded, StandardCharsets.UTF_8));
             String[] dauth = decodeS.split(":");
 
             return dauth[0];

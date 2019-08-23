@@ -32,7 +32,7 @@
     {
       "name": "Path",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "SOAP Channel"
@@ -40,7 +40,7 @@
     {
       "name": "Template",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "SOAP Channel"

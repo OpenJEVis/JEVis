@@ -14,7 +14,7 @@
       "name": "Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Alarm Configuration"
@@ -23,7 +23,7 @@
       "name": "Alarm Scope",
       "primitiveType": 0,
       "guiType": "String Enum",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Alarm Configuration"
@@ -32,7 +32,7 @@
       "name": "Alarm Objects",
       "primitiveType": 0,
       "guiType": "Attribute Target",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Alarm Configuration"
@@ -41,7 +41,7 @@
       "name": "Time Stamp",
       "primitiveType": 0,
       "guiType": "Date Time",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Alarm Configuration"
@@ -50,7 +50,7 @@
       "name": "Alarm Period",
       "primitiveType": 0,
       "guiType": "String Enum",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Alarm Configuration"
@@ -59,7 +59,7 @@
       "name": "Custom Schedule Object",
       "primitiveType": 0,
       "guiType": "Object Target",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Alarm Configuration"
@@ -68,7 +68,7 @@
       "name": "Log",
       "primitiveType": 0,
       "guiType": "Web View",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Alarm Configuration"

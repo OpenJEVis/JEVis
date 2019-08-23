@@ -70,6 +70,10 @@ public class QuantityUnits {
     public boolean isQuantityUnit(JEVisUnit unit) {
         for (JEVisUnit jeVisUnit : jeVisUnitArrayList) {
             try {
+                if (jeVisUnit.equals(unit)) return true;
+            } catch (Exception e) {
+            }
+            try {
                 if (jeVisUnit.getLabel().equals(unit.getLabel())) return true;
             } catch (Exception e) {
             }

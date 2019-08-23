@@ -98,12 +98,10 @@ public class CalcInputObject {
         }
         switch (inputType) {
             case PERIODIC:
-                SampleGenerator sampleGenerator = null;
                 try {
-                    if (aggregationPeriod.equals(AggregationPeriod.NONE))
-                        sampleGenerator = new SampleGenerator(valueAttribute.getDataSource(), valueAttribute.getObject(), valueAttribute, startTime, endTime, ManipulationMode.NONE, aggregationPeriod);
-                    else
-                        sampleGenerator = new SampleGenerator(valueAttribute.getDataSource(), valueAttribute.getObject(), valueAttribute, startTime, endTime, ManipulationMode.TOTAL, aggregationPeriod);
+
+                    SampleGenerator sampleGenerator = new SampleGenerator(valueAttribute.getDataSource(), valueAttribute.getObject(), valueAttribute, startTime, endTime, ManipulationMode.NONE, aggregationPeriod);
+
                     returnSamples = sampleGenerator.generateSamples();
                     returnSamples = sampleGenerator.getAggregatedSamples(returnSamples);
                 } catch (JEVisException e) {
@@ -136,10 +134,9 @@ public class CalcInputObject {
         }
         switch (inputType) {
             case PERIODIC:
-                SampleGenerator sampleGenerator = null;
                 try {
 
-                    sampleGenerator = new SampleGenerator(valueAttribute.getDataSource(), valueAttribute.getObject(), valueAttribute, startTime, endTime, ManipulationMode.NONE, AggregationPeriod.NONE);
+                    SampleGenerator sampleGenerator = new SampleGenerator(valueAttribute.getDataSource(), valueAttribute.getObject(), valueAttribute, startTime, endTime, ManipulationMode.NONE, AggregationPeriod.NONE);
                     QuantityUnits qu = new QuantityUnits();
                     List<JEVisSample> tempList = sampleGenerator.generateSamples();
                     tempList = sampleGenerator.getAggregatedSamples(tempList);

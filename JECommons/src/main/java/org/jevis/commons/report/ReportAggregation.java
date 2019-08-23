@@ -13,10 +13,12 @@ public class ReportAggregation {
 
         for (AggregationPeriod ap : AggregationPeriod.values()) {
             for (ManipulationMode mm : ManipulationMode.values()) {
-                if (!ap.equals(AggregationPeriod.NONE) && !mm.equals(ManipulationMode.NONE)) {
+                if (!ap.equals(AggregationPeriod.NONE) || !mm.equals(ManipulationMode.NONE)) {
                     values.add(ap.toString() + "_" + mm.toString());
                 } else {
-                    values.add("NONE");
+                    if (!values.contains("NONE")) {
+                        values.add("NONE");
+                    }
                 }
             }
         }

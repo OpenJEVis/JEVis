@@ -11,13 +11,9 @@ import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.joda.time.DateTime;
 
 /**
- *
  * @author fs
  */
 public class SimpleTargetPluginData {
-
-    private JEVisObject obj;
-    private JEVisAttribute _att;
 
     private JEVisTreeRow row;
     private boolean selected = false;
@@ -28,7 +24,12 @@ public class SimpleTargetPluginData {
 
     public SimpleTargetPluginData(JEVisTreeRow row) {
         this.row = row;
-        uuid = getObj().getID() + "--" + DateTime.now().toString();
+
+        if (row.getJEVisAttribute() != null) {
+            uuid = getObj().getID() + ":" + getAtt().getName() + "--" + DateTime.now().toString();
+        } else {
+            uuid = getObj().getID() + "--" + DateTime.now().toString();
+        }
     }
 
     public JEVisTreeRow getRow() {
@@ -51,17 +52,9 @@ public class SimpleTargetPluginData {
         return row.getJEVisObject();
     }
 
-    public void setObj(JEVisObject obj) {
-        this.obj = obj;
-    }
-
     public JEVisAttribute getAtt() {
         return row.getJEVisAttribute();
 //        return _att;
-    }
-
-    public void setAtt(JEVisAttribute _att) {
-        this._att = _att;
     }
 
     @Override

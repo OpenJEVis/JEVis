@@ -38,11 +38,12 @@ public class FormulaBox extends HBox {
 
 //        textArea.setPrefHeight(200);
 //        errorArea.setPrefWidth(200);
-        this.errorArea.setTextFill(Color.FIREBRICK);
-        this.textArea.setWrapText(true);
-        getChildren().addAll(this.textArea);
-        HBox.setHgrow(this.textArea, Priority.ALWAYS);
-        this.textArea.textProperty().addListener((observable, oldValue, newValue) -> {
+        errorArea.setTextFill(Color.FIREBRICK);
+        textArea.setWrapText(true);
+        textArea.setMinHeight(90d);
+        getChildren().addAll(textArea);
+        HBox.setHgrow(textArea, Priority.ALWAYS);
+        textArea.textProperty().addListener((observable, oldValue, newValue) -> {
 //                eval();
         });
 
@@ -50,19 +51,19 @@ public class FormulaBox extends HBox {
 
 
     public String getExpression() {
-        return this.textArea.getText();
+        return textArea.getText();
     }
 
     public void setExpression(String expression) {
-        this.textArea.setText(expression);
+        textArea.setText(expression);
     }
 
     public void backspaceExpression() {
-        int caret = this.textArea.getCaretPosition();
-        String beforeText = this.textArea.getText().substring(0, caret - 1);
+        int caret = textArea.getCaretPosition();
+        String beforeText = textArea.getText().substring(0, caret - 1);
         Platform.runLater(() -> {
-            this.textArea.setText(beforeText);
-            this.textArea.positionCaret(caret - 1);
+            textArea.setText(beforeText);
+            textArea.positionCaret(caret - 1);
 
         });
 
@@ -70,14 +71,14 @@ public class FormulaBox extends HBox {
 
     public void addExpression(String expression) {
         if (expression != null && !expression.isEmpty()) {
-            int caret = this.textArea.getCaretPosition();
-            String beforeText = this.textArea.getText().substring(0, caret);
-            String afterText = this.textArea.getText().substring(caret);
+            int caret = textArea.getCaretPosition();
+            String beforeText = textArea.getText().substring(0, caret);
+            String afterText = textArea.getText().substring(caret);
             String newText = beforeText + expression + afterText;
             Platform.runLater(() -> {
-                this.textArea.setText(newText);
-                this.textArea.positionCaret(caret + expression.length());
-                this.textArea.selectPositionCaret(caret + expression.length());
+                textArea.setText(newText);
+                textArea.positionCaret(caret + expression.length());
+                textArea.selectPositionCaret(caret + expression.length());
 
             });
         }
@@ -87,9 +88,9 @@ public class FormulaBox extends HBox {
     public void eval() {
         Evaluator eval = new Evaluator();
         try {
-            eval.parse(this.textArea.getText());
+            eval.parse(textArea.getText());
 
-            for (String var : this.variables) {
+            for (String var : variables) {
                 eval.putVariable(var, "1");
             }
 
@@ -128,14 +129,14 @@ public class FormulaBox extends HBox {
     }
 
     public void updateVariables() throws JEVisException {
-        JEVisClass input = this.calcObj.getDataSource().getJEVisClass("Input");
-        for (JEVisObject inpuObject : this.calcObj.getChildren()) {
+        JEVisClass input = calcObj.getDataSource().getJEVisClass("Input");
+        for (JEVisObject inpuObject : calcObj.getChildren()) {
             try {
                 JEVisAttribute id = inpuObject.getAttribute("Identifier");
                 if (id != null) {
                     JEVisSample value = id.getLatestSample();
                     if (value != null && !value.getValueAsString().isEmpty()) {
-                        this.variables.add(value.getValueAsString());
+                        variables.add(value.getValueAsString());
                     }
                 }
             } catch (Exception inputEx) {
@@ -144,30 +145,31 @@ public class FormulaBox extends HBox {
         }
     }
 
-    public void setOutputButton(Button butttonOutput) {
-        this.outputButton = butttonOutput;
+    public void setOutputButton(Button buttonOutput) {
+        outputButton = buttonOutput;
         try {
             JEVisClass outputClass = this.calcObj.getDataSource().getJEVisClass("Output");
             List<JEVisObject> outputs = this.calcObj.getChildren(outputClass, true);
             if (!outputs.isEmpty()) {//there can only be one output
                 JEVisObject outputObj = outputs.get(0);
-                this.outputButton.setText(outputObj.getName());
+                outputButton.setText(outputObj.getName());
                 Tooltip tt = new Tooltip();
                 tt.setText("ID: " + outputObj.getID());
-                this.outputButton.setTooltip(tt);
+                outputButton.setTooltip(tt);
             } else {
-                this.outputButton.setText(I18n.getInstance().getString("extension.calc.outputbutton"));
+                outputButton.setText(I18n.getInstance().getString("extension.calc.outputbutton"));
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        logger.info("Button.text: " + butttonOutput.getText());
-        this.outputButton.textProperty().addListener((observable, oldValue, newValue) -> {
+        logger.info("Button.text: " + buttonOutput.getText());
+        outputButton.textProperty().addListener((observable, oldValue, newValue) -> {
             logger.info("Button text changed: " + oldValue + " new: " + newValue);
         });
+        outputButton.setOnAction(event -> setOnOutputAction());
     }
 
-    public void setOnOutputAction() {
+    void setOnOutputAction() {
 
         try {
             JEVisClass outputClass = this.calcObj.getDataSource().getJEVisClass("Output");
@@ -186,7 +188,7 @@ public class FormulaBox extends HBox {
                 }
             }
             List<JEVisTreeFilter> allFilter = new ArrayList<>();
-            JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllDataFilter();
+            JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
             allFilter.add(basicFilter);
 
             SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE);
@@ -229,12 +231,12 @@ public class FormulaBox extends HBox {
                         JEVisSample newSample = outputObj.getAttribute("Output").buildSample(new DateTime(), th.getSourceString());
                         newSample.commit();
 
-                        /** updateData output variable name **/
+                        /** update output variable name **/
                         if (!outputObj.getName().equals(CalculationNameFormatter.createVariableName(us.getSelectedObject()))) {
                             outputObj.setName(CalculationNameFormatter.createVariableName(us.getSelectedObject()));
                             outputObj.commit();
                         }
-                        this.outputButton.setText(th.getObject().get(0).getName() + "." + th.getAttribute().get(0).getName());
+                        outputButton.setText(th.getObject().get(0).getName() + "." + th.getAttribute().get(0).getName());
 
                     }
                 }
@@ -257,7 +259,7 @@ public class FormulaBox extends HBox {
             JEVisSample expVal = expression.getLatestSample();
             if (expVal != null) {
 
-                this.textArea.setText(expVal.getValueAsString());
+                textArea.setText(expVal.getValueAsString());
             }
             updateVariables();
 

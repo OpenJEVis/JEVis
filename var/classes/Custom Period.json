@@ -19,7 +19,7 @@
       "name": "Visible",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -28,7 +28,7 @@
       "name": "Start Reference Point",
       "primitiveType": 0,
       "guiType": "String Enum",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -37,7 +37,7 @@
       "name": "Start Years",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -46,7 +46,7 @@
       "name": "Start Months",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -55,7 +55,7 @@
       "name": "Start Weeks",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -64,7 +64,7 @@
       "name": "Start Days",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -73,7 +73,7 @@
       "name": "Start Hours",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -82,7 +82,7 @@
       "name": "Start Minutes",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -91,7 +91,7 @@
       "name": "Start Reference Object",
       "primitiveType": 0,
       "guiType": "Object Target",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -100,7 +100,7 @@
       "name": "Start Interval",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -109,7 +109,7 @@
       "name": "End Reference Point",
       "primitiveType": 0,
       "guiType": "String Enum",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -118,7 +118,7 @@
       "name": "End Years",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -127,7 +127,7 @@
       "name": "End Months",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -136,7 +136,7 @@
       "name": "End Weeks",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -145,7 +145,7 @@
       "name": "End Days",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -154,7 +154,7 @@
       "name": "End Hours",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -163,7 +163,7 @@
       "name": "End Minutes",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -172,7 +172,7 @@
       "name": "End Reference Object",
       "primitiveType": 0,
       "guiType": "Object Target",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"
@@ -181,7 +181,7 @@
       "name": "End Interval",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Custom Period"

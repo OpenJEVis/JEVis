@@ -23,49 +23,41 @@ import java.util.Objects;
 import static org.jevis.commons.constants.JEDataProcessorConstants.GapFillingType;
 
 /**
- *
  * @author broder
  */
 public class FillGapStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(FillGapStep.class);
-    private List<JEVisSample> sampleCache;
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        CleanDataObject calcAttribute = resourceManager.getCleanDataObject();
+        CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
 
-        if (!calcAttribute.getIsPeriodAligned() || !calcAttribute.getGapFillingEnabled() || calcAttribute.getGapFillingConfig().isEmpty()) {
+        if (!cleanDataObject.getIsPeriodAligned() || !cleanDataObject.getGapFillingEnabled() || cleanDataObject.getGapFillingConfig().isEmpty()) {
             //no gap filling when there is no alignment or disabled or no config
             return;
         }
         List<CleanInterval> intervals = resourceManager.getIntervals();
 
         //identify gaps, gaps holds intervals
-        List<Gap> gaps = identifyGaps(intervals, calcAttribute);
+        List<Gap> gaps = identifyGaps(intervals, cleanDataObject);
         logger.info("{} gaps identified", gaps.size());
         if (gaps.isEmpty()) { //no gap filling when there are no gaps
             return;
         }
 
-        List<JsonGapFillingConfig> conf = calcAttribute.getGapFillingConfig();
+        List<JsonGapFillingConfig> conf = cleanDataObject.getGapFillingConfig();
 
         if (Objects.nonNull(conf)) {
             if (!conf.isEmpty()) {
-                try {
-                    DateTime minDateForCache = calcAttribute.getFirstDate().minusMonths(6);
-                    DateTime lastDateForCache = calcAttribute.getFirstDate();
+                List<JEVisSample> sampleCache = resourceManager.getSampleCache();
 
-                    sampleCache = calcAttribute.getValueAttribute().getSamples(minDateForCache, lastDateForCache);
-                } catch (Exception e) {
-                    logger.error("No caching possible: " + e);
-                }
                 List<Gap> doneGaps = new ArrayList<>();
                 for (JsonGapFillingConfig c : conf) {
                     List<Gap> newGaps = new ArrayList<>();
                     for (Gap g : gaps) {
                         if (!doneGaps.contains(g)) {
-                            logger.info("[{}] start filling with Mode for {}", calcAttribute.getCleanObject().getID(), c.getType());
+                            logger.info("[{}] start filling with Mode for {}", cleanDataObject.getCleanObject().getID(), c.getType());
                             DateTime firstDate = g.getIntervals().get(0).getDate();
                             DateTime lastDate = g.getIntervals().get(g.getIntervals().size() - 1).getDate();
                             if ((lastDate.getMillis() - firstDate.getMillis()) <= defaultValue(c.getBoundary())) {
@@ -111,13 +103,12 @@ public class FillGapStep implements ProcessStep {
                         default:
                             break;
                     }
-                    logger.info("[{}] Done", resourceManager.getID());
+                    gal.clearLists();
+                    logger.info("[{}:{}] Gap Filling Done", cleanDataObject.getCleanObject().getName(), resourceManager.getID());
                 }
-                if (gaps.size() != doneGaps.size())
-                    logger.error("Could not complete all gaps. Gap may have been too long for reasonable gap filling.");
-
-                sampleCache = null;
-
+                if (gaps.size() != doneGaps.size()) {
+                    logger.error("Could not complete all gaps. Gap may have been too long for reasonable gap filling on object {}:{}", cleanDataObject.getCleanObject().getName(), cleanDataObject.getCleanObject().getID());
+                }
             } else {
                 logger.error("[{}] Found gap but missing GapFillingConfig", resourceManager.getID());
             }

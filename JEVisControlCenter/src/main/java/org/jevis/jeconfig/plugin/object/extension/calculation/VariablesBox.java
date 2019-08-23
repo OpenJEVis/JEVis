@@ -24,20 +24,21 @@ public class VariablesBox extends FlowPane {
         setVgap(8);
         setHgap(4);
         setPrefWrapLength(200);
+
     }
 
-    public void bindVaribaleBox(FormulaBox expression, JEVisObject obj) {
+    public void bindVariableBox(FormulaBox expression, JEVisObject obj) {
         this.expression = expression;
         listVariables(obj);
     }
 
 
-    private void buildVarButton(JEVisObject inpuObject) {
+    private void buildVarButton(JEVisObject inputObject) {
 
         try {
             Button button = new Button();
             button.setFocusTraversable(false);
-            JEVisAttribute id = inpuObject.getAttribute("Identifier");
+            JEVisAttribute id = inputObject.getAttribute("Identifier");
             if (id != null) {
                 JEVisSample value = id.getLatestSample();
                 if (value != null && !value.getValueAsString().isEmpty()) {
@@ -46,7 +47,7 @@ public class VariablesBox extends FlowPane {
 
                     button.setOnAction(event -> expression.addExpression("#{" + name + "}"));
                 } else {
-                    button.setText("*no name* ID: " + inpuObject.getID());
+                    button.setText("*no name* ID: " + inputObject.getID());
                     button.disableProperty().setValue(true);
                 }
 

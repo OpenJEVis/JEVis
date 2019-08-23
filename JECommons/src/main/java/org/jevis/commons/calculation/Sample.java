@@ -11,6 +11,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.joda.time.DateTime;
 
+import java.math.BigDecimal;
+
 /**
  * @author broder
  */
@@ -18,13 +20,13 @@ public class Sample {
     private static final Logger logger = LogManager.getLogger(Sample.class);
 
     private DateTime date;
-    private Double value;
+    private BigDecimal value;
     private final String variable;
 
     Sample(JEVisSample currentSample, String variable) {
         try {
             this.date = currentSample.getTimestamp();
-            this.value = currentSample.getValueAsDouble();
+            this.value = new BigDecimal(currentSample.getValueAsDouble());
         } catch (JEVisException ex) {
             logger.fatal(ex);
         }
@@ -35,7 +37,7 @@ public class Sample {
         return date;
     }
 
-    public Double getValue() {
+    public BigDecimal getValue() {
         return value;
     }
 

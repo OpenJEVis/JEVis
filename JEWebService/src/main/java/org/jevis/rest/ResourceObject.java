@@ -20,7 +20,9 @@
  */
 package org.jevis.rest;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -32,6 +34,7 @@ import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,6 +48,7 @@ public class ResourceObject {
 
     private SQLDataSource ds = null;
     private List<JsonObject> returnList;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Logger logger = LogManager.getLogger(ResourceObject.class);
 
@@ -100,7 +104,7 @@ public class ResourceObject {
             }
 
             if (rel) {
-                this.ds.addRelationhsipsToObjects(this.returnList, this.ds.getUserManager().filterReadRelationships(this.ds.getRelationships()));
+                this.ds.addRelationshipsToObjects(this.returnList, this.ds.getUserManager().filterReadRelationships(this.ds.getRelationships()));
             }
 
             if (detailed) {
@@ -209,45 +213,57 @@ public class ResourceObject {
             @Context UriInfo url,
             @DefaultValue("-999") @QueryParam("copy") long copyObject,
             String object) {
+        if (object != null && object.length() > 0) {
+            try {
+                this.ds = new SQLDataSource(httpHeaders, request, url);
 
-        try {
-            this.ds = new SQLDataSource(httpHeaders, request, url);
-
-            JsonObject json = (new Gson()).fromJson(object, JsonObject.class);
-            if (this.ds.getJEVisClass(json.getJevisClass()) == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("JEVisClass not found").build();
-            }
-
-            JsonObject parentObj = this.ds.getObject(json.getParent());
-            if (parentObj != null && this.ds.getUserManager().canCreate(parentObj)) {
-
-
-                //resful way of moving and object to an other parent while keeping the IDs?
-                if (copyObject > 0) {
-                    JsonObject toCopyObj = this.ds.getObject(copyObject);
-
-                    if (toCopyObj != null && this.ds.getUserManager().canCreate(toCopyObj)) {
-                        this.ds.moveObject(toCopyObj.getId(), parentObj.getId());
-                        return Response.ok(this.ds.getObject(copyObject)).build();
-                    } else {
-                        return Response.status(Response.Status.UNAUTHORIZED).build();
-                    }
-                } else {
-                    JsonObject newObj = this.ds.buildObject(json, parentObj.getId());
-                    return Response.ok(newObj).build();
+                JsonObject json = objectMapper.readValue(object, JsonObject.class);
+                if (this.ds.getJEVisClass(json.getJevisClass()) == null) {
+                    return Response.status(Response.Status.NOT_FOUND).entity("JEVisClass not found").build();
                 }
 
-            } else {
-                return Response.status(Response.Status.NOT_FOUND).entity("Parent not found").build();
-            }
+                JsonObject parentObj = this.ds.getObject(json.getParent());
+                if (parentObj != null && this.ds.getUserManager().canCreate(parentObj)) {
 
-        } catch (JEVisException jex) {
-            logger.catching(jex);
-            return Response.serverError().entity(jex.toString()).build();
-        } catch (AuthenticationException ex) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
-        } finally {
-            Config.CloseDS(this.ds);
+
+                    //restful way of moving and object to an other parent while keeping the IDs?
+                    if (copyObject > 0) {
+                        JsonObject toCopyObj = this.ds.getObject(copyObject);
+
+                        if (toCopyObj != null && this.ds.getUserManager().canCreate(toCopyObj)) {
+                            this.ds.moveObject(toCopyObj.getId(), parentObj.getId());
+                            return Response.ok(this.ds.getObject(copyObject)).build();
+                        } else {
+                            return Response.status(Response.Status.UNAUTHORIZED).build();
+                        }
+                    } else {
+                        JsonObject newObj = this.ds.buildObject(json, parentObj.getId());
+                        return Response.ok(newObj).build();
+                    }
+
+                } else {
+                    return Response.status(Response.Status.NOT_FOUND).entity("Parent not found").build();
+                }
+
+            } catch (AuthenticationException ex) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+            } catch (JsonParseException jex) {
+                logger.error("Json parse exception. Error while creating/updating object.", jex);
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            } catch (JsonMappingException jex) {
+                logger.error("Json mapping exception. Error while creating/updating object.", jex);
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            } catch (IOException jex) {
+                logger.error("IO exception. Error while creating/updating object.", jex);
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            } catch (JEVisException e) {
+                logger.catching(e);
+                return Response.serverError().entity(e.toString()).build();
+            } finally {
+                Config.CloseDS(this.ds);
+            }
+        } else {
+            return Response.status(Response.Status.NO_CONTENT).build();
         }
 
     }
@@ -267,7 +283,7 @@ public class ResourceObject {
         try {
             this.ds = new SQLDataSource(httpHeaders, request, url);
 
-            JsonObject json = (new Gson()).fromJson(object, JsonObject.class);
+            JsonObject json = objectMapper.readValue(object, JsonObject.class);
             JsonObject existingObj = this.ds.getObject(id);
             if (existingObj != null && this.ds.getUserManager().canWrite(json)) {
                 if (existingObj.getisPublic() != json.getisPublic()) {
@@ -283,11 +299,14 @@ public class ResourceObject {
                 return Response.notModified().build();
             }
 
-        } catch (JEVisException jex) {
-            logger.catching(jex);
-            return Response.serverError().entity(jex.toString()).build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+        } catch (JsonMappingException e) {
+            logger.catching(e);
+            return Response.serverError().entity(e.toString()).build();
+        } catch (JEVisException | IOException jex) {
+            logger.catching(jex);
+            return Response.serverError().entity(jex.toString()).build();
         } finally {
             Config.CloseDS(this.ds);
         }

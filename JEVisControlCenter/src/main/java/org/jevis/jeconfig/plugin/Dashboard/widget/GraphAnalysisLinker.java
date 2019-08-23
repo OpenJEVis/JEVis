@@ -43,7 +43,7 @@ public class GraphAnalysisLinker {
         button.setOnAction(event -> {
             try {
                 AggregationPeriod aggregationPeriod = AggregationPeriod.HOURLY;
-                ManipulationMode manipulationMode = ManipulationMode.TOTAL;
+                ManipulationMode manipulationMode = ManipulationMode.NONE;
                 for (ChartDataModel dataModel : dataModels) {
                     aggregationPeriod = dataModel.getAggregationPeriod();
                     manipulationMode = dataModel.getManipulationMode();

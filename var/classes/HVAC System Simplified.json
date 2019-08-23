@@ -14,7 +14,7 @@
       "name": "Cooling set point Period Spring",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -23,7 +23,7 @@
       "name": "Cooling set point Period Summer",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -32,7 +32,7 @@
       "name": "Cooling set point Period Winter",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -41,7 +41,7 @@
       "name": "Dehumidification set point Period Spring",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -50,7 +50,7 @@
       "name": "Dehumidification set point Period Summer",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -59,7 +59,7 @@
       "name": "Dehumidification set point Period Winter",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -68,7 +68,7 @@
       "name": "End Date Heating Period Spring",
       "primitiveType": 0,
       "guiType": "Date",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -77,7 +77,7 @@
       "name": "End Date Heating Period Winter",
       "primitiveType": 0,
       "guiType": "Date",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -86,7 +86,7 @@
       "name": "Heat Recovery",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -95,7 +95,7 @@
       "name": "Heat Recovery Efficiency",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -104,7 +104,7 @@
       "name": "Heating Cooling",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -113,7 +113,7 @@
       "name": "Heating set point Period Spring",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -122,7 +122,7 @@
       "name": "Heating set point Period Summer",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -131,7 +131,7 @@
       "name": "Heating set point Period Winter",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -140,7 +140,7 @@
       "name": "Heating Temperature",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -149,7 +149,7 @@
       "name": "Humidification set point Period Spring",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -158,7 +158,7 @@
       "name": "Humidification set point Period Summer",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -167,7 +167,7 @@
       "name": "Humidification set point Period Winter",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"
@@ -176,7 +176,7 @@
       "name": "Start Date Heating Period Winter",
       "primitiveType": 0,
       "guiType": "Date",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "HVAC System Simplified"

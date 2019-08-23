@@ -15,6 +15,7 @@ import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.tool.I18n;
 
 import static org.jevis.commons.constants.NoteConstants.Calc.CALC_INFINITE;
+import static org.jevis.commons.constants.NoteConstants.Differential.COUNTER_OVERFLOW;
 import static org.jevis.commons.constants.NoteConstants.Gap.GAP;
 import static org.jevis.commons.constants.NoteConstants.Limits.*;
 import static org.jevis.commons.constants.NoteConstants.User.USER_NOTES;
@@ -91,6 +92,15 @@ public class Note {
                 }
             }
 
+            if (note.contains(COUNTER_OVERFLOW)) {
+                try {
+                    if (noOfNotes > 0) sb.append(", ");
+                    sb.append(I18n.getInstance().getString("plugin.graph.chart.note.counteroverflow"));
+                    noOfNotes++;
+                    changed = true;
+                } catch (Exception e) {
+                }
+            }
 
             if (note.contains(CALC_INFINITE)) {
                 try {

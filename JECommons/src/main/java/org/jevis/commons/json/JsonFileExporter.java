@@ -5,8 +5,7 @@
  */
 package org.jevis.commons.json;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
@@ -22,13 +21,13 @@ public class JsonFileExporter {
     public static void writeToFile(File file, JsonObject obj) {
 
 //        Gson gson = new Gson();
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String json = gson.toJson(obj);
+//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//        String json = gson.toJson(obj);
 
         try {
             //write converted json data to a file named "file.json"
             FileWriter writer = new FileWriter(file);
-            writer.write(json);
+            writer.write(JsonTools.prettyObjectMapper().writeValueAsString(obj));
             writer.close();
 
         } catch (IOException e) {
@@ -38,7 +37,7 @@ public class JsonFileExporter {
     }
 
     public static JEVisObject loadFromFile(File file) {
-        Gson gson = new Gson();
+//        Gson gson = new Gson();
 
         try {
 
@@ -46,7 +45,7 @@ public class JsonFileExporter {
                     new FileReader(file));
 
             //convert the json string back to object
-            JsonObject obj = gson.fromJson(br, JsonObject.class);
+            JsonObject obj = JsonTools.objectMapper().readValue(br, JsonObject.class);
 
             logger.info(obj);
 

@@ -4,9 +4,8 @@ import org.apache.commons.beanutils.locale.LocaleBeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
@@ -20,8 +19,9 @@ public class I18n {
     private static final Logger logger = LogManager.getLogger(I18n.class);
     private static I18n i18n;
     private Locale locale = LocaleBeanUtils.getDefaultLocale();
-    private ResourceBundle bundle;
-
+    private PropertyResourceBundle bundle;
+    private ResourceBundle defaultBundle;
+    private Reader reader;
 
     public static synchronized I18n getInstance() {
         if (i18n == null)
@@ -30,40 +30,31 @@ public class I18n {
     }
 
     public I18n() {
-
+        this.defaultBundle = ResourceBundle.getBundle("JEVisCC", Locale.ENGLISH);
     }
 
     public ResourceBundle getBundle() {
         return this.bundle;
     }
 
-    public void loadBundel(Locale local) {
+    public void loadBundle(Locale local) {
         this.locale = local;
-        this.bundle = ResourceBundle.getBundle("JEVisCC", local);
+//        bundle = ResourceBundle.getBundle("JEVisCC", local);
+
         try {
-            System.out.println("file to read: " + "JEVisCC_" + local.getLanguage() + ".properties");
-//            InputStream test = getClass().getResourceAsStream("JEVisCC_de.properties");
-//            test.read();
-//            URL url = ResourceBundle.class.getResource("1472562626_unknown.png");
-//            System.out.println(url.getFile());
-//            Class cls = Class.forName("ResourceBundle");
-//
-//            // returns the ClassLoader object associated with this Class
-//            ClassLoader cLoader = cls.getClassLoader();
-            InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream("JEVisCC_" + local.getLanguage() + ".properties");
-            Reader reader = new InputStreamReader(stream, "UTF-8");
-            this.bundle = new PropertyResourceBundle(reader);
+            String s = "JEVisCC_" + local.getLanguage() + ".properties";
 
-
-//            Reader reader = new BufferedReader(new InputStreamReader(
-//                    getClass().getResourceAsStream("JEVisCC_" + local.getLanguage() + ".properties"), "utf-8"));
-//            PropertyResourceBundle propertyResourceBundle = new PropertyResourceBundle(reader);
-//            this.bundle = propertyResourceBundle;
-        } catch (Exception e) {
-            e.printStackTrace();
+            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(s);
+            if (resourceAsStream != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8);
+                this.reader = new BufferedReader(inputStreamReader);
+                this.bundle = new PropertyResourceBundle(this.reader);
+            }
+        } catch (UnsupportedEncodingException e) {
+            logger.error("Unsupported encoding exception. Error while reading resource file.", e);
+        } catch (IOException e) {
+            logger.error("IO exception. Error while reading resource file.", e);
         }
-        ;
-
     }
 
     public Locale getLocale() {
@@ -83,8 +74,13 @@ public class I18n {
         try {
             return String.format(this.bundle.getString(key), arguments);
         } catch (NullPointerException | java.util.MissingResourceException np) {
-            logger.info("Missing translation [" + this.locale.getISO3Country() + "] Key: " + key);
-            return "*" + key + "*";
+            logger.info("Missing translation [" + this.locale.getLanguage() + "] Key: " + key);
+            try {
+                return String.format(this.defaultBundle.getString(key), arguments);
+            } catch (NullPointerException | java.util.MissingResourceException np1) {
+                logger.info("Missing translation [" + this.locale.getLanguage() + "] Key: " + key);
+                return "*" + key + "*";
+            }
         }
     }
 
@@ -92,9 +88,14 @@ public class I18n {
         try {
             return this.bundle.getString(key);
         } catch (NullPointerException | java.util.MissingResourceException np) {
-            logger.info("Missing translation [" + this.locale.getISO3Country() + "] Key: " + key);
-            return "*" + key + "*";
+            logger.info("Missing translation [" + this.locale.getLanguage() + "] Key: " + key + "");
+            try {
+                return this.defaultBundle.getString(key);
+            } catch (NullPointerException | java.util.MissingResourceException np2) {
+                logger.info("Missing translation [" + this.locale.getLanguage() + "] Key: " + key);
+                return "*" + key + "*";
+            }
         }
     }
-
 }
+

@@ -36,6 +36,7 @@ import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -77,7 +78,7 @@ public class SampleTable {
                 break;
             }
         }
-        samples.clear();
+//        samples.clear();
         return count;
     }
 
@@ -118,9 +119,8 @@ public class SampleTable {
             DoubleValidator dv = DoubleValidator.getInstance();
 
             int p = 0;
-            for (int i = 0; i < samples.size(); i++) {
+            for (JsonSample sample : samples) {
 
-                JsonSample sample = samples.get(i);
                 ps.setLong(++p, object);
                 ps.setString(++p, attribute);
                 DateTime ts = JsonFactory.sampleDTF.parseDateTime(sample.getTs());
@@ -172,13 +172,16 @@ public class SampleTable {
             return count;
         } catch (SQLException ex) {
             logger.error(ex);
-            throw new JEVisException("Error while inserting Sample ", 4234, ex);
+            throw new JEVisException("Invalid sql command. Error while inserting Sample ", 4231, ex);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new JEVisException("Error while inserting Sample ", 4235, e);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new JEVisException("Error while inserting Sample ", 4235, e);
+            logger.error(e);
+            throw new JEVisException("Invalid algorithm. Error while inserting Sample ", 4232, e);
+        } catch (NumberFormatException e) {
+            logger.error(e);
+            throw new JEVisException("Invalid number format. Error while inserting Sample ", 4233, e);
+        } catch (InvalidKeySpecException e) {
+            logger.error(e);
+            throw new JEVisException("Invalid key spec. Error while inserting Sample ", 4234, e);
         }
 
     }

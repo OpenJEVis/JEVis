@@ -27,6 +27,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -52,7 +53,6 @@ public class AggregatorFunction implements ProcessFunction {
         List<List<JEVisSample>> allSamples = new ArrayList<>();
         for (Process task : mainTask.getSubProcesses()) {
             allSamples.add(task.getResult());
-            //logger.info("Add input result: " + allSamples.size());
         }
 
         List<DateTime> allTimestamps = getAllTimestamps(allSamples);
@@ -60,6 +60,22 @@ public class AggregatorFunction implements ProcessFunction {
             return result;
         }
         List<Interval> intervals = ProcessOptions.getIntervals(mainTask, allTimestamps.get(0), allTimestamps.get(allTimestamps.size() - 1));
+
+        WorkDays workDays = new WorkDays(mainTask.getObject());
+        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+            Period period = intervals.get(0).toPeriod();
+            if (period.getDays() > 0 || period.getWeeks() > 0 || period.getMonths() > 0 || period.getYears() > 0) {
+                List<Interval> newIntervals = new ArrayList<>();
+                for (Interval interval : intervals) {
+                    newIntervals.add(new Interval(interval.getStart().minusDays(1), interval.getEnd().minusDays(1)));
+                }
+                if (newIntervals.size() > 0) {
+                    Interval lastInterval = newIntervals.get(newIntervals.size() - 1);
+                    newIntervals.add(new Interval(lastInterval.getEnd(), lastInterval.getEnd().plus(period)));
+                    intervals = newIntervals;
+                }
+            }
+        }
 
         JEVisAttribute attribute = null;
         if (allSamples.size() > 0) {
@@ -72,37 +88,6 @@ public class AggregatorFunction implements ProcessFunction {
                 }
             }
         }
-
-        //logger.info("intervals: " + intervals.size());
-
-        /**
-         * get the object for getting the attribute to identify if its a quantity or not. just supporting clean data
-         */
-//        JEVisObject taskObject = null;
-//        for (ProcessOption processOption : getAvailableOptions()) {
-//            if (processOption.getKey().equals(InputFunction.OBJECT_ID)) {
-//                try {
-//                    taskObject = mainTask.getJEVisDataSource().getObject(Long.parseLong(processOption.getValue()));
-//                    break;
-//                } catch (JEVisException e) {
-//                    logger.error("Could not get object for task: " + e);
-//                }
-//            }
-//        }
-
-//        if (taskObject != null) {
-//            try {
-//                if (taskObject.getJEVisClassName().equals("Clean Data")) {
-//                    JEVisAttribute isQuantityAtt = taskObject.getAttribute("Value is a Quantity");
-//                    if (isQuantityAtt.hasSample()) {
-//                        isQuantity = isQuantityAtt.getLatestSample().getValueAsBoolean();
-//                    }
-//                }
-//
-//            } catch (JEVisException e) {
-//                e.printStackTrace();
-//            }
-//        }
 
         int lastPos = 0;
         for (Interval interval : intervals) {

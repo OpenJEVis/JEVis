@@ -65,6 +65,7 @@ public class NewObjectDialog {
     private boolean userSetName = false;
     private Response response = Response.CANCEL;
     private ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(response);
+    private boolean withCleanData = true;
 
     /**
      * @param jclass
@@ -86,6 +87,14 @@ public class NewObjectDialog {
 
         dialog.getDialogPane().setContent(root);
 
+        JEVisClass parentClass = null;
+        JEVisClass dataDirectoryClass = null;
+        try {
+            parentClass = parent.getJEVisClass();
+            dataDirectoryClass = parent.getDataSource().getJEVisClass("Data Directory");
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
 
         GridPane gp = new GridPane();
         gp.setPadding(new Insets(10));
@@ -186,6 +195,10 @@ public class NewObjectDialog {
             count.setDisable(true);
         }
 
+        CheckBox createCleanData = new CheckBox(I18n.getInstance().getString("jevistree.dialog.new.withcleandata"));
+        createCleanData.setSelected(true);
+        createCleanData.setOnAction(event -> withCleanData = !withCleanData);
+
         gp.add(lName, 0, x);
         gp.add(fName, 1, x);
 
@@ -194,6 +207,10 @@ public class NewObjectDialog {
         gp.add(comboBox, 1, x, 1, 1);
         gp.add(lCount, 0, ++x);
         gp.add(count, 1, x);
+
+        if (parentClass != null && parentClass.equals(dataDirectoryClass)) {
+            gp.add(createCleanData, 1, ++x);
+        }
 
 
         GridPane.setHgrow(count, Priority.ALWAYS);
@@ -242,6 +259,7 @@ public class NewObjectDialog {
 
             count.setDisable(true);
             comboBox.getSelectionModel().select(jclass);
+            comboBox.setDisable(true);
         }
 
 
@@ -294,5 +312,7 @@ public class NewObjectDialog {
         NO, YES, CANCEL
     }
 
-
+    public boolean isWithCleanData() {
+        return withCleanData;
+    }
 }

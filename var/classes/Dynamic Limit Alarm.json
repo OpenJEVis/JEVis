@@ -29,7 +29,7 @@
       "name": "Alarm Log",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Dynamic Limit Alarm"
@@ -38,7 +38,7 @@
       "name": "Enable",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Dynamic Limit Alarm"
@@ -47,7 +47,7 @@
       "name": "Limit Data",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Dynamic Limit Alarm"
@@ -56,7 +56,7 @@
       "name": "Operator",
       "primitiveType": 0,
       "guiType": "String Enum",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Dynamic Limit Alarm"
@@ -65,7 +65,7 @@
       "name": "Status",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Dynamic Limit Alarm"
@@ -74,7 +74,7 @@
       "name": "Tolerance",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Dynamic Limit Alarm"

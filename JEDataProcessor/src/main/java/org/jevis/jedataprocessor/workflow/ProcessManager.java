@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.jedataprocessor.aggregation.AggregationAlignmentStep;
 import org.jevis.jedataprocessor.alignment.PeriodAlignmentStep;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.differential.DifferentialStep;
@@ -60,6 +61,9 @@ public class ProcessManager {
         ProcessStep multiStep = new ScalingStep();
         processSteps.add(multiStep);
 
+        ProcessStep aggregationAlignmentStep = new AggregationAlignmentStep();
+        processSteps.add(aggregationAlignmentStep);
+
         ProcessStep gapStep = new FillGapStep();
         processSteps.add(gapStep);
 
@@ -75,7 +79,7 @@ public class ProcessManager {
     }
 
     public void start() throws Exception {
-        logger.info("[{}] Starting Process", resourceManager.getID());
+        logger.info("[{}:{}] Starting Process", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
 
         if (resourceManager.getCleanDataObject().checkConfig()) {
 
@@ -84,7 +88,15 @@ public class ProcessManager {
 //        }
         }
 
-        logger.info("[{}] Finished", resourceManager.getID(), resourceManager.getCleanDataObject().getCleanObject().getName());
+        logger.info("[{}:{}] Finished", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
+
+        resourceManager.setIntervals(null);
+        resourceManager.setNotesMap(null);
+        resourceManager.setRawSamplesDown(null);
+        resourceManager.setSampleCache(null);
+        resourceManager.setRawIntervals(null);
+        resourceManager.getCleanDataObject().clearLists();
+
     }
 
     private void reRun() throws Exception {
@@ -99,7 +111,9 @@ public class ProcessManager {
 //                cdo.setFirstDate(null);
 //            }
 
+//            Benchmark benchmark = new Benchmark();
             ps.run(resourceManager);
+//            benchmark.printBenchmarkDetail("Finished step " + ps.getClass().getSimpleName() + " of object " + getName() + ":" + getId());
 
 //            if (ps.getClass().equals(PrepareStep.class)) {
 //                DateTime currentFirstDate = resourceManager.getCleanDataObject().getFirstDate();

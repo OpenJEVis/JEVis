@@ -26,6 +26,7 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.datetime.DateHelper;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
@@ -45,6 +46,7 @@ import java.util.Objects;
  */
 public class LoadAnalysisDialog {
     private static final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
+    private final ObjectRelations objectRelations;
     private Response response = Response.CANCEL;
     private Stage stage;
     private GraphDataModel graphDataModel;
@@ -68,6 +70,7 @@ public class LoadAnalysisDialog {
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data) {
         this.graphDataModel = data;
         this.ds = ds;
+        this.objectRelations = new ObjectRelations(ds);
     }
 
     public Response show() {
@@ -90,6 +93,10 @@ public class LoadAnalysisDialog {
 //        stage.setWidth(maxScreenWidth - 250);
 
         analysisListView = new ListView<>(graphDataModel.getObservableListAnalyses());
+        analysisListView.getSelectionModel().selectedIndexProperty().addListener(
+                (observable, oldValue, newValue) ->
+                        Platform.runLater(() ->
+                                analysisListView.scrollTo(analysisListView.getSelectionModel().getSelectedIndex())));
 
         analysisListView.setCellFactory(param -> new ListCell<JEVisObject>() {
 
@@ -102,34 +109,8 @@ public class LoadAnalysisDialog {
                     if (!graphDataModel.getMultipleDirectories())
                         setText(obj.getName());
                     else {
-                        String prefix = "";
-                        try {
+                        String prefix = objectRelations.getObjectPath(obj);
 
-                            JEVisObject secondParent = obj.getParents().get(0).getParents().get(0);
-                            JEVisClass buildingClass = ds.getJEVisClass("Building");
-                            JEVisClass organisationClass = ds.getJEVisClass("Organization");
-
-                            if (secondParent.getJEVisClass().equals(buildingClass)) {
-
-                                try {
-                                    JEVisObject organisationParent = secondParent.getParents().get(0).getParents().get(0);
-                                    if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                        prefix += organisationParent.getName() + " / " + secondParent.getName() + " / ";
-                                    }
-                                } catch (JEVisException e) {
-                                    logger.error("Could not get Organization parent of " + secondParent.getName() + ":" + secondParent.getID());
-
-                                    prefix += secondParent.getName() + " / ";
-                                }
-                            } else if (secondParent.getJEVisClass().equals(organisationClass)) {
-
-                                prefix += secondParent.getName() + " / ";
-
-                            }
-
-                        } catch (Exception e) {
-                        }
                         setText(prefix + obj.getName());
                     }
                 }
@@ -196,6 +177,14 @@ public class LoadAnalysisDialog {
                         graphDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
                         updateGridLayout();
                         break;
+                    //this Week
+                    case THIS_WEEK:
+                        dateHelper.setType(DateHelper.TransformType.THISWEEK);
+                        graphDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.THIS_WEEK));
+                        graphDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
+                        graphDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
+                        updateGridLayout();
+                        break;
                     //last Week
                     case LAST_WEEK:
                         dateHelper.setType(DateHelper.TransformType.LASTWEEK);
@@ -208,6 +197,14 @@ public class LoadAnalysisDialog {
                     case LAST_30_DAYS:
                         dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
                         graphDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.LAST_30_DAYS));
+                        graphDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
+                        graphDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
+                        updateGridLayout();
+                        break;
+                    case THIS_MONTH:
+                        //last Month
+                        dateHelper.setType(DateHelper.TransformType.THISMONTH);
+                        graphDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.THIS_MONTH));
                         graphDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
                         graphDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
                         updateGridLayout();
@@ -305,7 +302,6 @@ public class LoadAnalysisDialog {
         mathBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
                 graphDataModel.setManipulationMode(newValue);
-                graphDataModel.setAggregationPeriod(AggregationPeriod.NONE);
                 updateGridLayout();
             }
         });
@@ -313,9 +309,6 @@ public class LoadAnalysisDialog {
         aggregationBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
                 graphDataModel.setAggregationPeriod(newValue);
-                if (newValue.equals(AggregationPeriod.NONE)) {
-                    graphDataModel.setManipulationMode(ManipulationMode.NONE);
-                }
                 updateGridLayout();
             }
         });
@@ -356,7 +349,7 @@ public class LoadAnalysisDialog {
         });
 
         drawOptimization.setOnAction(event -> {
-            HiddenConfig.CHART_PRECESSION_ON = drawOptimization.isSelected();
+            HiddenConfig.CHART_PRECISION_ON = drawOptimization.isSelected();
         });
     }
 
@@ -364,7 +357,6 @@ public class LoadAnalysisDialog {
 
         final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
 
-        final String keyTotal = I18n.getInstance().getString("plugin.graph.manipulation.total");
         final String keyRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.runningmean");
         final String keyCentricRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
         final String keySortedMin = I18n.getInstance().getString("plugin.graph.manipulation.sortedmin");
@@ -373,13 +365,10 @@ public class LoadAnalysisDialog {
         DisabledItemsComboBox<ManipulationMode> math = new DisabledItemsComboBox<>();
         List<ManipulationMode> customList = new ArrayList<>();
         customList.add(ManipulationMode.NONE);
-        customList.add(ManipulationMode.TOTAL);
         customList.add(ManipulationMode.RUNNING_MEAN);
         customList.add(ManipulationMode.CENTRIC_RUNNING_MEAN);
         customList.add(ManipulationMode.SORTED_MIN);
         customList.add(ManipulationMode.SORTED_MAX);
-
-        math.setDisabledItems(ManipulationMode.TOTAL);
 
         math.setItems(FXCollections.observableArrayList(customList));
         math.getSelectionModel().selectFirst();
@@ -398,9 +387,6 @@ public class LoadAnalysisDialog {
                             switch (manipulationMode) {
                                 case NONE:
                                     text = keyPreset;
-                                    break;
-                                case TOTAL:
-                                    text = keyTotal;
                                     break;
                                 case RUNNING_MEAN:
                                     text = keyRunningMean;
@@ -615,7 +601,7 @@ public class LoadAnalysisDialog {
             loadButton = new Button(I18n.getInstance().getString("plugin.graph.analysis.load"));
             newButton = new Button(I18n.getInstance().getString("plugin.graph.analysis.new"));
             drawOptimization = new CheckBox(I18n.getInstance().getString("plugin.graph.analysis.drawopt"));
-            drawOptimization.setSelected(HiddenConfig.CHART_PRECESSION_ON);
+            drawOptimization.setSelected(HiddenConfig.CHART_PRECISION_ON);
 
             loadButton.setDefaultButton(true);
 

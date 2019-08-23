@@ -7,7 +7,6 @@ package org.jevis.jedataprocessor.scaling;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.jedataprocessor.data.CleanInterval;
@@ -32,22 +31,19 @@ public class ScalingStep implements ProcessStep {
         List<JEVisSample> listMultipliers = calcAttribute.getMultiplier();
 
         for (JEVisSample multiplier : listMultipliers) {
-
+            int index = listMultipliers.indexOf(multiplier);
             DateTime timeStampOfMultiplier = null;
             DateTime nextTimeStampOfMultiplier = null;
             Double multiplierDouble = null;
             BigDecimal offset = new BigDecimal(calcAttribute.getOffset().toString());
-            try {
-                timeStampOfMultiplier = multiplier.getTimestamp();
-                multiplierDouble = multiplier.getValueAsDouble();
-                try {
-                    nextTimeStampOfMultiplier = (listMultipliers.get(listMultipliers.indexOf(multiplier) + 1)).getTimestamp();
-                } catch (Exception ignored) {
 
-                }
-            } catch (JEVisException e) {
-                throw new Exception("no timestamp for multiplier", e);
+            timeStampOfMultiplier = multiplier.getTimestamp();
+            multiplierDouble = multiplier.getValueAsDouble();
+
+            if (index + 1 < listMultipliers.size()) {
+                nextTimeStampOfMultiplier = listMultipliers.get(index + 1).getTimestamp();
             }
+
             logger.info("[{}] scale with multiplier {} and offset {} starting at: {}", calcAttribute.getCleanObject().getID(), multiplierDouble, offset, timeStampOfMultiplier);
             for (CleanInterval currentInt : intervals) {
                 if (currentInt.getDate().isAfter(timeStampOfMultiplier) && ((nextTimeStampOfMultiplier == null) || currentInt.getDate().isBefore(nextTimeStampOfMultiplier))) {
@@ -62,12 +58,11 @@ public class ScalingStep implements ProcessStep {
                             productDec = productDec.add(offset);
                             sample.setValue(productDec.doubleValue());
                             String note = sample.getNote();
-                            note += ",scale";
+                            note += ",scale(" + multi + ")";
                             sample.setNote(note);
                         }
                     }
                 }
-
             }
         }
     }

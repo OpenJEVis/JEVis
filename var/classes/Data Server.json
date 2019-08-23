@@ -47,7 +47,7 @@
     {
       "name": "Host",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Data Server"
@@ -56,7 +56,7 @@
       "name": "Port",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Data Server"
@@ -65,7 +65,7 @@
       "name": "Read Timeout",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Data Server"
@@ -74,7 +74,7 @@
       "name": "Manual Trigger",
       "primitiveType": 4,
       "guiType": "Button",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Data Server"
@@ -83,7 +83,16 @@
       "name": "Connection Timeout",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Server"
+    },
+    {
+      "name": "Max thread time",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Data Server"

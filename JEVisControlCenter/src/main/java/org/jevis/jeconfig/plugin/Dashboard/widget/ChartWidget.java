@@ -101,7 +101,7 @@ public class ChartWidget extends Widget {
             /**
              * Linechart does not support updateData so we need to create an new one every time;
              */
-            this.lineChart = new LineChart(this.sampleHandler.getDataModel(), false, false, false, ManipulationMode.NONE, 0, "");
+            this.lineChart = new LineChart(this.sampleHandler.getDataModel(), false, false, false, false, false, null, -1, ManipulationMode.NONE, 0, "");
 //            this.lineChart.updateChart();
 
             this.lineChart.getChart().layout();
@@ -133,7 +133,7 @@ public class ChartWidget extends Widget {
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(true);
 
-        this.lineChart = new LineChart(this.sampleHandler.getDataModel(), false, false, false, ManipulationMode.NONE, 0, "");
+        this.lineChart = new LineChart(this.sampleHandler.getDataModel(), false, false, false, false, false, null, -1, ManipulationMode.NONE, 0, "");
 
 
         this.legend.setAlignment(Pos.CENTER);

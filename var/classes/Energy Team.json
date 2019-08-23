@@ -22,7 +22,7 @@
     {
       "name": "EMail",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Team"
@@ -30,7 +30,7 @@
     {
       "name": "Function",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Team"
@@ -38,7 +38,7 @@
     {
       "name": "Name",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Team"
@@ -46,7 +46,7 @@
     {
       "name": "Phone",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Team"
@@ -54,7 +54,7 @@
     {
       "name": "Surname",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Energy Team"

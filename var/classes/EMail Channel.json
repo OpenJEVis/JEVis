@@ -33,7 +33,7 @@
     {
       "name": "Sender",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "EMail Channel"
@@ -41,7 +41,7 @@
     {
       "name": "Subject",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "EMail Channel"

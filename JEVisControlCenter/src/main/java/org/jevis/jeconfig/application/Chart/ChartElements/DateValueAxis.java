@@ -13,6 +13,7 @@ import javafx.css.StyleableProperty;
 import javafx.geometry.Dimension2D;
 import javafx.geometry.Side;
 import javafx.scene.chart.ValueAxis;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 import javafx.util.converter.DateTimeStringConverter;
@@ -391,6 +392,8 @@ public class DateValueAxis extends ValueAxis<Long> {
      */
     public DateValueAxis() {
         forceZeroInRange.set(false);
+        setTickLabelFill(Color.BLACK);
+        setMinorTickVisible(false);
     }
 
     public DateValueAxis(Boolean asDuration, DateTime firstTS) {

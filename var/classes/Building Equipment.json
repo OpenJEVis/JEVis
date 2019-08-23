@@ -99,7 +99,7 @@
       "name": "Daily Operating Hours",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building Equipment"
@@ -108,7 +108,7 @@
       "name": "Energy Source",
       "primitiveType": 0,
       "guiType": "Object Target",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building Equipment"
@@ -117,7 +117,7 @@
       "name": "Manufacturer",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building Equipment"
@@ -126,7 +126,7 @@
       "name": "Measuring Point",
       "primitiveType": 0,
       "guiType": "Object Target",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building Equipment"
@@ -135,7 +135,7 @@
       "name": "Nominal Power",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building Equipment"
@@ -144,7 +144,7 @@
       "name": "Weighting Factor",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building Equipment"
@@ -153,7 +153,7 @@
       "name": "Work Weeks",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building Equipment"
@@ -162,7 +162,7 @@
       "name": "Working Days",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building Equipment"

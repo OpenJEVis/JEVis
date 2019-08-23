@@ -142,12 +142,6 @@
             <artifactId>jxls-poi</artifactId>
             <version>1.2.0</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.jxls</groupId>
-            <artifactId>jxls-jexcel</artifactId>
-            <version>1.0.9</version>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

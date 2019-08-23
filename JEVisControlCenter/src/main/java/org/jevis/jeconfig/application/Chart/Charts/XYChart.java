@@ -19,10 +19,14 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
@@ -33,6 +37,7 @@ import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisAreaChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
@@ -42,9 +47,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.PeriodFormat;
 
-import javax.measure.unit.Unit;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -56,6 +59,10 @@ public class XYChart implements Chart {
     private static final Logger logger = LogManager.getLogger(XYChart.class);
     private final Boolean showRawData;
     private final Boolean showSum;
+    final int polyRegressionDegree;
+    final RegressionType regressionType;
+    final Boolean calcRegression;
+    private final Boolean showL1L2;
     Boolean hideShowIcons;
     //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
     List<Color> hexColors = new ArrayList<>();
@@ -93,11 +100,15 @@ public class XYChart implements Chart {
     private JFXChartUtil jfxChartUtil;
     private DateTime nearest;
 
-    public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
+    public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean showL1L2, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
         this.showRawData = showRawData;
         this.showSum = showSum;
+        this.showL1L2 = showL1L2;
+        this.regressionType = regressionType;
         this.hideShowIcons = hideShowIcons;
+        this.calcRegression = calcRegression;
+        this.polyRegressionDegree = polyRegressionDegree;
         this.chartName = chartName;
         this.addSeriesOfType = addSeriesOfType;
         if (!chartDataModels.isEmpty()) {
@@ -109,6 +120,7 @@ public class XYChart implements Chart {
 
     public void init() {
         initializeChart();
+
         hexColors.clear();
         chart.getData().clear();
         tableData.clear();
@@ -137,6 +149,44 @@ public class XYChart implements Chart {
 
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
 
+                    if (calcRegression) {
+                        chart.setRegressionColor(singleRow.getAxis(), singleRow.getColor());
+                        chart.setRegression(singleRow.getAxis(), regressionType, polyRegressionDegree);
+                    }
+
+                    if (showL1L2 && singleRow.getDataProcessor() != null) {
+                        CleanDataObject cleanDataObject = new CleanDataObject(singleRow.getDataProcessor(), new ObjectHandler(singleRow.getObject().getDataSource()));
+                        if (cleanDataObject.getLimitsEnabled()) {
+                            List<JsonLimitsConfig> limitsConfigs = cleanDataObject.getLimitsConfig();
+                            for (int i = 0; i < limitsConfigs.size(); i++) {
+                                JsonLimitsConfig limitsConfig = limitsConfigs.get(i);
+                                String max = limitsConfig.getMax();
+                                if (max != null && !max.equals("")) {
+                                    Double value = Double.parseDouble(max);
+                                    List<Double> list = Arrays.asList(25d, 20d, 5d, 20d);
+                                    ObservableList<Double> doubles = FXCollections.observableList(list);
+                                    if (i == 0) {
+                                        chart.setLimitLine("L1 MAX", value, singleRow.getColor().brighter(), singleRow.getAxis(), doubles);
+                                    } else {
+                                        chart.setLimitLine("L2 MAX", value, singleRow.getColor().darker(), singleRow.getAxis(), doubles);
+                                    }
+                                }
+
+                                String min = limitsConfig.getMin();
+                                if (min != null && !min.equals("")) {
+                                    Double value = Double.parseDouble(min);
+                                    List<Double> list = Arrays.asList(2d, 21d);
+                                    ObservableList<Double> doubles = FXCollections.observableList(list);
+                                    if (i == 0) {
+                                        chart.setLimitLine("L1 MIN", value, singleRow.getColor().brighter(), singleRow.getAxis(), doubles);
+                                    } else {
+                                        chart.setLimitLine("L2 MIN", value, singleRow.getColor().darker(), singleRow.getAxis(), doubles);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     if (showSum && sumModel == null) {
                         sumModel = singleRow.clone();
                     }
@@ -147,12 +197,12 @@ public class XYChart implements Chart {
             }
         }
 
-        if (showSum && chartDataModels.size() > 1) {
+        if (showSum && chartDataModels.size() > 1 && sumModel != null) {
             try {
                 JsonObject json = new JsonObject();
                 json.setId(9999999999L);
-                json.setName("Summe");
-                JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) sumModel.getObject().getDataSource(), json);
+                json.setName(I18n.getInstance().getString("plugin.graph.table.sum"));
+                JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) chartDataModels.get(0).getObject().getDataSource(), json);
                 sumModel.setObject(test);
                 sumModel.setAxis(1);
                 sumModel.setColor(Color.BLACK);
@@ -177,23 +227,20 @@ public class XYChart implements Chart {
                     }
 
                 }
-                ArrayList arrayList = new ArrayList<>(sumSamples.values());
-                arrayList.sort(new Comparator<JEVisSample>() {
-                    @Override
-                    public int compare(JEVisSample o1, JEVisSample o2) {
-                        try {
-                            if (o1.getTimestamp().isBefore(o2.getTimestamp())) {
-                                return -1;
-                            } else if (o1.getTimestamp().equals(o2.getTimestamp())) {
-                                return 0;
-                            } else {
-                                return 1;
-                            }
-                        } catch (JEVisException e) {
-                            e.printStackTrace();
+                ArrayList<JEVisSample> arrayList = new ArrayList<>(sumSamples.values());
+                arrayList.sort((o1, o2) -> {
+                    try {
+                        if (o1.getTimestamp().isBefore(o2.getTimestamp())) {
+                            return -1;
+                        } else if (o1.getTimestamp().equals(o2.getTimestamp())) {
+                            return 0;
+                        } else {
+                            return 1;
                         }
-                        return -1;
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
                     }
+                    return -1;
                 });
 
                 sumModel.setSamples(arrayList);
@@ -225,28 +272,18 @@ public class XYChart implements Chart {
 
         generateYAxis();
 
-        getChart().
+        getChart().setStyle("-fx-font-size: " + 12 + "px;");
 
-                setStyle("-fx-font-size: " + 12 + "px;");
-
-        getChart().
-
-                setAnimated(false);
+        getChart().setAnimated(false);
 
         applyColors();
 
-        getChart().
+        getChart().setTitle(getUpdatedChartName());
 
-                setTitle(getUpdatedChartName());
-
-        getChart().
-
-                setLegendVisible(false);
+        getChart().setLegendVisible(false);
         //((javafx.scene.chart.XYChart)getChart()).setCreateSymbols(true);
 
-        chartSettingsFunction.applySetting(
-
-                getChart());
+        chartSettingsFunction.applySetting(getChart());
 
         initializeZoom();
 
@@ -329,8 +366,6 @@ public class XYChart implements Chart {
         for (XYChartSerie serie : xyChartSerieList) {
             if (serie.getUnit() != null) {
                 String currentUnit = UnitManager.getInstance().format(serie.getUnit());
-                if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString()))
-                    currentUnit = serie.getUnit();
                 if (serie.getyAxis() == 0) {
                     if (!unitY1.contains(currentUnit)) {
                         unitY1.add(currentUnit);
@@ -347,8 +382,12 @@ public class XYChart implements Chart {
 
         if (chartDataModels != null && chartDataModels.size() > 0) {
 
-            if (unitY1.isEmpty() && unitY2.isEmpty())
+            if (unitY1.isEmpty() && unitY2.isEmpty()) {
                 unitY1.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
+                unitY2.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
+            } else if (unitY1.isEmpty()) {
+                unitY1.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
+            }
 
         }
 
@@ -396,27 +435,15 @@ public class XYChart implements Chart {
             }
         }
 
-        String overall = "";
-        if (changedBoth[0] || changedBoth[1]) {
-            /** FS, works for Dashboard but not diagrams. This and the old Solution does not work for diagrams but i guess
-             * its not in problem in this function by somewhere else **/
+        updateXAxisLabel(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
+    }
 
-            overall = String.format("%s %s %s",
-                    dtfOutLegend.print(timeStampOfFirstSample.get()),
-                    I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
-                    dtfOutLegend.print(timeStampOfLastSample.get()));
+    public void updateXAxisLabel(DateTime firstTS, DateTime lastTS) {
 
-//            if ((timeStampOfLastSample.get().plus(realPeriod)).minus(timeStampOfFirstSample.get().getMillis()).getMillis() >= 86400) {
-//
-//                Period roundedPeriod = removeWorkdayInterval(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
-//
-//                overall += " " + roundedPeriod.toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
-//            } else {
-//                overall += " " + (new Period(timeStampOfFirstSample.get(), timeStampOfLastSample.get().plus(realPeriod)).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
-//            }
-
-
-        }
+        String overall = String.format("%s %s %s",
+                dtfOutLegend.print(firstTS),
+                I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
+                dtfOutLegend.print(lastTS));
 
         dateAxis.setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
     }
@@ -628,8 +655,6 @@ public class XYChart implements Chart {
                 break;
             case NONE:
                 break;
-            case TOTAL:
-                break;
             case SORTED_MAX:
                 String sortedmax = I18n.getInstance().getString("plugin.graph.manipulation.sortedmax");
                 if (!newName.contains(sortedmax))
@@ -721,18 +746,70 @@ public class XYChart implements Chart {
                             formattedDouble = nf.format(valueAsDouble);
                             tableEntry.setValue(formattedDouble + " " + unit);
                         } else {
-                            tableEntry.setValue(sample.getValueAsString());
+                            tableEntry.setValue(sample.getValueAsString() + " " + unit);
                         }
 
                     } else tableEntry.setValue("- " + unit);
 
-                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
+//                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
 
                 } catch (Exception ex) {
                 }
 
             });
         }
+    }
+
+    @Override
+    public void updateTableZoom(Long lowerBound, Long upperBound) {
+        DateTime lower = new DateTime(lowerBound);
+        DateTime upper = new DateTime(upperBound);
+
+        xyChartSerieList.parallelStream().forEach(serie -> {
+            try {
+
+                TableEntry tableEntry = serie.getTableEntry();
+                TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
+
+                double min = Double.MAX_VALUE;
+                double max = -Double.MAX_VALUE;
+                double avg = 0.0;
+                Double sum = 0.0;
+
+                List<JEVisSample> samples = serie.getSingleRow().getSamples();
+                List<JEVisSample> newList = new ArrayList<>();
+                JEVisUnit unit = serie.getSingleRow().getUnit();
+
+                for (JEVisSample smp : samples) {
+                    if ((smp.getTimestamp().equals(lower) || smp.getTimestamp().isAfter(lower)) && smp.getTimestamp().isBefore(upper)) {
+
+                        newList.add(smp);
+                        Double currentValue = smp.getValueAsDouble();
+
+                        min = Math.min(min, currentValue);
+                        max = Math.max(max, currentValue);
+                        sum += currentValue;
+                    }
+                }
+
+                double finalMin = min;
+                double finalMax = max;
+                Double finalSum = sum;
+                Platform.runLater(() -> {
+                    try {
+                        serie.updateTableEntry(newList, unit, finalMin, finalMax, avg, finalSum);
+                    } catch (JEVisException e) {
+                        logger.error("Could not update Table Entry for {}", serie.getSingleRow().getObject().getName(), e);
+                    }
+                });
+
+
+            } catch (Exception ex) {
+            }
+
+        });
+
+        Platform.runLater(() -> updateXAxisLabel(lower, upper));
     }
 
     @Override
@@ -782,6 +859,7 @@ public class XYChart implements Chart {
             });
         }
     }
+
 
     @Override
     public void applyColors() {

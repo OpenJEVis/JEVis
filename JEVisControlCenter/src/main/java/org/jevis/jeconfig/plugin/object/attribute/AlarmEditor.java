@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
@@ -46,6 +44,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.AlarmConstants;
 import org.jevis.commons.json.JsonAlarmConfig;
 import org.jevis.commons.json.JsonScheduler;
+import org.jevis.commons.json.JsonTools;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -54,7 +53,9 @@ import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -182,15 +183,14 @@ public class AlarmEditor implements AttributeEditor {
      * @param jsonstring
      * @return
      */
-    private List<JsonAlarmConfig> parseJson(String jsonstring) {
+    private List<JsonAlarmConfig> parseJson(String jsonstring) throws IOException {
         List<JsonAlarmConfig> list = new ArrayList<>();
 
 
         if (jsonstring.startsWith("[")) {
-            list = new Gson().fromJson(jsonstring, new TypeToken<List<JsonAlarmConfig>>() {
-            }.getType());
+            list = Arrays.asList(JsonTools.objectMapper().readValue(jsonstring, JsonAlarmConfig[].class));
         } else {
-            list.add(new Gson().fromJson(jsonstring, JsonAlarmConfig.class));
+            list.add(JsonTools.objectMapper().readValue(jsonstring, JsonAlarmConfig.class));
         }
 
 
@@ -204,7 +204,11 @@ public class AlarmEditor implements AttributeEditor {
      */
     private void show() throws JEVisException {
         if (_lastSample != null && !_lastSample.getValueAsString().isEmpty()) {
-            _listConfig = parseJson(_lastSample.getValueAsString());
+            try {
+                _listConfig = parseJson(_lastSample.getValueAsString());
+            } catch (IOException e) {
+                logger.error("Could not parse Json: {}", _lastSample.getValueAsString(), e);
+            }
         } else {
             _listConfig = createDefaultConfig();
         }
@@ -342,7 +346,7 @@ public class AlarmEditor implements AttributeEditor {
             }
 
             List<JEVisTreeFilter> allFilter = new ArrayList<>();
-            JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataFilter();
+            JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
             JEVisTreeFilter allAttributesFilter = SelectTargetDialog.buildAllAttributesFilter();
             allFilter.add(allDataFilter);
             allFilter.add(allAttributesFilter);
@@ -426,7 +430,11 @@ public class AlarmEditor implements AttributeEditor {
         }
 
         silentTime._newValueProperty().addListener((observable, oldValue, newValue) -> {
-            config.setSilentTime(new Gson().fromJson(newValue, JsonScheduler.class));
+            try {
+                config.setSilentTime(JsonTools.objectMapper().readValue(newValue, JsonScheduler.class));
+            } catch (IOException e) {
+                logger.error("Could not set new Silent Time: {}", newValue, e);
+            }
         });
 
         ScheduleEditor standbyTime;
@@ -440,7 +448,11 @@ public class AlarmEditor implements AttributeEditor {
         }
 
         standbyTime._newValueProperty().addListener((observable, oldValue, newValue) -> {
-            config.setStandbyTime(new Gson().fromJson(newValue, JsonScheduler.class));
+            try {
+                config.setStandbyTime(JsonTools.objectMapper().readValue(newValue, JsonScheduler.class));
+            } catch (IOException e) {
+                logger.error("Could not set new Silent Time: {}", newValue, e);
+            }
         });
 
         double prefFieldWidth = 150;

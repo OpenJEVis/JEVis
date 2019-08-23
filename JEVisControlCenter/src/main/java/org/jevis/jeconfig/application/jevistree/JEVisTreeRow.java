@@ -85,7 +85,7 @@ public class JEVisTreeRow {
     @Override
     public boolean equals(Object obj) {
         try {
-            if (obj != null && obj instanceof JEVisTreeRow) {
+            if (obj instanceof JEVisTreeRow) {
                 JEVisTreeRow otherRow = (JEVisTreeRow) obj;
                 if (otherRow.getJEVisObject().equals(getJEVisObject())) {
                     if (getType() == TYPE.ATTRIBUTE && otherRow.getJEVisAttribute() != null && getJEVisAttribute() != null) {

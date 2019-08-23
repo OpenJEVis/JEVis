@@ -5,8 +5,8 @@
  */
 package org.jevis.jeconfig.application.Chart.data;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -31,20 +31,23 @@ import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
-import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
+import java.io.IOException;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -70,6 +73,7 @@ public class GraphDataModel {
     public static final String ORGANIZATION_CLASS_NAME = "Organization";
     public static final String DATA_MODEL_ATTRIBUTE_NAME = "Data Model";
     public static final String GRAPH_PLUGIN_CLASS_NAME = "Graph Plugin";
+    private final ObjectRelations objectRelations;
     private final GraphPluginView graphPluginView;
     private Set<ChartDataModel> selectedData = new HashSet<>();
     private List<ChartSettings> charts = new ArrayList<>();
@@ -92,27 +96,41 @@ public class GraphDataModel {
     private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
     private Boolean showRawData = false;
     private Boolean showSum = false;
+    private Boolean calcRegression = false;
+    private Boolean showL1L2 = false;
+    private RegressionType regressionType = RegressionType.NONE;
+    private int polyRegressionDegree = -1;
     private Boolean runUpdate = false;
     private Long finalSeconds = 60L;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private Boolean temporary = false;
 
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
+        this.objectRelations = new ObjectRelations(ds);
         this.graphPluginView = graphPluginView;
         this.globalAnalysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
+        /**
+         * objectMapper configuration for backwards compatibility. Can be removed in the future.
+         */
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
         if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
         if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
         this.globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());
         this.globalAnalysisTimeFrame.setEnd(dateHelper.getEndDate());
 
-        this.changed.addListener((observable, oldValue, newValue) -> {
+        changed.addListener((observable, oldValue, newValue) -> {
             if (newValue != oldValue && newValue) {
-                this.changed.set(false);
+                changed.set(false);
 
-                if (getCurrentAnalysis() != null && !getCurrentAnalysis().getName().equals("Temp")) {
-                    this.selectedData = new HashSet<>();
-                    this.charts = new ArrayList<>();
+                if (getCurrentAnalysis() != null && !getTemporary()) {
+                    selectedData = new HashSet<>();
+                    charts = new ArrayList<>();
+
                     getSelectedData();
+
                 }
                 update();
             }
@@ -120,7 +138,7 @@ public class GraphDataModel {
     }
 
     public Set<ChartDataModel> getSelectedData() {
-        if (this.selectedData == null || this.selectedData.isEmpty()) {
+        if (selectedData == null || selectedData.isEmpty()) {
 
             updateSelectedData();
 
@@ -155,7 +173,7 @@ public class GraphDataModel {
                     @Override
                     protected Void call() {
                         updateMessage(loading);
-                        Platform.runLater(() -> GraphDataModel.this.graphPluginView.update(true));
+                        Platform.runLater(() -> graphPluginView.update(true));
                         return null;
                     }
                 };
@@ -172,21 +190,21 @@ public class GraphDataModel {
     private AggregationPeriod globalAggregationPeriod = AggregationPeriod.NONE;
 
     public void updateSamples() {
-        this.selectedData.forEach(chartDataModel -> {
+        selectedData.forEach(chartDataModel -> {
             chartDataModel.setSomethingChanged(true);
             chartDataModel.getSamples();
         });
     }
 
     public List<ChartSettings> getCharts() {
-        if (this.charts == null || this.charts.isEmpty()) updateCharts();
+        if (charts == null || charts.isEmpty()) updateCharts();
 
 //        if (selectedData != null && !selectedData.isEmpty() && listAnalysisModel != null) {
 //
 //            for (ChartSettings chartSettings : charts) {
 //                AnalysisTimeFrame newATF = new AnalysisTimeFrame();
 //                try {
-//                    newATF.setActiveTimeFrame(newATF.parseTimeFrameFromString(chartSettings.getAnalysisTimeFrame().getTimeframe()));
+//                    newATF.setTimeFrame(newATF.parseTimeFrameFromString(chartSettings.getAnalysisTimeFrame().getTimeframe()));
 //                    newATF.setId(Long.parseLong(chartSettings.getAnalysisTimeFrame().getId()));
 //                } catch (Exception e) {
 //                    e.printStackTrace();
@@ -194,7 +212,7 @@ public class GraphDataModel {
 //            }
 //        }
 
-        return this.charts;
+        return charts;
     }
 
     public void setCharts(List<ChartSettings> charts) {
@@ -202,7 +220,7 @@ public class GraphDataModel {
     }
 
     private void updateCharts() {
-        if (this.charts == null || this.charts.isEmpty()) {
+        if (charts == null || charts.isEmpty()) {
             try {
                 if (getCurrentAnalysis() != null) {
                     if (Objects.nonNull(getCurrentAnalysis().getAttribute(CHARTS_ATTRIBUTE_NAME))) {
@@ -211,12 +229,12 @@ public class GraphDataModel {
                             String str = getCurrentAnalysis().getAttribute(CHARTS_ATTRIBUTE_NAME).getLatestSample().getValueAsString();
                             try {
                                 if (str.startsWith("[")) {
-                                    this.listChartsSettings = new Gson().fromJson(str, new TypeToken<List<JsonChartSettings>>() {
-                                    }.getType());
+                                    listChartsSettings = Arrays.asList(objectMapper.readValue(str, JsonChartSettings[].class));
+
 
                                 } else {
-                                    this.listChartsSettings = new ArrayList<>();
-                                    this.listChartsSettings.add(new Gson().fromJson(str, JsonChartSettings.class));
+                                    listChartsSettings = new ArrayList<>();
+                                    listChartsSettings.add(objectMapper.readValue(str, JsonChartSettings.class));
                                 }
                             } catch (Exception e) {
                                 logger.error("Error: could not read chart settings", e);
@@ -228,8 +246,8 @@ public class GraphDataModel {
                         if (chartPerScreenSample != null) {
                             setChartsPerScreen(chartPerScreenSample.getValueAsLong());
                         } else {
-                            JEVisClass graphServiceClass = this.ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
-                            List<JEVisObject> graphServiceList = this.ds.getObjects(graphServiceClass, true);
+                            JEVisClass graphServiceClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+                            List<JEVisObject> graphServiceList = ds.getObjects(graphServiceClass, true);
                             for (JEVisObject graphPlugin : graphServiceList) {
                                 JEVisAttribute chartsPerScreenAttribute = graphPlugin.getAttribute(NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME);
                                 if (chartsPerScreenAttribute != null) {
@@ -241,10 +259,46 @@ public class GraphDataModel {
                             }
                         }
                     }
+                    if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME))) {
+                        JEVisSample noOfHorizontalPies = getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME).getLatestSample();
+                        if (noOfHorizontalPies != null) {
+                            setHorizontalPies(noOfHorizontalPies.getValueAsLong());
+                        } else {
+                            JEVisClass graphServiceClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+                            List<JEVisObject> graphServiceList = ds.getObjects(graphServiceClass, true);
+                            for (JEVisObject graphPlugin : graphServiceList) {
+                                JEVisAttribute noOfHorizontalPiesAttribute = graphPlugin.getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME);
+                                if (noOfHorizontalPiesAttribute != null) {
+                                    JEVisSample lastSample = noOfHorizontalPiesAttribute.getLatestSample();
+                                    if (lastSample != null) {
+                                        setHorizontalPies(lastSample.getValueAsLong());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME))) {
+                        JEVisSample noOfHorizontalTables = getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME).getLatestSample();
+                        if (noOfHorizontalTables != null) {
+                            setHorizontalTables(noOfHorizontalTables.getValueAsLong());
+                        } else {
+                            JEVisClass graphServiceClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+                            List<JEVisObject> graphServiceList = ds.getObjects(graphServiceClass, true);
+                            for (JEVisObject graphPlugin : graphServiceList) {
+                                JEVisAttribute noOfHorizontalTablesAttribute = graphPlugin.getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME);
+                                if (noOfHorizontalTablesAttribute != null) {
+                                    JEVisSample lastSample = noOfHorizontalTablesAttribute.getLatestSample();
+                                    if (lastSample != null) {
+                                        setHorizontalTables(lastSample.getValueAsLong());
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     WorkDays wd = new WorkDays(getCurrentAnalysis());
-                    if (wd.getWorkdayStart() != null) this.workdayStart = wd.getWorkdayStart();
-                    if (wd.getWorkdayEnd() != null) this.workdayEnd = wd.getWorkdayEnd();
+                    if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
+                    if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
                 }
             } catch (JEVisException e) {
                 logger.error("Error: could not get analysis model", e);
@@ -252,9 +306,9 @@ public class GraphDataModel {
 
             List<ChartSettings> chartSettings = new ArrayList<>();
 
-            if (this.listChartsSettings != null && !this.listChartsSettings.isEmpty()) {
+            if (listChartsSettings != null && !listChartsSettings.isEmpty()) {
                 boolean needsIds = false;
-                for (JsonChartSettings settings : this.listChartsSettings) {
+                for (JsonChartSettings settings : listChartsSettings) {
                     ChartSettings newSettings = new ChartSettings("");
                     if (settings.getId() != null) {
                         newSettings.setId(Integer.parseInt(settings.getId()));
@@ -278,7 +332,7 @@ public class GraphDataModel {
                     for (ChartSettings set : chartSettings) set.setId(chartSettings.indexOf(set));
                 }
 
-                this.charts = chartSettings;
+                charts = chartSettings;
             }
         }
     }
@@ -300,9 +354,9 @@ public class GraphDataModel {
                 @Override
                 protected Void call() {
                     try {
-                        TimeUnit.SECONDS.sleep(GraphDataModel.this.finalSeconds);
+                        TimeUnit.SECONDS.sleep(finalSeconds);
                         Platform.runLater(() -> {
-                            GraphDataModel.this.graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+                            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
                         });
 
                     } catch (InterruptedException e) {
@@ -318,12 +372,12 @@ public class GraphDataModel {
     };
 
     public void stopTimer() {
-        this.service.cancel();
-        this.service.reset();
+        service.cancel();
+        service.reset();
     }
 
     public Boolean getHideShowIcons() {
-        return this.hideShowIcons;
+        return hideShowIcons;
     }
 
     public void setHideShowIcons(Boolean hideShowIcons) {
@@ -337,7 +391,7 @@ public class GraphDataModel {
     }
 
     public ManipulationMode getAddSeries() {
-        return this.addSeries;
+        return addSeries;
     }
 
     public void setAddSeries(ManipulationMode addSeries) {
@@ -347,13 +401,13 @@ public class GraphDataModel {
     }
 
     public Boolean getAutoResize() {
-        return this.autoResize;
+        return autoResize;
     }
 
     public void setAutoResize(Boolean resize) {
         this.autoResize = resize;
 
-        if (this.autoResize.equals(Boolean.TRUE)) {
+        if (autoResize.equals(Boolean.TRUE)) {
             update();
         }
     }
@@ -363,7 +417,7 @@ public class GraphDataModel {
     }
 
     public Boolean getShowSum() {
-        return this.showSum;
+        return showSum;
     }
 
     public void setShowSum(Boolean show) {
@@ -372,14 +426,50 @@ public class GraphDataModel {
         if (show) {
             update();
         } else {
-            this.graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
         }
     }
 
+    public Boolean calcRegression() {
+        return calcRegression;
+    }
+
+    public void setCalcRegression_NO_EVENT(Boolean calcRegression) {
+        this.calcRegression = calcRegression;
+    }
+
+    public void setCalcRegression(Boolean calc) {
+        this.calcRegression = calc;
+
+        if (calc) {
+            update();
+        } else {
+            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+        }
+    }
+
+    public Boolean getShowL1L2() {
+        return showL1L2;
+    }
+
+    public void setShowL1L2(Boolean showL1L2) {
+        this.showL1L2 = showL1L2;
+
+        if (showL1L2) {
+            update();
+        } else {
+            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+        }
+    }
+
+    public void setShowL1L2_NO_EVENT(Boolean showL1L2) {
+        this.showL1L2 = showL1L2;
+    }
+
     public void setTimer() {
-        if (this.service.isRunning()) {
-            this.service.cancel();
-            this.service.reset();
+        if (service.isRunning()) {
+            service.cancel();
+            service.reset();
         }
         Period p = null;
         for (ChartDataModel chartDataModel : getSelectedData()) {
@@ -407,13 +497,13 @@ public class GraphDataModel {
                     + " " + seconds + " " + I18n.getInstance().getString("plugin.graph.toolbar.timer.settimer2"), ButtonType.OK);
             warning.showAndWait();
 
-            this.finalSeconds = seconds;
-            this.service.start();
+            finalSeconds = seconds;
+            service.start();
         }
     }
 
     public Boolean getRunUpdate() {
-        return this.runUpdate;
+        return runUpdate;
     }
 
     public void setShowSumNO_EVENT(Boolean show) {
@@ -421,7 +511,7 @@ public class GraphDataModel {
     }
 
     public Boolean getShowRawData() {
-        return this.showRawData;
+        return showRawData;
     }
 
     public void setShowRawData(Boolean show) {
@@ -430,7 +520,7 @@ public class GraphDataModel {
         if (show) {
             update();
         } else {
-            this.graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
         }
     }
 
@@ -468,17 +558,19 @@ public class GraphDataModel {
         setHideShowIconsNO_EVENT(true);
         setShowRawDataNO_EVENT(false);
         setShowSumNO_EVENT(false);
+        setShowL1L2_NO_EVENT(false);
+        setCalcRegression_NO_EVENT(false);
         setAutoResizeNO_EVENT(true);
         setRunUpdate(false);
-        if (this.service.isRunning()) {
-            this.service.cancel();
-            this.service.reset();
+        if (service.isRunning()) {
+            service.cancel();
+            service.reset();
         }
     }
 
     public void setAnalysisTimeFrameForAllModels(AnalysisTimeFrame analysisTimeFrame) {
 
-        for (ChartSettings chartSettings : this.charts) {
+        for (ChartSettings chartSettings : charts) {
             chartSettings.setAnalysisTimeFrame(analysisTimeFrame);
 
             List<ChartDataModel> chartDataModels = new ArrayList<>();
@@ -493,13 +585,13 @@ public class GraphDataModel {
 
         }
 
-        this.globalAnalysisTimeFrame = analysisTimeFrame;
+        globalAnalysisTimeFrame = analysisTimeFrame;
         isGlobalAnalysisTimeFrame(true);
-        this.changed.set(true);
+        changed.set(true);
     }
 
     public void setAnalysisTimeFrameForModels(List<ChartDataModel> chartDataModels, DateHelper dateHelper, AnalysisTimeFrame analysisTimeFrame) {
-        if (this.selectedData != null && !this.selectedData.isEmpty()) {
+        if (selectedData != null && !selectedData.isEmpty()) {
             isGlobalAnalysisTimeFrame(false);
 
             if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
@@ -535,7 +627,14 @@ public class GraphDataModel {
                     analysisTimeFrame.setStart(dateHelper.getStartDate());
                     analysisTimeFrame.setEnd(dateHelper.getEndDate());
                     break;
-                //last Week days
+                //last Week
+                case THIS_WEEK:
+                    dateHelper.setType(DateHelper.TransformType.THISWEEK);
+                    updateStartEndToDataModel(chartDataModels, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
+                    break;
+                //last Week
                 case LAST_WEEK:
                     dateHelper.setType(DateHelper.TransformType.LASTWEEK);
                     updateStartEndToDataModel(chartDataModels, dateHelper);
@@ -545,6 +644,13 @@ public class GraphDataModel {
                 //last 30 days
                 case LAST_30_DAYS:
                     dateHelper.setType(DateHelper.TransformType.LAST30DAYS);
+                    updateStartEndToDataModel(chartDataModels, dateHelper);
+                    analysisTimeFrame.setStart(dateHelper.getStartDate());
+                    analysisTimeFrame.setEnd(dateHelper.getEndDate());
+                    break;
+                case THIS_MONTH:
+                    //last Month
+                    dateHelper.setType(DateHelper.TransformType.THISMONTH);
                     updateStartEndToDataModel(chartDataModels, dateHelper);
                     analysisTimeFrame.setStart(dateHelper.getStartDate());
                     analysisTimeFrame.setEnd(dateHelper.getEndDate());
@@ -574,7 +680,7 @@ public class GraphDataModel {
                     if (analysisTimeFrame.getId() != 0L) {
                         try {
                             dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
-                            CustomPeriodObject cpo = new CustomPeriodObject(this.ds.getObject(analysisTimeFrame.getId()), new ObjectHandler(this.ds));
+                            CustomPeriodObject cpo = new CustomPeriodObject(ds.getObject(analysisTimeFrame.getId()), new ObjectHandler(ds));
                             dateHelper.setCustomPeriodObject(cpo);
 
                             updateStartEndToDataModel(chartDataModels, dateHelper);
@@ -642,16 +748,16 @@ public class GraphDataModel {
         List<JEVisObject> listAnalysesDirectories = new ArrayList<>();
 
         try {
-            JEVisClass analysesDirectory = this.ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
-            listAnalysesDirectories = this.ds.getObjects(analysesDirectory, false);
+            JEVisClass analysesDirectory = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
+            listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
 
             if (listAnalysesDirectories.size() > 1) {
-                this.multipleDirectories = true;
+                multipleDirectories = true;
             }
 
             if (listAnalysesDirectories.size() > 0
-                    && this.workdayStart.equals(LocalTime.of(0, 0, 0, 0))
-                    && this.workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999))) {
+                    && workdayStart.equals(LocalTime.of(0, 0, 0, 0))
+                    && workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999))) {
                 updateWorkdayTimesFromJEVisObject(listAnalysesDirectories.get(0));
             }
         } catch (JEVisException e) {
@@ -660,11 +766,11 @@ public class GraphDataModel {
         if (listAnalysesDirectories.isEmpty()) {
             List<JEVisObject> listBuildings = new ArrayList<>();
             try {
-                JEVisClass building = this.ds.getJEVisClass(BUILDING_CLASS_NAME);
-                listBuildings = this.ds.getObjects(building, false);
+                JEVisClass building = ds.getJEVisClass(BUILDING_CLASS_NAME);
+                listBuildings = ds.getObjects(building, false);
 
                 if (!listBuildings.isEmpty()) {
-                    JEVisClass analysesDirectory = this.ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
+                    JEVisClass analysesDirectory = ds.getJEVisClass(ANALYSES_DIRECTORY_CLASS_NAME);
                     JEVisObject analysesDir = listBuildings.get(0).buildObject(I18n.getInstance().getString("plugin.graph.analysesdir.defaultname"), analysesDirectory);
                     analysesDir.commit();
                 }
@@ -674,88 +780,37 @@ public class GraphDataModel {
 
         }
         try {
-            this.observableListAnalyses.clear();
-            this.observableListAnalyses.addAll(this.ds.getObjects(this.ds.getJEVisClass(ANALYSIS_CLASS_NAME), false));
+            observableListAnalyses.clear();
+            observableListAnalyses.addAll(ds.getObjects(ds.getJEVisClass(ANALYSIS_CLASS_NAME), false));
 
         } catch (JEVisException e) {
             logger.error("Error: could not get analysis", e);
         }
 
         AlphanumComparator ac = new AlphanumComparator();
-        if (!this.multipleDirectories)
-            this.observableListAnalyses.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+        if (!multipleDirectories) observableListAnalyses.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
         else {
-            this.observableListAnalyses.sort((o1, o2) -> {
+            observableListAnalyses.sort((o1, o2) -> {
 
                 String prefix1 = "";
                 String prefix2 = "";
 
-                try {
-                    JEVisObject secondParent1 = o1.getParents().get(0).getParents().get(0);
-                    JEVisClass buildingClass = this.ds.getJEVisClass(BUILDING_CLASS_NAME);
-                    JEVisClass organisationClass = this.ds.getJEVisClass(ORGANIZATION_CLASS_NAME);
+                prefix1 = objectRelations.getObjectPath(o1) + o1.getName();
 
-                    if (secondParent1.getJEVisClass().equals(buildingClass)) {
-                        try {
-                            JEVisObject organisationParent = secondParent1.getParents().get(0).getParents().get(0);
-                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                prefix1 += organisationParent.getName() + " / " + secondParent1.getName() + " / ";
-                            }
-                        } catch (JEVisException e) {
-                            logger.error("Could not get Organization parent of " + secondParent1.getName() + ":" + secondParent1.getID());
-
-                            prefix1 += secondParent1.getName() + " / ";
-                        }
-                    } else if (secondParent1.getJEVisClass().equals(organisationClass)) {
-
-                        prefix1 += secondParent1.getName() + " / ";
-
-                    }
-
-                } catch (Exception e) {
-                }
-                prefix1 = prefix1 + o1.getName();
-
-                try {
-                    JEVisObject secondParent2 = o2.getParents().get(0).getParents().get(0);
-                    JEVisClass buildingClass = this.ds.getJEVisClass(BUILDING_CLASS_NAME);
-                    JEVisClass organisationClass = this.ds.getJEVisClass(ORGANIZATION_CLASS_NAME);
-
-                    if (secondParent2.getJEVisClass().equals(buildingClass)) {
-                        try {
-                            JEVisObject organisationParent = secondParent2.getParents().get(0).getParents().get(0);
-                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                prefix2 += organisationParent.getName() + " / " + secondParent2.getName() + " / ";
-                            }
-                        } catch (JEVisException e) {
-                            logger.error("Could not get Organization parent of " + secondParent2.getName() + ":" + secondParent2.getID());
-
-                            prefix2 += secondParent2.getName() + " / ";
-                        }
-                    } else if (secondParent2.getJEVisClass().equals(organisationClass)) {
-
-                        prefix2 += secondParent2.getName() + " / ";
-
-                    }
-
-                } catch (Exception e) {
-                }
-                prefix2 = prefix2 + o2.getName();
+                prefix2 = objectRelations.getObjectPath(o2) + o2.getName();
 
                 return ac.compare(prefix1, prefix2);
             });
         }
     }
 
-    public JsonChartDataModel getListAnalysisModel() {
+    public JsonChartDataModel getAnalysisModel() {
 
         JsonChartDataModel tempModel = null;
         try {
 //            ds.reloadAttributes();
 
-            if (this.charts == null || this.charts.isEmpty()) {
+            if (charts == null || charts.isEmpty()) {
                 updateCharts();
             }
             if (getCurrentAnalysis() != null) {
@@ -766,37 +821,19 @@ public class GraphDataModel {
                         try {
                             if (str.startsWith("[")) {
                                 tempModel = new JsonChartDataModel();
-                                List<JsonAnalysisDataRow> listOld = new Gson().fromJson(str, new TypeToken<List<JsonAnalysisDataRow>>() {
-                                }.getType());
+                                List<JsonAnalysisDataRow> listOld = Arrays.asList(objectMapper.readValue(str, JsonAnalysisDataRow[].class));
                                 tempModel.setListDataRows(listOld);
                             } else {
                                 try {
-                                    tempModel = new Gson().fromJson(str, new TypeToken<JsonChartDataModel>() {
-                                    }.getType());
+                                    tempModel = objectMapper.readValue(str, JsonChartDataModel.class);
                                 } catch (Exception e) {
                                     logger.error(e);
                                     tempModel = new JsonChartDataModel();
-                                    tempModel.getListAnalyses().add(new Gson().fromJson(str, JsonAnalysisDataRow.class));
+                                    tempModel.getListDataRows().add(objectMapper.readValue(str, JsonAnalysisDataRow.class));
                                 }
                             }
                         } catch (Exception e) {
                             logger.error("Error: could not read data model", e);
-                        }
-                    }
-                }
-                if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME))) {
-                    if (getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME).hasSample()) {
-                        Long no = getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME).getLatestSample().getValueAsLong();
-                        if (no != null) {
-                            setHorizontalPies(no);
-                        }
-                    }
-                }
-                if (Objects.nonNull(getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME))) {
-                    if (getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME).hasSample()) {
-                        Long no = getCurrentAnalysis().getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME).getLatestSample().getValueAsLong();
-                        if (no != null) {
-                            setHorizontalPies(no);
                         }
                     }
                 }
@@ -809,43 +846,43 @@ public class GraphDataModel {
 
         this.listAnalysisModel = tempModel;
 
-        return this.listAnalysisModel;
+        return listAnalysisModel;
     }
 
     private void updateWorkdayTimesFromJEVisObject(JEVisObject jeVisObject) {
         WorkDays wd = new WorkDays(jeVisObject);
         if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
-            this.workdayStart = wd.getWorkdayStart();
-            this.workdayEnd = wd.getWorkdayEnd();
+            workdayStart = wd.getWorkdayStart();
+            workdayEnd = wd.getWorkdayEnd();
         }
     }
 
     public ObservableList<JEVisObject> getObservableListAnalyses() {
-        if (this.observableListAnalyses.isEmpty()) updateListAnalyses();
-        return this.observableListAnalyses;
+        if (observableListAnalyses.isEmpty()) updateListAnalyses();
+        return observableListAnalyses;
     }
 
     public LocalTime getWorkdayStart() {
-        if (this.observableListAnalyses.size() > 0
-                && this.workdayStart.equals(LocalTime.of(0, 0, 0, 0))
-                && this.workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999))) {
-            updateWorkdayTimesFromJEVisObject(this.observableListAnalyses.get(0));
+        if (observableListAnalyses.size() > 0
+                && workdayStart.equals(LocalTime.of(0, 0, 0, 0))
+                && workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999))) {
+            updateWorkdayTimesFromJEVisObject(observableListAnalyses.get(0));
         }
-        return this.workdayStart;
+        return workdayStart;
     }
 
     public LocalTime getWorkdayEnd() {
-        if (this.observableListAnalyses.size() > 0
-                && this.workdayStart.equals(LocalTime.of(0, 0, 0, 0))
-                && this.workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999))) {
-            updateWorkdayTimesFromJEVisObject(this.observableListAnalyses.get(0));
+        if (observableListAnalyses.size() > 0
+                && workdayStart.equals(LocalTime.of(0, 0, 0, 0))
+                && workdayEnd.equals(LocalTime.of(23, 59, 59, 999999999))) {
+            updateWorkdayTimesFromJEVisObject(observableListAnalyses.get(0));
         }
-        return this.workdayEnd;
+        return workdayEnd;
     }
 
     public JEVisObject getCurrentAnalysis() {
 
-        return this.currentAnalysis;
+        return currentAnalysis;
     }
 
     public void setCurrentAnalysis(JEVisObject currentAnalysis) {
@@ -853,14 +890,14 @@ public class GraphDataModel {
 
         if (currentAnalysis != null) {
             try {
-                this.ds.reloadAttribute(currentAnalysis.getAttribute(DATA_MODEL_ATTRIBUTE_NAME));
+                ds.reloadAttribute(currentAnalysis.getAttribute(DATA_MODEL_ATTRIBUTE_NAME));
             } catch (Exception ex) {
                 logger.error(ex);
             }
 
-            if (this.observableListAnalyses == null || this.observableListAnalyses.isEmpty()) updateListAnalyses();
+            if (observableListAnalyses == null || observableListAnalyses.isEmpty()) updateListAnalyses();
 //        if (listAnalysisModel == null) {
-            getListAnalysisModel();
+            getAnalysisModel();
             updateSelectedData();
 //        }
         }
@@ -883,7 +920,7 @@ public class GraphDataModel {
                 tempList.sort((o1, o2) -> ac.compare(o1, o2));
 
                 for (String str : tempList) {
-                    for (ChartSettings set : this.charts) {
+                    for (ChartSettings set : charts) {
                         if (set.getName().equals(str))
                             idList.add(set.getId());
                     }
@@ -906,22 +943,22 @@ public class GraphDataModel {
     public void updateSelectedData() {
         Set<ChartDataModel> selectedData = new HashSet<>();
 
-        JsonChartDataModel jsonChartDataModel = getListAnalysisModel();
+        JsonChartDataModel jsonChartDataModel = getAnalysisModel();
 
         if (jsonChartDataModel != null) {
             Map<String, ChartDataModel> data = new HashMap<>();
 
-            for (JsonAnalysisDataRow mdl : jsonChartDataModel.getListAnalyses()) {
-                ChartDataModel newData = new ChartDataModel(this.ds);
+            for (JsonAnalysisDataRow mdl : jsonChartDataModel.getListDataRows()) {
+                ChartDataModel newData = new ChartDataModel(ds);
 
                 try {
                     Long id = Long.parseLong(mdl.getObject());
                     Long id_dp = null;
                     if (mdl.getDataProcessorObject() != null) id_dp = Long.parseLong(mdl.getDataProcessorObject());
-                    JEVisObject obj = this.ds.getObject(id);
+                    JEVisObject obj = ds.getObject(id);
                     JEVisObject obj_dp = null;
-                    if (mdl.getDataProcessorObject() != null) obj_dp = this.ds.getObject(id_dp);
-                    JEVisUnit unit = new JEVisUnitImp(new Gson().fromJson(mdl.getUnit(), JsonUnit.class));
+                    if (mdl.getDataProcessorObject() != null) obj_dp = ds.getObject(id_dp);
+                    JEVisUnit unit = new JEVisUnitImp(objectMapper.readValue(mdl.getUnit(), JsonUnit.class));
                     newData.setObject(obj);
 
                     newData.setColor(Color.valueOf(mdl.getColor()));
@@ -954,14 +991,16 @@ public class GraphDataModel {
                         newData.setBubbleType(BubbleType.parseBubbleType(mdl.getBubbleType()));
                     }
 
-                    if (this.isGlobalAnalysisTimeFrame) {
-                        newData.setSelectedStart(this.globalAnalysisTimeFrame.getStart());
-                        newData.setSelectedEnd(this.globalAnalysisTimeFrame.getEnd());
+                    if (isGlobalAnalysisTimeFrame) {
+                        newData.setSelectedStart(globalAnalysisTimeFrame.getStart());
+                        newData.setSelectedEnd(globalAnalysisTimeFrame.getEnd());
                     }
 
                     data.put(obj.getID().toString(), newData);
                 } catch (JEVisException e) {
                     logger.error("Error: could not get chart data model", e);
+                } catch (IOException e) {
+                    logger.error("Error: could not parse unit", e);
                 }
             }
 
@@ -976,42 +1015,42 @@ public class GraphDataModel {
     }
 
     public AggregationPeriod getAggregationPeriod() {
-        return this.globalAggregationPeriod;
+        return globalAggregationPeriod;
     }
 
     public void setAggregationPeriod(AggregationPeriod aggregationPeriod) {
         this.globalAggregationPeriod = aggregationPeriod;
-        if (this.selectedData != null && !this.selectedData.isEmpty()) {
-            this.selectedData.forEach(chartDataModel -> chartDataModel.setAggregationPeriod(aggregationPeriod));
+        if (selectedData != null && !selectedData.isEmpty()) {
+            selectedData.forEach(chartDataModel -> chartDataModel.setAggregationPeriod(aggregationPeriod));
         }
     }
 
     public ManipulationMode getManipulationMode() {
-        return this.globalManipulationMode;
+        return globalManipulationMode;
     }
 
     public void setManipulationMode(ManipulationMode manipulationMode) {
         this.globalManipulationMode = manipulationMode;
-        if (this.selectedData != null && !this.selectedData.isEmpty()) {
-            this.selectedData.forEach(chartDataModel -> chartDataModel.setManipulationMode(manipulationMode));
+        if (selectedData != null && !selectedData.isEmpty()) {
+            selectedData.forEach(chartDataModel -> chartDataModel.setManipulationMode(manipulationMode));
         }
     }
 
     public Boolean getMultipleDirectories() {
-        return this.multipleDirectories;
+        return multipleDirectories;
     }
 
     public Long getChartsPerScreen() {
-        if (this.chartsPerScreen == null) {
+        if (chartsPerScreen == null) {
             try {
-                JEVisClass graphPluginClass = this.ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
-                List<JEVisObject> graphPlugins = this.ds.getObjects(graphPluginClass, true);
+                JEVisClass graphPluginClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+                List<JEVisObject> graphPlugins = ds.getObjects(graphPluginClass, true);
                 if (!graphPlugins.isEmpty()) {
                     JEVisAttribute chartsPerScreenAttribute = graphPlugins.get(0).getAttribute(NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME);
                     if (chartsPerScreenAttribute != null) {
                         JEVisSample latestSample = chartsPerScreenAttribute.getLatestSample();
                         if (latestSample != null) {
-                            this.chartsPerScreen = Long.parseLong(latestSample.getValueAsString());
+                            chartsPerScreen = Long.parseLong(latestSample.getValueAsString());
                         }
                     }
                 }
@@ -1019,8 +1058,8 @@ public class GraphDataModel {
                 logger.error("Could not get JEVisClass for Graph Plugin");
             }
         }
-        if (this.chartsPerScreen == null || this.chartsPerScreen.equals(0L)) this.chartsPerScreen = 2L;
-        return this.chartsPerScreen;
+        if (chartsPerScreen == null || chartsPerScreen.equals(0L)) chartsPerScreen = 2L;
+        return chartsPerScreen;
     }
 
     public void setChartsPerScreen(Long chartsPerScreen) {
@@ -1028,16 +1067,16 @@ public class GraphDataModel {
     }
 
     public Long getHorizontalPies() {
-        if (this.horizontalPies == null) {
+        if (horizontalPies == null) {
             try {
-                JEVisClass graphPluginClass = this.ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
-                List<JEVisObject> graphPlugins = this.ds.getObjects(graphPluginClass, true);
+                JEVisClass graphPluginClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+                List<JEVisObject> graphPlugins = ds.getObjects(graphPluginClass, true);
                 if (!graphPlugins.isEmpty()) {
                     JEVisAttribute horizontalPiesAttribute = graphPlugins.get(0).getAttribute(NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME);
                     if (horizontalPiesAttribute != null) {
                         JEVisSample latestSample = horizontalPiesAttribute.getLatestSample();
                         if (latestSample != null) {
-                            this.horizontalPies = Long.parseLong(latestSample.getValueAsString());
+                            horizontalPies = Long.parseLong(latestSample.getValueAsString());
                         }
                     }
                 }
@@ -1045,21 +1084,21 @@ public class GraphDataModel {
                 logger.error("Could not get JEVisClass for Graph Plugin");
             }
         }
-        if (this.horizontalPies == null || this.horizontalPies.equals(0L)) this.horizontalPies = 2L;
-        return this.horizontalPies;
+        if (horizontalPies == null || horizontalPies.equals(0L)) horizontalPies = 2L;
+        return horizontalPies;
     }
 
     public Long getHorizontalTables() {
-        if (this.horizontalTables == null) {
+        if (horizontalTables == null) {
             try {
-                JEVisClass graphPluginClass = this.ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
-                List<JEVisObject> graphPlugins = this.ds.getObjects(graphPluginClass, true);
+                JEVisClass graphPluginClass = ds.getJEVisClass(GRAPH_PLUGIN_CLASS_NAME);
+                List<JEVisObject> graphPlugins = ds.getObjects(graphPluginClass, true);
                 if (!graphPlugins.isEmpty()) {
                     JEVisAttribute horizontalTablesAttribute = graphPlugins.get(0).getAttribute(NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME);
                     if (horizontalTablesAttribute != null) {
                         JEVisSample latestSample = horizontalTablesAttribute.getLatestSample();
                         if (latestSample != null) {
-                            this.horizontalTables = Long.parseLong(latestSample.getValueAsString());
+                            horizontalTables = Long.parseLong(latestSample.getValueAsString());
                         }
                     }
                 }
@@ -1067,8 +1106,8 @@ public class GraphDataModel {
                 logger.error("Could not get JEVisClass for Graph Plugin");
             }
         }
-        if (this.horizontalTables == null || this.horizontalTables.equals(0L)) this.horizontalTables = 3L;
-        return this.horizontalTables;
+        if (horizontalTables == null || horizontalTables.equals(0L)) horizontalTables = 3L;
+        return horizontalTables;
     }
 
     public void setHorizontalTables(Long horizontalTables) {
@@ -1080,7 +1119,7 @@ public class GraphDataModel {
     }
 
     public Boolean isglobalAnalysisTimeFrame() {
-        return this.isGlobalAnalysisTimeFrame;
+        return isGlobalAnalysisTimeFrame;
     }
 
     public void isGlobalAnalysisTimeFrame(Boolean isglobalAnalysisTimeFrame) {
@@ -1088,12 +1127,12 @@ public class GraphDataModel {
     }
 
     public AnalysisTimeFrame getGlobalAnalysisTimeFrame() {
-        return this.globalAnalysisTimeFrame;
+        return globalAnalysisTimeFrame;
     }
 
     public void setGlobalAnalysisTimeFrame(AnalysisTimeFrame globalAnalysisTimeFrame) {
         this.globalAnalysisTimeFrame = globalAnalysisTimeFrame;
-        this.changed.set(true);
+        changed.set(true);
     }
 
     public void setGlobalAnalysisTimeFrameNOEVENT(AnalysisTimeFrame globalAnalysisTimeFrame) {
@@ -1101,7 +1140,7 @@ public class GraphDataModel {
     }
 
     public boolean isChanged() {
-        return this.changed.get();
+        return changed.get();
     }
 
     public void setChanged(boolean changed) {
@@ -1109,9 +1148,31 @@ public class GraphDataModel {
     }
 
     public SimpleBooleanProperty changedProperty() {
-        return this.changed;
+        return changed;
     }
 
+    public int getPolyRegressionDegree() {
+        return polyRegressionDegree;
+    }
 
+    public void setPolyRegressionDegree(int polyRegressionDegree) {
+        this.polyRegressionDegree = polyRegressionDegree;
+    }
+
+    public RegressionType getRegressionType() {
+        return regressionType;
+    }
+
+    public void setRegressionType(RegressionType regressionType) {
+        this.regressionType = regressionType;
+    }
+
+    public Boolean getTemporary() {
+        return temporary;
+    }
+
+    public void setTemporary(Boolean temporary) {
+        this.temporary = temporary;
+    }
 }
 

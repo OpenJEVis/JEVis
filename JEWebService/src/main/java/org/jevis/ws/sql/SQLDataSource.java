@@ -5,6 +5,7 @@
  */
 package org.jevis.ws.sql;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.net.util.Base64;
 import org.apache.logging.log4j.LogManager;
@@ -37,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author fs
@@ -56,6 +58,7 @@ public class SQLDataSource {
     private List<JsonRelationship> allRelationships = Collections.synchronizedList(new LinkedList<>());
     private List<JsonObject> allObjects = Collections.synchronizedList(new LinkedList<>());
     private UserRightManagerForWS um;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url) throws AuthenticationException, JEVisException {
 
@@ -135,12 +138,11 @@ public class SQLDataSource {
     }
 
     private String createFilePattern(long id, String attribute, String fileName, DateTime dateTime) {
-        String absoluteFileDir = Config.getFileDir().getAbsolutePath()
+        return Config.getFileDir().getAbsolutePath()
                 + File.separator + id
                 + File.separator + attribute
                 + File.separator + DateTimeFormat.forPattern("yyyyMMddHHmmss").withZoneUTC().print(dateTime)
                 + "_" + fileName;
-        return absoluteFileDir;
     }
 
     public List<JsonJEVisClass> getJEVisClasses() {
@@ -253,7 +255,7 @@ public class SQLDataSource {
     }
 
     public List<JsonObject> getObjects(String jevisClass, boolean addheirs) throws JEVisException {
-        List<JsonObject> list = Collections.synchronizedList(new LinkedList());
+        List<JsonObject> list = Collections.synchronizedList(new LinkedList<>());
         List<String> allHeir = new ArrayList<>();
         allHeir.add(jevisClass);
         if (addheirs) {
@@ -273,7 +275,7 @@ public class SQLDataSource {
         logger.debug("getObject: {}", id);
         if (!this.allObjects.isEmpty()) {
             for (JsonObject ob : this.allObjects) {
-                if (ob.getId() == id) {
+                if (id.equals(ob.getId())) {
                     logger.debug("getObject- cache");
                     return ob;
                 }
@@ -295,7 +297,7 @@ public class SQLDataSource {
                             }
 
                         } catch (Exception ex) {
-
+                            logger.error("Could not add {} to object {}", rel.getFrom(), ob.toString());
                         }
                     }
                 });
@@ -312,7 +314,7 @@ public class SQLDataSource {
         logger.debug("getObject: {}", id);
         if (!this.allObjects.isEmpty()) {
             for (JsonObject ob : this.allObjects) {
-                if (ob.getId() == id) {
+                if (id.equals(ob.getId())) {
                     logger.debug("getObject- cache");
                     return ob;
                 }
@@ -327,7 +329,7 @@ public class SQLDataSource {
 
     }
 
-    public void addRelationhsipsToObjects(List<JsonObject> objs, List<JsonRelationship> rels) {
+    public void addRelationshipsToObjects(List<JsonObject> objs, List<JsonRelationship> rels) {
         for (JsonObject ob : objs) {
             for (JsonRelationship rel : rels) {
                 try {
@@ -372,7 +374,7 @@ public class SQLDataSource {
             try {
                 newRels.add(setRelationships(rel));
             } catch (Exception ex) {
-                //hmmmm
+                logger.error("could not add relationship {} to nothing", rel.toString());
             }
         }
         return newRels;
@@ -485,7 +487,7 @@ public class SQLDataSource {
 
             List<JsonObject> allObjects = getObjects();
             List<JsonAttribute> attributes = getAttributeTable().getAllAttributes();
-            Set<Long> objectMap = Collections.synchronizedSet(new HashSet());
+            Set<Long> objectMap = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
             allObjects.parallelStream().forEach(jsonObject -> {
                 try {
@@ -578,15 +580,14 @@ public class SQLDataSource {
      * @throws JEVisException
      */
     public JsonObject buildObject(JsonObject newObjecrequest, long parent) throws JEVisException {
-        JsonObject newObj = getObjectTable().insertObject(newObjecrequest.getName(), newObjecrequest.getJevisClass(), parent, newObjecrequest.getisPublic());
-//        copyOwnerPermissions(parent, newObj.getId());
+        //        copyOwnerPermissions(parent, newObj.getId());
 //        JsonRelationship parentRelationship = new JsonRelationship();
 //        parentRelationship.setType(JEVisConstants.ObjectRelationship.PARENT);
 //        parentRelationship.setFrom(newObj.getId());
 //        parentRelationship.setTo(parent);
 //        setRelationships(parentRelationship);
 
-        return newObj;
+        return getObjectTable().insertObject(newObjecrequest.getName(), newObjecrequest.getJevisClass(), parent, newObjecrequest.getisPublic());
     }
 
     /**
@@ -603,7 +604,7 @@ public class SQLDataSource {
                 newRelationship.setType(rel.getType());
                 newRelationship.setFrom(targetObj);
                 newRelationship.setTo(rel.getTo());
-                System.out.println("Add ower rel: " + newRelationship);
+                logger.debug("Add ower rel: " + newRelationship);
                 setRelationships(newRelationship);
             }
         }
@@ -685,5 +686,7 @@ public class SQLDataSource {
         ALL_REL, ALL_CLASSES, ALL_OBJECT
     }
 
-
+    public ObjectMapper getObjectMapper() {
+        return objectMapper;
+    }
 }

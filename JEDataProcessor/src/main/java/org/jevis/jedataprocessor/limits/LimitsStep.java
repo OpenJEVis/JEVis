@@ -31,7 +31,6 @@ import static org.jevis.commons.constants.JEDataProcessorConstants.GapFillingTyp
 public class LimitsStep implements ProcessStep {
 
     private static final Logger logger = LogManager.getLogger(LimitsStep.class);
-    private List<JEVisSample> sampleCache;
 
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
@@ -42,6 +41,7 @@ public class LimitsStep implements ProcessStep {
             return;
         }
         List<CleanInterval> intervals = resourceManager.getIntervals();
+        List<JEVisSample> sampleCache = resourceManager.getSampleCache();
         JEVisAttribute cleanAttribute = cleanDataObject.getValueAttribute();
         Double firstValue = 0.0;
         if (cleanAttribute != null) {
@@ -65,8 +65,8 @@ public class LimitsStep implements ProcessStep {
         List<JsonGapFillingConfig> confGaps = cleanDataObject.getGapFillingConfig();
 
         //identify limit breaking intervals
-        List<LimitBreak> limitBreaksStep1 = identifyLimitBreaks(intervals, confLimitsStep1, firstValue);
-        List<LimitBreak> limitBreaksStep2 = identifyLimitBreaks(intervals, confLimitsStep2, firstValue);
+        List<LimitBreak> limitBreaksStep1 = identifyLimitBreaks(resourceManager, intervals, confLimitsStep1, firstValue);
+        List<LimitBreak> limitBreaksStep2 = identifyLimitBreaks(resourceManager, intervals, confLimitsStep2, firstValue);
 
         if (limitBreaksStep1.isEmpty() && limitBreaksStep2.isEmpty()) { //no limit checks when there is no alignment
             logger.info("No limit breaks identified.");
@@ -75,14 +75,6 @@ public class LimitsStep implements ProcessStep {
         logger.info("{} limit breaks for step 1 identified", limitBreaksStep1.size());
         logger.info("{} limit breaks for step 2 identified", limitBreaksStep2.size());
 
-        try {
-            DateTime minDateForCache = cleanDataObject.getFirstDate().minusMonths(6);
-            DateTime lastDateForCache = cleanDataObject.getFirstDate();
-
-            sampleCache = cleanDataObject.getCleanObject().getAttribute(CleanDataObject.CLASS_NAME).getSamples(minDateForCache, lastDateForCache);
-        } catch (Exception e) {
-            logger.info("No caching possible: " + e);
-        }
         for (JsonLimitsConfig limitsConfig : cleanDataObject.getLimitsConfig()) {
             if (cleanDataObject.getLimitsConfig().indexOf(limitsConfig) == 0) {
                 for (LimitBreak limitBreak : limitBreaksStep1) {
@@ -144,6 +136,8 @@ public class LimitsStep implements ProcessStep {
                                 default:
                                     break;
                             }
+
+                            gal.clearLists();
                             logger.info("[{}] Done", resourceManager.getID());
                         }
                         if (limitBreaksStep2.size() != filledLimitBreaks.size())
@@ -154,9 +148,7 @@ public class LimitsStep implements ProcessStep {
                 }
             }
         }
-        sampleCache = null;
         logger.info("[{}] finished filling gaps", cleanDataObject.getCleanObject().getID());
-
     }
 
     private Long defaultValue(String s) {
@@ -167,7 +159,7 @@ public class LimitsStep implements ProcessStep {
         return l;
     }
 
-    private List<LimitBreak> identifyLimitBreaks(List<CleanInterval> intervals, List<JsonLimitsConfig> conf, Double firstValue) throws Exception {
+    private List<LimitBreak> identifyLimitBreaks(ResourceManager resourceManager, List<CleanInterval> intervals, List<JsonLimitsConfig> conf, Double firstValue) throws Exception {
 
         List<LimitBreak> limitBreaks = new ArrayList<>();
         LimitBreak currentLimitBreak = null;
@@ -179,35 +171,38 @@ public class LimitsStep implements ProcessStep {
                     Double max = Double.parseDouble(lc.getMax());
                     for (JEVisSample sample : currentInterval.getTmpSamples()) {
 
-                        if (sample == null || sample.getValueAsDouble() == null) {
-                            logger.error("- Limits Sample: {} min: {} max: {}" + sample, min, max);
-                            throw new Exception("Error in identifyLimitBreaks, empty value in interval: " + currentInterval.getInterval());
-                        }
+                        if (sample != null && sample.getValueAsDouble() != null) {
+                            Double sampleValue = sample.getValueAsDouble();
 
-                        Double sampleValue = sample.getValueAsDouble();
-
-                        if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
-                            if (currentLimitBreak == null) {
-                                currentLimitBreak = new LimitBreak();
-                                if (lastInterval != null && !lastInterval.getTmpSamples().isEmpty() && Objects.nonNull(lastInterval.getTmpSamples().get(0)))
-                                    currentLimitBreak.setFirstValue(lastInterval.getTmpSamples().get(0).getValueAsDouble());
-                                else currentLimitBreak.setFirstValue(firstValue);
-                                currentLimitBreak.addInterval(currentInterval);
-                                MinOrMax limit = null;
-                                if (sampleValue < min) limit = MinOrMax.MIN;
-                                if (sampleValue > max) limit = MinOrMax.MAX;
-                                currentLimitBreak.setMinOrMax(limit);
+                            if (sample.getValueAsDouble() < min || sample.getValueAsDouble() > max) {
+                                if (currentLimitBreak == null) {
+                                    currentLimitBreak = new LimitBreak(min, max);
+                                    if (lastInterval != null && !lastInterval.getTmpSamples().isEmpty() && Objects.nonNull(lastInterval.getTmpSamples().get(0)))
+                                        currentLimitBreak.setFirstValue(lastInterval.getTmpSamples().get(0).getValueAsDouble());
+                                    else currentLimitBreak.setFirstValue(firstValue);
+                                    currentLimitBreak.addInterval(currentInterval);
+                                    MinOrMax limit = null;
+                                    if (sampleValue < min) {
+                                        limit = MinOrMax.MIN;
+                                    }
+                                    if (sampleValue > max) {
+                                        limit = MinOrMax.MAX;
+                                    }
+                                    currentLimitBreak.setMinOrMax(limit);
+                                } else {
+                                    currentLimitBreak.addInterval(currentInterval);
+                                }
                             } else {
-                                currentLimitBreak.addInterval(currentInterval);
+                                if (currentLimitBreak != null) {
+                                    logger.info("Limit Break on: " + currentLimitBreak.getIntervals().get(0).getDate() + " to: " +
+                                            currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1).getDate());
+                                    currentLimitBreak.setLastValue(sampleValue);
+                                    limitBreaks.add(currentLimitBreak);
+                                    currentLimitBreak = null;
+                                }
                             }
                         } else {
-                            if (currentLimitBreak != null) {
-                                logger.info("Limit Break on: " + currentLimitBreak.getIntervals().get(0).getDate() + " to: " +
-                                        currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1).getDate());
-                                currentLimitBreak.setLastValue(sampleValue);
-                                limitBreaks.add(currentLimitBreak);
-                                currentLimitBreak = null;
-                            }
+                            logger.warn("Limits Error. No value for Limits Sample {} of object {}:{}", sample, resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getCleanDataObject().getCleanObject().getID());
                         }
                     }
                 }

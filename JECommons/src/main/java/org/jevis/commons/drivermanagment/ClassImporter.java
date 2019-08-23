@@ -19,19 +19,16 @@
  */
 package org.jevis.commons.drivermanagment;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.commons.json.JsonFactory;
-import org.jevis.commons.json.JsonJEVisClass;
-import org.jevis.commons.json.JsonRelationship;
-import org.jevis.commons.json.JsonType;
+import org.jevis.commons.json.*;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -113,6 +110,8 @@ public class ClassImporter {
 
             } catch (FileNotFoundException ex) {
                 logger.fatal(ex);
+            } catch (IOException e) {
+                logger.fatal(e);
             }
         }
 
@@ -156,9 +155,10 @@ public class ClassImporter {
             for (File relFile : relationshipsFiles) {
                 try {
                     BufferedReader br = new BufferedReader(new FileReader(relFile));
-                    Gson gson = new Gson();
-                    List<JsonRelationship> jRel = gson.fromJson(br, new TypeToken<List<JsonRelationship>>() {
-                    }.getType());
+//                    Gson gson = new Gson();
+//                    List<JsonRelationship> jRel = gson.fromJson(br, new TypeToken<List<JsonRelationship>>() {
+//                    }.getType());
+                    List<JsonRelationship> jRel = Arrays.asList(JsonTools.objectMapper().readValue(br, JsonRelationship[].class));
                     List<JEVisClassRelationship> newRelationships = buildRelationship(jRel);
                 } catch (Exception ex) {
                     logger.error("-->[ERROR] Error while building Relationships: " + ex);
@@ -449,14 +449,14 @@ public class ClassImporter {
         return parents;
     }
 
-    public JsonJEVisClass importClass(File jsonFile) throws FileNotFoundException {
-        Gson gson = new Gson();
+    public JsonJEVisClass importClass(File jsonFile) throws IOException {
+//        Gson gson = new Gson();
 
         BufferedReader br = new BufferedReader(new FileReader(jsonFile));
 
-        JsonJEVisClass jsonclass = gson.fromJson(br, JsonJEVisClass.class);
+//        JsonJEVisClass jsonclass = gson.fromJson(br, JsonJEVisClass.class);
 
-        return jsonclass;
+        return JsonTools.objectMapper().readValue(br, JsonJEVisClass.class);
 
     }
 

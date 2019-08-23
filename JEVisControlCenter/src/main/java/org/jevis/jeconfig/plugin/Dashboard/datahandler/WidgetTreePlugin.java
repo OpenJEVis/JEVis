@@ -57,7 +57,6 @@ public class WidgetTreePlugin implements TreePlugin {
     private List<ManipulationMode> customList = new ArrayList<ManipulationMode>() {
         {
             add(ManipulationMode.NONE);
-            add(ManipulationMode.TOTAL);
             add(ManipulationMode.RUNNING_MEAN);
             add(ManipulationMode.CENTRIC_RUNNING_MEAN);
             add(ManipulationMode.SORTED_MIN);

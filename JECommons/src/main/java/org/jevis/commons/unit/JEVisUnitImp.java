@@ -19,11 +19,11 @@
  */
 package org.jevis.commons.unit;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.json.JsonTools;
 import org.jevis.commons.ws.json.JsonFactory;
 import org.jevis.commons.ws.json.JsonUnit;
 
@@ -59,7 +59,7 @@ public class JEVisUnitImp implements JEVisUnit {
 
     public JEVisUnitImp(org.jevis.commons.ws.json.JsonUnit json) {
 
-        Gson gson = new Gson();
+//        Gson gson = new Gson();
         _label = json.getLabel();
         _prefix = UnitManager.getInstance().getPrefix(json.getPrefix(), Locale.getDefault());
         ParsePosition pp = new ParsePosition(0);
@@ -69,7 +69,11 @@ public class JEVisUnitImp implements JEVisUnit {
             UnitManager.getInstance().getUnitWithPrefix(_unit, _prefix);
             _unit.toString();
         } catch (Exception ex) {
-            logger.info("Warning! Could not parse unit from json: '" + gson.toJson(json) + "' " + ex.getMessage());
+            try {
+                logger.info("Warning! Could not parse unit from json: '" + JsonTools.prettyObjectMapper().writeValueAsString(json) + "' " + ex.getMessage());
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
             _unit = Unit.ONE;
             _label = "Unknown";
             _prefix = Prefix.NONE;
@@ -117,10 +121,15 @@ public class JEVisUnitImp implements JEVisUnit {
 
     @Override
     public String toJSON() {
-        Gson gson = new GsonBuilder().create();
+//        Gson gson = new GsonBuilder().create();
         JsonUnit junit = JsonFactory.buildUnit(this);
 
-        return gson.toJson(junit, JsonUnit.class);
+        try {
+            return JsonTools.objectMapper().writeValueAsString(junit);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     @Override

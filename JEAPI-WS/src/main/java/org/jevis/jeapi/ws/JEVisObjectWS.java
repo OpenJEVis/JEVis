@@ -19,13 +19,16 @@
  */
 package org.jevis.jeapi.ws;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.ws.json.JsonObject;
 
 import javax.swing.event.EventListenerList;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -350,11 +353,11 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public boolean isAllowedUnder(JEVisObject otherObject) throws JEVisException {
         boolean classIsAllowedUnderClass = getJEVisClass().isAllowedUnder(otherObject.getJEVisClass());
-        boolean isDirectory = this.ds.getJEVisClass("Directory").getHeirs().contains(this);
+        boolean isDirectory = this.ds.getJEVisClass("Directory").getHeirs().contains(this.getJEVisClass());
         boolean isUnique = getJEVisClass().isUnique();
         boolean isAlreadyUnderParent = false;
-        if (getParents() != null) {
-            for (JEVisObject silvering : getParents().get(0).getChildren()) {
+        if (otherObject.getParents() != null) {
+            for (JEVisObject silvering : otherObject.getParents().get(0).getChildren()) {
                 try {
                     if (silvering.getJEVisClassName().equals(getJEVisClassName())) {
                         isAlreadyUnderParent = true;
@@ -371,7 +374,7 @@ public class JEVisObjectWS implements JEVisObject {
         if (classIsAllowedUnderClass) {
             if (!isUnique) {
                 /**
-                 * if its not unique its alweys allowed to be created
+                 * if its not unique its always allowed to be created
                  */
                 return true;
             } else /**
@@ -395,9 +398,10 @@ public class JEVisObjectWS implements JEVisObject {
     @Override
     public void commit() throws JEVisException {
         try {
-            Gson gson = new Gson();
-            logger.trace("Commit: {}", gson.toJson(this.json));
-
+            System.out.println("Object.commit()");
+//            Gson gson = new Gson();
+//            logger.trace("Commit: {}", gson.toJson(this.json));
+//            Benchmark benchmark = new Benchmark();
             String resource = REQUEST.API_PATH_V1
                     + REQUEST.OBJECTS.PATH;
 
@@ -405,22 +409,24 @@ public class JEVisObjectWS implements JEVisObject {
 
             if (this.json.getId() > 0) {//update existing
                 resource += getID();
+//                resource += REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS;
+//                resource += "true";
                 update = true;
             }
 
-            StringBuffer response = this.ds.getHTTPConnection().postRequest(resource, gson.toJson(this.json));
-            //TODO: remove the relationship from the post json, like in the Webservice JSonFactory
+//            StringBuffer response = ;
+//            //TODO: remove the relationship from the post json, like in the Webservice JSonFactory
 
-            JsonObject newJson = gson.fromJson(response.toString(), JsonObject.class);
+            JsonObject newJson = this.ds.getObjectMapper().readValue(this.ds.getHTTPConnection().postRequest(resource, this.ds.getObjectMapper().writeValueAsString(this.json)).toString(), JsonObject.class);
+//            JsonObject newJson = gson.fromJson(response.toString(), JsonObject.class);
             logger.debug("commit object ID: {} public: {}", newJson.getId(), newJson.getisPublic());
             this.json = newJson;
-
-            this.ds.reloadRelationships();
-
-
-            /** reload object to be sure all evens will be handelt and the cache is working correctly **/
+//            benchmark.printBenchmarkDetail("After ws call");
+//            this.ds.reloadRelationships();
+            this.ds.reloadRelationships(this.json.getId());
+//            benchmark.printBenchmarkDetail("After reloadRel");
+            /** reload object to be sure all events will be handled and the cache is working correctly **/
             this.ds.addToObjectCache(this);
-
             if (update) {
                 notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.OBJECT_UPDATED, this));
             } else {
@@ -434,8 +440,17 @@ public class JEVisObjectWS implements JEVisObject {
                 }
             }
 
+
+//            benchmark.printBenchmarkDetail("done commit");
+        } catch (JsonParseException ex) {
+            throw new JEVisException("Json parse exception. Could not commit to server", 8236341, ex);
+        } catch (JsonMappingException ex) {
+            throw new JEVisException("Json mapping exception. Could not commit to server", 8236342, ex);
+        } catch (JsonProcessingException ex) {
+            throw new JEVisException("Json processing exception. Could not commit to server", 8236343, ex);
+        } catch (IOException ex) {
+            throw new JEVisException("IO exception. Could not commit to server", 8236344, ex);
         } catch (Exception ex) {
-            logger.catching(ex);
             throw new JEVisException("Could not commit to server", 8236348, ex);
         }
 

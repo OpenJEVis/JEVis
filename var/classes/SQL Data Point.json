@@ -12,7 +12,7 @@
     {
       "name": "Target Attribute",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "SQL Data Point"
@@ -21,7 +21,7 @@
       "name": "Target ID",
       "primitiveType": 0,
       "guiType": "Object Target",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "SQL Data Point"
@@ -29,7 +29,7 @@
     {
       "name": "Timestamp Column",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "SQL Data Point"
@@ -37,7 +37,7 @@
     {
       "name": "Timestamp Type",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "SQL Data Point"
@@ -45,7 +45,7 @@
     {
       "name": "Value Column",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "SQL Data Point"
@@ -53,7 +53,7 @@
     {
       "name": "Value Type",
       "primitiveType": 0,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "SQL Data Point"

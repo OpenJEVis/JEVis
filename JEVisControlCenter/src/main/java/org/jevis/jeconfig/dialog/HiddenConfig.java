@@ -13,10 +13,10 @@ import java.util.Optional;
 
 public class HiddenConfig {
 
-    public static double CHART_PRECESSION = 2.0;
+    public static double CHART_PRECISION = 2.0;
     public static int DASH_THREADS = 6;
-    public static int CHART_PRECESSION_LIMIT = 1000;
-    public static boolean CHART_PRECESSION_ON = true;
+    public static int CHART_PRECISION_LIMIT = 1000;
+    public static boolean CHART_PRECISION_ON = true;
 
 
     public static void showHiddenConfig() {
@@ -26,9 +26,9 @@ public class HiddenConfig {
 
         String chartGroup = "Chart";
         String dashboardGroup = "Dashboard";
-        userConfig.put("CDPE", new ConfigSheet.Property("Enable drawing precession", chartGroup, CHART_PRECESSION_ON, ""));
-        userConfig.put("CDPV", new ConfigSheet.Property("Chart drawing precession", chartGroup, CHART_PRECESSION, ""));
-        userConfig.put("CDPL", new ConfigSheet.Property("Chart drawing precession lower limit", chartGroup, CHART_PRECESSION_LIMIT, ""));
+        userConfig.put("CDPE", new ConfigSheet.Property("Enable drawing precision", chartGroup, CHART_PRECISION_ON, ""));
+        userConfig.put("CDPV", new ConfigSheet.Property("Chart drawing precision", chartGroup, CHART_PRECISION, ""));
+        userConfig.put("CDPL", new ConfigSheet.Property("Chart drawing precision lower limit", chartGroup, CHART_PRECISION_LIMIT, ""));
 
         userConfig.put("DTH", new ConfigSheet.Property("Dashboard Threads", dashboardGroup, DASH_THREADS, "Default 4"));
 
@@ -60,11 +60,11 @@ public class HiddenConfig {
 
         Optional<ButtonType> opt = configDia.showAndWait();
         if (opt.get().equals(buttonTypeOk)) {
-            CHART_PRECESSION = (double) userConfig.get("CDPV").getObject();
-            CHART_PRECESSION_ON = (boolean) userConfig.get("CDPE").getObject();
-            CHART_PRECESSION_LIMIT = (int) userConfig.get("CDPL").getObject();
+            CHART_PRECISION = (double) userConfig.get("CDPV").getObject();
+            CHART_PRECISION_ON = (boolean) userConfig.get("CDPE").getObject();
+            CHART_PRECISION_LIMIT = (int) userConfig.get("CDPL").getObject();
             DASH_THREADS = (int) userConfig.get("DTH").getObject();
-            System.out.println("CHART_PRECESSION_ON: " + CHART_PRECESSION_ON);
+            System.out.println("CHART_PRECESSION_ON: " + CHART_PRECISION_ON);
         }
 
 

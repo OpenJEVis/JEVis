@@ -13,6 +13,7 @@ import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -45,6 +46,8 @@ public class ChartDataModel {
     private Boolean absolute = false;
     private BubbleType bubbleType = BubbleType.NONE;
     private boolean isStringData = false;
+    private double timeFactor = 1.0;
+    private Double scaleFactor = 1d;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -97,11 +100,7 @@ public class ChartDataModel {
             if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                 try {
                     if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
-                        SampleGenerator sg;
-                        if (aggregationPeriod.equals(AggregationPeriod.NONE))
-                            sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
-                        else
-                            sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, ManipulationMode.TOTAL, aggregationPeriod);
+                        SampleGenerator sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
 
                         samples = sg.generateSamples();
                         samples = sg.getAggregatedSamples(samples);
@@ -185,13 +184,14 @@ public class ChartDataModel {
             if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
 
             ChartUnits cu = new ChartUnits();
-            Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
-            double finalTimeFactor = 1.0;
+            QuantityUnits qu = new QuantityUnits();
+            scaleFactor = cu.scaleValue(inputUnit, outputUnit);
+            timeFactor = 1.0;
 
             Double millisInput = null;
             Double millisOutput = null;
             try {
-                if (inputList.size() > 1 && !finalFactor.equals(1d)) {
+                if (scaleFactor != 1.0 && inputList.size() > 1 && aggregationPeriod != AggregationPeriod.NONE && !qu.isQuantityUnit(unit)) {
                     Period inputPeriod = attribute.getDisplaySampleRate();
                     if (inputPeriod.getYears() != 1 && inputPeriod.getMonths() != 3 && inputPeriod.getMonths() != 1) {
                         millisInput = (double) inputPeriod.toStandardDuration().getMillis();
@@ -222,17 +222,17 @@ public class ChartDataModel {
                     }
 
                     if (millisOutput != null && millisOutput > 0 && millisInput > 0) {
-                        finalTimeFactor = millisInput / millisOutput;
+                        timeFactor = millisInput / millisOutput;
                     }
                 }
             } catch (Exception e) {
                 logger.error("Could not get calculate time scaling factor: ", e);
             }
 
-            double finalTimeFactor1 = finalTimeFactor;
+            double finalTimeFactor1 = timeFactor;
             inputList.forEach(sample -> {
                 try {
-                    sample.setValue(sample.getValueAsDouble() * finalFactor * finalTimeFactor1);
+                    sample.setValue(sample.getValueAsDouble() * scaleFactor * finalTimeFactor1);
                 } catch (Exception e) {
                     try {
                         logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue()
@@ -508,5 +508,13 @@ public class ChartDataModel {
 
     public boolean isStringData() {
         return isStringData;
+    }
+
+    public double getTimeFactor() {
+        return timeFactor;
+    }
+
+    public Double getScaleFactor() {
+        return scaleFactor;
     }
 }

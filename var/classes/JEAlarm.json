@@ -18,7 +18,7 @@
       "name": "Enable",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEAlarm"
@@ -26,7 +26,7 @@
     {
       "name": "Max Number Threads",
       "primitiveType": 2,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEAlarm"
@@ -34,7 +34,7 @@
     {
       "name": "Cycle Time",
       "primitiveType": 2,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEAlarm"
@@ -42,7 +42,7 @@
     {
       "name": "Status",
       "primitiveType": 2,
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEAlarm"

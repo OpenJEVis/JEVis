@@ -88,7 +88,7 @@ public class UserRightManagerForWS {
             return allRelationShips;
         }
 
-        List<JsonRelationship> list = Collections.synchronizedList(new ArrayList());
+        List<JsonRelationship> list = Collections.synchronizedList(new LinkedList());
         List<Long> objectIBOGroupOwnedObj = Collections.synchronizedList(new LinkedList());
 
         /**

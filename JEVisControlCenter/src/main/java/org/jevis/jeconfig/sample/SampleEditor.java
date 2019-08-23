@@ -87,9 +87,9 @@ public class SampleEditor {
     public Response show(Window owner, final JEVisAttribute attribute) {
         final Stage stage = new Stage();
 
-        this._attribute = attribute;
+        _attribute = attribute;
         try {
-            this._attribute.getDataSource().reloadAttribute(this._attribute);
+            _attribute.getDataSource().reloadAttribute(_attribute);
         } catch (Exception ex) {
             logger.error("Update failed", ex);
         }
@@ -117,7 +117,7 @@ public class SampleEditor {
 
         HBox buttonPanel = new HBox();
 
-        this.ok.setDefaultButton(true);
+        ok.setDefaultButton(true);
 
         Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
         cancel.setCancelButton(true);
@@ -128,22 +128,22 @@ public class SampleEditor {
         Label startLabel = new Label(I18n.getInstance().getString("attribute.editor.from"));
 
 
-        this.startDate.setMaxWidth(120);
-        this.endDate.setMaxWidth(120);
+        startDate.setMaxWidth(120);
+        endDate.setMaxWidth(120);
 
 
         Label endLabel = new Label(I18n.getInstance().getString("attribute.editor.until"));
         if (attribute.hasSample()) {
             try {
                 DateTime from = attribute.getTimestampFromLastSample().minusDays(1);
-                DateTime until = attribute.getTimestampFromLastSample();
+                DateTime until = attribute.getTimestampFromLastSample().plusDays(1);
 
-                this.startDate.valueProperty().set(LocalDate.of(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth()));
-                this.endDate.valueProperty().set(LocalDate.of(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth()));
+                startDate.valueProperty().set(LocalDate.of(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth()));
+                endDate.valueProperty().set(LocalDate.of(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth()));
 
                 WorkDays wd = new WorkDays(attribute.getObject());
-                if (wd.getWorkdayStart() != null) this.workdayStart = wd.getWorkdayStart();
-                if (wd.getWorkdayEnd() != null) this.workdayEnd = wd.getWorkdayEnd();
+                if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
+                if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -160,46 +160,46 @@ public class SampleEditor {
         timeSpan.add(startLabel, 0, 1, 1, 1); // column=1 row=0
         timeSpan.add(endLabel, 0, 2, 1, 1); // column=1 row=0
 
-        timeSpan.add(this.startDate, 1, 1, 1, 1); // column=1 row=0
-        timeSpan.add(this.endDate, 1, 2, 1, 1); // column=1 row=0
+        timeSpan.add(startDate, 1, 1, 1, 1); // column=1 row=0
+        timeSpan.add(endDate, 1, 2, 1, 1); // column=1 row=0
 
-        buttonPanel.getChildren().addAll(timeSpan, preClean, spacer, this.ok, cancel);
+        buttonPanel.getChildren().addAll(timeSpan, preClean, spacer, ok, cancel);
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
         buttonPanel.setPadding(new Insets(10, 10, 10, 10));
         buttonPanel.setSpacing(15);//10
         buttonPanel.setMaxHeight(25);
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox.setHgrow(this.ok, Priority.NEVER);
+        HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(cancel, Priority.NEVER);
 
         SampleTableExtension sampleTableExtension = new SampleTableExtension(attribute, stage);
-        this.extensions.add(sampleTableExtension);
-        this.activExtensions = sampleTableExtension;
+        extensions.add(sampleTableExtension);
+        activExtensions = sampleTableExtension;
 
         /** graph makes only if the data are numbers **/
         try {
             if (attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.LONG || attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE) {
-                this.extensions.add(new SampleGraphExtension(attribute));
+                extensions.add(new SampleGraphExtension(attribute));
             }
         } catch (Exception ex) {
             logger.error(ex);
         }
 
-        this.extensions.add(new AttributeStatesExtension(attribute));
-        this.extensions.add(new SampleExportExtension(attribute));
-        this.extensions.add(new AttributeUnitExtension(attribute));
+        extensions.add(new AttributeStatesExtension(attribute));
+        extensions.add(new SampleExportExtension(attribute));
+        extensions.add(new AttributeUnitExtension(attribute));
 
         final List<Tab> tabs = new ArrayList<>();
 
-        for (SampleEditorExtension ex : this.extensions) {
+        for (SampleEditorExtension ex : extensions) {
             Tab tabEditor = new Tab();
             tabEditor.setText(ex.getTitle());
             tabEditor.setContent(ex.getView());
             tabs.add(tabEditor);
         }
 
-        this.disableEditing.addListener((observable, oldValue, newValue) -> {
-            this.extensions.forEach(sampleEditorExtension -> {
+        disableEditing.addListener((observable, oldValue, newValue) -> {
+            extensions.forEach(sampleEditorExtension -> {
                 logger.info("Disabled editing in: " + sampleEditorExtension.getTitle());
                 sampleEditorExtension.disableEditing(newValue);
             });
@@ -219,46 +219,37 @@ public class SampleEditor {
         VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
 
-        this.ok.setOnAction(t -> {
+        ok.setOnAction(t -> {
             stage.close();
-            for (SampleEditorExtension ex : this.extensions) {
+            for (SampleEditorExtension ex : extensions) {
                 ex.sendOKAction();
             }
         });
 
         tabPane.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
-            for (SampleEditorExtension ex : this.extensions) {
+            for (SampleEditorExtension ex : extensions) {
                 if (ex.getTitle().equals(t1.getText())) {
                     logger.info("Tab changed: " + ex.getClass());
-                    this.activExtensions = ex;
+                    activExtensions = ex;
                     ex.update();
                 }
             }
         });
 
-
-        if (attribute.hasSample()) {
-            DateTime lastSample = attribute.getTimestampFromLastSample();
-            this.endDate.setValue(LocalDate.of(lastSample.getYear(), lastSample.getMonthOfYear(), lastSample.getDayOfMonth()));
-            DateTime startDateTMP = lastSample.minusDays(1);
-            this.startDate.setValue(LocalDate.of(startDateTMP.getYear(), startDateTMP.getMonthOfYear(), startDateTMP.getDayOfMonth()));
-        }
-
-
-        this.startDate.valueProperty().addListener((observable, oldValue, newValue) -> {
+        startDate.valueProperty().addListener((observable, oldValue, newValue) -> {
 //            _from = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 0, 0);
 //            updateSamples(startDate, _until);
-            updateSamples(this.startDate, this.endDate);
+            updateSamples(startDate, endDate);
         });
-        this.endDate.valueProperty().addListener((observable, oldValue, newValue) -> {
+        endDate.valueProperty().addListener((observable, oldValue, newValue) -> {
 //            _until = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 23, 59, 59, 999);
 //            updateSamples(_from, _until);
-            updateSamples(this.startDate, this.endDate);
+            updateSamples(startDate, endDate);
         });
 
         cancel.setOnAction(t -> {
             stage.close();
-            this.response = Response.CANCEL;
+            response = Response.CANCEL;
             stage.close();
 
         });
@@ -267,17 +258,19 @@ public class SampleEditor {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                updateSamples(SampleEditor.this.startDate, SampleEditor.this.endDate);
+                if (startDate != null && endDate != null) {
+                    updateSamples(startDate, endDate);
+                }
             }
         });
 
         stage.showAndWait();
 
-        return this.response;
+        return response;
     }
 
     private void disableEditing(boolean disable) {
-        this.disableEditing.setValue(true);
+        disableEditing.setValue(true);
     }
 
     private Node buildProcessorBox(final JEVisObject parentObj) {
@@ -288,10 +281,10 @@ public class SampleEditor {
             JEVisClass dpClass = parentObj.getDataSource().getJEVisClass("Data Processor");
 
             if (dpClass != null) {
-                this._dataProcessors = parentObj.getChildren(dpClass, true);
-                if (this._dataProcessors != null) {
+                _dataProcessors = parentObj.getChildren(dpClass, true);
+                if (_dataProcessors != null) {
 
-                    for (JEVisObject configObject : this._dataProcessors) {
+                    for (JEVisObject configObject : _dataProcessors) {
                         proNames.add(configObject.getName());
                     }
                 }
@@ -308,12 +301,12 @@ public class SampleEditor {
 
             try {
                 if (newValue.equals("None")) {
-                    this.disableEditing.setValue(true);
-                    updateSamples(this.startDate, this.endDate);
+                    disableEditing.setValue(true);
+                    updateSamples(startDate, endDate);
                 } else {
-                    for (JEVisObject configObject : this._dataProcessors) {
+                    for (JEVisObject configObject : _dataProcessors) {
                         if (configObject.getName().equals(newValue)) {
-                            updateSamples(this.startDate, this.endDate);
+                            updateSamples(startDate, endDate);
                         }
                     }
                 }
@@ -337,34 +330,34 @@ public class SampleEditor {
         aggregate.getSelectionModel().selectFirst();
         aggregate.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && !Objects.equals(newValue, oldValue)) {
-                this.disableEditing.setValue(true);
+                disableEditing.setValue(true);
 
                 switch (newValue.intValue()) {
                     case 0:
-                        this._period = AggregationPeriod.NONE;
+                        _period = AggregationPeriod.NONE;
                         logger.info("Processor disable");
-                        this.disableEditing.setValue(false);/** only original DB data can be edited **/
+                        disableEditing.setValue(false);/** only original DB data can be edited **/
                         break;
                     case 1:
-                        this._period = AggregationPeriod.HOURLY;
+                        _period = AggregationPeriod.HOURLY;
                         break;
                     case 2:
-                        this._period = AggregationPeriod.DAILY;
+                        _period = AggregationPeriod.DAILY;
                         break;
                     case 3:
-                        this._period = AggregationPeriod.WEEKLY;
+                        _period = AggregationPeriod.WEEKLY;
                         break;
                     case 4:
-                        this._period = AggregationPeriod.MONTHLY;
+                        _period = AggregationPeriod.MONTHLY;
                         break;
                     case 5:
-                        this._period = AggregationPeriod.QUARTERLY;
+                        _period = AggregationPeriod.QUARTERLY;
                         break;
                     case 6:
-                        this._period = AggregationPeriod.YEARLY;
+                        _period = AggregationPeriod.YEARLY;
                         break;
                 }
-                updateSamples(this.startDate, this.endDate);
+                updateSamples(startDate, endDate);
             }
         });
 
@@ -395,8 +388,10 @@ public class SampleEditor {
 
     private void updateSamples(JFXDatePicker startDate, JFXDatePicker endDate) {
 
-        updateSamples(new DateTime(startDate.getValue().getYear(), startDate.getValue().getMonth().getValue(), startDate.getValue().getDayOfMonth(), 0, 0)
-                , new DateTime(endDate.getValue().getYear(), endDate.getValue().getMonth().getValue(), endDate.getValue().getDayOfMonth(), 23, 59, 59, 999));
+        if (startDate != null && endDate != null && startDate.getValue() != null && endDate.getValue() != null) {
+            updateSamples(new DateTime(startDate.getValue().getYear(), startDate.getValue().getMonth().getValue(), startDate.getValue().getDayOfMonth(), 0, 0)
+                    , new DateTime(endDate.getValue().getYear(), endDate.getValue().getMonth().getValue(), endDate.getValue().getDayOfMonth(), 23, 59, 59, 999));
+        }
     }
 
     private int getLastDataSettings(final DateTime from, final DateTime until, AggregationPeriod period) {
@@ -411,31 +406,26 @@ public class SampleEditor {
 
         try {
 
-            if (this.lastDataSettings != getLastDataSettings(from, until, this._period)) {
+            if (lastDataSettings != getLastDataSettings(from, until, _period)) {
                 DateTime _from = new DateTime(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth(),
-                        this.workdayStart.getHour(), this.workdayStart.getMinute(), this.workdayStart.getSecond(), this.workdayStart.getNano());
+                        workdayStart.getHour(), workdayStart.getMinute(), workdayStart.getSecond(), workdayStart.getNano());
                 DateTime _until = new DateTime(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth(),
-                        this.workdayEnd.getHour(), this.workdayEnd.getMinute(), this.workdayEnd.getSecond(), this.workdayEnd.getNano() / 1000000);
+                        workdayEnd.getHour(), workdayEnd.getMinute(), workdayEnd.getSecond(), workdayEnd.getNano() / 1000000);
 
-                if (this.workdayStart.isAfter(this.workdayEnd)) {
+                if (workdayStart.isAfter(workdayEnd)) {
                     _from = _from.minusDays(1);
                 }
 
+                SampleGenerator sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, ManipulationMode.NONE, _period);
 
-                SampleGenerator sg;
-                if (this._period.equals(AggregationPeriod.NONE))
-                    sg = new SampleGenerator(this._attribute.getDataSource(), this._attribute.getObject(), this._attribute, _from, _until, ManipulationMode.NONE, this._period);
-                else
-                    sg = new SampleGenerator(this._attribute.getDataSource(), this._attribute.getObject(), this._attribute, _from, _until, ManipulationMode.TOTAL, this._period);
+                samples = sg.generateSamples();
+                samples = sg.getAggregatedSamples(samples);
 
-                this.samples = sg.generateSamples();
-                this.samples = sg.getAggregatedSamples(this.samples);
-
-                for (SampleEditorExtension extension : this.extensions) {
+                for (SampleEditorExtension extension : extensions) {
                     Platform.runLater(() -> {
                         try {
-                            extension.setSamples(this._attribute, this.samples);
-//                        extension.updateData();
+                            extension.setSamples(_attribute, samples);
+//                        extension.update();
                         } catch (Exception excp) {
                             logger.error(extension);
                         }
@@ -444,11 +434,11 @@ public class SampleEditor {
                 }
             }
 
-            if (this.activExtensions != null) {
-                this.activExtensions.update();
+            if (activExtensions != null) {
+                activExtensions.update();
             }
 
-            this.lastDataSettings = getLastDataSettings(from, until, this._period);
+            lastDataSettings = getLastDataSettings(from, until, _period);
 
         } catch (Exception ex) {
             logger.error(ex);

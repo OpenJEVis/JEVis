@@ -19,9 +19,7 @@
  */
 package org.jevis.commons.drivermanagment;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
@@ -30,6 +28,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.commons.json.JsonFactory;
 import org.jevis.commons.json.JsonJEVisClass;
 import org.jevis.commons.json.JsonRelationship;
+import org.jevis.commons.json.JsonTools;
 
 import javax.imageio.ImageIO;
 import java.io.*;
@@ -97,7 +96,7 @@ public class ClassExporter {
     private List<File> relationshipsfilesForClass(List<JEVisClass> jclasses) throws JEVisException, IOException {
         String tmpdir = System.getProperty("java.io.tmpdir");
         List<File> classFiles = new ArrayList<>();
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         List<JEVisClassRelationship> allRel = new ArrayList<>();
         List<JsonRelationship> allJson = new ArrayList<>();
@@ -123,8 +122,9 @@ public class ClassExporter {
         for (JEVisClassRelationship rel : allRel) {
             allJson.add(new JsonRelationship(rel));
         }
-        String jsonString = gson.toJson(allJson, new TypeToken<List<JsonRelationship>>() {
-        }.getType());
+//        String jsonString = gson.toJson(allJson, new TypeToken<List<JsonRelationship>>() {
+//        }.getType());
+        String jsonString = JsonTools.prettyObjectMapper().writeValueAsString(allJson);
 
         File relFodler = new File(tmpdir + "/" + DIR_RELATIONSHIPS + "/");
         if (!relFodler.exists()) {
@@ -148,10 +148,10 @@ public class ClassExporter {
     private List<File> filesForClass(JEVisClass jclass) throws JEVisException, IOException {
         String tmpdir = System.getProperty("java.io.tmpdir");
         List<File> classFiles = new ArrayList<>();
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonJEVisClass jsonClass = JsonFactory.buildJEVisClassWithType(jclass);
 
-        String s = gson.toJson(jsonClass);
+        String s = JsonTools.prettyObjectMapper().writeValueAsString(jsonClass);
 
         File classFodler = new File(tmpdir + "/" + DIR_CLASSES);
         if (!classFodler.exists()) {

@@ -7,8 +7,8 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
-import org.jevis.jeconfig.application.jevistree.AlphanumComparator;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -37,6 +37,11 @@
       "start": "User Directory",
       "end": "Administration Directory",
       "type": 3
+    },
+    {
+      "start": "Administration Directory",
+      "end": "Building",
+      "type": 3
     }
   ],
   "types": [

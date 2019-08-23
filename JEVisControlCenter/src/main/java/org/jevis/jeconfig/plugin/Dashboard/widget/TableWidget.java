@@ -22,6 +22,7 @@ import org.jevis.jeconfig.plugin.Dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.Interval;
 
 import java.text.NumberFormat;
@@ -122,18 +123,19 @@ public class TableWidget extends Widget {
         this.table = new TableView<TableData>();
         this.table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        TableColumn<TableData, String> nameCol = new TableColumn<TableData, String>("Name");
+        String name = I18n.getInstance().getString("plugin.dashboard.tablewidget.column.name");
+        TableColumn<TableData, String> nameCol = new TableColumn<TableData, String>(name);
         nameCol.setMinWidth(225);
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-
-        TableColumn<TableData, String> valueCol = new TableColumn<TableData, String>("Wert");
+        String value = I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value");
+        TableColumn<TableData, String> valueCol = new TableColumn<TableData, String>(value);
         valueCol.setPrefWidth(150);
         valueCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         valueCol.setCellValueFactory(new PropertyValueFactory<>("value"));
 
-
-        TableColumn<TableData, String> unitCol = new TableColumn<TableData, String>("Einheit");
+        String unit = I18n.getInstance().getString("plugin.dashboard.tablewidget.column.unit");
+        TableColumn<TableData, String> unitCol = new TableColumn<TableData, String>(unit);
         unitCol.setCellValueFactory(new PropertyValueFactory<>("unit"));
 
         this.table.getColumns().setAll(nameCol, valueCol, unitCol);

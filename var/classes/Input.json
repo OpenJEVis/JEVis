@@ -13,7 +13,7 @@
       "name": "Identifier",
       "primitiveType": 0,
       "guiType": "Text",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Input"
@@ -22,7 +22,7 @@
       "name": "Input Data",
       "primitiveType": 0,
       "guiType": "Attribute Target",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Input"
@@ -31,7 +31,7 @@
       "name": "Input Data Type",
       "primitiveType": 0,
       "guiType": "String Enum",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Input"

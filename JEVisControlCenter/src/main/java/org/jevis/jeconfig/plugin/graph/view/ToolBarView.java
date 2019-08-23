@@ -7,11 +7,13 @@ package org.jevis.jeconfig.plugin.graph.view;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
+import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.*;
@@ -28,6 +30,7 @@ import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.json.JsonChartTimeFrame;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
@@ -35,16 +38,19 @@ import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.NumberSpinner;
 import org.joda.time.DateTime;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -59,6 +65,7 @@ public class ToolBarView {
     private static final Logger logger = LogManager.getLogger(ToolBarView.class);
     private final JEVisDataSource ds;
     private final GraphPluginView graphPluginView;
+    private final ObjectRelations objectRelations;
     private GraphDataModel model;
     private ComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean _initialized = false;
@@ -81,16 +88,29 @@ public class ToolBarView {
     private JFXTimePicker pickerTimeEnd;
     private DateHelper dateHelper = new DateHelper();
     private ToolBar toolBar;
-
+    private Boolean changed = false;
 
     private ToggleButton runUpdateButton;
     private ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
+            if (changed) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setContentText(I18n.getInstance().getString("plugin.graph.dialog.changed.text"));
+
+                alert.showAndWait().ifPresent(buttonType -> {
+                    if (buttonType.equals(ButtonType.OK)) {
+                        saveCurrentAnalysis();
+                    } else {
+
+                    }
+                });
+            }
             model.setCurrentAnalysis(newValue);
             model.resetToolbarSettings();
             model.setGlobalAnalysisTimeFrame(model.getGlobalAnalysisTimeFrame());
             Platform.runLater(this::updateLayout);
+            changed = false;
         }
     };
     private ToggleButton addSeriesRunningMean;
@@ -98,12 +118,14 @@ public class ToolBarView {
     private ImageView playIcon;
     private ToggleButton showRawData;
     private ToggleButton showSum;
+    private ToggleButton showL1L2;
+    private ToggleButton calcRegression;
 
     public ToolBarView(GraphDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.model = model;
         this.ds = ds;
+        this.objectRelations = new ObjectRelations(ds);
         this.graphPluginView = graphPluginView;
-
     }
 
 
@@ -152,35 +174,8 @@ public class ToolBarView {
                             setGraphic(null);
                             setText(null);
                         } else {
-                            String prefix = "";
-                            try {
+                            String prefix = objectRelations.getObjectPath(obj);
 
-                                JEVisObject secondParent = obj.getParents().get(0).getParents().get(0);
-                                JEVisClass buildingClass = ds.getJEVisClass("Building");
-                                JEVisClass organisationClass = ds.getJEVisClass("Organization");
-
-                                if (secondParent.getJEVisClass().equals(buildingClass)) {
-
-                                    try {
-                                        JEVisObject organisationParent = secondParent.getParents().get(0).getParents().get(0);
-
-                                        if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                            prefix += organisationParent.getName() + " / " + secondParent.getName() + " / ";
-                                        }
-                                    } catch (JEVisException e) {
-                                        logger.error("Could not get Organization parent of " + secondParent.getName() + ":" + secondParent.getID());
-
-                                        prefix += secondParent.getName() + " / ";
-                                    }
-                                } else if (secondParent.getJEVisClass().equals(organisationClass)) {
-
-                                    prefix += secondParent.getName() + " / ";
-
-                                }
-
-                            } catch (Exception e) {
-                            }
                             setText(prefix + obj.getName());
                         }
 
@@ -210,7 +205,7 @@ public class ToolBarView {
                 model.setCurrentAnalysis(null);
                 model.setCharts(selectionDialog.getChartPlugin().getData().getCharts());
                 model.setSelectedData(selectionDialog.getChartPlugin().getData().getSelectedData());
-
+                changed = true;
             }
         } else if (dialog.getResponse() == Response.LOAD) {
 
@@ -234,6 +229,64 @@ public class ToolBarView {
         model.setShowSum(!model.getShowSum());
     }
 
+    private void showL1L2InGraph() {
+        model.setShowL1L2(!model.getShowL1L2());
+    }
+
+    private void calcRegression() {
+
+        if (!model.calcRegression()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+
+            Label polyDegreeLabel = new Label("Degree:");
+            NumberSpinner polyDegreeNumberSpinner = new NumberSpinner(new BigDecimal(0), new BigDecimal(1));
+            polyDegreeNumberSpinner.setMin(new BigDecimal(0));
+            polyDegreeNumberSpinner.setMax(new BigDecimal(11));
+
+            Label regressionTypeLabel = new Label("Type");
+            ObservableList<RegressionType> regressionTypes = FXCollections.observableArrayList(RegressionType.values());
+            regressionTypes.remove(0);
+            ComboBox<RegressionType> regressionTypeComboBox = new ComboBox<>(regressionTypes);
+            regressionTypeComboBox.getSelectionModel().select(RegressionType.POLY);
+            regressionTypeComboBox.setDisable(true);
+
+            GridPane gridPane = new GridPane();
+            gridPane.setVgap(4);
+            gridPane.setHgap(4);
+
+            gridPane.add(regressionTypeLabel, 0, 0);
+            gridPane.add(regressionTypeComboBox, 1, 0);
+
+            gridPane.add(polyDegreeLabel, 0, 1);
+            gridPane.add(polyDegreeNumberSpinner, 1, 1);
+
+            regressionTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.equals(oldValue)) {
+                    if (newValue.equals(RegressionType.POLY)) {
+                        gridPane.add(polyDegreeLabel, 0, 1);
+                        gridPane.add(polyDegreeNumberSpinner, 1, 1);
+                    } else {
+                        gridPane.getChildren().removeAll(polyDegreeLabel, polyDegreeNumberSpinner);
+                    }
+                }
+            });
+
+            alert.getDialogPane().setContent(gridPane);
+
+            alert.showAndWait().ifPresent(buttonType -> {
+                if (buttonType.getButtonData().isDefaultButton()) {
+                    model.setPolyRegressionDegree(polyDegreeNumberSpinner.getNumber().toBigInteger().intValue());
+                    model.setRegressionType(regressionTypeComboBox.getSelectionModel().getSelectedItem());
+                    model.setCalcRegression(!model.calcRegression());
+                }
+            });
+        } else {
+            model.setPolyRegressionDegree(-1);
+            model.setRegressionType(RegressionType.NONE);
+            model.setCalcRegression(!model.calcRegression());
+        }
+    }
+
     private ComboBox<JEVisObject> getListAnalysesComboBox() {
         return listAnalysesComboBox;
     }
@@ -245,8 +298,10 @@ public class ToolBarView {
 
             model.setCharts(dia.getChartPlugin().getData().getCharts());
             model.setSelectedData(dia.getChartPlugin().getData().getSelectedData());
+            changed = true;
         }
     }
+
 
     private void saveCurrentAnalysis() {
 
@@ -280,50 +335,9 @@ public class ToolBarView {
                             if (!model.getMultipleDirectories())
                                 setText(obj.getName());
                             else {
-                                try {
-                                    String prefix = "";
+                                String prefix = objectRelations.getObjectPath(obj);
 
-                                    JEVisObject firstParent = obj.getParents().get(0);
-
-                                    JEVisClass buildingClass = ds.getJEVisClass("Building");
-                                    JEVisClass organisationClass = ds.getJEVisClass("Organization");
-
-                                    if (firstParent.getJEVisClass().equals(buildingClass)) {
-
-                                        try {
-                                            List<JEVisObject> parents = firstParent.getParents();
-                                            if (!parents.isEmpty()) {
-                                                List<JEVisObject> parentsParents = parents.get(0).getParents();
-                                                if (!parentsParents.isEmpty()) {
-                                                    JEVisObject organisationParent = parentsParents.get(0);
-
-                                                    if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                                        prefix += organisationParent.getName() + " / " + firstParent.getName();
-                                                    } else {
-                                                        prefix += firstParent.getName();
-                                                    }
-                                                } else {
-                                                    prefix += firstParent.getName();
-                                                }
-                                            } else {
-                                                prefix += firstParent.getName();
-                                            }
-                                        } catch (JEVisException e) {
-                                            logger.error("Could not get Organization parent of " + firstParent.getName() + ":" + firstParent.getID());
-
-                                            prefix += firstParent.getName();
-                                        }
-                                    } else if (firstParent.getJEVisClass().equals(organisationClass)) {
-
-                                        prefix += firstParent.getName();
-
-                                    }
-
-
-                                    setText(prefix + " / " + obj.getName());
-                                } catch (Exception e) {
-                                }
+                                setText(prefix + obj.getName());
                             }
                         }
 
@@ -340,17 +354,18 @@ public class ToolBarView {
             }
         });
 
+        parentsDirectories.getSelectionModel().selectFirst();
         if (model.getCurrentAnalysis() != null) {
             try {
-                parentsDirectories.getSelectionModel().select(model.getCurrentAnalysis().getParents().get(0));
+                if (model.getCurrentAnalysis().getParents() != null && !model.getCurrentAnalysis().getParents().isEmpty()) {
+                    parentsDirectories.getSelectionModel().select(model.getCurrentAnalysis().getParents().get(0));
+                }
             } catch (JEVisException e) {
                 logger.error("Couldn't select current Analysis Directory: " + e);
             }
-        } else {
-            parentsDirectories.getSelectionModel().selectFirst();
         }
 
-        if (model.getCurrentAnalysis() != null && model.getCurrentAnalysis().getName() != null && model.getCurrentAnalysis().getName() != "")
+        if (model.getCurrentAnalysis() != null && model.getCurrentAnalysis().getName() != null && !model.getCurrentAnalysis().getName().equals(""))
             name.setText(model.getCurrentAnalysis().getName());
 
         name.focusedProperty().addListener((ov, t, t1) -> Platform.runLater(() -> {
@@ -477,11 +492,13 @@ public class ToolBarView {
         try {
             JEVisAttribute dataModel = analysis.getAttribute("Data Model");
             JEVisAttribute charts = analysis.getAttribute("Charts");
+
             JEVisAttribute noOfChartsPerScreenAttribute = analysis.getAttribute(GraphDataModel.NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME);
             Long noOfChartsPerScreen = model.getChartsPerScreen();
 
             JEVisAttribute horizontalPiesAttribute = analysis.getAttribute(GraphDataModel.NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME);
             Long horizontalPies = model.getHorizontalPies();
+
             JEVisAttribute horizontalTablesAttribute = analysis.getAttribute(GraphDataModel.NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME);
             Long horizontalTables = model.getHorizontalTables();
 
@@ -535,7 +552,7 @@ public class ToolBarView {
                 smp.commit();
                 smp2.commit();
 
-                if (noOfChartsPerScreen != null && !noOfChartsPerScreen.equals(0L) && !noOfChartsPerScreen.equals(2L)) {
+                if (noOfChartsPerScreen != null && !noOfChartsPerScreen.equals(0L)) {
                     JEVisSample smp3 = noOfChartsPerScreenAttribute.buildSample(now, noOfChartsPerScreen);
                     smp3.commit();
                 }
@@ -546,9 +563,12 @@ public class ToolBarView {
                 }
 
                 if (horizontalTables != null && !horizontalTables.equals(0L)) {
-                    JEVisSample smp4 = horizontalTablesAttribute.buildSample(now, horizontalTables);
-                    smp4.commit();
+                    JEVisSample smp5 = horizontalTablesAttribute.buildSample(now, horizontalTables);
+                    smp5.commit();
                 }
+
+                changed = false;
+                this.model.setTemporary(false);
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));
                 alert.showAndWait();
@@ -597,6 +617,8 @@ public class ToolBarView {
         select.setDisable(bool);
         showRawData.setDisable(bool);
         showSum.setDisable(bool);
+        showL1L2.setDisable(bool);
+        calcRegression.setDisable(bool);
         disableIcons.setDisable(bool);
         zoomOut.setDisable(bool);
         presetDateBox.setDisable(bool);
@@ -614,6 +636,18 @@ public class ToolBarView {
         Platform.runLater(() -> {
 
             listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
+            listAnalysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+                Platform.runLater(() -> {
+                    ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) listAnalysesComboBox.getSkin();
+                    if (skin != null) {
+                        ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+                        if (popupContent != null) {
+                            popupContent.scrollTo(listAnalysesComboBox.getSelectionModel().getSelectedIndex());
+                        }
+                    }
+                });
+            });
+
             listAnalysesComboBox.setPrefWidth(300);
 
             setCellFactoryForComboBox();
@@ -649,13 +683,13 @@ public class ToolBarView {
                         sep1, presetDateBox, pickerDateStart, pickerDateEnd,
                         sep2, reload, zoomOut,
                         sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                        sep4, showSum, disableIcons, autoResize, runUpdateButton);
+                        sep4, calcRegression, showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
             } else {
                 toolBar.getItems().addAll(listAnalysesComboBox,
                         sep1, presetDateBox, pickerDateStart, pickerDateEnd,
                         sep2, reload, zoomOut,
                         sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                        sep4, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
+                        sep4, calcRegression, showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
             }
 
             setupAnalysisComboBoxListener();
@@ -729,6 +763,10 @@ public class ToolBarView {
         showRawData.setOnAction(event -> showRawDataInGraph());
 
         showSum.setOnAction(event -> showSumInGraph());
+
+        showL1L2.setOnAction(event -> showL1L2InGraph());
+
+        calcRegression.setOnAction(event -> calcRegression());
 
         disableIcons.setOnAction(event -> hideShowIconsInGraph());
 
@@ -841,6 +879,36 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
+        showL1L2 = new ToggleButton("", JEConfig.getImage("l1l2.png", iconSize, iconSize));
+        Tooltip showL1L2Tooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.showl1l2"));
+        showL1L2.setTooltip(showL1L2Tooltip);
+        showL1L2.setSelected(model.getShowL1L2());
+        showL1L2.styleProperty().bind(
+                Bindings
+                        .when(showL1L2.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(showL1L2.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
+        calcRegression = new ToggleButton("", JEConfig.getImage("regression.png", iconSize, iconSize));
+        Tooltip calcRegressionTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.calcregression"));
+        calcRegression.setTooltip(calcRegressionTooltip);
+        calcRegression.setSelected(model.calcRegression());
+        calcRegression.styleProperty().bind(
+                Bindings
+                        .when(calcRegression.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(calcRegression.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
         disableIcons = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
         Tooltip disableIconsTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
         disableIcons.setTooltip(disableIconsTooltip);
@@ -885,4 +953,14 @@ public class ToolBarView {
             _initialized = true;
         }
     }
+
+    public Boolean getChanged() {
+        return changed;
+    }
+
+    public void setChanged(Boolean changed) {
+        this.changed = changed;
+    }
+
+
 }

@@ -5,9 +5,8 @@
  */
 package org.jevis.iso.add;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.apache.commons.io.IOUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.jevis.commons.json.JsonTools;
 import org.jevis.iso.rest.Login;
 
 import java.io.BufferedReader;
@@ -16,7 +15,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -26,18 +24,21 @@ public class Translations {
     public List<FormAttribute> translate(List<FormAttribute> listfa, String language) throws Exception {
         for (FormAttribute fa : listfa) {
             InputStream is = getResourceAsStream("/lang/" + language + ".json");
-            String jsonTxt = IOUtils.toString(is, "UTF-8");
+//            String jsonTxt = IOUtils.toString(is, "UTF-8");
 
-            JsonParser parser = new JsonParser();
-            JsonObject json = parser.parse(jsonTxt).getAsJsonObject();
+//            JsonParser parser = new JsonParser();
+//            JsonObject json = parser.parse(jsonTxt).getAsJsonObject();
+            JsonNode jsonNode = JsonTools.objectMapper().readTree(is);
+            JsonNode jsonNode1 = jsonNode.get(fa.getName());
+            fa.setTransname(jsonNode1.textValue());
 
-            String att = fa.getName();
+//            String att = fa.getName();
 
-            if (Objects.nonNull(json.get(fa.getName()))) {
-                att = json.get(fa.getName()).getAsString();
-            }
+//            if (Objects.nonNull(json.get(fa.getName()))) {
+//                att = json.get(fa.getName()).getAsString();
+//            }
 
-            fa.setTransname(att);
+//            fa.setTransname(att);
         }
         return listfa;
     }
@@ -45,14 +46,19 @@ public class Translations {
     public String getTranslatedKey(String language, String keyName) throws IOException {
         String output = "";
         InputStream is = getResourceAsStream("/lang/" + language + ".json");
-        String jsonTxt = IOUtils.toString(is, "UTF-8");
 
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(jsonTxt).getAsJsonObject();
-        if (Objects.nonNull(json.get(keyName))) {
-            output = json.get(keyName).getAsString();
-        }
-        return output;
+        JsonNode jsonNode = JsonTools.objectMapper().readTree(is);
+        JsonNode jsonNode1 = jsonNode.get(keyName);
+        return jsonNode1.textValue();
+
+//        String jsonTxt = IOUtils.toString(is, "UTF-8");
+//
+//        JsonParser parser = new JsonParser();
+//        JsonObject json = parser.parse(jsonTxt).getAsJsonObject();
+//        if (Objects.nonNull(json.get(keyName))) {
+//            output = json.get(keyName).getAsString();
+//        }
+//        return output;
     }
 
     private List<String> getResourceFiles(String path) throws IOException {

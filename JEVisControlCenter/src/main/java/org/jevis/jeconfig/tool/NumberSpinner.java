@@ -208,7 +208,7 @@ public class NumberSpinner extends HBox {
 
             @Override
             public void handle(ActionEvent ae) {
-                if (max != null) {
+                if (min != null) {
                     if (numberField.getNumber().compareTo(min) >= 0)
                         decrement();
                 } else decrement();

@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.scada;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
@@ -26,6 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.json.JsonTools;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -567,9 +567,12 @@ public class SCADAPlugin implements Plugin {
         });
 
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-        String json = gson.toJson(aData, ScadaAnalysisData.class);
+        String json = null;
+        try {
+            json = JsonTools.prettyObjectMapper().writeValueAsString(aData);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         logger.info("json: \n" + json);
 
         try {

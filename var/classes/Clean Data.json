@@ -24,7 +24,7 @@
       "name": "Conversion to Differential",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -33,7 +33,7 @@
       "name": "Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -42,7 +42,7 @@
       "name": "Limits Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -51,7 +51,7 @@
       "name": "Limits Configuration",
       "primitiveType": 0,
       "guiType": "Limits Config",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -60,7 +60,7 @@
       "name": "GapFilling Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -69,7 +69,7 @@
       "name": "Gap Filling Config",
       "primitiveType": 0,
       "guiType": "Gap Filling Config",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -78,7 +78,7 @@
       "name": "Alarm Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -87,7 +87,7 @@
       "name": "Alarm Config",
       "primitiveType": 0,
       "guiType": "Alarm Config",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -96,7 +96,7 @@
       "name": "Alarm Log",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -105,7 +105,7 @@
       "name": "Period Alignment",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -114,7 +114,7 @@
       "name": "Period Offset",
       "primitiveType": 2,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -123,7 +123,7 @@
       "name": "Value is a Quantity",
       "primitiveType": 4,
       "guiType": "Check Box",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -132,7 +132,7 @@
       "name": "Value Multiplier",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -141,7 +141,7 @@
       "name": "Value Offset",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"
@@ -150,7 +150,7 @@
       "name": "Counter Overflow",
       "primitiveType": 1,
       "guiType": "Number",
-      "GUIPosition": 0,
+      "guiposition": 0,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Clean Data"

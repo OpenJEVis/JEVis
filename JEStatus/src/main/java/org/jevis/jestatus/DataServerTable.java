@@ -4,10 +4,15 @@ import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DataServerTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(DataServerTable.class);
@@ -16,6 +21,7 @@ public class DataServerTable extends AlarmTable {
     private final DateTime latestReported;
 
     public DataServerTable(JEVisDataSource ds, DateTime furthestReported, DateTime latestReported) {
+        super(ds);
         this.ds = ds;
         this.furthestReported = furthestReported;
         this.latestReported = latestReported;
@@ -52,6 +58,7 @@ public class DataServerTable extends AlarmTable {
 
 
         List<JEVisObject> channelObjects = getChannelObjects();
+//        channelObjects.sort(getObjectComparator());
 
         Map<JEVisObject, JEVisObject> channelAndTarget = new HashMap<>();
         List<JEVisObject> outOfBounds = new ArrayList<>();
@@ -61,7 +68,7 @@ public class DataServerTable extends AlarmTable {
             JEVisSample lastSampleTarget = null;
             JEVisAttribute lastReadoutAtt = null;
 
-            lastReadoutAtt = channel.getAttribute("Last Readout");
+            lastReadoutAtt = channel.getAttribute(LAST_READOUT_ATTRIBUTE_NAME);
             if (lastReadoutAtt != null) {
                 if (lastReadoutAtt.hasSample()) {
                     JEVisSample lastSample = lastReadoutAtt.getLatestSample();
@@ -84,10 +91,10 @@ public class DataServerTable extends AlarmTable {
                 }
             }
 
-            if (channel.getJEVisClassName().equals("Loytec XML-DL Channel") || channel.getJEVisClassName().equals("VIDA350 Channel")) {
-                if (channel.getJEVisClassName().equals("Loytec XML-DL Channel"))
+            if (channel.getJEVisClass().equals(getLoytecXMLDLChannelClass()) || channel.getJEVisClass().equals(getVida350ChannelClass())) {
+                if (channel.getJEVisClass().equals(getLoytecXMLDLChannelClass()))
                     targetAtt = channel.getAttribute("Target ID");
-                else if (channel.getJEVisClassName().equals("VIDA350 Channel")) {
+                else if (channel.getJEVisClass().equals(getVida350ChannelClass())) {
                     targetAtt = channel.getAttribute("Target");
                 }
 
@@ -96,22 +103,24 @@ public class DataServerTable extends AlarmTable {
                 TargetHelper th = null;
                 if (lastSampleTarget != null) {
                     th = new TargetHelper(ds, lastSampleTarget.getValueAsString());
-                    JEVisObject target = th.getObject().get(0);
-                    if (target != null) {
+                    if (!th.getObject().isEmpty()) {
+                        JEVisObject target = th.getObject().get(0);
+                        if (target != null) {
 
-                        channelAndTarget.put(channel, target);
-                        getListCheckedData().add(target);
+                            channelAndTarget.put(channel, target);
+                            getListCheckedData().add(target);
 
-                        JEVisAttribute resultAtt = null;
-                        if (!th.getAttribute().isEmpty()) resultAtt = th.getAttribute().get(0);
-                        if (resultAtt == null) resultAtt = target.getAttribute("Value");
+                            JEVisAttribute resultAtt = null;
+                            if (!th.getAttribute().isEmpty()) resultAtt = th.getAttribute().get(0);
+                            if (resultAtt == null) resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
 
-                        if (resultAtt != null) {
-                            if (resultAtt.hasSample()) {
-                                JEVisSample lastSample = resultAtt.getLatestSample();
-                                if (lastSample != null) {
-                                    if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
-                                        if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
+                            if (resultAtt != null) {
+                                if (resultAtt.hasSample()) {
+                                    JEVisSample lastSample = resultAtt.getLatestSample();
+                                    if (lastSample != null) {
+                                        if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
+                                            if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
+                                        }
                                     }
                                 }
                             }
@@ -123,69 +132,25 @@ public class DataServerTable extends AlarmTable {
             }
         }
 
-        outOfBounds.sort(new Comparator<JEVisObject>() {
-            @Override
-            public int compare(JEVisObject o1, JEVisObject o2) {
-                DateTime o1ts = null;
-                try {
-                    JEVisAttribute o1att = o1.getAttribute("Last Readout");
-                    if (o1att != null) {
-                        JEVisSample o1smp = o1att.getLatestSample();
-                        if (o1smp != null) {
-                            try {
-                                try {
-                                    o1ts = new DateTime(o1smp.getValueAsString());
-                                } catch (Exception e) {
-                                    o1ts = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(o1smp.getValueAsString());
-                                }
-                            } catch (IllegalArgumentException e) {
-                                logger.error("Could not parse, invalid datetime format: " + o1smp.getValueAsString()
-                                        + " from object: " + o1.getName() + ":" + o1.getID() + " of attribute: " + o1att.getName());
-                            } catch (UnsupportedOperationException e) {
-                                logger.error("Could not parse, unsupported operation: " + o1smp.getValueAsString()
-                                        + " from object: " + o1.getName() + ":" + o1.getID() + " of attribute: " + o1att.getName());
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.error("Could not get datetime for sorting object: " + o1.getName() + ":" + o1.getID());
-                }
-                DateTime o2ts = null;
-                try {
-                    JEVisAttribute o2att = o2.getAttribute("Last Readout");
-                    if (o2att != null) {
-                        JEVisSample o2smp = o2att.getLatestSample();
-                        if (o2smp != null) {
-                            try {
-                                try {
-                                    o2ts = new DateTime(o2smp.getValueAsString());
-                                } catch (Exception e) {
-                                    o2ts = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(o2smp.getValueAsString());
-                                }
-                            } catch (IllegalArgumentException e) {
-                                logger.error("Could not parse, invalid datetime format: " + o2smp.getValueAsString()
-                                        + " from object: " + o1.getName() + ":" + o1.getID() + " of attribute: " + o2att.getName());
-                            } catch (UnsupportedOperationException e) {
-                                logger.error("Could not parse, unsupported operation: " + o2smp.getValueAsString()
-                                        + " from object: " + o1.getName() + ":" + o1.getID() + " of attribute: " + o2att.getName());
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    logger.error("Could not get datetime for sorting object: " + o2.getName() + ":" + o2.getID());
-                }
+//        outOfBounds.sort(getObjectComparator());
 
-                if ((o1ts != null && o2ts != null && o1ts.isBefore(o2ts))) return -1;
-                else if ((o1ts != null && o2ts != null && o1ts.isAfter(o2ts))) return 1;
-                else return 0;
+        List<JEVisObject> asyncTargets = new ArrayList<>();
+        for (JEVisObject currentChannel : outOfBounds) {
+            JEVisObject target = channelAndTarget.get(currentChannel);
+            if (target != null) {
+                JEVisAttribute attribute = target.getAttribute(VALUE_ATTRIBUTE_NAME);
+                if (attribute.getInputSampleRate().equals(Period.ZERO)) {
+                    asyncTargets.add(currentChannel);
+                }
             }
-        });
+        }
 
-        JEVisClass organizationClass = ds.getJEVisClass("Organization");
-        JEVisClass buildingClass = ds.getJEVisClass("Monitored Object");
+        outOfBounds.removeAll(asyncTargets);
 
         boolean odd = false;
+        List<DataServerLine> dataServerLines = new ArrayList<>();
         for (JEVisObject currentChannel : outOfBounds) {
+            DataServerLine dataServerLine = new DataServerLine();
             String css = rowCss;
             if (odd) {
                 css += highlight;
@@ -193,71 +158,104 @@ public class DataServerTable extends AlarmTable {
             odd = !odd;
 
             String name = currentChannel.getName() + ":" + currentChannel.getID().toString();
+            dataServerLine.setName(name);
+            dataServerLine.setId(currentChannel.getID());
             String nameTarget = "";
             JEVisObject targetObject = null;
             try {
                 targetObject = channelAndTarget.get(currentChannel);
+                dataServerLine.setTargetObject(targetObject);
             } catch (Exception e) {
             }
-            if (targetObject != null) nameTarget = targetObject.getName() + ":" + targetObject.getID().toString();
+            if (targetObject != null) {
+                nameTarget = targetObject.getName() + ":" + targetObject.getID().toString();
+                dataServerLine.setNameTarget(nameTarget);
+            }
 
-            sb.append("<tr>");
+            dataServerLine.getLineString().append("<tr>");
             /**
              * Organisation Column
              */
-            sb.append("<td style=\"");
-            sb.append(css);
-            sb.append("\">");
-            sb.append(getParentName(currentChannel, organizationClass));
-            sb.append("</td>");
+            dataServerLine.getLineString().append("<td style=\"");
+            dataServerLine.getLineString().append(css);
+            dataServerLine.getLineString().append("\">");
+            String organisationName = getParentName(currentChannel, getOrganizationClass());
+            dataServerLine.getLineString().append(organisationName);
+            dataServerLine.setOrganizationName(organisationName);
+            dataServerLine.getLineString().append("</td>");
             /**
              * Building Column
              */
-            sb.append("<td style=\"");
-            sb.append(css);
-            sb.append("\">");
-            sb.append(getParentName(currentChannel, buildingClass));
-            sb.append("</td>");
+            dataServerLine.getLineString().append("<td style=\"");
+            dataServerLine.getLineString().append(css);
+            dataServerLine.getLineString().append("\">");
+            String buildingName = getParentName(currentChannel, getBuildingClass());
+            dataServerLine.getLineString().append(buildingName);
+            dataServerLine.setBuildingName(buildingName);
+            dataServerLine.getLineString().append("</td>");
             /**
              * Channel
              */
-            sb.append("<td style=\"");
-            sb.append(css);
-            sb.append("\">");
-            sb.append(name);
-            sb.append("</td>");
+            dataServerLine.getLineString().append("<td style=\"");
+            dataServerLine.getLineString().append(css);
+            dataServerLine.getLineString().append("\">");
+            dataServerLine.getLineString().append(name);
+            dataServerLine.getLineString().append("</td>");
             /**
              * Target Data Point
              */
-            sb.append("<td style=\"");
-            sb.append(css);
-            sb.append("\">");
-            sb.append(nameTarget);
-            sb.append("</td>");
+            dataServerLine.getLineString().append("<td style=\"");
+            dataServerLine.getLineString().append(css);
+            dataServerLine.getLineString().append("\">");
+            dataServerLine.getLineString().append(nameTarget);
+            dataServerLine.getLineString().append("</td>");
             /**
              * Last Time Stamp
              */
-            sb.append("<td style=\"");
-            sb.append(css);
-            sb.append("\">");
+            dataServerLine.getLineString().append("<td style=\"");
+            dataServerLine.getLineString().append(css);
+            dataServerLine.getLineString().append("\">");
             if (targetObject != null) {
-                JEVisAttribute targetAtt = targetObject.getAttribute("Value");
+                JEVisAttribute targetAtt = targetObject.getAttribute(VALUE_ATTRIBUTE_NAME);
                 if (targetAtt != null) {
                     if (targetAtt.hasSample()) {
-                        sb.append(dtf.print(targetAtt.getLatestSample().getTimestamp()));
+                        DateTime timestamp = targetAtt.getLatestSample().getTimestamp();
+                        dataServerLine.getLineString().append(dtf.print(timestamp));
+                        dataServerLine.setLastTimeStamp(timestamp);
                     }
                 }
             } else {
-                JEVisAttribute lastReadoutAtt = currentChannel.getAttribute("Last Readout");
+                JEVisAttribute lastReadoutAtt = currentChannel.getAttribute(LAST_READOUT_ATTRIBUTE_NAME);
                 if (lastReadoutAtt != null) {
                     if (lastReadoutAtt.hasSample()) {
-                        sb.append(dtf.print(new DateTime(lastReadoutAtt.getLatestSample().getValueAsString())));
+                        DateTime dateTime = new DateTime(lastReadoutAtt.getLatestSample().getValueAsString());
+                        dataServerLine.getLineString().append(dtf.print(dateTime));
+                        dataServerLine.setLastTimeStamp(dateTime);
                     }
                 }
             }
-            sb.append("</td>");
+            dataServerLine.getLineString().append("</td>");
 
-            sb.append("</tr>");
+            dataServerLine.getLineString().append("</tr>");
+
+            dataServerLines.add(dataServerLine);
+        }
+
+        dataServerLines.sort((o1, o2) -> {
+            if (o1.getLastTimeStamp().isBefore(o2.getLastTimeStamp())) return -1;
+            else if (o1.getLastTimeStamp().isAfter(o2.getLastTimeStamp())) return 1;
+            else {
+                AlphanumComparator ac = new AlphanumComparator();
+                return ac.compare(o1.getOrganizationName() +
+                        o1.getBuildingName() +
+                        o1.getName() + ":" + o1.getId().toString(), o1.getOrganizationName() +
+                        o1.getBuildingName() +
+                        o1.getName() + ":" + o1.getId().toString());
+            }
+        });
+
+        for (DataServerLine dataServerLine : dataServerLines) {
+            sb.append(dataServerLine.getLineString().toString());
         }
 
         sb.append("</tr>");
@@ -273,39 +271,31 @@ public class DataServerTable extends AlarmTable {
         List<JEVisObject> dps = new ArrayList<>();
 
         final JEVisClass channelClass = channel.getJEVisClass();
-        final JEVisClass ftpChannel = ds.getJEVisClass("FTP Channel");
-        final JEVisClass httpChannel = ds.getJEVisClass("HTTP Channel");
-        final JEVisClass sFtpChannel = ds.getJEVisClass("sFTP Channel");
-        final JEVisClass soapChannel = ds.getJEVisClass("SOAP Channel");
-        final JEVisClass csvDataPoint = ds.getJEVisClass("CSV Data Point");
-        final String standardTargetAttribute = "Target";
-        final JEVisClass dwdDataPoint = ds.getJEVisClass("DWD Data Point");
-        final JEVisClass xmlDataPoint = ds.getJEVisClass("XML Data Point");
-        final JEVisClass dataPoint = ds.getJEVisClass("Data Point");
+
         final String dwd1 = "Atmospheric Pressure Target";
         final String dwd2 = "Humidity Target";
         final String dwd3 = "Precipitation Target";
         final String dwd4 = "Temperature Target";
         final String dwd5 = "Wind Speed Target";
 
-        if (channelClass.equals(ftpChannel)) {
-            dps.addAll(getChildrenRecursive(channel, csvDataPoint));
-            dps.addAll(getChildrenRecursive(channel, dwdDataPoint));
-            dps.addAll(getChildrenRecursive(channel, xmlDataPoint));
-            dps.addAll(getChildrenRecursive(channel, dataPoint));
+        if (channelClass.equals(getFtpChannelClass())) {
+            dps.addAll(getChildrenRecursive(channel, getCsvDataPointClass()));
+            dps.addAll(getChildrenRecursive(channel, getDwdDataPointClass()));
+            dps.addAll(getChildrenRecursive(channel, getXmlDataPointClass()));
+            dps.addAll(getChildrenRecursive(channel, getDataPointClass()));
         } else {
-            dps.addAll(getChildrenRecursive(channel, csvDataPoint));
-            dps.addAll(getChildrenRecursive(channel, xmlDataPoint));
-            dps.addAll(getChildrenRecursive(channel, dataPoint));
+            dps.addAll(getChildrenRecursive(channel, getCsvDataPointClass()));
+            dps.addAll(getChildrenRecursive(channel, getXmlDataPointClass()));
+            dps.addAll(getChildrenRecursive(channel, getDataPointClass()));
         }
 
         for (JEVisObject dp : dps) {
 
-            if (dp.getJEVisClass().equals(csvDataPoint) || dp.getJEVisClass().equals(xmlDataPoint)) {
+            if (dp.getJEVisClass().equals(getCsvDataPointClass()) || dp.getJEVisClass().equals(getXmlDataPointClass())) {
                 JEVisAttribute targetAtt = null;
                 JEVisSample lastSampleTarget = null;
 
-                targetAtt = dp.getAttribute(standardTargetAttribute);
+                targetAtt = dp.getAttribute(STANDARD_TARGET_ATTRIBUTE_NAME);
 
                 if (targetAtt != null) lastSampleTarget = targetAtt.getLatestSample();
 
@@ -321,7 +311,7 @@ public class DataServerTable extends AlarmTable {
                         JEVisAttribute resultAtt = null;
                         if (th.getAttribute() != null && !th.getAttribute().isEmpty()) {
                             resultAtt = th.getAttribute().get(0);
-                        } else resultAtt = target.getAttribute("Value");
+                        } else resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
 
                         if (resultAtt != null) {
                             if (resultAtt.hasSample()) {
@@ -335,7 +325,7 @@ public class DataServerTable extends AlarmTable {
                         }
                     }
                 }
-            } else if (dp.getJEVisClass().equals(dwdDataPoint)) {
+            } else if (dp.getJEVisClass().equals(getDwdDataPointClass())) {
                 JEVisAttribute targetAtt1 = null;
                 JEVisSample lastSampleTarget1 = null;
                 JEVisAttribute targetAtt2 = null;
@@ -377,7 +367,7 @@ public class DataServerTable extends AlarmTable {
 
                         JEVisAttribute resultAtt = null;
                         if (!th.getAttribute().isEmpty()) resultAtt = th.getAttribute().get(0);
-                        if (resultAtt == null) resultAtt = target.getAttribute("Value");
+                        if (resultAtt == null) resultAtt = target.getAttribute(VALUE_ATTRIBUTE_NAME);
 
                         if (resultAtt != null) {
                             if (resultAtt.hasSample()) {
@@ -410,8 +400,9 @@ public class DataServerTable extends AlarmTable {
 
 
     private List<JEVisObject> getChannelObjects() throws JEVisException {
-        JEVisClass channelClass = ds.getJEVisClass("Channel");
-        return new ArrayList<>(ds.getObjects(channelClass, true));
+
+        return new ArrayList<>(ds.getObjects(getChannelClass(), true));
     }
+
 
 }
