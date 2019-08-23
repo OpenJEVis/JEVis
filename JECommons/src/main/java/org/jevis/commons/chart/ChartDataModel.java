@@ -82,7 +82,7 @@ public class ChartDataModel {
     }
 
     public List<JEVisSample> getSamples() {
-        if (somethingChanged) {
+        if (this.somethingChanged) {
             getAttribute();
             /** i thing we will not need to reload the attribute, because we dont use getMin/Max-TS **/
             //dataSource.reloadAttribute(attribute);
@@ -140,7 +140,7 @@ public class ChartDataModel {
                 }
             }
         }
-        logger.debug("ChartDataModel: sample.size: {} Aggregation:  {} EnPI: {} absolute: {} {}/{}  {}-{} ", samples.size(), aggregationPeriod, isEnPI, absolute, getAttribute().getObjectID(), getAttribute().getName(), selectedStart, selectedEnd);
+//        logger.debug("ChartDataModel: sample.size: {} Aggregation:  {} EnPI: {} absolute: {} {}/{}  {}-{} ", samples.size(), aggregationPeriod, isEnPI, absolute, getAttribute().getObjectID(), getAttribute().getName(), selectedStart, selectedEnd);
 
         return samples;
     }
