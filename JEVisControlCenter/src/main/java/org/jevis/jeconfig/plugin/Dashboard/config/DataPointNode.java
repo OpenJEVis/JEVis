@@ -15,7 +15,7 @@ public class DataPointNode {
     private boolean absolute;
 
     public boolean isAbsolute() {
-        return absolute;
+        return this.absolute;
     }
 
     public void setAbsolute(boolean absolute) {
@@ -26,7 +26,7 @@ public class DataPointNode {
     private Long calculationID;
 
     public boolean isEnpi() {
-        return enpi;
+        return this.enpi;
     }
 
     public void setEnpi(boolean enpi) {
@@ -34,7 +34,7 @@ public class DataPointNode {
     }
 
     public Long getCalculationID() {
-        return calculationID;
+        return this.calculationID;
     }
 
     public void setCalculationID(Long calculationID) {
@@ -42,7 +42,7 @@ public class DataPointNode {
     }
 
     public Long getObjectID() {
-        return objectID;
+        return this.objectID;
     }
 
     public void setObjectID(Long objectID) {
@@ -50,7 +50,7 @@ public class DataPointNode {
     }
 
     public String getAttribute() {
-        return attribute;
+        return this.attribute;
     }
 
     public void setAttribute(String attribute) {
@@ -58,7 +58,7 @@ public class DataPointNode {
     }
 
     public ManipulationMode getManipulationMode() {
-        return manipulationMode;
+        return this.manipulationMode;
     }
 
     public void setManipulationMode(ManipulationMode manipulationMode) {
@@ -66,7 +66,7 @@ public class DataPointNode {
     }
 
     public AggregationPeriod getAggregationPeriod() {
-        return aggregationPeriod;
+        return this.aggregationPeriod;
     }
 
     public void setAggregationPeriod(AggregationPeriod aggregationPeriod) {
@@ -74,7 +74,7 @@ public class DataPointNode {
     }
 
     public Long getCleanObjectID() {
-        return cleanObjectID;
+        return this.cleanObjectID;
     }
 
     public void setCleanObjectID(Long cleanObjectID) {
@@ -82,10 +82,25 @@ public class DataPointNode {
     }
 
     public Color getColor() {
-        return color;
+        return this.color;
     }
 
     public void setColor(Color color) {
         this.color = color;
+    }
+
+    @Override
+    public String toString() {
+        return "DataPointNode{" +
+                "objectID=" + this.objectID +
+                ", cleanObjectID=" + this.cleanObjectID +
+                ", attribute='" + this.attribute + '\'' +
+                ", manipulationMode=" + this.manipulationMode +
+                ", aggregationPeriod=" + this.aggregationPeriod +
+                ", color=" + this.color +
+                ", absolute=" + this.absolute +
+                ", enpi=" + this.enpi +
+                ", calculationID=" + this.calculationID +
+                '}';
     }
 }
