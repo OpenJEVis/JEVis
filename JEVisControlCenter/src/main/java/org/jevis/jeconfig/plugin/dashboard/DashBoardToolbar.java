@@ -13,7 +13,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
-import org.jevis.jeconfig.plugin.dashboard.config2.Navigator;
+import org.jevis.jeconfig.plugin.dashboard.config2.WidgetNavigator;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
 import org.jevis.jeconfig.tool.I18n;
 
@@ -157,9 +157,9 @@ public class DashBoardToolbar extends ToolBar {
         });
 
 
-        newWidgetButton.setOnAction(event -> {
-            this.dashboardControl.startWizard();
-        });
+//        newWidgetButton.setOnAction(event -> {
+//            this.dashboardControl.startWizard();
+//        });
 
         this.backgroundButton.setOnAction(event -> {
 
@@ -167,9 +167,9 @@ public class DashBoardToolbar extends ToolBar {
 
         });
 
-        settingsButton.setOnAction(event -> {
+        newWidgetButton.setOnAction(event -> {
 //            dashboardSettings.openConfig();
-            Navigator navigator = new Navigator(this.dashboardControl);
+            WidgetNavigator navigator = new WidgetNavigator(this.dashboardControl);
             navigator.show();
         });
 
@@ -207,7 +207,7 @@ public class DashBoardToolbar extends ToolBar {
                 this.listAnalysesComboBox
                 , sep3, toolBarIntervalSelector
                 , sep1, zoomOut, zoomIn, reload
-                , sep4, newButton, save, delete, newWidgetButton, settingsButton, this.backgroundButton, exportPDF
+                , sep4, newButton, save, delete, newWidgetButton, this.backgroundButton, exportPDF
                 , sep2, this.runUpdateButton, this.unlockB);
     }
 

@@ -25,10 +25,10 @@ import org.jevis.jeconfig.tool.Layouts;
 public class DashBordPlugIn implements Plugin {
 
     private static final Logger logger = LogManager.getLogger(DashBordPlugIn.class);
-    public static String CLASS_ANALYSIS = "dashboard Analysis", CLASS_ANALYSIS_DIR = "Analyses Directory", ATTRIBUTE_DATA_MODEL_FILE = "Data Model File", ATTRIBUTE_DATA_MODEL = "Data Model", ATTRIBUTE_BACKGROUND = "Background";
-    public static String PLUGIN_NAME = "dashboard Plugin";
-    private StringProperty nameProperty = new SimpleStringProperty("dashboard");
-    private StringProperty uuidProperty = new SimpleStringProperty("dashboard");
+    public static String CLASS_ANALYSIS = "Dashboard Analysis", CLASS_ANALYSIS_DIR = "Analyses Directory", ATTRIBUTE_DATA_MODEL_FILE = "Data Model File", ATTRIBUTE_DATA_MODEL = "Data Model", ATTRIBUTE_BACKGROUND = "Background";
+    public static String PLUGIN_NAME = "Dashboard Plugin";
+    private StringProperty nameProperty = new SimpleStringProperty("Dashboard");
+    private StringProperty uuidProperty = new SimpleStringProperty("Dashboard");
     private boolean isInitialized = false;
     private AnchorPane rootPane = new AnchorPane();
 
@@ -68,15 +68,7 @@ public class DashBordPlugIn implements Plugin {
     }
 
     public void setContentSize(double width, double height) {
-        logger.error("setContentSize: {}/{}", width, height);
-//        this.scrollPane.setPrefWidth(width);
-//        this.scrollPane.setMinWidth(width);
-//        this.scrollPane.setMaxWidth(width);
-//
-//        this.scrollPane.setMinHeight(height);
-//        this.scrollPane.setMaxHeight(height);
-//        this.scrollPane.setPrefHeight(height);
-        logger.error("DashBordPlugIn init.size: {}/{} {}/{} ", this.rootPane.getWidth(), this.rootPane.getHeight(), this.scrollPane.getWidth(), this.scrollPane.getHeight());
+        logger.debug("DashBordPlugIn init.size: {}/{} {}/{} ", this.rootPane.getWidth(), this.rootPane.getHeight(), this.scrollPane.getWidth(), this.scrollPane.getHeight());
 
     }
 
@@ -180,7 +172,7 @@ public class DashBordPlugIn implements Plugin {
         if (!this.isInitialized) {
             this.isInitialized = true;
             this.dashboardControl.loadFirstDashboard();
-            logger.error("DashBordPlugIn focus.size: {}/{} {}/{} ", this.rootPane.getWidth(), this.rootPane.getHeight(), this.scrollPane.getWidth(), this.scrollPane.getHeight());
+            logger.debug("DashBordPlugIn focus.size: {}/{} {}/{} ", this.rootPane.getWidth(), this.rootPane.getHeight(), this.scrollPane.getWidth(), this.scrollPane.getHeight());
 
         }
     }

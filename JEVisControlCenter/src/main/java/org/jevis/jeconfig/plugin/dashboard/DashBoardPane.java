@@ -129,7 +129,7 @@ public class DashBoardPane extends Pane {
     }
 
     public void setZoom(double zoom) {
-        logger.error("Set Zoom: {}", zoom);
+        logger.debug("Set Zoom: {}", zoom);
         this.scale.setX(zoom);
         this.scale.setY(zoom);
 //        getTransforms().add(this.scale);
