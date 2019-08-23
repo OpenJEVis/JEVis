@@ -164,7 +164,7 @@ public class TableWidget extends Widget {
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/ValueWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
+        return JEConfig.getImage("widget/TableWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
     @Override
