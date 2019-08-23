@@ -270,6 +270,7 @@ public class WidgetColumnFactory {
                             ColorPicker colorPicker = new ColorPicker(item);
                             colorPicker.setMaxWidth(100d);
 
+                            colorPicker.setStyle("-fx-color-label-visible: false ;");
                             colorPicker.setOnAction(event -> {
                                 setWidgetFGColor(colorPicker.getValue(), (Widget) getTableRow().getItem());
                             });
@@ -316,6 +317,7 @@ public class WidgetColumnFactory {
                         if (item != null && !empty) {
                             ColorPicker colorPicker = new ColorPicker(item);
                             colorPicker.setMaxWidth(100d);
+                            colorPicker.setStyle("-fx-color-label-visible: false ;");
 
                             colorPicker.setOnAction(event -> {
                                 setWidgetBGColor(colorPicker.getValue(), (Widget) getTableRow().getItem());
@@ -508,7 +510,6 @@ public class WidgetColumnFactory {
 
     private void setWidgetYPosition(TextField textField, Widget srcWidget) {
         Double pos = Double.parseDouble(textField.getText());
-
         srcWidget.getConfig().setyPosition(pos);
 
 
@@ -525,7 +526,7 @@ public class WidgetColumnFactory {
 
     private void setWidgetFGColor(Color color, Widget srcWidget) {
         srcWidget.getConfig().setFontColor(color);
-
+        WidgetColumnFactory.this.control.requestViewUpdate(srcWidget);
 
         if (this.table.getSelectionModel().getSelectedItems().contains(srcWidget)) {
             this.table.getSelectionModel().getSelectedItems().forEach(widget -> {
@@ -555,7 +556,7 @@ public class WidgetColumnFactory {
         Double xPos = Double.parseDouble(textField.getText());
 
         srcWidget.getConfig().setxPosition(xPos);
-
+        WidgetColumnFactory.this.control.requestViewUpdate(srcWidget);
 
         if (this.table.getSelectionModel().getSelectedItems().contains(srcWidget)) {
             this.table.getSelectionModel().getSelectedItems().forEach(widget -> {
@@ -571,7 +572,7 @@ public class WidgetColumnFactory {
         Double height = Double.parseDouble(textField.getText());
         Size newSize = new Size(height, srcWidget.getConfig().getSize().getWidth());
         srcWidget.getConfig().setSize(newSize);
-
+        WidgetColumnFactory.this.control.requestViewUpdate(srcWidget);
 
         if (this.table.getSelectionModel().getSelectedItems().contains(srcWidget)) {
             this.table.getSelectionModel().getSelectedItems().forEach(widget -> {
@@ -587,7 +588,7 @@ public class WidgetColumnFactory {
         Double width = Double.parseDouble(textField.getText());
         Size newSize = new Size(srcWidget.getConfig().getSize().getWidth(), width);
         srcWidget.getConfig().setSize(newSize);
-
+        WidgetColumnFactory.this.control.requestViewUpdate(srcWidget);
 
         if (this.table.getSelectionModel().getSelectedItems().contains(srcWidget)) {
             this.table.getSelectionModel().getSelectedItems().forEach(widget -> {
@@ -601,7 +602,7 @@ public class WidgetColumnFactory {
 
     private void setWidgetTitle(String title, Widget srcWidget) {
         srcWidget.getConfig().setTitle(title);
-
+        WidgetColumnFactory.this.control.requestViewUpdate(srcWidget);
 
         if (this.table.getSelectionModel().getSelectedItems().contains(srcWidget)) {
             this.table.getSelectionModel().getSelectedItems().forEach(widget -> {
