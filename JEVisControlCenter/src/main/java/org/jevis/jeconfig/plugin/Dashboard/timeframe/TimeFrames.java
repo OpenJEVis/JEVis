@@ -22,8 +22,10 @@ import org.joda.time.format.DateTimeFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jevis.commons.datetime.CustomPeriodObject.AttributeName.END_REFERENCE_POINT;
 
+/**
+ * TODO: implement support for non one implementation for example 2 weeks
+ */
 public class TimeFrames {
 
     private static final Logger logger = LogManager.getLogger(TimeFrames.class);
@@ -46,7 +48,7 @@ public class TimeFrames {
         if (this.ds != null) {
             List<JEVisObject> listCustomPeriods = null;
             try {
-                listCustomPeriods = ds.getObjects(ds.getJEVisClass("Custom Period"), false);
+                listCustomPeriods = this.ds.getObjects(this.ds.getJEVisClass("Custom Period"), false);
             } catch (JEVisException e) {
                 logger.error("Error: could not get custom period", e);
             }
@@ -56,7 +58,7 @@ public class TimeFrames {
                 for (JEVisObject obj : listCustomPeriods) {
                     if (obj != null) {
                         if (listCustomPeriodObjects == null) listCustomPeriodObjects = new ArrayList<>();
-                        CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(ds));
+                        CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(this.ds));
                         if (cpo.isVisible()) {
                             listCustomPeriodObjects.add(cpo);
                         }
@@ -120,8 +122,8 @@ public class TimeFrames {
                 dateHelper.setCustomPeriodObject(cpo);
                 dateHelper.setType(DateHelper.TransformType.CUSTOM_PERIOD);
 
-                dateHelper.setStartTime(workDays.getWorkdayStart());
-                dateHelper.setEndTime(workDays.getWorkdayEnd());
+                dateHelper.setStartTime(TimeFrames.this.workDays.getWorkdayStart());
+                dateHelper.setEndTime(TimeFrames.this.workDays.getWorkdayEnd());
 
                 AnalysisTimeFrame newTimeFrame = new AnalysisTimeFrame();
                 newTimeFrame.setTimeFrame(TimeFrame.CUSTOM_START_END);
@@ -165,7 +167,7 @@ public class TimeFrames {
      * building and its workday settings.
      */
     public void setWorkdays(JEVisObject object) {
-        workDays = new WorkDays(object);
+        this.workDays = new WorkDays(object);
     }
 
 
@@ -223,7 +225,8 @@ public class TimeFrames {
         return new TimeFrameFactory() {
             @Override
             public String getID() {
-                return TimeFrameType.DAY.toString();
+                return Period.days(1).toString();
+//                return TimeFrameType.DAY.toString();
             }
 
             @Override
@@ -273,7 +276,7 @@ public class TimeFrames {
 
     private Interval removeWorkdayInterval(Interval interval) {
         DateTime workStart = interval.getStart();
-        if (workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd())) {
+        if (this.workDays.getWorkdayStart().isAfter(this.workDays.getWorkdayEnd())) {
             workStart = workStart.plusDays(1);
         }
 
@@ -285,11 +288,11 @@ public class TimeFrames {
     private Interval getWorkdayInterval(DateTime start, DateTime end) {
 
         DateTime workStart = start;
-        if (workDays.getWorkdayStart().isAfter(workDays.getWorkdayEnd())) {
+        if (this.workDays.getWorkdayStart().isAfter(this.workDays.getWorkdayEnd())) {
             workStart = start.minusDays(1);
         }
-        workStart = workStart.withHourOfDay(workDays.getWorkdayStart().getHour()).withMinuteOfHour(workDays.getWorkdayStart().getMinute());
-        DateTime workEnd = end.withHourOfDay(workDays.getWorkdayEnd().getHour()).withMinuteOfHour(workDays.getWorkdayEnd().getMinute());
+        workStart = workStart.withHourOfDay(this.workDays.getWorkdayStart().getHour()).withMinuteOfHour(this.workDays.getWorkdayStart().getMinute());
+        DateTime workEnd = end.withHourOfDay(this.workDays.getWorkdayEnd().getHour()).withMinuteOfHour(this.workDays.getWorkdayEnd().getMinute());
 
 //        DateTime workEnd = new DateTime(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth(), workDays.getWorkdayEnd().getHour(), workDays.getWorkdayEnd().getMinute(), 59, 999);
 
@@ -354,7 +357,7 @@ public class TimeFrames {
         return new TimeFrameFactory() {
             @Override
             public String getID() {
-                return TimeFrameType.MONTH.toString();
+                return Period.months(1).toString();
             }
 
             @Override
