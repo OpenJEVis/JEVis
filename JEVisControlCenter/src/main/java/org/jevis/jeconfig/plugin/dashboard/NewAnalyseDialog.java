@@ -60,7 +60,7 @@ public class NewAnalyseDialog {
     private JEVisObject selectedParent;
     private String createName = "No Name";
     private Response response = Response.CANCEL;
-    private ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(response);
+    private ObjectProperty<Response> responseProperty = new SimpleObjectProperty<>(this.response);
 
     /**
      * @param owner
@@ -151,7 +151,7 @@ public class NewAnalyseDialog {
         comboBox.setButtonCell(cellFactory.call(null));
 
         comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            selectedParent = newValue;
+            this.selectedParent = newValue;
         });
         comboBox.getSelectionModel().selectFirst();
 
@@ -178,7 +178,7 @@ public class NewAnalyseDialog {
 
 
         fName.onKeyPressedProperty().addListener((observable, oldValue, newValue) -> {
-            createName = fName.getText();
+            this.createName = fName.getText();
         });
 
         final ButtonType ok = new ButtonType(I18n.getInstance().getString("jevistree.dialog.new.ok"), ButtonBar.ButtonData.FINISH);
@@ -190,7 +190,7 @@ public class NewAnalyseDialog {
                 .ifPresent(response -> {
                     if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
 
-                        createName = fName.getText();
+                        this.createName = fName.getText();
 
                         NewAnalyseDialog.this.response = Response.YES;
                     } else {
@@ -199,16 +199,16 @@ public class NewAnalyseDialog {
                 });
 
 
-        return response;
+        return this.response;
     }
 
 
     public String getCreateName() {
-        return createName;
+        return this.createName;
     }
 
     public JEVisObject getParent() {
-        return selectedParent;
+        return this.selectedParent;
     }
 
     public enum Type {
