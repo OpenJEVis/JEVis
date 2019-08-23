@@ -8,16 +8,16 @@ import java.util.List;
 
 public class Widgets {
 
-    public static List<Widget> getAvabableWidgets(DashboardControl conrol, WidgetPojo config) {
+    public static List<Widget> getAvabableWidgets(DashboardControl control, WidgetPojo config) {
         List<Widget> widgetList = new ArrayList<>();
 
-        widgetList.add(new PieWidget(conrol, config));
-        widgetList.add(new TitleWidget(conrol, config));
-        widgetList.add(new ChartWidget(conrol, config));
-        widgetList.add(new ValueWidget(conrol, config));
-        widgetList.add(new TableWidget(conrol, config));
-        widgetList.add(new WebPieWidget(conrol, config));
-        widgetList.add(new LinkerWidget(conrol, config));
+        widgetList.add(new PieWidget(control, config));
+        widgetList.add(new TitleWidget(control, config));
+        widgetList.add(new ChartWidget(control, config));
+        widgetList.add(new ValueWidget(control, config));
+        widgetList.add(new TableWidget(control, config));
+//        widgetList.add(new WebPieWidget(control, config));
+        widgetList.add(new LinkerWidget(control, config));
 
         return widgetList;
     }

@@ -129,8 +129,9 @@ public abstract class Widget extends Group {
 
         Platform.runLater(() -> {
 
+            this.setEffect(null);
             if (glow) {
-                this.setEffect(null);
+
 
 //                FadeTransition animation = new FadeTransition(Duration.millis(150), this);
 //                animation.setFromValue(0);
