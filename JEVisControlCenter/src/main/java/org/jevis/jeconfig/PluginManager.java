@@ -69,15 +69,15 @@ public class PluginManager {
     }
 
     public void addPlugin(Plugin plugin) {
-        _plugins.add(plugin);
+        this._plugins.add(plugin);
     }
 
     public void removePlugin(Plugin plugin) {
-        _plugins.remove(plugin);
+        this._plugins.remove(plugin);
     }
 
     public List<Plugin> getPlugins() {
-        return _plugins;
+        return this._plugins;
     }
 
     /**
@@ -90,14 +90,14 @@ public class PluginManager {
     public List<Plugin> getInstalledPlugins() {
         List<Plugin> plugins = new ArrayList<>();
 //        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
-        plugins.add(new GraphPluginView(_ds, I18n.getInstance().getString("plugin.graph.title")));
-        plugins.add(new DashBordPlugIn(_ds, I18n.getInstance().getString("plugin.dashboard.title")));
+        plugins.add(new GraphPluginView(this._ds, I18n.getInstance().getString("plugin.graph.title")));
+        plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
 
 //        plugins.add(new SCADAPlugin(_ds));
-        plugins.add(new ISO50001Browser(_ds));
-        plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, I18n.getInstance().getString("plugin.classes.title")));
-        plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, I18n.getInstance().getString("plugin.units.title")));
-        plugins.add(new MapViewPlugin(_ds, I18n.getInstance().getString("plugin.map.title")));
+        plugins.add(new ISO50001Browser(this._ds));
+        plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(this._ds, I18n.getInstance().getString("plugin.classes.title")));
+        plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(this._ds, I18n.getInstance().getString("plugin.units.title")));
+        plugins.add(new MapViewPlugin(this._ds, I18n.getInstance().getString("plugin.map.title")));
 
 //        plugins.add(new LoytecBrowser(_ds));
 
@@ -106,12 +106,12 @@ public class PluginManager {
 
 
     public void openInPlugin(String plugInName, Object object) {
-        _plugins.forEach(plugin -> {
+        this._plugins.forEach(plugin -> {
             if (plugin.getClassName().equals(plugInName)) {
                 plugin.openObject(object);
-                tabPane.getTabs().forEach(tab -> {
+                this.tabPane.getTabs().forEach(tab -> {
                     if (tab.getText().equals(plugin.getName())) {
-                        tabPane.getSelectionModel().select(tab);
+                        this.tabPane.getSelectionModel().select(tab);
                     }
                 });
             }
@@ -131,14 +131,14 @@ public class PluginManager {
         /**
          * Workaround, Config is always enabled.
          */
-        _plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
+        this._plugins.add(new ObjectPlugin(this._ds, I18n.getInstance().getString("plugin.object.title")));
 
         try {
-            JEVisClass servicesClass = _ds.getJEVisClass("Service Directory");
-            JEVisClass jevisccClass = _ds.getJEVisClass("Control Center");
-            JEVisClass pluginClass = _ds.getJEVisClass("Control Center Plugin");
+            JEVisClass servicesClass = this._ds.getJEVisClass("Service Directory");
+            JEVisClass jevisccClass = this._ds.getJEVisClass("Control Center");
+            JEVisClass pluginClass = this._ds.getJEVisClass("Control Center Plugin");
 
-            List<JEVisObject> servicesDir = _ds.getObjects(servicesClass, false);
+            List<JEVisObject> servicesDir = this._ds.getObjects(servicesClass, false);
             if (servicesDir == null || servicesDir.isEmpty()) {
                 logger.info("Warning missing ServicesDirectory");
                 return;
@@ -157,7 +157,7 @@ public class PluginManager {
             }
 
             if (user.isSysAdmin()) {
-                _plugins.addAll(getInstalledPlugins());
+                this._plugins.addAll(plugins);
             } else {
                 for (JEVisObject plugObj : pluginObjs) {
                     try {
@@ -175,8 +175,8 @@ public class PluginManager {
                                              *  hide the dashboard if the user has no analyses.
                                              */
                                             if (plugObj.getJEVisClassName().equals(DashBordPlugIn.PLUGIN_NAME)) {
-                                                JEVisClass scadaAnalysis = _ds.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
-                                                List<JEVisObject> allAnalyses = _ds.getObjects(scadaAnalysis, false);
+                                                JEVisClass scadaAnalysis = this._ds.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
+                                                List<JEVisObject> allAnalyses = this._ds.getObjects(scadaAnalysis, false);
                                                 if (allAnalyses.size() == 0) {
                                                     continue;
                                                 }
@@ -194,7 +194,7 @@ public class PluginManager {
                         ex.printStackTrace();
                     }
                 }
-                _plugins.addAll(enabledPlugins);
+                this._plugins.addAll(enabledPlugins);
 
             }
 
@@ -213,7 +213,7 @@ public class PluginManager {
                         }
                     }
                 };
-                Collections.sort(_plugins, pluginComparator);
+                Collections.sort(this._plugins, pluginComparator);
 
 //                        Collections.swap(_plugins, 0, 1);
             } catch (Exception e) {
@@ -233,26 +233,26 @@ public class PluginManager {
         StackPane box = new StackPane();
 
 
-        tabPane.setSide(Side.LEFT);
+        this.tabPane.setSide(Side.LEFT);
 
-        toolbar.setStyle("-fx-background-color: #CCFF99;");
+        this.toolbar.setStyle("-fx-background-color: #CCFF99;");
 //        AnchorPane.setTopAnchor(toolbar, 0.0);
 //        AnchorPane.setLeftAnchor(toolbar, 0.0);
 //        AnchorPane.setRightAnchor(toolbar, 0.0);
 //        AnchorPane.setBottomAnchor(toolbar, 0.0);
 
-        for (Plugin plugin : _plugins) {
+        for (Plugin plugin : this._plugins) {
             try {
                 Tab pluginTab = new Tab(plugin.getName());
                 pluginTab.setClosable(false);
                 pluginTab.setTooltip(new Tooltip(plugin.getToolTip()));
 //            pluginTab.setContent(plugin.getView().getNode());
                 pluginTab.setContent(plugin.getContentNode());
-                tabPane.getTabs().add(pluginTab);
+                this.tabPane.getTabs().add(pluginTab);
 
                 pluginTab.setOnClosed(t -> {
-                    Plugin plugin1 = _plugins.get(_tabPosOld.intValue());
-                    _plugins.remove(plugin1);
+                    Plugin plugin1 = this._plugins.get(this._tabPosOld.intValue());
+                    this._plugins.remove(plugin1);
                 });
 
                 pluginTab.setGraphic(plugin.getIcon());
@@ -262,7 +262,7 @@ public class PluginManager {
 
         }
 
-        selectedPluginProperty.addListener(new ChangeListener<Plugin>() {
+        this.selectedPluginProperty.addListener(new ChangeListener<Plugin>() {
 
             @Override
             public void changed(ObservableValue<? extends Plugin> observable, Plugin oldValue, Plugin newValue) {
@@ -271,21 +271,21 @@ public class PluginManager {
                     if (newValue != null) {
                         Node pluginToolbar = newValue.getToolbar();
 
-                        toolbar.getChildren().setAll(pluginToolbar);
+                        PluginManager.this.toolbar.getChildren().setAll(pluginToolbar);
                         AnchorPane.setTopAnchor(pluginToolbar, 0.0);
                         AnchorPane.setLeftAnchor(pluginToolbar, 0.0);
                         AnchorPane.setRightAnchor(pluginToolbar, 0.0);
                         AnchorPane.setBottomAnchor(pluginToolbar, 0.0);
-                        menu.setPlugin(newValue);
+                        PluginManager.this.menu.setPlugin(newValue);
                         newValue.setHasFocus();
                     }
 
                 });
             }
         });
-        selectedPluginProperty.setValue(_plugins.get(0));
+        this.selectedPluginProperty.setValue(this._plugins.get(0));
 
-        tabPane.getSelectionModel().selectedIndexProperty().addListener((ov, oldValue, newValue) -> selectedPluginProperty.setValue(_plugins.get(newValue.intValue())));
+        this.tabPane.getSelectionModel().selectedIndexProperty().addListener((ov, oldValue, newValue) -> this.selectedPluginProperty.setValue(this._plugins.get(newValue.intValue())));
 
         //Watermark is disabled
         //Todo: configure via start parameter
@@ -299,18 +299,18 @@ public class PluginManager {
 //        } else {
 //            box.getChildren().addAll(tabPane);
 //        }
-        box.getChildren().addAll(tabPane);
+        box.getChildren().addAll(this.tabPane);
 
         return box;
     }
 
     Plugin getSelectedPlugin() {
-        return selectedPluginProperty.getValue();
+        return this.selectedPluginProperty.getValue();
 //        return _plugins.get(_tabPos.intValue());
     }
 
     public Node getToolbar() {
-        return toolbar;
+        return this.toolbar;
 //        return getSelectedPlugin().getToolbar();
     }
 
