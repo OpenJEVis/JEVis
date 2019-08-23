@@ -1,19 +1,25 @@
 package org.jevis.jeconfig.plugin.Dashboard.config2;
 
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.Layouts;
-import org.jevis.jeconfig.tool.ToggleSwitchPlus;
+import org.jevis.jeconfig.tool.ScreenSize;
 
 
 public class Navigator {
@@ -40,13 +46,20 @@ public class Navigator {
 
         AnchorPane root = new AnchorPane();
 
-        root.setStyle("-fx-background-color: orange;");
         Control table = buildTable();
-        ToolBar toolBar = buildToolbar();
 
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(table);
-        borderPane.setTop(toolBar);
+
+        Node header = DialogHeader.getDialogHeader("if_table_gear_64761.png", I18n.getInstance().getString("dashboard.navigator.setting.title"));
+        Node contentPane = buildGeneralSetting();
+        BorderPane topBorderPane = new BorderPane();
+        topBorderPane.setTop(header);
+        topBorderPane.setCenter(contentPane);
+
+        AnchorPane anchorPane = new AnchorPane(topBorderPane);
+        Layouts.setAnchor(topBorderPane, 0);
+        borderPane.setTop(anchorPane);
 
 
         Layouts.setAnchor(borderPane, 0d);
@@ -55,7 +68,7 @@ public class Navigator {
         final Scene scene = new Scene(root);
         stage.setScene(scene);
 
-        stage.setWidth(740);
+        stage.setWidth(ScreenSize.fitScreenWidth(1100));
         stage.setHeight(800);
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(true);
@@ -64,14 +77,52 @@ public class Navigator {
     }
 
 
+    private Node buildGeneralSetting() {
+        Label nameLabel = new Label(I18n.getInstance().getString("dashboard.navigator.namelabel"));
+        Label sizeLabel = new Label(I18n.getInstance().getString("dashboard.navigator.sizelabel"));
+//        Label sizeLabel = new Label(I18n.getInstance().getString("dashboard.navigator.sizelabel"));
+
+
+        TextField nameField = new TextField();
+        TextField widthField = new TextField();
+        TextField heightField = new TextField();
+        widthField.setPrefWidth(75d);
+        heightField.setPrefWidth(75d);
+        HBox sizeBox = new HBox(8d);
+        Label xLabel = new Label("x");
+        sizeBox.getChildren().setAll(widthField, xLabel, heightField);
+        HBox.setMargin(xLabel, new Insets(3));
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(8d));
+        gridPane.setHgap(8);
+        gridPane.setVgap(8);
+        gridPane.add(nameLabel, 0, 0);
+        gridPane.add(sizeLabel, 0, 1);
+
+        gridPane.add(nameField, 1, 0);
+        gridPane.add(sizeBox, 1, 1);
+
+//        gridPane.add(buildToolbar(), 0, 3, 3, 1);
+
+
+        try {
+            nameField.setText(this.control.getActiveDashboard().getTitle());
+            widthField.setText(this.control.getActiveDashboard().getSize().getWidth() + "");
+            heightField.setText(this.control.getActiveDashboard().getSize().getHeight() + "");
+        } catch (Exception ex) {
+
+            ex.printStackTrace();
+        }
+
+
+        return gridPane;
+    }
+
     private ToolBar buildToolbar() {
         ToolBar toolBar = new ToolBar();
-        ToggleSwitchPlus jfxToggleButton = new ToggleSwitchPlus();
-        jfxToggleButton.setLabels("Hervorheben", "Hervorheben");//TODO locale
 
 
         ToggleButton unlockB = new ToggleButton("", this.unlockIcon);
-
         unlockB.selectedProperty().bindBidirectional(this.control.highligtProperty);
         unlockB.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -80,8 +131,13 @@ public class Navigator {
                 unlockB.setGraphic(this.unlockIcon);
             }
         });
+        unlockB.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.highlight")));
 
-        toolBar.getItems().addAll(unlockB);
+        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
+
+
+        toolBar.getItems().addAll(unlockB, delete);
 
         return toolBar;
     }
@@ -97,7 +153,12 @@ public class Navigator {
         WidgetColumnFactory widgetColumnFactory = new WidgetColumnFactory(this.control);
         TableView table = widgetColumnFactory.buildTable(this.control.getWidgetList());
 
-        scrollPane.setContent(table);
+//        VBox vBox = new VBox(, table);
+        BorderPane borderPane = new BorderPane();
+        borderPane.setTop(buildToolbar());
+        borderPane.setCenter(table);
+
+        scrollPane.setContent(borderPane);
 //        table.getItems().setAll(this.control.getWidgets());
 
         return scrollPane;
