@@ -51,7 +51,7 @@ public class GraphAnalysisLinker {
                 }
                 AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                 AnalysisRequest analysisRequest = new AnalysisRequest(
-                        dataSource.getObject(node.getGraphAnalysisObject())
+                        this.dataSource.getObject(this.node.getGraphAnalysisObject())
                         , aggregationPeriod, manipulationMode, analysisTimeFrame
                         , interval.getStart(), interval.getEnd());
                 JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest);
@@ -60,7 +60,7 @@ public class GraphAnalysisLinker {
             }
         });
         try {
-            JEVisObject jeVisObject = dataSource.getObject(node.getGraphAnalysisObject());
+            JEVisObject jeVisObject = this.dataSource.getObject(this.node.getGraphAnalysisObject());
             if (jeVisObject != null) {
                 Tooltip tooltip = new Tooltip(I18n.getInstance().getString("plugin.dashboard.linker.open") + " " + jeVisObject.getName());
                 button.setTooltip(tooltip);
