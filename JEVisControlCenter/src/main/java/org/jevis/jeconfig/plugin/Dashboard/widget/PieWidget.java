@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.sun.javafx.charts.Legend;
 import javafx.application.Platform;
@@ -9,6 +10,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -18,6 +20,8 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config2.JsonNames;
+import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
@@ -25,6 +29,7 @@ import org.joda.time.Interval;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class PieWidget extends Widget {
     private static final Logger logger = LogManager.getLogger(PieWidget.class);
@@ -36,6 +41,7 @@ public class PieWidget extends Widget {
     private ObjectMapper mapper = new ObjectMapper();
     private BorderPane borderPane = new BorderPane();
     private VBox legendPane = new VBox();
+    private Interval lastInterval;
 
     public PieWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -45,7 +51,7 @@ public class PieWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Pie.Update: {}", interval);
-
+        this.lastInterval = interval;
         this.sampleHandler.setAutoAggregation(true);
 
         this.sampleHandler.setInterval(interval);
@@ -192,12 +198,23 @@ public class PieWidget extends Widget {
 
     @Override
     public void openConfig() {
-//        WidgetConfigEditor widgetConfigEditor = new WidgetConfigEditor(this.config);
-//
-//        widgetConfigEditor.addTab(this.sampleHandler.getConfigTab());
-//
-//        widgetConfigEditor.show();
 
+        WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(null);
+        widgetConfigDialog.addDataModel(this.sampleHandler);
+        Optional<ButtonType> result = widgetConfigDialog.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            widgetConfigDialog.updateDataModel();
+            updateData(this.lastInterval);
+        }
+    }
+
+    @Override
+    public ObjectNode toNode() {
+
+        ObjectNode dashBoardNode = super.createDefaultNode();
+        dashBoardNode
+                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
+        return dashBoardNode;
     }
 
     @Override

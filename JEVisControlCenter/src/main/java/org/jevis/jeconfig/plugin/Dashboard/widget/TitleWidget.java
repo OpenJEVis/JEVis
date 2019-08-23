@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -107,6 +108,15 @@ public class TitleWidget extends Widget {
     @Override
     public String typeID() {
         return WIDGET_ID;
+    }
+
+    @Override
+    public ObjectNode toNode() {
+
+        ObjectNode dashBoardNode = super.createDefaultNode();
+//        dashBoardNode
+//                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
+        return dashBoardNode;
     }
 
     @Override

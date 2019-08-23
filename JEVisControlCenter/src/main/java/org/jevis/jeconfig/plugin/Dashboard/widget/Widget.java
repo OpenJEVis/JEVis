@@ -1,5 +1,7 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -23,6 +25,7 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.DashBoardPane;
 import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.Dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.joda.time.Interval;
 
@@ -335,5 +338,28 @@ public abstract class Widget extends Group {
 //        widgetConfigEditor.show();
     }
 
+
+    public abstract ObjectNode toNode();
+
+    public ObjectNode createDefaultNode() {
+        ObjectMapper mapper = new ObjectMapper();
+
+
+        ObjectNode dashBoardNode = mapper.createObjectNode();
+        dashBoardNode
+                .put(JsonNames.Widget.TYPE, typeID())
+                .put(JsonNames.Widget.TITLE, this.config.getTitle())
+                .put(JsonNames.Widget.BACKGROUND_COLOR, this.config.getBackgroundColor().toString())
+                .put(JsonNames.Widget.FONT_COLOR, this.config.getFontColor().toString())
+                .put(JsonNames.Widget.FONT_SIZE, this.config.getFontSize())
+                .put(JsonNames.Widget.TITLE_POSITION, this.config.getTitlePosition().toString())
+                .put(JsonNames.Widget.BORDER_SIZE, this.config.getBorderSize().getTop())
+                .put(JsonNames.Widget.WIDTH, this.config.getSize().getWidth())
+                .put(JsonNames.Widget.HEIGHT, this.config.getSize().getHeight())
+                .put(JsonNames.Widget.X_POS, this.config.getxPosition())
+                .put(JsonNames.Widget.Y_POS, this.config.getyPosition());
+
+        return dashBoardNode;
+    }
 
 }

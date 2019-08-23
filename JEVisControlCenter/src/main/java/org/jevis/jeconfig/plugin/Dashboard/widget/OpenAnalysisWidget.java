@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXButton;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -82,6 +83,11 @@ public class OpenAnalysisWidget extends Widget {
     @Override
     public String typeID() {
         return WIDGET_ID;
+    }
+
+    @Override
+    public ObjectNode toNode() {
+        return null;
     }
 
     @Override

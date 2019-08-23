@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -22,6 +23,7 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
 import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.Dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
@@ -154,6 +156,14 @@ public class ChartWidget extends Widget {
     @Override
     public String typeID() {
         return WIDGET_ID;
+    }
+
+    @Override
+    public ObjectNode toNode() {
+        ObjectNode dashBoardNode = super.createDefaultNode();
+        dashBoardNode
+                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
+        return dashBoardNode;
     }
 
     @Override

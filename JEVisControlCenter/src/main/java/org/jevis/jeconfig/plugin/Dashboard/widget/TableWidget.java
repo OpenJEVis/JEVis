@@ -1,9 +1,10 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -16,16 +17,16 @@ import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.Dashboard.config.DataModelNode;
-import org.jevis.jeconfig.plugin.Dashboard.config.DataPointNode;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config2.JsonNames;
+import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
-import org.jevis.jeconfig.plugin.Dashboard.wizzard.ExampleConverter;
 import org.joda.time.Interval;
 
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.Optional;
 
 public class TableWidget extends Widget {
 
@@ -34,6 +35,7 @@ public class TableWidget extends Widget {
     private NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
     private TableView<TableData> table;
+    private Interval lastInterval = null;
 
 
     public TableWidget(DashboardControl control, WidgetPojo config) {
@@ -43,7 +45,7 @@ public class TableWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Table.Update: {}", interval);
-
+        this.lastInterval = interval;
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
 
@@ -141,28 +143,6 @@ public class TableWidget extends Widget {
         this.table.setItems(FXCollections.observableArrayList(dummy));
         setGraphic(this.table);
 
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-
-            DataModelNode dataModelNode = mapper.treeToValue(this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE), DataModelNode.class);
-//            System.out.println("Json: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataModelNode));
-
-            boolean isStickstoff = false;
-            for (DataPointNode dataPointNode : dataModelNode.getData()) {
-                if (dataPointNode.getObjectID().equals(1076)) {
-                    isStickstoff = true;
-                }
-            }
-
-            if (!isStickstoff) {
-                ExampleConverter exampleConverter = new ExampleConverter();
-                exampleConverter.sampleHandlerToValue(dataModelNode);
-            }
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
 
     }
 
@@ -173,8 +153,28 @@ public class TableWidget extends Widget {
     }
 
     @Override
+    public ObjectNode toNode() {
+        ObjectNode dashBoardNode = super.createDefaultNode();
+        dashBoardNode
+                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
+        return dashBoardNode;
+    }
+
+    @Override
     public ImageView getImagePreview() {
         return JEConfig.getImage("widget/ValueWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
+    }
+
+    @Override
+    public void openConfig() {
+
+        WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(null);
+        widgetConfigDialog.addDataModel(this.sampleHandler);
+        Optional<ButtonType> result = widgetConfigDialog.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            widgetConfigDialog.updateDataModel();
+            updateData(this.lastInterval);
+        }
     }
 
     /**

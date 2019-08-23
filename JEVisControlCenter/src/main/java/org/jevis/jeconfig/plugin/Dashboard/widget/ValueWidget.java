@@ -1,9 +1,11 @@
 package org.jevis.jeconfig.plugin.Dashboard.widget;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -18,6 +20,8 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.Dashboard.common.LimitColoring;
 import org.jevis.jeconfig.plugin.Dashboard.config.WidgetConfig;
+import org.jevis.jeconfig.plugin.Dashboard.config2.JsonNames;
+import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.Dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.Dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.I18n;
@@ -25,6 +29,7 @@ import org.joda.time.Interval;
 
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.Optional;
 
 public class ValueWidget extends Widget {
 
@@ -111,6 +116,18 @@ public class ValueWidget extends Widget {
     }
 
     @Override
+    public void openConfig() {
+
+        WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(null);
+        widgetConfigDialog.addDataModel(this.sampleHandler);
+
+        Optional<ButtonType> result = widgetConfigDialog.showAndWait();
+        if (result.get() == ButtonType.OK) {
+
+        }
+    }
+
+    @Override
     public void updateConfig() {
         Platform.runLater(() -> {
             Platform.runLater(() -> {
@@ -137,6 +154,15 @@ public class ValueWidget extends Widget {
     @Override
     public String typeID() {
         return WIDGET_ID;
+    }
+
+    @Override
+    public ObjectNode toNode() {
+
+        ObjectNode dashBoardNode = super.createDefaultNode();
+        dashBoardNode
+                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
+        return dashBoardNode;
     }
 
     @Override
