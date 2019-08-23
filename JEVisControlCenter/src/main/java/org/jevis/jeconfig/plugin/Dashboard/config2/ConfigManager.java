@@ -2,6 +2,8 @@ package org.jevis.jeconfig.plugin.Dashboard.config2;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
@@ -28,6 +30,7 @@ import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,16 +44,18 @@ public class ConfigManager {
     private ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(ConfigManager.class);
     private final TimeFrames timeFrames;
-
+    private JEVisObject dashboardObject = null;
 
     public ConfigManager(JEVisDataSource dataSource) {
         this.jeVisDataSource = dataSource;
         this.timeFrames = new TimeFrames(this.jeVisDataSource);
     }
 
-    public JsonNode readDashboardFile(JEVisObject analysisObject) {
+    public JsonNode readDashboardFile(JEVisObject dashboardObject) {
         try {
-            JEVisSample lastConfigSample = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
+            this.dashboardObject = dashboardObject;
+            JEVisSample lastConfigSample = dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
+            System.out.println("TS for dashboard file: " + lastConfigSample.getTimestamp());
             JEVisFile file = lastConfigSample.getValueAsFile();
             JsonNode jsonNode = this.mapper.readTree(file.getBytes());
             return jsonNode;
@@ -68,25 +73,118 @@ public class ConfigManager {
         }
     }
 
-    public DashboardPojo loadDashboard(JsonNode jsonNode) {
+    public void saveDashboard(DashboardPojo dashboardPojo, List<Widget> widgets) throws IOException, JEVisException {
 
-        DashboardPojo dashboardPojo = new DashboardPojo();
-        dashboardPojo.setTitle("parsed Dashboard");
-        if (jsonNode == null) return dashboardPojo;
+        ObjectNode dashboardNode = toJson(dashboardPojo, widgets);
+
+//        System.out.println("---------\n" + this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode) + "\n-----------------");
+        if (this.dashboardObject != null) {
+            JEVisAttribute dataModel = this.dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE);
+            JEVisFileImp jsonFile = new JEVisFileImp("dashboard.json", this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode).getBytes());
+            JEVisSample newSample = dataModel.buildSample(new DateTime(), jsonFile);
+            newSample.commit();
+        }
+
+    }
+
+    public ObjectNode toJson(DashboardPojo dashboardPojo, List<Widget> widgets) {
 
         try {
 
+            ObjectNode dashBoardNode = this.mapper.createObjectNode();
+//            this.mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            dashBoardNode
+                    .put(JSON_VERSION, "1.1")
+                    .put(BACKGROUND_COLOR, dashboardPojo.getBackgroundColor().toString())
+                    .put(SHOW_GRID, dashboardPojo.getShowGrid())
+                    .put(X_GRID_INTERVAL, dashboardPojo.getxGridInterval())
+                    .put(Y_GRID_INTERVAL, dashboardPojo.getyGridInterval())
+                    .put(UPDATE_RATE, dashboardPojo.getUpdateRate())
+                    .put(ZOOM_FACTOR, dashboardPojo.getZoomFactor())
+                    .put(WIDTH, dashboardPojo.getSize().getWidth())
+                    .put(HEIGHT, dashboardPojo.getSize().getHeight())
+                    .put(DEFAULT_PERIOD, dashboardPojo.getTimeFrame().getID());
+
+//            try {
+//                if (timeFrame != null) {
+//
+//                } else {
+//                    dashBoardNode.put(DEFAULT_PERIOD, Period.weeks(1).toString());
+//                }
+//
+//            } catch (Exception ex) {
+//                dashBoardNode.put(DEFAULT_PERIOD, Period.weeks(1).toString());
+//                logger.error(ex);
+//            }
+
+//
+
+//            List<ObjectNode> widgetNodes = new ArrayList<>();
+            ArrayNode widgetArray = dashBoardNode.putArray(WIDGET_NODE);
+            for (Widget widget : widgets) {
+                try {
+                    ObjectNode widgetObjectNode = widget.toNode();
+                    if (widgetObjectNode != null) {
+//                        widgetNodes.add(widgetObjectNode);
+                        widgetArray.add(widgetObjectNode);
+                    }
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            }
+
+
+            return dashBoardNode;
+
+
+        } catch (Exception ex) {
+            logger.error(ex);
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public DashboardPojo loadDashboard(JsonNode jsonNode) {
+
+        DashboardPojo dashboardPojo = new DashboardPojo();
+        dashboardPojo.setTitle("New Dashboard");
+
+
+        if (jsonNode == null) return dashboardPojo;
+
+        if (this.dashboardObject != null) {
+            dashboardPojo.setTitle(this.dashboardObject.getName());
+        }
+
+
+        try {
 
             try {
-                String defaultPeriodStrg = jsonNode.get(DEFAULT_PERIOD).asText(Period.days(1).toString());
+                dashboardPojo.setVersion(jsonNode.get(JSON_VERSION).asText("1.0"));
+            } catch (Exception ex) {
+                dashboardPojo.setVersion("0.9");
+                logger.error("Could not parse {}: {}", JSON_VERSION, ex);
+            }
 
+
+            try {
+                String defaultPeriodStrg = jsonNode.get(DEFAULT_PERIOD).asText(Period.days(2).toString());
                 for (TimeFrameFactory timeFrameFactory : this.timeFrames.getAll()) {
+//                    System.out.println("tf: " + timeFrameFactory.getID());
                     if (timeFrameFactory.getID().equals(defaultPeriodStrg)) {
                         dashboardPojo.setTimeFrame(timeFrameFactory);
                     }
                 }
+                if (dashboardPojo.getTimeFrame() == null) {
+                    logger.error("Missing Timeframe: {}  ", defaultPeriodStrg);
+
+                }
+
+
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", DEFAULT_PERIOD, ex);
+                dashboardPojo.setTimeFrame(this.timeFrames.week());
             }
 
 
