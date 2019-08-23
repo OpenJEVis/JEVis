@@ -95,7 +95,8 @@ public class ConfigManager {
             dashBoardNode
                     .put(JSON_VERSION, "1.1")
                     .put(BACKGROUND_COLOR, dashboardPojo.getBackgroundColor().toString())
-                    .put(SHOW_GRID, dashboardPojo.getShowGrid())
+//                    .put(SHOW_GRID, dashboardPojo.getShowGrid())
+                    .put(SNAP_TO_GRID, dashboardPojo.getSnapToGrid())
                     .put(X_GRID_INTERVAL, dashboardPojo.getxGridInterval())
                     .put(Y_GRID_INTERVAL, dashboardPojo.getyGridInterval())
                     .put(UPDATE_RATE, dashboardPojo.getUpdateRate())
@@ -104,21 +105,6 @@ public class ConfigManager {
                     .put(HEIGHT, dashboardPojo.getSize().getHeight())
                     .put(DEFAULT_PERIOD, dashboardPojo.getTimeFrame().getID());
 
-//            try {
-//                if (timeFrame != null) {
-//
-//                } else {
-//                    dashBoardNode.put(DEFAULT_PERIOD, Period.weeks(1).toString());
-//                }
-//
-//            } catch (Exception ex) {
-//                dashBoardNode.put(DEFAULT_PERIOD, Period.weeks(1).toString());
-//                logger.error(ex);
-//            }
-
-//
-
-//            List<ObjectNode> widgetNodes = new ArrayList<>();
             ArrayNode widgetArray = dashBoardNode.putArray(WIDGET_NODE);
             for (Widget widget : widgets) {
                 try {
@@ -191,7 +177,7 @@ public class ConfigManager {
                 Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
                 Size newSize = new Size(jsonNode.get("height").asDouble(primaryScreenBounds.getHeight() - 80)
                         , jsonNode.get("width").asDouble(primaryScreenBounds.getWidth() - 35));
-                logger.error("------ josn.size: {}/{}  {}", jsonNode.get("width"), jsonNode.get("height"), newSize);
+                logger.debug("------ josn.size: {}/{}  {}", jsonNode.get("width"), jsonNode.get("height"), newSize);
 
 
                 dashboardPojo.setSize(newSize);
@@ -232,6 +218,7 @@ public class ConfigManager {
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", SNAP_TO_GRID, ex);
             }
+
             try {
                 dashboardPojo.setShowGrid(jsonNode.get(SHOW_GRID).asBoolean(true));
             } catch (Exception ex) {
