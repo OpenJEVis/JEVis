@@ -48,7 +48,7 @@ public class WidgetConfig {
     private List<WidgetConfigProperty> additionalSetting = new ArrayList<>();
     private Map<String, JsonNode> additionalConfigNodes = new HashMap<>();
     private ObjectMapper mapper = new ObjectMapper();//.enable(SerializationFeature.INDENT_OUTPUT);
-    private JsonNode extraNode = mapper.createObjectNode();
+    private JsonNode extraNode = this.mapper.createObjectNode();
     private String dataHandlerJson;
     private JsonNode jsonNode;
 
@@ -60,69 +60,69 @@ public class WidgetConfig {
         this.jsonNode = jsonNode;
         try {
             try {
-                title.setValue(jsonNode.get(title.getName()).asText(title.get()));
+                this.title.setValue(jsonNode.get(this.title.getName()).asText(this.title.get()));
             } catch (Exception ex) {
-                logger.debug("Could not parse {}: {}", title.getName(), ex.getMessage());
+                logger.debug("Could not parse {}: {}", this.title.getName(), ex.getMessage());
             }
 
             try {
-                titlePosition.setValue(Pos.valueOf(jsonNode.get(titlePosition.getName()).asText(Pos.CENTER.toString())));
+                this.titlePosition.setValue(Pos.valueOf(jsonNode.get(this.titlePosition.getName()).asText(Pos.CENTER.toString())));
             } catch (Exception ex) {
-                logger.debug("Could not parse {}: {}", titlePosition.getName(), ex);
+                logger.debug("Could not parse {}: {}", this.titlePosition.getName(), ex);
             }
 
 
             try {
-                type = jsonNode.get("WidgetType").asText("");
+                this.type = jsonNode.get("WidgetType").asText("");
             } catch (Exception ex) {
                 logger.debug("Could not parse {}: {}", "WidgetType", ex);
             }
 
             try {
-                backgroundColor.setValue(Color.valueOf(jsonNode.get(backgroundColor.getName()).asText(backgroundColor.get().toString())));
+                this.backgroundColor.setValue(Color.valueOf(jsonNode.get(this.backgroundColor.getName()).asText(this.backgroundColor.get().toString())));
             } catch (Exception ex) {
-                logger.debug("Could not parse {}: {}", backgroundColor.getName(), ex);
+                logger.debug("Could not parse {}: {}", this.backgroundColor.getName(), ex);
             }
 
             try {
-                fontColor.setValue(Color.valueOf(jsonNode.get(fontColor.getName()).asText(Color.BLACK.toString())));
+                this.fontColor.setValue(Color.valueOf(jsonNode.get(this.fontColor.getName()).asText(Color.BLACK.toString())));
             } catch (Exception ex) {
-                logger.debug("Could not parse {}: {}", fontColor.getName(), ex);
+                logger.debug("Could not parse {}: {}", this.fontColor.getName(), ex);
             }
             try {
                 Size newSize = new Size(jsonNode.get("height").asDouble(), jsonNode.get("width").asDouble());
-                size.setValue(newSize);
+                this.size.setValue(newSize);
             } catch (Exception ex) {
                 logger.debug("Could not parse Size: {}", ex);
             }
             try {
-                fontSize.setValue(jsonNode.get("fontSize").asDouble(13));
+                this.fontSize.setValue(jsonNode.get("fontSize").asDouble(13));
             } catch (Exception ex) {
 //                logger.error("Could not parse position: {}", fontSize.getName(), ex);
             }
 
             try {
-                xPosition.setValue(jsonNode.get("xPos").asDouble(0));
-                yPosition.setValue(jsonNode.get("yPos").asDouble(0));
+                this.xPosition.setValue(jsonNode.get("xPos").asDouble(0));
+                this.yPosition.setValue(jsonNode.get("yPos").asDouble(0));
             } catch (Exception ex) {
-                logger.debug("Could not parse position: {}", title.getName(), ex);
+                logger.debug("Could not parse position: {}", this.title.getName(), ex);
             }
 
             try {
-                showShadow.setValue(jsonNode.get("shadow").asBoolean(true));
+                this.showShadow.setValue(jsonNode.get("shadow").asBoolean(true));
             } catch (Exception ex) {
-                logger.debug("Could not parse {}: {}", showShadow.getName(), ex.getMessage());
+                logger.debug("Could not parse {}: {}", this.showShadow.getName(), ex.getMessage());
             }
 
             try {
-                borderSize.setValue(new BorderWidths(jsonNode.get("borderSize").asDouble(0.2)));
+                this.borderSize.setValue(new BorderWidths(jsonNode.get("borderSize").asDouble(0.2)));
             } catch (Exception ex) {
-                logger.debug("Could not parse position: {}", showShadow.getName(), ex.getMessage());
+                logger.debug("Could not parse position: {}", this.showShadow.getName(), ex.getMessage());
             }
 
 
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {
-                dataHandlerJson = jsonNode.asText(DATA_HANDLER_NODE);
+                this.dataHandlerJson = jsonNode.asText(DATA_HANDLER_NODE);
 //                System.out.println("DATA_HANDLER_NODE: " + dataHandlerJson);
 //                dataHandlerNode = jsonNode.get(DATA_HANDLER_NODE);
             } else {
@@ -131,7 +131,7 @@ public class WidgetConfig {
 
 
             if (jsonNode.get(WIDGET_SETTINGS_NODE) != null) {
-                extraNode = jsonNode.get(WIDGET_SETTINGS_NODE);
+                this.extraNode = jsonNode.get(WIDGET_SETTINGS_NODE);
             }
 
         } catch (Exception ex) {
@@ -146,15 +146,15 @@ public class WidgetConfig {
     }
 
     public JsonNode getConfigNode(String name) {
-        return jsonNode.get(name);
+        return this.jsonNode.get(name);
     }
 
     public JsonNode getExtraSettingNode() {
-        return extraNode;
+        return this.extraNode;
     }
 
     public String getType() {
-        return type;
+        return this.type;
     }
 
     public void setType(String type) {
@@ -171,28 +171,28 @@ public class WidgetConfig {
         widgetConfigEditor.show();
 
 
-        userConfig.clear();
-        userConfig.put(title.getName(), new ConfigSheet.Property("Title", GENERAL_GROUP, title.getValue(), "Help"));
-        userConfig.put(unit.getName(), new ConfigSheet.Property("Unit", GENERAL_GROUP, unit.getValue(), "Help"));
+        this.userConfig.clear();
+        this.userConfig.put(this.title.getName(), new ConfigSheet.Property("Title", GENERAL_GROUP, this.title.getValue(), "Help"));
+        this.userConfig.put(this.unit.getName(), new ConfigSheet.Property("Unit", GENERAL_GROUP, this.unit.getValue(), "Help"));
 
-        userConfig.put(backgroundColor.getName(), new ConfigSheet.Property("Background Color", GENERAL_GROUP, backgroundColor.getValue(), "Help"));
-        userConfig.put(fontColorSecondary.getName(), new ConfigSheet.Property(fontColorSecondary.getName(), GENERAL_GROUP, fontColorSecondary.getValue(), "Help"));
-        userConfig.put(fontColor.getName(), new ConfigSheet.Property("Font Color", GENERAL_GROUP, fontColor.getValue(), "Help"));
-        userConfig.put("Font Size", new ConfigSheet.Property("fontSize", GENERAL_GROUP, fontSize.getValue(), "Help"));
+        this.userConfig.put(this.backgroundColor.getName(), new ConfigSheet.Property("Background Color", GENERAL_GROUP, this.backgroundColor.getValue(), "Help"));
+        this.userConfig.put(this.fontColorSecondary.getName(), new ConfigSheet.Property(this.fontColorSecondary.getName(), GENERAL_GROUP, this.fontColorSecondary.getValue(), "Help"));
+        this.userConfig.put(this.fontColor.getName(), new ConfigSheet.Property("Font Color", GENERAL_GROUP, this.fontColor.getValue(), "Help"));
+        this.userConfig.put("Font Size", new ConfigSheet.Property("fontSize", GENERAL_GROUP, this.fontSize.getValue(), "Help"));
 
-        userConfig.put("Height", new ConfigSheet.Property("Height", GENERAL_GROUP, size.getValue().getHeight(), "Help"));
-        userConfig.put("Width", new ConfigSheet.Property("Width", GENERAL_GROUP, size.getValue().getWidth(), "Help"));
+        this.userConfig.put("Height", new ConfigSheet.Property("Height", GENERAL_GROUP, this.size.getValue().getHeight(), "Help"));
+        this.userConfig.put("Width", new ConfigSheet.Property("Width", GENERAL_GROUP, this.size.getValue().getWidth(), "Help"));
 
 
-        additionalSetting.forEach(widgetConfigProperty -> {
+        this.additionalSetting.forEach(widgetConfigProperty -> {
 //            System.out.println("Add additional config: " + widgetConfigProperty.getId() + "  " + widgetConfigProperty.getName());
-            userConfig.put(widgetConfigProperty.getId(), new ConfigSheet.Property(widgetConfigProperty.getName(), widgetConfigProperty.getCategory(), widgetConfigProperty.getWritableValue().getValue(), widgetConfigProperty.getDescription()));
+            this.userConfig.put(widgetConfigProperty.getId(), new ConfigSheet.Property(widgetConfigProperty.getName(), widgetConfigProperty.getCategory(), widgetConfigProperty.getWritableValue().getValue(), widgetConfigProperty.getDescription()));
 
         });
 
 
         ConfigSheet ct = new ConfigSheet();
-        PropertySheet propertySheet = ct.getSheet(userConfig);
+        PropertySheet propertySheet = ct.getSheet(this.userConfig);
         propertySheet.setMode(PropertySheet.Mode.CATEGORY);
         propertySheet.setSearchBoxVisible(false);
         propertySheet.setModeSwitcherVisible(false);
@@ -200,21 +200,21 @@ public class WidgetConfig {
     }
 
     public ObjectNode toJsonNode() {
-        ObjectNode jsonNode = mapper.createObjectNode();
-        jsonNode.put(title.getName(), title.getValue());
-        jsonNode.put("WidgetType", type);
+        ObjectNode jsonNode = this.mapper.createObjectNode();
+        jsonNode.put(this.title.getName(), this.title.getValue());
+        jsonNode.put("WidgetType", this.type);
 
-        jsonNode.put(backgroundColor.getName(), backgroundColor.getValue().toString());
-        jsonNode.put(fontColor.getName(), fontColor.getValue().toString());
-        jsonNode.put("height", size.getValue().getHeight());
-        jsonNode.put("width", size.getValue().getWidth());
-        jsonNode.put("xPos", xPosition.getValue());
-        jsonNode.put("yPos", yPosition.getValue());
-        jsonNode.put("fontSize", fontSize.getValue());
+        jsonNode.put(this.backgroundColor.getName(), this.backgroundColor.getValue().toString());
+        jsonNode.put(this.fontColor.getName(), this.fontColor.getValue().toString());
+        jsonNode.put("height", this.size.getValue().getHeight());
+        jsonNode.put("width", this.size.getValue().getWidth());
+        jsonNode.put("xPos", this.xPosition.getValue());
+        jsonNode.put("yPos", this.yPosition.getValue());
+        jsonNode.put("fontSize", this.fontSize.getValue());
 
 
-        ObjectNode additionalNodes = mapper.createObjectNode();
-        additionalNodes.setAll(additionalConfigNodes);
+        ObjectNode additionalNodes = this.mapper.createObjectNode();
+        additionalNodes.setAll(this.additionalConfigNodes);
         jsonNode.setAll(additionalNodes);
 
 
@@ -223,31 +223,31 @@ public class WidgetConfig {
 
 
     public void applyUserConfig() {
-        applyUserConfig(userConfig);
+        applyUserConfig(this.userConfig);
     }
 
     public void applyUserConfig(Map<String, ConfigSheet.Property> userConfig) {
         System.out.println("ApplyUserConfig");
-        backgroundColor.setValue((Color) userConfig.get(backgroundColor.getName()).getObject());
-        fontColor.setValue((Color) userConfig.get(fontColor.getName()).getObject());
-        fontColorSecondary.setValue((Color) userConfig.get(fontColorSecondary.getName()).getObject());
-        unit.setValue((String) userConfig.get(unit.getName()).getObject());
+        this.backgroundColor.setValue((Color) userConfig.get(this.backgroundColor.getName()).getObject());
+        this.fontColor.setValue((Color) userConfig.get(this.fontColor.getName()).getObject());
+        this.fontColorSecondary.setValue((Color) userConfig.get(this.fontColorSecondary.getName()).getObject());
+        this.unit.setValue((String) userConfig.get(this.unit.getName()).getObject());
         Size newSize = new Size((double) userConfig.get("Height").getObject(), (double) userConfig.get("Width").getObject());
-        size.setValue(newSize);
+        this.size.setValue(newSize);
 
         try {
-            fontSize.setValue((double) userConfig.get("fontSize").getObject());
+            this.fontSize.setValue((double) userConfig.get("fontSize").getObject());
         } catch (Exception ex) {
             logger.error(ex);
         }
-        title.setValue((String) userConfig.get(title.getName()).getObject());
+        this.title.setValue((String) userConfig.get(this.title.getName()).getObject());
 
-        additionalSetting.forEach(widgetConfigProperty -> {
+        this.additionalSetting.forEach(widgetConfigProperty -> {
             widgetConfigProperty.getWritableValue().setValue(userConfig.get(widgetConfigProperty.getId()).getObject());
         });
 
-        System.out.println("Font Color: " + fontColor.getValue().toString());
-        System.out.println("Background color: " + backgroundColor.getValue().toString());
+        System.out.println("Font Color: " + this.fontColor.getValue().toString());
+        System.out.println("Background color: " + this.backgroundColor.getValue().toString());
 
 
     }
@@ -276,7 +276,7 @@ public class WidgetConfig {
 
         Optional<ButtonType> opt = configDia.showAndWait();
         if (opt.get().equals(buttonTypeOk)) {
-            applyUserConfig(userConfig);
+            applyUserConfig(this.userConfig);
             return true;
         }
 

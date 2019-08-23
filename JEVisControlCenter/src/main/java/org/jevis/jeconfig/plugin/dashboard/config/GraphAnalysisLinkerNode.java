@@ -6,7 +6,7 @@ public class GraphAnalysisLinkerNode {
     private Long graphAnalysisObject = 0l;
 
     public Long getGraphAnalysisObject() {
-        return graphAnalysisObject;
+        return this.graphAnalysisObject;
     }
 
     public void setGraphAnalysisObject(Long graphAnalysisObject) {

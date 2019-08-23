@@ -41,11 +41,11 @@ public class WidgetConfigEditor {
         gridPane.setPadding(new Insets(10));
         gridPane.setVgap(8d);
 
-        ValidatedTextField textFieldXPos = new ValidatedTextField(originalWidgetConfig.xPosition.getValue().toString(), DoubleValidator.getInstance());
-        ValidatedTextField textFieldYPos = new ValidatedTextField(originalWidgetConfig.yPosition.getValue().toString(), DoubleValidator.getInstance());
-        ValidatedTextField textFieldWidth = new ValidatedTextField("" + originalWidgetConfig.size.get().getWidth(), DoubleValidator.getInstance());
-        ValidatedTextField textFieldHeight = new ValidatedTextField("" + originalWidgetConfig.size.get().getHeight(), DoubleValidator.getInstance());
-        ValidatedTextField textFieldTitle = new ValidatedTextField("" + originalWidgetConfig.title.get(), null);
+        ValidatedTextField textFieldXPos = new ValidatedTextField(this.originalWidgetConfig.xPosition.getValue().toString(), DoubleValidator.getInstance());
+        ValidatedTextField textFieldYPos = new ValidatedTextField(this.originalWidgetConfig.yPosition.getValue().toString(), DoubleValidator.getInstance());
+        ValidatedTextField textFieldWidth = new ValidatedTextField("" + this.originalWidgetConfig.size.get().getWidth(), DoubleValidator.getInstance());
+        ValidatedTextField textFieldHeight = new ValidatedTextField("" + this.originalWidgetConfig.size.get().getHeight(), DoubleValidator.getInstance());
+        ValidatedTextField textFieldTitle = new ValidatedTextField("" + this.originalWidgetConfig.title.get(), null);
 
 
         IntegerProperty row = new SimpleIntegerProperty(0);
@@ -61,15 +61,15 @@ public class WidgetConfigEditor {
         gridPaneFont.setPadding(new Insets(10));
         gridPaneFont.setVgap(8d);
 
-        ValidatedTextField textFieldFontSize = new ValidatedTextField(originalWidgetConfig.fontSize.getValue().toString(), DoubleValidator.getInstance());
-        ColorPicker colorPickerFont = new ColorPicker(originalWidgetConfig.fontColor.getValue());
-        ColorPicker colorPickerBG = new ColorPicker(originalWidgetConfig.backgroundColor.getValue());
+        ValidatedTextField textFieldFontSize = new ValidatedTextField(this.originalWidgetConfig.fontSize.getValue().toString(), DoubleValidator.getInstance());
+        ColorPicker colorPickerFont = new ColorPicker(this.originalWidgetConfig.fontColor.getValue());
+        ColorPicker colorPickerBG = new ColorPicker(this.originalWidgetConfig.backgroundColor.getValue());
         colorPickerBG.setStyle("-fx-color-label-visible: false ;");
         colorPickerFont.setStyle("-fx-color-label-visible: false ;");
         colorPickerBG.setMinWidth(50d);
         colorPickerFont.setMinWidth(50d);
         CheckBox checkBoxShadow = new CheckBox();
-        checkBoxShadow.setSelected(originalWidgetConfig.showShadow.getValue());
+        checkBoxShadow.setSelected(this.originalWidgetConfig.showShadow.getValue());
         IntegerProperty rowFont = new SimpleIntegerProperty(0);
 
         addRow(gridPaneFont, I18n.getInstance().getString("plugin.dashboard.widget.config.tab.general.fontsize"), textFieldFontSize, rowFont);
@@ -161,7 +161,7 @@ public class WidgetConfigEditor {
     }
 
     public void addTab(Tab tab) {
-        tabs.add(tab);
+        this.tabs.add(tab);
     }
 
     public Optional<ButtonType> show() {
@@ -169,7 +169,7 @@ public class WidgetConfigEditor {
 
 
         tabPane.getTabs().add(buildGeneralTab());
-        tabPane.getTabs().addAll(tabs);
+        tabPane.getTabs().addAll(this.tabs);
 
         tabPane.getTabs().forEach(tab -> {
             tab.setClosable(false);
@@ -199,6 +199,6 @@ public class WidgetConfigEditor {
 
 
     public WidgetConfig getConfig() {
-        return newWidgetConfig;
+        return this.newWidgetConfig;
     }
 }

@@ -28,22 +28,22 @@ public class WidgetConfigProperty<T> {
     }
 
     public String getCategory() {
-        return category;
+        return this.category;
     }
 
     public String getId() {
-        return id;
+        return this.id;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public WritableValue getWritableValue() {
-        return writableValue;
+        return this.writableValue;
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 }
