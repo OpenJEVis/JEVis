@@ -19,7 +19,7 @@
             <AppenderRef ref="Console"/>
         </Logger>
 
-        <Logger name="org.jevis.jeconfig.plugin.Dashboard.widget" level="info" additivity="false">
+        <Logger name="org.jevis.jeconfig.plugin.dashboard.widget" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Root level="error">
