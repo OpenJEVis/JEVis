@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.paint.Color;
@@ -33,6 +34,12 @@ public class WidgetPojo {
     private JsonNode dataHandlerJson;
     private static final Logger logger = LogManager.getLogger(WidgetPojo.class);
     private final JsonNode jsonNode;
+
+    public WidgetPojo() {
+        this.jsonNode = JsonNodeFactory.instance.objectNode();
+
+
+    }
 
     public WidgetPojo(JsonNode jsonNode) {
         this.jsonNode = jsonNode;
