@@ -15,7 +15,11 @@ public interface JsonNames {
         String SNAP_TO_GRID = "Snap to Grid";
         String SHOW_GRID = "Show Grid";
         String WIDGET_NODE = "Widget";
-        String DEFAULT_PERIOD = "defaultPeriod";
+        String DEFAULT_PERIOD = "Data Period";
+        String HEIGHT = "height";
+        String WIDTH = "width";
+        String JSON_VERSION = "version";
+
     }
 
     interface Widget {
