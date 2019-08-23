@@ -12,10 +12,10 @@ public class Position {
     }
 
     public double getxPos() {
-        return xPos;
+        return this.xPos;
     }
 
     public double getyPos() {
-        return yPos;
+        return this.yPos;
     }
 }
