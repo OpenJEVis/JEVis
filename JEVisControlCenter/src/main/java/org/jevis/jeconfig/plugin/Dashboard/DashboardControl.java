@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.dialog.CommonDialogs;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.plugin.Dashboard.config2.ConfigManager;
 import org.jevis.jeconfig.plugin.Dashboard.config2.DashboardPojo;
@@ -24,6 +25,7 @@ import org.jevis.jeconfig.plugin.Dashboard.config2.DashboardSorter;
 import org.jevis.jeconfig.plugin.Dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.Dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -39,7 +41,6 @@ import java.util.concurrent.Executors;
 
 public class DashboardControl {
 
-    static public int table = 0;//DELETE!
 
     private static final Logger logger = LogManager.getLogger(DashboardControl.class);
     private double zoomFactor = 1.0d;
@@ -63,43 +64,46 @@ public class DashboardControl {
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
     private boolean fitToParent = false;
     public BooleanProperty highligtProperty = new SimpleBooleanProperty(false);
+    private TimeFrameFactory defaultTimeFrame = null;
 
     public DashboardControl(DashBordPlugIn plugin) {
         this.configManager = new ConfigManager(plugin.getDataSource());
         this.dashBordPlugIn = plugin;
         this.jevisDataSource = plugin.getDataSource();
-//        this.activeDashboard = this.configManager.createEmptyDashboard();
+        this.activeDashboard = this.configManager.createEmptyDashboard();
         this.timeFrames = new TimeFrames(this.jevisDataSource);
         this.activeTimeFrame = this.timeFrames.day();
 
 
         this.highligtProperty.addListener((observable, oldValue, newValue) -> {
-            System.out.println("disable highligt");
             if (!newValue) {
                 this.widgetList.forEach(widget -> {
-                    widget.setGlow(true);
+                    widget.setGlow(false);
 //                    highlightWidgetInView(widget, false);
                 });
             }
         });
+
+
     }
 
-    public static synchronized int nextTableID() {
-        if (table == 6) {
-            table = 1;
-        } else {
-            table++;
-        }
-
-        return table;
-    }
 
     public void loadFirstDashboard() {
         try {
             loadDashboardObjects();
 
-            JEVisObject firstObject = this.jevisDataSource.getObject(3808l);
-            selectDashboard(firstObject);
+            JEVisObject userDasboad = getUserSelectedDashboard();
+            if (userDasboad != null) {
+                selectDashboard(userDasboad);
+            } else if (!this.dashboardObjects.isEmpty()) {
+                selectDashboard(this.dashboardObjects.get(0));
+            } else {
+
+
+            }
+
+//            JEVisObject firstObject = this.jevisDataSource.getObject(3808l);
+//            selectDashboard(firstObject);
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -126,7 +130,6 @@ public class DashboardControl {
 
 
     public void zoomIn() {
-        logger.error("ZoomIn");
         if (this.zoomFactor < 3) {
             this.zoomFactor = this.zoomFactor + 0.05d;
         }
@@ -136,7 +139,6 @@ public class DashboardControl {
     }
 
     public void zoomOut() {
-        logger.error("ZoomOut");
         if (this.zoomFactor > -0.2) {
             this.zoomFactor = this.zoomFactor - 0.05d;
         }
@@ -176,35 +178,41 @@ public class DashboardControl {
      */
     public void selectDashboard(JEVisObject object) {
         logger.error("selectDashboard: {}", object);
-        restartExecutor();
-        restView();
+        try {
 
-        this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
-        this.activeDashboard.setJevisObject(object);
+            restartExecutor();
+            restView();
 
-        this.dashBordPlugIn.getDashBoardPane().updateView();
-        this.widgetList.addAll(this.configManager.createWidgets(this, this.activeDashboard.getWidgetList()));
+            this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
+            this.activeDashboard.setJevisObject(object);
 
-        this.dashBordPlugIn.setContentSize(this.activeDashboard.getSize().getWidth(), this.activeDashboard.getSize().getHeight());
+            this.dashBordPlugIn.getDashBoardPane().updateView();
+            this.widgetList.addAll(this.configManager.createWidgets(this, this.activeDashboard.getWidgetList()));
 
-        this.configManager.getBackgroundImage(this.activeDashboard.getDashboardObject()).addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                this.dashBordPlugIn.getDashBoardPane().setBackgroundImage(newValue);
-            }
-        });
+            this.dashBordPlugIn.setContentSize(this.activeDashboard.getSize().getWidth(), this.activeDashboard.getSize().getHeight());
 
-        this.widgetList.forEach(widget -> {
-            widget.updateConfig();
-            this.dashBordPlugIn.getDashBoardPane().addWidget(widget);
-        });
-        this.widgetList.forEach(widget -> {
-            widget.updateConfig(widget.getConfig(), this.dashBordPlugIn.getDashBoardPane());
-        });
-        this.widgetList.forEach(widget -> {
-            addWidgetUpdateTask(widget, this.getInterval());
-        });
+            this.configManager.getBackgroundImage(this.activeDashboard.getDashboardObject()).addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    this.dashBordPlugIn.getDashBoardPane().setBackgroundImage(newValue);
+                }
+            });
 
-        this.dashBordPlugIn.getDashBoardToolbar().updateView(this.activeDashboard);
+            this.widgetList.forEach(widget -> {
+                widget.updateConfig();
+                this.dashBordPlugIn.getDashBoardPane().addWidget(widget);
+            });
+            this.widgetList.forEach(widget -> {
+                widget.updateConfig(widget.getConfig(), this.dashBordPlugIn.getDashBoardPane());
+            });
+            this.widgetList.forEach(widget -> {
+                addWidgetUpdateTask(widget, this.getInterval());
+            });
+
+            this.dashBordPlugIn.getDashBoardToolbar().updateView(this.activeDashboard);
+        } catch (Exception ex) {
+            logger.error(ex);
+            ex.printStackTrace();
+        }
     }
 
     public void setEditable(boolean editable) {
@@ -351,30 +359,52 @@ public class DashboardControl {
     }
 
     public void save() {
-        NewAnalyseDialog newAnalyseDialog = new NewAnalyseDialog();
-        try {
+        //if(needsave){
 
-            NewAnalyseDialog.Response response = newAnalyseDialog.show((Stage) this.dashBordPlugIn.getDashBoardPane().getScene().getWindow(), this.jevisDataSource);
-            if (response == NewAnalyseDialog.Response.YES) {
-                JEVisClass analisisDirClass = this.jevisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS_DIR);
-                List<JEVisObject> analisisDir = this.jevisDataSource.getObjects(analisisDirClass, true);
-                JEVisClass analisisClass = this.jevisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
+        //update
+
+        if (this.activeDashboard.getNew()) {//new TODO
+            NewAnalyseDialog newAnalyseDialog = new NewAnalyseDialog();
+            try {
+
+                NewAnalyseDialog.Response response = newAnalyseDialog.show((Stage) this.dashBordPlugIn.getDashBoardPane().getScene().getWindow(), this.jevisDataSource);
+                if (response == NewAnalyseDialog.Response.YES) {
+                    JEVisClass analisisDirClass = this.jevisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS_DIR);
+                    List<JEVisObject> analisisDir = this.jevisDataSource.getObjects(analisisDirClass, true);
+                    JEVisClass analisisClass = this.jevisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
 
 
-                JEVisObject newObject = newAnalyseDialog.getParent().buildObject(newAnalyseDialog.getCreateName(), analisisClass);
+                    JEVisObject newObject = newAnalyseDialog.getParent().buildObject(newAnalyseDialog.getCreateName(), analisisClass);
 //                newObject.commit();//TODO
-                selectDashboard(newObject);
+                    selectDashboard(newObject);
 
-                if (this.newBackgroundFile != null) {
-                    this.configManager.setBackgroundImage(this.activeDashboard.getDashboardObject(), this.newBackgroundFile);
+                    if (this.newBackgroundFile != null) {
+                        this.configManager.setBackgroundImage(this.activeDashboard.getDashboardObject(), this.newBackgroundFile);
+                    }
+
                 }
-
+            } catch (Exception ex) {
+                logger.error(ex);
+                ex.printStackTrace();
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+
+
+        } else {//update
+            try {
+                this.configManager.saveDashboard(this.activeDashboard, this.widgetList);
+            } catch (Exception ex) {
+                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.copy.error.title"),
+                        I18n.getInstance().getString("dashboard.save.error"), null, ex);
+            }
+
         }
+
+
     }
 
+    public void setDefaultTimeFrame(TimeFrameFactory timeFrame) {
+        this.defaultTimeFrame = timeFrame;
+    }
 
     public void startWallpaperSelection() {
         FileChooser fileChooser = new FileChooser();
