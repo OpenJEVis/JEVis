@@ -1149,15 +1149,17 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public JEVisObject getObject(Long id) {
-
-        JEVisObject obj = this.objectCache.getOrDefault(id, null);
-        if (obj != null) {
-            return obj;
-        } else {
-            System.out.println("Object without cache: " + id);
-            return getObjectWS(id);
+        try {
+            JEVisObject obj = this.objectCache.getOrDefault(id, null);
+            if (obj != null) {
+                return obj;
+            } else {
+                return getObjectWS(id);
+            }
+        } catch (NullPointerException np) {
+            logger.error("Object not found: {}", id);
+            return null;
         }
-
 
     }
 
