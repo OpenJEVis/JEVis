@@ -19,7 +19,6 @@
  */
 package org.jevis.jeconfig;
 
-import com.google.gson.Gson;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
@@ -43,8 +42,6 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.application.ApplicationInfo;
-import org.jevis.commons.unit.JEVisUnitImp;
-import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
@@ -321,10 +318,6 @@ public class JEConfig extends Application {
 
         login.getLoginStatus().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-
-                Gson gson = new Gson();
-                String problemUnit = "{\"formula\":\"var\",\"label\":\"var\",\"prefix\":\"None\"}";
-                JEVisUnitImp unit = new JEVisUnitImp(gson.fromJson(problemUnit, JsonUnit.class));
 
                 logger.debug("Start JEVis Control Center");
                 _mainDS = login.getDataSource();
