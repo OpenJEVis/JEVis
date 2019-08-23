@@ -16,7 +16,8 @@ public class DashboardPojo {
     public static String DATA_HANDLER_NODE = "dataHandler";
     public static String WIDGET_SETTINGS_NODE = "extra";
 
-
+    public String version = "1.0";
+    private String name = "";
     public BorderWidths borderSize = new BorderWidths(0.2);
     public Color fontColor = Color.WHITE;
     public Color fontColorSecondary = Color.DODGERBLUE;
@@ -36,12 +37,37 @@ public class DashboardPojo {
     private Boolean snapToGrid = true;
     private Boolean showGrid = true;
     private JEVisObject jeVisObject = null;
+    private Boolean isNew = false;
 
     private final List<WidgetPojo> widgetList = new ArrayList<>();
 
     public Double zoomFactor = 1.0d;
 
     public DashboardPojo() {
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Boolean getNew() {
+        return this.isNew;
+    }
+
+    public String getVersion() {
+        return this.version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public void setNew(Boolean aNew) {
+        this.isNew = aNew;
     }
 
     public List<WidgetPojo> getWidgetList() {
