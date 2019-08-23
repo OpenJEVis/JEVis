@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.*;
-import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,14 +16,12 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.jeconfig.application.jevistree.JEVisTree;
-import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jeconfig.plugin.Dashboard.config.DataModelNode;
+import org.jevis.jeconfig.plugin.Dashboard.config.DataPointNode;
 import org.jevis.jeconfig.plugin.Dashboard.timeframe.LastPeriod;
 import org.jevis.jeconfig.plugin.Dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.Dashboard.timeframe.TimeFrames;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -52,17 +49,40 @@ public class DataModelDataHandler {
     private TimeFrames timeFrames;
     private List<TimeFrameFactory> timeFrameFactories = new ArrayList<>();
     private String forcedPeriod;
+    private ObjectMapper mapper = new ObjectMapper();
 
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {
         this.jeVisDataSource = jeVisDataSource;
 
+//        if (configNode != null) {
+//            try {
+//                System.out.println("DMDH: " + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(configNode));
+//
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        }
+
         try {
             if (configNode != null) {
-                ObjectMapper mapper = new ObjectMapper();
 
-                DataModelNode dataModelNode = mapper.treeToValue(configNode, DataModelNode.class);
-//            System.out.println("Json: " + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dataModelNode));
+
+                DataModelNode dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
                 this.dataModelNode = dataModelNode;
+
+//                JsonNode widgets = jsonNode.get(WIDGET_NODE);
+
+//                if (configNode.isArray()) {
+//                    System.out.println("-> data is array");
+//                    for (final JsonNode objNode : configNode) {
+//
+//                        WidgetPojo newConfig = new WidgetPojo(objNode);
+//                        dashboardPojo.getWidgetList().add(newConfig);
+//                        logger.debug("Add Widget: {}", newConfig);
+//                    }
+//                }
+
+
             }
 
         } catch (Exception ex) {
@@ -71,23 +91,36 @@ public class DataModelDataHandler {
 
         if (!this.dataModelNode.getForcedInterval().isEmpty()) {
             this.forcedInterval = true;
-            //if PTx than new Interval
-            //if number then jevisObject for custom intervals
-
             try {
-//                forcedPeriod = Period.parse(dataModelNode.getForcedInterval());
                 this.forcedPeriod = this.dataModelNode.getForcedInterval();
-
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
 
+
+        setData(this.dataModelNode.getData());
+        this.timeFrames = new TimeFrames(jeVisDataSource);
+        this.timeFrames.setWorkdays(this.chartDataModels.stream().findFirst().map(ChartDataModel::getObject).orElse(null));
+        this.timeFrameFactories.addAll(this.timeFrames.getAll());
+
+
+    }
+
+    public void setData(List<DataPointNode> data) {
+        this.dataModelNode.setData(data);
+        this.chartDataModels.clear();
+        this.attributeMap.clear();
+
         this.dataModelNode.getData().forEach(dataPointNode -> {
             try {
-                logger.debug("Add attribute: {}:{}", dataPointNode.getObjectID(), dataPointNode.getAttribute());
-                JEVisObject jevisobject = jeVisDataSource.getObject(dataPointNode.getObjectID());
-                JEVisObject cleanObject = jeVisDataSource.getObject(dataPointNode.getCleanObjectID());
+//                logger.error("Add node: " + dataPointNode.toString());
+//                logger.debug("Add attribute: {}:{}", dataPointNode.getObjectID(), dataPointNode.getAttribute());
+                JEVisObject jevisobject = this.jeVisDataSource.getObject(dataPointNode.getObjectID());
+                JEVisObject cleanObject = null;
+                if (dataPointNode.getCleanObjectID() != null && dataPointNode.getCleanObjectID() > 0) {
+                    cleanObject = this.jeVisDataSource.getObject(dataPointNode.getCleanObjectID());
+                }
 
 
                 if (jevisobject != null) {
@@ -145,15 +178,11 @@ public class DataModelDataHandler {
                     logger.error("Object not found: {}", dataPointNode.getObjectID());
                 }
             } catch (Exception ex) {
-                logger.error("Error in line {}: ", ex.getStackTrace()[0].getLineNumber(), ex.getStackTrace()[0]);
+//                logger.error("Error '{}' in line {}: ", ex.getMessage(), ex.getStackTrace()[0].getLineNumber(), ex.getStackTrace()[0]);
+                ex.printStackTrace();
             }
 
         });
-
-        this.timeFrames = new TimeFrames(jeVisDataSource);
-        this.timeFrames.setWorkdays(this.chartDataModels.stream().findFirst().map(ChartDataModel::getObject).orElse(null));
-        this.timeFrameFactories.addAll(this.timeFrames.getAll());
-
 
     }
 
@@ -176,18 +205,8 @@ public class DataModelDataHandler {
     }
 
 
-    public Tab getConfigTab() {
-        Tab tab = new Tab(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
-
-        WidgetTreePlugin widgetTreePlugin = new WidgetTreePlugin();
-
-        JEVisTree tree = JEVisTreeFactory.buildDefaultWidgetTree(this.jeVisDataSource, widgetTreePlugin);
-        tab.setContent(tree);
-        widgetTreePlugin.setUserSelection(this.dataModelNode.getData());
-
-
-        return tab;
-
+    public JEVisDataSource getJeVisDataSource() {
+        return this.jeVisDataSource;
     }
 
     public void setInterval(Interval interval) {
@@ -253,19 +272,30 @@ public class DataModelDataHandler {
 
     public JsonNode toJsonNode() {
         ArrayNode dataArrayNode = JsonNodeFactory.instance.arrayNode();
-        this.attributeMap.forEach((s, jeVisAttribute) -> {
-            ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
-            dataNode.put("object", jeVisAttribute.getObjectID());
-            dataNode.put("attribute", jeVisAttribute.getName());
-            dataArrayNode.add(dataNode);
-        });
 
+        this.dataModelNode.getData().forEach(dataPointNode -> {
+            try {
+                logger.debug("Add attribute: {}:{}", dataPointNode.getObjectID(), dataPointNode.getAttribute());
+
+                ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
+                dataNode.put("objectID", dataPointNode.getObjectID());
+                dataNode.put("attribute", dataPointNode.getAttribute());
+                dataNode.put("cleanObjectID", dataPointNode.getCleanObjectID());
+                dataNode.put("calculationID", dataPointNode.getCalculationID());
+                dataNode.put("aggregationPeriod", dataPointNode.getAggregationPeriod().toString());
+                dataNode.put("manipulationMode", dataPointNode.getManipulationMode().toString());
+
+                dataNode.put("color", dataPointNode.getColor().toString());
+                dataArrayNode.add(dataNode);
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        });
         ObjectNode dataHandlerNode = JsonNodeFactory.instance.objectNode();
         dataHandlerNode.set("data", dataArrayNode);
         dataHandlerNode.set("type", JsonNodeFactory.instance.textNode(TYPE));
 
-
-        return dataArrayNode;
+        return dataHandlerNode;
 
     }
 
@@ -275,6 +305,10 @@ public class DataModelDataHandler {
 
     public List<ChartDataModel> getDataModel() {
         return this.chartDataModels;
+    }
+
+    public DataModelNode getDateNode() {
+        return this.dataModelNode;
     }
 
     public void update() {

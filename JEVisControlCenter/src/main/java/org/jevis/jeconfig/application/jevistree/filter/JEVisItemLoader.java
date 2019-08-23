@@ -68,6 +68,10 @@ public class JEVisItemLoader {
         });
     }
 
+    public Collection<JEVisTreeItem> getAllItems() {
+        return this.itemObjectLinker.values();
+    }
+
     public List<JEVisObject> getVisibleObjects() {
         List<JEVisObject> result = new ArrayList<>();
         this.itemObjectLinker.forEach((object, jeVisTreeItem) -> {

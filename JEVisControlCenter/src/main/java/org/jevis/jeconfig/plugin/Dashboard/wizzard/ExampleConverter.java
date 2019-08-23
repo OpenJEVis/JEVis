@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.Dashboard.wizzard;
 
-import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.Dashboard.config.DataModelNode;
 import org.jevis.jeconfig.plugin.Dashboard.config.DataPointNode;
 
@@ -55,20 +54,20 @@ public class ExampleConverter {
 //                "  \"disableIntervalUI\": false,\n" +
 //                "  \"Widget\": [");
 
-        int table = DashboardControl.nextTableID();
+//        int table = DashboardControl.nextTableID();
 
         int row = 0;
         for (DataPointNode dataPointNode : dataModelNode.getData()) {
             row++;
-            System.out.println("\n--Table: " + table + " -- Row: " + row + " -----OID: " + dataPointNode.getObjectID() + "-----------\n");
+//            System.out.println("\n--Table: " + table + " -- Row: " + row + " -----OID: " + dataPointNode.getObjectID() + "-----------\n");
 
             for (Map.Entry<String, Double> entry : this.columns.entrySet()) {
                 String s = entry.getKey();
                 Double aDouble = entry.getValue();
-                double yp = this.yPos.get(table) + (50 * row);
-                System.out.println("ypos: " + this.yPos.get(table) + "+" + "(50*" + row + ")=" + yp + "/" + aDouble);
+//                double yp = this.yPos.get(table) + (50 * row);
+//                System.out.println("ypos: " + this.yPos.get(table) + "+" + "(50*" + row + ")=" + yp + "/" + aDouble);
 
-                stringBuilder.append(dataToVlaueWidget(dataPointNode, s, aDouble, yp));
+//                stringBuilder.append(dataToVlaueWidget(dataPointNode, s, aDouble, yp));
 
             }
         }

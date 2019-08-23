@@ -244,8 +244,7 @@ public class JEVisTreeFactory {
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_MANIPULATION, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_AGGREGATION, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_CLEANING, dataFilter);
-
-
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_ENPI, dataFilter);
         JEVisTree tree = new JEVisTree(ds, cellFilter);
 
         List<JEVisTreeFilter> allFilter = new ArrayList<>();

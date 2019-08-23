@@ -1,37 +1,44 @@
 package org.jevis.jeconfig.plugin.Dashboard.datahandler;
 
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.Benchmark;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeItem;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.jevistree.TreePlugin;
-import org.jevis.jeconfig.plugin.Dashboard.config.DataModelNode;
 import org.jevis.jeconfig.plugin.Dashboard.config.DataPointNode;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WidgetTreePlugin implements TreePlugin {
 
     public static String COLUMN = "DataModel";
     public static String COLUMN_COLOR = "Color";
     public static String COLUMN_SELECTED = "Selection";
+    public static String COLUMN_ENPI = "ENPI";
     public static String COLUMN_AGGREGATION = "Aggregation";
     public static String COLUMN_MANIPULATION = "Manipulation";
-    public static String COLUMN_DATA_POINT = "Manipulation";
+    public static String DATA_MODEL_NODE = "DataModelNode";
     public static String COLUMN_CLEANING = "datenbereinigung";
 
     final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
@@ -43,33 +50,69 @@ public class WidgetTreePlugin implements TreePlugin {
     final String rawDataString = I18n.getInstance().getString("graph.processing.raw");
 
     private JEVisTree jeVisTree;
-    private List<DataPointNode> data = new ArrayList<>();
-    private List<DataModelNode> userSelection = new ArrayList<>();
-
     private JEVisClass cleanDataClass = null;
+
+    private Map<Long, Long> targetCalcMap = new HashMap<>();
+
+    private List<ManipulationMode> customList = new ArrayList<ManipulationMode>() {
+        {
+            add(ManipulationMode.NONE);
+            add(ManipulationMode.TOTAL);
+            add(ManipulationMode.RUNNING_MEAN);
+            add(ManipulationMode.CENTRIC_RUNNING_MEAN);
+            add(ManipulationMode.SORTED_MIN);
+            add(ManipulationMode.SORTED_MAX);
+        }
+    };
+
 
     public WidgetTreePlugin() {
 //        this.data = preset;
     }
 
+    public List<DataPointNode> getUserSelection() {
+        final List<DataPointNode> data = new ArrayList<>();
+        this.jeVisTree.getItems().forEach(jeVisTreeItem -> {
+            JEVisTreeRow row = jeVisTreeItem.getValue();
+            boolean isSelected = (Boolean) row.getDataObject(COLUMN_SELECTED, false);
+            if (isSelected) {
+                DataPointNode node = (DataPointNode) row.getDataObject(DATA_MODEL_NODE, null);
+                if (node != null) {
+                    data.add(node);
+                }
+
+
+//                DataPointNode dataPointNode = new DataPointNode();
+//                dataPointNode.setObjectID(row.getJEVisObject().getID());
+//
+//                dataPointNode.setColor((Color) row.getDataObject(COLUMN_COLOR, Color.BLUE));
+//                dataPointNode.setAggregationPeriod((AggregationPeriod) row.getDataObject(COLUMN_AGGREGATION, AggregationPeriod.NONE));
+//                dataPointNode.setManipulationMode((ManipulationMode) row.getDataObject(DATA_MODEL_NODE, ManipulationMode.NONE));
+//
+//                System.out.println("Selected: " + dataPointNode);
+//                data.add(dataPointNode);
+            }
+
+
+        });
+        System.out.println("\n");
+        return data;
+    }
 
     public void setUserSelection(List<DataPointNode> userSelection) {
 
         userSelection.forEach(dataModelNode -> {
             try {
-                JEVisObject object = jeVisTree.getJEVisDataSource().getObject(dataModelNode.getObjectID());
+                System.out.println("isselected: " + dataModelNode.getObjectID());
+                JEVisObject object = this.jeVisTree.getJEVisDataSource().getObject(dataModelNode.getObjectID());
                 if (object != null) {
                     JEVisTreeItem item = this.jeVisTree.getItemForObject(object);
                     if (item != null) {
                         JEVisTreeRow row = item.getValue();
                         row.setDataObject(COLUMN_SELECTED, true);
-                        row.setDataObject(COLUMN_COLOR, dataModelNode.getColor());
-                        row.setDataObject(COLUMN_AGGREGATION, dataModelNode.getAggregationPeriod());
-//                        row.setDataObject(COLUMN_MANIPULATION, dataModelNode.getManipulationMode());
-//                        row.setDataObject(COLUMN_MANIPULATION, dataModelNode.getCleanObjectID());
-                        row.setDataObject(COLUMN_DATA_POINT, dataModelNode);
+                        row.setDataObject(DATA_MODEL_NODE, dataModelNode);
 
-                        jeVisTree.openPathToObject(object);
+                        this.jeVisTree.openPathToObject(object);
                     }
                 }
 
@@ -85,6 +128,14 @@ public class WidgetTreePlugin implements TreePlugin {
     @Override
     public void setTree(JEVisTree tree) {
         this.jeVisTree = tree;
+        try {
+            Benchmark benchmark = new Benchmark();
+            this.targetCalcMap = getENPICalcMap();
+            this.cleanDataClass = tree.getJEVisDataSource().getJEVisClass("Clean Data");
+            benchmark.printBechmark("Loading ENPI IDs");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
     }
 
@@ -95,10 +146,15 @@ public class WidgetTreePlugin implements TreePlugin {
         TreeTableColumn<JEVisTreeRow, Long> pluginHeader = new TreeTableColumn<>("Daten");
         pluginHeader.setId(COLUMN);
 
-        pluginHeader.getColumns().addAll(buildSelection(), buildColorColumn(), buildManipulationColumn(), buildAggregationColumn(), buildDataProcessorolumn());
+        pluginHeader.getColumns().addAll(
+                buildSelection(),
+                buildColorColumn(),
+                buildManipulationColumn(),
+                buildAggregationColumn(),
+                buildDataProcessorColumn(),
+                buildENIPColumn());
         list.add(pluginHeader);
 
-//        list.addAll(buildSelection(), buildColorColumn());
         return list;
     }
 
@@ -113,24 +169,19 @@ public class WidgetTreePlugin implements TreePlugin {
     }
 
 
-    public TreeTableColumn<JEVisTreeRow, JEVisObject> buildDataProcessorolumn() {
+    public TreeTableColumn<JEVisTreeRow, JEVisObject> buildDataProcessorColumn() {
         TreeTableColumn<JEVisTreeRow, JEVisObject> column = new TreeTableColumn(COLUMN_CLEANING);
         column.setPrefWidth(80);
         column.setId(COLUMN_CLEANING);
 
 
-        try {
-            cleanDataClass = jeVisTree.getJEVisDataSource().getJEVisClass("Clean Data");
-        } catch (Exception ex) {
-
-        }
-
         column.setCellValueFactory(param -> {
-            DataPointNode dataPoint = (DataPointNode) param.getValue().getValue().getDataObject(COLUMN_DATA_POINT, null);
+//            DataPointNode dataPoint = (DataPointNode) param.getValue().getValue().getDataObject(DATA_MODEL_NODE, null);
+            DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
 
             try {
                 if (dataPoint != null && dataPoint.getCleanObjectID() != null) {
-                    JEVisObject cleanObject = jeVisTree.getJEVisDataSource().getObject(dataPoint.getCleanObjectID());
+                    JEVisObject cleanObject = this.jeVisTree.getJEVisDataSource().getObject(dataPoint.getCleanObjectID());
                     if (cleanObject != null) {
                         return new ReadOnlyObjectWrapper<>(cleanObject);
                     }
@@ -161,19 +212,17 @@ public class WidgetTreePlugin implements TreePlugin {
 
                         if (!empty) {
 
-                            boolean show = jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+                            boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
 
                             if (show && item != null) {
-
 
                                 ObservableList<JEVisObject> processors = FXCollections.observableArrayList();
 
 
-                                JEVisObject rowObject = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
-
+                                JEVisObject rawObject = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
                                 try {
-                                    processors.add(rowObject);
-                                    processors.addAll(rowObject.getChildren(cleanDataClass, true));
+                                    processors.add(rawObject);
+                                    processors.addAll(rawObject.getChildren(WidgetTreePlugin.this.cleanDataClass, true));
                                 } catch (Exception ex) {
                                     ex.printStackTrace();
                                 }
@@ -184,6 +233,7 @@ public class WidgetTreePlugin implements TreePlugin {
 
                                 processorBox.setItems(processors);
 
+
                                 Callback<javafx.scene.control.ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<javafx.scene.control.ListView<JEVisObject>, ListCell<JEVisObject>>() {
                                     @Override
                                     public ListCell<JEVisObject> call(javafx.scene.control.ListView<JEVisObject> param) {
@@ -191,16 +241,20 @@ public class WidgetTreePlugin implements TreePlugin {
                                             @Override
                                             protected void updateItem(JEVisObject jeVisObject, boolean empty) {
                                                 super.updateItem(jeVisObject, empty);
-                                                if (empty || jeVisObject == null) {
-                                                    setText("");
-                                                } else {
-                                                    String text = "";
-                                                    if (jeVisObject.getID().equals(rowObject.getID())) {
-                                                        text = rawDataString;
+                                                try {
+                                                    if (empty || jeVisObject == null) {
+                                                        setText("");
                                                     } else {
-                                                        text = jeVisObject.getName();
+                                                        String text = "";
+                                                        if (jeVisObject.getID().equals(rawObject.getID())) {
+                                                            text = WidgetTreePlugin.this.rawDataString;
+                                                        } else {
+                                                            text = jeVisObject.getName();
+                                                        }
+                                                        setText(text);
                                                     }
-                                                    setText(text);
+                                                } catch (Exception ex) {
+                                                    setText("Error");
                                                 }
                                             }
                                         };
@@ -216,6 +270,11 @@ public class WidgetTreePlugin implements TreePlugin {
                                     processorBox.getSelectionModel().selectFirst();
                                 }
 
+                                processorBox.setOnAction(event -> {
+                                    if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
+                                        getDataPointNode(getTreeTableRow()).setCleanObjectID(processorBox.getSelectionModel().getSelectedItem().getID());
+                                    }
+                                });
 
                                 setGraphic(new BorderPane(processorBox));
                             }
@@ -237,7 +296,8 @@ public class WidgetTreePlugin implements TreePlugin {
         column.setId(COLUMN_AGGREGATION);
 
         column.setCellValueFactory(param -> {
-            DataPointNode dataPoint = (DataPointNode) param.getValue().getValue().getDataObject(COLUMN_DATA_POINT, null);
+//            DataPointNode dataPoint = (DataPointNode) param.getValue().getValue().getDataObject(DATA_MODEL_NODE, null);
+            DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
             if (dataPoint != null) {
                 return new ReadOnlyObjectWrapper<>(dataPoint.getAggregationPeriod());
             } else {
@@ -262,21 +322,21 @@ public class WidgetTreePlugin implements TreePlugin {
 
                         if (!empty) {
 
-                            boolean show = jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+                            boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
 
                             if (show) {
                                 AggregationBox aggregationBox = new AggregationBox(item);
 
 
-//                                mathBox.setOnAction(event -> {
-//                                    try {
-//                                        if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
-//                                            getTreeTableRow().getItem().setDataObject(COLUMN_COLOR, colorPicker.getValue());
-//                                        }
-//                                    } catch (Exception ex) {
-//                                        ex.printStackTrace();
-//                                    }
-//                                });
+                                aggregationBox.setOnAction(event -> {
+                                    try {
+                                        if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
+                                            getDataPointNode(getTreeTableRow()).setAggregationPeriod(aggregationBox.getValue());
+                                        }
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                });
                                 setGraphic(new BorderPane(aggregationBox));
                             }
                         }
@@ -297,7 +357,8 @@ public class WidgetTreePlugin implements TreePlugin {
         column.setId(COLUMN_MANIPULATION);
 
         column.setCellValueFactory(param -> {
-            DataPointNode dataPoint = (DataPointNode) param.getValue().getValue().getDataObject(COLUMN_DATA_POINT, null);
+//            DataPointNode dataPoint = (DataPointNode) param.getValue().getValue().getDataObject(DATA_MODEL_NODE, null);
+            DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
             if (dataPoint != null) {
                 return new ReadOnlyObjectWrapper<>(dataPoint.getManipulationMode());
             } else {
@@ -322,18 +383,11 @@ public class WidgetTreePlugin implements TreePlugin {
 
                         if (!empty) {
 
-                            boolean show = jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+                            boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
 
                             if (show) {
                                 ComboBox<ManipulationMode> mathBox = new ComboBox<>();
 
-                                List<ManipulationMode> customList = new ArrayList<>();
-                                customList.add(ManipulationMode.NONE);
-                                customList.add(ManipulationMode.TOTAL);
-                                customList.add(ManipulationMode.RUNNING_MEAN);
-                                customList.add(ManipulationMode.CENTRIC_RUNNING_MEAN);
-                                customList.add(ManipulationMode.SORTED_MIN);
-                                customList.add(ManipulationMode.SORTED_MAX);
 
                                 Callback<javafx.scene.control.ListView<ManipulationMode>, ListCell<ManipulationMode>> cellFactory = new Callback<javafx.scene.control.ListView<ManipulationMode>, ListCell<ManipulationMode>>() {
                                     @Override
@@ -348,22 +402,19 @@ public class WidgetTreePlugin implements TreePlugin {
                                                     String text = "";
                                                     switch (manipulationMode) {
                                                         case NONE:
-                                                            text = keyPreset;
-                                                            break;
-                                                        case TOTAL:
-                                                            text = keyTotal;
+                                                            text = WidgetTreePlugin.this.keyPreset;
                                                             break;
                                                         case RUNNING_MEAN:
-                                                            text = keyRunningMean;
+                                                            text = WidgetTreePlugin.this.keyRunningMean;
                                                             break;
                                                         case CENTRIC_RUNNING_MEAN:
-                                                            text = keyCentricRunningMean;
+                                                            text = WidgetTreePlugin.this.keyCentricRunningMean;
                                                             break;
                                                         case SORTED_MIN:
-                                                            text = keySortedMin;
+                                                            text = WidgetTreePlugin.this.keySortedMin;
                                                             break;
                                                         case SORTED_MAX:
-                                                            text = keySortedMax;
+                                                            text = WidgetTreePlugin.this.keySortedMax;
                                                             break;
                                                     }
                                                     setText(text);
@@ -374,19 +425,19 @@ public class WidgetTreePlugin implements TreePlugin {
                                 };
                                 mathBox.setCellFactory(cellFactory);
                                 mathBox.setButtonCell(cellFactory.call(null));
-                                mathBox.setItems(FXCollections.observableArrayList(customList));
+                                mathBox.setItems(FXCollections.observableArrayList(WidgetTreePlugin.this.customList));
                                 mathBox.getSelectionModel().select(item);
 
 
-//                                mathBox.setOnAction(event -> {
-//                                    try {
-//                                        if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
-//                                            getTreeTableRow().getItem().setDataObject(COLUMN_COLOR, colorPicker.getValue());
-//                                        }
-//                                    } catch (Exception ex) {
-//                                        ex.printStackTrace();
-//                                    }
-//                                });
+                                mathBox.setOnAction(event -> {
+                                    try {
+                                        if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
+                                            getDataPointNode(getTreeTableRow()).setManipulationMode(mathBox.getValue());
+                                        }
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                });
                                 setGraphic(new BorderPane(mathBox));
                             }
                         }
@@ -407,8 +458,12 @@ public class WidgetTreePlugin implements TreePlugin {
         column.setId(COLUMN_COLOR);
 
         column.setCellValueFactory(param -> {
-            Color color = (Color) param.getValue().getValue().getDataObject(COLUMN_COLOR, Color.LIGHTBLUE);
-            return new ReadOnlyObjectWrapper<>(color);
+            DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
+            if (dataPoint != null) {
+                return new ReadOnlyObjectWrapper<>(dataPoint.getColor());
+            } else {
+                return new ReadOnlyObjectWrapper<>(Color.LIGHTBLUE);
+            }
         });
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, Color>, TreeTableCell<JEVisTreeRow, Color>>() {
@@ -427,7 +482,7 @@ public class WidgetTreePlugin implements TreePlugin {
 
                         if (!empty) {
 
-                            boolean show = jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+                            boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
 
                             if (show) {
                                 ColorPicker colorPicker = new ColorPicker();
@@ -438,7 +493,8 @@ public class WidgetTreePlugin implements TreePlugin {
                                 colorPicker.setOnAction(event -> {
                                     try {
                                         if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
-                                            getTreeTableRow().getItem().setDataObject(COLUMN_COLOR, colorPicker.getValue());
+                                            getDataPointNode(getTreeTableRow()).setColor(colorPicker.getValue());
+                                            setItem(colorPicker.getValue());
                                         }
                                     } catch (Exception ex) {
                                         ex.printStackTrace();
@@ -458,6 +514,40 @@ public class WidgetTreePlugin implements TreePlugin {
         return column;
     }
 
+    private DataPointNode getDataPointNode(TreeTableRow<JEVisTreeRow> row) {
+        return getDataPointNode(row.getItem());
+    }
+
+    private DataPointNode getDataPointNode(JEVisTreeRow row) {
+
+//        System.out.println("getDataPointNode: " + row.getItem().getID());
+        DataPointNode dataPointNode = (DataPointNode) row.getDataObject(DATA_MODEL_NODE, null);
+        if (dataPointNode == null) {
+            dataPointNode = new DataPointNode();
+            dataPointNode.setObjectID(row.getJEVisObject().getID());
+            try {
+                List<JEVisObject> cleanObjects = row.getJEVisObject().getChildren(this.cleanDataClass, true);
+                if (!cleanObjects.isEmpty()) {
+                    dataPointNode.setCleanObjectID(cleanObjects.get(0).getID());
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+
+            dataPointNode.setColor(Color.LIGHTBLUE);
+            dataPointNode.setManipulationMode(ManipulationMode.NONE);
+            dataPointNode.setAggregationPeriod(AggregationPeriod.NONE);
+            dataPointNode.setAttribute("Value");
+
+
+            row.setDataObject(DATA_MODEL_NODE, dataPointNode);
+        }
+
+
+        return dataPointNode;
+    }
+
     public TreeTableColumn<JEVisTreeRow, Boolean> buildSelection() {
         TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn(COLUMN_SELECTED);
         column.setPrefWidth(80);
@@ -465,6 +555,7 @@ public class WidgetTreePlugin implements TreePlugin {
 
         column.setCellValueFactory(param -> {
             Boolean selected = (Boolean) param.getValue().getValue().getDataObject(COLUMN_SELECTED, false);
+//            DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(selected);
         });
 
@@ -481,11 +572,14 @@ public class WidgetTreePlugin implements TreePlugin {
                         setGraphic(null);
 
                         if (!empty) {
-                            boolean show = jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+                            boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+                            //create an NodeForAll colmuns
+                            getDataPointNode(getTreeTableRow());
 
                             if (show) {
                                 CheckBox box = new CheckBox();
                                 box.setSelected(item);
+//                                box.setSelected((Boolean) getTreeTableRow().getItem().getDataObject(COLUMN_SELECTED, false));
                                 box.setOnAction(event -> {
                                     try {
                                         if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
@@ -509,5 +603,101 @@ public class WidgetTreePlugin implements TreePlugin {
         return column;
     }
 
+    public TreeTableColumn<JEVisTreeRow, Boolean> buildENIPColumn() {
+        TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn("ENPI");
+        column.setPrefWidth(80);
+        column.setId(COLUMN_ENPI);
+
+        column.setCellValueFactory(param -> {
+//            DataPointNode dataPoint = (DataPointNode) param.getValue().getValue().getDataObject(DATA_MODEL_NODE, null);
+            DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
+            if (dataPoint != null && (dataPoint.getCalculationID() != null && dataPoint.getCalculationID() > 0l)) {
+                System.out.println("ENPI: " + dataPoint.getCalculationID());
+                return new SimpleBooleanProperty(true);
+            } else {
+                return new SimpleBooleanProperty(false);
+            }
+
+        });
+
+        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, Boolean>, TreeTableCell<JEVisTreeRow, Boolean>>() {
+
+            @Override
+            public TreeTableCell<JEVisTreeRow, Boolean> call(TreeTableColumn<JEVisTreeRow, Boolean> param) {
+                return new TreeTableCell<JEVisTreeRow, Boolean>() {
+
+                    @Override
+                    protected void updateItem(Boolean item, boolean empty) {
+                        super.updateItem(item, empty);
+                        setText(null);
+                        setGraphic(null);
+
+                        if (!empty) {
+                            boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+
+                            if (show) {
+                                CheckBox box = new CheckBox();
+                                box.setSelected(item);
+                                box.setOnAction(event -> {
+                                    try {
+                                        if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
+
+                                            if (box.isSelected()) {
+                                                if (WidgetTreePlugin.this.targetCalcMap.containsKey(getDataPointNode(getTreeTableRow()).getObjectID())) {
+                                                    getDataPointNode(getTreeTableRow()).setCleanObjectID(WidgetTreePlugin.this.targetCalcMap.get(getDataPointNode(getTreeTableRow()).getObjectID()));
+                                                } else {
+                                                    System.out.println("----> keine calc id gefunden");
+                                                }
+
+                                            } else {
+                                                getDataPointNode(getTreeTableRow()).setCleanObjectID(0l);
+                                            }
+
+
+                                        }
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                });
+
+                                setGraphic(new BorderPane(box));
+                            }
+
+                        }
+
+                    }
+                };
+            }
+        });
+
+        return column;
+    }
+
+
+    private Map<Long, Long> getENPICalcMap() throws JEVisException {
+        Map<Long, Long> calcAndResult = new HashMap<>();
+
+        JEVisClass calculation = this.jeVisTree.getJEVisDataSource().getJEVisClass("Calculation");
+        JEVisClass outputClass = this.jeVisTree.getJEVisDataSource().getJEVisClass("Output");
+
+        for (JEVisObject calculationObj : this.jeVisTree.getJEVisDataSource().getObjects(calculation, true)) {
+            try {
+                List<JEVisObject> output = calculationObj.getChildren(outputClass, true);
+
+                if (output != null && !output.isEmpty()) {
+                    JEVisAttribute tartgetAttribute = output.get(0).getAttribute("Attribute Target");
+                    TargetHelper th = new TargetHelper(this.jeVisTree.getJEVisDataSource(), tartgetAttribute);
+
+                    if (th != null && th.getObject() != null && !th.getObject().isEmpty()) {
+                        calcAndResult.put(th.getObject().get(0).getID(), calculationObj.getID());
+                    }
+
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return calcAndResult;
+    }
 
 }
