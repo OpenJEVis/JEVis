@@ -20,6 +20,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.Dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.Dashboard.widget.Widget;
+import org.jevis.jeconfig.tool.I18n;
 
 public class WidgetColumnFactory {
 
@@ -70,11 +71,6 @@ public class WidgetColumnFactory {
         this.filteredData = new FilteredList<Widget>(list);
         this.table.setItems(this.filteredData);
 
-
-//        this.table.setStyle(".table-column .label {\n" +
-//                "    -fx-content-display: bottom ;\n" +
-//                "}");
-//        this.table.getTransforms().add(new Scale(0.8, 0.8));
         return this.table;
     }
 
@@ -116,7 +112,7 @@ public class WidgetColumnFactory {
         };
 
 
-        TableColumn<Widget, Widget> column = new TableColumn<>("Settings");
+        TableColumn<Widget, Widget> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.settings"));
         column.setId("Settings");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
@@ -156,7 +152,7 @@ public class WidgetColumnFactory {
         };
 
 
-        TableColumn<Widget, String> column = new TableColumn<>("Type");
+        TableColumn<Widget, String> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.type"));
 
         column.setId("Type");
         column.setCellValueFactory(valueFactory);
@@ -173,27 +169,18 @@ public class WidgetColumnFactory {
         });
 
 
-//        this.control.getWidgets().forEach(widget -> {
-//            types.add(widget.getConfig().getType());
-//        });
-
         JFXComboBox<String> typeFilterBox = new JFXComboBox<>(types);
         typeFilterBox.getSelectionModel().selectFirst();
-//        typeFilterBox.setMaxWidth(200d);
 
         typeFilterBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.filteredData.setPredicate(widget -> {
-//                System.out.print("Filter: " + widget.getConfig().getType());
                 if (newValue.equals("-")) {
                     return true;
                 }
                 try {
-
                     if (widget.getConfig().getType().equals(newValue)) {
-//                        System.out.println(" -> true");
                         return true;
                     } else {
-//                        System.out.println(" -> false");
                         return false;
                     }
                 } catch (Exception ex) {
@@ -204,7 +191,7 @@ public class WidgetColumnFactory {
             this.table.refresh();
         });
 
-        Label label = new Label("Type:");
+        Label label = new Label(I18n.getInstance().getString("jevistree.widget.column.type"));
         label.setAlignment(Pos.BOTTOM_LEFT);
         GridPane gridPane = new GridPane();
         gridPane.add(label, 0, 0);
@@ -213,11 +200,6 @@ public class WidgetColumnFactory {
         column.setGraphic(gridPane);
         column.setText("");
 
-        double textFieldPadding = 8;
-//        typeFilterBox.prefWidthProperty().bind(
-//                column.widthProperty().subtract(textFieldPadding));
-
-//        column.setMinWidth(200);
         column.setPrefWidth(200);
 
         return column;
@@ -267,7 +249,7 @@ public class WidgetColumnFactory {
         };
 
 
-        TableColumn<Widget, String> column = new TableColumn<>("Title");
+        TableColumn<Widget, String> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.title"));
         column.setId("title");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
@@ -315,7 +297,7 @@ public class WidgetColumnFactory {
         };
 
 
-        TableColumn<Widget, Color> column = new TableColumn<>("FG Color");
+        TableColumn<Widget, Color> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.fgcolor"));
         column.setId("fgColor");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
@@ -363,7 +345,7 @@ public class WidgetColumnFactory {
         };
 
 
-        TableColumn<Widget, Color> column = new TableColumn<>("GB Color");
+        TableColumn<Widget, Color> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.bgcolor"));
         column.setId("Title");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
@@ -414,7 +396,7 @@ public class WidgetColumnFactory {
         };
 
 
-        TableColumn<Widget, Double> column = new TableColumn<>("xPos");
+        TableColumn<Widget, Double> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.xpos"));
         column.setId("xPos");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
@@ -465,7 +447,7 @@ public class WidgetColumnFactory {
             }
         };
 
-        TableColumn<Widget, Double> column = new TableColumn<>("yPos");
+        TableColumn<Widget, Double> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.ypos"));
         column.setId("yPos");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
@@ -515,7 +497,7 @@ public class WidgetColumnFactory {
             }
         };
 
-        TableColumn<Widget, Double> column = new TableColumn<>("Width");
+        TableColumn<Widget, Double> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.width"));
         column.setId("Width");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
@@ -680,7 +662,7 @@ public class WidgetColumnFactory {
             }
         };
 
-        TableColumn<Widget, Double> column = new TableColumn<>("Height");
+        TableColumn<Widget, Double> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.height"));
         column.setId("Height");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
