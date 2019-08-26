@@ -9,12 +9,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement(name = "JsonScheduler")
 public class JsonScheduler {
-    private String timezone;
-    private List<JsonSchedulerRule> rules;
+    private String timezone = "";
+    private List<JsonSchedulerRule> rules = new ArrayList<>();
 
     public JsonScheduler() {
     }
