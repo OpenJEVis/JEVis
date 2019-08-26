@@ -3,9 +3,7 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -176,26 +174,6 @@ public class ColumnChartSerie {
             Color currentColor = singleRow.getColor();
             String hexColor = toRGBCode(currentColor);
             data.getNode().setStyle("-fx-background-color: " + hexColor + ";");
-        }
-    }
-
-    public Node generateNode(JEVisSample sample) throws JEVisException {
-        Note note = new Note(sample);
-
-        if (note.getNote() != null && hideShowIcons) {
-            if (sample.getNote().contains("Empty")) {
-                return null;
-            }
-            note.getNote().setVisible(true);
-            return note.getNote();
-        } else {
-            if (sample.getNote() != null && sample.getNote().contains("Empty")) {
-                return null;
-            }
-            Rectangle rect = new Rectangle(0, 0);
-            rect.setFill(singleRow.getColor());
-            rect.setVisible(false);
-            return rect;
         }
     }
 

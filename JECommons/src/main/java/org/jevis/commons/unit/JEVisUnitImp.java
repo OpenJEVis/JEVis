@@ -143,6 +143,7 @@ public class JEVisUnitImp implements JEVisUnit {
         return _prefix;
     }
 
+    @Override
     public Unit getUnit() {
         return _unit;
     }
@@ -172,7 +173,7 @@ public class JEVisUnitImp implements JEVisUnit {
     public double convertTo(JEVisUnit unit, double number) {
         //TODo check if unit is compatible
         try {
-            Unit targetUnit = UnitManager.getInstance().getUnitWithPrefix(((JEVisUnitImp) unit).getUnit(), unit.getPrefix());
+            Unit targetUnit = UnitManager.getInstance().getUnitWithPrefix(unit.getUnit(), unit.getPrefix());
             Unit sourceUnit = UnitManager.getInstance().getUnitWithPrefix(_unit, getPrefix());
 
             UnitConverter uc = sourceUnit.getConverterTo(targetUnit);
@@ -203,7 +204,7 @@ public class JEVisUnitImp implements JEVisUnit {
 
     @Override
     public JEVisUnit times(JEVisUnit factor) {
-        Unit newUnit = getUnit().times(((JEVisUnitImp) factor).getUnit());
+        Unit newUnit = getUnit().times(factor.getUnit());
         return new JEVisUnitImp(newUnit);
     }
 
@@ -215,13 +216,13 @@ public class JEVisUnitImp implements JEVisUnit {
 
     @Override
     public JEVisUnit divide(JEVisUnit factor) {
-        Unit newUnit = getUnit().divide(((JEVisUnitImp) factor).getUnit());
+        Unit newUnit = getUnit().divide(factor.getUnit());
         return new JEVisUnitImp(newUnit);
     }
 
     @Override
     public boolean isCompatible(JEVisUnit unit) {
-        return getUnit().isCompatible(((JEVisUnitImp) unit).getUnit());
+        return getUnit().isCompatible(unit.getUnit());
     }
 
     @Override
