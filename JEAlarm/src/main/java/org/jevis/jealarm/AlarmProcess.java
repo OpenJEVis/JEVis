@@ -93,32 +93,34 @@ public class AlarmProcess {
                     logger.error("Could not get list of all active alarms.");
                 }
 
-                AlarmTable alarmTable = new AlarmTable(ds, activeAlarms);
+                if (!activeAlarms.isEmpty()) {
+                    AlarmTable alarmTable = new AlarmTable(ds, activeAlarms);
 
-                boolean sentAlarm = sendAlarm(alarmTable);
+                    boolean sentAlarm = sendAlarm(alarmTable);
 
-                if (sentAlarm) logger.info("Sent notification.");
-                else logger.info("Did not send notification.");
+                    if (sentAlarm) logger.info("Sent notification.");
+                    else logger.info("Did not send notification.");
 
-                if (start != null && end != null && end.isAfter(start)) {
-                    try {
+                    if (start != null && end != null && end.isAfter(start)) {
+                        try {
 
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("<html>");
-                        sb.append("<br>");
-                        sb.append("<br>");
-                        sb.append(alarmTable.getTableString());
-                        sb.append("<br>");
-                        sb.append("<br>");
-                        sb.append(alarmTable.getAlarmTable());
-                        sb.append("<br>");
-                        sb.append("<br>");
-                        sb.append("</html>");
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("<html>");
+                            sb.append("<br>");
+                            sb.append("<br>");
+                            sb.append(alarmTable.getTableString());
+                            sb.append("<br>");
+                            sb.append("<br>");
+                            sb.append(alarmTable.getAlarmTable());
+                            sb.append("<br>");
+                            sb.append("<br>");
+                            sb.append("</html>");
 
-                        JEVisSample logSample = alarmConfiguration.getLogAttribute().buildSample(DateTime.now(), sb.toString());
-                        logSample.commit();
-                    } catch (JEVisException e) {
-                        logger.error("Could not build sample with new time stamp.");
+                            JEVisSample logSample = alarmConfiguration.getLogAttribute().buildSample(DateTime.now(), sb.toString());
+                            logSample.commit();
+                        } catch (JEVisException e) {
+                            logger.error("Could not build sample with new time stamp.");
+                        }
                     }
                 }
 
@@ -240,9 +242,9 @@ public class AlarmProcess {
                         || note.contains(NoteConstants.Limits.LIMIT_STATIC) || note.contains(NoteConstants.Limits.LIMIT_AVERAGE)
                         || note.contains(NoteConstants.Limits.LIMIT_MEDIAN) || note.contains(NoteConstants.Limits.LIMIT_INTERPOLATION)
                         || note.contains(NoteConstants.Limits.LIMIT_MIN) || note.contains(NoteConstants.Limits.LIMIT_MAX))) {
-                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, 0d, 0d, AlarmType.L2, 0));
+                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), 0d, 0d, AlarmType.L2, 0));
                 } else if (note.contains(NoteConstants.Limits.LIMIT_STEP1)) {
-                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, 0d, 0d, AlarmType.L1, 0));
+                    activeAlarms.add(new Alarm(cleanData, valueAtt, sample, sample.getTimestamp(), 0d, 0d, AlarmType.L1, 0));
                 }
             }
 
@@ -339,9 +341,9 @@ public class AlarmProcess {
                         alarmLogs.add(alarmSample);
 
                         if (upper) {
-                            activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, value, upperValue, sampleAlarmType, logVal));
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, ts, value, upperValue, sampleAlarmType, logVal));
                         } else {
-                            activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, value, lowerValue, sampleAlarmType, logVal));
+                            activeAlarms.add(new Alarm(cleanData, valueAtt, alarmSample, ts, value, lowerValue, sampleAlarmType, logVal));
                         }
                     }
                 }

@@ -217,7 +217,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
             if (!obj.getJEVisClass().getTypes().isEmpty()) {
                 List<JEVisAttribute> attributes = obj.getAttributes();//load once because this function is not cached
-                for (JEVisType type : obj.getJEVisClass().getTypes()) {//loop types not attributes to be sure only no deletet type are shown
+                for (JEVisType type : obj.getJEVisClass().getTypes()) {//loop types not attributes to be sure only no delete type are shown
                     JEVisAttribute att = getAttribute(type.getName(), attributes);
                     if (att == null) {
                         continue;
