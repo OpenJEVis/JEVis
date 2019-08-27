@@ -25,9 +25,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,22 +47,22 @@ public class WebViewEditor implements AttributeEditor {
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _readOnly = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
-    private HBox box = new HBox(12);
     private JEVisSample _lastSample;
+    private VBox vBox = new VBox();
+    private WebView webView = new WebView();
 
     public WebViewEditor(JEVisAttribute att) {
         logger.debug("==init== for: {}", att.getName());
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
-
+        vBox.setFillWidth(true);
+        vBox.setSpacing(4);
     }
 
     /**
      * Build main UI
      */
     private void init() {
-        BorderPane bp = new BorderPane();
-        WebView webView = new WebView();
         List<JEVisSample> allSamples = _attribute.getAllSamples();
         Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
         List<DateTime> dateTimeList = new ArrayList<>();
@@ -104,10 +102,8 @@ public class WebViewEditor implements AttributeEditor {
             }
         });
 
-        bp.setTop(dateTimeComboBox);
-        bp.setCenter(webView);
-        HBox.setHgrow(webView, Priority.ALWAYS);
-        box.getChildren().addAll(bp);
+        vBox.getChildren().setAll(dateTimeComboBox, webView);
+
     }
 
     @Override
@@ -118,10 +114,7 @@ public class WebViewEditor implements AttributeEditor {
 
     @Override
     public void update() {
-        Platform.runLater(() -> {
-            box.getChildren().clear();
-            init();
-        });
+        Platform.runLater(this::init);
     }
 
     @Override
@@ -137,7 +130,7 @@ public class WebViewEditor implements AttributeEditor {
             logger.catching(ex);
         }
 
-        return box;
+        return vBox;
     }
 
     @Override
@@ -162,4 +155,7 @@ public class WebViewEditor implements AttributeEditor {
         return true;
     }
 
+    public WebView getWebView() {
+        return webView;
+    }
 }

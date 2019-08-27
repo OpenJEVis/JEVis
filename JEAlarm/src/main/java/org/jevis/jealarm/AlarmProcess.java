@@ -105,7 +105,7 @@ public class AlarmProcess {
                         try {
 
                             StringBuilder sb = new StringBuilder();
-                            sb.append("<html>");
+                            sb.append("<html style='overflow=scroll;'>");
                             sb.append("<br>");
                             sb.append("<br>");
                             sb.append(alarmTable.getTableString());
