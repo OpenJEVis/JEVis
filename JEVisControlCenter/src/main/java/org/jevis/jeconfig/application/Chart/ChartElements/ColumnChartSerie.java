@@ -105,7 +105,7 @@ public class ColumnChartSerie {
 
 //                MultiAxisChart.Data<Number, Number> data = serie.getData().get(index);
                 MultiAxisBarChart.Data<String, Number> data = new MultiAxisBarChart.Data<>();
-                data.setXValue(dateTime.toString(DateTimeFormat.forPattern("YYYY-MM-DD HH:mm")));
+                data.setXValue(dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm")));
                 data.setYValue(currentValue);
                 data.setExtraValue(yAxis);
 

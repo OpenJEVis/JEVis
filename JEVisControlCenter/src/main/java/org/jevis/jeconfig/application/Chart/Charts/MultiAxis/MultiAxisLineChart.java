@@ -266,8 +266,9 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
         for (int i = 0; i < getDataSize(); i++) {
             final Series<X, Y> s = getData().get(i);
             Node seriesNode = s.getNode();
-            if (seriesNode != null)
+            if (seriesNode != null) {
                 seriesNode.getStyleClass().setAll("chart-series-line", "series" + i, s.defaultColorStyleClass);
+            }
         }
     }
 
@@ -290,12 +291,9 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
             Data<X, Y> item = series.getData().get(j);
             final Node symbol = createSymbol(series, seriesIndex, item, j);
             if (symbol != null) {
-
                 getPlotChildren().add(symbol);
-
             }
         }
-
     }
 
     private void updateDefaultColorIndex(final Series<X, Y> series) {
@@ -319,7 +317,6 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
         for (Data<X, Y> d : series.getData())
             getPlotChildren().remove(d.getNode());
         removeSeriesFromDisplay(series);
-
     }
 
     /**

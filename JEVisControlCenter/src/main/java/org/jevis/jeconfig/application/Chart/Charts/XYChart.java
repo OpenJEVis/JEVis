@@ -249,14 +249,13 @@ public class XYChart implements Chart {
                 logger.error("Could not generate sum of data rows: ", e);
             }
             try {
+                chart.getData().forEach(serie -> ((MultiAxisChart.Series) serie).getData().forEach(numberNumberData -> {
+                    MultiAxisChart.Data node = (MultiAxisChart.Data) numberNumberData;
+                    node.setExtraValue(0);
+                }));
+
                 xyChartSerieList.add(generateSerie(changedBoth, sumModel));
 
-                Platform.runLater(() -> {
-                    chart.getData().forEach(serie -> ((MultiAxisChart.Series) serie).getData().forEach(numberNumberData -> {
-                        MultiAxisChart.Data node = (MultiAxisChart.Data) numberNumberData;
-                        node.setExtraValue(0);
-                    }));
-                });
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
