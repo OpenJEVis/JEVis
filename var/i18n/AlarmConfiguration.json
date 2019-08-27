@@ -1,0 +1,138 @@
+{
+  "jevisclass": "Alarm Configuration",
+  "names": {
+    "de": "Alarm Konfiguration",
+    "ru": "Конфигурация тревоги",
+    "th": "การกำหนดค่าการเตือนภัย",
+    "uk": "Конфігурація сигналізації",
+    "en": "Alarm Configuration"
+  },
+  "descriptions": {
+    "de": "Das Alarmkonfigurationsobjekt beeinhaltet alle Einstellmöglichkeiten für einen oder mehrere Alarme. Ebenfalls zeigt der Verlauf die eingestellten Alarmmeldungen.",
+    "ru": "Объект конфигурации аварийных сигналов содержит все параметры настройки для одного или нескольких аварийных сигналов. Журнал также показывает установленные сообщения тревоги.",
+    "uk": "Об'єкт конфігурації тривоги містить усі параметри налаштування для однієї або декількох сигналів тривоги. У журналі також відображаються встановлені тривожні повідомлення.",
+    "th": "วัตถุการกำหนดค่าการเตือนภัยมีตัวเลือกการตั้งค่าทั้งหมดสำหรับการเตือนภัยอย่างน้อยหนึ่งครั้ง บันทึกจะแสดงข้อความเตือนที่ตั้งไว้",
+    "en": "The alarm configuration object contains all setting options for one or more alarms. The log also shows the set alarm messages."
+  },
+  "types": [
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Aktiviert die ausgewählte Alarmkonfiguration.",
+        "ru": "Активирует выбранную конфигурацию тревоги.",
+        "uk": "Активує вибрану конфігурацію сигналу тривоги.",
+        "th": "เปิดใช้งานการกำหนดค่าสัญญาณเตือนที่เลือก",
+        "en": "Activates the selected alarm configuration."
+      },
+      "names": {
+        "de": "Aktiviert",
+        "ru": "включен",
+        "th": "เปิดการใช้งาน",
+        "uk": "включений",
+        "en": "Enabled"
+      }
+    },
+    {
+      "type": "Alarm Scope",
+      "descriptions": {
+        "de": "Definiert den Rahmen der beinhalteten Alarme; alle, ausgewählte, alle außer die ausgewählten oder keine. In jedem Fall werden die L1/L2 Grenzen protokolliert.",
+        "ru": "Определяет область действия включенных сигналов тревоги; все, выбранное, все, кроме выбранного или ни одного. В любом случае, пределы L1 / L2 регистрируются.",
+        "uk": "Визначає сферу включених тривог; всі, вибрані, всі, крім вибраного або жодного. У будь-якому випадку, реєструються межі L1 / L2.",
+        "th": "กำหนดขอบเขตของการเตือนที่รวมไว้; ทั้งหมดถูกเลือกทั้งหมดยกเว้นที่เลือกหรือไม่เลือก ไม่ว่าในกรณีใดข้อ จำกัด L1 / L2 จะถูกบันทึกไว้",
+        "en": "Defines the scope of the included alarms; all, selected, all except the selected or none. In any case, the L1 / L2 limits are logged."
+      },
+      "names": {
+        "de": "Alarmbereich",
+        "ru": "диапазон сигнализации",
+        "th": "ช่วงปลุก",
+        "uk": "діапазон сигналізації",
+        "en": "Alarm Scope"
+      }
+    },
+    {
+      "type": "Alarm Objects",
+      "descriptions": {
+        "de": "Die ausgewählten Objekte für den Alarmbereich.",
+        "ru": "Выбранный для зоны тревоги.",
+        "uk": "Вибрана для області тривоги.",
+        "th": "ส่วนที่เลือกไว้สำหรับพื้นที่เตือนภัย",
+        "en": "The selected objects for the alarm scope."
+      },
+      "names": {
+        "de": "Alarmobjekte",
+        "ru": "объекты сигнализации",
+        "th": "วัตถุปลุก",
+        "uk": "об'єкти сигналізації",
+        "en": "Alarm Objects"
+      }
+    },
+    {
+      "type": "Time Stamp",
+      "descriptions": {
+        "de": "Der letzte Zeitstempel an dem die ausgewählten Objekte auf Erfüllen der Alarmkriterien überprüft wurden.",
+        "ru": "Последняя отметка времени, в которую выбранные объекты были проверены на соответствие критериям тревоги.",
+        "uk": "Остання часова мітка, на якій вибрані об'єкти перевірялися на відповідність критеріям тривоги.",
+        "th": "เวลาล่าสุดที่มีการตรวจสอบวัตถุที่เลือกเพื่อให้เป็นไปตามเกณฑ์การเตือนภัย",
+        "en": "The last timestamp on which the selected objects were checked for fulfillment of the alarm criteria."
+      },
+      "names": {
+        "de": "Zeitstempel",
+        "ru": "отметка времени",
+        "th": "การประทับเวลา",
+        "uk": "відмітка часу",
+        "en": "Time Stamp"
+      }
+    },
+    {
+      "type": "Alarm Period",
+      "descriptions": {
+        "de": "Die Periode, in welchem Abstand die ausgewählten Objekte überprüft werden.",
+        "ru": "Период, на котором проверяются выбранные объекты.",
+        "uk": "Період, на якому відстань перевіряються вибраними об'єктами.",
+        "th": "ระยะเวลาที่ตรวจสอบวัตถุที่เลือก",
+        "en": "The period at which distance the selected objects are checked."
+      },
+      "names": {
+        "de": "Alarmperiode",
+        "ru": "период сигнализации",
+        "th": "ระยะเวลาการเตือนภัย",
+        "uk": "період сигналізації",
+        "en": "Alarm Period"
+      }
+    },
+    {
+      "type": "Custom Schedule Object",
+      "descriptions": {
+        "de": "Das benutzerdefinierte Zeitraum-Objekt, wenn in der Alarmperiode ausgewählt.",
+        "ru": "Пользовательский объект периода при выборе в периоде тревоги.",
+        "uk": "Спеціальний об'єкт періоду, коли його вибирають у період тривоги",
+        "th": "วัตถุระยะเวลาที่กำหนดเองเมื่อเลือกในช่วงเวลาปลุก",
+        "en": "The custom period object when selected in the alarm period."
+      },
+      "names": {
+        "de": "Benutzerdefinierter Zeitraum",
+        "ru": "Пользовательский период",
+        "th": "ระยะเวลาที่กำหนดเอง",
+        "uk": "Спеціальний період",
+        "en": "Custom Period"
+      }
+    },
+    {
+      "type": "Log",
+      "descriptions": {
+        "de": "Der Verlauf der Alarmmeldungen.",
+        "ru": "Ход тревожных сообщений.",
+        "uk": "Перебіг тривожних повідомлень.",
+        "th": "หลักสูตรของข้อความเตือนภัย",
+        "en": "The history of the alarm messages."
+      },
+      "names": {
+        "de": "Verlauf",
+        "ru": "история",
+        "th": "ประวัติศาสตร์",
+        "uk": "історія",
+        "en": "History"
+      }
+    }
+  ]
+}
