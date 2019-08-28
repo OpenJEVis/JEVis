@@ -64,7 +64,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
     static String DEFAULT_COLOR = "default-color";
     final Map<MultiAxisChart.Series<X, Y>, Integer> seriesColorMap = new HashMap<>();
     // to indicate which colors are being used for the series
-    private final BitSet colorBits = new BitSet(8);
+    private final BitSet colorBits = new BitSet(32);
     private final Line verticalZeroLine = new Line();
     private final Line horizontalZeroLine = new Line();
     private final Path verticalGridLines = new Path();
@@ -447,6 +447,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 verticalZeroLine, horizontalZeroLine, plotContent);
         plotContent.getChildren().addAll(flowPaneY1Formulas, flowPaneY2Formulas);
         // setup css style classes
+        this.getStylesheets().add(MultiAxisChart.class.getResource("/styles/charts.css").toExternalForm());
         plotContent.getStyleClass().setAll("plot-content");
         plotBackground.getStyleClass().setAll("chart-plot-background");
         verticalRowFill.getStyleClass().setAll("chart-alternative-column-fill");

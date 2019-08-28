@@ -236,9 +236,10 @@ public class MultiAxisAreaChart<X, Y> extends MultiAxisChart<X, Y> {
             for (int j = 0; j < s.getData().size(); j++) {
                 final Data<X, Y> item = s.getData().get(j);
                 final Node node = item.getNode();
-                if (node != null)
+                if (node != null) {
                     node.getStyleClass().setAll("chart-area-symbol", "series" + i, "data" + j,
                             s.defaultColorStyleClass);
+                }
             }
         }
     }

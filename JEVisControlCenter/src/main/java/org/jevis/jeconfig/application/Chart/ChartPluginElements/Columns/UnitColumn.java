@@ -24,6 +24,7 @@ import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -218,8 +219,29 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                                         JEVisUnit u = ChartUnits.parseUnit(box.getSelectionModel().getSelectedItem().toString());
                                         getData().getSelectedData().forEach(mdl -> {
                                             if (!mdl.getSelectedcharts().isEmpty()) {
-                                                if (mdl.getUnit().getUnit().getStandardUnit().equals(u.getUnit().getStandardUnit())) {
+                                                if (mdl.getUnit().getUnit().getStandardUnit() != null && u.getUnit().getStandardUnit() != null && mdl.getUnit().getUnit().getStandardUnit().equals(u.getUnit().getStandardUnit())) {
                                                     mdl.setUnit(u);
+                                                } else {
+                                                    String unitString = u.getLabel().replace("·", "");
+                                                    String modelUnitString = mdl.getUnit().getLabel().replace("·", "");
+                                                    List<EnergyUnit> eValues = Arrays.asList(EnergyUnit.values());
+                                                    List<String> eVS = new ArrayList<>();
+                                                    eValues.forEach(energyUnit -> eVS.add(energyUnit.toString()));
+                                                    if (eVS.contains(modelUnitString) && eVS.contains(unitString)) {
+                                                        mdl.setUnit(u);
+                                                    }
+                                                    List<MassUnit> mValues = Arrays.asList(MassUnit.values());
+                                                    List<String> mVS = new ArrayList<>();
+                                                    mValues.forEach(massUnit -> mVS.add(massUnit.toString()));
+                                                    if (mVS.contains(modelUnitString) && mVS.contains(unitString)) {
+                                                        mdl.setUnit(u);
+                                                    }
+                                                    List<VolumeUnit> vValues = Arrays.asList(VolumeUnit.values());
+                                                    List<String> vVS = new ArrayList<>();
+                                                    vValues.forEach(volumeUnit -> vVS.add(volumeUnit.toString()));
+                                                    if (vVS.contains(modelUnitString) && vVS.contains(unitString)) {
+                                                        mdl.setUnit(u);
+                                                    }
                                                 }
                                             }
                                         });
