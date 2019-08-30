@@ -148,12 +148,9 @@ public class HTTPConnection {
 
         int responseCode = conn.getResponseCode();
 
-//        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
-//        logger.trace("resonseCode {}", responseCode);
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
             return conn.getInputStream();
-//            return new BufferedImage(10, 10, BufferedImage.TYPE_BYTE_GRAY);
         } else {
             return null;
         }
@@ -185,6 +182,10 @@ public class HTTPConnection {
 
             BufferedImage imBuff = ImageIO.read(conn.getInputStream());
 
+            conn.disconnect();
+            in.close();
+
+
             logger.trace("HTTP request closed after: " + ((new Date()).getTime() - start.getTime()) + " msec");
             return imBuff;
 //            return new BufferedImage(10, 10, BufferedImage.TYPE_BYTE_GRAY);
@@ -195,7 +196,6 @@ public class HTTPConnection {
     }
 
     public byte[] getByteRequest(String resource) throws IOException {
-        Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
 //        logger.trace("after replcae: {}", resource);
@@ -211,14 +211,18 @@ public class HTTPConnection {
 
         int responseCode = conn.getResponseCode();
 
+
 //        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
         logger.trace("responseCode {}", responseCode);
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
             //            JEVisFile jf = new JEVisFileImp("tmp.file", bytes);//filename comes from the samples
+            InputStream inputStream = conn.getInputStream();
+            byte[] response = IOUtils.toByteArray(inputStream);
+            inputStream.close();
 
-            return IOUtils.toByteArray(conn.getInputStream());
+            return response;
 
         } else {
             return null;
@@ -310,8 +314,6 @@ public class HTTPConnection {
         conn.connect();
         int responseCode = conn.getResponseCode();
 
-//        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
-//        logger.trace("resonseCode {}", responseCode);
         if (responseCode == HttpURLConnection.HTTP_OK) {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
