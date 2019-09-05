@@ -67,6 +67,7 @@ public class TableWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Table.Update: {}", interval);
+        showProgressIndicator(true);
         this.lastInterval = interval;
 
         if (this.sampleHandler == null) {
@@ -120,7 +121,7 @@ public class TableWidget extends Widget {
         Platform.runLater(() -> {
             this.table.getItems().clear();
             this.table.setItems(tableDatas);
-
+            showProgressIndicator(false);
         });
 
 

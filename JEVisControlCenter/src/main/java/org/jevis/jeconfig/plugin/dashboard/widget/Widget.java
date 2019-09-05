@@ -8,10 +8,11 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.ImageView;
@@ -40,9 +41,11 @@ public abstract class Widget extends Region {
     public Size previewSize = new Size(100, 150);
     private AnchorPane contentRoot = new AnchorPane();
     private AnchorPane editPane = new AnchorPane();
+    private StackPane loadingPane = new StackPane();
     private UUID uuid = UUID.randomUUID();
     private final DashboardControl control;
     private BooleanProperty editable = new SimpleBooleanProperty(false);
+    private ProgressIndicator progressIndicator = new ProgressIndicator();
 
 //    private BooleanProperty snapToGrid = new SimpleBooleanProperty(false);
 
@@ -89,6 +92,7 @@ public abstract class Widget extends Region {
         logger.debug("initLayout() {}", config.getTitle());
         this.getChildren().add(this.contentRoot);
         this.getChildren().add(this.editPane);
+        this.getChildren().add(loadingPane);
         onDragResizeEventListener.setDashBoardPane(control.getDashboardPane());
         DragResizeMod.makeResizable(this, onDragResizeEventListener);
 //        DragResizeMod.makeResizable(this.contentRoot, onDragResizeEventListener);
@@ -106,6 +110,7 @@ public abstract class Widget extends Region {
         setNodeSize(this.config.getSize().getWidth(), this.config.getSize().getHeight());
         makeDragDropOverlay();
         makeWindowForm();
+        makeLoadingOverlay();
         setBorder(this.config.getBorderSize());
         layoutXProperty().set(this.config.getxPosition());
         layoutYProperty().set(this.config.getyPosition());
@@ -122,59 +127,15 @@ public abstract class Widget extends Region {
             this.contentRoot.setEffect(null);
         }
 
-
-//        try {
-////            updateConfig();
-//        } catch (Excseption ex) {
-//            logger.error("Error while update Widget settings: {}", ex);
-//        }
     }
 
 
     public void setGlow(boolean glow) {
-//        Platform.runLater(() -> {
-//            if (glow) {
-//                Glow glowEffect = new Glow();
-//                glowEffect.setLevel(0.9);
-//                InnerShadow is = new InnerShadow();
-//                is.setOffsetX(2.0f);
-//                is.setOffsetY(2.0f);
-//
-//                int depth = 30;
-//
-//                DropShadow borderGlow = new DropShadow();
-//                borderGlow.setOffsetY(-0f);
-//                borderGlow.setOffsetX(-0f);
-//                borderGlow.setColor(Color.BLUE);
-//                borderGlow.setWidth(depth);
-//                borderGlow.setHeight(depth);
-//
-//                borderGlow.setInput(is);
-//
-//                this.setEffect(borderGlow);
-//            } else {
-//                this.setEffect(null);
-//            }
-//
-//        });
-
 
         Platform.runLater(() -> {
 
             this.setEffect(null);
             if (glow) {
-
-
-//                FadeTransition animation = new FadeTransition(Duration.millis(150), this);
-//                animation.setFromValue(0);
-//                animation.setToValue(1);
-//                animation.setCycleCount(2);
-//                animation.setAutoReverse(false);
-//                animation.playFromStart();
-//                InnerShadow is = new InnerShadow();
-//                is.setOffsetX(2.0f);
-//                is.setOffsetY(2.0f);
-//                is.setColor(Color.RED);
 
                 DropShadow borderGlow = new DropShadow();
                 borderGlow.setOffsetY(-0f);
@@ -213,61 +174,26 @@ public abstract class Widget extends Region {
     public void setEditable(boolean editable) {
         logger.debug("Widget setEditable {}", editable);
         onDragResizeEventListener.resizeableProperty().setValue(editable);
+
         this.editPane.setVisible(editable);
         this.editable.setValue(editable);
     }
 
 
+    private void makeLoadingOverlay() {
+        this.loadingPane.setVisible(false);
+        progressIndicator.setMaxSize(100, 100);
+        this.loadingPane.getChildren().add(progressIndicator);
+        StackPane.setAlignment(progressIndicator, Pos.CENTER);
+        this.loadingPane.setBackground(new Background(new BackgroundFill(Color.WHITE, new CornerRadii(0), new Insets(0, 0, 0, 0))));
+        this.loadingPane.setOpacity(0.4);
+    }
+
     private void makeDragDropOverlay() {
         this.editPane.setVisible(false);
 
-
-//        HBox windowHeader = new HBox();
-//        Button configButton = new Button("", JEConfig.getImage("Service Manager.png", 12, 12));
-//        GlobalToolBar.changeBackgroundOnHoverUsingBinding(configButton);
-
-//        Button deleteButton = new Button("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", 8, 8));
-//        GlobalToolBar.changeBackgroundOnHoverUsingBinding(deleteButton);
-
-        Button moveButton = new Button("", JEConfig.getImage("resize.png", 12, 12));
-
-//        moveButton.setOnMousePressed(event -> {
-//            System.out.println("Drag resize");
-//            System.out.println("Start mouse: ");
-//        });
-
-//        configButton.setOnAction(event -> {
-////            config.openConfig();
-//            this.openConfig();
-//        });
-
-
-//        Tooltip tooltip = new Tooltip("" + deleteButton.getHeight());
-//        configButton.setTooltip(tooltip);
-//
-//        deleteButton.setOnAction(event -> {
-//            this.control.removeWidget(Widget.this);
-//
-//        });
-
-//        AnchorPane.setTopAnchor(windowHeader, 0.0);
-//        AnchorPane.setLeftAnchor(configButton, 0.0);
-//        AnchorPane.setRightAnchor(windowHeader, 0.0);
-
-
-//        windowHeader.getChildren().addAll(deleteButton);
-//        windowHeader.setBackground(new Background(new BackgroundFill(Color.GREY, new CornerRadii(0), new Insets(0, 0, 0, 0))));
-//        windowHeader.setMaxHeight(8);
-
         this.editPane.setBackground(new Background(new BackgroundFill(Color.GREY, new CornerRadii(0), new Insets(0, 0, 0, 0))));
         this.editPane.setOpacity(0.7);
-//        this.editPane.getChildren().addAll(windowHeader);
-
-
-//        deleteButton.setPadding(Insets.EMPTY);
-//        configButton.setPadding(Insets.EMPTY);
-//        deleteButton.setMaxHeight(8);
-//        configButton.setMaxHeight(8);
 
         final ContextMenu contextMenu = new ContextMenu();
         MenuItem delete = new MenuItem("Delete", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", 18, 18));
@@ -325,6 +251,15 @@ public abstract class Widget extends Region {
             this.editPane.setMinWidth(width);
             this.editPane.setPrefWidth(width);
 
+
+            this.loadingPane.setMaxHeight(height);
+            this.loadingPane.setMinHeight(height);
+            this.loadingPane.setPrefHeight(height);
+
+            this.loadingPane.setMinWidth(width);
+            this.loadingPane.setMinWidth(width);
+            this.loadingPane.setPrefWidth(width);
+
             setMaxWidth(width);
             setMinWidth(width);
             setPrefWidth(width);
@@ -361,19 +296,11 @@ public abstract class Widget extends Region {
 
 
     public void showProgressIndicator(boolean show) {
-//        ProgressIndicator progressIndicator = new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS);
-//        AnchorPane.setTopAnchor(progressIndicator, contentRoot.getHeight() / 2);
-//        AnchorPane.setLeftAnchor(progressIndicator, contentRoot.getWidth() / 2);
-//
-//
-//        if (show) {
-//
-//
-//            contentRoot.getChildren().add(progressIndicator);
-//
-//        } else {
-//            contentRoot.getChildren().remove(progressIndicator);
-//        }
+        if (show) {
+            loadingPane.setVisible(true);
+        } else {
+            loadingPane.setVisible(false);
+        }
 
     }
 

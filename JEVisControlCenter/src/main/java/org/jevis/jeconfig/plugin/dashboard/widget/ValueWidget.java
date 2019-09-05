@@ -63,6 +63,7 @@ public class ValueWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Value.Update: {}", interval);
+        showProgressIndicator(true);
         Platform.runLater(() -> {
             this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
         });
@@ -113,7 +114,6 @@ public class ValueWidget extends Widget {
                 logger.warn("ValueWidget is missing SampleHandler.datamodel: {}", this.sampleHandler);
             }
 
-
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -121,6 +121,7 @@ public class ValueWidget extends Widget {
 
         Platform.runLater(() -> {
             this.label.setText(this.labelText.getValue());
+            showProgressIndicator(false);
         });
 
 

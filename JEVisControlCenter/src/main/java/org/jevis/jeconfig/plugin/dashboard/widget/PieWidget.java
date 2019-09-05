@@ -65,6 +65,7 @@ public class PieWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Pie.Update: {}", interval);
+        showProgressIndicator(true);
         this.lastInterval = interval;
         this.sampleHandler.setAutoAggregation(true);
 
@@ -160,6 +161,7 @@ public class PieWidget extends Widget {
             this.legend.getItems().setAll(legendItemList);
             this.chart.setData(series);
             applyColors(colors);
+            showProgressIndicator(false);
         });
     }
 

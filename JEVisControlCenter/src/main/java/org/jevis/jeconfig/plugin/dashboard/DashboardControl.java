@@ -381,9 +381,9 @@ public class DashboardControl {
             protected Object call() throws Exception {
                 try {
                     logger.debug("addWidgetUpdateTask: " + widget.typeID());
-                    widget.showProgressIndicator(true);
+//                    widget.showProgressIndicator(true);
                     widget.updateData(interval);
-                    widget.showProgressIndicator(false);
+//                    widget.showProgressIndicator(false);
                 } catch (Exception ex) {
                     logger.error(ex);
                     ex.printStackTrace();

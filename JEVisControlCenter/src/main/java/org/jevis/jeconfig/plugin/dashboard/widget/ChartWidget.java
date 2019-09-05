@@ -70,6 +70,7 @@ public class ChartWidget extends Widget {
     public void updateData(Interval interval) {
         logger.info("Update: {}", interval);
         this.lastInterval = interval;
+        showProgressIndicator(true);
 
         this.lineChart.setChartSettings(chart1 -> {
             MultiAxisLineChart multiAxisLineChart = (MultiAxisLineChart) chart1;
@@ -93,7 +94,7 @@ public class ChartWidget extends Widget {
                 this.openAnalysisButton.setVisible(false);
                 logger.warn("no linker set");
             }
-
+//            showProgressIndicator(false);
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -118,6 +119,7 @@ public class ChartWidget extends Widget {
 
             this.lineChart.getChart().layout();
             this.borderPane.setCenter(this.lineChart.getChart());
+            showProgressIndicator(false);
         });
 
     }
