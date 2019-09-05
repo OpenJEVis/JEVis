@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 public class LimitColoring {
 
-    public static String JNODE_NAME="limitColor";
+    public static String JNODE_NAME = "limitColor";
     private static final Logger logger = LogManager.getLogger(LimitColoring.class);
     private final ObjectProperty<Color> colorUpperLimit = new SimpleObjectProperty<>(Color.INDIANRED);
     private final ObjectProperty<Color> colorLowerLimit = new SimpleObjectProperty<>(Color.LIMEGREEN);
@@ -23,24 +23,24 @@ public class LimitColoring {
 
     private final ObjectProperty<Color> fontColorUpperLimit = new SimpleObjectProperty<>(Color.BLACK);
     private final ObjectProperty<Color> fontColorLowerLimit = new SimpleObjectProperty<>(Color.BLACK);
-    private final ObjectProperty<Color> fontColorDefault= new SimpleObjectProperty<>(Color.BLACK);
+    private final ObjectProperty<Color> fontColorDefault = new SimpleObjectProperty<>(Color.BLACK);
 
-    private Double upperLimit =0d;
-    private Double lowerLimit =0d;
+    private Double upperLimit = 0d;
+    private Double lowerLimit = 0d;
 
 
     public LimitColoring(JsonNode configNode, Color defaultFontColor, Color defaultBackGroundColor) {
-        fontColorDefault.setValue(defaultFontColor);
-        colorDefault.setValue(defaultBackGroundColor);
+        this.fontColorDefault.setValue(defaultFontColor);
+        this.colorDefault.setValue(defaultBackGroundColor);
 
         try {
-            upperLimit =(configNode.get("upperLimit").asDouble(0d));
+            this.upperLimit = (configNode.get("upperLimit").asDouble(0d));
         } catch (Exception ex) {
             logger.error(ex);
         }
 
         try {
-            lowerLimit =(configNode.get("lowerLimit").asDouble(0d));
+            this.lowerLimit = (configNode.get("lowerLimit").asDouble(0d));
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -48,20 +48,20 @@ public class LimitColoring {
 
     }
 
-    public void formateLabel(Label label, Double value){
+    public void formateLabel(Label label, Double value) {
         Background bgColor;
         Color fontColor;
 
 
-        if(value.isNaN() || value.isInfinite() || value >= upperLimit){
-            bgColor = new Background(new BackgroundFill(colorUpperLimit.get(), CornerRadii.EMPTY, Insets.EMPTY));
-            fontColor = fontColorUpperLimit.get();
-        }else if(value<= lowerLimit){
-            bgColor = new Background(new BackgroundFill(colorLowerLimit.get(), CornerRadii.EMPTY, Insets.EMPTY));
-            fontColor = fontColorLowerLimit.get();
-        }else{
-            bgColor = new Background(new BackgroundFill(colorDefault.get(), CornerRadii.EMPTY, Insets.EMPTY));
-            fontColor = colorDefault.getValue();
+        if (value.isNaN() || value.isInfinite() || value >= this.upperLimit) {
+            bgColor = new Background(new BackgroundFill(this.colorUpperLimit.get(), CornerRadii.EMPTY, Insets.EMPTY));
+            fontColor = this.fontColorUpperLimit.get();
+        } else if (value <= this.lowerLimit) {
+            bgColor = new Background(new BackgroundFill(this.colorLowerLimit.get(), CornerRadii.EMPTY, Insets.EMPTY));
+            fontColor = this.fontColorLowerLimit.get();
+        } else {
+            bgColor = new Background(new BackgroundFill(this.colorDefault.get(), CornerRadii.EMPTY, Insets.EMPTY));
+            fontColor = this.colorDefault.getValue();
         }
 
         label.setBackground(bgColor);
