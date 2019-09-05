@@ -54,35 +54,14 @@ public class DataModelDataHandler {
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {
         this.jeVisDataSource = jeVisDataSource;
 
-//        if (configNode != null) {
-//            try {
-//                System.out.println("DMDH: " + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(configNode));
-//
-//            } catch (Exception ex) {
-//                ex.printStackTrace();
-//            }
-//        }
-
         try {
             if (configNode != null) {
 
 
                 DataModelNode dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
                 this.dataModelNode = dataModelNode;
-
-//                JsonNode widgets = jsonNode.get(WIDGET_NODE);
-
-//                if (configNode.isArray()) {
-//                    System.out.println("-> data is array");
-//                    for (final JsonNode objNode : configNode) {
-//
-//                        WidgetPojo newConfig = new WidgetPojo(objNode);
-//                        dashboardPojo.getWidgetList().add(newConfig);
-//                        logger.debug("Add Widget: {}", newConfig);
-//                    }
-//                }
-
-
+            } else {
+                this.dataModelNode = new DataModelNode();
             }
 
         } catch (Exception ex) {
@@ -106,6 +85,7 @@ public class DataModelDataHandler {
 
 
     }
+
 
     public void setData(List<DataPointNode> data) {
         this.dataModelNode.setData(data);

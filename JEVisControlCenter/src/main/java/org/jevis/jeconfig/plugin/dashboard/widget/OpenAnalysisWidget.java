@@ -29,6 +29,20 @@ public class OpenAnalysisWidget extends Widget {
         super(control, config);
     }
 
+    public OpenAnalysisWidget(DashboardControl control) {
+        super(control);
+    }
+
+    @Override
+    public WidgetPojo createDefaultConfig() {
+        WidgetPojo widgetPojo = new WidgetPojo();
+        widgetPojo.setTitle("new TableWidget");
+        widgetPojo.setType(typeID());
+
+
+        return widgetPojo;
+    }
+
     @Override
     public void updateData(Interval interval) {
         Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
@@ -92,7 +106,7 @@ public class OpenAnalysisWidget extends Widget {
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/DonutWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
+        return JEConfig.getImage("widget/LinkWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
 

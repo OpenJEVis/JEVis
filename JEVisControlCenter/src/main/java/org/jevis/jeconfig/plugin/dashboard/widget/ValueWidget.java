@@ -45,6 +45,20 @@ public class ValueWidget extends Widget {
         super(control, config);
     }
 
+    public ValueWidget(DashboardControl control) {
+        super(control);
+    }
+
+    @Override
+    public WidgetPojo createDefaultConfig() {
+        WidgetPojo widgetPojo = new WidgetPojo();
+        widgetPojo.setTitle("new Value Widget");
+        widgetPojo.setType(typeID());
+
+
+        return widgetPojo;
+    }
+
 
     @Override
     public void updateData(Interval interval) {
@@ -53,6 +67,8 @@ public class ValueWidget extends Widget {
             this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
         });
 
+
+        if (this.sampleHandler == null) return;
 
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();

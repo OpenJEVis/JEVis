@@ -18,12 +18,12 @@ public class LastPeriod implements TimeFrameFactory {
 
     @Override
     public String getID() {
-        return period.toString();
+        return this.period.toString();
     }
 
     @Override
     public String getListName() {
-        return period.toString();
+        return this.period.toString();
     }
 
     @Override
@@ -50,7 +50,7 @@ public class LastPeriod implements TimeFrameFactory {
     public Interval getInterval(DateTime dateTime) {
         DateTime end = dateTime;
 //        DateTime start = dateTime.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-        DateTime start = dateTime.minus(period);
+        DateTime start = dateTime.minus(this.period);
 
 //        DateTime end = dateTime.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
         return new Interval(start, end);

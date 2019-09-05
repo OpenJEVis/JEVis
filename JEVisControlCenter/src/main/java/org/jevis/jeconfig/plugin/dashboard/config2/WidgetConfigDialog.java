@@ -34,7 +34,7 @@ public class WidgetConfigDialog extends Alert {
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(this.tabPane);
 
-
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         getDialogPane().setContent(borderPane);
 
     }
@@ -44,11 +44,13 @@ public class WidgetConfigDialog extends Alert {
     }
 
     public void addDataModel(DataModelDataHandler dataModelDataHandler) {
+        System.out.println("WidgetConfigDia.addDataModel: " + dataModelDataHandler);
         Tab tab = new Tab(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
         this.dataModelDataHandler = dataModelDataHandler;
 
         this.widgetTreePlugin = new WidgetTreePlugin();
 
+        System.out.println("Open userselection:" + dataModelDataHandler.getDateNode().getData().size());
         JEVisTree tree = JEVisTreeFactory.buildDefaultWidgetTree(dataModelDataHandler.getJeVisDataSource(), this.widgetTreePlugin);
         tab.setContent(tree);
         this.widgetTreePlugin.setUserSelection(dataModelDataHandler.getDateNode().getData());
@@ -58,6 +60,7 @@ public class WidgetConfigDialog extends Alert {
     }
 
     public void updateDataModel() {
+        System.out.println("WidgetConfigDia.updateDataModel: " + this.widgetTreePlugin.getUserSelection().size());
         this.widgetTreePlugin.getUserSelection().forEach(dataPointNode -> {
             System.out.println("Selected after: " + dataPointNode.getObjectID());
         });

@@ -9,16 +9,21 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.*;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.CommonDialogs;
 import org.jevis.jeconfig.dialog.HiddenConfig;
+import org.jevis.jeconfig.plugin.dashboard.common.DashboardExport;
+import org.jevis.jeconfig.plugin.dashboard.common.ProcessMonitor;
 import org.jevis.jeconfig.plugin.dashboard.config2.ConfigManager;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardSorter;
@@ -32,27 +37,20 @@ import org.joda.time.Interval;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class DashboardControl {
 
-
     private static final Logger logger = LogManager.getLogger(DashboardControl.class);
     private double zoomFactor = 1.0d;
     private final DashBordPlugIn dashBordPlugIn;
     private final ConfigManager configManager;
-    private boolean editable = false;
     private final JEVisDataSource jevisDataSource;
     private TimerTask updateTask;
     private final ObservableList<Task> runningUpdateTaskList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
     private ObservableList<Widget> widgetList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
-//    private List<Widget> widgetList = Collections.synchronizedList(new ArrayList<>());
-
     private Timer updateTimer = new Timer(true);
     private DashboardPojo activeDashboard;
     private ExecutorService executor;
@@ -64,15 +62,19 @@ public class DashboardControl {
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
     private boolean fitToParent = false;
     public BooleanProperty highligtProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty showGridProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty showSnapToGridProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty editableGridProperty = new SimpleBooleanProperty(false);
     private TimeFrameFactory defaultTimeFrame = null;
+    private DashBoardPane dashboardPane;
+    private ProcessMonitor processMonitor = new ProcessMonitor();
+    private boolean unsavedChanged = false;
 
     public DashboardControl(DashBordPlugIn plugin) {
         this.configManager = new ConfigManager(plugin.getDataSource());
         this.dashBordPlugIn = plugin;
         this.jevisDataSource = plugin.getDataSource();
-        this.activeDashboard = this.configManager.createEmptyDashboard();
         this.timeFrames = new TimeFrames(this.jevisDataSource);
-        this.activeTimeFrame = this.timeFrames.day();
 
 
         this.highligtProperty.addListener((observable, oldValue, newValue) -> {
@@ -87,6 +89,39 @@ public class DashboardControl {
             });
         });
 
+        resetDashboard();
+    }
+
+
+    private void resetDashboard() {
+        /** clear old states **/
+        rundataUpdateTasks(false);
+        this.widgetList.clear();
+
+
+        /** init default states **/
+        this.activeDashboard = this.configManager.createEmptyDashboard();
+        this.activeTimeFrame = this.timeFrames.day();
+
+    }
+
+
+    public void setDashboardPane(DashBoardPane dashboardPane) {
+        this.dashboardPane = dashboardPane;
+    }
+
+    public DashBoardPane getDashboardPane() {
+        return this.dashboardPane;
+    }
+
+    public void showGrid(boolean showGrid) {
+        showGridProperty.setValue(showGrid);
+        this.dashboardPane.showGrid(showGrid);
+    }
+
+    public void setSnapToGrid(boolean snapToGrid) {
+        this.showSnapToGridProperty.setValue(snapToGrid);
+        this.dashboardPane.showGrid(showSnapToGridProperty.getValue());
     }
 
 
@@ -94,18 +129,15 @@ public class DashboardControl {
         try {
             loadDashboardObjects();
 
-            JEVisObject userDasboad = getUserSelectedDashboard();
-            if (userDasboad != null) {
-                selectDashboard(userDasboad);
+            JEVisObject userDashboad = getUserSelectedDashboard();
+
+            if (this.dashboardObjects.isEmpty()) {
+                selectDashboard(null);
+            } else if (userDashboad != null) {
+                selectDashboard(userDashboad);
             } else if (!this.dashboardObjects.isEmpty()) {
                 selectDashboard(this.dashboardObjects.get(0));
-            } else {
-
-
             }
-
-//            JEVisObject firstObject = this.jevisDataSource.getObject(3808l);
-//            selectDashboard(firstObject);
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -181,16 +213,21 @@ public class DashboardControl {
     public void selectDashboard(JEVisObject object) {
         logger.error("selectDashboard: {}", object);
         try {
-
+            resetDashboard();
             restartExecutor();
             restView();
 
-            this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
+            if (object == null) {
+                this.activeDashboard = new DashboardPojo();
+                unsavedChanged = true;
+            } else {
+                this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
+            }
+
             this.activeDashboard.setJevisObject(object);
 
             this.dashBordPlugIn.getDashBoardPane().updateView();
             this.widgetList.addAll(this.configManager.createWidgets(this, this.activeDashboard.getWidgetList()));
-
             this.dashBordPlugIn.setContentSize(this.activeDashboard.getSize().getWidth(), this.activeDashboard.getSize().getHeight());
 
             this.configManager.getBackgroundImage(this.activeDashboard.getDashboardObject()).addListener((observable, oldValue, newValue) -> {
@@ -200,17 +237,18 @@ public class DashboardControl {
             });
 
             this.widgetList.forEach(widget -> {
-                widget.updateConfig();
+//                widget.updateConfig();
                 this.dashBordPlugIn.getDashBoardPane().addWidget(widget);
             });
-            this.widgetList.forEach(widget -> {
-                widget.updateConfig(widget.getConfig(), this.dashBordPlugIn.getDashBoardPane());
-            });
-            this.widgetList.forEach(widget -> {
-                addWidgetUpdateTask(widget, this.getInterval());
-            });
+
+            /** sollten die Widgets autostarten? **/
+//            this.widgetList.forEach(widget -> {
+//                addWidgetUpdateTask(widget, this.getInterval());
+//            });
 
             this.dashBordPlugIn.getDashBoardToolbar().updateView(this.activeDashboard);
+
+
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -218,9 +256,14 @@ public class DashboardControl {
     }
 
     public void setEditable(boolean editable) {
-        this.editable = editable;
+        this.editableGridProperty.setValue(editable);
+//        System.out.println("setEditable: " + editable);
+        this.widgetList.forEach(widget -> {
+            Platform.runLater(() -> {
+                widget.setEditable(editable);
+            });
 
-        this.dashBordPlugIn.editProperty.setValue(this.editable);
+        });
     }
 
     public void reload() {
@@ -257,10 +300,11 @@ public class DashboardControl {
         }
 
         this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
+
     }
 
     public void setInterval(Interval interval) {
-        startUpdating(false);
+        rundataUpdateTasks(false);
         this.activeInterval = interval;
 
         restartExecutor();
@@ -273,9 +317,10 @@ public class DashboardControl {
 
 
     public void requestViewUpdate(Widget widget) {
+        logger.error("requestViewUpdate: {}", widget.getConfig().getTitle());
 //        widget.updateData(getInterval());
-        widget.updateConfig(widget.getConfig(), this.dashBordPlugIn.getDashBoardPane());
-        widget.updateConfig();
+        widget.updateConfig(widget.getConfig());
+//        widget.updateConfig();
     }
 
     public Interval getInterval() {
@@ -283,14 +328,14 @@ public class DashboardControl {
     }
 
     public void switchUpdating() {
-        startUpdating(!this.isUpdateRunning);
+        rundataUpdateTasks(!this.isUpdateRunning);
     }
 
-    public void removeNode(Widget widget) {
+    private void removeNode(Widget widget) {
         this.widgetList.remove(widget);
     }
 
-    public void startUpdating(boolean run) {
+    public void rundataUpdateTasks(boolean run) {
         this.isUpdateRunning = run;
         if (this.updateTask != null) {
             try {
@@ -302,6 +347,7 @@ public class DashboardControl {
         this.updateTimer.cancel();
         if (this.executor != null) this.executor.shutdownNow();
 
+        this.updateTimer = new Timer(true);
         this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
         this.updateTask = new TimerTask() {
             @Override
@@ -346,6 +392,8 @@ public class DashboardControl {
             }
         };
 
+
+//        processMonitor.addTask(updateTask);
         this.runningUpdateTaskList.add(updateTask);
 
 
@@ -354,6 +402,32 @@ public class DashboardControl {
 
     public ObservableList<Widget> getWidgetList() {
         return this.widgetList;
+    }
+
+
+    public void addWidget(Widget widget) {
+        widget.init();
+        this.widgetList.add(widget);
+        this.dashboardPane.addWidget(widget);
+        System.out.println("WidgetIntervaleupdate: " + this.activeInterval);
+        widget.updateData(this.activeInterval);
+    }
+
+    public synchronized void removeAllWidgets(Collection<Widget> elements) {
+        elements.forEach(widget -> {
+            widget.setVisible(false);
+        });
+        this.widgetList.removeAll(elements);
+        this.dashboardPane.removeAllWidgets(elements);
+    }
+
+    public synchronized void removeWidget(Widget widget) {
+        System.out.println("Remove widget: " + widget);
+        widget.setVisible(false);
+        this.widgetList.remove(widget);
+        this.dashboardPane.removeWidget(widget);
+        System.out.println("done");
+
     }
 
     public List<Widget> getWidgets() {
@@ -495,6 +569,88 @@ public class DashboardControl {
         }
 
         return null;
+    }
+
+
+    public void toPDF() {
+        DashboardExport exporter = new DashboardExport();
+        exporter.toPDF(dashboardPane, "test");
+    }
+
+
+    public void requestNewDialog() {
+
+        Dialog<ButtonType> saveDialog = new Dialog<>();
+        saveDialog.setResizable(true);
+        saveDialog.setTitle(I18n.getInstance().getString("plugin.dashboard.newdialog.title"));
+        saveDialog.setHeaderText(I18n.getInstance().getString("plugin.dashboard.newdialog.header"));
+        Label nameLabel = new Label(I18n.getInstance().getString("plugin.dashboard.newdialog.name"));
+        Label directoryLabel = new Label(I18n.getInstance().getString("plugin.dashboard.newdialog.directory"));
+        final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.delete.ok"), ButtonBar.ButtonData.YES);
+        final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.delete.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        TextField dashboardName = new TextField();
+
+        JEVisClass analysesDirectory = null;
+        List<JEVisObject> listAnalysesDirectories = null;
+        try {
+            analysesDirectory = jevisDataSource.getJEVisClass("Analyses Directory");
+            listAnalysesDirectories = jevisDataSource.getObjects(analysesDirectory, false);
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        ObjectRelations objectRelations = new ObjectRelations(jevisDataSource);
+        ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
+
+        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                return new ListCell<JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (empty || obj == null || obj.getName() == null) {
+                            setText("");
+                        } else {
+                            if (parentsDirectories.getItems().size() == 1)
+                                setText(obj.getName());
+                            else {
+                                String prefix = objectRelations.getObjectPath(obj);
+                                setText(prefix + obj.getName());
+                            }
+                        }
+
+                    }
+                };
+            }
+        };
+        parentsDirectories.setCellFactory(cellFactory);
+        parentsDirectories.setButtonCell(cellFactory.call(null));
+
+        parentsDirectories.getSelectionModel().selectFirst();
+
+
+        GridPane gridPane = new GridPane();
+        gridPane.add(directoryLabel, 0, 0);
+        gridPane.add(parentsDirectories, 0, 1);
+        gridPane.add(nameLabel, 0, 2);
+        gridPane.add(dashboardName, 0, 3);
+
+        saveDialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
+        saveDialog.getDialogPane().setContent(gridPane);
+
+
+        saveDialog.showAndWait().ifPresent(response -> {
+            if (response.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
+                try {
+                    System.out.println("Create: " + dashboardName.getText() + " under: " + parentsDirectories.getSelectionModel().getSelectedItem().getName());
+                } catch (Exception e) {
+                    logger.error("Error: could not delete current analysis", e);
+                }
+            }
+        });
+
     }
 
 }

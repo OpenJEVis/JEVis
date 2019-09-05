@@ -49,6 +49,21 @@ public class WebPieWidget extends Widget {
         super(control, config);
     }
 
+    public WebPieWidget(DashboardControl control) {
+        super(control);
+    }
+
+
+    @Override
+    public WidgetPojo createDefaultConfig() {
+        WidgetPojo widgetPojo = new WidgetPojo();
+        widgetPojo.setTitle("new WebPie Widget");
+        widgetPojo.setType(typeID());
+
+
+        return widgetPojo;
+    }
+
 
     @Override
     public void updateData(Interval interval) {

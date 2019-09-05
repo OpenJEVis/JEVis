@@ -5,11 +5,14 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Scale;
 import javafx.stage.Popup;
 import org.apache.logging.log4j.LogManager;
@@ -63,7 +66,37 @@ public class DashBoardPane extends Pane {
         });
         addPopUpFunctions();
 
-        logger.debug("Done");
+//        addMouseSelectionGesture();
+    }
+
+    private void addMouseSelectionGesture() {
+        final Rectangle selectionRect = new Rectangle(20, 20, Color.TRANSPARENT);
+        selectionRect.setStroke(Color.BLACK);
+
+        EventHandler<MouseEvent> mouseReleaseHandler = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                System.out.println("eventtype: " + event.getEventType());
+
+
+                for (Node shape : DashBoardPane.this.getChildren()) {
+                    if (selectionRect.getBoundsInParent().intersects(shape.getBoundsInParent())) {
+//                        shape.setFill(Color.RED);
+//                        if(!this.selected.contains(shape))
+                        System.out.println("Selected: " + shape);
+//                            this.selected.add(shape);
+                    } else {
+//                        shape.setFill(Color.BLACK);
+//                        this.selected.remove(shape);
+                    }
+
+                }
+            }
+        };
+
+        /** does not work with the current java/jfxtras version **/
+        //MouseControlUtil.addSelectionRectangleGesture(this, selectionRect, null, null, mouseReleaseHandler);
+
     }
 
 
@@ -82,6 +115,10 @@ public class DashBoardPane extends Pane {
         setZoom(1d);
         requestLayout();
 
+    }
+
+    public boolean getSnapToGrid() {
+        return this.control.showSnapToGridProperty.getValue();
     }
 
     public void updateView() {
@@ -105,13 +142,21 @@ public class DashBoardPane extends Pane {
     }
 
     public void addWidget(Widget widget) {
-        if (!getChildren().contains(widget)) {
-            getChildren().add(widget);
-        }
+        Platform.runLater(() -> {
+            if (!getChildren().contains(widget)) {
+                getChildren().add(widget);
+                widget.setVisible(true);
+            }
+        });
+
     }
 
     public void removeWidget(Widget widget) {
         this.getChildren().remove(widget);
+    }
+
+    public synchronized void removeAllWidgets(Collection<Widget> elements) {
+        this.getChildren().remove(elements);
     }
 
 
@@ -120,8 +165,8 @@ public class DashBoardPane extends Pane {
         double scaleFactorHeight = parentHeight / getHeight();
 
         if (Double.isFinite(scaleFactorWidth) && Double.isFinite(scaleFactorHeight)) {
-            System.out.println("w/h " + parentWidth + "/" + getWidth() + "    " + parentHeight + "/" + getHeight());
-            System.out.println("Scale: " + scaleFactorWidth + " / " + scaleFactorHeight);
+//            System.out.println("w/h " + parentWidth + "/" + getWidth() + "    " + parentHeight + "/" + getHeight());
+//            System.out.println("Scale: " + scaleFactorWidth + " / " + scaleFactorHeight);
             this.scale.setX(scaleFactorWidth);
             this.scale.setY(scaleFactorHeight);
         }
@@ -252,12 +297,14 @@ public class DashBoardPane extends Pane {
 
 
     public void showGrid(boolean show) {
+        System.out.println("Show grid: " + show + " Existing grid: " + visibleGrid.size());
         if (show) {
             createGrid(this.analysis.xGridInterval, this.analysis.yGridInterval);
             DashBoardPane.this.getChildren().addAll(this.visibleGrid);
         } else {
 
             DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
+            visibleGrid.clear();
         }
     }
 
@@ -319,7 +366,7 @@ public class DashBoardPane extends Pane {
         }
         double c = this.xGrids.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - xPos)))
-                .orElseThrow(() -> new NoSuchElementException("No value present"));
+                .orElse(xPos);
 //        System.out.println("Next xPos: " + c);
         return c;
     }
@@ -330,7 +377,7 @@ public class DashBoardPane extends Pane {
         }
         double c = this.yGrids.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - yPos)))
-                .orElseThrow(() -> new NoSuchElementException("No value present"));
+                .orElse(yPos);
 //        System.out.println("Next yPos: " + c);
         return c;
     }

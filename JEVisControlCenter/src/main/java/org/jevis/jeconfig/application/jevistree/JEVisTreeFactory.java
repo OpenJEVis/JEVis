@@ -48,7 +48,7 @@ import org.jevis.jeconfig.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.jevistree.plugin.MapPlugin;
 import org.jevis.jeconfig.dialog.HiddenConfig;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.WidgetTreePlugin;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.WidgetTreePlugin;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;

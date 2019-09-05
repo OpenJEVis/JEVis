@@ -3,8 +3,6 @@ package org.jevis.jeconfig.plugin.dashboard;
 //import com.itextpdf.text.Document;
 //import com.itextpdf.text.pdf.PdfWriter;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -32,7 +30,7 @@ public class DashBordPlugIn implements Plugin {
     private boolean isInitialized = false;
     private AnchorPane rootPane = new AnchorPane();
 
-    public final BooleanProperty editProperty = new SimpleBooleanProperty(Boolean.class, "Enable Edit", false);
+
     private final DashboardControl dashboardControl;
     private JEVisDataSource jeVisDataSource;
     private final DashBoardPane dashBoardPane;
@@ -49,6 +47,7 @@ public class DashBordPlugIn implements Plugin {
         this.dashboardControl = new DashboardControl(this);
         this.toolBar = new DashBoardToolbar(this.dashboardControl);
         this.dashBoardPane = new DashBoardPane(this.dashboardControl);
+        this.dashboardControl.setDashboardPane(dashBoardPane);
         this.scrollPane.setContent(this.dashBoardPane);
 
         Layouts.setAnchor(this.scrollPane, 0d);
@@ -193,49 +192,4 @@ public class DashBordPlugIn implements Plugin {
     }
 
 
-    public void toPDF() {
-        /** disabled in dependency, takes 5 mb and does not work for now because of ChartFX
-         try {
-         logger.info("start- converting to pdf");
-
-         FileChooser fileChooser = new FileChooser();
-         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf");
-         fileChooser.getExtensionFilters().add(extFilter);
-         Interval interval = currentAnalysis.displayedIntervalProperty.getValue();
-         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd");
-         String intervalString = fmt.print(interval.getStart()) + "_" + fmt.print(interval.getEnd());
-         fileChooser.setInitialFileName(currentAnalysis.getAnalysisObject().getName() + "_" + intervalString + ".pdf");
-
-         File file = fileChooser.showSaveDialog(JEConfig.getStage());
-
-         if (file != null) {
-         logger.info("target file: {}", file);
-         final SnapshotParameters spa = new SnapshotParameters();
-         //                final WritableImage image = new WritableImage((int) dashBoardPane.getWidth(), (int) dashBoardPane.getHeight());
-
-         logger.info("Start writing screenshot");
-         //                WritableImage wImage = dashBoardPane.snapshot(spa, image);
-         WritableImage wImage = getView().snapshot(new SnapshotParameters(), null);
-         logger.info("Done screenshot");
-         ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-         ImageIO.write(SwingFXUtils.fromFXImage(wImage, null), "png", byteOutput);
-         logger.info("Convert 1 Done");
-         com.itextpdf.text.Image graph = com.itextpdf.text.Image.getInstance(byteOutput.toByteArray());
-         logger.info("Convert 2 Done");
-         Document document = new Document();
-         logger.info("Document start");
-         PdfWriter.getInstance(document, new FileOutputStream(file));
-         document.open();
-         logger.info("doc open");
-         document.add(graph);
-         logger.info("doc screenshot add done");
-         document.close();
-         logger.info("doc done done");
-         }
-
-         } catch (Exception ex) {
-         ex.printStackTrace();
-         }
-         **/
-    }
 }

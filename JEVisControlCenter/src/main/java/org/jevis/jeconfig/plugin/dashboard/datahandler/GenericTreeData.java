@@ -16,14 +16,14 @@ public class GenericTreeData {
     }
 
     public JEVisTreeRow getRow() {
-        return row;
+        return this.row;
     }
 
     public Object getDataObject(String key, Object defaultObject) {
-        return data.getOrDefault(key, defaultObject);
+        return this.data.getOrDefault(key, defaultObject);
     }
 
     public void setDataObject(String key, Object object) {
-        data.put(key, object);
+        this.data.put(key, object);
     }
 }

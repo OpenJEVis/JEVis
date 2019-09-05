@@ -4,11 +4,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
@@ -33,6 +39,7 @@ public class TableWidget extends Widget {
 
     private static final Logger logger = LogManager.getLogger(TableWidget.class);
     public static String WIDGET_ID = "Table";
+    private static Button testB = new Button();
     private NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
     private TableView<TableData> table;
@@ -43,16 +50,31 @@ public class TableWidget extends Widget {
         super(control, config);
     }
 
+    public TableWidget(DashboardControl control) {
+        super(control);
+    }
+
+
+    @Override
+    public WidgetPojo createDefaultConfig() {
+        WidgetPojo widgetPojo = new WidgetPojo();
+        widgetPojo.setTitle("new TableWidget");
+        widgetPojo.setType(typeID());
+
+        return widgetPojo;
+    }
+
     @Override
     public void updateData(Interval interval) {
         logger.debug("Table.Update: {}", interval);
         this.lastInterval = interval;
+
+        if (this.sampleHandler == null) {
+            return;
+        }
+
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
-
-
-        this.nf.setMinimumFractionDigits(this.config.getDecimals());
-        this.nf.setMaximumFractionDigits(this.config.getDecimals());
 
 
         ObservableList<TableData> tableDatas = FXCollections.observableArrayList();
@@ -112,16 +134,24 @@ public class TableWidget extends Widget {
     @Override
     public void updateConfig() {
 
+        this.nf.setMinimumFractionDigits(this.config.getDecimals());
+        this.nf.setMaximumFractionDigits(this.config.getDecimals());
+        Platform.runLater(() -> {
+            table.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+        });
+
+
     }
 
     @Override
     public void init() {
-
+        nf = NumberFormat.getInstance();
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);
 
-        this.table = new TableView<TableData>();
+        this.table = new TableView<>();
         this.table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.setPickOnBounds(false);
 
         String name = I18n.getInstance().getString("plugin.dashboard.tablewidget.column.name");
         TableColumn<TableData, String> nameCol = new TableColumn<TableData, String>(name);
@@ -133,6 +163,7 @@ public class TableWidget extends Widget {
         valueCol.setPrefWidth(150);
         valueCol.setStyle("-fx-alignment: CENTER-RIGHT;");
         valueCol.setCellValueFactory(new PropertyValueFactory<>("value"));
+
 
         String unit = I18n.getInstance().getString("plugin.dashboard.tablewidget.column.unit");
         TableColumn<TableData, String> unitCol = new TableColumn<TableData, String>(unit);
@@ -174,6 +205,7 @@ public class TableWidget extends Widget {
         widgetConfigDialog.addDataModel(this.sampleHandler);
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.get() == ButtonType.OK) {
+            System.out.println("Update data config");
             widgetConfigDialog.updateDataModel();
             updateData(this.lastInterval);
         }

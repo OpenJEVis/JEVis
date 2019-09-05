@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -17,6 +18,7 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widgets;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.Layouts;
@@ -30,7 +32,7 @@ public class WidgetNavigator {
 
 
     private final DashboardControl control;
-
+    private TableView<Widget> table;
 
     public WidgetNavigator(DashboardControl control) {
         this.control = control;
@@ -74,6 +76,19 @@ public class WidgetNavigator {
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(true);
         scene.setFill(Color.TRANSPARENT);
+
+        Button finishButton = new Button(I18n.getInstance().getString("plugin.graph.dialog.delete.ok"));
+        finishButton.setDefaultButton(true);
+        Button newDashboardButton = new Button(I18n.getInstance().getString("dashboard.navigator.newbutton"));
+        finishButton.setOnAction(event -> {
+            stage.hide();
+        });
+
+
+        HBox buttonBox = new HBox(18);
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
+        buttonBox.getChildren().addAll(finishButton);
+
         stage.show();
     }
 
@@ -136,8 +151,26 @@ public class WidgetNavigator {
 
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
+        delete.setOnAction(event -> {
+            control.removeAllWidgets(table.getSelectionModel().getSelectedItems());
+            table.refresh();
+        });
+
 
         NewWidgetSelector widgetSelector = new NewWidgetSelector(Widgets.getAvabableWidgets(control, new WidgetPojo()));
+        widgetSelector.selectedWidgetProperty.addListener((observable, oldValue, newValue) -> {
+            System.out.println("Cool event handler: ");
+            Widget newWidget = widgetSelector.getSelectedWidget();
+
+            control.addWidget(newWidget);
+            newWidget.updateConfig();
+            table.getSelectionModel().select(newWidget);
+            table.scrollTo(newWidget);
+            this.control.requestViewUpdate(newWidget);
+        });
+//        widgetSelector.setOnAction2(event -> {
+//
+//        });
 
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
@@ -155,7 +188,15 @@ public class WidgetNavigator {
 //        List<Widget> widgetList = this.control.getWidgets();
 //        System.out.println("Widgets: " + widgetList.size());
         WidgetColumnFactory widgetColumnFactory = new WidgetColumnFactory(this.control);
-        TableView table = widgetColumnFactory.buildTable(this.control.getWidgetList());
+        table = widgetColumnFactory.buildTable(this.control.getWidgetList());
+
+//        table.getItems().addListener((ListChangeListener<Widget>) (c -> {
+//            c.next();
+//            final int size = table.getItems().size();
+//            if (size > 0) {
+//                table.scrollTo(size - 1);
+//            }
+//        }));
 
 //        VBox vBox = new VBox(, table);
         BorderPane borderPane = new BorderPane();

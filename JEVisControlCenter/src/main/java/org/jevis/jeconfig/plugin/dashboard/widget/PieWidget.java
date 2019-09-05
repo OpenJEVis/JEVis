@@ -47,6 +47,20 @@ public class PieWidget extends Widget {
         super(control, config);
     }
 
+    public PieWidget(DashboardControl control) {
+        super(control);
+    }
+
+    @Override
+    public WidgetPojo createDefaultConfig() {
+        WidgetPojo widgetPojo = new WidgetPojo();
+        widgetPojo.setTitle("new Pie Widget");
+        widgetPojo.setType(typeID());
+
+
+        return widgetPojo;
+    }
+
 
     @Override
     public void updateData(Interval interval) {

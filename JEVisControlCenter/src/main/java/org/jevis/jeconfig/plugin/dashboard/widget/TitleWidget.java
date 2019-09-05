@@ -28,20 +28,35 @@ public class TitleWidget extends Widget {
         super(control, config);
     }
 
+    public TitleWidget(DashboardControl control) {
+        super(control);
+    }
+
+
+    @Override
+    public WidgetPojo createDefaultConfig() {
+        WidgetPojo widgetPojo = new WidgetPojo();
+        widgetPojo.setTitle("new Title Widget");
+        widgetPojo.setType(typeID());
+
+
+        return widgetPojo;
+    }
+
 
     @Override
     public void updateData(Interval interval) {
-        logger.debug("Update titleWidget: {}", this.config.getTitle());
-        Platform.runLater(() -> {
-            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
-            this.label.setBackground(bgColor);
-            this.label.setTextFill(this.config.getFontColor());
-            this.label.setText(this.config.getTitle());
-            this.label.setFont(new Font(this.config.getFontSize()));
-            this.label.setPrefWidth(this.config.getSize().getWidth());
-
-            this.label.setAlignment(this.config.getTitlePosition());
-
+//        logger.debug("Update titleWidget: {}", this.config.getTitle());
+//        Platform.runLater(() -> {
+//            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+//            this.label.setBackground(bgColor);
+//            this.label.setTextFill(this.config.getFontColor());
+//            this.label.setText(this.config.getTitle());
+//            this.label.setFont(new Font(this.config.getFontSize()));
+//            this.label.setPrefWidth(this.config.getSize().getWidth());
+//
+//            this.label.setAlignment(this.config.getTitlePosition());
+//        });
 //            switch (this.config.getTitlePosition()) {
 //                case TOP_LEFT:
 //                case BOTTOM_LEFT:
@@ -80,7 +95,7 @@ public class TitleWidget extends Widget {
 
 //            this.label.setTextAlignment(TextAlignment.LEFT);
 //            this.label.setText(this.config.getTitle());
-        });
+
     }
 
     @Override
@@ -91,7 +106,17 @@ public class TitleWidget extends Widget {
 
     @Override
     public void updateConfig() {
+        logger.debug("UpdateConfig");
+        Platform.runLater(() -> {
+            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+            this.label.setBackground(bgColor);
+            this.label.setTextFill(this.config.getFontColor());
+            this.label.setText(this.config.getTitle());
+            this.label.setFont(new Font(this.config.getFontSize()));
+            this.label.setPrefWidth(this.config.getSize().getWidth());
 
+            this.label.setAlignment(this.config.getTitlePosition());
+        });
     }
 
 

@@ -248,6 +248,7 @@ public class ConfigManager {
         widgetConfigList.forEach(widgetPojo -> {
             Widget newWidget = createWidget(control, widgetPojo);
             if (newWidget != null) {
+                newWidget.init();
                 widgetList.add(newWidget);
             }
 
@@ -256,20 +257,28 @@ public class ConfigManager {
     }
 
     public Widget createWidget(DashboardControl control, WidgetPojo widget) {
-        for (Widget availableWidget : Widgets.getAvabableWidgets(control, widget)) {
-            try {
-                if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
-//                    widget.setType(availableWidget.getId());
-                    availableWidget.init();
-
-                    return availableWidget;
-                }
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
+        try {
+            return Widgets.createWidget(control, widget);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
         return null;
+
+//        for (Widget availableWidget : Widgets.getAvabableWidgets(control, widget)) {
+//            try {
+//                if (availableWidget.typeID().equalsIgnoreCase(widget.getType())) {
+////                    widget.setType(availableWidget.getId());
+//                    availableWidget.init();
+//
+//                    return availableWidget;
+//                }
+//            } catch (Exception ex) {
+//                logger.error(ex);
+//            }
+//        }
+//
+//        return null;
     }
 
     public void setBackgroundImage(JEVisObject analysisObject, java.io.File file) {

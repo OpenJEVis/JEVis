@@ -8,6 +8,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.chart.PieChart;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -24,9 +25,12 @@ import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
+import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.Interval;
+
+import java.util.Optional;
 
 public class ChartWidget extends Widget {
 
@@ -37,10 +41,10 @@ public class ChartWidget extends Widget {
     private DataModelDataHandler sampleHandler;
     private WidgetLegend legend = new WidgetLegend();
     private JFXButton openAnalysisButton = new JFXButton();
-    private ConfigNode configNode = new ConfigNode();
     private ObjectMapper mapper = new ObjectMapper();
     private GraphAnalysisLinker graphAnalysisLinker;
     private BorderPane borderPane = new BorderPane();
+    private Interval lastInterval = null;
 
     private boolean autoAggregation = true;
 
@@ -48,9 +52,24 @@ public class ChartWidget extends Widget {
         super(control, config);
     }
 
+    public ChartWidget(DashboardControl control) {
+        super(control);
+    }
+
+    @Override
+    public WidgetPojo createDefaultConfig() {
+        WidgetPojo widgetPojo = new WidgetPojo();
+        widgetPojo.setTitle("new Chart Widget");
+        widgetPojo.setType(typeID());
+
+
+        return widgetPojo;
+    }
+
     @Override
     public void updateData(Interval interval) {
         logger.info("Update: {}", interval);
+        this.lastInterval = interval;
 
         this.lineChart.setChartSettings(chart1 -> {
             MultiAxisLineChart multiAxisLineChart = (MultiAxisLineChart) chart1;
@@ -60,13 +79,6 @@ public class ChartWidget extends Widget {
             multiAxisLineChart.setLegendVisible(true);
 
         });
-
-        Platform.runLater(() -> {
-            setChartLabel((MultiAxisLineChart) this.lineChart.getChart(), this.config.getFontColor());
-            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-            //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
-        });
-
 
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
@@ -113,11 +125,29 @@ public class ChartWidget extends Widget {
     @Override
     public void updateLayout() {
 
+        Platform.runLater(() -> {
+            setChartLabel((MultiAxisLineChart) this.lineChart.getChart(), this.config.getFontColor());
+            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+            //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
+        });
     }
 
     @Override
     public void updateConfig() {
 
+    }
+
+
+    @Override
+    public void openConfig() {
+        WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(null);
+        widgetConfigDialog.addDataModel(this.sampleHandler);
+        Optional<ButtonType> result = widgetConfigDialog.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            System.out.println("Update data config");
+            widgetConfigDialog.updateDataModel();
+            updateData(this.lastInterval);
+        }
     }
 
     private void setChartLabel(MultiAxisLineChart chart, Color newValue) {
@@ -171,17 +201,5 @@ public class ChartWidget extends Widget {
         return JEConfig.getImage("widget/ChartWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
-
-    public class ConfigNode {
-        private Long graphAnalysisObject = 7904L;
-
-        public Long getGraphAnalysisObject() {
-            return this.graphAnalysisObject;
-        }
-
-        public void setGraphAnalysisObject(Long graphAnalysisObject) {
-            this.graphAnalysisObject = graphAnalysisObject;
-        }
-    }
 
 }

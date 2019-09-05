@@ -18,7 +18,7 @@ import static org.jevis.jeconfig.plugin.dashboard.config2.JsonNames.Widget.*;
 public class WidgetPojo {
 
     private BorderWidths borderSize = new BorderWidths(0.2);
-    private Color fontColor = Color.WHITE;
+    private Color fontColor = Color.BLACK;
     private Color fontColorSecondary = Color.DODGERBLUE;
     private String title = "Title";
     private Color backgroundColor = Color.web("#126597");
@@ -119,6 +119,11 @@ public class WidgetPojo {
                 logger.debug("Could not parse position: {}", BORDER_SIZE, ex.getMessage());
             }
 
+            try {
+                this.decimals = 2;
+            } catch (Exception ex) {
+                logger.debug("Could not parse position: {}", BORDER_SIZE, ex.getMessage());
+            }
 
             if (jsonNode.get(DATA_HANDLER_NODE) != null) {
                 this.dataHandlerJson = jsonNode.get(DATA_HANDLER_NODE);
@@ -258,6 +263,7 @@ public class WidgetPojo {
                 ", yPosition=" + this.yPosition +
                 ", size=" + this.size +
                 ", type='" + this.type + '\'' +
+                ", dezi='" + this.getDecimals() + '\'' +
                 '}';
     }
 }

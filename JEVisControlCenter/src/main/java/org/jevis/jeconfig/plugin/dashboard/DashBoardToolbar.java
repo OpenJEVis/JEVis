@@ -26,11 +26,15 @@ public class DashBoardToolbar extends ToolBar {
     private final DashboardControl dashboardControl;
 
     final ImageView lockIcon = JEConfig.getImage("if_lock_blue_68757.png", this.iconSize, this.iconSize);
+    final ImageView snapToGridIcon = JEConfig.getImage("Snap_to_Grid.png", this.iconSize, this.iconSize);
+
     final ImageView unlockIcon = JEConfig.getImage("if_lock-unlock_blue_68758.png", this.iconSize, this.iconSize);
-    final ToggleButton unlockB = new ToggleButton("", this.lockIcon);
+    final ToggleButton unlockButton = new ToggleButton("", this.lockIcon);
+    final ToggleButton snapGridButton = new ToggleButton("", snapToGridIcon);
     final ImageView pauseIcon = JEConfig.getImage("pause_32.png", this.iconSize, this.iconSize);
     final ImageView playIcon = JEConfig.getImage("play_32.png", this.iconSize, this.iconSize);
     private ToggleButton runUpdateButton = new ToggleButton("", this.playIcon);
+
 
     public DashBoardToolbar(DashboardControl dashboardControl) {
         this.dashboardControl = dashboardControl;
@@ -54,9 +58,9 @@ public class DashBoardToolbar extends ToolBar {
     public void setEditable(boolean editable) {
         Platform.runLater(() -> {
             if (editable) {
-                this.unlockB.setGraphic(this.unlockIcon);
+                this.unlockButton.setGraphic(this.unlockIcon);
             } else {
-                this.unlockB.setGraphic(this.lockIcon);
+                this.unlockButton.setGraphic(this.lockIcon);
             }
         });
 
@@ -117,6 +121,9 @@ public class DashBoardToolbar extends ToolBar {
         ToggleButton enlarge = new ToggleButton("", JEConfig.getImage("enlarge_32.png", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(enlarge);
 
+        ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
+
 
         ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
@@ -129,7 +136,8 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newWidgetButton);
 
 
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(this.unlockB);
+//        GlobalToolBar.changeBackgroundOnHoverUsingBinding(snapGridButton);
+//        GlobalToolBar.changeBackgroundOnHoverUsingBinding(this.unlockButton);
 
 
         reload.setOnAction(event -> {
@@ -137,16 +145,33 @@ public class DashBoardToolbar extends ToolBar {
         });
 
         exportPDF.setOnAction(event -> {
-//            this.dashboardControl.toPDF();
+            this.dashboardControl.toPDF();
         });
 
         save.setOnAction(event -> {
             this.dashboardControl.save();
         });
 
-        this.unlockB.onActionProperty().addListener((observable, oldValue, newValue) -> {
-            this.dashboardControl.setEditable(!this.unlockB.isSelected());
+//        this.dashboardControl.editableGridProperty.bind(unlockButton.selectedProperty());
+//        unlockButton.selectedProperty().bind(this.dashboardControl.editableGridProperty);
+//        snapGridButton.selectedProperty().bind(this.dashboardControl.showGridProperty);
+
+        unlockButton.setOnAction(event -> {
+            this.dashboardControl.setEditable(unlockButton.isSelected());
+            this.dashboardControl.showGrid(unlockButton.isSelected());
+
         });
+
+        snapGridButton.setOnAction(event -> {
+            this.dashboardControl.setSnapToGrid(snapGridButton.isSelected());
+
+        });
+
+
+//        unlockButton.onActionProperty().addListener((observable, oldValue, newValue) -> {
+//            System.out.println("Umblock button: " + newValue);
+//            this.dashboardControl.setEditable(new);
+//        });
 
 
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(this.runUpdateButton);
@@ -176,7 +201,6 @@ public class DashBoardToolbar extends ToolBar {
 
         zoomIn.setOnAction(event -> {
             this.dashboardControl.zoomIn();
-            ;
         });
 
         zoomOut.setOnAction(event -> {
@@ -191,6 +215,12 @@ public class DashBoardToolbar extends ToolBar {
 //            this.dashboardControl.setInterval(newValue);
 //        });
 
+
+        newB.setOnAction(event -> {
+            this.dashboardControl.selectDashboard(null);
+        });
+
+
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
         Separator sep3 = new Separator();
@@ -200,15 +230,15 @@ public class DashBoardToolbar extends ToolBar {
         newButton.setDisable(true);
         delete.setDisable(true);
 //        save.setDisable(true);
-        exportPDF.setVisible(false);
+        exportPDF.setVisible(false);/** disabled because of an endless loop JAVAFX bug, should be fixed with JAVA 11**/
 
         getItems().clear();
         getItems().addAll(
-                this.listAnalysesComboBox
+                this.listAnalysesComboBox, newB
                 , sep3, toolBarIntervalSelector
                 , sep1, zoomOut, zoomIn, reload
                 , sep4, newButton, save, delete, newWidgetButton, this.backgroundButton, exportPDF
-                , sep2, this.runUpdateButton, this.unlockB);
+                , sep2, this.runUpdateButton, this.unlockButton, snapGridButton);
     }
 
     private void setCellFactoryForComboBox() {
@@ -220,7 +250,7 @@ public class DashBoardToolbar extends ToolBar {
                     protected void updateItem(JEVisObject obj, boolean empty) {
                         super.updateItem(obj, empty);
                         if (empty || obj == null || obj.getName() == null) {
-                            setText("");
+                            setText(I18n.getInstance().getString("plugin.dashboard.toolbar.list.new"));
                         } else {
                             String prefix = "";
                             try {

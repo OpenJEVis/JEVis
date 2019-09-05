@@ -1,17 +1,14 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
-import com.jfoenix.controls.JFXComboBox;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +19,7 @@ import org.jevis.jeconfig.plugin.dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.I18n;
 
+
 public class WidgetColumnFactory {
 
 
@@ -29,8 +27,8 @@ public class WidgetColumnFactory {
     private final DashboardControl control;
     private TableView<Widget> table;
     private Double numberColumDefaultSize = 70d;
-    private ObservableList<Widget> fullList;
-    private FilteredList<Widget> filteredData;
+    //    private ObservableList<Widget> fullList;
+//    private FilteredList<Widget> filteredData;
     private ChangeListener<Boolean> focusListener = new ChangeListener<Boolean>() {
         @Override
         public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -45,10 +43,31 @@ public class WidgetColumnFactory {
     }
 
     public TableView<Widget> buildTable(ObservableList<Widget> list) {
-        this.fullList = list.sorted();
+        list.addListener(new ListChangeListener<Widget>() {
+            @Override
+            public void onChanged(Change<? extends Widget> c) {
+                System.out.println("Tree-itemlistQuelle change: " + list);
+            }
+        });
+
+//        this.fullList = list.sorted();
+//        list.addListener(new ListChangeListener<Widget>() {
+//            @Override
+//            public void onChanged(Change<? extends Widget> c) {
+//                if (c.next()) {
+//                    if (c.wasAdded()) {
+//                        fullList.addAll(c.getAddedSubList());
+//                    } else if (c.wasRemoved()) {
+//                        System.out.println("sdsfdsfdsfdsfdsfdsf ----- was removed: " + c.wasRemoved());
+//                        fullList.removeAll(c.getRemoved());
+//                    }
+//                }
+//            }
+//        });
+
 
         this.table = new TableView<>();
-
+        this.table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         this.table.getColumns().add(typeAttributeColumn());
         this.table.getColumns().add(titleAttributeColumn());
@@ -68,8 +87,8 @@ public class WidgetColumnFactory {
                 this.control.highlightWidgetInView(widget, this.table.getSelectionModel().getSelectedItems().contains(widget));
             });
         });
-        this.filteredData = new FilteredList<Widget>(list);
-        this.table.setItems(this.filteredData);
+//        this.filteredData = new FilteredList<Widget>(list);
+        this.table.setItems(list);
 
         return this.table;
     }
@@ -83,15 +102,25 @@ public class WidgetColumnFactory {
                 TableCell<Widget, Widget> cell = new TableCell<Widget, Widget>() {
                     @Override
                     protected void updateItem(Widget item, boolean empty) {
-                        Button button = new Button("", JEConfig.getImage("Service Manager.png", 15, 15));
 
-                        button.setOnAction(event -> {
-                            item.openConfig();
+
+                        if (empty || item == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            Button button = new Button("", JEConfig.getImage("Service Manager.png", 15, 15));
+
+                            button.setOnAction(event -> {
+                                item.openConfig();
+//                                item.updateData(null);
 //                            WidgetColumnFactory.this.table.refresh();
-                        });
+                            });
 
-                        setText("");
-                        setGraphic(button);
+                            setText("");
+                            setGraphic(button);
+                        }
+
+
                     }
                 };
                 return cell;
@@ -129,7 +158,19 @@ public class WidgetColumnFactory {
                     @Override
                     protected void updateItem(String item, boolean empty) {
                         if (item != null && !empty) {
+                            try {
+                                ImageView icon = ((Widget) getTableRow().getItem()).getImagePreview();
+                                icon.setPreserveRatio(true);
+                                icon.setFitHeight(18d);
+                                setGraphic(icon);
+                            } catch (Exception ex) {
+                                logger.warn(ex.getMessage());
+                            }
+//                            System.out.println("TableRow value: " + getTableRow().getItem());
                             setText(item);
+                        } else {
+                            setText(null);
+                            setGraphic(null);
                         }
                     }
                 };
@@ -158,47 +199,50 @@ public class WidgetColumnFactory {
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
 
-        ObservableList types = FXCollections.observableArrayList();
+//        ObservableList types = FXCollections.observableArrayList();
+//
+//        types.clear();
+//        types.add("-");
+//        Widgets.getAvabableWidgets(control, new WidgetPojo()).forEach(widget -> {
+//            widget.getConfig().getType();
+//        });
+//        this.fullList.forEach(o -> {
+//            if (!types.contains(o.getConfig().getType())) {
+//                types.add(o.getConfig().getType());
+//            }
+//        });
 
-        types.clear();
-        types.add("-");
-        this.fullList.forEach(o -> {
-            if (!types.contains(o.getConfig().getType())) {
-                types.add(o.getConfig().getType());
-            }
-        });
 
+//        JFXComboBox<String> typeFilterBox = new JFXComboBox<>(types);
+//        typeFilterBox.getSelectionModel().selectFirst();
+//
+//        typeFilterBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+//            this.filteredData.setPredicate(widget -> {
+//                if (newValue.equals("-")) {
+//                    return true;
+//                }
+//                try {
+//                    if (widget.getConfig().getType().equals(newValue)) {
+//                        return true;
+//                    } else {
+//                        return false;
+//                    }
+//                } catch (Exception ex) {
+//                    ex.printStackTrace();
+//                    return false;
+//                }
+//            });
+//            this.table.refresh();
+//        });
 
-        JFXComboBox<String> typeFilterBox = new JFXComboBox<>(types);
-        typeFilterBox.getSelectionModel().selectFirst();
+//        Label label = new Label(I18n.getInstance().getString("jevistree.widget.column.type"));
+//        label.setAlignment(Pos.BOTTOM_LEFT);
+//        GridPane gridPane = new GridPane();
+//        gridPane.add(label, 0, 0);
+//        gridPane.add(typeFilterBox, 1, 0);
 
-        typeFilterBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            this.filteredData.setPredicate(widget -> {
-                if (newValue.equals("-")) {
-                    return true;
-                }
-                try {
-                    if (widget.getConfig().getType().equals(newValue)) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    return false;
-                }
-            });
-            this.table.refresh();
-        });
-
-        Label label = new Label(I18n.getInstance().getString("jevistree.widget.column.type"));
-        label.setAlignment(Pos.BOTTOM_LEFT);
-        GridPane gridPane = new GridPane();
-        gridPane.add(label, 0, 0);
-        gridPane.add(typeFilterBox, 1, 0);
-
-        column.setGraphic(gridPane);
-        column.setText("");
+//        column.setGraphic(gridPane);
+//        column.setText("");
 
         column.setPrefWidth(200);
 
@@ -320,6 +364,7 @@ public class WidgetColumnFactory {
                             colorPicker.setStyle("-fx-color-label-visible: false ;");
 
                             colorPicker.setOnAction(event -> {
+                                System.out.println("Picker set color: " + colorPicker.getValue());
                                 setWidgetBGColor(colorPicker.getValue(), (Widget) getTableRow().getItem());
                             });
 
@@ -470,7 +515,7 @@ public class WidgetColumnFactory {
                             TextField textField = buildDoubleTextField(item.toString());
                             textField.setOnKeyPressed(event -> {
                                 if (event.getCode() == KeyCode.ENTER) {
-                                    setWidgetHeight(textField, (Widget) getTableRow().getItem());
+                                    setWidgetWidth(textField, (Widget) getTableRow().getItem());
                                 }
                                 if (event.getCode() == KeyCode.ESCAPE) {
                                     WidgetColumnFactory.this.table.refresh();
@@ -540,7 +585,7 @@ public class WidgetColumnFactory {
 
     private void setWidgetBGColor(Color color, Widget srcWidget) {
         srcWidget.getConfig().setBackgroundColor(color);
-
+        WidgetColumnFactory.this.control.requestViewUpdate(srcWidget);
 
         if (this.table.getSelectionModel().getSelectedItems().contains(srcWidget)) {
             this.table.getSelectionModel().getSelectedItems().forEach(widget -> {
@@ -634,7 +679,7 @@ public class WidgetColumnFactory {
                             TextField textField = buildDoubleTextField(item.toString());
                             textField.setOnKeyPressed(event -> {
                                 if (event.getCode() == KeyCode.ENTER) {
-                                    setWidgetWidth(textField, (Widget) getTableRow().getItem());
+                                    setWidgetHeight(textField, (Widget) getTableRow().getItem());
                                 }
                                 if (event.getCode() == KeyCode.ESCAPE) {
                                     WidgetColumnFactory.this.table.refresh();

@@ -110,7 +110,7 @@ public class FXLogin extends AnchorPane {
     private List<JEVisOption> configuration;
     private JEVisOption fxoptions;
     private boolean useCSSFile = false;
-    private ApplicationInfo app = new ApplicationInfo("tata", "");
+    private ApplicationInfo app = new ApplicationInfo("FXLogin", "");
     private Locale selectedLocale = Locale.getDefault();
 
 
@@ -145,6 +145,10 @@ public class FXLogin extends AnchorPane {
         setStyleSheet();
 
         init();
+
+        Platform.runLater(() -> {
+            this.userName.setEditable(true);
+        });
     }
 
     /**
@@ -498,6 +502,7 @@ public class FXLogin extends AnchorPane {
             System.exit(0);//Not the fine ways but ok for now
         });
 
+
         this.userName.requestFocus();
 
         this.loginButton.setOnAction(event -> {
@@ -505,6 +510,7 @@ public class FXLogin extends AnchorPane {
             doLogin();
 
         });
+        this.userName.setEditable(false);
 
         this.authGrid.setHgap(10);
         this.authGrid.setVgap(5);
