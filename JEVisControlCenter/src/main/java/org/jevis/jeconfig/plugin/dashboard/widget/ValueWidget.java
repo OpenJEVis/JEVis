@@ -7,14 +7,16 @@ import com.google.common.util.concurrent.AtomicDouble;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
+import javafx.geometry.Orientation;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,7 +46,8 @@ public class ValueWidget extends Widget {
     private DataModelDataHandler sampleHandler;
     private StringProperty labelText = new SimpleStringProperty("n.a.");
     private LimitColoring limitColoring;
-    private Limit limit = null;
+    private Limit limit = new Limit();
+    private Interval lastInterval = null;
 
 
     public static String LIMIT_NODE_NAME = "limit";
@@ -71,6 +74,7 @@ public class ValueWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Value.Update: {}", interval);
+        lastInterval = interval;
         showProgressIndicator(true);
         Platform.runLater(() -> {
             this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
@@ -128,26 +132,31 @@ public class ValueWidget extends Widget {
             ex.printStackTrace();
         }
 
-        limit = new Limit();
-        limit.setHasLowerLimit(true);
-        limit.setHasUpperLimit(true);
-        limit.setLowerLimit(80000d);
-        limit.setUpperLimit(150000d);
 
+//        limit.setHasLowerLimit(true);
+//        limit.setHasUpperLimit(true);
+//        limit.setLowerLimit(80000d);
+//        limit.setUpperLimit(150000d);
+
+        System.out.println("limit: " + limit);
         Platform.runLater(() -> {
             this.label.setText(this.labelText.getValue());
             Color fontColor = this.config.getFontColor();
 
-            if (limit != null && total.get() != Double.MIN_VALUE) {
-
+            if (limit != null) {
+                System.out.println("limit exists");
                 if (limit.hasLowerLimit) {
-                    if (total.get() < limit.getLowerLimit()) {
-                        fontColor = Color.RED;
+                    System.out.println("has Lower Limit");
+                    if (total.get() <= limit.getLowerLimit()) {
+                        System.out.println("is Lower Limit");
+                        fontColor = limit.getLowerLimitColor();
                     }
                 }
                 if (limit.hasUpperLimit) {
-                    if (total.get() > limit.getUpperLimit()) {
-                        fontColor = Color.GREEN;
+                    System.out.println("has Upper Limit");
+                    if (total.get() >= limit.getUpperLimit()) {
+                        System.out.println("is Upper Limit");
+                        fontColor = limit.getUpperLimitColor();
                     }
                 }
             }
@@ -171,11 +180,16 @@ public class ValueWidget extends Widget {
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(null);
         widgetConfigDialog.addDataModel(this.sampleHandler);
 
+        if (limit != null) {
+            widgetConfigDialog.addTab(limit.getConfigTab());
+        }
+
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.get() == ButtonType.OK) {
-
+            updateData(lastInterval);
         }
     }
+
 
     @Override
     public void updateConfig() {
@@ -246,7 +260,7 @@ public class ValueWidget extends Widget {
         boolean hasUpperLimit = false;
 
         Color upperLimitColor = Color.RED;
-        Color lowerLimitColor = Color.RED;
+        Color lowerLimitColor = Color.GREEN;
 
         public Limit() {
         }
@@ -259,7 +273,7 @@ public class ValueWidget extends Widget {
             upperLimit = jsonNode.get("upperLimitValue").asDouble(0);
 
             lowerLimitColor = Color.valueOf(jsonNode.get("lowerLimitColor").asText(Color.RED.toString()));
-            upperLimitColor = Color.valueOf(jsonNode.get("upperLimitColor").asText(Color.RED.toString()));
+            upperLimitColor = Color.valueOf(jsonNode.get("upperLimitColor").asText(Color.GREEN.toString()));
         }
 
         public ObjectNode toJSON() {
@@ -271,6 +285,97 @@ public class ValueWidget extends Widget {
             dataNode.put("lowerLimitColor", lowerLimitColor.toString());
             dataNode.put("upperLimitColor", upperLimitColor.toString());
             return dataNode;
+        }
+
+        public Tab getConfigTab() {
+            CheckBox enableUpperBox = new CheckBox("Enable upper limit");
+            CheckBox enableLowerBox = new CheckBox("Enable lower limit");
+            enableLowerBox.setSelected(true);
+            enableUpperBox.setSelected(true);
+            Label upperVlabel = new Label("Upper Limit Value");
+            Label lowerVlabel = new Label("Lower Limit Value");
+            Label upperColorlabel = new Label("Upper Color");
+            Label lowerColorlabel = new Label("Lower Color");
+            TextField upperValueField = new TextField();
+            TextField lowerValueField = new TextField();
+            ColorPicker upperColorPicker = new ColorPicker();
+            ColorPicker lowerColorPicker = new ColorPicker();
+            Separator separator = new Separator(Orientation.HORIZONTAL);
+
+            GridPane gridPane = new GridPane();
+            gridPane.setPadding(new Insets(10));
+            gridPane.setVgap(8);
+            gridPane.setHgap(8);
+            gridPane.add(enableUpperBox, 0, 0, 2, 1);
+            gridPane.add(upperVlabel, 0, 1);
+            gridPane.add(upperValueField, 1, 1);
+            gridPane.add(upperColorlabel, 0, 2);
+            gridPane.add(upperColorPicker, 1, 2);
+
+            gridPane.add(separator, 0, 3, 2, 1);
+
+            gridPane.add(enableLowerBox, 0, 4, 2, 1);
+            gridPane.add(lowerVlabel, 0, 5);
+            gridPane.add(lowerValueField, 1, 5);
+            gridPane.add(lowerColorlabel, 0, 6);
+            gridPane.add(lowerColorPicker, 1, 6);
+
+            Tab tab = new Tab("Limit");
+            tab.setContent(gridPane);
+
+            GridPane.setFillWidth(lowerColorPicker, true);
+
+
+            enableUpperBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                System.out.println("enableUpperBox: " + newValue);
+                upperValueField.setDisable(!newValue);
+                upperColorPicker.setDisable(!newValue);
+                hasUpperLimit = newValue;
+            });
+
+            enableLowerBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                lowerValueField.setDisable(!newValue);
+                lowerColorPicker.setDisable(!newValue);
+                hasLowerLimit = newValue;
+            });
+
+
+            Platform.runLater(() -> {
+                enableUpperBox.setSelected(hasUpperLimit);
+                enableLowerBox.setSelected(hasLowerLimit);
+            });
+
+            upperValueField.setText(upperLimit.toString());
+            lowerValueField.setText(lowerLimit.toString());
+
+            upperValueField.textProperty().addListener(new ChangeListener<String>() {
+                @Override
+                public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                    upperLimit = Double.parseDouble(newValue.replaceAll(",", "."));
+                }
+            });
+
+            lowerValueField.textProperty().addListener(new ChangeListener<String>() {
+                @Override
+                public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                    lowerLimit = Double.parseDouble(newValue.replaceAll(",", "."));
+                }
+            });
+
+
+            upperColorPicker.setValue(upperLimitColor);
+            lowerColorPicker.setValue(lowerLimitColor);
+
+            upperColorPicker.setOnAction(event -> {
+                upperLimitColor = upperColorPicker.getValue();
+            });
+
+            lowerColorPicker.setOnAction(event -> {
+                lowerLimitColor = lowerColorPicker.getValue();
+            });
+
+            return tab;
+
         }
 
         public Double getLowerLimit() {
@@ -322,5 +427,16 @@ public class ValueWidget extends Widget {
         }
 
 
+        @Override
+        public String toString() {
+            return "Limit{" +
+                    "lowerLimit=" + lowerLimit +
+                    ", upperLimit=" + upperLimit +
+                    ", hasLowerLimit=" + hasLowerLimit +
+                    ", hasUpperLimit=" + hasUpperLimit +
+                    ", upperLimitColor=" + upperLimitColor +
+                    ", lowerLimitColor=" + lowerLimitColor +
+                    '}';
+        }
     }
 }
