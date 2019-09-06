@@ -175,6 +175,27 @@ public class ChartDataModel {
         }
     }
 
+
+    /**
+     * Workaround from FS, Gerrit find the right solution.
+     * This workaround is for the chart Sum function because it never calls the geSample with change function
+     * the scaleFactor is never set.
+     * <p>
+     * calling the factorizeSamples will add factor and will aso not work
+     *
+     * @throws JEVisException
+     */
+    public void updateScaleFactor() throws JEVisException {
+        String outputUnit = UnitManager.getInstance().format(unit).replace("·", "");
+        if (outputUnit.equals("")) outputUnit = unit.getLabel();
+
+        String inputUnit = UnitManager.getInstance().format(attribute.getDisplayUnit()).replace("·", "");
+        if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
+
+        ChartUnits cu = new ChartUnits();
+        scaleFactor = cu.scaleValue(inputUnit, outputUnit);
+    }
+
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) throws JEVisException {
         if (unit != null) {
             String outputUnit = UnitManager.getInstance().format(unit).replace("·", "");
