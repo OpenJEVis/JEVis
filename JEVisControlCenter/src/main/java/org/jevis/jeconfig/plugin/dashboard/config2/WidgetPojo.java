@@ -249,9 +249,6 @@ public class WidgetPojo {
     }
 
     public void setType(String type) {
-
-        System.out.println("set Type: " + type);
-
         this.type = type;
     }
 

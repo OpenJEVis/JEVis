@@ -38,7 +38,8 @@ public abstract class Widget extends Region {
     private final String TYPE = "type";
     private final org.jevis.api.JEVisDataSource jeVisDataSource;
     public WidgetPojo config;
-    public Size previewSize = new Size(100, 150);
+    public Size previewSize = new Size(28, 28);
+    private Size size = new Size(100, 150);
     private AnchorPane contentRoot = new AnchorPane();
     private AnchorPane editPane = new AnchorPane();
     private StackPane loadingPane = new StackPane();
@@ -93,13 +94,21 @@ public abstract class Widget extends Region {
         makeDragDropOverlay();
         makeWindowForm();
         makeLoadingOverlay();
-        
+
         this.getChildren().add(this.contentRoot);
         this.getChildren().add(this.editPane);
         this.getChildren().add(this.loadingPane);
         onDragResizeEventListener.setDashBoardPane(control.getDashboardPane());
         DragResizeMod.makeResizable(this, onDragResizeEventListener);
 //        DragResizeMod.makeResizable(this.contentRoot, onDragResizeEventListener);
+
+        this.layoutYProperty().addListener((observable, oldValue, newValue) -> {
+            this.config.setyPosition(newValue.doubleValue());
+        });
+
+        this.layoutXProperty().addListener((observable, oldValue, newValue) -> {
+            this.config.setxPosition(newValue.doubleValue());
+        });
 
         updateConfig(this.config);
     }
@@ -272,20 +281,18 @@ public abstract class Widget extends Region {
             setMinHeight(height);
             setPrefHeight(height);
 
+            size.setHeight(height);
+            size.setWidth(width);
+            this.config.setSize(size);
         });
-
-
-//        this.editPane.setMaxHeight(height);
-//        this.editPane.setMinHeight(height);
-//        this.editPane.setPrefHeight(height);
     }
+
 
     private void makeWindowForm() {
         setBackgroundColor(this.config.getBackgroundColor());
     }
 
     private void setBackgroundColor(Color color) {
-//        color = Color.LIGHTBLUE;//test
         Background bgColor = new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY));
         this.contentRoot.setBackground(bgColor);
     }

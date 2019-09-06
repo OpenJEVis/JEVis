@@ -79,7 +79,6 @@ public class WidgetNavigator {
 
         Button finishButton = new Button(I18n.getInstance().getString("plugin.graph.dialog.delete.ok"));
         finishButton.setDefaultButton(true);
-        Button newDashboardButton = new Button(I18n.getInstance().getString("dashboard.navigator.newbutton"));
         finishButton.setOnAction(event -> {
             stage.hide();
         });
@@ -159,19 +158,13 @@ public class WidgetNavigator {
 
         NewWidgetSelector widgetSelector = new NewWidgetSelector(Widgets.getAvabableWidgets(control, new WidgetPojo()));
         widgetSelector.selectedWidgetProperty.addListener((observable, oldValue, newValue) -> {
-            System.out.println("Cool event handler: ");
             Widget newWidget = widgetSelector.getSelectedWidget();
-
             control.addWidget(newWidget);
             newWidget.updateConfig();
             table.getSelectionModel().select(newWidget);
             table.scrollTo(newWidget);
             this.control.requestViewUpdate(newWidget);
         });
-//        widgetSelector.setOnAction2(event -> {
-//
-//        });
-
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
         toolBar.getItems().addAll(unlockB, delete, sep1, widgetSelector, sep2);

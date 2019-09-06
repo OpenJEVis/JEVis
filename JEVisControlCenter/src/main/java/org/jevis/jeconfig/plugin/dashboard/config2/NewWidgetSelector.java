@@ -18,7 +18,7 @@ import java.util.List;
 
 public class NewWidgetSelector extends GridPane {
 
-    enum SIZE {
+    public enum SIZE {
         SMALL, LARGE, MEDIUM
     }
 
@@ -36,10 +36,6 @@ public class NewWidgetSelector extends GridPane {
         widgetComboBox.setCellFactory(cellFactory);
         widgetComboBox.setButtonCell(buildButtonCellFactory().call(null));
         widgetComboBox.getSelectionModel().selectFirst();
-//        widgetComboBox.setOnAction(event -> {
-//            System.out.println("Widget Selected: " + widgetComboBox.getSelectionModel().getSelectedItem().typeID());
-//
-//        });
 
         Label labelType = new Label(I18n.getInstance().getString("plugin.dashboard.toolbar.new.type"));
         Label sizeType = new Label(I18n.getInstance().getString("plugin.dashboard.toolbar.new.size"));
@@ -48,14 +44,14 @@ public class NewWidgetSelector extends GridPane {
         ObservableList<SIZE> sizeOptions = FXCollections.observableArrayList(SIZE.SMALL, SIZE.MEDIUM, SIZE.LARGE);
         sizeComboBox = new ComboBox<>(sizeOptions);
         sizeComboBox.getSelectionModel().selectFirst();
+        sizeComboBox.setCellFactory(buildSizeCellFactory());
+        sizeComboBox.setButtonCell(buildSizeCellFactory().call(null));
 
         ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
 
 
         newB.setOnAction(event -> {
-            System.out.println("Create new Widget: " + widgetComboBox.getSelectionModel().getSelectedItem().typeID() + " size: " + sizeComboBox.getSelectionModel().getSelectedItem());
-//            onAction2.getValue().handle(new ActionEvent());
             selectedWidgetProperty.setValue(getSelectedWidget());
         });
 
@@ -75,27 +71,59 @@ public class NewWidgetSelector extends GridPane {
     public Widget getSelectedWidget() {
         Widget selectedWidget = widgetComboBox.getSelectionModel().getSelectedItem();
         Size size = getSize(sizeComboBox.getSelectionModel().getSelectedItem());
-        Widget newWidget = selectedWidget.clone();
-        newWidget.setNodeSize(size.getWidth(), size.getHeight());
-        newWidget.getConfig().setTitle("New Widget");
 
-        return selectedWidget.clone();
+        Widget newWidget = selectedWidget.clone();
+        WidgetPojo widgetPojo = newWidget.getConfig();
+        widgetPojo.setSize(size);
+
+//        newWidget.setNodeSize(size.getWidth(), size.getHeight());
+//        newWidget.getConfig().setTitle("New Widget");
+        newWidget.updateConfig(widgetPojo);
+
+        return newWidget;
     }
 
 
     private Size getSize(SIZE size) {
         switch (size) {
             case SMALL:
-                return new Size(50, 100);
-            case MEDIUM:
                 return new Size(100, 100);
+            case MEDIUM:
+                return new Size(300, 600);
             case LARGE:
-                return new Size(200, 200);
+                return new Size(500, 1000);
             default:
                 return new Size(100, 100);
         }
     }
 
+
+    private Callback<ListView<SIZE>, ListCell<SIZE>> buildSizeCellFactory() {
+        return new Callback<ListView<SIZE>, ListCell<SIZE>>() {
+            @Override
+            public ListCell<SIZE> call(ListView<SIZE> param) {
+                return new ListCell<SIZE>() {
+                    @Override
+                    protected void updateItem(SIZE item, boolean empty) {
+                        super.updateItem(item, empty);
+                        String text = "";
+
+                        if (item != null && !empty) {
+                            if (item.equals(SIZE.SMALL)) {
+                                text = I18n.getInstance().getString("plugin.dashboard.toolbar.size.small");
+                            } else if (item.equals(SIZE.MEDIUM)) {
+                                text = I18n.getInstance().getString("plugin.dashboard.toolbar.size.medium");
+                            } else if (item.equals(SIZE.LARGE)) {
+                                text = I18n.getInstance().getString("plugin.dashboard.toolbar.size.large");
+                            }
+                        }
+                        setText(text);
+
+                    }
+                };
+            }
+        };
+    }
 
     private Callback<ListView<Widget>, ListCell<Widget>> buildButtonCellFactory() {
         return new Callback<ListView<Widget>, ListCell<Widget>>() {

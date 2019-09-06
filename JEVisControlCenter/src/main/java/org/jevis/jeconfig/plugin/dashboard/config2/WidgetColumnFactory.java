@@ -164,7 +164,7 @@ public class WidgetColumnFactory {
                                 icon.setFitHeight(18d);
                                 setGraphic(icon);
                             } catch (Exception ex) {
-                                logger.warn(ex.getMessage());
+//                                logger.warn(ex.getMessage());
                             }
 //                            System.out.println("TableRow value: " + getTableRow().getItem());
                             setText(item);

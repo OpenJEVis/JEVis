@@ -76,9 +76,6 @@ public class DashBoardPane extends Pane {
         EventHandler<MouseEvent> mouseReleaseHandler = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("eventtype: " + event.getEventType());
-
-
                 for (Node shape : DashBoardPane.this.getChildren()) {
                     if (selectionRect.getBoundsInParent().intersects(shape.getBoundsInParent())) {
 //                        shape.setFill(Color.RED);
@@ -297,12 +294,10 @@ public class DashBoardPane extends Pane {
 
 
     public void showGrid(boolean show) {
-        System.out.println("Show grid: " + show + " Existing grid: " + visibleGrid.size());
         if (show) {
             createGrid(this.analysis.xGridInterval, this.analysis.yGridInterval);
             DashBoardPane.this.getChildren().addAll(this.visibleGrid);
         } else {
-
             DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
             visibleGrid.clear();
         }

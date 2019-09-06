@@ -409,7 +409,6 @@ public class DashboardControl {
         widget.init();
         this.widgetList.add(widget);
         this.dashboardPane.addWidget(widget);
-        System.out.println("WidgetIntervaleupdate: " + this.activeInterval);
         widget.updateData(this.activeInterval);
     }
 

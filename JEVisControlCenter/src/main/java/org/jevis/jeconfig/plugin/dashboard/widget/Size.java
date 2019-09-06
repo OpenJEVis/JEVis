@@ -22,6 +22,14 @@ public class Size {
         return this.width;
     }
 
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+    public void setWidth(double width) {
+        this.width = width;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
