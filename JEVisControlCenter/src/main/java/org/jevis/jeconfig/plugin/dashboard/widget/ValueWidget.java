@@ -63,7 +63,7 @@ public class ValueWidget extends Widget {
     @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
-        widgetPojo.setTitle("new Value Widget");
+        widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.newname"));
         widgetPojo.setType(typeID());
 
 
@@ -266,14 +266,14 @@ public class ValueWidget extends Widget {
         }
 
         public Tab getConfigTab() {
-            CheckBox enableUpperBox = new CheckBox("Enable upper limit");
-            CheckBox enableLowerBox = new CheckBox("Enable lower limit");
+            CheckBox enableUpperBox = new CheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.upper"));
+            CheckBox enableLowerBox = new CheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.lower"));
             enableLowerBox.setSelected(true);
             enableUpperBox.setSelected(true);
-            Label upperVlabel = new Label("Upper Limit Value");
-            Label lowerVlabel = new Label("Lower Limit Value");
-            Label upperColorlabel = new Label("Upper Color");
-            Label lowerColorlabel = new Label("Lower Color");
+            Label upperVlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.valuelabel.upper"));
+            Label lowerVlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.valuelabel.lower"));
+            Label upperColorlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.color.upper"));
+            Label lowerColorlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.color.lower"));
             TextField upperValueField = new TextField();
             TextField lowerValueField = new TextField();
             ColorPicker upperColorPicker = new ColorPicker();
@@ -298,7 +298,7 @@ public class ValueWidget extends Widget {
             gridPane.add(lowerColorlabel, 0, 6);
             gridPane.add(lowerColorPicker, 1, 6);
 
-            Tab tab = new Tab("Limit");
+            Tab tab = new Tab(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.tab"));
             tab.setContent(gridPane);
 
             GridPane.setFillWidth(lowerColorPicker, true);

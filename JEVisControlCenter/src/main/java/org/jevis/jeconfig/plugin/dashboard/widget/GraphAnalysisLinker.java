@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.jfoenix.controls.JFXButton;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Tooltip;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -38,6 +39,45 @@ public class GraphAnalysisLinker {
         return button;
     }
 
+
+    public void applyConfig(JFXButton button, AggregationPeriod aggregationPeriod, ManipulationMode manipulationMode, Interval interval) {
+        button.setOnAction(event -> {
+            try {
+                boolean targetIsreachable = false;
+                if (this.node.getGraphAnalysisObject() > 0) {
+                    JEVisObject jeVisObject = this.dataSource.getObject(this.node.getGraphAnalysisObject());
+                    if (jeVisObject != null) {
+                        Tooltip tooltip = new Tooltip(I18n.getInstance().getString("plugin.dashboard.linker.open") + " " + jeVisObject.getName());
+                        button.setTooltip(tooltip);
+                        targetIsreachable = true;
+                    }
+                }
+
+                if (targetIsreachable) {
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                    AnalysisRequest analysisRequest = new AnalysisRequest(
+                            this.dataSource.getObject(this.node.getGraphAnalysisObject())
+                            , aggregationPeriod, manipulationMode, analysisTimeFrame
+                            , interval.getStart(), interval.getEnd());
+
+                    JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest);
+                } else {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+//                    alert.setTitle("Warning");
+//                alert.setHeaderText("Analyse nicht gefunden");
+                    alert.setContentText(I18n.getInstance().getString("plugin.dashboard.linker.error.message"));
+
+                    alert.showAndWait();
+                }
+
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
+
+    }
 
     public void applyConfig(JFXButton button, List<ChartDataModel> dataModels, Interval interval) {
         button.setOnAction(event -> {

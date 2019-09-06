@@ -24,6 +24,7 @@ import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.Interval;
 
@@ -56,7 +57,7 @@ public class LinkerWidget extends Widget {
     @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
-        widgetPojo.setTitle("new TableWidget");
+        widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.linkerwidget.newname"));
         widgetPojo.setType(typeID());
 
 

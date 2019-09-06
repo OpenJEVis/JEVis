@@ -24,6 +24,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.Interval;
 
 import java.text.NumberFormat;
@@ -54,7 +55,7 @@ public class PieWidget extends Widget {
     @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
-        widgetPojo.setTitle("new Pie Widget");
+        widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.piewidget.newname"));
         widgetPojo.setType(typeID());
 
 

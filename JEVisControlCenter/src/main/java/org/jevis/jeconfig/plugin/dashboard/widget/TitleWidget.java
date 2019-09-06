@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.Layouts;
 import org.joda.time.Interval;
 
@@ -36,7 +37,7 @@ public class TitleWidget extends Widget {
     @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
-        widgetPojo.setTitle("new Title Widget");
+        widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.titlewidget.newname"));
         widgetPojo.setType(typeID());
 
 

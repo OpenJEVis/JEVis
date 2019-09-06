@@ -58,7 +58,7 @@ public class TableWidget extends Widget {
     @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
-        widgetPojo.setTitle("new TableWidget");
+        widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.tablewidget.newname"));
         widgetPojo.setType(typeID());
 
         return widgetPojo;
