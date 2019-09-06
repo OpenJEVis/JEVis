@@ -61,7 +61,7 @@ public class DashboardControl {
     private final TimeFrames timeFrames;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
     private boolean fitToParent = false;
-    public BooleanProperty highligtProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty highlightProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showGridProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showSnapToGridProperty = new SimpleBooleanProperty(false);
     public BooleanProperty editableGridProperty = new SimpleBooleanProperty(false);
@@ -77,7 +77,7 @@ public class DashboardControl {
         this.timeFrames = new TimeFrames(this.jevisDataSource);
 
 
-        this.highligtProperty.addListener((observable, oldValue, newValue) -> {
+        this.highlightProperty.addListener((observable, oldValue, newValue) -> {
             this.widgetList.forEach(widget -> {
                 if (newValue) {
                     widget.setGlow(newValue);
@@ -157,7 +157,7 @@ public class DashboardControl {
     }
 
     public void highlightWidgetInView(Widget widget, boolean highlight) {
-        if (this.highligtProperty.getValue()) {
+        if (this.highlightProperty.getValue()) {
             widget.setGlow(highlight);
         }
     }

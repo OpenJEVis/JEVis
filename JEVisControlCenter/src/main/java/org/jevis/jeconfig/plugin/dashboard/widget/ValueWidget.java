@@ -86,17 +86,6 @@ public class ValueWidget extends Widget {
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
 
-//        updateConfig();
-
-        /*** TODO: replace null check if hasChanged is working **/
-//            System.out.println("jnode: "+config.getConfigNode(LimitColoring.JNODE_NAME));
-//        if (this.limitColoring == null && this.config.getConfigNode(LimitColoring.JNODE_NAME) != null) {
-//            System.out.println("Create new LimitColoring: " + this.config.getConfigNode(LimitColoring.JNODE_NAME));
-//            this.limitColoring = new LimitColoring(
-//                    this.config.getConfigNode(LimitColoring.JNODE_NAME), this.config.getFontColor(), this.config.getBackgroundColor());
-//        }
-
-
         this.nf.setMinimumFractionDigits(this.config.getDecimals());
         this.nf.setMaximumFractionDigits(this.config.getDecimals());
 
@@ -133,29 +122,18 @@ public class ValueWidget extends Widget {
         }
 
 
-//        limit.setHasLowerLimit(true);
-//        limit.setHasUpperLimit(true);
-//        limit.setLowerLimit(80000d);
-//        limit.setUpperLimit(150000d);
-
-        System.out.println("limit: " + limit);
         Platform.runLater(() -> {
             this.label.setText(this.labelText.getValue());
             Color fontColor = this.config.getFontColor();
 
             if (limit != null) {
-                System.out.println("limit exists");
                 if (limit.hasLowerLimit) {
-                    System.out.println("has Lower Limit");
                     if (total.get() <= limit.getLowerLimit()) {
-                        System.out.println("is Lower Limit");
                         fontColor = limit.getLowerLimitColor();
                     }
                 }
                 if (limit.hasUpperLimit) {
-                    System.out.println("has Upper Limit");
                     if (total.get() >= limit.getUpperLimit()) {
-                        System.out.println("is Upper Limit");
                         fontColor = limit.getUpperLimitColor();
                     }
                 }
@@ -327,7 +305,6 @@ public class ValueWidget extends Widget {
 
 
             enableUpperBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                System.out.println("enableUpperBox: " + newValue);
                 upperValueField.setDisable(!newValue);
                 upperColorPicker.setDisable(!newValue);
                 hasUpperLimit = newValue;

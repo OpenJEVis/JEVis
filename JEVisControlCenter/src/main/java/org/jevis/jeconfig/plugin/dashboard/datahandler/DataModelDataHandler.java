@@ -189,6 +189,46 @@ public class DataModelDataHandler {
         return this.jeVisDataSource;
     }
 
+    public static AggregationPeriod getAggregationPeriod(Interval interval) {
+        AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
+
+        /** less then an week take original **/
+        if (interval.toDuration().getStandardDays() < 6) {
+            aggregationPeriod = AggregationPeriod.NONE;
+        }
+        /** less then an month take hour **/
+        else if (interval.toDuration().getStandardDays() < 27) {
+            aggregationPeriod = AggregationPeriod.HOURLY;
+        }
+        /** less than year take day **/
+        else if (interval.toDuration().getStandardDays() < 364) {
+            aggregationPeriod = AggregationPeriod.DAILY;
+        }
+        /** more than an year take week **/
+        else {
+            aggregationPeriod = AggregationPeriod.WEEKLY;
+        }
+        return aggregationPeriod;
+    }
+
+    public static ManipulationMode getManipulationMode(Interval interval) {
+        ManipulationMode manipulationMode = ManipulationMode.NONE;
+
+        if (interval.toDuration().getStandardDays() < 27) {
+            manipulationMode = ManipulationMode.NONE;
+        }
+        /** less than year take day **/
+        else if (interval.toDuration().getStandardDays() < 364) {
+            manipulationMode = ManipulationMode.NONE;
+        }
+        /** more than an year take week **/
+        else {
+            manipulationMode = ManipulationMode.NONE;
+        }
+        return manipulationMode;
+    }
+
+
     public void setInterval(Interval interval) {
 
 
@@ -220,32 +260,12 @@ public class DataModelDataHandler {
 
         for (ChartDataModel chartDataModel : getDataModel()) {
 
-            AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
-            ManipulationMode manipulationMode = ManipulationMode.NONE;
-            if (this.autoAggregation) {
+            AggregationPeriod aggregationPeriod = getAggregationPeriod(interval);
+            ManipulationMode manipulationMode = getManipulationMode(interval);
 
-                /** less then an week take original **/
-                if (interval.toDuration().getStandardDays() < 6) {
-                    aggregationPeriod = AggregationPeriod.NONE;
-                }
-                /** less then an month take hour **/
-                else if (interval.toDuration().getStandardDays() < 27) {
-                    aggregationPeriod = AggregationPeriod.HOURLY;
-                    manipulationMode = ManipulationMode.NONE;
-                }
-                /** less than year take day **/
-                else if (interval.toDuration().getStandardDays() < 364) {
-                    aggregationPeriod = AggregationPeriod.DAILY;
-                    manipulationMode = ManipulationMode.NONE;
-                }
-                /** more than an year take week **/
-                else {
-                    aggregationPeriod = AggregationPeriod.WEEKLY;
-                    manipulationMode = ManipulationMode.NONE;
-                }
-                chartDataModel.setAggregationPeriod(aggregationPeriod);
-                chartDataModel.setManipulationMode(manipulationMode);
-            }
+            chartDataModel.setAggregationPeriod(aggregationPeriod);
+            chartDataModel.setManipulationMode(manipulationMode);
+
 
         }
     }

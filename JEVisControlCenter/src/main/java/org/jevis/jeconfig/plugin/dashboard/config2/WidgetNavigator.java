@@ -139,7 +139,7 @@ public class WidgetNavigator {
 
 
         ToggleButton unlockB = new ToggleButton("", this.unlockIcon);
-        unlockB.selectedProperty().bindBidirectional(this.control.highligtProperty);
+        unlockB.selectedProperty().bindBidirectional(this.control.highlightProperty);
         unlockB.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 unlockB.setGraphic(this.lockIcon);

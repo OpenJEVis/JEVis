@@ -90,9 +90,13 @@ public abstract class Widget extends Region {
 
     private void initLayout() {
         logger.debug("initLayout() {}", config.getTitle());
+        makeDragDropOverlay();
+        makeWindowForm();
+        makeLoadingOverlay();
+        
         this.getChildren().add(this.contentRoot);
         this.getChildren().add(this.editPane);
-        this.getChildren().add(loadingPane);
+        this.getChildren().add(this.loadingPane);
         onDragResizeEventListener.setDashBoardPane(control.getDashboardPane());
         DragResizeMod.makeResizable(this, onDragResizeEventListener);
 //        DragResizeMod.makeResizable(this.contentRoot, onDragResizeEventListener);
@@ -108,9 +112,9 @@ public abstract class Widget extends Region {
         this.config = config;
 
         setNodeSize(this.config.getSize().getWidth(), this.config.getSize().getHeight());
-        makeDragDropOverlay();
-        makeWindowForm();
-        makeLoadingOverlay();
+//        makeDragDropOverlay();
+//        makeWindowForm();
+//        makeLoadingOverlay();
         setBorder(this.config.getBorderSize());
         layoutXProperty().set(this.config.getxPosition());
         layoutYProperty().set(this.config.getyPosition());
