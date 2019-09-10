@@ -24,8 +24,8 @@ public class DashboardPojo {
     public String title = "Default dashboard";
 
     public Color backgroundColor = Color.web("#126597");
-    public Double xGridInterval = 50.0d;
-    public Double yGridInterval = 50.0d;
+    public Double xGridInterval = 25.0d;
+    public Double yGridInterval = 25.0d;
 
     public Size size = Size.DEFAULT;
 

@@ -29,9 +29,11 @@ import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,6 +56,11 @@ public class TableWidget extends Widget {
         super(control);
     }
 
+    @Override
+    public void debug() {
+        sampleHandler.debug();
+    }
+
 
     @Override
     public WidgetPojo createDefaultConfig() {
@@ -69,6 +76,7 @@ public class TableWidget extends Widget {
         logger.debug("Table.Update: {}", interval);
         showProgressIndicator(true);
         this.lastInterval = interval;
+        showAlertOverview(false, "");
 
         if (this.sampleHandler == null) {
             return;
@@ -79,7 +87,9 @@ public class TableWidget extends Widget {
 
 
         ObservableList<TableData> tableDatas = FXCollections.observableArrayList();
+        List<String> alerts = new ArrayList();
         this.sampleHandler.getDataModel().forEach(chartDataModel -> {
+
             try {
                 List<JEVisSample> results;
                 if (chartDataModel.getEnPI()) {
@@ -110,12 +120,23 @@ public class TableWidget extends Widget {
                             chartDataModel.getObject().getName(),
                             "n.a.",
                             chartDataModel.getUnitLabel()));
+                    alerts.add(chartDataModel.getObject().getName() + " missing date in selected interval");
                 }
             } catch (Exception ex) {
                 logger.error(ex);
                 ex.printStackTrace();
                 tableDatas.add(new TableData("", "", ""));
             }
+
+            if (!alerts.isEmpty()) {
+                String alertMessage = "";
+                for (String message : alerts) {
+                    alertMessage += message + "\n";
+                }
+
+                showAlertOverview(true, alertMessage);
+            }
+
         });
 
         Platform.runLater(() -> {
@@ -142,6 +163,16 @@ public class TableWidget extends Widget {
         });
 
 
+    }
+
+    @Override
+    public boolean isStatic() {
+        return false;
+    }
+
+    @Override
+    public List<DateTime> getMaxTimeStamps() {
+        return sampleHandler.getMaxTimeStamps();
     }
 
     @Override

@@ -22,6 +22,7 @@ import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.math.BigDecimal;
@@ -51,6 +52,11 @@ public class WebPieWidget extends Widget {
 
     public WebPieWidget(DashboardControl control) {
         super(control);
+    }
+
+    @Override
+    public void debug() {
+
     }
 
 
@@ -158,6 +164,16 @@ public class WebPieWidget extends Widget {
     @Override
     public void updateConfig() {
 
+    }
+
+    @Override
+    public boolean isStatic() {
+        return false;
+    }
+
+    @Override
+    public List<DateTime> getMaxTimeStamps() {
+        return sampleHandler.getMaxTimeStamps();
     }
 
 

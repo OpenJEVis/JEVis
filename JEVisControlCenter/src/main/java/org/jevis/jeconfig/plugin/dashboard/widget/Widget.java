@@ -10,9 +10,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.ImageView;
@@ -27,9 +25,11 @@ import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.tool.DragResizeMod;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -42,11 +42,13 @@ public abstract class Widget extends Region {
     private Size size = new Size(100, 150);
     private AnchorPane contentRoot = new AnchorPane();
     private AnchorPane editPane = new AnchorPane();
+    private AnchorPane alertPane = new AnchorPane();
     private StackPane loadingPane = new StackPane();
     private UUID uuid = UUID.randomUUID();
     private final DashboardControl control;
     private BooleanProperty editable = new SimpleBooleanProperty(false);
     private ProgressIndicator progressIndicator = new ProgressIndicator();
+    private Label label = new Label();
 
 //    private BooleanProperty snapToGrid = new SimpleBooleanProperty(false);
 
@@ -94,10 +96,17 @@ public abstract class Widget extends Region {
         makeDragDropOverlay();
         makeWindowForm();
         makeLoadingOverlay();
+        makeAlartOverlay();
 
-        this.getChildren().add(this.contentRoot);
-        this.getChildren().add(this.editPane);
-        this.getChildren().add(this.loadingPane);
+//        this.getChildren().add(this.contentRoot);
+//        this.getChildren().add(this.editPane);
+//        this.getChildren().add(this.loadingPane);
+        this.getChildren().addAll(
+                this.contentRoot,
+                this.alertPane,
+                this.editPane,
+                this.loadingPane
+        );
         onDragResizeEventListener.setDashBoardPane(control.getDashboardPane());
         DragResizeMod.makeResizable(this, onDragResizeEventListener);
 //        DragResizeMod.makeResizable(this.contentRoot, onDragResizeEventListener);
@@ -110,8 +119,17 @@ public abstract class Widget extends Region {
             this.config.setxPosition(newValue.doubleValue());
         });
 
+        setOnMouseClicked(event -> {
+            if (event.isShiftDown()) {
+                System.out.println("debug");
+                debug();
+            }
+        });
+
         updateConfig(this.config);
     }
+
+    abstract public void debug();
 
     abstract public WidgetPojo createDefaultConfig();
 
@@ -139,7 +157,11 @@ public abstract class Widget extends Region {
         } else {
             this.contentRoot.setEffect(null);
         }
-
+        try {
+            updateConfig();
+        } catch (Exception ex) {
+            logger.debug(ex);
+        }
     }
 
 
@@ -192,6 +214,21 @@ public abstract class Widget extends Region {
         this.editable.setValue(editable);
     }
 
+    public void showAlertOverview(boolean show, String message) {
+        this.alertPane.setVisible(show);
+        Tooltip tooltip = new Tooltip(message);
+        label.setTooltip(tooltip);
+    }
+
+    private void makeAlartOverlay() {
+        this.alertPane.setVisible(false);
+        label.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        ImageView alert = JEConfig.getImage("Warning-icon.png", 16d, 16d);
+        label.setGraphic(alert);
+        this.alertPane.getChildren().add(label);
+        AnchorPane.setLeftAnchor(alert, 8d);
+        AnchorPane.setTopAnchor(alert, 8d);
+    }
 
     private void makeLoadingOverlay() {
         this.loadingPane.setVisible(false);
@@ -334,6 +371,18 @@ public abstract class Widget extends Region {
     public abstract void updateLayout();
 
     public abstract void updateConfig();
+
+    /**
+     * returns true if the content is static and does not need an updateData()
+     *
+     * @return
+     */
+    public abstract boolean isStatic();
+
+    /**
+     * @return
+     */
+    public abstract List<DateTime> getMaxTimeStamps();
 
     /**
      * Init will be called ones if the the widget will be created

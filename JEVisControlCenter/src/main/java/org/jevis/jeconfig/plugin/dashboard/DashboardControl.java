@@ -29,10 +29,12 @@ import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardSorter;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
+import org.jevis.jeconfig.plugin.dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import org.joda.time.Period;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -69,6 +71,8 @@ public class DashboardControl {
     private DashBoardPane dashboardPane;
     private ProcessMonitor processMonitor = new ProcessMonitor();
     private boolean unsavedChanged = false;
+    private DashBoardToolbar toolBar;
+
 
     public DashboardControl(DashBordPlugIn plugin) {
         this.configManager = new ConfigManager(plugin.getDataSource());
@@ -95,7 +99,8 @@ public class DashboardControl {
 
     private void resetDashboard() {
         /** clear old states **/
-        rundataUpdateTasks(false);
+        //rundataUpdateTasks(false);
+        stopAllUpdates();
         this.widgetList.clear();
 
 
@@ -121,7 +126,7 @@ public class DashboardControl {
 
     public void setSnapToGrid(boolean snapToGrid) {
         this.showSnapToGridProperty.setValue(snapToGrid);
-        this.dashboardPane.showGrid(showSnapToGridProperty.getValue());
+        this.dashboardPane.activateGrid(snapToGrid);
     }
 
 
@@ -162,6 +167,10 @@ public class DashboardControl {
         }
     }
 
+    public void setDashboardSize(double width, double hight) {
+        this.activeDashboard.setSize(new Size(hight, width));
+        this.dashboardPane.loadSetting(activeDashboard);
+    }
 
     public void zoomIn() {
         if (this.zoomFactor < 3) {
@@ -232,9 +241,13 @@ public class DashboardControl {
 
             this.configManager.getBackgroundImage(this.activeDashboard.getDashboardObject()).addListener((observable, oldValue, newValue) -> {
                 if (newValue != null) {
+                    System.out.println("Set Wallpaper: " + newValue.getWidth());
                     this.dashBordPlugIn.getDashBoardPane().setBackgroundImage(newValue);
                 }
             });
+
+            //hmmm
+            this.activeDashboard.setTimeFrame(timeFrames.day());
 
             this.widgetList.forEach(widget -> {
 //                widget.updateConfig();
@@ -249,10 +262,32 @@ public class DashboardControl {
             this.dashBordPlugIn.getDashBoardToolbar().updateView(this.activeDashboard);
 
 
+            setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
+            toolBar.updateView(activeDashboard);
+
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
         }
+    }
+
+    /**
+     * Calculate an fitting DateTime based on available Samples.
+     * For now we use get maximum of all samples.
+     *
+     * @return
+     */
+    private DateTime getStartDateByData() {
+        DateTime date = new DateTime().minus(Period.years(1));
+        for (Widget widget : this.widgetList) {
+            for (DateTime dateTime : widget.getMaxTimeStamps()) {
+                if (dateTime.isAfter(date)) {
+                    date = dateTime;
+                }
+            }
+        }
+        logger.error("calculated max TS: {}", date);
+        return date;
     }
 
     public void setEditable(boolean editable) {
@@ -272,8 +307,17 @@ public class DashboardControl {
     }
 
     public void setActiveTimeFrame(TimeFrameFactory activeTimeFrame) {
+        logger.error("SetTimeFrameFactory to: {}", activeTimeFrame.getID());
         this.activeTimeFrame = activeTimeFrame;
-        setInterval(this.activeInterval);
+        this.setInterval(activeTimeFrame.getInterval(activeInterval.getStart()));
+
+        this.toolBar.updateView(activeDashboard);
+
+//        setInterval(this.activeInterval);
+    }
+
+    public void registerToolBar(DashBoardToolbar toolbar) {
+        this.toolBar = toolbar;
     }
 
     public TimeFrameFactory getActiveTimeFrame() {
@@ -304,14 +348,16 @@ public class DashboardControl {
     }
 
     public void setInterval(Interval interval) {
-        rundataUpdateTasks(false);
+        logger.error("SetInterval to: {}", interval);
         this.activeInterval = interval;
+        rundataUpdateTasks(false);
 
-        restartExecutor();
 
-        DashboardControl.this.widgetList.parallelStream().forEach(widget -> {
-            addWidgetUpdateTask(widget, interval);
-        });
+//        restartExecutor();
+//
+//        DashboardControl.this.widgetList.parallelStream().forEach(widget -> {
+//            addWidgetUpdateTask(widget, interval);
+//        });
 
     }
 
@@ -328,15 +374,24 @@ public class DashboardControl {
     }
 
     public void switchUpdating() {
-        rundataUpdateTasks(!this.isUpdateRunning);
+        System.out.println("switchUpdating: " + isUpdateRunning + " -> " + !this.isUpdateRunning);
+        this.isUpdateRunning = !this.isUpdateRunning;
+        if (this.isUpdateRunning) {
+            rundataUpdateTasks(isUpdateRunning);
+        } else {
+            stopAllUpdates();
+        }
+//        rundataUpdateTasks(!this.isUpdateRunning);
     }
 
     private void removeNode(Widget widget) {
         this.widgetList.remove(widget);
     }
 
-    public void rundataUpdateTasks(boolean run) {
-        this.isUpdateRunning = run;
+
+    private void stopAllUpdates() {
+        this.isUpdateRunning = false;
+
         if (this.updateTask != null) {
             try {
                 this.updateTask.cancel();
@@ -346,27 +401,47 @@ public class DashboardControl {
         }
         this.updateTimer.cancel();
         if (this.executor != null) this.executor.shutdownNow();
+    }
+
+    public void rundataUpdateTasks(boolean reStartUpdateDeamon) {
+        this.isUpdateRunning = reStartUpdateDeamon;
+
+        stopAllUpdates();
 
         this.updateTimer = new Timer(true);
         this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
+
+        Platform.runLater(() -> {
+            this.widgetList.forEach(widget -> {
+                if (!widget.isStatic()) {
+                    widget.showProgressIndicator(true);
+                }
+            });
+        });
+
+//        final Interval interval = DashboardControl.this.activeDashboard.getTimeFrame().getInterval(DateTime.now());
+
+
+        logger.debug("Update Interval: {}", activeInterval);
         this.updateTask = new TimerTask() {
             @Override
             public void run() {
                 logger.debug("Starting Update");
-
-                Interval interval = DashboardControl.this.activeDashboard.getTimeFrame().getInterval(DateTime.now());
-
                 DashboardControl.this.widgetList.parallelStream().forEach(widget -> {
-                    addWidgetUpdateTask(widget, interval);
+                    addWidgetUpdateTask(widget, activeInterval);
                 });
             }
         };
 
-        if (run) {
-            this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(run);
+
+        if (reStartUpdateDeamon) {
+            this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(reStartUpdateDeamon);
             logger.info("Start updateData scheduler: {} sec", this.activeDashboard.getUpdateRate());
             this.updateTimer.scheduleAtFixedRate(this.updateTask, 1000, this.activeDashboard.getUpdateRate() * 1000);
+        } else {
+            this.updateTimer.schedule(this.updateTask, 1000);
         }
+
 
     }
 
@@ -381,9 +456,9 @@ public class DashboardControl {
             protected Object call() throws Exception {
                 try {
                     logger.debug("addWidgetUpdateTask: " + widget.typeID());
-//                    widget.showProgressIndicator(true);
-                    widget.updateData(interval);
-//                    widget.showProgressIndicator(false);
+                    if (!widget.isStatic()) {
+                        widget.updateData(interval);
+                    }
                 } catch (Exception ex) {
                     logger.error(ex);
                     ex.printStackTrace();

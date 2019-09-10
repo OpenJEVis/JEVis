@@ -28,8 +28,10 @@ import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import java.util.List;
 import java.util.Optional;
 
 public class ChartWidget extends Widget {
@@ -57,6 +59,11 @@ public class ChartWidget extends Widget {
     }
 
     @Override
+    public void debug() {
+        sampleHandler.debug();
+    }
+
+    @Override
     public WidgetPojo createDefaultConfig() {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle("new Chart Widget");
@@ -71,6 +78,7 @@ public class ChartWidget extends Widget {
         logger.info("Update: {}", interval);
         this.lastInterval = interval;
         showProgressIndicator(true);
+        showAlertOverview(false, "");
 
         this.lineChart.setChartSettings(chart1 -> {
             MultiAxisLineChart multiAxisLineChart = (MultiAxisLineChart) chart1;
@@ -107,6 +115,10 @@ public class ChartWidget extends Widget {
                     this.legend.getItems().add(
                             this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), chartDataModel.getColor(),
                                     this.config.getFontColor(), this.config.getFontSize()));
+                    if (chartDataModel.getSamples().isEmpty()) {
+                        showAlertOverview(true, "");
+                    }
+
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
@@ -127,16 +139,34 @@ public class ChartWidget extends Widget {
     @Override
     public void updateLayout() {
 
-        Platform.runLater(() -> {
-            setChartLabel((MultiAxisLineChart) this.lineChart.getChart(), this.config.getFontColor());
-            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-            //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
-        });
+
     }
 
     @Override
     public void updateConfig() {
+        Platform.runLater(() -> {
+            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+            Background bgColorTrans = new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY));
+            setChartLabel((MultiAxisLineChart) this.lineChart.getChart(), this.config.getFontColor());
+            this.setBackground(bgColorTrans);
+            this.legend.setBackground(bgColorTrans);
+//            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+            //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
+//            lineChart.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Inset
+            this.borderPane.setBackground(bgColor);
 
+            this.layout();
+        });
+    }
+
+    @Override
+    public boolean isStatic() {
+        return false;
+    }
+
+    @Override
+    public List<DateTime> getMaxTimeStamps() {
+        return sampleHandler.getMaxTimeStamps();
     }
 
 

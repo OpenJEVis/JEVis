@@ -1,17 +1,22 @@
 package org.jevis.jeconfig.plugin.dashboard.widget;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Tab;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 import jfxtras.scene.control.ListView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,20 +31,20 @@ import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.Layouts;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class LinkerWidget extends Widget {
 
     public static String WIDGET_ID = "Link";
-    private final Label label = new Label();
     private GraphAnalysisLinker graphAnalysisLinker;
     private JFXButton openAnalysisButton;
     private ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(LinkerWidget.class);
-    private DataModelDataHandler sampleHandler;
     private AnchorPane anchorPane;
     private JsonNode linkerNode;
     private GraphAnalysisLinkerNode dataModelNode;
@@ -52,6 +57,11 @@ public class LinkerWidget extends Widget {
 
     public LinkerWidget(DashboardControl control) {
         super(control);
+    }
+
+    @Override
+    public void debug() {
+
     }
 
     @Override
@@ -78,7 +88,7 @@ public class LinkerWidget extends Widget {
                     DataModelDataHandler.getAggregationPeriod(interval),
                     DataModelDataHandler.getManipulationMode(interval), interval);
 
-
+            showProgressIndicator(false);
         } catch (
                 Exception ex) {
             logger.error(ex);
@@ -103,7 +113,28 @@ public class LinkerWidget extends Widget {
 
     @Override
     public void updateConfig() {
+//        System.out.println("update link: " + this.config.getBackgroundColor());
+        Platform.runLater(() -> {
+            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+            Background bgColorTrans = new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY));
+            //            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+            this.setBackground(bgColorTrans);
 
+            this.anchorPane.setBackground(bgColor);
+            this.setBorder(null);
+            this.layout();
+        });
+
+    }
+
+    @Override
+    public boolean isStatic() {
+        return false;
+    }
+
+    @Override
+    public List<DateTime> getMaxTimeStamps() {
+        return new ArrayList<>();
     }
 
 
@@ -217,6 +248,11 @@ public class LinkerWidget extends Widget {
         ObjectNode dashBoardNode = super.createDefaultNode();
         dashBoardNode
                 .set(GraphAnalysisLinker.ANALYSIS_LINKER_NODE, objectMapper.valueToTree(dataModelNode));
+        try {
+            System.out.println("link node: " + mapper.writeValueAsString(dashBoardNode));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         return dashBoardNode;
     }
 

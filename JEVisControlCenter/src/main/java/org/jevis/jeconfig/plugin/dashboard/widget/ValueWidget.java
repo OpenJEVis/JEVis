@@ -31,6 +31,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.text.NumberFormat;
@@ -79,7 +80,7 @@ public class ValueWidget extends Widget {
         Platform.runLater(() -> {
             this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
         });
-
+//        showAlertOverview(false, "");
 
         if (this.sampleHandler == null) return;
 
@@ -110,6 +111,8 @@ public class ValueWidget extends Widget {
 //                        System.out.println("limitColoring formate");
 //                        this.limitColoring.formateLabel(this.label, total.get());
 //                    }
+                } else {
+//                    showAlertOverview(true, "");
                 }
 
             } else {
@@ -148,6 +151,13 @@ public class ValueWidget extends Widget {
     }
 
     @Override
+    public void debug() {
+
+        this.sampleHandler.debug();
+
+    }
+
+    @Override
     public void updateLayout() {
 
     }
@@ -180,6 +190,16 @@ public class ValueWidget extends Widget {
                 this.label.setContentDisplay(ContentDisplay.CENTER);
             });
         });
+    }
+
+    @Override
+    public boolean isStatic() {
+        return false;
+    }
+
+    @Override
+    public List<DateTime> getMaxTimeStamps() {
+        return sampleHandler.getMaxTimeStamps();
     }
 
 

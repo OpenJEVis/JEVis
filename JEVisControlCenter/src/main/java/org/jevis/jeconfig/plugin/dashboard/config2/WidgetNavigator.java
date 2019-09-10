@@ -125,9 +125,15 @@ public class WidgetNavigator {
             widthField.setText(this.control.getActiveDashboard().getSize().getWidth() + "");
             heightField.setText(this.control.getActiveDashboard().getSize().getHeight() + "");
         } catch (Exception ex) {
-
             ex.printStackTrace();
         }
+
+        widthField.setOnAction(event -> {
+            this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(heightField.getText()));
+        });
+        heightField.setOnAction(event -> {
+            this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(heightField.getText()));
+        });
 
 
         return gridPane;

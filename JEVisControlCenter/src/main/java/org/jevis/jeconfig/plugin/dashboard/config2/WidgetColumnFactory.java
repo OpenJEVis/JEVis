@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -18,6 +19,8 @@ import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.I18n;
+
+import java.util.Collections;
 
 
 public class WidgetColumnFactory {
@@ -68,7 +71,7 @@ public class WidgetColumnFactory {
 
         this.table = new TableView<>();
         this.table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
+        this.table.getColumns().add(buildOrderColoumn());
         this.table.getColumns().add(typeAttributeColumn());
         this.table.getColumns().add(titleAttributeColumn());
         this.table.getColumns().add(advSettingAttributeColumn());
@@ -93,6 +96,68 @@ public class WidgetColumnFactory {
         return this.table;
     }
 
+
+    public TableColumn<Widget, Widget> buildOrderColoumn() {
+
+        Callback treeTableColumnCallback = new Callback<TableColumn<Widget, Widget>, TableCell<Widget, Widget>>() {
+            @Override
+            public TableCell<Widget, Widget> call(TableColumn<Widget, Widget> param) {
+                TableCell<Widget, Widget> cell = new TableCell<Widget, Widget>() {
+                    @Override
+                    protected void updateItem(Widget item, boolean empty) {
+
+
+                        if (empty || item == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            Button downButton = new Button("", JEConfig.getImage("1395085233_arrow_return_right_down.png", 15, 15));
+                            Button upButton = new Button("", JEConfig.getImage("1395085229_arrow_return_right_up.png", 15, 15));
+
+                            upButton.setOnAction(event -> {
+                                Collections.swap(getTableView().getItems(), getTableView().getItems().indexOf(item), getTableView().getItems().indexOf(item) - 1);
+                                control.getDashboardPane().requestLayout();
+                            });
+
+                            downButton.setOnAction(event -> {
+                                Collections.swap(getTableView().getItems(), getTableView().getItems().indexOf(item), getTableView().getItems().indexOf(item) + 1);
+                                control.getDashboardPane().requestLayout();
+                            });
+
+                            HBox hBox = new HBox(downButton, upButton);
+
+                            setText("");
+                            setGraphic(hBox);
+                        }
+
+
+                    }
+                };
+                return cell;
+            }
+        };
+
+        Callback valueFactory = new Callback<TableColumn.CellDataFeatures<Widget, Widget>, ObservableValue<Widget>>() {
+            @Override
+            public ObservableValue<Widget> call(TableColumn.CellDataFeatures<Widget, Widget> param) {
+                try {
+                    return new SimpleObjectProperty<>(param.getValue());
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+
+                return new SimpleObjectProperty<>(null);
+            }
+        };
+
+
+        TableColumn<Widget, Widget> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.order"));
+        column.setId("oder");
+        column.setCellValueFactory(valueFactory);
+        column.setCellFactory(treeTableColumnCallback);
+
+        return column;
+    }
 
     public TableColumn<Widget, Widget> advSettingAttributeColumn() {
 

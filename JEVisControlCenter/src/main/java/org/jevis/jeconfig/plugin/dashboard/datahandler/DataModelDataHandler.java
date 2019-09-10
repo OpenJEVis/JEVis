@@ -51,6 +51,28 @@ public class DataModelDataHandler {
     private String forcedPeriod;
     private ObjectMapper mapper = new ObjectMapper();
 
+    public void debug() {
+        System.out.println("----------------------------------------");
+        try {
+            System.out.println("Json: " + mapper.writeValueAsString(toJsonNode()));
+        } catch (Exception ex) {
+
+        }
+        System.out.println("----");
+        System.out.println("Interval: " + this.durationProperty.getValue());
+        System.out.println("Models: " + getDataModel().size());
+        System.out.println("forcedInterval: " + forcedInterval);
+
+        getDataModel().forEach(chartDataModel -> {
+            System.out.println("model: " + chartDataModel.getObject().getID() + " " + chartDataModel.getObject().getName());
+            System.out.println("model.datasize: " + chartDataModel.getSamples().size());
+            chartDataModel.getSamples().forEach(jeVisSample -> {
+                System.out.println("S: " + jeVisSample);
+            });
+        });
+        System.out.println("-----------------------------------------");
+    }
+
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {
         this.jeVisDataSource = jeVisDataSource;
 
@@ -86,6 +108,17 @@ public class DataModelDataHandler {
 
     }
 
+    public List<DateTime> getMaxTimeStamps() {
+        List<DateTime> dateTimes = new ArrayList<>();
+        for (ChartDataModel chartDataModel : this.chartDataModels) {
+            try {
+                dateTimes.add(chartDataModel.getAttribute().getTimestampFromLastSample());
+            } catch (Exception ex) {
+
+            }
+        }
+        return dateTimes;
+    }
 
     public void setData(List<DataPointNode> data) {
         this.dataModelNode.setData(data);
@@ -113,7 +146,7 @@ public class DataModelDataHandler {
                         /** add fake start date so the model does not ty to load the last 7 days **/
                         chartDataModel.setSelectedStart(new DateTime(1000, 1, 1, 1, 1, 1));
                         chartDataModel.setSelectedEnd(new DateTime(1000, 1, 1, 1, 1, 2));
-
+                        chartDataModel.setFillZeroes(false);
                         chartDataModel.setAbsolute(dataPointNode.isAbsolute());
                         chartDataModel.setSelectedCharts(list);
                         chartDataModel.setObject(jeVisAttribute.getObject());

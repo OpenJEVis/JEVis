@@ -38,6 +38,7 @@ public class DashBoardToolbar extends ToolBar {
 
     public DashBoardToolbar(DashboardControl dashboardControl) {
         this.dashboardControl = dashboardControl;
+        this.dashboardControl.registerToolBar(this);
     }
 
 
@@ -174,7 +175,7 @@ public class DashBoardToolbar extends ToolBar {
 //        });
 
 
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(this.runUpdateButton);
+//        GlobalToolBar.changeBackgroundOnHoverUsingBinding(this.runUpdateButton);
 
 
         this.runUpdateButton.setOnAction(event -> {

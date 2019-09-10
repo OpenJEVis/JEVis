@@ -17,7 +17,11 @@ import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.Layouts;
+import org.joda.time.DateTime;
 import org.joda.time.Interval;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TitleWidget extends Widget {
 
@@ -31,6 +35,11 @@ public class TitleWidget extends Widget {
 
     public TitleWidget(DashboardControl control) {
         super(control);
+    }
+
+    @Override
+    public void debug() {
+
     }
 
 
@@ -118,6 +127,16 @@ public class TitleWidget extends Widget {
 
             this.label.setAlignment(this.config.getTitlePosition());
         });
+    }
+
+    @Override
+    public boolean isStatic() {
+        return true;
+    }
+
+    @Override
+    public List<DateTime> getMaxTimeStamps() {
+        return new ArrayList<>();
     }
 
 

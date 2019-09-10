@@ -133,6 +133,7 @@ public class DashBoardPane extends Pane {
 
 
         setSize(analysis.getSize());
+        createGrid(this.analysis.xGridInterval, this.analysis.yGridInterval);
 
 //        this.scale.setX(analysis.getZoomFactor());
 //        this.scale.setY(analysis.getZoomFactor());
@@ -293,13 +294,25 @@ public class DashBoardPane extends Pane {
     }
 
 
+    public void activateGrid(boolean show) {
+//        if (show) {
+//            createGrid(this.analysis.xGridInterval, this.analysis.yGridInterval);
+////            DashBoardPane.this.getChildren().addAll(this.visibleGrid);
+//        } else {
+////            DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
+//            visibleGrid.clear();
+//        }
+    }
+
     public void showGrid(boolean show) {
+
         if (show) {
-            createGrid(this.analysis.xGridInterval, this.analysis.yGridInterval);
+//            activateGrid(true);
+//            createGrid(this.analysis.xGridInterval, this.analysis.yGridInterval);
             DashBoardPane.this.getChildren().addAll(this.visibleGrid);
         } else {
             DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
-            visibleGrid.clear();
+//            visibleGrid.clear();
         }
     }
 
@@ -362,6 +375,7 @@ public class DashBoardPane extends Pane {
         double c = this.xGrids.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - xPos)))
                 .orElse(xPos);
+
 //        System.out.println("Next xPos: " + c);
         return c;
     }
@@ -373,6 +387,7 @@ public class DashBoardPane extends Pane {
         double c = this.yGrids.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - yPos)))
                 .orElse(yPos);
+
 //        System.out.println("Next yPos: " + c);
         return c;
     }
