@@ -19,6 +19,8 @@
  */
 package org.jevis.api;
 
+import javax.measure.unit.Unit;
+
 /**
  * The JEVisUnit class handles the converting and labeling of the JEVisSamples
  * values.
@@ -143,4 +145,10 @@ public interface JEVisUnit {
      */
     void setFormula(String formula);
 
+    /**
+     * Returns JAVA unit
+     *
+     * @return
+     */
+    Unit getUnit();
 }

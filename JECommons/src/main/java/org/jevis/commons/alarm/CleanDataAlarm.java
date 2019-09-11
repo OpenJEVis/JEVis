@@ -88,7 +88,7 @@ public class CleanDataAlarm {
             }
         }
         return (((limitDataObject != null && limitDataAttribute != null) || limit != null) && operator != null
-                && silentTime != null && standByTime != null && tolerance != null);
+                && tolerance != null);
     }
 
     private void createJsonList(JEVisObject cleanDataObject) {

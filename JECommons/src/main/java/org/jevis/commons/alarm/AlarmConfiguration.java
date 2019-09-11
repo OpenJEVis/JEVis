@@ -75,6 +75,7 @@ public class AlarmConfiguration {
             String scope = sampleHandler.getLastSample(getObject(), ALARM_SCOPE, "");
             if (scope.equals(AlarmScope.COMPLETE.toString())) alarmScope = AlarmScope.COMPLETE;
             else if (scope.equals(AlarmScope.SELECTED.toString())) alarmScope = AlarmScope.SELECTED;
+            else if (scope.equals(AlarmScope.WITHOUT_SELECTED.toString())) alarmScope = AlarmScope.WITHOUT_SELECTED;
             else alarmScope = AlarmScope.NONE;
         }
         return alarmScope;
