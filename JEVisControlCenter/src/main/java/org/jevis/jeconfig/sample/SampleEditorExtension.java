@@ -61,7 +61,7 @@ public interface SampleEditorExtension {
     void setSamples(JEVisAttribute att, List<JEVisSample> samples);
 
     /**
-     * update the gui of this extension. This should be called if the sample
+     * updateData the gui of this extension. This should be called if the sample
      * changed and the extension is visible again.
      */
     void update();

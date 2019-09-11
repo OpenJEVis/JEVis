@@ -20,14 +20,24 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeSortMode;
+import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.input.*;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.*;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
@@ -37,11 +47,15 @@ import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.jevistree.plugin.MapPlugin;
-import org.jevis.jeconfig.plugin.Dashboard.datahandler.WidgetTreePlugin;
+import org.jevis.jeconfig.dialog.HiddenConfig;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.WidgetTreePlugin;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -51,7 +65,7 @@ public class JEVisTreeFactory {
     public final static KeyCombination findNode = KeyCodeCombination.keyCombination("Ctrl+F");
     public final static KeyCombination findAgain = new KeyCodeCombination(KeyCode.F3);
     private static final Logger logger = LogManager.getLogger(JEVisTreeFactory.class);
-
+    public static ExecutorService executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
 
     public static void addDefaultKeys(JEVisTree tree) {
 
@@ -171,6 +185,58 @@ public class JEVisTreeFactory {
         tree.getSortOrder().addAll(nameCol);
         tree.setSortMode(TreeSortMode.ALL_DESCENDANTS);
 
+
+        if (JEConfig.getExpert()) {
+
+            try {
+                List<JEVisClass> prioClasses = new ArrayList<>();
+                List<JEVisClass> allClasses = ds.getJEVisClasses();
+                List<String> allAttributes = new ArrayList<>();
+                List<String> prioAttribute = new ArrayList<>();
+                /** first we high prio Classes **/
+                prioClasses.add(ds.getJEVisClass("Clean Data"));
+                prioClasses.forEach(jeVisClass -> {
+                    try {
+                        jeVisClass.getTypes().forEach(jeVisType -> {
+                            try {
+                                addAttributeSave(prioAttribute, jeVisType.getName());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
+                allClasses.forEach(jeVisClass -> {
+                    try {
+                        jeVisClass.getTypes().forEach(jeVisType -> {
+                            try {
+                                addAttributeSave(allAttributes, jeVisType.getName());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+                Collections.sort(allAttributes);
+
+                List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = createAttributeColumns(prioAttribute);
+                attributeColumns.addAll(createAttributeColumns(allAttributes));
+//                List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = xAttributeColumn(allAttributes);
+                tree.getColumns().addAll(attributeColumns);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+
         if (withMinMaxTSColumn) {
             tree.getColumns().addAll(minTS, maxTS);
         }
@@ -196,8 +262,7 @@ public class JEVisTreeFactory {
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_MANIPULATION, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_AGGREGATION, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_CLEANING, dataFilter);
-
-
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_ENPI, dataFilter);
         JEVisTree tree = new JEVisTree(ds, cellFilter);
 
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
@@ -306,6 +371,106 @@ public class JEVisTreeFactory {
             }
         });
 
+
+    }
+
+    public static List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> createAttributeColumns(List<String> attributes) {
+        Callback treeTableColumnCallback = new Callback<TreeTableColumn<JEVisTreeRow, JEVisAttribute>, TreeTableCell<JEVisTreeRow, JEVisAttribute>>() {
+            @Override
+            public TreeTableCell<JEVisTreeRow, JEVisAttribute> call(TreeTableColumn<JEVisTreeRow, JEVisAttribute> param) {
+                TreeTableCell<JEVisTreeRow, JEVisAttribute> cell = new TreeTableCell<JEVisTreeRow, JEVisAttribute>() {
+
+
+                    @Override
+                    protected void updateItem(JEVisAttribute item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null && !empty) {
+                            Platform.runLater(() -> {
+                                setText("Lade..");
+                            });
+                            Task updateTask = new Task() {
+                                @Override
+                                protected Object call() throws Exception {
+                                    try {
+                                        JEVisSample lastSample = item.getLatestSample();
+                                        Platform.runLater(() -> {
+                                            try {
+                                                if (lastSample != null) {
+                                                    setText(lastSample.getValueAsString());
+                                                } else {
+                                                    setText("");
+                                                }
+
+                                            } catch (Exception ex) {
+                                                logger.error(ex);
+                                            }
+                                        });
+                                    } catch (Exception ex) {
+                                        logger.error(ex);
+                                        ex.printStackTrace();
+                                    }
+                                    return null;
+                                }
+                            };
+
+                            executor.execute(updateTask);
+
+                        }
+
+                    }
+                };
+                return cell;
+            }
+        };
+        Callback valueFactory = new Callback<TreeTableColumn.CellDataFeatures<JEVisTreeRow, JEVisAttribute>, ObservableValue<JEVisAttribute>>() {
+            @Override
+            public ObservableValue<JEVisAttribute> call(TreeTableColumn.CellDataFeatures<JEVisTreeRow, JEVisAttribute> param) {
+                try {
+                    if (param.getValue() != null && param.getValue().getValue() != null && param.getValue().getValue().getJEVisObject() != null) {
+                        JEVisAttribute att = param.getValue().getValue().getJEVisObject().getAttribute(param.getTreeTableColumn().getId());
+                        if (att != null) {
+                            return new ReadOnlyObjectWrapper<>(att);
+                        }
+                    }
+
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+
+                return new SimpleObjectProperty<>(null);
+            }
+        };
+
+        List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> result = new ArrayList<>();
+        for (String attribute : attributes) {
+            TreeTableColumn<JEVisTreeRow, JEVisAttribute> column = new TreeTableColumn<>(attribute);
+            column.setId(attribute);
+
+            column.setCellValueFactory(valueFactory);
+            column.setCellFactory(treeTableColumnCallback);
+
+
+            column.setVisible(false);
+            result.add(column);
+        }
+        return result;
+    }
+
+
+    /**
+     * Add an new attribute to the list id it does not allready exists.
+     * TODO: for now we only check by name but we also need to check of its the same class or inherited.
+     */
+    public static void addAttributeSave(List<String> types, String type) {
+        boolean contains = false;
+        for (String attribute : types) {
+            if (attribute.equals(type)) {
+                contains = true;
+            }
+        }
+        if (!contains) {
+            types.add(type);
+        }
 
     }
 }

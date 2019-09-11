@@ -174,7 +174,7 @@ public class RelationshipTable extends TableView {
                                 setStyle("-fx-background-color: transparent; ");
                             }
                         } catch (Exception ex) {
-                            logger.error("Error in direction cell update: {}:{}", item, ex);
+                            logger.error("Error in direction cell updateData: {}:{}", item, ex);
                         }
                     }
                 };

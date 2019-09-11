@@ -177,6 +177,7 @@ public class JEVisObjectWS implements JEVisObject {
                     }
                 }
             } catch (Exception ex) {
+                ex.printStackTrace();
                 logger.error(ex);
             }
         }

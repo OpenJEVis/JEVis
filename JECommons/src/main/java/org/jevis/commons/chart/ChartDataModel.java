@@ -48,6 +48,7 @@ public class ChartDataModel {
     private boolean isStringData = false;
     private double timeFactor = 1.0;
     private Double scaleFactor = 1d;
+    private boolean fillZeroes = true;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -84,8 +85,17 @@ public class ChartDataModel {
         this.unit = _unit;
     }
 
+    /**
+     * Workaround by FS, Nils says the we dont want filling with zeroes and it also
+     * makes problems with the avg in the Dashboard but we cannot remove this because
+     * the Graph will not work on the x axis with multiple charts.
+     **/
+    public void setFillZeroes(boolean fillZeroes) {
+        this.fillZeroes = fillZeroes;
+    }
+
     public List<JEVisSample> getSamples() {
-        if (somethingChanged) {
+        if (this.somethingChanged) {
             getAttribute();
             /** i thing we will not need to reload the attribute, because we dont use getMin/Max-TS **/
             //dataSource.reloadAttribute(attribute);
@@ -108,6 +118,7 @@ public class ChartDataModel {
                         if (!isStringData) {
                             samples = factorizeSamples(samples);
                         }
+
 
                         AddZerosForMissingValues();
                     } else {
@@ -139,7 +150,7 @@ public class ChartDataModel {
                 }
             }
         }
-        logger.debug("ChartDataModel: sample.size: {} Aggregation:  {} EnPI: {} absolute: {} {}/{}  {}-{} ", samples.size(), aggregationPeriod, isEnPI, absolute, getAttribute().getObjectID(), getAttribute().getName(), selectedStart, selectedEnd);
+//        logger.debug("ChartDataModel: sample.size: {} Aggregation:  {} EnPI: {} absolute: {} {}/{}  {}-{} ", samples.size(), aggregationPeriod, isEnPI, absolute, getAttribute().getObjectID(), getAttribute().getName(), selectedStart, selectedEnd);
 
         return samples;
     }
@@ -149,6 +160,10 @@ public class ChartDataModel {
     }
 
     private void AddZerosForMissingValues() throws JEVisException {
+        if (!fillZeroes) {
+            return;
+        }
+
         if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE) && aggregationPeriod.equals(AggregationPeriod.NONE)) {
             Period displaySampleRate = getAttribute().getDisplaySampleRate();
             if (displaySampleRate != null && displaySampleRate != Period.ZERO && displaySampleRate.toStandardDuration().getMillis() > 0) {
@@ -173,6 +188,27 @@ public class ChartDataModel {
                 }
             }
         }
+    }
+
+
+    /**
+     * Workaround from FS, Gerrit find the right solution.
+     * This workaround is for the chart Sum function because it never calls the geSample with change function
+     * the scaleFactor is never set.
+     * <p>
+     * calling the factorizeSamples will add factor and will aso not work
+     *
+     * @throws JEVisException
+     */
+    public void updateScaleFactor() throws JEVisException {
+        String outputUnit = UnitManager.getInstance().format(unit).replace("·", "");
+        if (outputUnit.equals("")) outputUnit = unit.getLabel();
+
+        String inputUnit = UnitManager.getInstance().format(attribute.getDisplayUnit()).replace("·", "");
+        if (inputUnit.equals("")) inputUnit = attribute.getDisplayUnit().getLabel();
+
+        ChartUnits cu = new ChartUnits();
+        scaleFactor = cu.scaleValue(inputUnit, outputUnit);
     }
 
     private List<JEVisSample> factorizeSamples(List<JEVisSample> inputList) throws JEVisException {

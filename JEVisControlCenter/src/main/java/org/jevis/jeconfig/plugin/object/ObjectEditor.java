@@ -180,10 +180,13 @@ public class ObjectEditor {
 
                     //Generic Extensions every Class has
                     //TODO: make an better logic to decide/configure the extension order
-                    installedExtensions.add(new GenericAttributeExtension(obj, tree));
-                    installedExtensions.add(new PermissionExtension(obj));
-                    installedExtensions.add(new RootExtension(obj));
-                    installedExtensions.add(new LinkExtension(obj));
+                    this.installedExtensions.add(new GenericAttributeExtension(obj, this.tree));
+                    if (JEConfig.getExpert()) {
+                        this.installedExtensions.add(new ChildrenEditorPlugin(obj));
+                    }
+                    this.installedExtensions.add(new PermissionExtension(obj));
+                    this.installedExtensions.add(new RootExtension(obj));
+                    this.installedExtensions.add(new LinkExtension(obj));
 
                     activeExtensions = new ArrayList<>();
 

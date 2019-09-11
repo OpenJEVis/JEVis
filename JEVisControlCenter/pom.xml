@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.8.23</version>
+    <version>3.8.24</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -15,6 +15,7 @@
         <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
         <additionalparam>-Xdoclint:none</additionalparam>
         <skipjnlp>none</skipjnlp>
+        <openfx.version>11.0.2</openfx.version>
     </properties>
 
     <organization>
@@ -174,7 +175,8 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-
         </plugins>
+
+
     </build>
 </project>

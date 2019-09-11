@@ -21,7 +21,7 @@ public class I18n {
     private Locale locale = LocaleBeanUtils.getDefaultLocale();
     private PropertyResourceBundle bundle;
     private ResourceBundle defaultBundle;
-    Reader reader;
+    private Reader reader;
 
     public static synchronized I18n getInstance() {
         if (i18n == null)
@@ -30,11 +30,11 @@ public class I18n {
     }
 
     public I18n() {
-        defaultBundle = ResourceBundle.getBundle("JEVisCC", Locale.ENGLISH);
+        this.defaultBundle = ResourceBundle.getBundle("JEVisCC", Locale.ENGLISH);
     }
 
     public ResourceBundle getBundle() {
-        return bundle;
+        return this.bundle;
     }
 
     public void loadBundle(Locale local) {
@@ -47,8 +47,8 @@ public class I18n {
             InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(s);
             if (resourceAsStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8);
-                reader = new BufferedReader(inputStreamReader);
-                bundle = new PropertyResourceBundle(reader);
+                this.reader = new BufferedReader(inputStreamReader);
+                this.bundle = new PropertyResourceBundle(this.reader);
             }
         } catch (UnsupportedEncodingException e) {
             logger.error("Unsupported encoding exception. Error while reading resource file.", e);
@@ -72,13 +72,13 @@ public class I18n {
      */
     public String getString(String key, Object... arguments) {
         try {
-            return String.format(bundle.getString(key), arguments);
+            return String.format(this.bundle.getString(key), arguments);
         } catch (NullPointerException | java.util.MissingResourceException np) {
-            logger.info("Missing translation [" + locale.getLanguage() + "] Key: " + key);
+            logger.info("Missing translation [" + this.locale.getLanguage() + "] Key: " + key);
             try {
-                return String.format(defaultBundle.getString(key), arguments);
+                return String.format(this.defaultBundle.getString(key), arguments);
             } catch (NullPointerException | java.util.MissingResourceException np1) {
-                logger.info("Missing translation [" + locale.getLanguage() + "] Key: " + key);
+                logger.info("Missing translation [" + this.locale.getLanguage() + "] Key: " + key);
                 return "*" + key + "*";
             }
         }
@@ -86,13 +86,13 @@ public class I18n {
 
     public String getString(String key) {
         try {
-            return bundle.getString(key);
+            return this.bundle.getString(key);
         } catch (NullPointerException | java.util.MissingResourceException np) {
-            logger.info("Missing translation [" + locale.getLanguage() + "] Key: " + key + "");
+            logger.info("Missing translation [" + this.locale.getLanguage() + "] Key: " + key + "");
             try {
-                return defaultBundle.getString(key);
+                return this.defaultBundle.getString(key);
             } catch (NullPointerException | java.util.MissingResourceException np2) {
-                logger.info("Missing translation [" + locale.getLanguage() + "] Key: " + key);
+                logger.info("Missing translation [" + this.locale.getLanguage() + "] Key: " + key);
                 return "*" + key + "*";
             }
         }

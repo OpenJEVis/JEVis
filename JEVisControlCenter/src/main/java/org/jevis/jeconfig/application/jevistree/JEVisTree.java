@@ -160,7 +160,7 @@ public class JEVisTree extends TreeTableView {
     }
 
     public UUID getUUID() {
-        return uuid;
+        return this.uuid;
     }
 
     public void reload() {
@@ -168,11 +168,15 @@ public class JEVisTree extends TreeTableView {
     }
 
     public List<JEVisObject> getVisibleObjects() {
-        return itemLoader.getVisibleObjects();
+        return this.itemLoader.getVisibleObjects();
     }
 
     public JEVisTreeItem getItemForObject(JEVisObject obj) {
-        return itemLoader.getItemForObject(obj);
+        return this.itemLoader.getItemForObject(obj);
+    }
+
+    public List<JEVisTreeItem> getItems() {
+        return new ArrayList<>(this.itemLoader.getAllItems());
     }
 
     public void openPathToObject(JEVisObject obj) {
@@ -219,14 +223,14 @@ public class JEVisTree extends TreeTableView {
      */
     private void init() {
         try {
-            itemLoader = new JEVisItemLoader(this, ds.getObjects(), ds.getRootObjects());
-            itemLoader.filterTree(cellFilter);
+            this.itemLoader = new JEVisItemLoader(this, this.ds.getObjects(), this.ds.getRootObjects());
+            this.itemLoader.filterTree(this.cellFilter);
             setShowRoot(false);
 
             setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
             setTableMenuButtonVisible(true);
 
-            plugins.addListener(this::onChanged);
+            this.plugins.addListener(this::onChanged);
 
         } catch (Exception ex) {
             logger.fatal(ex);
@@ -235,7 +239,7 @@ public class JEVisTree extends TreeTableView {
 
     @Deprecated
     public JEVisTreeRow getDragRow() {
-        return dragItem;
+        return this.dragItem;
     }
 
     public void setDragRow(JEVisTreeRow row) {
@@ -243,11 +247,11 @@ public class JEVisTree extends TreeTableView {
     }
 
     public JEVisDataSource getJEVisDataSource() {
-        return ds;
+        return this.ds;
     }
 
     public ObservableList<JEVisObject> getHighlighterList() {
-        return highlighterList;
+        return this.highlighterList;
     }
 
     public void openUserSelection(List<UserSelection> selection) {
@@ -314,14 +318,14 @@ public class JEVisTree extends TreeTableView {
     }
 
     public ObservableList<TreePlugin> getPlugins() {
-        return plugins;
+        return this.plugins;
     }
 
     //    public ObservableList<ViewFilter> getFilter(){
 //        return filter;
 //    }
     public void setUserSelectionEnded() {
-        for (TreePlugin plugin : plugins) {
+        for (TreePlugin plugin : this.plugins) {
             plugin.selectionFinished();
         }
     }
@@ -336,7 +340,7 @@ public class JEVisTree extends TreeTableView {
     }
 
     public JEVisObject getCopyObject() {
-        return copyObject;
+        return this.copyObject;
     }
 
     public void setCopyObject(JEVisObject obj, boolean cut) {
@@ -345,7 +349,7 @@ public class JEVisTree extends TreeTableView {
     }
 
     public boolean isCut() {
-        return isCut;
+        return this.isCut;
     }
 
     private TreeTableColumn findColumn(TreeTableColumn parentColumn, String columnName) {
@@ -382,7 +386,7 @@ public class JEVisTree extends TreeTableView {
     }
 
     public SearchFilterBar getSearchFilterBar() {
-        return searchBar;
+        return this.searchBar;
     }
 
     public void setSearchFilterBar(SearchFilterBar searchBar) {

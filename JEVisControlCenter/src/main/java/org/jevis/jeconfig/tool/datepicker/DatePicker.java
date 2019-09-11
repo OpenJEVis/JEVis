@@ -269,7 +269,7 @@ public class DatePicker extends HBox {
      * Updates the text field.
      */
     private void updateTextField() {
-        // Mark the we update the text field (and not the user), so that it can be ignored, by textField.textProperty()
+        // Mark the we updateData the text field (and not the user), so that it can be ignored, by textField.textProperty()
         textSetProgrammatically = true;
         if (selectedDateProperty().get() != null) {
             String date = getActualDateFormat().format(selectedDateProperty().get());

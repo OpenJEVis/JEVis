@@ -202,13 +202,8 @@ public class XYChart implements Chart {
                 JsonObject json = new JsonObject();
                 json.setId(9999999999L);
                 json.setName("~" + I18n.getInstance().getString("plugin.graph.table.sum"));
-                JEVisObject test = null;
-                JEVisObject old = chartDataModels.get(0).getObject().getDataSource().getObject(9999999999L);
-                if (old != null) {
-                    test = old;
-                } else {
-                    test = new JEVisObjectWS((JEVisDataSourceWS) chartDataModels.get(0).getObject().getDataSource(), json);
-                }
+                JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) chartDataModels.get(0).getObject().getDataSource(), json);
+
                 sumModel.setObject(test);
                 sumModel.setAxis(1);
                 sumModel.setColor(Color.BLACK);
@@ -946,6 +941,7 @@ public class XYChart implements Chart {
         this.maxValue = maxValue;
     }
 
+    @Override
     public DateTime getNearest() {
         return nearest;
     }
