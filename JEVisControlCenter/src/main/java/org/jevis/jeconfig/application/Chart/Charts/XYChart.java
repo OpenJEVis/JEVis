@@ -201,8 +201,9 @@ public class XYChart implements Chart {
             try {
                 JsonObject json = new JsonObject();
                 json.setId(9999999999L);
-                json.setName(I18n.getInstance().getString("plugin.graph.table.sum"));
+                json.setName("~" + I18n.getInstance().getString("plugin.graph.table.sum"));
                 JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) chartDataModels.get(0).getObject().getDataSource(), json);
+
                 sumModel.setObject(test);
                 sumModel.setAxis(1);
                 sumModel.setColor(Color.BLACK);
@@ -249,14 +250,13 @@ public class XYChart implements Chart {
                 logger.error("Could not generate sum of data rows: ", e);
             }
             try {
+                chart.getData().forEach(serie -> ((MultiAxisChart.Series) serie).getData().forEach(numberNumberData -> {
+                    MultiAxisChart.Data node = (MultiAxisChart.Data) numberNumberData;
+                    node.setExtraValue(0);
+                }));
+
                 xyChartSerieList.add(generateSerie(changedBoth, sumModel));
 
-                Platform.runLater(() -> {
-                    chart.getData().forEach(serie -> ((MultiAxisChart.Series) serie).getData().forEach(numberNumberData -> {
-                        MultiAxisChart.Data node = (MultiAxisChart.Data) numberNumberData;
-                        node.setExtraValue(0);
-                    }));
-                });
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
@@ -941,6 +941,7 @@ public class XYChart implements Chart {
         this.maxValue = maxValue;
     }
 
+    @Override
     public DateTime getNearest() {
         return nearest;
     }

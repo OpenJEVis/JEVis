@@ -74,7 +74,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     public void buildColumn() {
 
         AtomicReference<String> chartName = new AtomicReference<>();
-        ChartSettings currentChartSetting = null;
+        ChartSettings currentChartSetting = new ChartSettings("");
 
         for (ChartSettings set : getData().getCharts()) {
             if (set.getId().equals(getChartId())) {
@@ -111,7 +111,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
 
         ChartTypeComboBox comboBoxChartType = new ChartTypeComboBox(currentChartSetting);
         comboBoxChartType.setDisable(true);
-
+        comboBoxChartType.setPrefWidth(114);
 
         vbox.getChildren().addAll(textFieldChartName, comboBoxChartType);
 
@@ -122,29 +122,29 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
             @Override
             public TreeTableCell<JEVisTreeRow, Boolean> call(TreeTableColumn<JEVisTreeRow, Boolean> param) {
 
-                TreeTableCell<JEVisTreeRow, Boolean> cell = new TreeTableCell<JEVisTreeRow, Boolean>() {
+                return new TreeTableCell<JEVisTreeRow, Boolean>() {
 
 
                     @Override
                     public void commitEdit(Boolean newValue) {
                         super.commitEdit(newValue);
                         getTreeTableRow().getItem().setSelected(newValue);
-                        ChartDataModel data = getData(getTreeTableRow().getItem());
+                        ChartDataModel data1 = getData(getTreeTableRow().getItem());
 
                         if (newValue) {
-                            if (!data.getSelectedcharts().contains(getChartId())) {
+                            if (!data1.getSelectedcharts().contains(getChartId())) {
 
-                                data.getSelectedcharts().add(getChartId());
+                                data1.getSelectedcharts().add(getChartId());
                             }
                         } else {
                             Integer toBeRemoved = null;
-                            for (Integer i : data.getSelectedcharts()) {
+                            for (Integer i : data1.getSelectedcharts()) {
                                 if (i.equals(getChartId())) {
                                     toBeRemoved = i;
                                     break;
                                 }
                             }
-                            data.getSelectedcharts().remove(toBeRemoved);
+                            data1.getSelectedcharts().remove(toBeRemoved);
                         }
 
                     }
@@ -166,7 +166,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                     checkBox.setSelected(item);
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    ChartDataModel data1 = getData(getTreeTableRow().getItem());
 
                                     stackPane.getChildren().setAll(checkBox);
                                     StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
@@ -179,7 +179,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                 /**
                                                  * if the checkbox is selected, get a color for it
                                                  */
-                                                data.setColor(colorColumn.getNextColor());
+                                                data1.setColor(colorColumn.getNextColor());
                                                 Platform.runLater(() -> {
                                                     JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
                                                     getTreeTableRow().getTreeItem().setValue(sobj);
@@ -201,8 +201,8 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                 /**
                                                  * if the box is unselected and no other selected, remove the color
                                                  */
-                                                colorColumn.removeUsedColor(data.getColor());
-                                                data.setColor(colorColumn.getStandardColor());
+                                                colorColumn.removeUsedColor(data1.getColor());
+                                                data1.setColor(colorColumn.getStandardColor());
                                                 Platform.runLater(() -> {
                                                     JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
                                                     getTreeTableRow().getTreeItem().setValue(sobj);
@@ -299,11 +299,11 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                         }
                     }
 
-                    private void setFieldsEditable(TextField textFieldChartName, DisabledItemsComboBox<String> comboBoxChartType, Boolean item) {
+                    private void setFieldsEditable(TextField textFieldChartName1, DisabledItemsComboBox<String> comboBoxChartType1, Boolean item) {
                         if (item) {
-                            textFieldChartName.setEditable(true);
-                            textFieldChartName.setDisable(false);
-                            comboBoxChartType.setDisable(false);
+                            textFieldChartName1.setEditable(true);
+                            textFieldChartName1.setDisable(false);
+                            comboBoxChartType1.setDisable(false);
                         } else {
                             AtomicReference<Boolean> foundSelected = new AtomicReference<>(false);
                             getData().getSelectedData().forEach(mdl -> {
@@ -314,18 +314,17 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                 }
                             });
                             if (foundSelected.get()) {
-                                textFieldChartName.setEditable(true);
-                                textFieldChartName.setDisable(false);
-                                comboBoxChartType.setDisable(false);
+                                textFieldChartName1.setEditable(true);
+                                textFieldChartName1.setDisable(false);
+                                comboBoxChartType1.setDisable(false);
                             } else {
-                                textFieldChartName.setEditable(false);
-                                textFieldChartName.setDisable(true);
-                                comboBoxChartType.setDisable(true);
+                                textFieldChartName1.setEditable(false);
+                                textFieldChartName1.setDisable(true);
+                                comboBoxChartType1.setDisable(true);
                             }
                         }
                     }
                 };
-                return cell;
             }
         });
 

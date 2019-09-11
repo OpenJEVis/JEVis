@@ -64,7 +64,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
     static String DEFAULT_COLOR = "default-color";
     final Map<MultiAxisChart.Series<X, Y>, Integer> seriesColorMap = new HashMap<>();
     // to indicate which colors are being used for the series
-    private final BitSet colorBits = new BitSet(8);
+    private final BitSet colorBits = new BitSet(32);
     private final Line verticalZeroLine = new Line();
     private final Line horizontalZeroLine = new Line();
     private final Path verticalGridLines = new Path();
@@ -108,7 +108,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         while (c.next()) {
 
             if (c.wasPermutated()) {
-                this.displayedSeries.sort((o1, o2) -> series.indexOf(o2) - series.indexOf(o1));
+                displayedSeries.sort((o1, o2) -> series.indexOf(o2) - series.indexOf(o1));
             }
 
             if (c.getRemoved().size() > 0)
@@ -128,8 +128,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             for (MultiAxisChart.Series<X, Y> s : c.getRemoved()) {
                 s.setToRemove = true;
                 seriesRemoved(s);
-                int idx = this.seriesColorMap.remove(s);
-                this.colorBits.clear(idx);
+                int idx = seriesColorMap.remove(s);
+                colorBits.clear(idx);
             }
 
             for (int i = c.getFrom(); i < c.getTo() && !c.wasPermutated(); i++) {
@@ -141,12 +141,12 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                     s.getChart().seriesBeingRemovedIsAdded(s);
                 }
                 // update linkedList Pointers for series
-                this.displayedSeries.add(s);
+                displayedSeries.add(s);
                 // update default color style class
-                int nextClearBit = this.colorBits.nextClearBit(0);
-                this.colorBits.set(nextClearBit, true);
+                int nextClearBit = colorBits.nextClearBit(0);
+                colorBits.set(nextClearBit, true);
                 s.defaultColorStyleClass = DEFAULT_COLOR + (nextClearBit % 8);
-                this.seriesColorMap.put(s, nextClearBit % 8);
+                seriesColorMap.put(s, nextClearBit % 8);
                 // inform sub-classes of series added
                 seriesAdded(s, i);
             }
@@ -171,27 +171,27 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             final ObservableList<MultiAxisChart.Series<X, Y>> current = getValue();
             int saveAnimationState = -1;
             // add remove listeners
-            if (this.old != null) {
-                this.old.removeListener(MultiAxisChart.this.seriesChanged);
+            if (old != null) {
+                old.removeListener(seriesChanged);
                 // Set animated to false so we don't animate both remove and add
                 // at the same time. RT-14163
                 // RT-21295 - disable animated only when current is also not null.
-                if (current != null && this.old.size() > 0) {
-                    saveAnimationState = (this.old.get(0).getChart().getAnimated()) ? 1 : 2;
-                    this.old.get(0).getChart().setAnimated(false);
+                if (current != null && old.size() > 0) {
+                    saveAnimationState = (old.get(0).getChart().getAnimated()) ? 1 : 2;
+                    old.get(0).getChart().setAnimated(false);
                 }
             }
             if (current != null)
-                current.addListener(MultiAxisChart.this.seriesChanged);
+                current.addListener(seriesChanged);
             // fire series change event if series are added or removed
-            if (this.old != null || current != null) {
-                final List<MultiAxisChart.Series<X, Y>> removed = (this.old != null) ? this.old
+            if (old != null || current != null) {
+                final List<MultiAxisChart.Series<X, Y>> removed = (old != null) ? old
                         : Collections.emptyList();
                 final int toIndex = (current != null) ? current.size() : 0;
                 // let series listener know all old series have been removed and new that have
                 // been added
                 if (toIndex > 0 || !removed.isEmpty()) {
-                    MultiAxisChart.this.seriesChanged.onChanged(new NonIterableChange<MultiAxisChart.Series<X, Y>>(0, toIndex, current) {
+                    seriesChanged.onChanged(new NonIterableChange<MultiAxisChart.Series<X, Y>>(0, toIndex, current) {
                         @Override
                         public List<MultiAxisChart.Series<X, Y>> getRemoved() {
                             return removed;
@@ -203,9 +203,9 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                         }
                     });
                 }
-            } else if (this.old != null && this.old.size() > 0) {
+            } else if (old != null && old.size() > 0) {
                 // let series listener know all old series have been removed
-                MultiAxisChart.this.seriesChanged.onChanged(new NonIterableChange<MultiAxisChart.Series<X, Y>>(0, 0, current) {
+                seriesChanged.onChanged(new NonIterableChange<MultiAxisChart.Series<X, Y>>(0, 0, current) {
                     @Override
                     public List<MultiAxisChart.Series<X, Y>> getRemoved() {
                         return old;
@@ -221,7 +221,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             if (current != null && current.size() > 0 && saveAnimationState != -1) {
                 current.get(0).getChart().setAnimated(saveAnimationState == 1);
             }
-            this.old = current;
+            old = current;
         }
 
         @Override
@@ -419,10 +419,10 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             updateAxisRange();
         });
 
-        this.formulaLabel.setAlignment(Pos.TOP_LEFT);
+        formulaLabel.setAlignment(Pos.TOP_LEFT);
 
         // add initial content to chart content
-        getChartChildren().addAll(this.plotBackground, this.plotArea, xAxis, y1Axis);
+        getChartChildren().addAll(plotBackground, plotArea, xAxis, y1Axis);
 
         if (y2Axis != null) {
             y2Axis.visibleProperty().addListener(e -> {
@@ -436,29 +436,30 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         }
 
         // We don't want plotArea or plotContent to autoSize or do layout
-        this.plotArea.setAutoSizeChildren(false);
-        this.plotContent.setAutoSizeChildren(false);
+        plotArea.setAutoSizeChildren(false);
+        plotContent.setAutoSizeChildren(false);
         // setup clipping on plot area
-        this.plotAreaClip.setSmooth(false);
-        this.plotArea.setClip(this.plotAreaClip);
+        plotAreaClip.setSmooth(false);
+        plotArea.setClip(plotAreaClip);
 
         // add children to plot area
-        this.plotArea.getChildren().addAll(this.verticalRowFill, this.horizontalRowFill, this.verticalGridLines, this.horizontalGridLines,
-                this.verticalZeroLine, this.horizontalZeroLine, this.plotContent);
-        this.plotContent.getChildren().addAll(this.flowPaneY1Formulas, this.flowPaneY2Formulas);
+        plotArea.getChildren().addAll(verticalRowFill, horizontalRowFill, verticalGridLines, horizontalGridLines,
+                verticalZeroLine, horizontalZeroLine, plotContent);
+        plotContent.getChildren().addAll(flowPaneY1Formulas, flowPaneY2Formulas);
         // setup css style classes
-        this.plotContent.getStyleClass().setAll("plot-content");
-        this.plotBackground.getStyleClass().setAll("chart-plot-background");
-        this.verticalRowFill.getStyleClass().setAll("chart-alternative-column-fill");
-        this.horizontalRowFill.getStyleClass().setAll("chart-alternative-row-fill");
-        this.verticalGridLines.getStyleClass().setAll("chart-vertical-grid-lines");
-        this.horizontalGridLines.getStyleClass().setAll("chart-horizontal-grid-lines");
-        this.verticalZeroLine.getStyleClass().setAll("chart-vertical-zero-line");
-        this.horizontalZeroLine.getStyleClass().setAll("chart-horizontal-zero-line");
+        this.getStylesheets().add(MultiAxisChart.class.getResource("/styles/charts.css").toExternalForm());
+        plotContent.getStyleClass().setAll("plot-content");
+        plotBackground.getStyleClass().setAll("chart-plot-background");
+        verticalRowFill.getStyleClass().setAll("chart-alternative-column-fill");
+        horizontalRowFill.getStyleClass().setAll("chart-alternative-row-fill");
+        verticalGridLines.getStyleClass().setAll("chart-vertical-grid-lines");
+        horizontalGridLines.getStyleClass().setAll("chart-horizontal-grid-lines");
+        verticalZeroLine.getStyleClass().setAll("chart-vertical-zero-line");
+        horizontalZeroLine.getStyleClass().setAll("chart-horizontal-zero-line");
         // mark plotContent as unmanaged as its preferred size changes do not effect our
         // layout
-        this.plotContent.setManaged(false);
-        this.plotArea.setManaged(false);
+        plotContent.setManaged(false);
+        plotArea.setManaged(false);
         // listen to animation on/off and sync to axis
         animatedProperty().addListener((valueModel, oldValue, newValue) -> {
             if (getXAxis() != null)
@@ -475,33 +476,33 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
      * Get the X axis, by default it is along the bottom of the plot
      */
     public Axis<X> getXAxis() {
-        return this.xAxis;
+        return xAxis;
     }
 
     /**
      * Get the Y1 axis, by default it is along the left of the plot
      */
     public Axis<Y> getY1Axis() {
-        return this.y1Axis;
+        return y1Axis;
     }
 
     /**
      * Get the Y2 axis, by default it is along the right of the plot
      */
     public Axis<Y> getY2Axis() {
-        return this.y2Axis;
+        return y2Axis;
     }
 
     public final ObservableList<MultiAxisChart.Series<X, Y>> getData() {
-        return this.data.getValue();
+        return data.getValue();
     }
 
     public final void setData(ObservableList<MultiAxisChart.Series<X, Y>> value) {
-        this.data.setValue(value);
+        data.setValue(value);
     }
 
     public final ObjectProperty<ObservableList<MultiAxisChart.Series<X, Y>>> dataProperty() {
-        return this.data;
+        return data;
     }
 
     /**
@@ -511,75 +512,75 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
      * @see #verticalGridLinesVisible
      */
     public final boolean getVerticalGridLinesVisible() {
-        return this.verticalGridLinesVisible.get();
+        return verticalGridLinesVisible.get();
     }
 
     public final void setVerticalGridLinesVisible(boolean value) {
-        this.verticalGridLinesVisible.set(value);
+        verticalGridLinesVisible.set(value);
     }
 
     public final BooleanProperty verticalGridLinesVisibleProperty() {
-        return this.verticalGridLinesVisible;
+        return verticalGridLinesVisible;
     }
 
     public final boolean isHorizontalGridLinesVisible() {
-        return this.horizontalGridLinesVisible.get();
+        return horizontalGridLinesVisible.get();
     }
 
     public final void setHorizontalGridLinesVisible(boolean value) {
-        this.horizontalGridLinesVisible.set(value);
+        horizontalGridLinesVisible.set(value);
     }
 
     public final BooleanProperty horizontalGridLinesVisibleProperty() {
-        return this.horizontalGridLinesVisible;
+        return horizontalGridLinesVisible;
     }
 
     public final boolean isAlternativeColumnFillVisible() {
-        return this.alternativeColumnFillVisible.getValue();
+        return alternativeColumnFillVisible.getValue();
     }
 
     public final void setAlternativeColumnFillVisible(boolean value) {
-        this.alternativeColumnFillVisible.setValue(value);
+        alternativeColumnFillVisible.setValue(value);
     }
 
     public final BooleanProperty alternativeColumnFillVisibleProperty() {
-        return this.alternativeColumnFillVisible;
+        return alternativeColumnFillVisible;
     }
 
     public final boolean isAlternativeRowFillVisible() {
-        return this.alternativeRowFillVisible.getValue();
+        return alternativeRowFillVisible.getValue();
     }
 
     public final void setAlternativeRowFillVisible(boolean value) {
-        this.alternativeRowFillVisible.setValue(value);
+        alternativeRowFillVisible.setValue(value);
     }
 
     public final BooleanProperty alternativeRowFillVisibleProperty() {
-        return this.alternativeRowFillVisible;
+        return alternativeRowFillVisible;
     }
 
     public final boolean isVerticalZeroLineVisible() {
-        return this.verticalZeroLineVisible.get();
+        return verticalZeroLineVisible.get();
     }
 
     public final void setVerticalZeroLineVisible(boolean value) {
-        this.verticalZeroLineVisible.set(value);
+        verticalZeroLineVisible.set(value);
     }
 
     public final BooleanProperty verticalZeroLineVisibleProperty() {
-        return this.verticalZeroLineVisible;
+        return verticalZeroLineVisible;
     }
 
     public final boolean isHorizontalZeroLineVisible() {
-        return this.horizontalZeroLineVisible.get();
+        return horizontalZeroLineVisible.get();
     }
 
     public final void setHorizontalZeroLineVisible(boolean value) {
-        this.horizontalZeroLineVisible.set(value);
+        horizontalZeroLineVisible.set(value);
     }
 
     public final BooleanProperty horizontalZeroLineVisibleProperty() {
-        return this.horizontalZeroLineVisible;
+        return horizontalZeroLineVisible;
     }
 
     // -------------- PROTECTED PROPERTIES ------------------------
@@ -623,7 +624,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
      * @return Observable list of plot children
      */
     protected ObservableList<Node> getPlotChildren() {
-        return this.plotContent.getChildren();
+        return plotContent.getChildren();
     }
 
     // -------------- METHODS -------------------------------------
@@ -640,7 +641,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         if (series != null)
             series.setToRemove = false;
         series.setChart(null);
-        this.displayedSeries.remove(series);
+        displayedSeries.remove(series);
     }
 
     /**
@@ -904,7 +905,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
      * invalid.
      */
     private void invalidateRange() {
-        this.rangeValid = false;
+        rangeValid = false;
     }
 
     /**
@@ -956,8 +957,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
     protected void layoutChartChildren(double top, double left, double width, double height) {
         if (getData() == null)
             return;
-        if (!this.rangeValid) {
-            this.rangeValid = true;
+        if (!rangeValid) {
+            rangeValid = true;
             if (getData() != null)
                 updateAxisRange();
         }
@@ -1053,77 +1054,77 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         final double yAxisZero = ya.getZeroPosition();
         // position vertical and horizontal zero lines
         if (Double.isNaN(xAxisZero) || !isVerticalZeroLineVisible()) {
-            this.verticalZeroLine.setVisible(false);
+            verticalZeroLine.setVisible(false);
         } else {
-            this.verticalZeroLine.setStartX(left + xAxisZero + 0.5);
-            this.verticalZeroLine.setStartY(top);
-            this.verticalZeroLine.setEndX(left + xAxisZero + 0.5);
-            this.verticalZeroLine.setEndY(top + yAxisHeight);
-            this.verticalZeroLine.setVisible(true);
+            verticalZeroLine.setStartX(left + xAxisZero + 0.5);
+            verticalZeroLine.setStartY(top);
+            verticalZeroLine.setEndX(left + xAxisZero + 0.5);
+            verticalZeroLine.setEndY(top + yAxisHeight);
+            verticalZeroLine.setVisible(true);
         }
         if (Double.isNaN(yAxisZero) || !isHorizontalZeroLineVisible()) {
-            this.horizontalZeroLine.setVisible(false);
+            horizontalZeroLine.setVisible(false);
         } else {
-            this.horizontalZeroLine.setStartX(left);
-            this.horizontalZeroLine.setStartY(top + yAxisZero + 0.5);
-            this.horizontalZeroLine.setEndX(left + xAxisWidth);
-            this.horizontalZeroLine.setEndY(top + yAxisZero + 0.5);
-            this.horizontalZeroLine.setVisible(true);
+            horizontalZeroLine.setStartX(left);
+            horizontalZeroLine.setStartY(top + yAxisZero + 0.5);
+            horizontalZeroLine.setEndX(left + xAxisWidth);
+            horizontalZeroLine.setEndY(top + yAxisZero + 0.5);
+            horizontalZeroLine.setVisible(true);
         }
 
         // layout plot background
-        this.plotBackground.resizeRelocate(left, top, xAxisWidth, yAxisHeight);
+        plotBackground.resizeRelocate(left, top, xAxisWidth, yAxisHeight);
         // update clip
-        this.plotAreaClip.setX(left);
-        this.plotAreaClip.setY(top);
-        this.plotAreaClip.setWidth(xAxisWidth + 1);
-        this.plotAreaClip.setHeight(yAxisHeight + 1);
+        plotAreaClip.setX(left);
+        plotAreaClip.setY(top);
+        plotAreaClip.setWidth(xAxisWidth + 1);
+        plotAreaClip.setHeight(yAxisHeight + 1);
         // plotArea.setClip(new Rectangle(left, top, xAxisWidth, yAxisHeight));
         // position plot group, its origin is the bottom left corner of the plot area
-        this.plotContent.setLayoutX(left);
-        this.plotContent.setLayoutY(top);
-        this.plotContent.requestLayout(); // Note: not sure this is right, maybe plotContent should be resizeable
-        this.flowPaneY1Formulas.toFront();
-        this.flowPaneY1Formulas.setAlignment(Pos.TOP_LEFT);
-        this.flowPaneY1Formulas.setPadding(new Insets(3, 0, 0, 3));
-        this.flowPaneY1Formulas.setLayoutX(0);
-        this.flowPaneY1Formulas.setLayoutY(0);
-        this.flowPaneY1Formulas.setPrefWidth(xAxisWidth / 2);
-        this.flowPaneY1Formulas.requestLayout();
-        this.flowPaneY2Formulas.toFront();
-        this.flowPaneY2Formulas.setAlignment(Pos.TOP_LEFT);
-        this.flowPaneY2Formulas.setPadding(new Insets(3, 0, 0, 3));
-        this.flowPaneY2Formulas.setLayoutX(xAxisWidth / 2);
-        this.flowPaneY2Formulas.setLayoutY(0);
-        this.flowPaneY2Formulas.setPrefWidth(xAxisWidth / 2);
-        this.flowPaneY2Formulas.requestLayout();
+        plotContent.setLayoutX(left);
+        plotContent.setLayoutY(top);
+        plotContent.requestLayout(); // Note: not sure this is right, maybe plotContent should be resizeable
+        flowPaneY1Formulas.toFront();
+        flowPaneY1Formulas.setAlignment(Pos.TOP_LEFT);
+        flowPaneY1Formulas.setPadding(new Insets(3, 0, 0, 3));
+        flowPaneY1Formulas.setLayoutX(0);
+        flowPaneY1Formulas.setLayoutY(0);
+        flowPaneY1Formulas.setPrefWidth(xAxisWidth / 2);
+        flowPaneY1Formulas.requestLayout();
+        flowPaneY2Formulas.toFront();
+        flowPaneY2Formulas.setAlignment(Pos.TOP_LEFT);
+        flowPaneY2Formulas.setPadding(new Insets(3, 0, 0, 3));
+        flowPaneY2Formulas.setLayoutX(xAxisWidth / 2);
+        flowPaneY2Formulas.setLayoutY(0);
+        flowPaneY2Formulas.setPrefWidth(xAxisWidth / 2);
+        flowPaneY2Formulas.requestLayout();
 
         // update vertical grid lines
-        this.verticalGridLines.getElements().clear();
+        verticalGridLines.getElements().clear();
         if (getVerticalGridLinesVisible()) {
             for (Axis.TickMark<X> tick : xaTickMarks) {
                 final double x = xa.getDisplayPosition(tick.getValue());
                 if ((x != xAxisZero || !isVerticalZeroLineVisible()) && x > 0 && x <= xAxisWidth) {
-                    this.verticalGridLines.getElements().add(new MoveTo(left + x + 0.5, top));
-                    this.verticalGridLines.getElements().add(new LineTo(left + x + 0.5, top + yAxisHeight));
+                    verticalGridLines.getElements().add(new MoveTo(left + x + 0.5, top));
+                    verticalGridLines.getElements().add(new LineTo(left + x + 0.5, top + yAxisHeight));
                 }
             }
         }
         // update horizontal grid lines
-        this.horizontalGridLines.getElements().clear();
+        horizontalGridLines.getElements().clear();
         if (isHorizontalGridLinesVisible()) {
             for (Axis.TickMark<Y> tick : yaTickMarks) {
                 final double y = ya.getDisplayPosition(tick.getValue());
                 if ((y != yAxisZero || !isHorizontalZeroLineVisible()) && y >= 0 && y < yAxisHeight) {
-                    this.horizontalGridLines.getElements().add(new MoveTo(left, top + y + 0.5));
-                    this.horizontalGridLines.getElements().add(new LineTo(left + xAxisWidth, top + y + 0.5));
+                    horizontalGridLines.getElements().add(new MoveTo(left, top + y + 0.5));
+                    horizontalGridLines.getElements().add(new LineTo(left + xAxisWidth, top + y + 0.5));
                 }
             }
         }
         // Note: is there a more efficient way to calculate horizontal and vertical row
         // fills?
         // update vertical row fill
-        this.verticalRowFill.getElements().clear();
+        verticalRowFill.getElements().clear();
         if (isAlternativeColumnFillVisible()) {
             // tick marks are not sorted so get all the positions and sort them
             final List<Double> tickPositionsPositive = new ArrayList<Double>();
@@ -1147,7 +1148,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             insertTickPositionsIntoVerticalRow(top, left, yAxisHeight, tickPositionsNegative);
         }
         // update horizontal row fill
-        this.horizontalRowFill.getElements().clear();
+        horizontalRowFill.getElements().clear();
         if (isAlternativeRowFillVisible()) {
             // tick marks are not sorted so get all the positions and sort them
             final List<Double> tickPositionsPositive = new ArrayList<Double>();
@@ -1178,10 +1179,10 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
     }
 
     private void drawLimitLines() {
-        if (!this.limitLines.isEmpty()) {
-            getPlotChildren().removeAll(this.limitLinesList);
-            this.limitLinesList.clear();
-            for (LimitLine limitLine : this.limitLines) {
+        if (!limitLines.isEmpty()) {
+            getPlotChildren().removeAll(limitLinesList);
+            limitLinesList.clear();
+            for (LimitLine limitLine : limitLines) {
                 Line line = new Line();
                 line.setStroke(limitLine.getColor());
                 line.getStrokeDashArray().addAll(limitLine.getStrokeDashArray());
@@ -1197,9 +1198,9 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 line.setEndY(y);
                 line.setVisible(true);
                 line.toFront();
-                this.limitLinesList.add(line);
+                limitLinesList.add(line);
             }
-            getPlotChildren().addAll(this.limitLinesList);
+            getPlotChildren().addAll(limitLinesList);
         }
     }
 
@@ -1208,7 +1209,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             if ((i + 1) < tickPositions.size()) {
                 final double x1 = tickPositions.get(i);
                 final double x2 = tickPositions.get(i + 1);
-                this.verticalRowFill.getElements().addAll(new MoveTo(left + x1, top),
+                verticalRowFill.getElements().addAll(new MoveTo(left + x1, top),
                         new LineTo(left + x1, top + yAxisHeight), new LineTo(left + x2, top + yAxisHeight),
                         new LineTo(left + x2, top), new ClosePath());
             }
@@ -1220,7 +1221,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             if ((i + 1) < tickPositions.size()) {
                 final double y1 = tickPositions.get(i);
                 final double y2 = tickPositions.get(i + 1);
-                this.horizontalRowFill.getElements().addAll(new MoveTo(left, top + y1),
+                horizontalRowFill.getElements().addAll(new MoveTo(left, top + y1),
                         new LineTo(left + xAxisWidth, top + y1), new LineTo(left + xAxisWidth, top + y2),
                         new LineTo(left, top + y2), new ClosePath());
             }
@@ -1229,96 +1230,96 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
     private void drawRegressions() {
 
-        getPlotChildren().removeAll(this.y1RegressionLines);
-        getPlotChildren().removeAll(this.y2RegressionLines);
+        getPlotChildren().removeAll(y1RegressionLines);
+        getPlotChildren().removeAll(y2RegressionLines);
 
-        this.flowPaneY1Formulas.getChildren().clear();
-        this.flowPaneY2Formulas.getChildren().clear();
+        flowPaneY1Formulas.getChildren().clear();
+        flowPaneY2Formulas.getChildren().clear();
 
-        this.y1RegressionLines.clear();
-        this.y2RegressionLines.clear();
-        this.y1RegressionFormulas.clear();
-        this.y2RegressionFormulas.clear();
+        y1RegressionLines.clear();
+        y2RegressionLines.clear();
+        y1RegressionFormulas.clear();
+        y2RegressionFormulas.clear();
 
-        if (this.hasY1AxisRegression) {
+        if (hasY1AxisRegression) {
             ObservableList<MultiAxisChart.Series<X, Y>> series = getData();
             for (MultiAxisChart.Series<X, Y> s : series) {
                 if (s.getAxisIndex() == 0) {
                     Path p = null;
                     Label n = null;
-                    switch (this.y1AxisRegressionType) {
+                    switch (y1AxisRegressionType) {
                         case NONE:
                             break;
                         case POLY:
-                            p = calcPolyRegression(s, MultiAxisChart.Y1_AXIS, this.y1AxisPolyRegressionDegree);
-                            n = getPolyRegressionFormula(s, MultiAxisChart.Y1_AXIS, this.y1AxisPolyRegressionDegree);
+                            p = calcPolyRegression(s, MultiAxisChart.Y1_AXIS, y1AxisPolyRegressionDegree);
+                            n = getPolyRegressionFormula(s, MultiAxisChart.Y1_AXIS, y1AxisPolyRegressionDegree);
                             break;
                         case EXP:
-                            p = createRegression(s, MultiAxisChart.Y1_AXIS, this.y1AxisRegressionType);
+                            p = createRegression(s, MultiAxisChart.Y1_AXIS, y1AxisRegressionType);
                             break;
                         case LOG:
-                            p = createRegression(s, MultiAxisChart.Y1_AXIS, this.y1AxisRegressionType);
+                            p = createRegression(s, MultiAxisChart.Y1_AXIS, y1AxisRegressionType);
                             break;
                         case POW:
-                            p = createRegression(s, MultiAxisChart.Y1_AXIS, this.y1AxisRegressionType);
+                            p = createRegression(s, MultiAxisChart.Y1_AXIS, y1AxisRegressionType);
                             break;
                     }
                     if (p != null) {
-                        this.y1RegressionLines.add(p);
+                        y1RegressionLines.add(p);
                     }
 
                     if (n != null) {
-                        this.y1RegressionFormulas.add(n);
+                        y1RegressionFormulas.add(n);
                     }
                 }
             }
         }
 
-        if (this.hasY2AxisRegression) {
+        if (hasY2AxisRegression) {
             ObservableList<MultiAxisChart.Series<X, Y>> series = getData();
             for (MultiAxisChart.Series<X, Y> s : series) {
                 if (s.getAxisIndex() == 1) {
                     Path p = null;
                     Label n = null;
-                    switch (this.y2AxisRegressionType) {
+                    switch (y2AxisRegressionType) {
                         case NONE:
                             break;
                         case POLY:
-                            p = calcPolyRegression(s, MultiAxisChart.Y2_AXIS, this.y2AxisPolyRegressionDegree);
-                            n = getPolyRegressionFormula(s, MultiAxisChart.Y2_AXIS, this.y2AxisPolyRegressionDegree);
+                            p = calcPolyRegression(s, MultiAxisChart.Y2_AXIS, y2AxisPolyRegressionDegree);
+                            n = getPolyRegressionFormula(s, MultiAxisChart.Y2_AXIS, y2AxisPolyRegressionDegree);
                             break;
                         case EXP:
-                            p = createRegression(s, MultiAxisChart.Y2_AXIS, this.y2AxisRegressionType);
+                            p = createRegression(s, MultiAxisChart.Y2_AXIS, y2AxisRegressionType);
                             break;
                         case LOG:
-                            p = createRegression(s, MultiAxisChart.Y2_AXIS, this.y2AxisRegressionType);
+                            p = createRegression(s, MultiAxisChart.Y2_AXIS, y2AxisRegressionType);
                             break;
                         case POW:
-                            p = createRegression(s, MultiAxisChart.Y2_AXIS, this.y2AxisRegressionType);
+                            p = createRegression(s, MultiAxisChart.Y2_AXIS, y2AxisRegressionType);
                             break;
                     }
 
                     if (p != null) {
-                        this.y2RegressionLines.add(p);
+                        y2RegressionLines.add(p);
                     }
 
                     if (n != null) {
-                        this.y2RegressionFormulas.add(n);
+                        y2RegressionFormulas.add(n);
                     }
                 }
             }
         }
 
-        for (Shape s : this.y1RegressionLines) {
+        for (Shape s : y1RegressionLines) {
             s.setStrokeWidth(2);
-            s.setStroke(this.y1RegressionSeriesColors.get(this.y1RegressionLines.indexOf(s)));
+            s.setStroke(y1RegressionSeriesColors.get(y1RegressionLines.indexOf(s)));
             getPlotChildren().add(s);
-            if (!this.y1RegressionFormulas.isEmpty()) {
+            if (!y1RegressionFormulas.isEmpty()) {
                 HBox hBox = new HBox();
                 hBox.setMinWidth(getXAxis().getWidth() / 2);
-                Label label = this.y1RegressionFormulas.get(this.y1RegressionLines.indexOf(s));
+                Label label = y1RegressionFormulas.get(y1RegressionLines.indexOf(s));
                 hBox.getChildren().add(label);
-                this.flowPaneY1Formulas.getChildren().add(hBox);
+                flowPaneY1Formulas.getChildren().add(hBox);
                 label.setVisible(true);
                 label.setWrapText(true);
                 label.toFront();
@@ -1326,16 +1327,16 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
         }
 
-        for (Shape s : this.y2RegressionLines) {
+        for (Shape s : y2RegressionLines) {
             s.setStrokeWidth(2);
-            s.setStroke(this.y2RegressionSeriesColors.get(this.y2RegressionLines.indexOf(s)));
+            s.setStroke(y2RegressionSeriesColors.get(y2RegressionLines.indexOf(s)));
             getPlotChildren().add(s);
-            if (!this.y2RegressionFormulas.isEmpty()) {
+            if (!y2RegressionFormulas.isEmpty()) {
                 HBox hBox = new HBox();
                 hBox.setMinWidth(getXAxis().getWidth() / 2);
-                Label label = this.y2RegressionFormulas.get(this.y2RegressionLines.indexOf(s));
+                Label label = y2RegressionFormulas.get(y2RegressionLines.indexOf(s));
                 hBox.getChildren().add(label);
-                this.flowPaneY2Formulas.getChildren().add(hBox);
+                flowPaneY2Formulas.getChildren().add(hBox);
                 label.setVisible(true);
                 label.setWrapText(true);
                 label.toFront();
@@ -1345,10 +1346,10 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
     private Path createRegression(Series<X, Y> s, int yAxisIndex, RegressionType regressionType) {
 
-        if (yAxisIndex == Y2_AXIS && this.y2Axis == null)
+        if (yAxisIndex == Y2_AXIS && y2Axis == null)
             throw new NullPointerException("Y2 Axis is not defined.");
 
-        Axis yAxis = yAxisIndex == Y2_AXIS ? this.y2Axis : this.y1Axis;
+        Axis yAxis = yAxisIndex == Y2_AXIS ? y2Axis : y1Axis;
 
         final WeightedObservedPoints obs = new WeightedObservedPoints();
         final WeightedObservedPoints obsMin = new WeightedObservedPoints();
@@ -1363,8 +1364,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 double y = getValue(item.getCurrentY());
                 obs.add(x, y);
             } else if (((yAxisIndex == Y1_AXIS && item.getExtraValue() == null) || (int) item.getExtraValue() == yAxisIndex)
-                    && getValue(item.getCurrentX()) >= ((ValueAxis) this.xAxis).getLowerBound()
-                    && getValue(item.getCurrentX()) <= ((ValueAxis) this.xAxis).getUpperBound()) {
+                    && getValue(item.getCurrentX()) >= ((ValueAxis) xAxis).getLowerBound()
+                    && getValue(item.getCurrentX()) <= ((ValueAxis) xAxis).getUpperBound()) {
                 double x1 = getValue(item.getCurrentX());
                 double x2 = (getValue(item.getCurrentX()) - zero) / 1000 / 60;
                 double y = getValue(item.getCurrentY());
@@ -1525,8 +1526,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 double y = getValue(item.getCurrentY());
                 obs.add(x, y);
             } else if (((yAxisIndex == Y1_AXIS && item.getExtraValue() == null) || (int) item.getExtraValue() == yAxisIndex)
-                    && getValue(item.getCurrentX()) >= ((ValueAxis) this.xAxis).getLowerBound()
-                    && getValue(item.getCurrentX()) <= ((ValueAxis) this.xAxis).getUpperBound()) {
+                    && getValue(item.getCurrentX()) >= ((ValueAxis) xAxis).getLowerBound()
+                    && getValue(item.getCurrentX()) <= ((ValueAxis) xAxis).getUpperBound()) {
                 double x = (getValue(item.getCurrentX()) - zero) / 1000 / 60;
                 double y = getValue(item.getCurrentY());
                 obs.add(x, y);
@@ -1537,10 +1538,10 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
     public Path calcPolyRegression(Series<X, Y> s, int yAxisIndex, int polyDegree) {
 
-        if (yAxisIndex == Y2_AXIS && this.y2Axis == null)
+        if (yAxisIndex == Y2_AXIS && y2Axis == null)
             throw new NullPointerException("Y2 Axis is not defined.");
 
-        Axis yAxis = yAxisIndex == Y2_AXIS ? this.y2Axis : this.y1Axis;
+        Axis yAxis = yAxisIndex == Y2_AXIS ? y2Axis : y1Axis;
 
         final WeightedObservedPoints obs = new WeightedObservedPoints();
         final WeightedObservedPoints obsMin = new WeightedObservedPoints();
@@ -1555,8 +1556,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 double y = getValue(item.getCurrentY());
                 obs.add(x, y);
             } else if (((yAxisIndex == Y1_AXIS && item.getExtraValue() == null) || (int) item.getExtraValue() == yAxisIndex)
-                    && getValue(item.getCurrentX()) >= ((ValueAxis) this.xAxis).getLowerBound()
-                    && getValue(item.getCurrentX()) <= ((ValueAxis) this.xAxis).getUpperBound()) {
+                    && getValue(item.getCurrentX()) >= ((ValueAxis) xAxis).getLowerBound()
+                    && getValue(item.getCurrentX()) <= ((ValueAxis) xAxis).getUpperBound()) {
                 double x1 = getValue(item.getCurrentX());
                 double x2 = (getValue(item.getCurrentX()) - zero) / 1000 / 60;
                 double y = getValue(item.getCurrentY());
@@ -1683,9 +1684,9 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
     public void setRegressionColor(int axisPos, Color color) {
         if (axisPos == Y1_AXIS) {
-            this.y1RegressionSeriesColors.add(color.darker());
+            y1RegressionSeriesColors.add(color.darker());
         } else {
-            this.y2RegressionSeriesColors.add(color.darker());
+            y2RegressionSeriesColors.add(color.darker());
         }
     }
 
@@ -1703,18 +1704,18 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
     public void setRegression(int yAxisIndex, RegressionType regressionType, int degree) {
         if (yAxisIndex == Y1_AXIS) {
-            this.hasY1AxisRegression = degree != NONE;
+            hasY1AxisRegression = degree != NONE;
             this.y1AxisRegressionType = regressionType;
-            this.y1AxisPolyRegressionDegree = degree;
+            y1AxisPolyRegressionDegree = degree;
         } else {
-            this.hasY2AxisRegression = degree != NONE;
+            hasY2AxisRegression = degree != NONE;
             this.y2AxisRegressionType = regressionType;
-            this.y2AxisPolyRegressionDegree = degree;
+            y2AxisPolyRegressionDegree = degree;
         }
     }
 
     public void setLimitLine(String name, Double value, Color color, Integer yAxisindex, ObservableList<Double> observableList) {
-        this.limitLines.add(new LimitLine(name, value, color, yAxisindex, observableList));
+        limitLines.add(new LimitLine(name, value, color, yAxisindex, observableList));
     }
 
     /**
@@ -1723,7 +1724,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
      * @return size of series linked list
      */
     int getSeriesSize() {
-        return this.displayedSeries.size();
+        return displayedSeries.size();
     }
 
     /**
@@ -1736,7 +1737,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
      * @return iterator over currently displayed series
      */
     protected final Iterator<Series<X, Y>> getDisplayedSeriesIterator() {
-        return Collections.unmodifiableList(this.displayedSeries).iterator();
+        return Collections.unmodifiableList(displayedSeries).iterator();
     }
 
 // -------------- INNER CLASSES -------------------------------------
@@ -1772,8 +1773,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 // Note: calling get to make non-lazy, replace with change listener when
                 // available
                 get();
-                if (Data.this.series != null) {
-                    MultiAxisChart<X, Y> chart = Data.this.series.getChart();
+                if (series != null) {
+                    MultiAxisChart<X, Y> chart = series.getChart();
                     if (chart != null)
                         chart.dataXValueChanged(Data.this);
                 } else {
@@ -1811,8 +1812,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 // Note: calling get to make non-lazy, replace with change listener when
                 // available
                 get();
-                if (Data.this.series != null) {
-                    MultiAxisChart<X, Y> chart = Data.this.series.getChart();
+                if (series != null) {
+                    MultiAxisChart<X, Y> chart = series.getChart();
                     if (chart != null)
                         chart.dataYValueChanged(Data.this);
                 } else {
@@ -1842,8 +1843,8 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 // Note: calling get to make non-lazy, replace with change listener when
                 // available
                 get();
-                if (Data.this.series != null) {
-                    MultiAxisChart<X, Y> chart = Data.this.series.getChart();
+                if (series != null) {
+                    MultiAxisChart<X, Y> chart = series.getChart();
                     if (chart != null)
                         chart.dataExtraValueChanged(Data.this);
                 }
@@ -1883,7 +1884,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
                         @Override
                         protected String computeValue() {
-                            String seriesName = Data.this.series != null ? Data.this.series.getName() : "";
+                            String seriesName = series != null ? series.getName() : "";
                             return seriesName + " X Axis is " + getCurrentX() + " Y Axis is " + getCurrentY();
                         }
                     });
@@ -1945,7 +1946,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
          * @return the generic data value to be plotted on the X axis.
          */
         public final X getXValue() {
-            return this.xValue.get();
+            return xValue.get();
         }
 
         /**
@@ -1954,11 +1955,11 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
          * @param value the generic data value to be plotted on the X axis.
          */
         public final void setXValue(X value) {
-            this.xValue.set(value);
+            xValue.set(value);
             // handle the case where this is a init because the default constructor was used
             // and the case when series is not associated to a chart due to a remove series
-            if (this.currentX.get() == null || (this.series != null && this.series.getChart() == null))
-                this.currentX.setValue(value);
+            if (currentX.get() == null || (series != null && series.getChart() == null))
+                currentX.setValue(value);
         }
 
         /**
@@ -1967,7 +1968,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
          * @return The XValue property
          */
         public final ObjectProperty<X> XValueProperty() {
-            return this.xValue;
+            return xValue;
         }
 
         /**
@@ -1976,7 +1977,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
          * @return the generic data value to be plotted on the Y axis.
          */
         public final Y getYValue() {
-            return this.yValue.get();
+            return yValue.get();
         }
 
         /**
@@ -1985,11 +1986,11 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
          * @param value the generic data value to be plotted on the Y axis.
          */
         public final void setYValue(Y value) {
-            this.yValue.set(value);
+            yValue.set(value);
             // handle the case where this is a init because the default constructor was used
             // and the case when series is not associated to a chart due to a remove series
-            if (this.currentY.get() == null || (this.series != null && this.series.getChart() == null))
-                this.currentY.setValue(value);
+            if (currentY.get() == null || (series != null && series.getChart() == null))
+                currentY.setValue(value);
 
         }
 
@@ -1999,69 +2000,69 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
          * @return the YValue property
          */
         public final ObjectProperty<Y> YValueProperty() {
-            return this.yValue;
+            return yValue;
         }
 
         public final Object getExtraValue() {
-            return this.extraValue.get();
+            return extraValue.get();
         }
 
         public final void setExtraValue(Object value) {
-            this.extraValue.set(value);
+            extraValue.set(value);
         }
 
         public final ObjectProperty<Object> extraValueProperty() {
-            return this.extraValue;
+            return extraValue;
         }
 
         public final Node getNode() {
-            return this.node.get();
+            return node.get();
         }
 
         public final void setNode(Node value) {
-            this.node.set(value);
+            node.set(value);
         }
 
         public final ObjectProperty<Node> nodeProperty() {
-            return this.node;
+            return node;
         }
 
         final X getCurrentX() {
-            return this.currentX.get();
+            return currentX.get();
         }
 
         final void setCurrentX(X value) {
-            this.currentX.set(value);
+            currentX.set(value);
         }
 
         final ObjectProperty<X> currentXProperty() {
-            return this.currentX;
+            return currentX;
         }
 
         final Y getCurrentY() {
-            return this.currentY.get();
+            return currentY.get();
         }
 
         final void setCurrentY(Y value) {
-            this.currentY.set(value);
+            currentY.set(value);
         }
 
         final ObjectProperty<Y> currentYProperty() {
-            return this.currentY;
+            return currentY;
         }
 
         // -------------- CONSTRUCTOR -------------------------------------------------
 
         final Object getCurrentExtraValue() {
-            return this.currentExtraValue.getValue();
+            return currentExtraValue.getValue();
         }
 
         final void setCurrentExtraValue(Object value) {
-            this.currentExtraValue.setValue(value);
+            currentExtraValue.setValue(value);
         }
 
         final ObjectProperty<Object> currentExtraValueProperty() {
-            return this.currentExtraValue;
+            return currentExtraValue;
         }
 
         // -------------- PUBLIC METHODS ----------------------------------------------
@@ -2135,18 +2136,18 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             protected void invalidated() {
                 final ObservableList<Data<X, Y>> current = getValue();
                 // add remove listeners
-                if (this.old != null)
-                    this.old.removeListener(Series.this.dataChangeListener);
+                if (old != null)
+                    old.removeListener(dataChangeListener);
                 if (current != null)
-                    current.addListener(Series.this.dataChangeListener);
+                    current.addListener(dataChangeListener);
                 // fire data change event if series are added or removed
-                if (this.old != null || current != null) {
-                    final List<Data<X, Y>> removed = (this.old != null) ? this.old : Collections.emptyList();
+                if (old != null || current != null) {
+                    final List<Data<X, Y>> removed = (old != null) ? old : Collections.emptyList();
                     final int toIndex = (current != null) ? current.size() : 0;
                     // let data listener know all old data have been removed and new data that has
                     // been added
                     if (toIndex > 0 || !removed.isEmpty()) {
-                        Series.this.dataChangeListener.onChanged(new NonIterableChange<Data<X, Y>>(0, toIndex, current) {
+                        dataChangeListener.onChanged(new NonIterableChange<Data<X, Y>>(0, toIndex, current) {
                             @Override
                             public List<Data<X, Y>> getRemoved() {
                                 return removed;
@@ -2158,9 +2159,9 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                             }
                         });
                     }
-                } else if (this.old != null && this.old.size() > 0) {
+                } else if (old != null && old.size() > 0) {
                     // let series listener know all old series have been removed
-                    Series.this.dataChangeListener.onChanged(new NonIterableChange<Data<X, Y>>(0, 0, current) {
+                    dataChangeListener.onChanged(new NonIterableChange<Data<X, Y>>(0, 0, current) {
                         @Override
                         public List<Data<X, Y>> getRemoved() {
                             return old;
@@ -2172,7 +2173,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                         }
                     });
                 }
-                this.old = current;
+                old = current;
             }
 
             @Override
@@ -2193,9 +2194,9 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
             @Override
             protected void invalidated() {
                 if (get() == null) {
-                    Series.this.displayedData.clear();
+                    displayedData.clear();
                 } else {
-                    Series.this.displayedData.addAll(getData());
+                    displayedData.addAll(getData());
                 }
             }
         };
@@ -2208,7 +2209,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                     if (chart != null) {
                         // RT-25187 Probably a sort happened, just reorder the pointers and return.
                         if (c.wasPermutated()) {
-                            Series.this.displayedData.sort((o1, o2) -> data.indexOf(o2) - data.indexOf(o1));
+                            displayedData.sort((o1, o2) -> data.indexOf(o2) - data.indexOf(o1));
                             return;
                         }
 
@@ -2241,9 +2242,9 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                                 d.setSeries(MultiAxisChart.Series.this);
                             }
                             if (c.getFrom() == 0) {
-                                Series.this.displayedData.addAll(0, c.getAddedSubList());
+                                displayedData.addAll(0, c.getAddedSubList());
                             } else {
-                                Series.this.displayedData.addAll(Series.this.displayedData.indexOf(data.get(c.getFrom() - 1)) + 1,
+                                displayedData.addAll(displayedData.indexOf(data.get(c.getFrom() - 1)) + 1,
                                         c.getAddedSubList());
                             }
                         }
@@ -2309,53 +2310,53 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         }
 
         public final MultiAxisChart<X, Y> getChart() {
-            return this.chart.get();
+            return chart.get();
         }
 
         private void setChart(MultiAxisChart<X, Y> value) {
-            this.chart.set(value);
+            chart.set(value);
         }
 
         public final ReadOnlyObjectProperty<MultiAxisChart<X, Y>> chartProperty() {
-            return this.chart.getReadOnlyProperty();
+            return chart.getReadOnlyProperty();
         }
 
         public final String getName() {
-            return this.name.get();
+            return name.get();
         }
 
         public final void setName(String value) {
-            this.name.set(value);
+            name.set(value);
         }
 
         public final StringProperty nameProperty() {
-            return this.name;
+            return name;
         }
 
         public final Node getNode() {
-            return this.node.get();
+            return node.get();
         }
 
         public final void setNode(Node value) {
-            this.node.set(value);
+            node.set(value);
         }
 
         public final ObjectProperty<Node> nodeProperty() {
-            return this.node;
+            return node;
         }
 
         // -------------- CONSTRUCTORS ----------------------------------------------
 
         public final ObservableList<Data<X, Y>> getData() {
-            return this.data.getValue();
+            return data.getValue();
         }
 
         public final void setData(ObservableList<Data<X, Y>> value) {
-            this.data.setValue(value);
+            data.setValue(value);
         }
 
         public final ObjectProperty<ObservableList<Data<X, Y>>> dataProperty() {
-            return this.data;
+            return data;
         }
 
         // -------------- PUBLIC METHODS ----------------------------------------------
@@ -2379,19 +2380,19 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         private void removeDataItemRef(Data<X, Y> item) {
             if (item != null)
                 item.setToRemove = false;
-            this.displayedData.remove(item);
+            displayedData.remove(item);
         }
 
         int getItemIndex(Data<X, Y> item) {
-            return this.displayedData.indexOf(item);
+            return displayedData.indexOf(item);
         }
 
         Data<X, Y> getItem(int i) {
-            return this.displayedData.get(i);
+            return displayedData.get(i);
         }
 
         int getDataSize() {
-            return this.displayedData.size();
+            return displayedData.size();
         }
     }
 
@@ -2405,7 +2406,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         }
 
         public X getX() {
-            return this.x;
+            return x;
         }
 
         public void setX(X x) {
@@ -2413,7 +2414,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         }
 
         public Y getY() {
-            return this.y;
+            return y;
         }
 
         public void setY(Y y) {
