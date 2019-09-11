@@ -96,7 +96,8 @@ public class ConfigManager {
                     .put(JSON_VERSION, "1.1")
                     .put(BACKGROUND_COLOR, dashboardPojo.getBackgroundColor().toString())
 //                    .put(SHOW_GRID, dashboardPojo.getShowGrid())
-                    .put(SNAP_TO_GRID, dashboardPojo.getSnapToGrid())
+                    .put(SNAP_TO_GRID, false)//dashboardPojo.getSnapToGrid()
+                    .put("Show Grid", false)//old Version Fallback
                     .put(X_GRID_INTERVAL, dashboardPojo.getxGridInterval())
                     .put(Y_GRID_INTERVAL, dashboardPojo.getyGridInterval())
                     .put(UPDATE_RATE, dashboardPojo.getUpdateRate())
@@ -231,6 +232,7 @@ public class ConfigManager {
                     WidgetPojo newConfig = new WidgetPojo(objNode);
                     dashboardPojo.getWidgetList().add(newConfig);
                     logger.debug("Add Widget: {}", newConfig);
+
                 }
             }
 
