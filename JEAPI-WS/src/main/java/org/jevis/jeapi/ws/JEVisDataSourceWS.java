@@ -1155,7 +1155,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         } catch (JsonParseException ex) {
             logger.error("Json parse exception. Error while fetching Object: {}", id, ex);
         } catch (JsonMappingException ex) {
-            logger.error("Json mapping exception. Error while fetching Object: {}", id, ex);
+            logger.error("Object is not accessible: {}", id, ex.getMessage());
         } catch (IOException ex) {
             logger.error("IO exception. Error while fetching Object: {}", id, ex);
         } catch (Exception ex) {
