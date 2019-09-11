@@ -497,6 +497,7 @@ public class ObjectPlugin implements Plugin {
                     logger.info("Unknown command ignore...");
             }
         } catch (Exception ex) {
+            logger.error("Error running command: {}", cmdType);
         }
 
     }

@@ -164,20 +164,24 @@ public class PieWidget extends Widget {
 
         /** redrawing **/
         Platform.runLater(() -> {
-            this.legend.getItems().setAll(legendItemList);
-            this.chart.setData(series);
-            applyColors(colors);
-            this.chart.setStartAngle(180);
-            this.chart.setLabelLineLength(15d);
-            this.chart.setClockwise(false);
-            this.chart.setLabelsVisible(true);
-            this.chart.setLabelLineLength(18);
-            this.chart.setLegendVisible(false);
-            this.chart.setAnimated(false);
-            this.chart.requestLayout();
+            try {
+                this.legend.getItems().setAll(legendItemList);
+                this.chart.setData(series);
+                applyColors(colors);
+                this.chart.setStartAngle(180);
+                this.chart.setLabelLineLength(15d);
+                this.chart.setClockwise(false);
+                this.chart.setLabelsVisible(true);
+                this.chart.setLabelLineLength(18);
+                this.chart.setLegendVisible(false);
+                this.chart.setAnimated(false);
+                this.chart.requestLayout();
 
-            updateConfig();
-            showProgressIndicator(false);
+                updateConfig();
+                showProgressIndicator(false);
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
 
         });
     }
@@ -191,18 +195,21 @@ public class PieWidget extends Widget {
     @Override
     public void updateConfig() {
         Platform.runLater(() -> {
-            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
-            Background bgColorTrans = new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY));
+            try {
+                Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+                Background bgColorTrans = new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY));
 //            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-            this.setBackground(bgColorTrans);
+                this.setBackground(bgColorTrans);
 //            this.chart.setBackground(bgColorTrans);
-            this.legend.setBackground(bgColorTrans);
-            this.borderPane.setBackground(bgColor);
-            this.borderPane.setMaxWidth(this.config.getSize().getWidth());
-            this.nf.setMinimumFractionDigits(0);
-            this.nf.setMaximumFractionDigits(2);
-            this.layout();
-
+                this.legend.setBackground(bgColorTrans);
+                this.borderPane.setBackground(bgColor);
+                this.borderPane.setMaxWidth(this.config.getSize().getWidth());
+                this.nf.setMinimumFractionDigits(0);
+                this.nf.setMaximumFractionDigits(2);
+                this.layout();
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         });
     }
 
@@ -245,10 +252,14 @@ public class PieWidget extends Widget {
 
 
         Platform.runLater(() -> {
-            this.legendPane.getChildren().setAll(this.legend);
-            this.borderPane.setCenter(this.chart);
-            this.borderPane.setRight(this.legendPane);
-            setGraphic(this.borderPane);
+            try {
+                this.legendPane.getChildren().setAll(this.legend);
+                this.borderPane.setCenter(this.chart);
+                this.borderPane.setRight(this.legendPane);
+                setGraphic(this.borderPane);
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         });
 
 

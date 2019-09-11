@@ -118,14 +118,18 @@ public class TitleWidget extends Widget {
     public void updateConfig() {
         logger.debug("UpdateConfig");
         Platform.runLater(() -> {
-            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
-            this.label.setBackground(bgColor);
-            this.label.setTextFill(this.config.getFontColor());
-            this.label.setText(this.config.getTitle());
-            this.label.setFont(new Font(this.config.getFontSize()));
-            this.label.setPrefWidth(this.config.getSize().getWidth());
+            try {
+                Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+                this.label.setBackground(bgColor);
+                this.label.setTextFill(this.config.getFontColor());
+                this.label.setText(this.config.getTitle());
+                this.label.setFont(new Font(this.config.getFontSize()));
+                this.label.setPrefWidth(this.config.getSize().getWidth());
 
-            this.label.setAlignment(this.config.getTitlePosition());
+                this.label.setAlignment(this.config.getTitlePosition());
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         });
     }
 

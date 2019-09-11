@@ -421,7 +421,7 @@ public class JEConfig extends Application {
                     } catch (URISyntaxException ex) {
                         logger.fatal(ex);
                     }
-                    logger.info("Time to start: " + ((new Date()).getTime() - start.getTime()));
+                    logger.info("Time to start: {}ms", ((new Date()).getTime() - start.getTime()));
                 });
 //                Date startAllob = new Date();
 //                try {

@@ -88,7 +88,11 @@ public abstract class Widget extends Region {
         this.jeVisDataSource = control.getDataSource();
         this.config = createDefaultConfig();
 
-        initLayout();
+        try {
+            initLayout();
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
     }
 
     private void initLayout() {
@@ -344,11 +348,18 @@ public abstract class Widget extends Region {
 
 
     public void showProgressIndicator(boolean show) {
-        if (show) {
-            loadingPane.setVisible(true);
-        } else {
-            loadingPane.setVisible(false);
-        }
+        Platform.runLater(() -> {
+            try {
+                if (show) {
+                    loadingPane.setVisible(true);
+                } else {
+                    loadingPane.setVisible(false);
+                }
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        });
+
 
     }
 

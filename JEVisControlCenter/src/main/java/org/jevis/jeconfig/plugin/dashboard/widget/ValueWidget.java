@@ -76,24 +76,27 @@ public class ValueWidget extends Widget {
     public void updateData(Interval interval) {
         logger.debug("Value.Update: {}", interval);
         lastInterval = interval;
-        showProgressIndicator(true);
+        if (this.sampleHandler == null) {
+            showProgressIndicator(false);
+            return;
+        }
+
+
         Platform.runLater(() -> {
             this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
         });
-//        showAlertOverview(false, "");
 
-        if (this.sampleHandler == null) return;
-
-        this.sampleHandler.setInterval(interval);
-        this.sampleHandler.update();
-
-        this.nf.setMinimumFractionDigits(this.config.getDecimals());
-        this.nf.setMaximumFractionDigits(this.config.getDecimals());
-
-
-        this.labelText.setValue("n.a.");
         AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
         try {
+            this.sampleHandler.setInterval(interval);
+            this.sampleHandler.update();
+
+            this.nf.setMinimumFractionDigits(this.config.getDecimals());
+            this.nf.setMaximumFractionDigits(this.config.getDecimals());
+
+
+            this.labelText.setValue("n.a.");
+
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataModel dataModel = this.sampleHandler.getDataModel().get(0);
 //            dataModel.setAbsolute(true);
@@ -126,23 +129,26 @@ public class ValueWidget extends Widget {
 
 
         Platform.runLater(() -> {
-            this.label.setText(this.labelText.getValue());
-            Color fontColor = this.config.getFontColor();
+            try {
+                this.label.setText(this.labelText.getValue());
+                Color fontColor = this.config.getFontColor();
 
-            if (limit != null) {
-                if (limit.hasLowerLimit) {
-                    if (total.get() <= limit.getLowerLimit()) {
-                        fontColor = limit.getLowerLimitColor();
+                if (limit != null) {
+                    if (limit.hasLowerLimit) {
+                        if (total.get() <= limit.getLowerLimit()) {
+                            fontColor = limit.getLowerLimitColor();
+                        }
+                    }
+                    if (limit.hasUpperLimit) {
+                        if (total.get() >= limit.getUpperLimit()) {
+                            fontColor = limit.getUpperLimitColor();
+                        }
                     }
                 }
-                if (limit.hasUpperLimit) {
-                    if (total.get() >= limit.getUpperLimit()) {
-                        fontColor = limit.getUpperLimitColor();
-                    }
-                }
+                this.label.setTextFill(fontColor);
+            } catch (Exception ex) {
+                logger.error(ex);
             }
-            this.label.setTextFill(fontColor);
-
 
             showProgressIndicator(false);
         });

@@ -32,10 +32,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.relationship.RelationsManagment;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
@@ -56,14 +58,19 @@ public class MemberExtension implements ObjectEditorExtension {
     private static final Logger logger = LogManager.getLogger(MemberExtension.class);
 
     private static final String TITLE = I18n.getInstance().getString("plugin.object.member");
-    private JEVisObject _obj;
+    private final JEVisObject _obj;
+    private ObjectRelations objectRelations;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     //    AnchorPane _view = new AnchorPane();
     private BorderPane _view = new BorderPane();
 
     public MemberExtension(JEVisObject obj) {
-        _obj = obj;
-
+        this._obj = obj;
+        try {
+            this.objectRelations = new ObjectRelations(obj.getDataSource());
+        } catch (JEVisException e) {
+            logger.error(e);
+        }
     }
 
     @Override
@@ -132,7 +139,7 @@ public class MemberExtension implements ObjectEditorExtension {
             for (JEVisRelationship rel : obj.getRelationships()) {
                 try {
                     if (rel == null || rel.getStartObject() == null || rel.getEndObject() == null) {
-                        logger.info("Incorect relationship: " + rel);
+                        logger.info("Incorrect relationship: " + rel);
                         continue;
                     }
                     if (rel.isType(MEMBER_CREATE)
@@ -292,6 +299,7 @@ public class MemberExtension implements ObjectEditorExtension {
         GridPane.setValignment(newUserLabel, VPos.CENTER);
         HBox addNewBox = new HBox(2);
         gridPane.add(addNewBox, 0, yAxis, 7, 1);
+        GridPane.setFillWidth(addNewBox, true);
 
         Button newB = new Button();
         //ToDo
@@ -314,9 +322,9 @@ public class MemberExtension implements ObjectEditorExtension {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> p) {
                 return new ListCell<JEVisObject>() {
-                    {
-                        super.setPrefWidth(100);
-                    }
+//                    {
+//                        super.setPrefWidth(100);
+//                    }
 
                     @Override
                     public void updateItem(JEVisObject item,
@@ -374,56 +382,28 @@ public class MemberExtension implements ObjectEditorExtension {
         });
 
         addNewBox.getChildren().setAll(newUserLabel, users, newB);
+        HBox.setHgrow(users, Priority.ALWAYS);
 
         ScrollPane scroll = new ScrollPane();
+        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scroll.setStyle("-fx-background-color: transparent");
-        scroll.setMaxSize(10000, 10000);
+        scroll.setFitToWidth(true);
+        scroll.setFitToHeight(true);
         scroll.setContent(gridPane);
-//        _view.getChildren().setAll(scroll);
         _view.setCenter(scroll);
     }
 
     private String getDisplayName(JEVisObject obj) {
         if (obj != null) {
             String dName = "";
-            String prefix = "";
-            try {
 
-                JEVisObject thirdParent = obj.getParents().get(0).getParents().get(0).getParents().get(0);
-                JEVisClass buildingClass = obj.getDataSource().getJEVisClass("Building");
-                JEVisClass organisationClass = obj.getDataSource().getJEVisClass("Organization");
-                JEVisClass systemClass = obj.getDataSource().getJEVisClass("System");
+            String prefix = objectRelations.getObjectPath(obj);
 
-                if (thirdParent.getJEVisClass().equals(buildingClass)) {
-
-                    try {
-                        JEVisObject organisationParent = thirdParent.getParents().get(0).getParents().get(0);
-                        if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                            prefix += organisationParent.getName() + " / " + thirdParent.getName() + " / ";
-                        }
-                    } catch (JEVisException e) {
-                        logger.error("Could not get Organization parent of " + thirdParent.getName() + ":" + thirdParent.getID());
-
-                        prefix += thirdParent.getName() + " / ";
-                    }
-                } else if (thirdParent.getJEVisClass().equals(organisationClass)) {
-
-                    prefix += thirdParent.getName() + " / ";
-
-                } else if (thirdParent.getJEVisClass().equals(systemClass)) {
-
-                    prefix += thirdParent.getName() + " / ";
-
-                }
-
-            } catch (Exception e) {
-            }
             dName = prefix + obj.getName();
 
             return dName;
         } else return null;
-
     }
 
     /**

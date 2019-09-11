@@ -29,6 +29,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -41,6 +42,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -64,6 +66,7 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePick
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
@@ -645,6 +648,34 @@ public class GraphPluginView implements Plugin {
                     });
 
                     cv.getChart().applyColors();
+                } else if (cv.getChartType().equals(ChartType.COLUMN)) {
+                    MultiAxisBarChart columnChart = (MultiAxisBarChart) cv.getChart().getChart();
+
+                    columnChart.getData().forEach(numberNumberSeries -> {
+                        MultiAxisBarChart.Series columnChartSeries = (MultiAxisBarChart.Series) numberNumberSeries;
+                        columnChartSeries.getData().forEach(data -> {
+                            final StackPane node = (StackPane) ((MultiAxisBarChart.Data) data).getNode();
+                            NumberFormat nf = NumberFormat.getInstance();
+                            nf.setMinimumFractionDigits(2);
+                            nf.setMaximumFractionDigits(2);
+                            String valueString = nf.format(((MultiAxisBarChart.Data) data).getYValue());
+                            final Text dataText = new Text(valueString + "");
+
+                            node.getChildren().add(dataText);
+
+                            Bounds bounds = node.getBoundsInParent();
+                            dataText.setLayoutX(
+                                    Math.round(
+                                            bounds.getMinX() + bounds.getWidth() / 2 - dataText.prefWidth(-1) / 2
+                                    )
+                            );
+                            dataText.setLayoutY(
+                                    Math.round(
+                                            bounds.getMinY() - dataText.prefHeight(-1) * 0.5
+                                    )
+                            );
+                        });
+                    });
                 }
             }
         });
@@ -883,6 +914,8 @@ public class GraphPluginView implements Plugin {
                 case PIE:
                     break;
                 case HEAT_MAP:
+                    break;
+                case COLUMN:
                     break;
                 default:
                     break;

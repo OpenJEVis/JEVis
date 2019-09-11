@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.sun.javafx.charts.Legend;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -31,8 +32,8 @@ public class WidgetLegend extends Legend {
                     getDeclaredField("label");
             privateStringField.setAccessible(true);
             Label label = (Label) privateStringField.get(item);
-//            label.setWrapText(true);
-//            label.setTextOverrun(OverrunStyle.CENTER_ELLIPSIS);
+            label.setWrapText(true);
+            label.setTextOverrun(OverrunStyle.CENTER_ELLIPSIS);
             label.setTextFill(fontcolor);
             label.setFont(new Font(fontSize));
             label.setWrapText(true);

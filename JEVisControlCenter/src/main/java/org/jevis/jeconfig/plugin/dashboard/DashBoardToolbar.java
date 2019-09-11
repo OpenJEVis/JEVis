@@ -8,7 +8,6 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
@@ -243,55 +242,65 @@ public class DashBoardToolbar extends ToolBar {
     }
 
     private void setCellFactoryForComboBox() {
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-            @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new ListCell<JEVisObject>() {
-                    @Override
-                    protected void updateItem(JEVisObject obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (empty || obj == null || obj.getName() == null) {
-                            setText(I18n.getInstance().getString("plugin.dashboard.toolbar.list.new"));
-                        } else {
-                            String prefix = "";
-                            try {
+        try {
+            JEVisClass organisationClass = DashBoardToolbar.this.dashboardControl.getDataSource().getJEVisClass("Organization");
 
-                                JEVisObject secondParent = obj.getParents().get(0).getParents().get(0);
-                                JEVisClass buildingClass = DashBoardToolbar.this.dashboardControl.getDataSource().getJEVisClass("Building");
-                                JEVisClass organisationClass = DashBoardToolbar.this.dashboardControl.getDataSource().getJEVisClass("Organization");
 
-                                if (secondParent.getJEVisClass().equals(buildingClass)) {
+            Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+                @Override
+                public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                    return new ListCell<JEVisObject>() {
+                        @Override
+                        protected void updateItem(JEVisObject obj, boolean empty) {
+                            super.updateItem(obj, empty);
+                            if (empty || obj == null || obj.getName() == null) {
+                                setText(I18n.getInstance().getString("plugin.dashboard.toolbar.list.new"));
+                            } else {
+                                String prefix = "";
+                                try {
+                                    JEVisObject parentObj = null;
+                                    JEVisObject secoundParentObj = null;
+                                    JEVisObject thirdParentObj = null;
 
                                     try {
-                                        JEVisObject organisationParent = secondParent.getParents().get(0).getParents().get(0);
-
-                                        if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                            prefix += organisationParent.getName() + " / " + secondParent.getName() + " / ";
-                                        }
-                                    } catch (JEVisException e) {
-                                        logger.error("Could not get Organization parent of " + secondParent.getName() + ":" + secondParent.getID());
-
-                                        prefix += secondParent.getName() + " / ";
+                                        parentObj = obj.getParents().get(0);
+                                    } catch (NullPointerException np) {
                                     }
-                                } else if (secondParent.getJEVisClass().equals(organisationClass)) {
+                                    try {
+                                        secoundParentObj = parentObj.getParents().get(0);
+                                    } catch (Exception np) {
+                                    }
+                                    try {
+                                        thirdParentObj = secoundParentObj.getParents().get(0);
+                                    } catch (Exception np) {
+                                    }
 
-                                    prefix += secondParent.getName() + " / ";
 
+                                    if (secoundParentObj != null && secoundParentObj.getJEVisClass().equals(organisationClass)) {
+                                        prefix += secoundParentObj.getName() + " / ";
+                                    }
+
+                                    if (thirdParentObj != null && thirdParentObj.getJEVisClass().equals(organisationClass)) {
+                                        prefix += thirdParentObj.getName() + " / ";
+                                    }
+
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-
-                            } catch (Exception e) {
+                                setText(prefix + obj.getName());
                             }
-                            setText(prefix + obj.getName());
+
                         }
+                    };
+                }
+            };
 
-                    }
-                };
-            }
-        };
-
-        this.listAnalysesComboBox.setCellFactory(cellFactory);
-        this.listAnalysesComboBox.setButtonCell(cellFactory.call(null));
+            this.listAnalysesComboBox.setCellFactory(cellFactory);
+            this.listAnalysesComboBox.setButtonCell(cellFactory.call(null));
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
     }
 
     public ToggleButton getBackgroundButton() {

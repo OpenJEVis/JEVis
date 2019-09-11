@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.dashboard.widget;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -89,19 +88,22 @@ public class LinkerWidget extends Widget {
                     DataModelDataHandler.getManipulationMode(interval), interval);
 
             showProgressIndicator(false);
+
+            Platform.runLater(() ->
+            {
+                try {
+//                this.anchorPane.getChildren().clear();
+                    this.anchorPane.getChildren().setAll(this.openAnalysisButton);
+                    Layouts.setAnchor(this.openAnalysisButton, 0);
+
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            });
         } catch (
                 Exception ex) {
             logger.error(ex);
         }
-
-
-        Platform.runLater(() ->
-
-        {
-            this.anchorPane.getChildren().clear();
-            this.anchorPane.getChildren().add(this.openAnalysisButton);
-            Layouts.setAnchor(this.openAnalysisButton, 0);
-        });
 
 
     }
@@ -115,14 +117,18 @@ public class LinkerWidget extends Widget {
     public void updateConfig() {
 //        System.out.println("update link: " + this.config.getBackgroundColor());
         Platform.runLater(() -> {
-            Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
-            Background bgColorTrans = new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY));
-            //            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-            this.setBackground(bgColorTrans);
+            try {
+                Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
+                Background bgColorTrans = new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY));
+                //            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+                this.setBackground(bgColorTrans);
 
-            this.anchorPane.setBackground(bgColor);
-            this.setBorder(null);
-            this.layout();
+                this.anchorPane.setBackground(bgColor);
+                this.setBorder(null);
+                this.layout();
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         });
 
     }
@@ -218,6 +224,7 @@ public class LinkerWidget extends Widget {
 
     @Override
     public void init() {
+        logger.debug("Linker.Widget.init");
         this.anchorPane = new AnchorPane();
 
         try {
@@ -233,6 +240,7 @@ public class LinkerWidget extends Widget {
         } catch (Exception ex) {
             logger.error(ex);
         }
+        Layouts.setAnchor(anchorPane, 5);
         setGraphic(this.anchorPane);
     }
 
@@ -248,11 +256,7 @@ public class LinkerWidget extends Widget {
         ObjectNode dashBoardNode = super.createDefaultNode();
         dashBoardNode
                 .set(GraphAnalysisLinker.ANALYSIS_LINKER_NODE, objectMapper.valueToTree(dataModelNode));
-        try {
-            System.out.println("link node: " + mapper.writeValueAsString(dashBoardNode));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+
         return dashBoardNode;
     }
 

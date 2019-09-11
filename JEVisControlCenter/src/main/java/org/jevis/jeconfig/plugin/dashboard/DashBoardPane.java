@@ -4,7 +4,6 @@ import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -18,7 +17,6 @@ import javafx.stage.Popup;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
@@ -120,7 +118,11 @@ public class DashBoardPane extends Pane {
 
     public void updateView() {
         Platform.runLater(() -> {
-            loadSetting(this.control.getActiveDashboard());
+            try {
+                loadSetting(this.control.getActiveDashboard());
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         });
     }
 
@@ -141,9 +143,13 @@ public class DashBoardPane extends Pane {
 
     public void addWidget(Widget widget) {
         Platform.runLater(() -> {
-            if (!getChildren().contains(widget)) {
-                getChildren().add(widget);
-                widget.setVisible(true);
+            try {
+                if (!getChildren().contains(widget)) {
+                    getChildren().add(widget);
+                    widget.setVisible(true);
+                }
+            } catch (Exception ex) {
+                logger.error(ex);
             }
         });
 
@@ -250,23 +256,6 @@ public class DashBoardPane extends Pane {
         });
     }
 
-    private void showLoading(boolean isLoading) {
-
-
-        if (isLoading) {
-            Platform.runLater(() -> {
-                JEConfig.getStage().getScene().setCursor(Cursor.WAIT);
-            });
-
-
-        } else {
-            Platform.runLater(() -> {
-                JEConfig.getStage().getScene().setCursor(Cursor.DEFAULT);
-            });
-        }
-
-
-    }
 
     private void setSize(Size newValue) {
         logger.error("setSize: {}/{}", newValue.getWidth(), newValue.getHeight());

@@ -32,8 +32,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisAttribute;
@@ -48,7 +46,6 @@ import org.jevis.jeconfig.dialog.ExceptionDialog;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
-import org.jevis.jeconfig.sample.SampleEditor;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
@@ -64,7 +61,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     private static final String TITEL = I18n.getInstance().getString("plugin.object.attribute.title");
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(GenericAttributeExtension.class);
     public static DoubleProperty editorWidth = new SimpleDoubleProperty(350);
-    private final BorderPane _view = new BorderPane();
+    private final ScrollPane _view = new ScrollPane();
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisObject _obj;
     private boolean _needSave = false;
@@ -73,32 +70,34 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     public GenericAttributeExtension(JEVisObject obj, JEVisTree tree) {
         this.tree = tree;
-        this._obj = obj;
-        this._attributesEditor = new ArrayList<>();
-        this._view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        _obj = obj;
+        _attributesEditor = new ArrayList<>();
+        _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        _view.getStylesheets().add("/styles/Styles.css");
+        _view.setFitToWidth(true);
     }
 
     @Override
     public boolean isForObject(JEVisObject obj) {
 
-        //its for all in the memoment
-        //TODO: handel the case that we have an spezial representation an dont whant the generic
+        //its for all in the moment
+        //TODO: handle the case that we have an special representation an don't want the generic
         return true;
     }
 
     @Override
     public BooleanProperty getValueChangedProperty() {
-        return this._changed;
+        return _changed;
     }
 
     @Override
     public Node getView() {
-        return this._view;
+        return _view;
     }
 
     @Override
     public void setVisible() {
-        Platform.runLater(() -> buildGui(this._obj));
+        Platform.runLater(() -> buildGui(_obj));
     }
 
     @Override
@@ -108,22 +107,22 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     @Override
     public boolean needSave() {
-        return this._changed.getValue();
+        return _changed.getValue();
 //        return true;//TODO: implement
     }
 
     @Override
     public void dismissChanges() {
-        this._changed.setValue(false);
+        _changed.setValue(false);
         //TODO delete changes
     }
 
     @Override
     public boolean save() {
-        logger.debug("Extensions: {}", this._attributesEditor.size());
+        logger.debug("Extensions: {}", _attributesEditor.size());
 
         boolean allValid = true;
-        for (AttributeEditor editor : this._attributesEditor) {
+        for (AttributeEditor editor : _attributesEditor) {
             if (!editor.isValid()) {
                 allValid = false;
             }
@@ -156,7 +155,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     }
 
     private boolean saveAll() {
-        for (AttributeEditor editor : this._attributesEditor) {
+        for (AttributeEditor editor : _attributesEditor) {
             try {
                 logger.debug("{}.save(): {}", this.getTitle(), editor.getAttribute().getName());
                 editor.commit();
@@ -174,8 +173,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             }
 
         }
-        this._changed.setValue(false);
-        this._needSave = false;
+        _changed.setValue(false);
+        _needSave = false;
         return true;
     }
 
@@ -190,7 +189,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     private void buildGui(JEVisObject obj) {
         logger.trace("load: {}", obj.getID());
-        this._needSave = false;
+        _needSave = false;
 
         boolean readOnly = true;
         try {
@@ -210,6 +209,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         gridPane.setPadding(new Insets(5, 0, 20, 20));
         gridPane.setHgap(10);//7
         gridPane.setVgap(5);
+        AttributeEditor webview = null;
+        Label webViewName = null;
 
         try {
             int coloum = 0;
@@ -217,12 +218,13 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
             if (!obj.getJEVisClass().getTypes().isEmpty()) {
                 List<JEVisAttribute> attributes = obj.getAttributes();//load once because this function is not cached
-                for (JEVisType type : obj.getJEVisClass().getTypes()) {//loop types not attributes to be sure only no deletet type are shown
+                for (JEVisType type : obj.getJEVisClass().getTypes()) {//loop types not attributes to be sure only no delete type are shown
                     JEVisAttribute att = getAttribute(type.getName(), attributes);
                     if (att == null) {
                         continue;
                     }
                     AttributeEditor editor = new ErrorEditor();
+                    Label name = new Label(I18nWS.getInstance().getAttributeName(att));
 
                     try {
                         String guiDisplayType = type.getGUIDisplayType();
@@ -238,9 +240,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                                         editor = new DateEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_OBJECT.getId())) {
-                                        editor = new TargetEditor(att, SelectTargetDialog.MODE.OBJECT, this.tree);
+                                        editor = new TargetEditor(att, SelectTargetDialog.MODE.OBJECT, tree);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_ATTRIBUTE.getId())) {
-                                        editor = new TargetEditor(att, SelectTargetDialog.MODE.ATTRIBUTE, this.tree);
+                                        editor = new TargetEditor(att, SelectTargetDialog.MODE.ATTRIBUTE, tree);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_PASSWORD.getId())) {
                                         editor = new ReadablePasswordEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.DATE_TIME.getId())) {
@@ -263,6 +265,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                         editor = new AlarmEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.WEB_VIEW.getId())) {
                                         editor = new WebViewEditor(att);
+                                        webview = editor;
+                                        webViewName = name;
                                     }
                                 } catch (Exception e) {
                                     logger.error("Error with GUI Type: {} {} {}", type.getName(), type.getPrimitiveType(), type.getGUIDisplayType());
@@ -327,19 +331,19 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         logger.catching(ex);
                     }
 
-                    Label name = new Label(I18nWS.getInstance().getAttributeName(att));
                     Tooltip tt = new Tooltip(I18nWS.getInstance().getAttributeDescription(att));
                     if (!tt.getText().isEmpty()) {
                         name.setTooltip(tt);
                     }
 
-                    SampleEditor se = new SampleEditor();
+//                    SampleEditor se = new SampleEditor();
 
                     AttributeAdvSettingDialogButton attSettingsButton = new AttributeAdvSettingDialogButton(att);
 
 
                     Node editNode = editor.getEditor();
-                    editNode.maxWidth(editorWidth.getValue());
+
+//                    editNode.maxWidth(editorWidth.getValue());
 
                     gridPane.add(name, 0, coloum);
                     gridPane.add(editNode, 2, coloum);
@@ -352,7 +356,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     name.setAlignment(Pos.CENTER_RIGHT);
 
                     coloum++;
-                    this._attributesEditor.add(editor);
+                    _attributesEditor.add(editor);
                     logger.trace("done: {}", obj.getID());
 
 //                    try {
@@ -367,7 +371,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 //                                    JEVisAttribute source = (JEVisAttribute) event.getSource();
 //                                    if (att.equals(source)) {
 //                                        logger.error("Update attribute: " + att + " " + ediorReditor);
-//                                        ediorReditor.get().updateData();
+//                                        ediorReditor.get().update();
 //                                    }
 //
 //
@@ -386,21 +390,20 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             logger.catching(ex);
         }
 
-        AnchorPane.setTopAnchor(gridPane, 0.0);
-        AnchorPane.setRightAnchor(gridPane, 0.0);
-        AnchorPane.setLeftAnchor(gridPane, 0.0);
-        AnchorPane.setBottomAnchor(gridPane, 0.0);
-
-        ScrollPane scroll = new ScrollPane();
-        scroll.setMaxSize(10000, 10000);
-        scroll.setContent(gridPane);
-
         gridPane.setStyle("-fx-background-color: transparent;");
 
-        scroll.getStylesheets().add("/styles/Styles.css");
-        this._view.setStyle("-fx-background-color: transparent;");
+        _view.setStyle("-fx-background-color: transparent;");
 
-        this._view.setCenter(scroll);
+        _view.setContent(gridPane);
+
+        if (webview != null && webViewName != null) {
+            WebViewEditor finalWebview = (WebViewEditor) webview;
+            Label finalWebViewName = webViewName;
+            Platform.runLater(() -> {
+                finalWebview.getEditor().prefWidth(_view.getWidth() - finalWebViewName.getWidth());
+                finalWebview.getWebView().setPrefWidth(_view.getWidth() - finalWebViewName.getWidth());
+            });
+        }
 
     }
 }

@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
-import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -8,11 +7,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.stage.*;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -83,13 +82,18 @@ public class DashboardControl {
 
         this.highlightProperty.addListener((observable, oldValue, newValue) -> {
             this.widgetList.forEach(widget -> {
-                if (newValue) {
-                    widget.setGlow(newValue);
-                } else {
-                    Platform.runLater(() -> {
-                        widget.setEffect(null);
-                    });
-                }
+                Platform.runLater(() -> {
+                    try {
+                        if (newValue) {
+                            widget.setGlow(newValue);
+                        } else {
+                            widget.setEffect(null);
+                        }
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
+                });
+
             });
         });
 
@@ -241,7 +245,6 @@ public class DashboardControl {
 
             this.configManager.getBackgroundImage(this.activeDashboard.getDashboardObject()).addListener((observable, oldValue, newValue) -> {
                 if (newValue != null) {
-                    System.out.println("Set Wallpaper: " + newValue.getWidth());
                     this.dashBordPlugIn.getDashBoardPane().setBackgroundImage(newValue);
                 }
             });
@@ -286,7 +289,7 @@ public class DashboardControl {
                 }
             }
         }
-        logger.error("calculated max TS: {}", date);
+        logger.debug("calculated max TS: {}", date);
         return date;
     }
 
@@ -295,7 +298,11 @@ public class DashboardControl {
 //        System.out.println("setEditable: " + editable);
         this.widgetList.forEach(widget -> {
             Platform.runLater(() -> {
-                widget.setEditable(editable);
+                try {
+                    widget.setEditable(editable);
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
             });
 
         });
@@ -325,47 +332,59 @@ public class DashboardControl {
     }
 
     public void setPrevInteval() {
-        Interval nextInterval = this.activeTimeFrame.previousPeriod(this.activeInterval, 1);
-        if (nextInterval.getStart().isBeforeNow()) {
-            setInterval(nextInterval);
+        try {
+            Interval nextInterval = this.activeTimeFrame.previousPeriod(this.activeInterval, 1);
+            if (nextInterval.getStart().isBeforeNow()) {
+                setInterval(nextInterval);
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
         }
     }
 
     public void setNextInterval() {
-        Interval nextInterval = this.activeTimeFrame.nextPeriod(this.activeInterval, 1);
-        if (nextInterval.getStart().isBeforeNow()) {
-            setInterval(nextInterval);
+        try {
+            Interval nextInterval = this.activeTimeFrame.nextPeriod(this.activeInterval, 1);
+            if (nextInterval.getStart().isBeforeNow()) {
+                setInterval(nextInterval);
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
         }
     }
 
     private void restartExecutor() {
-        if (this.executor != null) {
-            this.executor.shutdownNow();
+        try {
+            if (this.executor != null) {
+                this.executor.shutdownNow();
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
         }
-
         this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
 
     }
 
     public void setInterval(Interval interval) {
-        logger.error("SetInterval to: {}", interval);
-        this.activeInterval = interval;
-        rundataUpdateTasks(false);
+        try {
+            logger.error("SetInterval to: {}", interval);
+            this.activeInterval = interval;
+            rundataUpdateTasks(false);
 
-
-//        restartExecutor();
-//
-//        DashboardControl.this.widgetList.parallelStream().forEach(widget -> {
-//            addWidgetUpdateTask(widget, interval);
-//        });
-
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
     }
 
 
     public void requestViewUpdate(Widget widget) {
         logger.error("requestViewUpdate: {}", widget.getConfig().getTitle());
 //        widget.updateData(getInterval());
-        widget.updateConfig(widget.getConfig());
+        try {
+            widget.updateConfig(widget.getConfig());
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
 //        widget.updateConfig();
     }
 
@@ -390,17 +409,21 @@ public class DashboardControl {
 
 
     private void stopAllUpdates() {
-        this.isUpdateRunning = false;
+        try {
+            this.isUpdateRunning = false;
 
-        if (this.updateTask != null) {
-            try {
-                this.updateTask.cancel();
-            } catch (Exception ex) {
+            if (this.updateTask != null) {
+                try {
+                    this.updateTask.cancel();
+                } catch (Exception ex) {
 
+                }
             }
+            this.updateTimer.cancel();
+            if (this.executor != null) this.executor.shutdownNow();
+        } catch (Exception ex) {
+            logger.error(ex);
         }
-        this.updateTimer.cancel();
-        if (this.executor != null) this.executor.shutdownNow();
     }
 
     public void rundataUpdateTasks(boolean reStartUpdateDeamon) {
@@ -411,15 +434,17 @@ public class DashboardControl {
         this.updateTimer = new Timer(true);
         this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
 
-        Platform.runLater(() -> {
-            this.widgetList.forEach(widget -> {
-                if (!widget.isStatic()) {
-                    widget.showProgressIndicator(true);
-                }
-            });
-        });
-
-//        final Interval interval = DashboardControl.this.activeDashboard.getTimeFrame().getInterval(DateTime.now());
+        for (Widget widget : this.widgetList) {
+            if (!widget.isStatic()) {
+                Platform.runLater(() -> {
+                    try {
+                        widget.showProgressIndicator(true);
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
+                });
+            }
+        }
 
 
         logger.debug("Update Interval: {}", activeInterval);
@@ -427,9 +452,15 @@ public class DashboardControl {
             @Override
             public void run() {
                 logger.debug("Starting Update");
-                DashboardControl.this.widgetList.parallelStream().forEach(widget -> {
-                    addWidgetUpdateTask(widget, activeInterval);
-                });
+                try {
+                    for (Widget widget : DashboardControl.this.widgetList)
+                        addWidgetUpdateTask(widget, activeInterval);
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+//                DashboardControl.this.widgetList.parallelStream().forEach(widget -> {
+//                    addWidgetUpdateTask(widget, activeInterval);
+//                });
             }
         };
 
@@ -441,7 +472,6 @@ public class DashboardControl {
         } else {
             this.updateTimer.schedule(this.updateTask, 1000);
         }
-
 
     }
 
@@ -481,10 +511,14 @@ public class DashboardControl {
 
 
     public void addWidget(Widget widget) {
-        widget.init();
-        this.widgetList.add(widget);
-        this.dashboardPane.addWidget(widget);
-        widget.updateData(this.activeInterval);
+        try {
+            widget.init();
+            this.widgetList.add(widget);
+            this.dashboardPane.addWidget(widget);
+            widget.updateData(this.activeInterval);
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
     }
 
     public synchronized void removeAllWidgets(Collection<Widget> elements) {
@@ -496,11 +530,13 @@ public class DashboardControl {
     }
 
     public synchronized void removeWidget(Widget widget) {
-        System.out.println("Remove widget: " + widget);
-        widget.setVisible(false);
-        this.widgetList.remove(widget);
-        this.dashboardPane.removeWidget(widget);
-        System.out.println("done");
+        try {
+            widget.setVisible(false);
+            this.widgetList.remove(widget);
+            this.dashboardPane.removeWidget(widget);
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
 
     }
 
@@ -584,48 +620,15 @@ public class DashboardControl {
         final Background background = new Background(backgroundImage);
 
         Platform.runLater(() -> {
-            this.dashBordPlugIn.getDashBoardPane().setBackground(background);
+            try {
+                this.dashBordPlugIn.getDashBoardPane().setBackground(background);
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         });
 
     }
 
-
-    /**
-     * Opens the new dashboard Wizard
-     * <p>
-     * TODO: implement
-     */
-    public void startWizard() {
-        PopupWindow popupWindow = new Popup();
-        popupWindow.show((Stage) this.dashBordPlugIn.getDashBoardPane().getScene().getWindow(), 0, 50);
-
-        Stage newWidget = new Stage();
-        newWidget.initStyle(StageStyle.UNDECORATED);
-        FlowPane flowPane = new FlowPane();
-        flowPane.getChildren().addAll(new JFXButton("Test"), new JFXButton("blub"));
-        Scene newScene = new Scene(flowPane);
-
-//        Bounds boundsInScreen = this.dashBordPlugIn.localToScene(this.getBoundsInLocal());
-//        System.out.println("Bounds: " + boundsInScreen);
-//
-//        System.out.println("B1: " + newWidgetButton.getBoundsInLocal());
-//        System.out.println("B2: " + newWidgetButton.getBoundsInParent());
-//        System.out.println("B3: " + newWidgetButton.layoutBoundsProperty().get());
-////            boundsInScreen = newWidget.setScene(newScene);
-//        newWidget.setAlwaysOnTop(true);
-//        newWidget.initOwner(JEConfig.getStage());
-//        newWidget.setX(boundsInScreen.getMaxX());
-//        newWidget.setY(boundsInScreen.getMaxY());
-//        newWidget.show();
-
-//            Wizard wizzard = new Wizard(JEConfig.getDataSource());
-//            Optional<Widget> newWidget = wizzard.show(null);
-//
-//            if (newWidget.isPresent()) {
-//                dashBordPlugIn.addWidget(newWidget.get().getConfig());
-//            }
-
-    }
 
     private JEVisObject getUserSelectedDashboard() {
         JEVisObject currentUserObject = null;
@@ -638,7 +641,7 @@ public class DashboardControl {
                     return th.getObject().get(0);
                 }
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not get Start dashboard from user.");
         }
 
