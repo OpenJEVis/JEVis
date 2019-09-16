@@ -28,20 +28,16 @@ public class DashBoardPane extends Pane {
 
 
     private static final Logger logger = LogManager.getLogger(DashBoardPane.class);
-    private final DashboardPojo analysis;
-//    private ObservableList<Widget> widgetList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
-
-//    private List<Widget> widgetList = new ArrayList<>();
-
+    private DashboardPojo analysis;
     private List<Double> xGrids = new ArrayList<>();
     private List<Double> yGrids = new ArrayList<>();
     private Scale scale = new Scale();
-
     private List<Line> visibleGrid = new ArrayList<>();
-
     private final JEVisDataSource jeVisDataSource;
     private final DashboardControl control;
     private final Background defaultBackground;
+    private boolean snapToGrid = false;
+    private boolean gridIsVisible = false;
 
     public DashBoardPane(DashboardControl control) {
         super();
@@ -131,11 +127,11 @@ public class DashBoardPane extends Pane {
             logger.error("setSize=enty analysis");
             return;
         }
-        logger.error("Load dashboard: {}", analysis);
-
+        logger.debug("Load dashboard: {}", analysis);
+        this.analysis = analysis;
 
         setSize(analysis.getSize());
-        createGrid(this.analysis.xGridInterval, this.analysis.yGridInterval);
+        createGrid(analysis.xGridInterval, analysis.yGridInterval);
 
 //        this.scale.setX(analysis.getZoomFactor());
 //        this.scale.setY(analysis.getZoomFactor());
@@ -147,6 +143,13 @@ public class DashBoardPane extends Pane {
                 if (!getChildren().contains(widget)) {
                     getChildren().add(widget);
                     widget.setVisible(true);
+
+                    if (gridIsVisible) {
+                        visibleGrid.forEach(line -> {
+                            line.toFront();
+                        });
+                    }
+
                 }
             } catch (Exception ex) {
                 logger.error(ex);
@@ -284,13 +287,7 @@ public class DashBoardPane extends Pane {
 
 
     public void activateGrid(boolean show) {
-//        if (show) {
-//            createGrid(this.analysis.xGridInterval, this.analysis.yGridInterval);
-////            DashBoardPane.this.getChildren().addAll(this.visibleGrid);
-//        } else {
-////            DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
-//            visibleGrid.clear();
-//        }
+        this.snapToGrid = show;
     }
 
     public void showGrid(boolean show) {
@@ -298,9 +295,19 @@ public class DashBoardPane extends Pane {
         if (show) {
 //            activateGrid(true);
 //            createGrid(this.analysis.xGridInterval, this.analysis.yGridInterval);
-            DashBoardPane.this.getChildren().addAll(this.visibleGrid);
+            Platform.runLater(() -> {
+                DashBoardPane.this.getChildren().addAll(this.visibleGrid);
+//                visibleGrid.forEach(line -> {
+//                    System.out.println("Add LIne: " + line.toString());
+//                    DashBoardPane.this.getChildren().add(line);
+//                    line.toFront();
+//                });
+            });
+            gridIsVisible = true;
+
         } else {
             DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
+            gridIsVisible = false;
 //            visibleGrid.clear();
         }
     }
@@ -310,12 +317,14 @@ public class DashBoardPane extends Pane {
      * <p>
      * TODO: make the grid bigger than the visible view, so the user can zoom out an still has an grid
      *
-     * @param xWidth
-     * @param height
+     * @param xGridInterval
+     * @param yGridInterval
      */
-    public void createGrid(double xWidth, double height) {
-        int maxColumns = Double.valueOf(DashBoardPane.this.getWidth() / xWidth).intValue() + 1;
-        int maxRows = Double.valueOf(DashBoardPane.this.getHeight() / height).intValue() + 1;
+    public void createGrid(double xGridInterval, double yGridInterval) {
+        double totalHeight = analysis.getSize().getHeight();
+        double totalWidth = analysis.getSize().getWidth();
+        int maxColumns = Double.valueOf(totalWidth / xGridInterval).intValue() + 1;
+        int maxRows = Double.valueOf(totalHeight / yGridInterval).intValue() + 1;
         double opacity = 0.4;
         Double[] strokeDashArray = new Double[]{4d};
         this.xGrids.clear();
@@ -324,15 +333,14 @@ public class DashBoardPane extends Pane {
 
         /** rows **/
         for (int i = 0; i < maxColumns; i++) {
-            double xPos = i * xWidth;
+            double xPos = i * xGridInterval;
             this.xGrids.add(xPos);
-
 
             Line line = new Line();
             line.setStartX(xPos);
             line.setStartY(0.0f);
             line.setEndX(xPos);
-            line.setEndY(DashBoardPane.this.getHeight());
+            line.setEndY(totalHeight);
             line.getStrokeDashArray().addAll(strokeDashArray);
             line.setOpacity(opacity);
             this.visibleGrid.add(line);
@@ -341,13 +349,13 @@ public class DashBoardPane extends Pane {
 
         /** columns **/
         for (int i = 0; i < maxRows; i++) {
-            double yPos = i * height;
+            double yPos = i * yGridInterval;
             this.yGrids.add(yPos);
 
             Line line = new Line();
             line.setStartX(0);
             line.setStartY(yPos);
-            line.setEndX(DashBoardPane.this.getWidth());
+            line.setEndX(totalWidth);
             line.setEndY(yPos);
             line.getStrokeDashArray().addAll(strokeDashArray);
             line.setOpacity(opacity);
@@ -358,41 +366,23 @@ public class DashBoardPane extends Pane {
 
 
     public double getNextGridX(double xPos) {
-        if (!this.analysis.getSnapToGrid()) {
+        if (!this.snapToGrid) {
             return xPos;
         }
         double c = this.xGrids.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - xPos)))
                 .orElse(xPos);
-
-//        System.out.println("Next xPos: " + c);
         return c;
     }
 
     public double getNextGridY(double yPos) {
-        if (!this.analysis.getSnapToGrid()) {
+        if (!this.snapToGrid) {
             return yPos;
         }
         double c = this.yGrids.stream()
                 .min(Comparator.comparingDouble(i -> Math.abs(i - yPos)))
                 .orElse(yPos);
-
-//        System.out.println("Next yPos: " + c);
         return c;
-    }
-
-
-    private void printChildren() {
-//        System.out.println("---");
-//        for (Widget node : this.widgetList) {
-//            String id = "";
-//
-//            if (node instanceof Widget) {
-//                id = ((Widget) node).getId();
-//            }
-//
-//            System.out.println("Child: " + id + "  " + node.getClass() + " " + node);
-//        }
     }
 
 

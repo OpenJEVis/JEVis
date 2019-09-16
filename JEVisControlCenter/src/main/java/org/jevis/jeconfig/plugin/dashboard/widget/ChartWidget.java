@@ -30,6 +30,7 @@ import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -127,8 +128,9 @@ public class ChartWidget extends Widget {
                 logger.error(ex);
             }
 
+            showProgressIndicator(false);
         });
-        showProgressIndicator(false);
+
         logger.error("Chart.Update.done: {}", interval);
     }
 
@@ -166,7 +168,11 @@ public class ChartWidget extends Widget {
 
     @Override
     public List<DateTime> getMaxTimeStamps() {
-        return sampleHandler.getMaxTimeStamps();
+        if (sampleHandler != null) {
+            return sampleHandler.getMaxTimeStamps();
+        } else {
+            return new ArrayList<>();
+        }
     }
 
 

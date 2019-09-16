@@ -268,11 +268,6 @@ public abstract class Widget extends Region {
         contextMenu.getItems().addAll(configItem, delete);
 
         this.editPane.setOnMouseClicked(event -> {
-//            if (event.getButton().equals(MouseButton.PRIMARY)) {
-//                if (event.getClickCount() == 2) {
-//                    openConfig();
-//                }
-//            }
             if (event.getButton().equals(MouseButton.SECONDARY)) {
                 contextMenu.show(this.editPane, event.getScreenX(), event.getScreenY());
             }
@@ -281,13 +276,10 @@ public abstract class Widget extends Region {
 
     }
 
-
     public void setNodeSize(double width, double height) {
         logger.debug("setNodeSize: old w:{}/h:{}  new w:{}/h:{}", this.getWidth(), this.getHeight(), width, height);
 
         Platform.runLater(() -> {
-
-
             this.contentRoot.setMaxHeight(height);
             this.contentRoot.setMinHeight(height);
             this.contentRoot.setPrefHeight(height);
@@ -325,6 +317,9 @@ public abstract class Widget extends Region {
             size.setHeight(height);
             size.setWidth(width);
             this.config.setSize(size);
+            /** performance workaround, update y/x if the drag&Drop event moves and resize at the same time **/
+            this.config.setxPosition(getLayoutX());
+            this.config.setyPosition(getLayoutY());
         });
     }
 

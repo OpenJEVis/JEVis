@@ -36,6 +36,7 @@ import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.Constants;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
@@ -105,6 +106,7 @@ public class GraphDataModel {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private Boolean temporary = false;
 
+
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
@@ -128,10 +130,10 @@ public class GraphDataModel {
                 if (getCurrentAnalysis() != null && !getTemporary()) {
                     selectedData = new HashSet<>();
                     charts = new ArrayList<>();
-
                     getSelectedData();
-
                 }
+
+
                 update();
             }
         });
@@ -139,9 +141,7 @@ public class GraphDataModel {
 
     public Set<ChartDataModel> getSelectedData() {
         if (selectedData == null || selectedData.isEmpty()) {
-
             updateSelectedData();
-
         }
 
         return this.selectedData;
@@ -173,7 +173,7 @@ public class GraphDataModel {
                     @Override
                     protected Void call() {
                         updateMessage(loading);
-                        Platform.runLater(() -> graphPluginView.update(true));
+                        graphPluginView.update(true);
                         return null;
                     }
                 };
@@ -570,6 +570,9 @@ public class GraphDataModel {
 
     public void setAnalysisTimeFrameForAllModels(AnalysisTimeFrame analysisTimeFrame) {
 
+        double totalJobs = charts.size();
+        double jobsDone = 0;
+
         for (ChartSettings chartSettings : charts) {
             chartSettings.setAnalysisTimeFrame(analysisTimeFrame);
 
@@ -582,7 +585,8 @@ public class GraphDataModel {
             dateHelper.setMinMaxForDateHelper(chartDataModels);
 
             setAnalysisTimeFrameForModels(chartDataModels, dateHelper, analysisTimeFrame);
-
+            jobsDone++;
+            JEConfig.getStatusBar().setProgressBar(totalJobs, jobsDone, "");
         }
 
         globalAnalysisTimeFrame = analysisTimeFrame;
@@ -940,6 +944,9 @@ public class GraphDataModel {
 
     private ManipulationMode globalManipulationMode = ManipulationMode.NONE;
 
+    /**
+     * NOTE fs: this one will be called twice after user select an chart....
+     */
     public void updateSelectedData() {
         Set<ChartDataModel> selectedData = new HashSet<>();
 
@@ -1012,6 +1019,12 @@ public class GraphDataModel {
             }
         }
         this.selectedData = selectedData;
+        try {
+            double totalJob = selectedData.size() * 2 + 3;
+            JEConfig.getStatusBar().startProgressJob(GraphPluginView.JOB_NAME, totalJob, "Start Update");
+        } catch (Exception ex) {
+
+        }
     }
 
     public AggregationPeriod getAggregationPeriod() {

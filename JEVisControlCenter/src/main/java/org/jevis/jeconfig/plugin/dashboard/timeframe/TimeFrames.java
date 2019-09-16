@@ -226,6 +226,7 @@ public class TimeFrames {
             @Override
             public String getID() {
                 return Period.days(1).toString();
+//                return Period.hours(24).toString();
 //                return TimeFrameType.DAY.toString();
             }
 
@@ -305,6 +306,7 @@ public class TimeFrames {
             @Override
             public String getID() {
                 return Period.weeks(1).toString();
+//                return Period.days(7).toString();
 //                return TimeFrameType.WEEK.toString();
             }
 
@@ -358,6 +360,7 @@ public class TimeFrames {
             @Override
             public String getID() {
                 return Period.months(1).toString();
+//                return Period.days(30).toString();
             }
 
             @Override
@@ -418,6 +421,7 @@ public class TimeFrames {
             @Override
             public String getID() {
                 return Period.years(1).toString();
+//                return Period.days(365).toString();
 //                return TimeFrameType.YEAR.toString();
             }
 
@@ -466,6 +470,7 @@ public class TimeFrames {
             }
         };
     }
+
 
     public enum TimeFrameType {
         DAY, WEEK, MONTH, YEAR, CUSTOM

@@ -298,8 +298,11 @@ public class XYChart implements Chart {
         XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
 
         hexColors.add(singleRow.getColor());
-        chart.getData().add(serie.getSerie());
-        tableData.add(serie.getTableEntry());
+        Platform.runLater(() -> {
+            chart.getData().add(serie.getSerie());
+            tableData.add(serie.getTableEntry());
+        });
+
 
         /**
          * check if timestamps are in serie
@@ -909,15 +912,25 @@ public class XYChart implements Chart {
     }
 
     private void checkForY2Axis() {
-        boolean hasY2Axis = false;
-        for (XYChartSerie serie : xyChartSerieList) {
-            if (serie.getyAxis() == 1) {
-                hasY2Axis = true;
-                break;
+
+        Platform.runLater(() -> {
+            try {
+                boolean hasY2Axis = false;
+                for (XYChartSerie serie : xyChartSerieList) {
+                    if (serie.getyAxis() == 1) {
+                        hasY2Axis = true;
+                        break;
+                    }
+                }
+
+                if (!hasY2Axis) y2Axis.setVisible(false);
+                else y2Axis.setVisible(true);
+            } catch (Exception ex) {
+                logger.error(ex);
             }
-        }
-        if (!hasY2Axis) y2Axis.setVisible(false);
-        else y2Axis.setVisible(true);
+
+        });
+
     }
 
     @Override

@@ -172,7 +172,12 @@ public class TableWidget extends Widget {
 
     @Override
     public List<DateTime> getMaxTimeStamps() {
-        return sampleHandler.getMaxTimeStamps();
+        if (sampleHandler != null) {
+            return sampleHandler.getMaxTimeStamps();
+        } else {
+            return new ArrayList<>();
+        }
+
     }
 
     @Override
