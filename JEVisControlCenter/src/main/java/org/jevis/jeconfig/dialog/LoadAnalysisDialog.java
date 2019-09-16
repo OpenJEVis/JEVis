@@ -67,6 +67,7 @@ public class LoadAnalysisDialog {
     private Button newButton;
     private CheckBox drawOptimization;
 
+
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data) {
         this.graphDataModel = data;
         this.ds = ds;

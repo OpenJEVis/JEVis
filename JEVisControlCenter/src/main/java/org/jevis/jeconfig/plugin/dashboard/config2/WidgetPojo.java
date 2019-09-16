@@ -201,6 +201,8 @@ public class WidgetPojo {
     }
 
     public void setSize(Size size) {
+        if (size.getWidth() < 10) size.setWidth(10);
+        if (size.getHeight() < 10) size.setHeight(10);
         this.size = size;
     }
 

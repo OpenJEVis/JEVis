@@ -2,7 +2,11 @@ package org.jevis.jeconfig.plugin.dashboard;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -22,7 +26,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.CommonDialogs;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.plugin.dashboard.common.DashboardExport;
-import org.jevis.jeconfig.plugin.dashboard.common.ProcessMonitor;
 import org.jevis.jeconfig.plugin.dashboard.config2.ConfigManager;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardSorter;
@@ -65,12 +68,14 @@ public class DashboardControl {
     public BooleanProperty highlightProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showGridProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showSnapToGridProperty = new SimpleBooleanProperty(false);
-    public BooleanProperty editableGridProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty editableProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty enableSnapToGridProperty = new SimpleBooleanProperty(false);
     private TimeFrameFactory defaultTimeFrame = null;
     private DashBoardPane dashboardPane;
-    private ProcessMonitor processMonitor = new ProcessMonitor();
     private boolean unsavedChanged = false;
     private DashBoardToolbar toolBar;
+    private DoubleProperty totalUpdateJobs = new SimpleDoubleProperty(0d);
+    private DoubleProperty finishUpdateJobs = new SimpleDoubleProperty(0d);
 
 
     public DashboardControl(DashBordPlugIn plugin) {
@@ -97,9 +102,85 @@ public class DashboardControl {
             });
         });
 
+        ChangeListener<Number> updateProgressListener = new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+
+                updateProgressBar(totalUpdateJobs.get(), finishUpdateJobs.get());
+//                System.out.println("total:  " + totalUpdateJobs.get());
+//                System.out.println("finished: " + finishUpdateJobs.get());
+//                ProgressBar progressBar = DashboardControl.this.dashBordPlugIn.getDashBoardToolbar().getProgressBar();
+//                if (totalUpdateJobs.get() > 0 && finishUpdateJobs.get() > 0) {
+//                    double procent = (100 / totalUpdateJobs.get()) * finishUpdateJobs.get();
+//                    System.out.println("procent: (100/" + totalUpdateJobs.get() + ")*" + finishUpdateJobs.get() + "=" + procent);
+//
+//                    Platform.runLater(() -> {
+//                        progressBar.setProgress(procent);
+//                    });
+//                } else {
+//                    Platform.runLater(() -> {
+//                        progressBar.setProgress(0);
+//                    });
+//                }
+//                int t1 = 36;
+//                int t2 = 36;
+//                System.out.println("whaaa: " + ((100 / t1) * t2));
+
+            }
+        };
+        finishUpdateJobs.addListener((observable, oldValue, newValue) -> {
+            updateProgressBar(totalUpdateJobs.getValue(), newValue.intValue());
+        });
+        totalUpdateJobs.addListener((observable, oldValue, newValue) -> {
+            updateProgressBar(newValue.intValue(), finishUpdateJobs.getValue());
+        });
+
+
+//        runningUpdateTaskList.addListener(new ListChangeListener<Task>() {
+//            @Override
+//            public void onChanged(Change<? extends Task> c) {
+//                c.next();
+//                if (c.wasAdded() || c.wasRemoved()) {
+//                    int newTotalSize = 0;
+//                    if (c.wasAdded()) {
+//                        newTotalSize = c.getList().size() + c.getAddedSize();
+//                    }
+//                    if (c.wasRemoved()) {
+//                        newTotalSize = c.getList().size() - c.getRemovedSize();
+//                    }
+//
+//                    double procent = (100 / DashboardControl.this.totalUpdateJobs.getValue()) * newTotalSize;
+//                    System.out.println("1.jobs: " + DashboardControl.this.totalUpdateJobs.getValue());
+//                    System.out.println("2.list: " + newTotalSize);
+//                    System.out.println("3.pro: " + procent);
+//                    ProgressBar progressBar = DashboardControl.this.dashBordPlugIn.getDashBoardToolbar().getProgressBar();
+//                    Platform.runLater(() -> {
+//                        progressBar.setProgress(procent);
+//                    });
+//
+//                }
+//            }
+//        });
+
         resetDashboard();
     }
 
+    private synchronized void updateProgressBar(double total, double done) {
+//        ProgressBar progressBar = DashboardControl.this.dashBordPlugIn.getDashBoardToolbar().getProgressBar();
+        if (total > 0 && done > 0) {
+//            double procent = (((100 / total) * done) / 100);
+//            System.out.println("procent: (100/" + total + ")*" + done + "=" + procent);
+//            progressBar.setProgress(procent);
+            JEConfig.getStatusBar().setProgressBar(total, done, "");
+//            Platform.runLater(() -> {
+//                progressBar.setProgress(procent);
+//            });
+        } else {
+//            Platform.runLater(() -> {
+//                progressBar.setProgress(0);
+//            });
+        }
+    }
 
     private void resetDashboard() {
         /** clear old states **/
@@ -283,10 +364,14 @@ public class DashboardControl {
     private DateTime getStartDateByData() {
         DateTime date = new DateTime().minus(Period.years(1));
         for (Widget widget : this.widgetList) {
-            for (DateTime dateTime : widget.getMaxTimeStamps()) {
-                if (dateTime.isAfter(date)) {
-                    date = dateTime;
+            try {
+                for (DateTime dateTime : widget.getMaxTimeStamps()) {
+                    if (dateTime.isAfter(date)) {
+                        date = dateTime;
+                    }
                 }
+            } catch (Exception ex) {
+                logger.error("Widget '{}' getStartDate errot: {}", widget.getId(), ex);
             }
         }
         logger.debug("calculated max TS: {}", date);
@@ -294,7 +379,7 @@ public class DashboardControl {
     }
 
     public void setEditable(boolean editable) {
-        this.editableGridProperty.setValue(editable);
+        this.editableProperty.setValue(editable);
 //        System.out.println("setEditable: " + editable);
         this.widgetList.forEach(widget -> {
             Platform.runLater(() -> {
@@ -317,10 +402,7 @@ public class DashboardControl {
         logger.error("SetTimeFrameFactory to: {}", activeTimeFrame.getID());
         this.activeTimeFrame = activeTimeFrame;
         this.setInterval(activeTimeFrame.getInterval(activeInterval.getStart()));
-
         this.toolBar.updateView(activeDashboard);
-
-//        setInterval(this.activeInterval);
     }
 
     public void registerToolBar(DashBoardToolbar toolbar) {
@@ -355,6 +437,7 @@ public class DashboardControl {
 
     private void restartExecutor() {
         try {
+            runningUpdateTaskList.clear();
             if (this.executor != null) {
                 this.executor.shutdownNow();
             }
@@ -433,6 +516,9 @@ public class DashboardControl {
 
         this.updateTimer = new Timer(true);
         this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
+        this.totalUpdateJobs.setValue(0);
+        this.finishUpdateJobs.setValue(0);
+        this.runningUpdateTaskList.clear();
 
         for (Widget widget : this.widgetList) {
             if (!widget.isStatic()) {
@@ -453,14 +539,15 @@ public class DashboardControl {
             public void run() {
                 logger.debug("Starting Update");
                 try {
-                    for (Widget widget : DashboardControl.this.widgetList)
-                        addWidgetUpdateTask(widget, activeInterval);
+                    totalUpdateJobs.setValue(DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count());
+                    for (Widget widget : DashboardControl.this.widgetList) {
+                        if (!widget.isStatic()) {
+                            addWidgetUpdateTask(widget, activeInterval);
+                        }
+                    }
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
-//                DashboardControl.this.widgetList.parallelStream().forEach(widget -> {
-//                    addWidgetUpdateTask(widget, activeInterval);
-//                });
             }
         };
 
@@ -481,6 +568,8 @@ public class DashboardControl {
             logger.error("widget is null, this should not happen");
             return;
         }
+
+
         Task updateTask = new Task() {
             @Override
             protected Object call() throws Exception {
@@ -488,6 +577,8 @@ public class DashboardControl {
                     logger.debug("addWidgetUpdateTask: " + widget.typeID());
                     if (!widget.isStatic()) {
                         widget.updateData(interval);
+                        finishUpdateJobs.setValue(finishUpdateJobs.getValue() + 1);
+//                        DashboardControl.this.runningUpdateTaskList.remove(widget);
                     }
                 } catch (Exception ex) {
                     logger.error(ex);

@@ -48,6 +48,9 @@ public class LastPeriod implements TimeFrameFactory {
 
     @Override
     public Interval getInterval(DateTime dateTime) {
+        if (dateTime.isAfterNow()) {
+            dateTime = DateTime.now();
+        }
         DateTime end = dateTime;
 //        DateTime start = dateTime.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
         DateTime start = dateTime.minus(this.period);

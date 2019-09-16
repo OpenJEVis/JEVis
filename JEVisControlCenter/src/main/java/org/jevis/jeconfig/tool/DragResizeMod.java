@@ -76,7 +76,8 @@ public class DragResizeMod {
 
         @Override
         public void onDrag(Node node, double x, double y, double h, double w) {
-            if (resizable.getValue()) setNodeSize(node, x, y, h - shadowSize, w - shadowSize);
+//            if (resizable.getValue()) setNodeSize(node, x, y, h - shadowSize, w - shadowSize);
+            if (resizable.getValue()) setNodeSize(node, x, y, h, w);
         }
 
         @Override
@@ -347,10 +348,12 @@ public class DragResizeMod {
     }
 
     private double nodeW() {
-        return node.getBoundsInParent().getWidth();
+        return node.getLayoutBounds().getWidth();
+        //        return node.getBoundsInParent().getWidth();
     }
 
     private double nodeH() {
-        return node.getBoundsInParent().getHeight();
+        return node.getLayoutBounds().getHeight();
+//        return node.getBoundsInParent().getHeight();
     }
 }

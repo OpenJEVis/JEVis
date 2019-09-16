@@ -2,8 +2,12 @@ package org.jevis.jeconfig.plugin.dashboard;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,6 +19,8 @@ import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetNavigator;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
 import org.jevis.jeconfig.tool.I18n;
+
+import java.util.List;
 
 public class DashBoardToolbar extends ToolBar {
 
@@ -33,6 +39,7 @@ public class DashBoardToolbar extends ToolBar {
     final ImageView pauseIcon = JEConfig.getImage("pause_32.png", this.iconSize, this.iconSize);
     final ImageView playIcon = JEConfig.getImage("play_32.png", this.iconSize, this.iconSize);
     private ToggleButton runUpdateButton = new ToggleButton("", this.playIcon);
+//    private ProgressBar progressBar = new ProgressBar();
 
 
     public DashBoardToolbar(DashboardControl dashboardControl) {
@@ -152,9 +159,11 @@ public class DashBoardToolbar extends ToolBar {
             this.dashboardControl.save();
         });
 
-//        this.dashboardControl.editableGridProperty.bind(unlockButton.selectedProperty());
-//        unlockButton.selectedProperty().bind(this.dashboardControl.editableGridProperty);
-//        snapGridButton.selectedProperty().bind(this.dashboardControl.showGridProperty);
+        /**
+         * Maybe bind in the future
+         */
+        unlockButton.selectedProperty().setValue(this.dashboardControl.editableProperty.getValue());
+        snapGridButton.selectedProperty().setValue(this.dashboardControl.enableSnapToGridProperty.getValue());
 
         unlockButton.setOnAction(event -> {
             this.dashboardControl.setEditable(unlockButton.isSelected());
@@ -232,6 +241,8 @@ public class DashBoardToolbar extends ToolBar {
 //        save.setDisable(true);
         exportPDF.setVisible(false);/** disabled because of an endless loop JAVAFX bug, should be fixed with JAVA 11**/
 
+        Region spacerForRightSide = new Region();
+        HBox.setHgrow(spacerForRightSide, Priority.ALWAYS);
         getItems().clear();
         getItems().addAll(
                 this.listAnalysesComboBox, newB
@@ -239,6 +250,15 @@ public class DashBoardToolbar extends ToolBar {
                 , sep1, zoomOut, zoomIn, reload
                 , sep4, newButton, save, delete, newWidgetButton, this.backgroundButton, exportPDF
                 , sep2, this.runUpdateButton, this.unlockButton, snapGridButton);
+//                , spacerForRightSide, progressBar);
+    }
+
+//    public ProgressBar getProgressBar() {
+//        return progressBar;
+//    }
+
+    public void addTaskToProgressBar(List<Task> taskList) {
+
     }
 
     private void setCellFactoryForComboBox() {

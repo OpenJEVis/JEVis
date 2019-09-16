@@ -84,6 +84,7 @@ public class JEConfig extends Application {
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
+    private static Statusbar statusBar = new Statusbar();
 
     public static boolean getExpert() {
         final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
@@ -194,6 +195,10 @@ public class JEConfig extends Application {
 
     public static Stage getStage() {
         return _primaryStage;
+    }
+
+    public static Statusbar getStatusBar() {
+        return statusBar;
     }
 
     /**
@@ -400,7 +405,9 @@ public class JEConfig extends Application {
                 border.setTop(vbox);
                 border.setCenter(pluginManager.getView());
 
-                Statusbar statusBar = new Statusbar(_mainDS);
+//                statusBar = new Statusbar(_mainDS);
+                statusBar.setDataSource(_mainDS);
+                statusBar.initView();
 
                 border.setBottom(statusBar);
 
@@ -470,6 +477,7 @@ public class JEConfig extends Application {
 
 
     }
+
 
     @Override
     public void start(Stage primaryStage) {

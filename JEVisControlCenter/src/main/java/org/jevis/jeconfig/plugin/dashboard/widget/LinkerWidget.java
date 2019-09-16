@@ -87,7 +87,6 @@ public class LinkerWidget extends Widget {
                     DataModelDataHandler.getAggregationPeriod(interval),
                     DataModelDataHandler.getManipulationMode(interval), interval);
 
-            showProgressIndicator(false);
 
             Platform.runLater(() ->
             {
@@ -99,7 +98,11 @@ public class LinkerWidget extends Widget {
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
+
+                showProgressIndicator(false);
             });
+
+
         } catch (
                 Exception ex) {
             logger.error(ex);

@@ -263,8 +263,6 @@ public class DataModelDataHandler {
 
 
     public void setInterval(Interval interval) {
-
-
         if (this.forcedInterval) {
 
             boolean foundFactory = false;
@@ -273,6 +271,7 @@ public class DataModelDataHandler {
                 if (timeFrameFactory.getID().equals(this.forcedPeriod)) {
                     interval = timeFrameFactory.getInterval(interval.getEnd());
                     foundFactory = true;
+                    logger.debug("found factory: {}:{}", timeFrameFactory.getID(), interval);
                 }
             }
 
@@ -280,7 +279,7 @@ public class DataModelDataHandler {
                 try {
                     LastPeriod lastPeriod = new LastPeriod(Period.parse(this.forcedPeriod));
                     interval = lastPeriod.getInterval(interval.getEnd());
-
+                    logger.debug("last Period: {}:{}", lastPeriod.getID(), interval);
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
@@ -288,18 +287,16 @@ public class DataModelDataHandler {
 
 
         }
+
         this.durationProperty.setValue(interval);
 
 
         for (ChartDataModel chartDataModel : getDataModel()) {
-
             AggregationPeriod aggregationPeriod = getAggregationPeriod(interval);
             ManipulationMode manipulationMode = getManipulationMode(interval);
 
             chartDataModel.setAggregationPeriod(aggregationPeriod);
             chartDataModel.setManipulationMode(manipulationMode);
-
-
         }
     }
 
@@ -346,13 +343,9 @@ public class DataModelDataHandler {
 
     public void update() {
         logger.debug("Update Samples: {}", this.durationProperty.getValue());
-//        logger.error("AttributeMap: {}", attributeMap.size());
-
         this.chartDataModels.forEach(chartDataModel -> {
-
             chartDataModel.setSelectedStart(this.durationProperty.getValue().getStart());
             chartDataModel.setSelectedEnd(this.durationProperty.getValue().getEnd());
-
         });
 
         this.lastUpdate.setValue(new DateTime());

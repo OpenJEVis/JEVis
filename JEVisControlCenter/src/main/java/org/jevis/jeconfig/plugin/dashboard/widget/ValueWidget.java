@@ -35,6 +35,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -205,7 +206,11 @@ public class ValueWidget extends Widget {
 
     @Override
     public List<DateTime> getMaxTimeStamps() {
-        return sampleHandler.getMaxTimeStamps();
+        if (sampleHandler != null) {
+            return sampleHandler.getMaxTimeStamps();
+        } else {
+            return new ArrayList<>();
+        }
     }
 
 
