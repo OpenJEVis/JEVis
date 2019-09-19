@@ -95,12 +95,15 @@ public class WidgetNavigator {
     private Node buildGeneralSetting() {
         Label nameLabel = new Label(I18n.getInstance().getString("dashboard.navigator.namelabel"));
         Label sizeLabel = new Label(I18n.getInstance().getString("dashboard.navigator.sizelabel"));
+        Label backgroundLabel = new Label(I18n.getInstance().getString("dashboard.navigator.background"));
 //        Label sizeLabel = new Label(I18n.getInstance().getString("dashboard.navigator.sizelabel"));
 
 
         TextField nameField = new TextField();
         TextField widthField = new TextField();
         TextField heightField = new TextField();
+        Button backgroundButton = new Button("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
+
         widthField.setPrefWidth(75d);
         heightField.setPrefWidth(75d);
         HBox sizeBox = new HBox(8d);
@@ -113,11 +116,10 @@ public class WidgetNavigator {
         gridPane.setVgap(8);
         gridPane.add(nameLabel, 0, 0);
         gridPane.add(sizeLabel, 0, 1);
-
+        gridPane.add(backgroundLabel, 0, 2);
         gridPane.add(nameField, 1, 0);
         gridPane.add(sizeBox, 1, 1);
-
-//        gridPane.add(buildToolbar(), 0, 3, 3, 1);
+        gridPane.add(backgroundButton, 1, 2);
 
 
         try {
@@ -135,6 +137,9 @@ public class WidgetNavigator {
             this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(heightField.getText()));
         });
 
+        backgroundButton.setOnAction(event -> {
+            control.startWallpaperSelection();
+        });
 
         return gridPane;
     }

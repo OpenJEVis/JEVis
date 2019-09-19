@@ -19,6 +19,7 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.dashboard.common.WidgetIDs;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.dashboard.widget.Size;
@@ -252,6 +253,11 @@ public class ConfigManager {
         widgetConfigList.forEach(widgetPojo -> {
             Widget newWidget = createWidget(control, widgetPojo);
             if (newWidget != null) {
+                /** workaround for old dashboard where the uuid did not exist **/
+                if (newWidget.getConfig().getUuid() <= 0) {
+                    newWidget.getConfig().setUuid(WidgetIDs.getNetxFreeeID(widgetList));
+                    System.out.println("Widget has no UUID give new one: " + newWidget.getConfig().getUuid());
+                }
                 newWidget.init();
                 newWidget.updateConfig();
                 widgetList.add(newWidget);

@@ -106,7 +106,6 @@ public class ChartDataModel {
             if (getSelectedStart() == null || getSelectedEnd() == null) {
                 return samples;
             }
-
             if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                 try {
                     if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
@@ -139,6 +138,7 @@ public class ChartDataModel {
 
                 } catch (Exception ex) {
                     logger.error(ex);
+                    ex.printStackTrace();
                 }
             } else {
                 if (getDataProcessor() != null) {

@@ -130,8 +130,6 @@ public class ChartWidget extends Widget {
 
             showProgressIndicator(false);
         });
-
-        logger.error("Chart.Update.done: {}", interval);
     }
 
     @Override

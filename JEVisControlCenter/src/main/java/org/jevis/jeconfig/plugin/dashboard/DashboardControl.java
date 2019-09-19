@@ -2,11 +2,7 @@ package org.jevis.jeconfig.plugin.dashboard;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -20,6 +16,7 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
@@ -74,8 +71,8 @@ public class DashboardControl {
     private DashBoardPane dashboardPane;
     private boolean unsavedChanged = false;
     private DashBoardToolbar toolBar;
-    private DoubleProperty totalUpdateJobs = new SimpleDoubleProperty(0d);
-    private DoubleProperty finishUpdateJobs = new SimpleDoubleProperty(0d);
+//    private DoubleProperty totalUpdateJobs = new SimpleDoubleProperty(0d);
+//    private DoubleProperty finishUpdateJobs = new SimpleDoubleProperty(0d);
 
 
     public DashboardControl(DashBordPlugIn plugin) {
@@ -102,83 +99,22 @@ public class DashboardControl {
             });
         });
 
-        ChangeListener<Number> updateProgressListener = new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-
-                updateProgressBar(totalUpdateJobs.get(), finishUpdateJobs.get());
-//                System.out.println("total:  " + totalUpdateJobs.get());
-//                System.out.println("finished: " + finishUpdateJobs.get());
-//                ProgressBar progressBar = DashboardControl.this.dashBordPlugIn.getDashBoardToolbar().getProgressBar();
-//                if (totalUpdateJobs.get() > 0 && finishUpdateJobs.get() > 0) {
-//                    double procent = (100 / totalUpdateJobs.get()) * finishUpdateJobs.get();
-//                    System.out.println("procent: (100/" + totalUpdateJobs.get() + ")*" + finishUpdateJobs.get() + "=" + procent);
-//
-//                    Platform.runLater(() -> {
-//                        progressBar.setProgress(procent);
-//                    });
-//                } else {
-//                    Platform.runLater(() -> {
-//                        progressBar.setProgress(0);
-//                    });
-//                }
-//                int t1 = 36;
-//                int t2 = 36;
-//                System.out.println("whaaa: " + ((100 / t1) * t2));
-
-            }
-        };
-        finishUpdateJobs.addListener((observable, oldValue, newValue) -> {
-            updateProgressBar(totalUpdateJobs.getValue(), newValue.intValue());
-        });
-        totalUpdateJobs.addListener((observable, oldValue, newValue) -> {
-            updateProgressBar(newValue.intValue(), finishUpdateJobs.getValue());
-        });
-
-
-//        runningUpdateTaskList.addListener(new ListChangeListener<Task>() {
-//            @Override
-//            public void onChanged(Change<? extends Task> c) {
-//                c.next();
-//                if (c.wasAdded() || c.wasRemoved()) {
-//                    int newTotalSize = 0;
-//                    if (c.wasAdded()) {
-//                        newTotalSize = c.getList().size() + c.getAddedSize();
-//                    }
-//                    if (c.wasRemoved()) {
-//                        newTotalSize = c.getList().size() - c.getRemovedSize();
-//                    }
-//
-//                    double procent = (100 / DashboardControl.this.totalUpdateJobs.getValue()) * newTotalSize;
-//                    System.out.println("1.jobs: " + DashboardControl.this.totalUpdateJobs.getValue());
-//                    System.out.println("2.list: " + newTotalSize);
-//                    System.out.println("3.pro: " + procent);
-//                    ProgressBar progressBar = DashboardControl.this.dashBordPlugIn.getDashBoardToolbar().getProgressBar();
-//                    Platform.runLater(() -> {
-//                        progressBar.setProgress(procent);
-//                    });
-//
-//                }
-//            }
+//        finishUpdateJobs.addListener((observable, oldValue, newValue) -> {
+//            updateProgressBar(totalUpdateJobs.getValue(), newValue.intValue());
 //        });
+//        totalUpdateJobs.addListener((observable, oldValue, newValue) -> {
+//            updateProgressBar(newValue.intValue(), finishUpdateJobs.getValue());
+//        });
+
 
         resetDashboard();
     }
 
     private synchronized void updateProgressBar(double total, double done) {
-//        ProgressBar progressBar = DashboardControl.this.dashBordPlugIn.getDashBoardToolbar().getProgressBar();
+
         if (total > 0 && done > 0) {
-//            double procent = (((100 / total) * done) / 100);
-//            System.out.println("procent: (100/" + total + ")*" + done + "=" + procent);
-//            progressBar.setProgress(procent);
             JEConfig.getStatusBar().setProgressBar(total, done, "");
-//            Platform.runLater(() -> {
-//                progressBar.setProgress(procent);
-//            });
         } else {
-//            Platform.runLater(() -> {
-//                progressBar.setProgress(0);
-//            });
         }
     }
 
@@ -516,8 +452,9 @@ public class DashboardControl {
 
         this.updateTimer = new Timer(true);
         this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
-        this.totalUpdateJobs.setValue(0);
-        this.finishUpdateJobs.setValue(0);
+//        this.totalUpdateJobs.setValue(0);
+//        this.finishUpdateJobs.setValue(0);
+
         this.runningUpdateTaskList.clear();
 
         for (Widget widget : this.widgetList) {
@@ -538,8 +475,11 @@ public class DashboardControl {
             @Override
             public void run() {
                 logger.debug("Starting Update");
+                JEConfig.getStatusBar().startProgressJob("Dashboard"
+                        , DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count()
+                        , "Start Dashboard update");
                 try {
-                    totalUpdateJobs.setValue(DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count());
+//                    totalUpdateJobs.setValue(DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count());
                     for (Widget widget : DashboardControl.this.widgetList) {
                         if (!widget.isStatic()) {
                             addWidgetUpdateTask(widget, activeInterval);
@@ -577,12 +517,15 @@ public class DashboardControl {
                     logger.debug("addWidgetUpdateTask: " + widget.typeID());
                     if (!widget.isStatic()) {
                         widget.updateData(interval);
-                        finishUpdateJobs.setValue(finishUpdateJobs.getValue() + 1);
-//                        DashboardControl.this.runningUpdateTaskList.remove(widget);
+//                        finishUpdateJobs.setValue(finishUpdateJobs.getValue() + 1);
+
                     }
                 } catch (Exception ex) {
                     logger.error(ex);
                     ex.printStackTrace();
+                } finally {
+                    JEConfig.getStatusBar().progressProgressJob("Dashboard", 1
+                            , "Done Widget: " + widget.getConfig().getUuid());
                 }
                 return null;
             }
@@ -683,6 +626,11 @@ public class DashboardControl {
         this.defaultTimeFrame = timeFrame;
     }
 
+    /**
+     * Ask and set the background image.
+     * <p>
+     * TODO: allow revert if the does not save
+     */
     public void startWallpaperSelection() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Pictures", "*.png", "*.gif", "*.jpg", "*.bmp"));
@@ -691,7 +639,10 @@ public class DashboardControl {
             try {
                 BufferedImage bufferedImage = ImageIO.read(newBackground);
                 javafx.scene.image.Image fxImage = SwingFXUtils.toFXImage(bufferedImage, null);
-//                this.newBackgroundImage = fxImage;
+                JEVisFile jeVisFile = new JEVisFileImp(newBackground.getName(), newBackground);
+                JEVisSample jeVisSample = getActiveDashboard().getDashboardObject().getAttribute("Background").buildSample(DateTime.now(), jeVisFile);
+                jeVisSample.commit();
+                //                this.newBackgroundImage = fxImage;
                 this.newBackgroundFile = newBackground;
                 setWallpaper(fxImage);
 
@@ -704,7 +655,9 @@ public class DashboardControl {
 
     public void setWallpaper(Image image) {
         logger.error("setWallpaper: {}/{} {}", image.getHeight(), image.getWidth(), image);
-        final BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, true, false);
+        //final BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, true, false);
+
+        final BackgroundSize backgroundSize = new BackgroundSize(image.getWidth(), image.getHeight(), false, false, true, false);
 
         final BackgroundImage backgroundImage = new BackgroundImage(image, BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, backgroundSize);

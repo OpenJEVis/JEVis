@@ -30,7 +30,6 @@ import org.joda.time.Interval;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.UUID;
 
 
 public abstract class Widget extends Region {
@@ -44,8 +43,7 @@ public abstract class Widget extends Region {
     private AnchorPane editPane = new AnchorPane();
     private AnchorPane alertPane = new AnchorPane();
     private StackPane loadingPane = new StackPane();
-    private UUID uuid = UUID.randomUUID();
-    private final DashboardControl control;
+    public final DashboardControl control;
     private BooleanProperty editable = new SimpleBooleanProperty(false);
     private ProgressIndicator progressIndicator = new ProgressIndicator();
     private Label label = new Label();
@@ -205,10 +203,6 @@ public abstract class Widget extends Region {
         return this.jeVisDataSource;
     }
 
-    public UUID getUUID() {
-        return this.uuid;
-    }
-
 
     public void setEditable(boolean editable) {
         logger.debug("Widget setEditable {}", editable);
@@ -265,7 +259,25 @@ public abstract class Widget extends Region {
             }
         });
 
-        contextMenu.getItems().addAll(configItem, delete);
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(8);
+        gridPane.setVgap(8);
+        gridPane.setPadding(new Insets(0, 5, 0, 5));
+        Label typeLabel = new Label("Type:");
+        Label idLabel = new Label("ID:");
+        gridPane.add(typeLabel, 0, 0);
+        gridPane.add(idLabel, 0, 1);
+        gridPane.add(new Label(typeID()), 1, 0);
+        gridPane.add(new Label(getConfig().getUuid() + ""), 1, 1);
+
+        CustomMenuItem infoMenuItem = new CustomMenuItem(gridPane);
+        infoMenuItem.setHideOnClick(false);
+        infoMenuItem.setDisable(true);
+
+        SeparatorMenuItem separatorMenuItem = new SeparatorMenuItem();
+
+
+        contextMenu.getItems().addAll(infoMenuItem, separatorMenuItem, configItem, delete);
 
         this.editPane.setOnMouseClicked(event -> {
             if (event.getButton().equals(MouseButton.SECONDARY)) {
@@ -415,6 +427,7 @@ public abstract class Widget extends Region {
 
         ObjectNode dashBoardNode = mapper.createObjectNode();
         dashBoardNode
+                .put(JsonNames.Widget.UUID, this.config.getUuid())
                 .put(JsonNames.Widget.TYPE, typeID())
                 .put(JsonNames.Widget.TITLE, this.config.getTitle())
                 .put(JsonNames.Widget.BACKGROUND_COLOR, this.config.getBackgroundColor().toString())

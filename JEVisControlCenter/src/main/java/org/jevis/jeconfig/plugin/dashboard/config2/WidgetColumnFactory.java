@@ -4,7 +4,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -46,12 +45,12 @@ public class WidgetColumnFactory {
     }
 
     public TableView<Widget> buildTable(ObservableList<Widget> list) {
-        list.addListener(new ListChangeListener<Widget>() {
-            @Override
-            public void onChanged(Change<? extends Widget> c) {
-                System.out.println("Tree-itemlistQuelle change: " + list);
-            }
-        });
+//        list.addListener(new ListChangeListener<Widget>() {
+//            @Override
+//            public void onChanged(Change<? extends Widget> c) {
+//                System.out.println("Tree-itemlistQuelle change: " + list);
+//            }
+//        });
 
 //        this.fullList = list.sorted();
 //        list.addListener(new ListChangeListener<Widget>() {
@@ -71,6 +70,7 @@ public class WidgetColumnFactory {
 
         this.table = new TableView<>();
         this.table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        this.table.getColumns().add(buildIDColoumn());
         this.table.getColumns().add(buildOrderColoumn());
         this.table.getColumns().add(typeAttributeColumn());
         this.table.getColumns().add(titleAttributeColumn());
@@ -84,6 +84,10 @@ public class WidgetColumnFactory {
 
         this.table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
+        /** disable all sorting, the problem is that is its the same observable list the Controller is using and we don't want so sort it**/
+        this.table.getColumns().forEach(widgetTableColumn -> {
+            widgetTableColumn.setSortable(false);
+        });
 
         this.table.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.table.getItems().forEach(widget -> {
@@ -155,6 +159,50 @@ public class WidgetColumnFactory {
         column.setId("oder");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
+
+        return column;
+    }
+
+    public TableColumn<Widget, Integer> buildIDColoumn() {
+
+        Callback treeTableColumnCallback = new Callback<TableColumn<Widget, Integer>, TableCell<Widget, Integer>>() {
+            @Override
+            public TableCell<Widget, Integer> call(TableColumn<Widget, Integer> param) {
+                TableCell<Widget, Integer> cell = new TableCell<Widget, Integer>() {
+                    @Override
+                    protected void updateItem(Integer item, boolean empty) {
+                        if (item != null && !empty) {
+                            setText(item.toString());
+                        } else {
+                            setText(null);
+                        }
+                    }
+                };
+                return cell;
+            }
+        };
+        Callback valueFactory = new Callback<TableColumn.CellDataFeatures<Widget, Integer>, ObservableValue<Integer>>() {
+            @Override
+            public ObservableValue<Integer> call(TableColumn.CellDataFeatures<Widget, Integer> param) {
+                try {
+                    return new SimpleObjectProperty<>(param.getValue().getConfig().getUuid());
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+
+                return new SimpleObjectProperty<>(null);
+            }
+        };
+
+
+        TableColumn<Widget, Integer> column = new TableColumn<>(I18n.getInstance().getString("jevistree.widget.column.uuid"));
+
+        column.setId("ID");
+        column.setCellValueFactory(valueFactory);
+        column.setCellFactory(treeTableColumnCallback);
+
+        column.setPrefWidth(80);
+        column.setEditable(false);
 
         return column;
     }
