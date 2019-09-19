@@ -24,6 +24,7 @@ public interface JsonNames {
 
     interface Widget {
 
+        String UUID = "uuid";
         String TITLE = "title";
         String TITLE_POSITION = "Title Position";
         String TYPE = "WidgetType";

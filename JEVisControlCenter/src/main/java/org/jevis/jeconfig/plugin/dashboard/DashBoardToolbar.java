@@ -95,7 +95,8 @@ public class DashBoardToolbar extends ToolBar {
                 this.dashboardControl.selectDashboard(newValue);
 
                 Platform.runLater(() -> {
-                    this.backgroundButton.requestFocus();
+                    //** workaround for the Combobox **/
+                    this.runUpdateButton.requestFocus();
                 });
 
             } catch (Exception ex) {
@@ -248,7 +249,7 @@ public class DashBoardToolbar extends ToolBar {
                 this.listAnalysesComboBox, newB
                 , sep3, toolBarIntervalSelector
                 , sep1, zoomOut, zoomIn, reload
-                , sep4, newButton, save, delete, newWidgetButton, this.backgroundButton, exportPDF
+                , sep4, newButton, save, delete, newWidgetButton, exportPDF
                 , sep2, this.runUpdateButton, this.unlockButton, snapGridButton);
 //                , spacerForRightSide, progressBar);
     }

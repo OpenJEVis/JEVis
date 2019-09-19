@@ -34,6 +34,7 @@ public class WidgetPojo {
     private JsonNode dataHandlerJson;
     private static final Logger logger = LogManager.getLogger(WidgetPojo.class);
     private final JsonNode jsonNode;
+    private int uuid = 0;
 
     public WidgetPojo() {
         this.jsonNode = JsonNodeFactory.instance.objectNode();
@@ -48,6 +49,12 @@ public class WidgetPojo {
                 this.title = jsonNode.get(TITLE).asText("");
             } catch (Exception ex) {
                 logger.debug("Could not parse {}: {}", TITLE, ex.getMessage());
+            }
+
+            try {
+                this.uuid = jsonNode.get(UUID).asInt(-1);
+            } catch (Exception ex) {
+                logger.debug("Could not parse {}: {}", UUID, ex.getMessage());
             }
 
             try {
@@ -134,6 +141,14 @@ public class WidgetPojo {
             ex.printStackTrace();
         }
 
+    }
+
+    public int getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(int uuid) {
+        this.uuid = uuid;
     }
 
     public JsonNode getConfigNode(String name) {
