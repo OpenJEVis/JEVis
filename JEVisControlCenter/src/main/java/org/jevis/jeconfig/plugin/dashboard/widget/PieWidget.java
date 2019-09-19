@@ -174,7 +174,6 @@ public class PieWidget extends Widget {
                 this.chart.setLabelsVisible(true);
                 this.chart.setLabelLineLength(18);
                 this.chart.setLegendVisible(false);
-                this.chart.setAnimated(false);
                 this.chart.requestLayout();
 
                 updateConfig();
@@ -236,6 +235,7 @@ public class PieWidget extends Widget {
         this.chart = new PieChart() {
 
         };
+        chart.setAnimated(true);
         /** Dummy data to render pie**/
         ObservableList<PieChart.Data> series = FXCollections.observableArrayList();
         series.add(new javafx.scene.chart.PieChart.Data("A", 1));
