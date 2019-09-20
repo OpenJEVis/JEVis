@@ -1,0 +1,13 @@
+{
+  "jevisclass": "Nitrogen Measurement Directory",
+  "names": {
+    "de": "Messstellen (Stickstoff)",
+    "ru": "Measurement (nitrogen)",
+    "en": "Measurement (nitrogen)"
+  },
+  "descriptions": {
+    "de": "Dient der Verwaltung von Messstellen (Stickstoff).",
+    "ru": "For managing measurements (nitrogen).",
+    "en": "For managing measurements (nitrogen)."
+  }
+}

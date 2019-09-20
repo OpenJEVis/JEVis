@@ -1,0 +1,13 @@
+{
+  "jevisclass": "Air Measurement Directory",
+  "names": {
+    "de": "Messstellen (Luft)",
+    "ru": "Measurement (air)",
+    "en": "Measurement (air)"
+  },
+  "descriptions": {
+    "de": "Dient der Verwaltung von Messstellen (Luft).",
+    "ru": "For managing measurements (air).",
+    "en": "For managing measurements (air)."
+  }
+}

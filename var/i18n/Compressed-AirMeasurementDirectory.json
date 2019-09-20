@@ -1,0 +1,13 @@
+{
+  "jevisclass": "Compressed-Air Measurement Directory",
+  "names": {
+    "de": "Messstellen (Druckluft)",
+    "ru": "Measurement (compressed-air)",
+    "en": "Measurement (compressed-air)"
+  },
+  "descriptions": {
+    "de": "Dient der Verwaltung von Messstellen (Druckluft).",
+    "ru": "For managing measurements (compressed-air).",
+    "en": "For managing measurements (compressed-air)."
+  }
+}
