@@ -1,0 +1,23 @@
+{
+  "name": "Water Measurement Directory",
+  "description": "The class Channel Directory represents a specific directory for water measurement instruments.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Water Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 0
+    },
+    {
+      "start": "Water Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Water Measurement Directory",
+      "end": "Water Measurement Instrument",
+      "type": 3
+    }
+  ]
+}
+

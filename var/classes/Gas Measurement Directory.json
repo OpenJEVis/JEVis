@@ -1,0 +1,23 @@
+{
+  "name": "Gas Measurement Directory",
+  "description": "The class Channel Directory represents a specific directory for gas measurement instruments.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Gas Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 0
+    },
+    {
+      "start": "Gas Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Gas Measurement Directory",
+      "end": "Gas Measurement Instrument",
+      "type": 3
+    }
+  ]
+}
+

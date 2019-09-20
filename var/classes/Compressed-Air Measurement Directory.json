@@ -1,0 +1,23 @@
+{
+  "name": "Compressed-Air Measurement Directory",
+  "description": "The class Channel Directory represents a specific directory for compressed-air measurement instruments.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Compressed-Air Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 0
+    },
+    {
+      "start": "Compressed-Air Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Compressed-Air Measurement Directory",
+      "end": "Compressed-Air Measurement Instrument",
+      "type": 3
+    }
+  ]
+}
+

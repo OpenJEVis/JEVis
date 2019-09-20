@@ -1,0 +1,23 @@
+{
+  "name": "Electricity Measurement Directory",
+  "description": "The class Channel Directory represents a specific directory for electricity measurement instruments.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Electricity Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 0
+    },
+    {
+      "start": "Electricity Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Electricity Measurement Directory",
+      "end": "Electricity Measurement Instrument",
+      "type": 3
+    }
+  ]
+}
+
