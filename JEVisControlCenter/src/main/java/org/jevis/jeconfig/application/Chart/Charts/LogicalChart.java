@@ -36,7 +36,7 @@ public class LogicalChart extends XYChart {
         setMinValue(Math.min(minValue, serie.getMinValue()));
         setMaxValue(Math.max(maxValue, serie.getMaxValue()));
 
-        hexColors.add(singleRow.getColor());
+        getHexColors().add(singleRow.getColor());
         chart.getData().add(serie.getSerie());
         tableData.add(serie.getTableEntry());
 
@@ -65,8 +65,8 @@ public class LogicalChart extends XYChart {
     @Override
     public void applyColors() {
 
-        for (int i = 0; i < hexColors.size(); i++) {
-            Color currentColor = hexColors.get(i);
+        for (int i = 0; i < getHexColors().size(); i++) {
+            Color currentColor = getHexColors().get(i);
             String hexColor = toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = getChart().lookup(preIdent + ".chart-series-area-fill");

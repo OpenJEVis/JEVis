@@ -156,7 +156,7 @@ public class PieChart implements Chart {
 //            String seriesName = name + " - " + nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
             String seriesName = nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
                     + " " + currentUnitString
-                    + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + " %)";
+                    + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + "%)";
 
             javafx.scene.chart.PieChart.Data data = new javafx.scene.chart.PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
             series.add(data);

@@ -64,7 +64,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
     static String DEFAULT_COLOR = "default-color";
     final Map<MultiAxisChart.Series<X, Y>, Integer> seriesColorMap = new HashMap<>();
     // to indicate which colors are being used for the series
-    private final BitSet colorBits = new BitSet(32);
+//    private final BitSet colorBits = new BitSet(32);
     private final Line verticalZeroLine = new Line();
     private final Line horizontalZeroLine = new Line();
     private final Path verticalGridLines = new Path();
@@ -129,7 +129,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 s.setToRemove = true;
                 seriesRemoved(s);
                 int idx = seriesColorMap.remove(s);
-                colorBits.clear(idx);
+//                colorBits.clear(idx);
             }
 
             for (int i = c.getFrom(); i < c.getTo() && !c.wasPermutated(); i++) {
@@ -143,10 +143,10 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 // update linkedList Pointers for series
                 displayedSeries.add(s);
                 // update default color style class
-                int nextClearBit = colorBits.nextClearBit(0);
-                colorBits.set(nextClearBit, true);
-                s.defaultColorStyleClass = DEFAULT_COLOR + (nextClearBit % 8);
-                seriesColorMap.put(s, nextClearBit % 8);
+//                int nextClearBit = colorBits.nextClearBit(0);
+//                colorBits.set(nextClearBit, true);
+                s.defaultColorStyleClass = DEFAULT_COLOR + i;
+                seriesColorMap.put(s, i);
                 // inform sub-classes of series added
                 seriesAdded(s, i);
             }
@@ -447,7 +447,6 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 verticalZeroLine, horizontalZeroLine, plotContent);
         plotContent.getChildren().addAll(flowPaneY1Formulas, flowPaneY2Formulas);
         // setup css style classes
-        this.getStylesheets().add(MultiAxisChart.class.getResource("/styles/charts.css").toExternalForm());
         plotContent.getStyleClass().setAll("plot-content");
         plotBackground.getStyleClass().setAll("chart-plot-background");
         verticalRowFill.getStyleClass().setAll("chart-alternative-column-fill");

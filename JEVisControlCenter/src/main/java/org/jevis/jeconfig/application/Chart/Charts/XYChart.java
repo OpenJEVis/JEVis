@@ -65,7 +65,7 @@ public class XYChart implements Chart {
     private final Boolean showL1L2;
     Boolean hideShowIcons;
     //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
-    List<Color> hexColors = new ArrayList<>();
+    private List<Color> hexColors = new ArrayList<>();
     ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
@@ -275,8 +275,6 @@ public class XYChart implements Chart {
         getChart().setStyle("-fx-font-size: " + 12 + "px;");
 
         getChart().setAnimated(false);
-
-        applyColors();
 
         getChart().setTitle(getUpdatedChartName());
 
@@ -957,5 +955,13 @@ public class XYChart implements Chart {
     @Override
     public DateTime getNearest() {
         return nearest;
+    }
+
+    public List<Color> getHexColors() {
+        return hexColors;
+    }
+
+    public List<String> getUnitY1() {
+        return unitY1;
     }
 }

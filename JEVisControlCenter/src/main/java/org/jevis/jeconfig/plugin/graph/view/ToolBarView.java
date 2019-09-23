@@ -239,8 +239,8 @@ public class ToolBarView {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 
             Label polyDegreeLabel = new Label("Degree:");
-            NumberSpinner polyDegreeNumberSpinner = new NumberSpinner(new BigDecimal(0), new BigDecimal(1));
-            polyDegreeNumberSpinner.setMin(new BigDecimal(0));
+            NumberSpinner polyDegreeNumberSpinner = new NumberSpinner(new BigDecimal(1), new BigDecimal(1));
+            polyDegreeNumberSpinner.setMin(new BigDecimal(1));
             polyDegreeNumberSpinner.setMax(new BigDecimal(11));
 
             Label regressionTypeLabel = new Label("Type");

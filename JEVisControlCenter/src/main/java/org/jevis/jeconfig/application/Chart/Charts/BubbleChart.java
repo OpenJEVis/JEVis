@@ -447,4 +447,8 @@ public class BubbleChart implements Chart {
     public Period getPeriod() {
         return null;
     }
+
+    public String getyUnit() {
+        return yUnit;
+    }
 }

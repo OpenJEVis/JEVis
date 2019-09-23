@@ -50,7 +50,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
     @Override
     public void buildColumn() {
         TreeTableColumn<JEVisTreeRow, AggregationPeriod> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(120);
+        column.setPrefWidth(130);
         column.setMinWidth(100);
         column.setId(COLUMN_ID);
 

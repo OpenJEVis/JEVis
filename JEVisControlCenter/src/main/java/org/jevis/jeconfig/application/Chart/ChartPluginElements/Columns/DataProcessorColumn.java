@@ -74,7 +74,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
             _dataProcessors.addAll(getAllChildrenOf(data.getObject()));
 
         ComboBox<JEVisObject> processorBox = new ComboBox<>();
-        processorBox.setPrefWidth(140);
+        processorBox.setPrefWidth(160);
         processorBox.setMinWidth(120);
         ObservableList<JEVisObject> processors = FXCollections.observableArrayList();
 
@@ -124,7 +124,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
     @Override
     public void buildColumn() {
         TreeTableColumn<JEVisTreeRow, JEVisObject> column = new TreeTableColumn(columnName);
-        column.setPrefWidth(160);
+        column.setPrefWidth(180);
         column.setEditable(true);
         column.setId(COLUMN_ID);
 

@@ -66,6 +66,7 @@ import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.BubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
@@ -614,6 +615,7 @@ public class GraphPluginView implements Plugin {
             for (ChartView cv : charts) {
                 if (cv.getChartType().equals(ChartType.BUBBLE)) {
                     MultiAxisBubbleChart bubbleChart = (MultiAxisBubbleChart) cv.getChart().getChart();
+                    String yUnit = ((BubbleChart) cv.getChart()).getyUnit();
 
                     bubbleChart.getData().forEach(numberNumberSeries -> {
                         MultiAxisBubbleChart.Series bubbleChartSeries = (MultiAxisBubbleChart.Series) numberNumberSeries;
@@ -634,7 +636,7 @@ public class GraphPluginView implements Plugin {
                                     String yValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getYValue());
 
                                     Label labelCount = new Label(countValue);
-                                    Tooltip tooltipYValue = new Tooltip(yValue);
+                                    Tooltip tooltipYValue = new Tooltip(yValue + " " + yUnit);
                                     labelCount.setAlignment(Pos.CENTER);
                                     labelCount.setBackground(
                                             new Background(
@@ -660,8 +662,6 @@ public class GraphPluginView implements Plugin {
                             }
                         });
                     });
-
-                    cv.getChart().applyColors();
                 } else if (cv.getChartType().equals(ChartType.COLUMN)) {
                     MultiAxisBarChart columnChart = (MultiAxisBarChart) cv.getChart().getChart();
 
@@ -691,6 +691,8 @@ public class GraphPluginView implements Plugin {
                         });
                     });
                 }
+
+                cv.getChart().applyColors();
             }
         });
     }

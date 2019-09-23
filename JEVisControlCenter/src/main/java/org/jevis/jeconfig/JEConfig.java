@@ -430,13 +430,6 @@ public class JEConfig extends Application {
                     }
                     logger.info("Time to start: {}ms", ((new Date()).getTime() - start.getTime()));
                 });
-//                Date startAllob = new Date();
-//                try {
-//                    _mainDS.getObjects();
-//                    logger.error("Time to get all Objects: {}ms", ((new Date()).getTime() - startAllob.getTime()));
-//                } catch (Exception ex) {
-//                }
-//                System.gc();
 
             } else {
                 System.exit(0);
@@ -450,6 +443,7 @@ public class JEConfig extends Application {
         AnchorPane.setBottomAnchor(login, 0.0);
 
         scene.getStylesheets().add("/styles/Styles.css");
+        scene.getStylesheets().add("/styles/charts.css");
         primaryStage.getIcons().add(getImage("JEVisIconBlue.png"));
         primaryStage.setTitle("JEVis Control Center");
 
