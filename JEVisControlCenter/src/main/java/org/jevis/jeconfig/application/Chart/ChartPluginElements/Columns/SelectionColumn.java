@@ -9,6 +9,7 @@ import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -173,13 +174,27 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
 
                                     checkBox.setOnAction(event -> {
                                         try {
+                                            boolean isSelected = false;
+                                            Color currentColor = null;
+                                            for (ChartDataModel dataModel : data.getSelectedData()) {
+                                                if (data1.getObject().equals(dataModel.getObject()) && data1.getDataProcessor().equals(dataModel.getDataProcessor())) {
+                                                    isSelected = true;
+                                                    currentColor = dataModel.getColor();
+                                                    break;
+                                                }
+                                            }
+
                                             commitEdit(checkBox.isSelected());
 
                                             if (checkBox.isSelected()) {
                                                 /**
                                                  * if the checkbox is selected, get a color for it
                                                  */
-                                                data1.setColor(colorColumn.getNextColor());
+                                                if (!isSelected) {
+                                                    data1.setColor(colorColumn.getNextColor());
+                                                } else if (currentColor != null) {
+                                                    data1.setColor(currentColor);
+                                                }
                                                 Platform.runLater(() -> {
                                                     JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
                                                     getTreeTableRow().getTreeItem().setValue(sobj);
@@ -188,27 +203,25 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                 /**
                                                  * check for other data rows within this chart
                                                  */
-                                                AtomicReference<Boolean> foundOther = new AtomicReference<>(false);
-                                                getData().getSelectedData().forEach(chartDataModel -> {
-                                                    for (Integer i : chartDataModel.getSelectedcharts()) {
-                                                        if (i.equals(getChartId())) {
-                                                            foundOther.set(true);
-                                                            break;
-                                                        }
+                                                boolean foundOther = false;
+                                                for (ChartDataModel dataModel : data.getSelectedData()) {
+                                                    if (data1.getObject().equals(dataModel.getObject()) && data1.getDataProcessor().equals(dataModel.getDataProcessor())) {
+                                                        foundOther = true;
+                                                        break;
                                                     }
-                                                });
+                                                }
 
-                                                /**
-                                                 * if the box is unselected and no other selected, remove the color
-                                                 */
-                                                colorColumn.removeUsedColor(data1.getColor());
-                                                data1.setColor(colorColumn.getStandardColor());
-                                                Platform.runLater(() -> {
-                                                    JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
-                                                    getTreeTableRow().getTreeItem().setValue(sobj);
-                                                });
+                                                if (!foundOther) {
+                                                    /**
+                                                     * if the box is unselected and no other selected, remove the color
+                                                     */
+                                                    colorColumn.removeUsedColor(data1.getColor());
+                                                    data1.setColor(colorColumn.getStandardColor());
+                                                    Platform.runLater(() -> {
+                                                        JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
+                                                        getTreeTableRow().getTreeItem().setValue(sobj);
+                                                    });
 
-                                                if (!foundOther.get()) {
 
                                                     /**
                                                      * remove the chart column from the tree and data model

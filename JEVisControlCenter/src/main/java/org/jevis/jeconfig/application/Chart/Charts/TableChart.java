@@ -33,7 +33,7 @@ public class TableChart extends XYChart {
         this.singleRow = singleRow;
         TableSerie serie = new TableSerie(singleRow, hideShowIcons);
 
-        hexColors.add(singleRow.getColor());
+        getHexColors().add(singleRow.getColor());
         chart.getData().add(serie.getSerie());
         tableData.add(serie.getTableEntry());
 

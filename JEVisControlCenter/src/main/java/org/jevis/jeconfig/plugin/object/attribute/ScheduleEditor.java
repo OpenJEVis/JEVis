@@ -149,7 +149,10 @@ public class ScheduleEditor implements AttributeEditor {
             }
 
             int finalI = i;
-            toggleButton.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfMonth(updateDayOfMonthString(rule, finalI, newValue, toggleButtonAll, toggleButtonLast)));
+            toggleButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                rule.setDayOfMonth(updateDayOfMonthString(rule, finalI, newValue, toggleButtonAll, toggleButtonLast));
+                hasChangedProperty.setValue(true);
+            });
 
             dayButtonList.add(toggleButton);
         }
@@ -159,6 +162,7 @@ public class ScheduleEditor implements AttributeEditor {
                 rule.setDayOfMonth("*");
                 dayButtonList.forEach(toggleButton -> toggleButton.setSelected(false));
                 toggleButtonLast.setSelected(false);
+                hasChangedProperty.setValue(true);
             }
         });
 
@@ -167,6 +171,7 @@ public class ScheduleEditor implements AttributeEditor {
                 rule.setDayOfMonth("LAST");
                 dayButtonList.forEach(toggleButton -> toggleButton.setSelected(false));
                 toggleButtonAll.setSelected(false);
+                hasChangedProperty.setValue(true);
             }
 
         });
@@ -222,6 +227,7 @@ public class ScheduleEditor implements AttributeEditor {
         end.valueProperty().addListener((observable, oldValue, newValue) -> {
             rule.setEndTimeHours(String.valueOf(newValue.getHour()));
             rule.setEndTimeMinutes(String.valueOf(newValue.getMinute()));
+            hasChangedProperty.setValue(true);
         });
         return end;
     }
@@ -243,6 +249,7 @@ public class ScheduleEditor implements AttributeEditor {
         start.valueProperty().addListener((observable, oldValue, newValue) -> {
             rule.setStartTimeHours(String.valueOf(newValue.getHour()));
             rule.setStartTimeMinutes(String.valueOf(newValue.getMinute()));
+            hasChangedProperty.setValue(true);
         });
 
         return start;
@@ -314,13 +321,34 @@ public class ScheduleEditor implements AttributeEditor {
             }
         }
 
-        mon.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 1, newValue)));
-        tue.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 2, newValue)));
-        wed.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 3, newValue)));
-        thu.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 4, newValue)));
-        fri.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 5, newValue)));
-        sat.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 6, newValue)));
-        sun.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setDayOfWeek(updateListSelectionWeekdays(rule, 7, newValue)));
+        mon.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setDayOfWeek(updateListSelectionWeekdays(rule, 1, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        tue.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setDayOfWeek(updateListSelectionWeekdays(rule, 2, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        wed.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setDayOfWeek(updateListSelectionWeekdays(rule, 3, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        thu.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setDayOfWeek(updateListSelectionWeekdays(rule, 4, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        fri.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setDayOfWeek(updateListSelectionWeekdays(rule, 5, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        sat.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setDayOfWeek(updateListSelectionWeekdays(rule, 6, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        sun.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setDayOfWeek(updateListSelectionWeekdays(rule, 7, newValue));
+            hasChangedProperty.setValue(true);
+        });
 
         return Arrays.asList(mon, tue, wed, thu, fri, sat, sun);
     }
@@ -419,18 +447,54 @@ public class ScheduleEditor implements AttributeEditor {
             }
         }
 
-        jan.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 1, newValue)));
-        feb.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 2, newValue)));
-        mar.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 3, newValue)));
-        apr.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 4, newValue)));
-        may.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 5, newValue)));
-        jun.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 6, newValue)));
-        jul.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 7, newValue)));
-        aug.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 8, newValue)));
-        sep.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 9, newValue)));
-        oct.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 10, newValue)));
-        nov.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 11, newValue)));
-        dec.selectedProperty().addListener((observable, oldValue, newValue) -> rule.setMonths(updateListSelectionMonthOfYear(rule, 12, newValue)));
+        jan.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setMonths(updateListSelectionMonthOfYear(rule, 1, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        feb.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setMonths(updateListSelectionMonthOfYear(rule, 2, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        mar.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setMonths(updateListSelectionMonthOfYear(rule, 3, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        apr.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setMonths(updateListSelectionMonthOfYear(rule, 4, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        may.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setMonths(updateListSelectionMonthOfYear(rule, 5, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        jun.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setMonths(updateListSelectionMonthOfYear(rule, 6, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        jul.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setMonths(updateListSelectionMonthOfYear(rule, 7, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        aug.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setMonths(updateListSelectionMonthOfYear(rule, 8, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        sep.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setMonths(updateListSelectionMonthOfYear(rule, 9, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        oct.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setMonths(updateListSelectionMonthOfYear(rule, 10, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        nov.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setMonths(updateListSelectionMonthOfYear(rule, 11, newValue));
+            hasChangedProperty.setValue(true);
+        });
+        dec.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            rule.setMonths(updateListSelectionMonthOfYear(rule, 12, newValue));
+            hasChangedProperty.setValue(true);
+        });
 
         return Arrays.asList(jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec);
     }
@@ -579,5 +643,9 @@ public class ScheduleEditor implements AttributeEditor {
 
     public SimpleStringProperty _newValueProperty() {
         return _newValue;
+    }
+
+    public JsonScheduler getInputValue() {
+        return inputValue;
     }
 }

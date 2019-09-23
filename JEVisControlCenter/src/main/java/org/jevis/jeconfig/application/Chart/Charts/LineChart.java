@@ -26,8 +26,8 @@ public class LineChart extends XYChart {
     @Override
     public void applyColors() {
 
-        for (int i = 0; i < hexColors.size(); i++) {
-            Color currentColor = hexColors.get(i);
+        for (int i = 0; i < getHexColors().size(); i++) {
+            Color currentColor = getHexColors().get(i);
             String hexColor = toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
 
