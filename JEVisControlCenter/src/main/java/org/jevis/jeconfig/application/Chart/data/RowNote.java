@@ -6,9 +6,11 @@ import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.json.JsonLimitsConfig;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
+import java.text.NumberFormat;
 import java.util.List;
 
 public class RowNote {
@@ -27,6 +29,9 @@ public class RowNote {
         this.sample = sample;
 
         StringBuilder formattedNote = new StringBuilder();
+        NumberFormat nf = NumberFormat.getInstance(JEConfig.getConfig().getLocale());
+        nf.setMinimumFractionDigits(2);
+        nf.setMaximumFractionDigits(2);
         String note = "";
 
         try {
@@ -143,7 +148,8 @@ public class RowNote {
                                     List<JEVisSample> samples = rawDataValueAttribute.getSamples(timestamp.minus(rawDataValueAttribute.getInputSampleRate()), timestamp);
                                     if (samples.size() == 2) {
                                         formattedNote.append("Original Value: ");
-                                        formattedNote.append(samples.get(1).getValueAsDouble() - samples.get(0).getValueAsDouble());
+                                        formattedNote.append(nf.format(samples.get(1).getValueAsDouble() - samples.get(0).getValueAsDouble()));
+                                        formattedNote.append(" ").append(cleanDataObject.getValueAttribute().getDisplayUnit().getLabel());
                                         formattedNote.append(System.getProperty("line.separator"));
                                     }
                                 }
@@ -152,7 +158,8 @@ public class RowNote {
                                     List<JEVisSample> samples = rawDataValueAttribute.getSamples(timestamp, timestamp);
                                     if (!samples.isEmpty()) {
                                         formattedNote.append("Original: ");
-                                        formattedNote.append(samples.get(0).getValueAsDouble());
+                                        formattedNote.append(nf.format(samples.get(0).getValueAsDouble()));
+                                        formattedNote.append(" ").append(cleanDataObject.getValueAttribute().getDisplayUnit().getLabel());
                                         formattedNote.append(System.getProperty("line.separator"));
                                     }
                                 }

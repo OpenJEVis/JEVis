@@ -270,7 +270,7 @@ public class JEConfig extends Application {
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
-//        PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
+//        PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
 
@@ -342,14 +342,14 @@ public class JEConfig extends Application {
                 logger.error("start GUI");
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
-                PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
+                PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
                 Platform.runLater(() -> {
-                    primaryStage.setTitle(I18n.getInstance().getString("appname"));
+                    primaryStage.setTitle(I18n.getInstance().getString("app.name"));
 //                    try {
 //                        java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
 //                        Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
 //                        awtAppClassNameField.setAccessible(true);
-//                        awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("appname"));
+//                        awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("app.name"));
 //                    } catch (NoSuchFieldException | IllegalAccessException e) {
 //                        e.printStackTrace();
 //                    }

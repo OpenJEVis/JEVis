@@ -81,6 +81,7 @@ public class AlarmProcess {
                 DateTime lastTS = cleanDataObject.getFirstDate();
                 if (!lastTS.isAfter(end)) {
                     hasData = false;
+                    break;
                 }
             }
 
@@ -361,6 +362,8 @@ public class AlarmProcess {
             case COMPLETE:
                 return filterForEnabled(getCompleteList(null, getAlarmConfiguration().getObject()));
             case SELECTED:
+                return filterForEnabled(getListFromSelectedObjects());
+            case WITHOUT_SELECTED:
                 List<JEVisObject> completeList = getCompleteList(null, getAlarmConfiguration().getObject());
                 List<JEVisObject> unselectedList = getListFromSelectedObjects();
                 if (unselectedList != null) {
@@ -368,8 +371,6 @@ public class AlarmProcess {
                     return filterForEnabled(completeList);
                 }
                 return new ArrayList<>();
-            case WITHOUT_SELECTED:
-                return getListFromSelectedObjects();
             case NONE:
                 return new ArrayList<>();
             default:
@@ -401,7 +402,7 @@ public class AlarmProcess {
     }
 
     private List<JEVisObject> getListFromSelectedObjects() {
-        return null;
+        return alarmConfiguration.getAlarmObjects();
     }
 
     private List<JEVisObject> getCompleteList(List<JEVisObject> listObjects, JEVisObject currentObject) throws JEVisException {
