@@ -146,10 +146,10 @@ public class GraphExportCSV {
 
                 fileChooser.setInitialFileName(formattedName + I18n.getInstance().getString("plugin.graph.dialog.export.from")
                         + fmtDate.print(minDate) + I18n.getInstance().getString("plugin.graph.dialog.export.to")
-                        + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()) + ".csv");
+                        + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()));
                 File file = fileChooser.showSaveDialog(JEConfig.getStage());
                 if (file != null) {
-                    destinationFile = file;
+                    destinationFile = new File(file + fileChooser.getSelectedExtensionFilter().getExtensions().get(0));
                     if (fileChooser.getSelectedExtensionFilter().equals(xlsxFilter)) {
                         xlsx = true;
                     }
