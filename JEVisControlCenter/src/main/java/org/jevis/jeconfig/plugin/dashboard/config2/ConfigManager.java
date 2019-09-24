@@ -256,7 +256,6 @@ public class ConfigManager {
                 /** workaround for old dashboard where the uuid did not exist **/
                 if (newWidget.getConfig().getUuid() <= 0) {
                     newWidget.getConfig().setUuid(WidgetIDs.getNetxFreeeID(widgetList));
-                    System.out.println("Widget has no UUID give new one: " + newWidget.getConfig().getUuid());
                 }
                 newWidget.init();
                 newWidget.updateConfig();

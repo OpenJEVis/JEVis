@@ -138,7 +138,6 @@ public class ChartDataModel {
 
                 } catch (Exception ex) {
                     logger.error(ex);
-                    ex.printStackTrace();
                 }
             } else {
                 if (getDataProcessor() != null) {

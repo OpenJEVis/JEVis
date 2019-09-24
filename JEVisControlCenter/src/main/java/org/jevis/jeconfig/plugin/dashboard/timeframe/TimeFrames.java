@@ -39,6 +39,7 @@ public class TimeFrames {
     public ObservableList<TimeFrameFactory> getAll() {
         ObservableList<TimeFrameFactory> list = FXCollections.observableArrayList();
 
+        //list.add(emptyTimeFrame());
         list.add(day());
         list.add(week());
         list.add(month());
@@ -77,6 +78,50 @@ public class TimeFrames {
         return list;
     }
 
+
+    public TimeFrameFactory emptyTimeFrame() {
+        return new TimeFrameFactory() {
+            @Override
+            public String getListName() {
+                return "Aus";
+            }
+
+            @Override
+            public Interval nextPeriod(Interval interval, int addAmount) {
+                return interval;
+            }
+
+            @Override
+            public Interval previousPeriod(Interval interval, int addAmount) {
+                return interval;
+            }
+
+            @Override
+            public String format(Interval interval) {
+                return DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(interval.getStart()) + " / " + DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(interval.getEnd());
+            }
+
+            @Override
+            public Interval getInterval(DateTime dateTime) {
+                return new Interval(dateTime, dateTime);
+            }
+
+            @Override
+            public String getID() {
+                return "";
+            }
+
+            @Override
+            public boolean hasNextPeriod(Interval interval) {
+                return false;
+            }
+
+            @Override
+            public boolean hasPreviousPeriod(Interval interval) {
+                return false;
+            }
+        };
+    }
 
     public TimeFrameFactory customPeriodObject(CustomPeriodObject cpo) {
         return new TimeFrameFactory() {

@@ -84,6 +84,7 @@ public class ValueWidget extends Widget {
     public void updateData(Interval interval) {
         logger.debug("Value.Update: {}", interval);
         lastInterval = interval;
+
         if (this.sampleHandler == null) {
             showProgressIndicator(false);
             return;
@@ -91,13 +92,18 @@ public class ValueWidget extends Widget {
 
 
         Platform.runLater(() -> {
+            showAlertOverview(false, "");
             this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
         });
 
+        String widgetUUID = "-1";
         AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
         try {
+            widgetUUID = getConfig().getUuid() + "";
             this.sampleHandler.setInterval(interval);
             this.sampleHandler.update();
+
+            logger.debug("found factory: {}-{}:{}", config.getUuid(), sampleHandler.getTimeFrameFactory(), interval);
 
             this.nf.setMinimumFractionDigits(this.config.getDecimals());
             this.nf.setMaximumFractionDigits(this.config.getDecimals());
@@ -107,15 +113,13 @@ public class ValueWidget extends Widget {
 
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataModel dataModel = this.sampleHandler.getDataModel().get(0);
-//            dataModel.setAbsolute(true);
                 List<JEVisSample> results;
-
                 String unit = dataModel.getUnitLabel();
-
 
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
-                    total.set(DataModelDataHandler.getTotal(results));
+//                    total.set(DataModelDataHandler.getTotal(results));
+                    total.set(results.get(results.size() - 1).getValueAsDouble());
                     displayedSample.setValue(total.get());
                     this.labelText.setValue((this.nf.format(total.get())) + " " + unit);
                     checkLimit();
@@ -128,7 +132,8 @@ public class ValueWidget extends Widget {
             }
 
         } catch (Exception ex) {
-            logger.error("Error while updating ValueWidget: {}:{}", getConfig().getUuid(), ex);
+            logger.error("Error while updating ValueWidget: [ID:{}]:{}", widgetUUID, ex);
+            showAlertOverview(true, ex.getMessage());
 //            ex.printStackTrace();
         }
 
@@ -178,8 +183,9 @@ public class ValueWidget extends Widget {
     @Override
     public void openConfig() {
 
-        WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(null);
-        widgetConfigDialog.addDataModel(this.sampleHandler);
+        WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
+        widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
+
 
         if (limit != null) {
             widgetConfigDialog.addTab(limit.getConfigTab());
@@ -246,9 +252,9 @@ public class ValueWidget extends Widget {
     @Override
     public void init() {
         logger.debug("init");
+
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);
-
         try {
             this.limit = new Limit(this.control, this.config.getConfigNode(LIMIT_NODE_NAME));
         } catch (Exception ex) {

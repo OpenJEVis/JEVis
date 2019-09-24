@@ -284,6 +284,7 @@ public class ObjectEditor {
                         Label objectName = new Label(obj.getName());
                         objectName.setStyle("-fx-font-weight: bold;");
                         Label classlabel = new Label(I18n.getInstance().getString("plugin.object.editor.type"));
+                        classlabel.setTooltip(new Tooltip(obj.getJEVisClassName()));
                         //Label className = new Label(obj.getJEVisClass().getName());
                         Label className = new Label(I18nWS.getInstance().getClassName(obj.getJEVisClassName()));
 

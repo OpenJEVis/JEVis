@@ -10,7 +10,7 @@ import org.jevis.jeconfig.plugin.dashboard.DashBoardPane;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
 /**
- * From https://github.com/varren/JavaFX-Resizable-Draggable-Node
+ * Based on https://github.com/varren/JavaFX-Resizable-Draggable-Node
  * <p>
  * <p>
  * ************* How to use ************************
