@@ -156,8 +156,11 @@ public abstract class Widget extends Region {
             dropShadow.setColor(Color.BLACK);
 //        dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
             this.contentRoot.setEffect(dropShadow);
+
+//            this.setEffect(dropShadow);
         } else {
             this.contentRoot.setEffect(null);
+//            this.setEffect(null);
         }
         try {
             updateConfig();
@@ -207,7 +210,6 @@ public abstract class Widget extends Region {
     public void setEditable(boolean editable) {
         logger.debug("Widget setEditable {}", editable);
         onDragResizeEventListener.resizeableProperty().setValue(editable);
-
         this.editPane.setVisible(editable);
         this.editable.setValue(editable);
     }

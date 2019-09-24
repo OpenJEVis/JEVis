@@ -8,6 +8,8 @@ import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.WidgetTreePlugin;
+import org.jevis.jeconfig.plugin.dashboard.widget.GenericConfigNode;
+import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ScreenSize;
 
@@ -16,15 +18,15 @@ public class WidgetConfigDialog extends Alert {
     private TabPane tabPane = new TabPane();
     private DataModelDataHandler dataModelDataHandler;
     private WidgetTreePlugin widgetTreePlugin;
-
+    private Widget widget;
 
     /**
      * Create an new Widget Config Dialog.
-     *
-     * @param alertType this parameter will be ignored
      */
-    public WidgetConfigDialog(AlertType alertType) {
+    public WidgetConfigDialog(Widget widget) {
         super(Alert.AlertType.CONFIRMATION);
+
+        this.widget = widget;
 
         setTitle(I18n.getInstance().getString("dashboard.widget.editor.title"));
         setHeaderText(I18n.getInstance().getString("dashboard.widget.editor.header"));
@@ -39,23 +41,33 @@ public class WidgetConfigDialog extends Alert {
 
     }
 
+    private void addGeneralTab(DataModelDataHandler dataModelDataHandler) {
+        GenericConfigNode genericConfigNode = new GenericConfigNode(widget.getDataSource(), widget, dataModelDataHandler);
+        addTab(genericConfigNode);
+    }
+
     public void addTab(Tab tab) {
         this.tabPane.getTabs().add(tab);
     }
 
-    public void addDataModel(DataModelDataHandler dataModelDataHandler) {
-        System.out.println("WidgetConfigDia.addDataModel: " + dataModelDataHandler);
-        Tab tab = new Tab(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
-        this.dataModelDataHandler = dataModelDataHandler;
+    public void addGeneralTabsDataModel(DataModelDataHandler dataModelDataHandler) {
+        addGeneralTab(dataModelDataHandler);
 
-        this.widgetTreePlugin = new WidgetTreePlugin();
+        if (dataModelDataHandler != null) {
+            System.out.println("WidgetConfigDia.addGeneralTabsDataModel: " + dataModelDataHandler);
+            Tab tab = new Tab(I18n.getInstance().getString("plugin.dashboard.widget.config.tab.datamodel"));
+            this.dataModelDataHandler = dataModelDataHandler;
 
-        System.out.println("Open userselection:" + dataModelDataHandler.getDateNode().getData().size());
-        JEVisTree tree = JEVisTreeFactory.buildDefaultWidgetTree(dataModelDataHandler.getJeVisDataSource(), this.widgetTreePlugin);
-        tab.setContent(tree);
-        this.widgetTreePlugin.setUserSelection(dataModelDataHandler.getDateNode().getData());
+            this.widgetTreePlugin = new WidgetTreePlugin();
 
-        addTab(tab);
+            System.out.println("Open userselection:" + dataModelDataHandler.getDateNode().getData().size());
+            JEVisTree tree = JEVisTreeFactory.buildDefaultWidgetTree(dataModelDataHandler.getJeVisDataSource(), this.widgetTreePlugin);
+            tab.setContent(tree);
+            this.widgetTreePlugin.setUserSelection(dataModelDataHandler.getDateNode().getData());
+
+            addTab(tab);
+        }
+
 
     }
 

@@ -307,7 +307,7 @@ public class DashboardControl {
                     }
                 }
             } catch (Exception ex) {
-                logger.error("Widget '{}' getStartDate errot: {}", widget.getId(), ex);
+                logger.error("Widget '{}' getStartDate error: {}", widget.getId(), ex);
             }
         }
         logger.debug("calculated max TS: {}", date);
