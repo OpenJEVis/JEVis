@@ -51,6 +51,7 @@ import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.datasource.DataSourceLoader;
 import org.jevis.jeconfig.application.ParameterHelper;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
+import org.jevis.jeconfig.tool.I18n;
 
 import java.awt.*;
 import java.io.IOException;
@@ -173,19 +174,9 @@ public class FXLogin extends AnchorPane {
             this.progress.setVisible(true);
             this.progress.setVisible(true);
         });
-        //start animation, todo make an own thred..
+        //start animation, todo make an own thread..
         Runnable runnable = () -> {
             try {
-//                Platform.runLater(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        loginButton.setDisable(true);
-//                        authGrid.setDisable(true);
-//                        progress.setVisible(true);
-//                        progress.setVisible(true);
-//                    }
-//                });
-
                 if (this._ds.connect(this.userName.getText(), this.userPassword.getText())) {
                     logger.trace("Login succeeded");
                     if (this.storeConfig.isSelected()) {
@@ -198,14 +189,16 @@ public class FXLogin extends AnchorPane {
                     });
 
                 } else {
-                    throw new RuntimeException("Error while connecting to the JEVis Server");
+                    I18n.getInstance().loadBundle(getSelectedLocale());
+                    throw new RuntimeException(I18n.getInstance().getString("app.login.exception.runtime"));
                 }
             } catch (Exception ex) {
-                logger.trace("Login failed with error: {}", ex);
+                I18n.getInstance().loadBundle(getSelectedLocale());
+                logger.trace("{}: {}", I18n.getInstance().getString("app.login.error.message"), ex, ex);
                 Platform.runLater(() -> {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error");
-                    alert.setHeaderText("Error while connecting to the JEVis Server");
+                    alert.setTitle(I18n.getInstance().getString("app.login.error.title"));
+                    alert.setHeaderText("");
                     alert.setContentText(ex.getMessage());
                     alert.showAndWait();
 
