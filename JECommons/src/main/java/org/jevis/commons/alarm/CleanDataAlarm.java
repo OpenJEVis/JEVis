@@ -30,7 +30,7 @@ public class CleanDataAlarm {
     private AlarmConstants.Operator operator;
     private CronScheduler silentTime;
     private CronScheduler standByTime;
-    private Double tolerance;
+    private Double tolerance = 0d;
     private List<JsonAlarmConfig> jsonList = new ArrayList<>();
     private AlarmType alarmType;
     private List<UsageSchedule> usageSchedules = new ArrayList<>();
@@ -99,23 +99,20 @@ public class CleanDataAlarm {
                 if (latestSample != null) {
                     String latestSampleString = latestSample.getValueAsString();
                     if (latestSampleString.startsWith("[")) {
-//                        jsonList = new Gson().fromJson(latestSampleString, new TypeToken<List<JsonAlarmConfig>>() {
-//                        }.getType());
                         jsonList = Arrays.asList(objectMapper.readValue(latestSampleString, JsonAlarmConfig[].class));
                     } else {
-//                        jsonList.add(new Gson().fromJson(latestSampleString, JsonAlarmConfig.class));
                         jsonList.add(objectMapper.readValue(latestSampleString, JsonAlarmConfig.class));
                     }
                 }
             }
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("JEVisException. Error while parsing alarm configuration json from config {}", cleanDataObject.getID(), e);
         } catch (JsonParseException e) {
-            e.printStackTrace();
+            logger.error("JsonParseException. Error while parsing alarm configuration json from config {}", cleanDataObject.getID(), e);
         } catch (JsonMappingException e) {
-            e.printStackTrace();
+            logger.error("JsonMappingException. Error while parsing alarm configuration json from config {}", cleanDataObject.getID(), e);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("IOException. Error while parsing alarm configuration json from config {}", cleanDataObject.getID(), e);
         }
     }
 
