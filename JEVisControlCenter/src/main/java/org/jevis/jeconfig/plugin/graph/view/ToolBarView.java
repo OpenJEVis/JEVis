@@ -96,6 +96,7 @@ public class ToolBarView {
 
             if (changed) {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setResizable(true);
                 alert.setContentText(I18n.getInstance().getString("plugin.graph.dialog.changed.text"));
 
                 alert.showAndWait().ifPresent(buttonType -> {
@@ -432,6 +433,7 @@ public class ToolBarView {
                         } else {
 
                             Dialog<ButtonType> dialogOverwrite = new Dialog<>();
+                            dialogOverwrite.setResizable(true);
                             dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
                             dialogOverwrite.getDialogPane().setContentText(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
                             final ButtonType overwrite_ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), ButtonBar.ButtonData.OK_DONE);
@@ -571,6 +573,7 @@ public class ToolBarView {
                 this.model.setTemporary(false);
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));
+                alert.setResizable(true);
                 alert.showAndWait();
             }
 

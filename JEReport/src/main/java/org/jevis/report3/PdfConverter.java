@@ -7,9 +7,10 @@ package org.jevis.report3;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.artofsolving.jodconverter.OfficeDocumentConverter;
-import org.artofsolving.jodconverter.office.DefaultOfficeManagerConfiguration;
-import org.artofsolving.jodconverter.office.OfficeManager;
+import org.jodconverter.JodConverter;
+import org.jodconverter.office.LocalOfficeManager;
+import org.jodconverter.office.OfficeException;
+import org.jodconverter.office.OfficeUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +22,6 @@ import java.util.Locale;
 
 
 /**
- *
  * @author broder
  */
 public class PdfConverter {
@@ -46,16 +46,18 @@ public class PdfConverter {
     }
 
     public File runPdfConverter() {
-        DefaultOfficeManagerConfiguration defaultOfficeManagerConfiguration = new DefaultOfficeManagerConfiguration();
-        OfficeManager officeManager = defaultOfficeManagerConfiguration.buildOfficeManager();
+
+        final LocalOfficeManager officeManager = LocalOfficeManager.install();
         try {
             officeManager.start();
-            OfficeDocumentConverter converter = new OfficeDocumentConverter(officeManager);
-            converter.convert(xlsFile, pdfFile);
-        } catch (Exception e) {
-//            e.printStackTrace();
+            JodConverter
+                    .convert(xlsFile)
+                    .to(pdfFile)
+                    .execute();
+        } catch (OfficeException e) {
+            logger.error(e);
         } finally {
-            officeManager.stop();
+            OfficeUtils.stopQuietly(officeManager);
         }
         return pdfFile;
     }

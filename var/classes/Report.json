@@ -33,6 +33,15 @@
       "jevisClass": "Report"
     },
     {
+      "name": "Last Report PDF",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report"
+    },
+    {
       "name": "PDF",
       "primitiveType": 4,
       "guiType": "Check Box",
