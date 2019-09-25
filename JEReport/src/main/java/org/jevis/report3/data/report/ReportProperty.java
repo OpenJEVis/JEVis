@@ -32,7 +32,7 @@ public class ReportProperty {
     private JEVisObject reportObject;
     private Boolean toPdf = false;
     private DateTimeZone timeZone;
-    private Long nrOfPdfPages;
+    private Long nrOfPdfPages = 10L;
 
     public ReportProperty(JEVisObject obj) {
         this.reportObject = obj;

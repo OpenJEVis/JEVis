@@ -98,9 +98,10 @@ public class DifferentialStep implements ProcessStep {
 
                 if (lastDiffVal == null) {
                     if (rawSamples.size() > 0) {
-                        JEVisSample sample = rawSamples.get(0);
-                        if (sample != null) {
-                            lastDiffVal = sample.getValueAsDouble();
+                        for (JEVisSample smp : rawSamples) {
+                            if (smp.getTimestamp().isBefore(firstTS)) {
+                                lastDiffVal = smp.getValueAsDouble();
+                            }
                         }
                     } else {
                         logger.warn("No raw samples! Assuming starting value .");
