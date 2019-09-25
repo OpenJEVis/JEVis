@@ -63,6 +63,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 /**
@@ -186,10 +187,32 @@ public class TreeHelper {
                     ToggleSwitchPlus rawData = new ToggleSwitchPlus();
                     rawData.setSelected(false);
 
+                    Label dateLabel = new Label("From");
+                    JFXDatePicker datePicker = new JFXDatePicker();
+                    JFXTimePicker timePicker = new JFXTimePicker();
+                    timePicker.set24HourView(true);
+                    timePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+                    AtomicBoolean changed = new AtomicBoolean(false);
+
+                    datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+                        if (newValue != oldValue) {
+                            changed.set(true);
+                        }
+                    });
+
+                    timePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+                        if (newValue != oldValue) {
+                            changed.set(true);
+                        }
+                    });
+
                     gp.add(rawDataLabel, 0, 0);
                     gp.add(rawData, 1, 0);
                     gp.add(cleanDataLabel, 0, 1);
                     gp.add(cleanData, 1, 1);
+                    gp.add(dateLabel, 0, 2);
+                    gp.add(datePicker, 1, 2);
+                    gp.add(timePicker, 2, 2);
 
                     alert.getDialogPane().setContent(gp);
 
@@ -203,7 +226,24 @@ public class TreeHelper {
                                     @Override
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            deleteAllSamples(item.getValue().getJEVisObject(), rawData.selectedProperty().get(), cleanData.selectedProperty().get());
+                                            if (!changed.get()) {
+                                                deleteAllSamples(item.getValue().getJEVisObject(),
+                                                        rawData.selectedProperty().get(),
+                                                        cleanData.selectedProperty().get());
+                                            } else {
+                                                DateTime dateTime = new DateTime(
+                                                        datePicker.valueProperty().get().getYear(),
+                                                        datePicker.valueProperty().get().getMonthValue(),
+                                                        datePicker.valueProperty().get().getDayOfMonth(),
+                                                        timePicker.valueProperty().get().getHour(),
+                                                        timePicker.valueProperty().get().getMinute(),
+                                                        timePicker.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                                deleteAllSamples(item.getValue().getJEVisObject(),
+                                                        dateTime,
+                                                        rawData.selectedProperty().get(),
+                                                        cleanData.selectedProperty().get());
+                                            }
                                         }
 
                                         return null;
@@ -390,6 +430,23 @@ public class TreeHelper {
             }
             for (JEVisObject child : object.getChildren()) {
                 deleteAllSamples(child, rawData, cleanData);
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
+        }
+    }
+
+    private static void deleteAllSamples(JEVisObject object, DateTime from, boolean rawData, boolean cleanData) {
+        try {
+            JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
+            if (value != null) {
+                if ((object.getJEVisClassName().equals("Clean Data") && cleanData)
+                        || (object.getJEVisClassName().equals("Data") && rawData)) {
+                    value.deleteSamplesBetween(from, new DateTime());
+                }
+            }
+            for (JEVisObject child : object.getChildren()) {
+                deleteAllSamples(child, from, rawData, cleanData);
             }
         } catch (JEVisException e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
