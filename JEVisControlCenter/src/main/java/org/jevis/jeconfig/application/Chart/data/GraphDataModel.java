@@ -173,7 +173,7 @@ public class GraphDataModel {
                     @Override
                     protected Void call() {
                         updateMessage(loading);
-                        graphPluginView.update(true);
+                        Platform.runLater(() -> graphPluginView.update(true));
                         return null;
                     }
                 };

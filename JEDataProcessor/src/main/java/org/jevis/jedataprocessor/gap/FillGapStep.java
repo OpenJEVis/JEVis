@@ -38,9 +38,10 @@ public class FillGapStep implements ProcessStep {
             return;
         }
         List<CleanInterval> intervals = resourceManager.getIntervals();
+        List<JEVisSample> listConversionToDifferential = cleanDataObject.getConversionDifferential();
 
         //identify gaps, gaps holds intervals
-        List<Gap> gaps = identifyGaps(intervals, cleanDataObject);
+        List<Gap> gaps = identifyGaps(intervals, cleanDataObject, listConversionToDifferential);
         logger.info("{} gaps identified", gaps.size());
         if (gaps.isEmpty()) { //no gap filling when there are no gaps
             return;
@@ -124,32 +125,82 @@ public class FillGapStep implements ProcessStep {
         return l;
     }
 
-    private List<Gap> identifyGaps(List<CleanInterval> intervals, CleanDataObject calcAttribute) throws Exception {
+    private List<Gap> identifyGaps(List<CleanInterval> intervals, CleanDataObject calcAttribute, List<JEVisSample> listConversionToDifferential) throws Exception {
         List<Gap> gaps = new ArrayList<>();
         Gap currentGap = null;
         Double lastValue = calcAttribute.getLastCleanValue();
         for (CleanInterval currentInterval : intervals) {
-            if (currentInterval.getTmpSamples().isEmpty()) { //could be the start of the gap or in a gap
-                if (currentGap != null) {//current in a gap
-                    currentGap.addInterval(currentInterval);
-                } else { //start of a gap
-                    currentGap = new Gap();
-                    currentGap.addInterval(currentInterval);
-                    currentGap.setFirstValue(lastValue);
+            for (int i = 0; i < listConversionToDifferential.size(); i++) {
+                JEVisSample cd = listConversionToDifferential.get(i);
+
+                DateTime timeStampOfConversion = cd.getTimestamp();
+
+                DateTime nextTimeStampOfConversion = null;
+                Boolean conversionToDifferential = cd.getValueAsBoolean();
+                if (listConversionToDifferential.size() > (i + 1)) {
+                    nextTimeStampOfConversion = (listConversionToDifferential.get(i + 1)).getTimestamp();
                 }
-            } else { //could be the end of the gap or no gap
-                for (JEVisSample sample : currentInterval.getTmpSamples()) {
+                if (!conversionToDifferential) {
+                    if (currentInterval.getDate().equals(timeStampOfConversion)
+                            || currentInterval.getDate().isAfter(timeStampOfConversion)
+                            && ((nextTimeStampOfConversion == null) || currentInterval.getDate().isBefore(nextTimeStampOfConversion))) {
+                        if (currentInterval.getTmpSamples().isEmpty()) { //could be the start of the gap or in a gap
+                            if (currentGap != null) {//current in a gap
+                                currentGap.addInterval(currentInterval);
+                            } else { //start of a gap
+                                currentGap = new Gap();
+                                currentGap.addInterval(currentInterval);
+                                currentGap.setFirstValue(lastValue);
+                            }
+                        } else { //could be the end of the gap or no gap
+                            for (JEVisSample sample : currentInterval.getTmpSamples()) {
 
-                    Double rawValue = sample.getValueAsDouble();
-                    if (currentGap != null) { //end of the gap
-                        currentGap.setLastValue(rawValue);
-                        gaps.add(currentGap);
-                        currentGap = null;
-                        lastValue = sample.getValueAsDouble();
-                    } else { //not in a gap
-                        lastValue = sample.getValueAsDouble();
+                                Double rawValue = sample.getValueAsDouble();
+                                if (currentGap != null) { //end of the gap
+                                    currentGap.addInterval(currentInterval);
+                                    currentGap.setLastValue(rawValue);
+                                    gaps.add(currentGap);
+                                    currentGap = null;
+                                    lastValue = sample.getValueAsDouble();
+                                } else { //not in a gap
+                                    lastValue = sample.getValueAsDouble();
+                                }
+
+                            }
+                        }
                     }
+                } else {
+                    if (currentInterval.getDate().equals(timeStampOfConversion)
+                            || currentInterval.getDate().isAfter(timeStampOfConversion)
+                            && ((nextTimeStampOfConversion == null) || currentInterval.getDate().isBefore(nextTimeStampOfConversion))) {
+                        if (currentInterval.getTmpSamples().isEmpty()) { //could be the start of the gap or in a gap
+                            if (currentGap != null) {//current in a gap
+                                currentGap.addInterval(currentInterval);
+                            } else { //start of a gap
+                                currentGap = new Gap();
+                                currentGap.addInterval(currentInterval);
+                                currentGap.setFirstValue(lastValue);
+                            }
+                        } else { //could be the end of the gap or no gap
+                            for (JEVisSample sample : currentInterval.getTmpSamples()) {
 
+                                int currentIntervalIndex = intervals.indexOf(currentInterval);
+                                if (currentIntervalIndex < intervals.size() - 2) {
+                                    CleanInterval nextInterval = intervals.get(currentIntervalIndex + 1);
+                                    if (currentGap != null && nextInterval != null) { //end of the gap
+                                        currentGap.addInterval(currentInterval);
+                                        Double raw2Value = nextInterval.getTmpSamples().get(nextInterval.getTmpSamples().size() - 1).getValueAsDouble();
+                                        currentGap.setLastValue(raw2Value);
+                                        gaps.add(currentGap);
+                                        currentGap = null;
+                                        lastValue = sample.getValueAsDouble();
+                                    } else { //not in a gap
+                                        lastValue = sample.getValueAsDouble();
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
