@@ -296,10 +296,10 @@ public class XYChart implements Chart {
         XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
 
         hexColors.add(singleRow.getColor());
-        Platform.runLater(() -> {
+//        Platform.runLater(() -> {
             chart.getData().add(serie.getSerie());
             tableData.add(serie.getTableEntry());
-        });
+//        });
 
 
         /**
@@ -911,7 +911,7 @@ public class XYChart implements Chart {
 
     private void checkForY2Axis() {
 
-        Platform.runLater(() -> {
+//        Platform.runLater(() -> {
             try {
                 boolean hasY2Axis = false;
                 for (XYChartSerie serie : xyChartSerieList) {
@@ -927,7 +927,7 @@ public class XYChart implements Chart {
                 logger.error(ex);
             }
 
-        });
+//        });
 
     }
 
