@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -14,9 +15,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.printing.PDFPageable;
 import org.jevis.api.*;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -26,7 +30,13 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class ReportPlugin implements Plugin {
@@ -39,6 +49,9 @@ public class ReportPlugin implements Plugin {
     private final ObjectRelations objectRelations;
     private final ToolBar toolBar;
     private boolean initialized = false;
+    private ListView<JEVisObject> listView;
+    private WebView web = new WebView();
+    private ComboBox<DateTime> dateTimeComboBox;
 
     public ReportPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -69,7 +82,91 @@ public class ReportPlugin implements Plugin {
             getContentNode();
         });
 
-        toolBar.getItems().add(reload);
+        Separator sep1 = new Separator(Orientation.VERTICAL);
+
+        ToggleButton pdfButton = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", 20, 20));
+        Tooltip pdfTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
+        pdfButton.setTooltip(pdfTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(pdfButton);
+
+        pdfButton.setOnAction(event -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("PDF File Destination");
+            DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
+            FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("PDF Files (*.pdf)", ".pdf");
+            fileChooser.getExtensionFilters().addAll(pdfFilter);
+            fileChooser.setSelectedExtensionFilter(pdfFilter);
+
+            JEVisObject selectedItem = listView.getSelectionModel().getSelectedItem();
+            fileChooser.setInitialFileName(selectedItem.getName() + fmtDate.print(new DateTime()));
+            File file = fileChooser.showSaveDialog(JEConfig.getStage());
+            if (file != null) {
+                File destinationFile = new File(file + fileChooser.getSelectedExtensionFilter().getExtensions().get(0));
+                try {
+                    JEVisAttribute last_report_pdf = selectedItem.getAttribute("Last Report PDF");
+                    DateTime dateTime = dateTimeComboBox.getSelectionModel().getSelectedItem();
+                    List<JEVisSample> samples = last_report_pdf.getSamples(dateTime, dateTime);
+                    samples.get(0).getValueAsFile().saveToFile(destinationFile);
+                } catch (JEVisException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        ToggleButton xlsxButton = new ToggleButton("", JEConfig.getImage("xlsx_315594.png", 20, 20));
+        Tooltip xlsxTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.xlsx"));
+        xlsxButton.setTooltip(xlsxTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(xlsxButton);
+
+        xlsxButton.setOnAction(event -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("XLSX File Destination");
+            DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
+            FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("Excel Files (*.xlsx)", ".xlsx");
+            fileChooser.getExtensionFilters().addAll(pdfFilter);
+            fileChooser.setSelectedExtensionFilter(pdfFilter);
+
+            JEVisObject selectedItem = listView.getSelectionModel().getSelectedItem();
+            fileChooser.setInitialFileName(selectedItem.getName() + fmtDate.print(new DateTime()));
+            File file = fileChooser.showSaveDialog(JEConfig.getStage());
+            if (file != null) {
+                File destinationFile = new File(file + fileChooser.getSelectedExtensionFilter().getExtensions().get(0));
+                try {
+                    JEVisAttribute last_report_pdf = selectedItem.getAttribute("Last Report");
+                    DateTime dateTime = dateTimeComboBox.getSelectionModel().getSelectedItem();
+                    List<JEVisSample> samples = last_report_pdf.getSamples(dateTime.minusMinutes(1), dateTime.plusMinutes(1));
+                    samples.get(0).getValueAsFile().saveToFile(destinationFile);
+                } catch (JEVisException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        Separator sep2 = new Separator(Orientation.VERTICAL);
+
+        ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", 20, 20));
+        Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
+        printButton.setTooltip(printTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
+
+        printButton.setOnAction(event -> {
+            PrinterJob printerJob = PrinterJob.getPrinterJob();
+            try {
+                JEVisObject selectedItem = listView.getSelectionModel().getSelectedItem();
+                JEVisAttribute last_report_pdf = selectedItem.getAttribute("Last Report PDF");
+                DateTime dateTime = dateTimeComboBox.getSelectionModel().getSelectedItem();
+                List<JEVisSample> samples = last_report_pdf.getSamples(dateTime, dateTime);
+                PDDocument document = PDDocument.load(samples.get(0).getValueAsFile().getBytes());
+                printerJob.setPageable(new PDFPageable(document));
+                if (printerJob.printDialog()) {
+                    printerJob.print();
+                }
+            } catch (IOException | JEVisException | PrinterException e) {
+                e.printStackTrace();
+            }
+        });
+
+        toolBar.getItems().setAll(reload, sep1, pdfButton, xlsxButton, sep2, printButton);
     }
 
     @Override
@@ -163,8 +260,13 @@ public class ReportPlugin implements Plugin {
 
         ObservableList<JEVisObject> reports = FXCollections.observableArrayList(getAllReports());
         AlphanumComparator ac = new AlphanumComparator();
-        reports.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
-        ListView<JEVisObject> listView = new ListView<>(reports);
+        reports.sort((o1, o2) -> {
+            String name1 = objectRelations.getObjectPath(o1) + o1.getName();
+            String name2 = objectRelations.getObjectPath(o2) + o2.getName();
+            return ac.compare(name1, name2);
+        });
+
+        listView = new ListView<>(reports);
         listView.setPrefWidth(250);
         setupCellFactory(listView);
 
@@ -208,7 +310,7 @@ public class ReportPlugin implements Plugin {
                         logger.error("Could not add date to dat list.");
                     }
                 }
-                ComboBox<DateTime> dateTimeComboBox = new ComboBox<>(FXCollections.observableList(dateTimeList));
+                dateTimeComboBox = new ComboBox<>(FXCollections.observableList(dateTimeList));
                 Callback<ListView<DateTime>, ListCell<DateTime>> cellFactory = new Callback<ListView<DateTime>, ListCell<DateTime>>() {
                     @Override
                     public ListCell<DateTime> call(ListView<DateTime> param) {
@@ -239,6 +341,7 @@ public class ReportPlugin implements Plugin {
 
                 HBox hBox = new HBox();
                 hBox.setPadding(new Insets(4, 4, 4, 4));
+                hBox.setSpacing(4);
                 ImageView leftImage = JEConfig.getImage("left.png", 20, 20);
                 ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
 
@@ -260,12 +363,12 @@ public class ReportPlugin implements Plugin {
                 Separator sep2 = new Separator(Orientation.VERTICAL);
 
                 Label labelDateTimeComboBox = new Label(I18n.getInstance().getString("plugin.reports.selectionbox.label"));
+                labelDateTimeComboBox.setAlignment(Pos.CENTER_LEFT);
 
                 hBox.getChildren().addAll(labelDateTimeComboBox, leftImage, sep1, dateTimeComboBox, sep2, rightImage);
 
                 view.setTop(hBox);
 
-                WebView web = new WebView();
                 WebEngine engine = web.getEngine();
                 String url = JEConfig.class.getResource("/web/viewer.html").toExternalForm();
 
@@ -307,6 +410,9 @@ public class ReportPlugin implements Plugin {
                             }
                         });
             }
+        } else {
+            view.setTop(null);
+            view.setCenter(null);
         }
     }
 
@@ -350,7 +456,7 @@ public class ReportPlugin implements Plugin {
 
     @Override
     public ImageView getIcon() {
-        return null;
+        return JEConfig.getImage("Report.png", 20, 20);
     }
 
     @Override

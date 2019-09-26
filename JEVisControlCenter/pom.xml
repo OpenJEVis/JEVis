@@ -117,6 +117,11 @@
             <artifactId>icu4j</artifactId>
             <version>64.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.16</version>
+        </dependency>
         <!-- nice javafx stuff
         <dependency>
             <groupId>no.tornado</groupId>
