@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
@@ -271,11 +272,21 @@ public class PieWidget extends Widget {
 
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
         widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
+
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            widgetConfigDialog.commitSettings();
-            updateConfig(getConfig());
-            updateData(lastInterval);
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                Runnable task = () -> {
+                    widgetConfigDialog.commitSettings();
+                    updateConfig(getConfig());
+                    updateData(lastInterval);
+                };
+                control.getExecutor().submit(task);
+
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         }
     }
 

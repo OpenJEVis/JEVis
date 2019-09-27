@@ -24,6 +24,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.dashboard.common.GraphAnalysisLinker;
 import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
@@ -91,7 +92,6 @@ public class LinkerWidget extends Widget {
             Platform.runLater(() ->
             {
                 try {
-//                this.anchorPane.getChildren().clear();
                     this.anchorPane.getChildren().setAll(this.openAnalysisButton);
                     Layouts.setAnchor(this.openAnalysisButton, 0);
 
@@ -150,6 +150,7 @@ public class LinkerWidget extends Widget {
     @Override
     public void openConfig() {
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(null);
+        widgetConfigDialog.addGeneralTabsDataModel(null);
 
         if (dataModelNode != null) {
             Tab tab = new Tab("Link");
@@ -219,12 +220,23 @@ public class LinkerWidget extends Widget {
             }
         }
 
+
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            widgetConfigDialog.commitSettings();
-            updateConfig(getConfig());
-            updateData(lastInterval);
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                Runnable task = () -> {
+                    widgetConfigDialog.commitSettings();
+                    updateConfig(getConfig());
+                    updateData(lastInterval);
+                };
+                control.getExecutor().submit(task);
+
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         }
+        System.out.println("LinkreWidget.openConfig.end");
     }
 
     @Override

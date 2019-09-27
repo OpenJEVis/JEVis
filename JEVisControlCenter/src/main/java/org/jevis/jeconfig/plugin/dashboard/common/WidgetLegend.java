@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard.widget;
+package org.jevis.jeconfig.plugin.dashboard.common;
 
 import com.sun.javafx.charts.Legend;
 import javafx.scene.control.Label;

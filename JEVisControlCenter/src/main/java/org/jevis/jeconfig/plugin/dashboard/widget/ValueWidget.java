@@ -13,7 +13,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
@@ -85,32 +84,35 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public void updateData(Interval interval) {
         logger.debug("Value.Update: {}", interval);
         lastInterval = interval;
+        Platform.runLater(() -> {
+            showAlertOverview(false, "");
+        });
+
 
         if (this.sampleHandler == null) {
-            showProgressIndicator(false);
+            Platform.runLater(() -> {
+                this.label.setText("");
+                showProgressIndicator(false);
+            });
             return;
         }
 
 
         Platform.runLater(() -> {
-            showAlertOverview(false, "");
             this.label.setText(I18n.getInstance().getString("plugin.dashboard.loading"));
         });
 
         String widgetUUID = "-1";
+
+        this.nf.setMinimumFractionDigits(this.config.getDecimals());
+        this.nf.setMaximumFractionDigits(this.config.getDecimals());
+
         AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
         try {
             widgetUUID = getConfig().getUuid() + "";
             this.sampleHandler.setInterval(interval);
             this.sampleHandler.update();
-
-            logger.debug("found factory: {}-{}:{}", config.getUuid(), sampleHandler.getTimeFrameFactory(), interval);
-
-            this.nf.setMinimumFractionDigits(this.config.getDecimals());
-            this.nf.setMaximumFractionDigits(this.config.getDecimals());
-
-
-            this.labelText.setValue("n.a.");
+            logger.error("found factory: {}-{}:{}", config.getUuid(), sampleHandler.getTimeFrameFactory(), interval);
 
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataModel dataModel = this.sampleHandler.getDataModel().get(0);
@@ -119,26 +121,37 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
-//                    total.set(DataModelDataHandler.getTotal(results));
                     total.set(results.get(results.size() - 1).getValueAsDouble());
                     displayedSample.setValue(total.get());
-                    this.labelText.setValue((this.nf.format(total.get())) + " " + unit);
+                    Platform.runLater(() -> {
+                        this.label.setText((this.nf.format(total.get())) + " " + unit);
+                    });
                     checkLimit();
                 } else {
-//                    showAlertOverview(true, "");
+                    Platform.runLater(() -> {
+                        this.label.setText("-");
+                    });
+
+                    displayedSample.set(Double.NaN);//or NaN?
                 }
 
             } else {
-                logger.warn("ValueWidget is missing SampleHandler.datamodel: {}", this.sampleHandler);
+                Platform.runLater(() -> {
+                    this.label.setText("");
+                });
+                displayedSample.set(Double.NaN);//or NaN?
+                logger.warn("ValueWidget is missing SampleHandler.datamodel: [ID:{}]", widgetUUID);
             }
 
         } catch (Exception ex) {
             logger.error("Error while updating ValueWidget: [ID:{}]:{}", widgetUUID, ex);
-            this.labelText.setValue("error");
-            showAlertOverview(true, ex.getMessage());
-//            ex.printStackTrace();
+            Platform.runLater(() -> {
+                this.label.setText("error");
+                showAlertOverview(true, ex.getMessage());
+            });
         }
 
+//        showProgressIndicator(false);
 
         Platform.runLater(() -> {
             showProgressIndicator(false);
@@ -159,20 +172,12 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 Color fontColor = this.config.getFontColor();
 
                 if (limit != null) {
-
-//                    limit.exceedsUpperLimit(displayedSample.get())
-//                    if (limit.hasLowerLimit) {
-//                        if (displayedSample.get() <= (limit.getLowerLimit() * limit.getLowerLimitOffset())) {
-//                            fontColor = limit.getLowerLimitColor();
-//                        }
-//                    }
-//                    if (limit.hasUpperLimit) {
-//                        if (displayedSample.get() >= limit.getUpperLimit() * limit.getUpperLimitOffset()) {
-//                            fontColor = limit.getUpperLimitColor();
-//                        }
-//                    }
+                    this.label.setTextFill(limit.getExceedsLimitColor(fontColor, displayedSample.get()));
+                } else {
+                    this.label.setTextFill(fontColor);
                 }
-                this.label.setTextFill(limit.getExceedsLimitColor(fontColor, displayedSample.get()));
+
+
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -191,7 +196,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     @Override
     public void openConfig() {
-
+//        System.out.println("The Thread name is0 " + Thread.currentThread().getName());
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
         widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
 
@@ -201,11 +206,22 @@ public class ValueWidget extends Widget implements DataModelWidget {
         }
 
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            widgetConfigDialog.commitSettings();
-            updateConfig(getConfig());
-            updateData(lastInterval);
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                Runnable task = () -> {
+                    widgetConfigDialog.commitSettings();
+                    updateConfig(getConfig());
+                    updateData(lastInterval);
+                };
+                control.getExecutor().submit(task);
+
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         }
+
+
     }
 
 
@@ -323,8 +339,12 @@ public class ValueWidget extends Widget implements DataModelWidget {
         boolean hasLowerLimit = false;
         boolean hasUpperLimit = false;
 
+        String staticString = "Static";
+        String dynamicString = "Dynamic";
+
         Color upperLimitColor = Color.RED;
         Color lowerLimitColor = Color.GREEN;
+        Tab tab = new Tab(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.tab"));
 
 
         int limitWidget;
@@ -348,13 +368,16 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
 
             boolean isDynamic = (jsonNode.get("source").asInt(-1) > 0);
-
+            final String type;
+            System.out.println("jsonNode.get(\"source\").asInt: " + (jsonNode.get("source").asInt()));
 
             if (isDynamic) {
+                type = dynamicString;
                 limitWidget = jsonNode.get("source").asInt(-1);
                 lowerLimitOffset = jsonNode.get("lowerLimitOffset").asDouble(1);
                 upperLimitOffset = jsonNode.get("upperLimitOffset").asDouble(1);
             } else {
+                type = staticString;
                 lowerLimit = jsonNode.get("lowerLimitValue").asDouble(0);
                 upperLimit = jsonNode.get("upperLimitValue").asDouble(0);
             }
@@ -364,6 +387,44 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
             lowerLimitColor = Color.valueOf(jsonNode.get("lowerLimitColor").asText(Color.RED.toString()));
             upperLimitColor = Color.valueOf(jsonNode.get("upperLimitColor").asText(Color.GREEN.toString()));
+
+            Platform.runLater(() -> {
+                buildTab(type);
+            });
+
+        }
+
+        private void buildTab(String type) {
+
+
+            ObservableList<String> types = FXCollections.observableArrayList(staticString, dynamicString);
+            ComboBox<String> limitTypeBox = new ComboBox<>(types);
+
+            Label limitTypeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.type"));
+
+            limitTypeBox.getSelectionModel().select(type);
+            limitTypeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+                Platform.runLater(() -> {
+                    buildTab(newValue);
+                });
+            });
+
+
+            GridPane gridPane = new GridPane();
+
+            System.out.println("limitTypeBox: " + type);
+            if (type.equals("Static")) {
+                limitWidget = -1;
+                updateSettingPane(gridPane, 1);
+            } else {
+                updateSettingPane(gridPane, 0);
+            }
+
+            gridPane.add(limitTypeLabel, 0, 0);
+            gridPane.add(limitTypeBox, 1, 0);
+            gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 1, 2, 1);
+            tab.setContent(gridPane);
+            tab.getContent().requestFocus();
 
 
         }
@@ -472,53 +533,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
 
         public Tab getConfigTab() {
-            /** dynamic alarm **/
-            String staticString = "Static";
-            String dynamicString = "Dynamic";
-
-            ObservableList<String> types = FXCollections.observableArrayList(staticString, dynamicString);
-            ComboBox<String> limitTypeBox = new ComboBox<>(types);
-
-            Label limitTypeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.type"));
-
-            Tab tab = new Tab(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.tab"));
-
-
-            limitTypeBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                GridPane gridPane = new GridPane();
-
-                if (limitTypeBox.getSelectionModel().getSelectedItem().equals("Static")) {
-                    limitWidget = -1;
-                    updateSettingPane(gridPane, 1);
-                } else {
-                    updateSettingPane(gridPane, 0);
-                }
-                gridPane.add(limitTypeLabel, 0, 0);
-                gridPane.add(limitTypeBox, 1, 0);
-                gridPane.add(new Separator(Orientation.HORIZONTAL), 0, 1, 2, 1);
-
-                Platform.runLater(() -> {
-//                        borderPane.setCenter(gridPane);
-                    tab.setContent(gridPane);
-                    tab.getContent().requestFocus();
-                });
-            });
-
-
-            Platform.runLater(() -> {
-//                System.out.println("Select type:" + limitWidget);
-
-                if (limitWidget > 0) {//
-//                    limitTypeBox.getSelectionModel().select(dynamicString);// dump workaround,
-                    limitTypeBox.getSelectionModel().select(0);
-                } else {
-                    limitTypeBox.getSelectionModel().select(1);
-                }
-                limitTypeBox.fireEvent(new ActionEvent());
-            });
             return tab;
-
         }
+
 
         public void updateSettingPane(GridPane gridPane, int mode) {
             gridPane.setPadding(new Insets(10));
@@ -625,6 +642,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
             int row = 3;
 
             if (mode == 1) {
+                System.out.println("Build static GUO");
                 /** static mode **/
                 upperLimitOffset = 1d;
                 lowerLimitOffset = 1d;
@@ -674,9 +692,10 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 gridPane.add(lowerColorPicker, 1, row);
             } else {
                 /** dynamic mode **/
+                System.out.println("Build Dyn GUO");
                 upperLimit = 0d;
                 lowerLimit = 0d;
-
+                System.out.println("upperLimitOffset: " + upperLimitOffset);
                 upperValueField.setText(upperLimitOffset.toString());
                 lowerValueField.setText(lowerLimitOffset.toString());
 

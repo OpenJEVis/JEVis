@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard.widget;
+package org.jevis.jeconfig.plugin.dashboard.config2;
 
 public class Size {
     public static Size DEFAULT = new Size(150, 250);
