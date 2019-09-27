@@ -8,7 +8,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.jeconfig.plugin.dashboard.widget.Size;
 
 import static org.jevis.jeconfig.plugin.dashboard.config2.JsonNames.Widget.*;
 

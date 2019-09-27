@@ -11,10 +11,18 @@ import org.joda.time.format.DateTimeFormat;
 public class LastPeriod implements TimeFrameFactory {
 
     private final Period period;
+    private final String listName;
 
     public LastPeriod(Period period) {
         this.period = period;
+        this.listName = "";
     }
+
+    public LastPeriod(Period period, String listName) {
+        this.period = period;
+        this.listName = listName;
+    }
+
 
     @Override
     public String getID() {
@@ -23,7 +31,9 @@ public class LastPeriod implements TimeFrameFactory {
 
     @Override
     public String getListName() {
-        return this.period.toString();
+        return (this.listName.isEmpty() == true)
+                ? this.period.toString()
+                : this.listName;
     }
 
     @Override

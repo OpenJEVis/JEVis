@@ -153,7 +153,7 @@ public class TitleWidget extends Widget {
     @Override
     public void init() {
         this.label.setPadding(new Insets(0, 8, 0, 8));
-
+        anchorPane.setBackground(null);
         anchorPane.getChildren().add(this.label);
         Layouts.setAnchor(this.label, 0);
 
@@ -166,15 +166,22 @@ public class TitleWidget extends Widget {
 
     @Override
     public void openConfig() {
-
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
         widgetConfigDialog.addGeneralTabsDataModel(null);
 
-
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            widgetConfigDialog.commitSettings();
-            updateConfig(getConfig());
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                Runnable task = () -> {
+                    widgetConfigDialog.commitSettings();
+                    updateConfig(getConfig());
+                };
+                control.getExecutor().submit(task);
+
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         }
     }
 

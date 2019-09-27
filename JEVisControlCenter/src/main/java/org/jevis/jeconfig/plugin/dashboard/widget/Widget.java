@@ -23,6 +23,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
+import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.tool.DragResizeMod;
 import org.joda.time.DateTime;
@@ -219,9 +220,12 @@ public abstract class Widget extends Region {
     }
 
     public void showAlertOverview(boolean show, String message) {
-        this.alertPane.setVisible(show);
-        Tooltip tooltip = new Tooltip(message);
-        label.setTooltip(tooltip);
+        Platform.runLater(() -> {
+            this.alertPane.setVisible(show);
+            Tooltip tooltip = new Tooltip(message);
+            label.setTooltip(tooltip);
+        });
+
     }
 
     private void makeAlartOverlay() {
@@ -265,6 +269,7 @@ public abstract class Widget extends Region {
                     Widget.this.openConfig();
                 } catch (Exception ex) {
                     logger.error(ex);
+                    ex.printStackTrace();
                 }
             }
         });
@@ -370,6 +375,7 @@ public abstract class Widget extends Region {
                 if (show) {
                     loadingPane.setVisible(true);
                 } else {
+                    logger.error("Hide loading: widget: {}", getConfig().getUuid());
                     loadingPane.setVisible(false);
                 }
             } catch (Exception ex) {
@@ -445,6 +451,7 @@ public abstract class Widget extends Region {
                 .put(JsonNames.Widget.FONT_SIZE, this.config.getFontSize())
                 .put(JsonNames.Widget.TITLE_POSITION, this.config.getTitlePosition().toString())
                 .put(JsonNames.Widget.BORDER_SIZE, this.config.getBorderSize().getTop())
+                .put(JsonNames.Widget.SHOW_SHADOW, this.config.getShowShadow())
                 .put(JsonNames.Widget.WIDTH, this.config.getSize().getWidth())
                 .put(JsonNames.Widget.HEIGHT, this.config.getSize().getHeight())
                 .put(JsonNames.Widget.X_POS, this.config.getxPosition())

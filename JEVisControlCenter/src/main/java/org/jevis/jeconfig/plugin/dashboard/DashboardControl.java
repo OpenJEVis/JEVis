@@ -24,9 +24,9 @@ import org.jevis.jeconfig.plugin.dashboard.common.DashboardExport;
 import org.jevis.jeconfig.plugin.dashboard.config2.ConfigManager;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardSorter;
+import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
-import org.jevis.jeconfig.plugin.dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -77,6 +77,10 @@ public class DashboardControl {
 
         initTimeFrameFactory();
         resetDashboard();
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
     }
 
 
@@ -604,45 +608,12 @@ public class DashboardControl {
     }
 
     public void save() {
-
-        this.configManager.openSaveUnder(this.activeDashboard, this.widgetList, this.newBackgroundFile);
-
-//        if (this.activeDashboard.getNew()) {//new TODO
-//            NewAnalyseDialog newAnalyseDialog = new NewAnalyseDialog();
-//            try {
-//
-//                NewAnalyseDialog.Response response = newAnalyseDialog.show((Stage) this.dashBordPlugIn.getDashBoardPane().getScene().getWindow(), this.jevisDataSource);
-//                if (response == NewAnalyseDialog.Response.YES) {
-//                    JEVisClass analisisDirClass = this.jevisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS_DIR);
-//                    List<JEVisObject> analisisDir = this.jevisDataSource.getObjects(analisisDirClass, true);
-//                    JEVisClass analisisClass = this.jevisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
-//
-//
-//                    JEVisObject newObject = newAnalyseDialog.getParent().buildObject(newAnalyseDialog.getCreateName(), analisisClass);
-////                newObject.commit();//TODO
-//                    selectDashboard(newObject);
-//
-//                    if (this.newBackgroundFile != null) {
-//                        this.configManager.setBackgroundImage(this.activeDashboard.getDashboardObject(), this.newBackgroundFile);
-//                    }
-//
-//                }
-//            } catch (Exception ex) {
-//                logger.error(ex);
-//                ex.printStackTrace();
-//            }
-//
-//
-//        } else {//update
-//            try {
-//                this.configManager.saveDashboard(this.activeDashboard, this.widgetList);
-//            } catch (Exception ex) {
-//                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.copy.error.title"),
-//                        I18n.getInstance().getString("dashboard.save.error"), null, ex);
-//            }
-//
-//        }
-
+        try {
+            this.configManager.openSaveUnder(this.activeDashboard, this.widgetList, this.newBackgroundFile);
+            firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
 
     }
 

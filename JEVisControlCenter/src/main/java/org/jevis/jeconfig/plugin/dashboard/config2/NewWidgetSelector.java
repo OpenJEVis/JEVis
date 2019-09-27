@@ -10,7 +10,6 @@ import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.I18n;
 

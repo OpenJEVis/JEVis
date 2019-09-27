@@ -48,6 +48,10 @@ public class TimeFrames {
         list.add(month());
         list.add(year());
 
+        list.add(new LastPeriod(new Period("PT24H"), I18n.getInstance().getString("plugin.dashboard.timefactory.pt24h")));
+        list.add(new LastPeriod(new Period("P7D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p7d")));
+        list.add(new LastPeriod(new Period("P30D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p30d")));
+        list.add(new LastPeriod(new Period("P365D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p365d")));
 
         if (this.ds != null) {
             try {

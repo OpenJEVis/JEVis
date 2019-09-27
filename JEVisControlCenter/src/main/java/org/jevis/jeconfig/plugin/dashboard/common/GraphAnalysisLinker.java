@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.dashboard.widget;
+package org.jevis.jeconfig.plugin.dashboard.common;
 
 import com.jfoenix.controls.JFXButton;
 import javafx.scene.control.Alert;
@@ -63,8 +63,6 @@ public class GraphAnalysisLinker {
                     JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest);
                 } else {
                     Alert alert = new Alert(Alert.AlertType.WARNING);
-//                    alert.setTitle("Warning");
-//                alert.setHeaderText("Analyse nicht gefunden");
                     alert.setContentText(I18n.getInstance().getString("plugin.dashboard.linker.error.message"));
 
                     alert.showAndWait();

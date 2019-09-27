@@ -18,7 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
-import org.jevis.jeconfig.plugin.dashboard.widget.Size;
+import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
 import java.util.*;
