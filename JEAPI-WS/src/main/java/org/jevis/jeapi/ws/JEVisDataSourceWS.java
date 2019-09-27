@@ -1205,8 +1205,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             getJEVisClassesWS().parallelStream().forEach(jclass -> {
                 try {
                     this.classCache.put(jclass.getName(), jclass);
+                    jclass.getRelationships();
                 } catch (Exception ex) {
-
+                    logger.error("Error in class relationship {}", jclass, ex);
                 }
             });
             this.classLoaded = true;

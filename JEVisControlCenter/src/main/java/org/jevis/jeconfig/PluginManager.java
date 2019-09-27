@@ -38,6 +38,7 @@ import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
+import org.jevis.jeconfig.plugin.reports.ReportPlugin;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
@@ -89,6 +90,7 @@ public class PluginManager {
         List<Plugin> plugins = new ArrayList<>();
 //        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
         plugins.add(new GraphPluginView(this._ds, I18n.getInstance().getString("plugin.graph.title")));
+        plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
         plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
 
 //        plugins.add(new SCADAPlugin(_ds));
@@ -169,13 +171,19 @@ public class PluginManager {
                                     JEVisSample value = enabled.getLatestSample();
                                     if (value != null) {
                                         if (value.getValueAsBoolean()) {
-                                            /** Workaround to manage the dashboard access,
-                                             *  hide the dashboard if the user has no analyses.
+                                            /** Workaround to manage the dashboard and report access,
+                                             *  hide the dashboard/report if the user has no analyses.
                                              */
                                             if (plugObj.getJEVisClassName().equals(DashBordPlugIn.PLUGIN_NAME)) {
                                                 JEVisClass scadaAnalysis = this._ds.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
                                                 List<JEVisObject> allAnalyses = this._ds.getObjects(scadaAnalysis, false);
                                                 if (allAnalyses.size() == 0) {
+                                                    continue;
+                                                }
+                                            } else if (plugObj.getJEVisClassName().equals(ReportPlugin.PLUGIN_NAME)) {
+                                                JEVisClass reportClass = this._ds.getJEVisClass(ReportPlugin.REPORT_CLASS);
+                                                List<JEVisObject> allReports = this._ds.getObjects(reportClass, false);
+                                                if (allReports.size() == 0) {
                                                     continue;
                                                 }
                                             }

@@ -29,7 +29,10 @@ import org.jevis.commons.ws.json.JsonObject;
 
 import javax.swing.event.EventListenerList;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author fs
@@ -167,8 +170,8 @@ public class JEVisObjectWS implements JEVisObject {
                 JEVisClass oClass = obj.getJEVisClass();
                 if (oClass != null && oClass.equals(jclass)) {
                     filterLIst.add(obj);
-                } else {
-                    Set<JEVisClass> inheritanceClasses = getInheritanceClasses(new HashSet<JEVisClass>(), Objects.requireNonNull(obj.getJEVisClass()));
+                } else if (oClass != null) {
+                    Set<JEVisClass> inheritanceClasses = getInheritanceClasses(new HashSet<>(), oClass);
                     for (JEVisClass curClass : inheritanceClasses) {
                         if (curClass.equals(jclass)) {
                             filterLIst.add(obj);

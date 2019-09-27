@@ -5,21 +5,20 @@
  */
 package org.jevis.report3.data.report;
 
-import org.jevis.api.JEVisType;
-
 /**
  *
  * @author broder
  */
 public interface ReportAttributes {
 
-    public static String NAME = "Report";
-    public static String SCHEDULE = "Schedule";
-    public static String TEMPLATE = "Template";
-    public static String LAST_REPORT = "Last Report";
-    public static String ENABLED = "Enabled";
-    public static String START_RECORD = "Start Record";
-    public static String PDF = "PDF";
-    public static String TIMEZONE = "Time Zone";
-    public static String PAGESPDF = "PDF Pages";
+    String NAME = "Report";
+    String SCHEDULE = "Schedule";
+    String TEMPLATE = "Template";
+    String LAST_REPORT = "Last Report";
+    String LAST_REPORT_PDF = "Last Report PDF";
+    String ENABLED = "Enabled";
+    String START_RECORD = "Start Record";
+    String PDF = "PDF";
+    String TIMEZONE = "Time Zone";
+    String PAGESPDF = "PDF Pages";
 }

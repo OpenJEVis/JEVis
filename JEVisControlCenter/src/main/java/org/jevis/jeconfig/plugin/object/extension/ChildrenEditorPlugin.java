@@ -9,6 +9,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.childrentableeditor.ObjectTable;
+import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.Layouts;
 
 
@@ -42,7 +43,7 @@ public class ChildrenEditorPlugin implements ObjectEditorExtension {
 
     @Override
     public String getTitle() {
-        return "Children Editor";
+        return I18n.getInstance().getString("plugin.object.childreneditor.title");
     }
 
     @Override
