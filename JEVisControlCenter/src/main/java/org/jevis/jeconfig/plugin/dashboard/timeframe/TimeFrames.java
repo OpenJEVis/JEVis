@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.datetime.CustomPeriodObject;
@@ -31,13 +30,17 @@ public class TimeFrames {
     private static final Logger logger = LogManager.getLogger(TimeFrames.class);
     private JEVisDataSource ds;
     private WorkDays workDays = new WorkDays(null);
+    private ObservableList<TimeFrameFactory> list = FXCollections.observableArrayList();
 
     public TimeFrames(JEVisDataSource ds) {
         this.ds = ds;
     }
 
+
     public ObservableList<TimeFrameFactory> getAll() {
-        ObservableList<TimeFrameFactory> list = FXCollections.observableArrayList();
+        if (!list.isEmpty()) {
+            return list;
+        }
 
         //list.add(emptyTimeFrame());
         list.add(day());
@@ -47,30 +50,34 @@ public class TimeFrames {
 
 
         if (this.ds != null) {
-            List<JEVisObject> listCustomPeriods = null;
             try {
-                listCustomPeriods = this.ds.getObjects(this.ds.getJEVisClass("Custom Period"), false);
-            } catch (JEVisException e) {
-                logger.error("Error: could not get custom period", e);
-            }
+                List<JEVisObject> listCustomPeriods = null;
+                try {
+                    listCustomPeriods = this.ds.getObjects(this.ds.getJEVisClass("Custom Period"), false);
+                } catch (Exception e) {
+                    logger.error("Error: could not get custom period", e);
+                }
 
-            List<CustomPeriodObject> listCustomPeriodObjects = null;
-            if (listCustomPeriods != null) {
-                for (JEVisObject obj : listCustomPeriods) {
-                    if (obj != null) {
-                        if (listCustomPeriodObjects == null) listCustomPeriodObjects = new ArrayList<>();
-                        CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(this.ds));
-                        if (cpo.isVisible()) {
-                            listCustomPeriodObjects.add(cpo);
+                List<CustomPeriodObject> listCustomPeriodObjects = null;
+                if (listCustomPeriods != null) {
+                    for (JEVisObject obj : listCustomPeriods) {
+                        if (obj != null) {
+                            if (listCustomPeriodObjects == null) listCustomPeriodObjects = new ArrayList<>();
+                            CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(this.ds));
+                            if (cpo.isVisible()) {
+                                listCustomPeriodObjects.add(cpo);
+                            }
                         }
                     }
                 }
-            }
 
-            if (listCustomPeriodObjects != null) {
-                for (CustomPeriodObject cpo : listCustomPeriodObjects) {
-                    list.add(customPeriodObject(cpo));
+                if (listCustomPeriodObjects != null) {
+                    for (CustomPeriodObject cpo : listCustomPeriodObjects) {
+                        list.add(customPeriodObject(cpo));
+                    }
                 }
+            } catch (Exception ex) {
+                logger.error("error while loading Custom TimeFactorys: ", ex);
             }
         }
 
@@ -79,55 +86,25 @@ public class TimeFrames {
     }
 
 
-    public TimeFrameFactory emptyTimeFrame() {
-        return new TimeFrameFactory() {
-            @Override
-            public String getListName() {
-                return "Aus";
-            }
-
-            @Override
-            public Interval nextPeriod(Interval interval, int addAmount) {
-                return interval;
-            }
-
-            @Override
-            public Interval previousPeriod(Interval interval, int addAmount) {
-                return interval;
-            }
-
-            @Override
-            public String format(Interval interval) {
-                return DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(interval.getStart()) + " / " + DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").print(interval.getEnd());
-            }
-
-            @Override
-            public Interval getInterval(DateTime dateTime) {
-                return new Interval(dateTime, dateTime);
-            }
-
-            @Override
-            public String getID() {
-                return "";
-            }
-
-            @Override
-            public boolean hasNextPeriod(Interval interval) {
-                return false;
-            }
-
-            @Override
-            public boolean hasPreviousPeriod(Interval interval) {
-                return false;
-            }
-        };
-    }
-
     public TimeFrameFactory customPeriodObject(CustomPeriodObject cpo) {
         return new TimeFrameFactory() {
             @Override
             public String getListName() {
-                return cpo.getObject().getName();
+                if (cpo != null && cpo.getObject() != null) {
+                    return cpo.getObject().getName();
+                }
+                return "Unacceptable Period";
+
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return timeFrameEqual(obj);
+            }
+
+            @Override
+            public String getID() {
+                return cpo.getObject().getID().toString();
             }
 
             @Override
@@ -200,10 +177,6 @@ public class TimeFrames {
                 return true;
             }
 
-            @Override
-            public String getID() {
-                return cpo.getObject().getID().toString();
-            }
         };
     }
 
@@ -263,11 +236,27 @@ public class TimeFrames {
             public boolean hasPreviousPeriod(Interval interval) {
                 return true;
             }
+
+            @Override
+            public boolean equals(Object obj) {
+                return timeFrameEqual(obj);
+            }
         };
     }
 
     public TimeFrameFactory day() {
         return new TimeFrameFactory() {
+
+            @Override
+            public boolean equals(Object obj) {
+                return timeFrameEqual(obj);
+            }
+
+            @Override
+            public String toString() {
+                return getID().toString();
+            }
+
             @Override
             public String getID() {
                 return Period.days(1).toString();
@@ -317,6 +306,8 @@ public class TimeFrames {
             public boolean hasPreviousPeriod(Interval interval) {
                 return true;
             }
+
+
         };
     }
 
@@ -353,6 +344,11 @@ public class TimeFrames {
                 return Period.weeks(1).toString();
 //                return Period.days(7).toString();
 //                return TimeFrameType.WEEK.toString();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return timeFrameEqual(obj);
             }
 
             @Override
@@ -397,6 +393,7 @@ public class TimeFrames {
             public boolean hasPreviousPeriod(Interval interval) {
                 return true;
             }
+
         };
     }
 
@@ -406,6 +403,11 @@ public class TimeFrames {
             public String getID() {
                 return Period.months(1).toString();
 //                return Period.days(30).toString();
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                return timeFrameEqual(obj);
             }
 
             @Override
@@ -458,11 +460,23 @@ public class TimeFrames {
             public boolean hasPreviousPeriod(Interval interval) {
                 return true;
             }
+
         };
     }
 
     public TimeFrameFactory year() {
         return new TimeFrameFactory() {
+
+            @Override
+            public boolean equals(Object obj) {
+                return timeFrameEqual(obj);
+            }
+
+            @Override
+            public String toString() {
+                return getID().toString();
+            }
+
             @Override
             public String getID() {
                 return Period.years(1).toString();
@@ -513,6 +527,8 @@ public class TimeFrames {
             public boolean hasPreviousPeriod(Interval interval) {
                 return true;
             }
+
+
         };
     }
 

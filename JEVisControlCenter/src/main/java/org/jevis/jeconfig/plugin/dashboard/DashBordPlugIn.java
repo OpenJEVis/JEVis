@@ -38,7 +38,7 @@ public class DashBordPlugIn implements Plugin {
     private ScrollPane scrollPane = new ScrollPane();
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
-        logger.error("init DashBordPlugIn");
+        logger.debug("init DashBordPlugIn");
         this.rootPane.setStyle("-fx-background-color: blue;");
         this.nameProperty.setValue(name);
         this.jeVisDataSource = ds;

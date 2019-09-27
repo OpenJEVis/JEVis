@@ -1,5 +1,7 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -18,6 +20,8 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
+import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widgets;
 import org.jevis.jeconfig.tool.I18n;
@@ -82,12 +86,16 @@ public class WidgetNavigator {
         finishButton.setOnAction(event -> {
             stage.hide();
         });
+        stage.setOnHiding(event -> {
+            this.control.enableHightlightGlow(false);
+        });
 
 
         HBox buttonBox = new HBox(18);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
         buttonBox.getChildren().addAll(finishButton);
-
+        buttonBox.setPadding(new Insets(12));
+        borderPane.setBottom(buttonBox);
         stage.show();
     }
 
@@ -96,19 +104,23 @@ public class WidgetNavigator {
         Label nameLabel = new Label(I18n.getInstance().getString("dashboard.navigator.namelabel"));
         Label sizeLabel = new Label(I18n.getInstance().getString("dashboard.navigator.sizelabel"));
         Label backgroundLabel = new Label(I18n.getInstance().getString("dashboard.navigator.background"));
-//        Label sizeLabel = new Label(I18n.getInstance().getString("dashboard.navigator.sizelabel"));
+        Label timeLabel = new Label(I18n.getInstance().getString("dashboard.navigator.timeframe"));
 
 
         TextField nameField = new TextField();
         TextField widthField = new TextField();
         TextField heightField = new TextField();
+        TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
+        ObservableList<TimeFrameFactory> timeFrames = FXCollections.observableArrayList(control.getAllTimeFrames().getAll());
+        timeFactoryBox.getItems().addAll(timeFrames);
+
         Button backgroundButton = new Button("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
 
         widthField.setPrefWidth(75d);
         heightField.setPrefWidth(75d);
         HBox sizeBox = new HBox(8d);
         Label xLabel = new Label("x");
-        sizeBox.getChildren().setAll(widthField, xLabel, heightField);
+        sizeBox.getChildren().setAll(new Label("y"), widthField, xLabel, heightField);
         HBox.setMargin(xLabel, new Insets(3));
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(8d));
@@ -121,6 +133,9 @@ public class WidgetNavigator {
         gridPane.add(sizeBox, 1, 1);
         gridPane.add(backgroundButton, 1, 2);
 
+        gridPane.add(timeLabel, 0, 3);
+        gridPane.add(timeFactoryBox, 1, 3);
+
 
         try {
             nameField.setText(this.control.getActiveDashboard().getTitle());
@@ -130,11 +145,34 @@ public class WidgetNavigator {
             ex.printStackTrace();
         }
 
-        widthField.setOnAction(event -> {
-            this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(heightField.getText()));
+        widthField.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                this.control.setDashboardSize(Double.parseDouble(newValue), Double.parseDouble(heightField.getText()));
+            } catch (Exception ex) {
+
+            }
         });
-        heightField.setOnAction(event -> {
-            this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(heightField.getText()));
+        heightField.textProperty().addListener((observable, oldValue, newValue) -> {
+            this.control.setDashboardSize(Double.parseDouble(newValue), Double.parseDouble(heightField.getText()));
+        });
+//
+//        widthField.setOnAction(event -> {
+//            this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(heightField.getText()));
+//        });
+//        heightField.setOnAction(event -> {
+//            this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(heightField.getText()));
+//        });
+
+        nameField.textProperty().addListener((observable, oldValue, newValue) -> {
+            this.control.getActiveDashboard().setName(newValue);
+        });
+
+        timeFactoryBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (timeFactoryBox.isOffValue()) {
+                this.control.getActiveDashboard().setTimeFrame(null);
+            } else {
+                this.control.getActiveDashboard().setTimeFrame(newValue);
+            }
         });
 
         backgroundButton.setOnAction(event -> {
@@ -148,16 +186,20 @@ public class WidgetNavigator {
         ToolBar toolBar = new ToolBar();
 
 
-        ToggleButton unlockB = new ToggleButton("", this.unlockIcon);
-        unlockB.selectedProperty().bindBidirectional(this.control.highlightProperty);
-        unlockB.selectedProperty().addListener((observable, oldValue, newValue) -> {
+        ToggleButton highlightButton = new ToggleButton("", this.unlockIcon);
+//        highlightButton.selectedProperty().bindBidirectional(this.control.highlightProperty);
+        highlightButton.setOnAction(event -> {
+            control.enableHightlightGlow(highlightButton.isSelected());
+        });
+
+        highlightButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                unlockB.setGraphic(this.lockIcon);
+                highlightButton.setGraphic(this.lockIcon);
             } else {
-                unlockB.setGraphic(this.unlockIcon);
+                highlightButton.setGraphic(this.unlockIcon);
             }
         });
-        unlockB.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.highlight")));
+        highlightButton.setTooltip(new Tooltip(I18n.getInstance().getString("dashboard.navigator.highlight")));
 
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
@@ -178,7 +220,7 @@ public class WidgetNavigator {
         });
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
-        toolBar.getItems().addAll(unlockB, delete, sep1, widgetSelector, sep2);
+        toolBar.getItems().addAll(highlightButton, delete, sep1, widgetSelector, sep2);
 
         return toolBar;
     }

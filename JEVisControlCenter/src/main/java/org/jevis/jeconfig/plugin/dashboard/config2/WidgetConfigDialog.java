@@ -24,7 +24,7 @@ public class WidgetConfigDialog extends Alert {
      * Create an new Widget Config Dialog.
      */
     public WidgetConfigDialog(Widget widget) {
-        super(Alert.AlertType.CONFIRMATION);
+        super(AlertType.INFORMATION);
 
         this.widget = widget;
 
@@ -82,5 +82,16 @@ public class WidgetConfigDialog extends Alert {
 
     }
 
+    public void commitSettings() {
+        this.tabPane.getTabs().forEach(tab -> {
+            try {
+                if (tab instanceof ConfigTab) {
+                    ((ConfigTab) tab).commitChanges();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
 
 }

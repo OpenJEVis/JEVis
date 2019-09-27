@@ -173,7 +173,8 @@ public class TitleWidget extends Widget {
 
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.get() == ButtonType.OK) {
-            updateConfig(config);
+            widgetConfigDialog.commitSettings();
+            updateConfig(getConfig());
         }
     }
 

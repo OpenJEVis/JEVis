@@ -261,7 +261,7 @@ public class DashBoardPane extends Pane {
 
 
     private void setSize(Size newValue) {
-        logger.error("setSize: {}/{}", newValue.getWidth(), newValue.getHeight());
+        logger.debug("setSize: {}/{}", newValue.getWidth(), newValue.getHeight());
         this.setMaxWidth(newValue.getWidth());
         this.setMinWidth(newValue.getWidth());
         this.setPrefWidth(newValue.getWidth());
@@ -281,7 +281,7 @@ public class DashBoardPane extends Pane {
         final BackgroundImage backgroundImage = new BackgroundImage(image, BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, backgroundSize);
         final Background background = new Background(backgroundImage);
-        logger.error("SetBackground: {}/{} {}/{}", image.getWidth(), image.getHeight(), this.getWidth(), this.getHeight());
+        logger.debug("SetBackground: {}/{} {}/{}", image.getWidth(), image.getHeight(), this.getWidth(), this.getHeight());
         setBackground(background);
     }
 
