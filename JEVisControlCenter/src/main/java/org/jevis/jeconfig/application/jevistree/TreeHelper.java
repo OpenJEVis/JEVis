@@ -863,64 +863,67 @@ public class TreeHelper {
                                         }
 
                                     } else if (createClass.equals(reportClass)) {
-                                        ReportWizardDialog rwd = new ReportWizardDialog(newObject);
+                                        Platform.runLater(() -> {
+                                            ReportWizardDialog rwd = new ReportWizardDialog(newObject);
 
-                                        rwd.showAndWait();
-                                        if (rwd.getSelections() != null) {
-                                            JEVisObject reportLinkDirectory = rwd.getReportLinkDirectory();
-                                            for (ReportLink rl : rwd.getReportLinkList()) {
-                                                Platform.runLater(() -> {
-                                                    try {
-                                                        String variableName = rl.getTemplateVariableName();
+                                            rwd.showAndWait();
+                                            if (rwd.getSelections() != null) {
+                                                JEVisObject reportLinkDirectory = rwd.getReportLinkDirectory();
+                                                for (ReportLink rl : rwd.getReportLinkList()) {
+                                                    Platform.runLater(() -> {
+                                                        try {
+                                                            String variableName = rl.getTemplateVariableName();
 
-                                                        JEVisObject object = reportLinkDirectory.buildObject(variableName, reportLinkClass);
-                                                        object.commit();
+                                                            JEVisObject object = reportLinkDirectory.buildObject(variableName, reportLinkClass);
+                                                            object.commit();
 
-                                                        JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
-                                                        JEVisSample sample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
-                                                        sample.commit();
+                                                            JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
+                                                            JEVisSample sample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
+                                                            sample.commit();
 
-                                                        JEVisAttribute optionalAttribute = object.getAttribute("Optional");
-                                                        JEVisSample sampleOptional = optionalAttribute.buildSample(new DateTime(), rl.isOptional());
-                                                        sampleOptional.commit();
+                                                            JEVisAttribute optionalAttribute = object.getAttribute("Optional");
+                                                            JEVisSample sampleOptional = optionalAttribute.buildSample(new DateTime(), rl.isOptional());
+                                                            sampleOptional.commit();
 
-                                                        JEVisAttribute templateVariableName = object.getAttribute("Template Variable Name");
-                                                        JEVisSample sample1 = templateVariableName.buildSample(new DateTime(), variableName);
-                                                        sample1.commit();
+                                                            JEVisAttribute templateVariableName = object.getAttribute("Template Variable Name");
+                                                            JEVisSample sample1 = templateVariableName.buildSample(new DateTime(), variableName);
+                                                            sample1.commit();
 
-                                                        JEVisObject reportAttribute = object.buildObject("Report Attribute", reportAttributeClass);
-                                                        reportAttribute.commit();
-                                                        JEVisAttribute attribute_name = reportAttribute.getAttribute("Attribute Name");
+                                                            JEVisObject reportAttribute = object.buildObject("Report Attribute", reportAttributeClass);
+                                                            reportAttribute.commit();
+                                                            JEVisAttribute attribute_name = reportAttribute.getAttribute("Attribute Name");
 
-                                                        JEVisSample sample4 = attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
-                                                        sample4.commit();
+                                                            JEVisSample sample4 = attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
+                                                            sample4.commit();
 
-                                                        JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", reportPeriodConfigurationClass);
-                                                        reportPeriodConfiguration.commit();
+                                                            JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", reportPeriodConfigurationClass);
+                                                            reportPeriodConfiguration.commit();
 
-                                                        JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute("Aggregation");
-                                                        JEVisSample sample2 = aggregationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
-                                                        sample2.commit();
+                                                            JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute("Aggregation");
+                                                            JEVisSample sample2 = aggregationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+                                                            sample2.commit();
 
-                                                        JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute("Period");
-                                                        JEVisSample sample3 = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
-                                                        sample3.commit();
-                                                    } catch (JEVisException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                });
+                                                            JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute("Period");
+                                                            JEVisSample sample3 = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
+                                                            sample3.commit();
+                                                        } catch (JEVisException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    });
+                                                }
+
+                                                try {
+                                                    JEVisFile template = rwd.createTemplate(newObject.getName());
+                                                    JEVisAttribute templateAttribute = newObject.getAttribute("Template");
+                                                    JEVisSample sample = templateAttribute.buildSample(new DateTime(), template);
+                                                    sample.commit();
+                                                } catch (IOException e) {
+                                                    logger.error("IOException. Cuold not create template.", e);
+                                                } catch (JEVisException e) {
+                                                    logger.error("JEVisException. Could not create template.", e);
+                                                }
                                             }
-
-                                            try {
-                                                JEVisFile template = rwd.createTemplate(newObject.getName());
-                                                JEVisAttribute templateAttribute = newObject.getAttribute("Template");
-                                                JEVisSample sample = templateAttribute.buildSample(new DateTime(), template);
-                                                sample.commit();
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-
+                                        });
                                     }
 
                                 } catch (JEVisException ex) {

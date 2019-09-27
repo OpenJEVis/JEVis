@@ -106,7 +106,7 @@ public class SimpleTargetPlugin implements TreePlugin {
             }
         }
         for (UserSelection us : _preselect) {
-            if (row.getJEVisObject().equals(us.getSelectedObject()) && row.getJEVisAttribute().equals(us.getSelectedAttribute())) {
+            if (row.getJEVisObject() != null && row.getJEVisObject().equals(us.getSelectedObject()) && row.getJEVisAttribute().equals(us.getSelectedAttribute())) {
                 SimpleTargetPluginData data = new SimpleTargetPluginData(row);
                 data.setSelected(true);
                 _data.add(data);
