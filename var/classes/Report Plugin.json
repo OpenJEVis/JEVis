@@ -1,0 +1,19 @@
+{
+  "name": "Report Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Report Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "Report Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

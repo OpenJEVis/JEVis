@@ -26,6 +26,7 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.datetime.DateHelper;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
@@ -45,6 +46,7 @@ import java.util.Objects;
  */
 public class LoadAnalysisDialog {
     private static final Logger logger = LogManager.getLogger(LoadAnalysisDialog.class);
+    private final ObjectRelations objectRelations;
     private Response response = Response.CANCEL;
     private Stage stage;
     private GraphDataModel graphDataModel;
@@ -65,9 +67,11 @@ public class LoadAnalysisDialog {
     private Button newButton;
     private CheckBox drawOptimization;
 
+
     public LoadAnalysisDialog(JEVisDataSource ds, GraphDataModel data) {
         this.graphDataModel = data;
         this.ds = ds;
+        this.objectRelations = new ObjectRelations(ds);
     }
 
     public Response show() {
@@ -106,34 +110,8 @@ public class LoadAnalysisDialog {
                     if (!graphDataModel.getMultipleDirectories())
                         setText(obj.getName());
                     else {
-                        String prefix = "";
-                        try {
+                        String prefix = objectRelations.getObjectPath(obj);
 
-                            JEVisObject secondParent = obj.getParents().get(0).getParents().get(0);
-                            JEVisClass buildingClass = ds.getJEVisClass("Building");
-                            JEVisClass organisationClass = ds.getJEVisClass("Organization");
-
-                            if (secondParent.getJEVisClass().equals(buildingClass)) {
-
-                                try {
-                                    JEVisObject organisationParent = secondParent.getParents().get(0).getParents().get(0);
-                                    if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                        prefix += organisationParent.getName() + " / " + secondParent.getName() + " / ";
-                                    }
-                                } catch (JEVisException e) {
-                                    logger.error("Could not get Organization parent of " + secondParent.getName() + ":" + secondParent.getID());
-
-                                    prefix += secondParent.getName() + " / ";
-                                }
-                            } else if (secondParent.getJEVisClass().equals(organisationClass)) {
-
-                                prefix += secondParent.getName() + " / ";
-
-                            }
-
-                        } catch (Exception e) {
-                        }
                         setText(prefix + obj.getName());
                     }
                 }

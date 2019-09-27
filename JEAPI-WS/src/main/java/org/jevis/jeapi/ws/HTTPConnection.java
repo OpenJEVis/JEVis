@@ -63,7 +63,7 @@ public class HTTPConnection {
     private final String baseURL;
     private final String username;
     private final String password;
-    private int readTimeout = 8140;//mils
+    private int readTimeout = 88140;//mils
 
     public HTTPConnection(String baseurl, String username, String password) {
         this.baseURL = baseurl;
@@ -133,14 +133,14 @@ public class HTTPConnection {
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
 //        logger.trace("after replcae: {}", resource);
-        URL url = new URL(baseURL + "/" + resource);
+        URL url = new URL(this.baseURL + "/" + resource);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         conn.setRequestProperty("Accept-Charset", "UTF-8");
-        conn.setReadTimeout(readTimeout);
-        addAuth(conn, username, password);
+        conn.setReadTimeout(this.readTimeout);
+        addAuth(conn, this.username, this.password);
 
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
 
@@ -148,12 +148,9 @@ public class HTTPConnection {
 
         int responseCode = conn.getResponseCode();
 
-//        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
-//        logger.trace("resonseCode {}", responseCode);
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
             return conn.getInputStream();
-//            return new BufferedImage(10, 10, BufferedImage.TYPE_BYTE_GRAY);
         } else {
             return null;
         }
@@ -165,11 +162,11 @@ public class HTTPConnection {
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
 //        logger.trace("after replcae: {}", resource);
-        URL url = new URL(baseURL + "/" + resource);
+        URL url = new URL(this.baseURL + "/" + resource);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        addAuth(conn, username, password);
+        addAuth(conn, this.username, this.password);
 
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
 
@@ -185,6 +182,10 @@ public class HTTPConnection {
 
             BufferedImage imBuff = ImageIO.read(conn.getInputStream());
 
+            conn.disconnect();
+            in.close();
+
+
             logger.trace("HTTP request closed after: " + ((new Date()).getTime() - start.getTime()) + " msec");
             return imBuff;
 //            return new BufferedImage(10, 10, BufferedImage.TYPE_BYTE_GRAY);
@@ -195,15 +196,14 @@ public class HTTPConnection {
     }
 
     public byte[] getByteRequest(String resource) throws IOException {
-        Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
 //        logger.trace("after replcae: {}", resource);
-        URL url = new URL(baseURL + "/" + resource);
+        URL url = new URL(this.baseURL + "/" + resource);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        addAuth(conn, username, password);
+        addAuth(conn, this.username, this.password);
 
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
 
@@ -211,14 +211,18 @@ public class HTTPConnection {
 
         int responseCode = conn.getResponseCode();
 
+
 //        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
         logger.trace("responseCode {}", responseCode);
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
             //            JEVisFile jf = new JEVisFileImp("tmp.file", bytes);//filename comes from the samples
+            InputStream inputStream = conn.getInputStream();
+            byte[] response = IOUtils.toByteArray(inputStream);
+            inputStream.close();
 
-            return IOUtils.toByteArray(conn.getInputStream());
+            return response;
 
         } else {
             return null;
@@ -231,7 +235,7 @@ public class HTTPConnection {
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
 //        logger.trace("after replcae: {}", resource);
-        URL url = new URL(baseURL + "/" + resource);
+        URL url = new URL(this.baseURL + "/" + resource);
 
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("POST");
@@ -243,7 +247,7 @@ public class HTTPConnection {
         con.setRequestProperty("Accept-Encoding", "gzip");
         con.setDoOutput(true);
         con.setDoInput(true);
-        addAuth(con, username, password);
+        addAuth(con, this.username, this.password);
 
         logger.debug("HTTP POST request {}", con.getURL());
         con.connect();
@@ -296,22 +300,20 @@ public class HTTPConnection {
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
 //        logger.trace("after replcae: {}", resource);
-        URL url = new URL(baseURL + "/" + resource);
+        URL url = new URL(this.baseURL + "/" + resource);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         conn.setRequestProperty("Accept-Charset", "UTF-8");
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
-        addAuth(conn, username, password);
+        addAuth(conn, this.username, this.password);
 
         logger.debug("HTTP request {}", conn.getURL());
 
         conn.connect();
         int responseCode = conn.getResponseCode();
 
-//        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
-//        logger.trace("resonseCode {}", responseCode);
         if (responseCode == HttpURLConnection.HTTP_OK) {
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
@@ -349,7 +351,7 @@ public class HTTPConnection {
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
 //        logger.trace("after replcae: {}", resource);
-        URL url = new URL(baseURL + "/" + resource);
+        URL url = new URL(this.baseURL + "/" + resource);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
@@ -359,7 +361,7 @@ public class HTTPConnection {
 //        con.setRequestProperty("Accept-Encoding", "gzip");
         conn.setDoOutput(true);
 //        conn.setDoInput(true);
-        addAuth(conn, username, password);
+        addAuth(conn, this.username, this.password);
 
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
 
@@ -384,7 +386,7 @@ public class HTTPConnection {
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
 //        logger.trace("after replcae: {}", resource);
-        URL url = new URL(baseURL + "/" + resource);
+        URL url = new URL(this.baseURL + "/" + resource);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
@@ -394,7 +396,7 @@ public class HTTPConnection {
 //        con.setRequestProperty("Accept-Encoding", "gzip");
         conn.setDoOutput(true);
 //        conn.setDoInput(true);
-        addAuth(conn, username, password);
+        addAuth(conn, this.username, this.password);
 
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
 
@@ -411,11 +413,11 @@ public class HTTPConnection {
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
 //        logger.trace("after replcae: {}", resource);
-        URL url = new URL(baseURL + "/" + resource);
+        URL url = new URL(this.baseURL + "/" + resource);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        addAuth(conn, username, password);
+        addAuth(conn, this.username, this.password);
 
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
         conn.setRequestProperty("Accept-Encoding", "gzip");
@@ -433,11 +435,11 @@ public class HTTPConnection {
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
 //        logger.trace("after replcae: {}", resource);
-        URL url = new URL(baseURL + "/" + resource);
+        URL url = new URL(this.baseURL + "/" + resource);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("DELETE");
-        addAuth(conn, username, password);
+        addAuth(conn, this.username, this.password);
 
         conn.setRequestProperty("User-Agent", "JEAPI-WS");
 

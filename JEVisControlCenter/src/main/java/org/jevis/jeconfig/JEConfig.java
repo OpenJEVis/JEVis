@@ -84,6 +84,7 @@ public class JEConfig extends Application {
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
+    private static Statusbar statusBar = new Statusbar();
 
     public static boolean getExpert() {
         final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
@@ -196,6 +197,10 @@ public class JEConfig extends Application {
         return _primaryStage;
     }
 
+    public static Statusbar getStatusBar() {
+        return statusBar;
+    }
+
     /**
      * Return an common resource
      *
@@ -265,7 +270,7 @@ public class JEConfig extends Application {
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
-//        PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
+//        PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
 
@@ -283,6 +288,7 @@ public class JEConfig extends Application {
             System.exit(0);
         });
 
+
         if (System.getProperty("os.name").toLowerCase().contains("linux")) {
             try {
                 java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
@@ -295,15 +301,6 @@ public class JEConfig extends Application {
             }
         }
 
-//        BigDecimalField ttt = new
-//                System.out.println("Test: " + Pattern.compile("[0-9].*").matcher("5638.").matches());
-//        Locale fmtLocale = Locale.getDefault(Category.FORMAT);
-//        NumberFormat formatter = NumberFormat.getInstance(fmtLocale);
-//        formatter.setMaximumFractionDigits(2);
-//        formatter.setMinimumFractionDigits(2);
-//        System.out.println(formatter.format(d1));
-//        System.out.println(formatter.format(d2));
-//        System.out.println(fmtLocale.toLanguageTag());
 
         final AnchorPane jeconfigRoot = new AnchorPane();
 
@@ -334,21 +331,26 @@ public class JEConfig extends Application {
                 try {
                     _mainDS.preload();
                     logger.error("done preloading");
+//                    logger.error("-------test\n {}", _mainDS.getObject(9485l).getChildren());
+
                 } catch (Exception ex) {
                     logger.error("Error while preloading datasource", ex);
                     ex.printStackTrace();
                 }
+                //test
+
+
                 logger.error("start GUI");
 
                 PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
-                PROGRAM_INFO.setName(I18n.getInstance().getString("appname"));
+                PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
                 Platform.runLater(() -> {
-                    primaryStage.setTitle(I18n.getInstance().getString("appname"));
+                    primaryStage.setTitle(I18n.getInstance().getString("app.name"));
 //                    try {
 //                        java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
 //                        Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
 //                        awtAppClassNameField.setAccessible(true);
-//                        awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("appname"));
+//                        awtAppClassNameField.set(xToolkit, I18n.getInstance().getString("app.name"));
 //                    } catch (NoSuchFieldException | IllegalAccessException e) {
 //                        e.printStackTrace();
 //                    }
@@ -403,7 +405,9 @@ public class JEConfig extends Application {
                 border.setTop(vbox);
                 border.setCenter(pluginManager.getView());
 
-                Statusbar statusBar = new Statusbar(_mainDS);
+//                statusBar = new Statusbar(_mainDS);
+                statusBar.setDataSource(_mainDS);
+                statusBar.initView();
 
                 border.setBottom(statusBar);
 
@@ -424,15 +428,8 @@ public class JEConfig extends Application {
                     } catch (URISyntaxException ex) {
                         logger.fatal(ex);
                     }
-                    logger.info("Time to start: " + ((new Date()).getTime() - start.getTime()));
+                    logger.info("Time to start: {}ms", ((new Date()).getTime() - start.getTime()));
                 });
-//                Date startAllob = new Date();
-//                try {
-//                    _mainDS.getObjects();
-//                    logger.error("Time to get all Objects: {}ms", ((new Date()).getTime() - startAllob.getTime()));
-//                } catch (Exception ex) {
-//                }
-//                System.gc();
 
             } else {
                 System.exit(0);
@@ -446,6 +443,7 @@ public class JEConfig extends Application {
         AnchorPane.setBottomAnchor(login, 0.0);
 
         scene.getStylesheets().add("/styles/Styles.css");
+        scene.getStylesheets().add("/styles/charts.css");
         primaryStage.getIcons().add(getImage("JEVisIconBlue.png"));
         primaryStage.setTitle("JEVis Control Center");
 
@@ -473,6 +471,7 @@ public class JEConfig extends Application {
 
 
     }
+
 
     @Override
     public void start(Stage primaryStage) {

@@ -31,10 +31,12 @@ import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.Constants;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
@@ -72,6 +74,7 @@ public class GraphDataModel {
     public static final String ORGANIZATION_CLASS_NAME = "Organization";
     public static final String DATA_MODEL_ATTRIBUTE_NAME = "Data Model";
     public static final String GRAPH_PLUGIN_CLASS_NAME = "Graph Plugin";
+    private final ObjectRelations objectRelations;
     private final GraphPluginView graphPluginView;
     private Set<ChartDataModel> selectedData = new HashSet<>();
     private List<ChartSettings> charts = new ArrayList<>();
@@ -103,8 +106,10 @@ public class GraphDataModel {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private Boolean temporary = false;
 
+
     public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
+        this.objectRelations = new ObjectRelations(ds);
         this.graphPluginView = graphPluginView;
         this.globalAnalysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
         /**
@@ -125,10 +130,10 @@ public class GraphDataModel {
                 if (getCurrentAnalysis() != null && !getTemporary()) {
                     selectedData = new HashSet<>();
                     charts = new ArrayList<>();
-
                     getSelectedData();
-
                 }
+
+
                 update();
             }
         });
@@ -136,9 +141,7 @@ public class GraphDataModel {
 
     public Set<ChartDataModel> getSelectedData() {
         if (selectedData == null || selectedData.isEmpty()) {
-
             updateSelectedData();
-
         }
 
         return this.selectedData;
@@ -567,6 +570,9 @@ public class GraphDataModel {
 
     public void setAnalysisTimeFrameForAllModels(AnalysisTimeFrame analysisTimeFrame) {
 
+        double totalJobs = charts.size();
+        double jobsDone = 0;
+
         for (ChartSettings chartSettings : charts) {
             chartSettings.setAnalysisTimeFrame(analysisTimeFrame);
 
@@ -579,7 +585,8 @@ public class GraphDataModel {
             dateHelper.setMinMaxForDateHelper(chartDataModels);
 
             setAnalysisTimeFrameForModels(chartDataModels, dateHelper, analysisTimeFrame);
-
+            jobsDone++;
+            JEConfig.getStatusBar().setProgressBar(totalJobs, jobsDone, "");
         }
 
         globalAnalysisTimeFrame = analysisTimeFrame;
@@ -792,66 +799,16 @@ public class GraphDataModel {
                 String prefix1 = "";
                 String prefix2 = "";
 
-                try {
-                    JEVisObject secondParent1 = o1.getParents().get(0).getParents().get(0);
-                    JEVisClass buildingClass = ds.getJEVisClass(BUILDING_CLASS_NAME);
-                    JEVisClass organisationClass = ds.getJEVisClass(ORGANIZATION_CLASS_NAME);
+                prefix1 = objectRelations.getObjectPath(o1) + o1.getName();
 
-                    if (secondParent1.getJEVisClass().equals(buildingClass)) {
-                        try {
-                            JEVisObject organisationParent = secondParent1.getParents().get(0).getParents().get(0);
-                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                prefix1 += organisationParent.getName() + " / " + secondParent1.getName() + " / ";
-                            }
-                        } catch (JEVisException e) {
-                            logger.error("Could not get Organization parent of " + secondParent1.getName() + ":" + secondParent1.getID());
-
-                            prefix1 += secondParent1.getName() + " / ";
-                        }
-                    } else if (secondParent1.getJEVisClass().equals(organisationClass)) {
-
-                        prefix1 += secondParent1.getName() + " / ";
-
-                    }
-
-                } catch (Exception e) {
-                }
-                prefix1 = prefix1 + o1.getName();
-
-                try {
-                    JEVisObject secondParent2 = o2.getParents().get(0).getParents().get(0);
-                    JEVisClass buildingClass = ds.getJEVisClass(BUILDING_CLASS_NAME);
-                    JEVisClass organisationClass = ds.getJEVisClass(ORGANIZATION_CLASS_NAME);
-
-                    if (secondParent2.getJEVisClass().equals(buildingClass)) {
-                        try {
-                            JEVisObject organisationParent = secondParent2.getParents().get(0).getParents().get(0);
-                            if (organisationParent.getJEVisClass().equals(organisationClass)) {
-
-                                prefix2 += organisationParent.getName() + " / " + secondParent2.getName() + " / ";
-                            }
-                        } catch (JEVisException e) {
-                            logger.error("Could not get Organization parent of " + secondParent2.getName() + ":" + secondParent2.getID());
-
-                            prefix2 += secondParent2.getName() + " / ";
-                        }
-                    } else if (secondParent2.getJEVisClass().equals(organisationClass)) {
-
-                        prefix2 += secondParent2.getName() + " / ";
-
-                    }
-
-                } catch (Exception e) {
-                }
-                prefix2 = prefix2 + o2.getName();
+                prefix2 = objectRelations.getObjectPath(o2) + o2.getName();
 
                 return ac.compare(prefix1, prefix2);
             });
         }
     }
 
-    public JsonChartDataModel getListAnalysisModel() {
+    public JsonChartDataModel getAnalysisModel() {
 
         JsonChartDataModel tempModel = null;
         try {
@@ -944,7 +901,7 @@ public class GraphDataModel {
 
             if (observableListAnalyses == null || observableListAnalyses.isEmpty()) updateListAnalyses();
 //        if (listAnalysisModel == null) {
-            getListAnalysisModel();
+            getAnalysisModel();
             updateSelectedData();
 //        }
         }
@@ -987,10 +944,13 @@ public class GraphDataModel {
 
     private ManipulationMode globalManipulationMode = ManipulationMode.NONE;
 
+    /**
+     * NOTE fs: this one will be called twice after user select an chart....
+     */
     public void updateSelectedData() {
         Set<ChartDataModel> selectedData = new HashSet<>();
 
-        JsonChartDataModel jsonChartDataModel = getListAnalysisModel();
+        JsonChartDataModel jsonChartDataModel = getAnalysisModel();
 
         if (jsonChartDataModel != null) {
             Map<String, ChartDataModel> data = new HashMap<>();
@@ -1059,6 +1019,12 @@ public class GraphDataModel {
             }
         }
         this.selectedData = selectedData;
+        try {
+            double totalJob = selectedData.size() * 2 + 3;
+            JEConfig.getStatusBar().startProgressJob(GraphPluginView.JOB_NAME, totalJob, "Start Update");
+        } catch (Exception ex) {
+
+        }
     }
 
     public AggregationPeriod getAggregationPeriod() {

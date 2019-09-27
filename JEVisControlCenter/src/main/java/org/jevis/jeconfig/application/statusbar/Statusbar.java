@@ -26,12 +26,14 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,9 +42,11 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
+import org.jevis.jeconfig.tool.I18n;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.HashMap;
 
 /**
  * Status bar with user and connection infos.
@@ -62,15 +66,92 @@ public class Statusbar extends ToolBar {
     private ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
     private ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
     private JEVisDataSource _ds;
-    private String lastUsername = "";
-    private String lastPassword = "";
     private Tooltip tt = new Tooltip("Warning:\nConnection to server lost. Trying to reconnect...  ");
     private int retryCount = 0;
+    private ProgressBar progressBar = new ProgressBar();
+    private HBox progressbox = new HBox();
 
-    public Statusbar(JEVisDataSource ds) {
+    private class Job {
+        public double total = 0;
+        public double done = 0;
+
+        public Job(double total, double done) {
+            this.total = total;
+            this.done = done;
+        }
+    }
+
+    private HashMap<String, Job> jobList = new HashMap<>();
+
+    public Statusbar() {
         super();
-        this._ds = ds;
+    }
 
+    public void startProgressJob(String jobID, double totalJobs, String message) {
+        jobList.put(jobID, new Job(totalJobs, 0));
+        setProgressBar(totalJobs, 0, message);
+    }
+
+    /**
+     * Increase the job done list by the given amount. (its not total)
+     *
+     * @param jobID
+     * @param jobsDone new finished jobs
+     * @param message
+     */
+    public void progressProgressJob(String jobID, double jobsDone, String message) {
+        Job job = jobList.get(jobID);
+        if (job != null) {
+            job.done += jobsDone;
+            setProgressBar(job.total, job.done, message);
+        }
+    }
+
+    public void finishProgressJob(String jobID, String message) {
+        Job job = jobList.get(jobID);
+        if (job != null) {
+            job.done = job.total;
+            setProgressBar(job.total, job.total, message);
+        } else {
+            setProgressBar(1, 1, message);
+        }
+    }
+
+
+    public void setProgressBar(double totalJobs, double doneJobs, String message) {
+        if (totalJobs < 0) {
+            Platform.runLater(() -> {
+                progressBar.setProgress(-1);
+            });
+            return;
+        }
+
+        double procent = (((100 / totalJobs) * doneJobs) / 100);
+        Platform.runLater(() -> {
+            progressBar.setProgress(procent);
+            if (doneJobs >= totalJobs) {
+//                FadeTransition ft = new FadeTransition(Duration.millis(5000), progressbox);
+//                ft.setFromValue(1.0);
+//                ft.setToValue(0.0);
+//                ft.setCycleCount(1);
+//                ft.setOnFinished(event -> {
+//                    System.out.println("Animation finished");
+//                    progressbox.setVisible(false);
+//                    ft.stop();
+//                });
+//
+//                System.out.println("Start Animation");
+//                ft.play();
+                progressbox.setVisible(false);
+            } else {
+                progressbox.setVisible(true);
+            }
+
+        });
+
+    }
+
+    public void initView() {
         HBox root = new HBox();
 
         root.setSpacing(10);
@@ -84,18 +165,23 @@ public class Statusbar extends ToolBar {
         this.conBox.getChildren().setAll(this.connectIcon);
 
         Pane spacer = new Pane();
-        spacer.setMaxWidth(Integer.MAX_VALUE);
+        spacer.setMaxWidth(50);
+        Region spacerLeft = new Region();
+        HBox.setHgrow(spacerLeft, Priority.ALWAYS);
 
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox.setHgrow(this.onlineInfo, Priority.NEVER);
         HBox.setHgrow(this.userName, Priority.NEVER);
 
+        Label loadStatus = new Label(I18n.getInstance().getString("statusbar.loading"));
+
+        progressbox.getChildren().addAll(loadStatus, progressBar);
         //TODO implement notification
-        root.getChildren().addAll(userIcon, this.userName, spacer, this.conBox, this.onlineInfo);
+        root.getChildren().addAll(userIcon, this.userName, spacerLeft, progressbox, spacer, this.conBox, this.onlineInfo);
 
         String sinfo = "";
 
-        for (JEVisOption opt : ds.getConfiguration()) {
+        for (JEVisOption opt : _ds.getConfiguration()) {
             if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
                 for (JEVisOption dsOption : opt.getOptions()) {
                     sinfo += dsOption.getKey() + ": " + dsOption.getValue() + "\n";
@@ -119,6 +205,10 @@ public class Statusbar extends ToolBar {
         setBar();
     }
 
+    public void setDataSource(JEVisDataSource ds) {
+        this._ds = ds;
+    }
+
     private void setBar() {
         String name = "";
         String lastName = "";
@@ -126,7 +216,7 @@ public class Statusbar extends ToolBar {
         try {
             name = this._ds.getCurrentUser().getFirstName();
             lastName = this._ds.getCurrentUser().getLastName();
-            this.lastUsername = this._ds.getCurrentUser().getAccountName();
+            userAccount = this._ds.getCurrentUser().getAccountName();
         } catch (Exception ex) {
             logger.fatal("Could not fetch Username", ex);
         }

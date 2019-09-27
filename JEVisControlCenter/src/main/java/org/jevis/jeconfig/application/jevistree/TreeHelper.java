@@ -60,6 +60,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.format.FormatStyle;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
 /**
@@ -176,17 +180,61 @@ public class TreeHelper {
                     GridPane gp = new GridPane();
                     gp.setHgap(4);
                     gp.setVgap(6);
-                    Label cleanDataLabel = new Label("Clean Data");
+                    Label cleanDataLabel = new Label(I18n.getInstance().getString("tree.treehelper.cleandata.name"));
                     ToggleSwitchPlus cleanData = new ToggleSwitchPlus();
                     cleanData.setSelected(true);
-                    Label rawDataLabel = new Label("Raw Data");
+                    Label rawDataLabel = new Label(I18n.getInstance().getString("tree.treehelper.rawdata.name"));
                     ToggleSwitchPlus rawData = new ToggleSwitchPlus();
                     rawData.setSelected(false);
+
+                    Label dateLabelFrom = new Label(I18n.getInstance().getString("tree.treehelper.from"));
+                    JFXDatePicker datePickerFrom = new JFXDatePicker();
+                    JFXTimePicker timePickerFrom = new JFXTimePicker();
+                    timePickerFrom.set24HourView(true);
+                    timePickerFrom.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+                    AtomicBoolean changedFrom = new AtomicBoolean(false);
+
+                    datePickerFrom.valueProperty().addListener((observable, oldValue, newValue) -> {
+                        if (newValue != oldValue) {
+                            changedFrom.set(true);
+                        }
+                    });
+
+                    timePickerFrom.valueProperty().addListener((observable, oldValue, newValue) -> {
+                        if (newValue != oldValue) {
+                            changedFrom.set(true);
+                        }
+                    });
+
+                    Label dateLabelTo = new Label(I18n.getInstance().getString("tree.treehelper.to"));
+                    JFXDatePicker datePickerTo = new JFXDatePicker();
+                    JFXTimePicker timePickerTo = new JFXTimePicker();
+                    timePickerTo.set24HourView(true);
+                    timePickerTo.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+                    AtomicBoolean changedTo = new AtomicBoolean(false);
+
+                    datePickerTo.valueProperty().addListener((observable, oldValue, newValue) -> {
+                        if (newValue != oldValue) {
+                            changedTo.set(true);
+                        }
+                    });
+
+                    datePickerTo.valueProperty().addListener((observable, oldValue, newValue) -> {
+                        if (newValue != oldValue) {
+                            changedTo.set(true);
+                        }
+                    });
 
                     gp.add(rawDataLabel, 0, 0);
                     gp.add(rawData, 1, 0);
                     gp.add(cleanDataLabel, 0, 1);
                     gp.add(cleanData, 1, 1);
+                    gp.add(dateLabelFrom, 0, 2);
+                    gp.add(datePickerFrom, 1, 2);
+                    gp.add(timePickerFrom, 2, 2);
+                    gp.add(dateLabelTo, 0, 3);
+                    gp.add(datePickerTo, 1, 3);
+                    gp.add(timePickerTo, 2, 3);
 
                     alert.getDialogPane().setContent(gp);
 
@@ -200,7 +248,61 @@ public class TreeHelper {
                                     @Override
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            deleteAllSamples(item.getValue().getJEVisObject(), rawData.selectedProperty().get(), cleanData.selectedProperty().get());
+                                            if (!changedFrom.get() && !changedTo.get()) {
+                                                deleteAllSamples(item.getValue().getJEVisObject(),
+                                                        rawData.selectedProperty().get(),
+                                                        cleanData.selectedProperty().get());
+                                            } else if (changedFrom.get() && !changedTo.get()) {
+                                                DateTime dateTimeFrom = new DateTime(
+                                                        datePickerFrom.valueProperty().get().getYear(),
+                                                        datePickerFrom.valueProperty().get().getMonthValue(),
+                                                        datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                                        timePickerFrom.valueProperty().get().getHour(),
+                                                        timePickerFrom.valueProperty().get().getMinute(),
+                                                        timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                                deleteAllSamples(item.getValue().getJEVisObject(),
+                                                        dateTimeFrom,
+                                                        null,
+                                                        rawData.selectedProperty().get(),
+                                                        cleanData.selectedProperty().get());
+                                            } else if (!changedFrom.get() && changedTo.get()) {
+                                                DateTime dateTimeTo = new DateTime(
+                                                        datePickerTo.valueProperty().get().getYear(),
+                                                        datePickerTo.valueProperty().get().getMonthValue(),
+                                                        datePickerTo.valueProperty().get().getDayOfMonth(),
+                                                        timePickerTo.valueProperty().get().getHour(),
+                                                        timePickerTo.valueProperty().get().getMinute(),
+                                                        timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                                deleteAllSamples(item.getValue().getJEVisObject(),
+                                                        null,
+                                                        dateTimeTo,
+                                                        rawData.selectedProperty().get(),
+                                                        cleanData.selectedProperty().get());
+                                            } else {
+                                                DateTime dateTimeFrom = new DateTime(
+                                                        datePickerFrom.valueProperty().get().getYear(),
+                                                        datePickerFrom.valueProperty().get().getMonthValue(),
+                                                        datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                                        timePickerFrom.valueProperty().get().getHour(),
+                                                        timePickerFrom.valueProperty().get().getMinute(),
+                                                        timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                                DateTime dateTimeTo = new DateTime(
+                                                        datePickerTo.valueProperty().get().getYear(),
+                                                        datePickerTo.valueProperty().get().getMonthValue(),
+                                                        datePickerTo.valueProperty().get().getDayOfMonth(),
+                                                        timePickerTo.valueProperty().get().getHour(),
+                                                        timePickerTo.valueProperty().get().getMinute(),
+                                                        timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                                deleteAllSamples(item.getValue().getJEVisObject(),
+                                                        dateTimeFrom,
+                                                        dateTimeTo,
+                                                        rawData.selectedProperty().get(),
+                                                        cleanData.selectedProperty().get());
+                                            }
                                         }
 
                                         return null;
@@ -387,6 +489,36 @@ public class TreeHelper {
             }
             for (JEVisObject child : object.getChildren()) {
                 deleteAllSamples(child, rawData, cleanData);
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
+        }
+    }
+
+    private static void deleteAllSamples(JEVisObject object, DateTime from, DateTime to, boolean rawData, boolean cleanData) {
+        try {
+            JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
+            if (value != null) {
+                if ((object.getJEVisClassName().equals("Clean Data") && cleanData)
+                        || (object.getJEVisClassName().equals("Data") && rawData)) {
+                    DateTime f = null;
+                    if (from == null) {
+                        f = new DateTime(2001, 1, 1, 0, 0, 0);
+                    } else {
+                        f = from;
+                    }
+
+                    DateTime t = null;
+                    if (to == null) {
+                        t = new DateTime();
+                    } else {
+                        t = to;
+                    }
+                    value.deleteSamplesBetween(f, t);
+                }
+            }
+            for (JEVisObject child : object.getChildren()) {
+                deleteAllSamples(child, from, to, rawData, cleanData);
             }
         } catch (JEVisException e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
@@ -828,7 +960,7 @@ public class TreeHelper {
 
                     Task<Void> upload = new Task<Void>() {
                         @Override
-                        protected Void call() throws Exception {
+                        protected Void call() {
                             for (int i = 0; i < dia.getCreateCount(); i++) {
                                 try {
                                     String name = dia.getCreateName();
@@ -861,16 +993,19 @@ public class TreeHelper {
                                             cleanDataValueAttribute.setDisplaySampleRate(Period.minutes(15));
                                             cleanDataValueAttribute.commit();
                                         }
-
+                                        succeeded();
                                     } else if (createClass.equals(reportClass)) {
                                         Platform.runLater(() -> {
                                             ReportWizardDialog rwd = new ReportWizardDialog(newObject);
 
                                             rwd.showAndWait();
                                             if (rwd.getSelections() != null) {
+                                                ExecutorService executorService = Executors.newFixedThreadPool(4);
+
                                                 JEVisObject reportLinkDirectory = rwd.getReportLinkDirectory();
-                                                for (ReportLink rl : rwd.getReportLinkList()) {
-                                                    Platform.runLater(() -> {
+                                                ConcurrentHashMap<ReportLink, Boolean> completed = new ConcurrentHashMap<>();
+                                                rwd.getReportLinkList().parallelStream().forEach(rl -> {
+                                                    executorService.submit(() -> {
                                                         try {
                                                             String variableName = rl.getTemplateVariableName();
 
@@ -906,22 +1041,28 @@ public class TreeHelper {
                                                             JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute("Period");
                                                             JEVisSample sample3 = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
                                                             sample3.commit();
+
+                                                            completed.put(rl, true);
+
+                                                            if (completed.size() == rwd.getReportLinkList().size()) {
+                                                                try {
+                                                                    JEVisFile template = rwd.createTemplate(newObject.getName());
+                                                                    JEVisAttribute templateAttribute = newObject.getAttribute("Template");
+                                                                    JEVisSample templateSample = templateAttribute.buildSample(new DateTime(), template);
+                                                                    templateSample.commit();
+
+                                                                    succeeded();
+                                                                } catch (IOException e) {
+                                                                    e.printStackTrace();
+                                                                } catch (JEVisException ex) {
+                                                                    logger.error(ex);
+                                                                }
+                                                            }
                                                         } catch (JEVisException e) {
                                                             e.printStackTrace();
                                                         }
                                                     });
-                                                }
-
-                                                try {
-                                                    JEVisFile template = rwd.createTemplate(newObject.getName());
-                                                    JEVisAttribute templateAttribute = newObject.getAttribute("Template");
-                                                    JEVisSample sample = templateAttribute.buildSample(new DateTime(), template);
-                                                    sample.commit();
-                                                } catch (IOException e) {
-                                                    logger.error("IOException. Cuold not create template.", e);
-                                                } catch (JEVisException e) {
-                                                    logger.error("JEVisException. Could not create template.", e);
-                                                }
+                                                });
                                             }
                                         });
                                     }
@@ -938,10 +1079,10 @@ public class TreeHelper {
                                         errorDia.show("Error", ex.getLocalizedMessage(), ex.getLocalizedMessage(), ex, null);
 
                                     }
-
+                                    failed();
                                 }
                             }
-
+                            succeeded();
                             return null;
                         }
                     };
@@ -1185,6 +1326,118 @@ public class TreeHelper {
             }
         } catch (JEVisException e) {
             logger.error("Could not set enabled for {}:{}", object.getName(), object.getID());
+        }
+    }
+
+    public static void EventDeleteBrokenTS(JEVisTree tree) {
+        logger.debug("EventDeleteBrokenTS");
+        try {
+            if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
+                String question = I18n.getInstance().getString("jevistree.dialog.delete.message");
+                ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
+                for (TreeItem<JEVisTreeRow> item : items) {
+                    if (items.indexOf(item) > 0 && items.indexOf(item) < items.size() - 1)
+                        question += item.getValue().getJEVisObject().getName();
+                }
+                question += "?";
+
+                if (tree.getJEVisDataSource().getCurrentUser().canWrite(items.get(0).getValue().getJEVisObject().getID())) {
+
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));
+                    alert.setHeaderText(null);
+                    alert.setContentText(question);
+
+                    alert.showAndWait().ifPresent(buttonType -> {
+                        if (buttonType.equals(ButtonType.OK)) {
+                            try {
+
+                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title") + "...");
+
+                                Task<Void> reload = new Task<Void>() {
+                                    @Override
+                                    protected Void call() {
+                                        for (TreeItem<JEVisTreeRow> item : items) {
+                                            deleteBrokenTSSamples(item.getValue().getJEVisObject());
+                                        }
+
+                                        return null;
+                                    }
+                                };
+                                reload.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+                                reload.setOnCancelled(event -> {
+                                    logger.debug("Delete all samples Cancelled");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                reload.setOnFailed(event -> {
+                                    logger.debug("Delete all samples failed");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                pForm.activateProgressBar(reload);
+                                pForm.getDialogStage().show();
+
+                                new Thread(reload).start();
+
+                            } catch (Exception ex) {
+                                logger.catching(ex);
+                                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
+                                        I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                            }
+                        } else {
+                            // ... user chose CANCEL or closed the dialog
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        alert1.showAndWait();
+                    });
+
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not get JEVis data source.", e);
+        }
+    }
+
+    private static void deleteBrokenTSSamples(JEVisObject object) {
+        try {
+            JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
+            if (value != null) {
+                if ((object.getJEVisClassName().equals("Clean Data"))
+                        || (object.getJEVisClassName().equals("Data"))) {
+                    List<JEVisSample> list = value.getSamples(new DateTime(2019, 8, 1, 0, 0, 0), DateTime.now());
+                    logger.info("Found {} samples.", list.size());
+                    List<JEVisSample> toBeDeleted = new ArrayList<>();
+                    list.forEach(jeVisSample -> {
+                        try {
+                            if (jeVisSample.getTimestamp().getSecondOfMinute() != 0) {
+                                toBeDeleted.add(jeVisSample);
+                            }
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    logger.info("{} samples have wrong timestamp.", toBeDeleted.size());
+
+                    toBeDeleted.parallelStream().forEach(jeVisSample -> {
+                        try {
+                            value.deleteSamplesBetween(jeVisSample.getTimestamp(), jeVisSample.getTimestamp());
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+            }
+            for (JEVisObject child : object.getChildren()) {
+                deleteBrokenTSSamples(child);
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
         }
     }
 }

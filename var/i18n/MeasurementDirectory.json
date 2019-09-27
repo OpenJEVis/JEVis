@@ -1,0 +1,13 @@
+{
+  "jevisclass": "Measurement Directory",
+  "names": {
+    "de": "Messstellen",
+    "ru": "Measurement Directory",
+    "en": "Measurement Directory"
+  },
+  "descriptions": {
+    "de": "Messstellen dienen der Verwaltung des Messaufbaus.",
+    "ru": "The Measurement Directory manages the physical metering setup.",
+    "en": "The Measurement Directory manages the physical metering setup."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Measurement Directory",
+  "description": "The class Channel Directory represents a specific directory for the measurement instruments.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Measurement Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Measurement Directory",
+      "end": "Building",
+      "type": 3
+    }
+  ]
+}
+

@@ -3,6 +3,7 @@ package org.jevis.commons.alarm;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.joda.time.DateTime;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -12,6 +13,7 @@ import org.jevis.api.JEVisSample;
 public class Alarm {
     private final JEVisAttribute attribute;
     private final JEVisSample alarmSample;
+    private final DateTime timeStamp;
     private final Double isValue;
     private final Double shouldBeValue;
     private final JEVisObject object;
@@ -19,10 +21,11 @@ public class Alarm {
     private final int logValue;
     private Double tolerance;
 
-    public Alarm(JEVisObject object, JEVisAttribute attribute, JEVisSample alarmSample, Double isValue, Double shouldBeValue, AlarmType alarmType, int logValue) {
+    public Alarm(JEVisObject object, JEVisAttribute attribute, JEVisSample alarmSample, DateTime timeStamp, Double isValue, Double shouldBeValue, AlarmType alarmType, int logValue) {
         this.object = object;
         this.attribute = attribute;
         this.alarmSample = alarmSample;
+        this.timeStamp = timeStamp;
         this.isValue = isValue;
         this.shouldBeValue = shouldBeValue;
         this.alarmType = alarmType;
@@ -63,5 +66,9 @@ public class Alarm {
 
     public void setTolerance(Double tolerance) {
         this.tolerance = tolerance;
+    }
+
+    public DateTime getTimeStamp() {
+        return timeStamp;
     }
 }

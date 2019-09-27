@@ -207,8 +207,12 @@ public class JEVisClassWS implements JEVisClass {
     @Override
     public JEVisClass getInheritance() throws JEVisException {
         for (JEVisClassRelationship crel : getRelationships()) {
-            if (crel.isType(JEVisConstants.ClassRelationship.INHERIT) && crel.getStart().getName().equals(getName())) {
-                return crel.getEnd();
+            try {
+                if (crel.isType(JEVisConstants.ClassRelationship.INHERIT) && crel.getStart().getName().equals(getName())) {
+                    return crel.getEnd();
+                }
+            } catch (Exception ex) {
+                logger.error("Error in relationship {}", crel, ex);
             }
         }
         return null;

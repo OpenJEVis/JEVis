@@ -65,7 +65,7 @@ public class XYChart implements Chart {
     private final Boolean showL1L2;
     Boolean hideShowIcons;
     //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
-    List<Color> hexColors = new ArrayList<>();
+    private List<Color> hexColors = new ArrayList<>();
     ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
@@ -197,12 +197,13 @@ public class XYChart implements Chart {
             }
         }
 
-        if (showSum && chartDataModels.size() > 1) {
+        if (showSum && chartDataModels.size() > 1 && sumModel != null) {
             try {
                 JsonObject json = new JsonObject();
                 json.setId(9999999999L);
-                json.setName("Summe");
-                JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) sumModel.getObject().getDataSource(), json);
+                json.setName("~" + I18n.getInstance().getString("plugin.graph.table.sum"));
+                JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) chartDataModels.get(0).getObject().getDataSource(), json);
+
                 sumModel.setObject(test);
                 sumModel.setAxis(1);
                 sumModel.setColor(Color.BLACK);
@@ -227,23 +228,20 @@ public class XYChart implements Chart {
                     }
 
                 }
-                ArrayList arrayList = new ArrayList<>(sumSamples.values());
-                arrayList.sort(new Comparator<JEVisSample>() {
-                    @Override
-                    public int compare(JEVisSample o1, JEVisSample o2) {
-                        try {
-                            if (o1.getTimestamp().isBefore(o2.getTimestamp())) {
-                                return -1;
-                            } else if (o1.getTimestamp().equals(o2.getTimestamp())) {
-                                return 0;
-                            } else {
-                                return 1;
-                            }
-                        } catch (JEVisException e) {
-                            e.printStackTrace();
+                ArrayList<JEVisSample> arrayList = new ArrayList<>(sumSamples.values());
+                arrayList.sort((o1, o2) -> {
+                    try {
+                        if (o1.getTimestamp().isBefore(o2.getTimestamp())) {
+                            return -1;
+                        } else if (o1.getTimestamp().equals(o2.getTimestamp())) {
+                            return 0;
+                        } else {
+                            return 1;
                         }
-                        return -1;
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
                     }
+                    return -1;
                 });
 
                 sumModel.setSamples(arrayList);
@@ -252,14 +250,13 @@ public class XYChart implements Chart {
                 logger.error("Could not generate sum of data rows: ", e);
             }
             try {
+                chart.getData().forEach(serie -> ((MultiAxisChart.Series) serie).getData().forEach(numberNumberData -> {
+                    MultiAxisChart.Data node = (MultiAxisChart.Data) numberNumberData;
+                    node.setExtraValue(0);
+                }));
+
                 xyChartSerieList.add(generateSerie(changedBoth, sumModel));
 
-                Platform.runLater(() -> {
-                    chart.getData().forEach(serie -> ((MultiAxisChart.Series) serie).getData().forEach(numberNumberData -> {
-                        MultiAxisChart.Data node = (MultiAxisChart.Data) numberNumberData;
-                        node.setExtraValue(0);
-                    }));
-                });
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
@@ -278,8 +275,6 @@ public class XYChart implements Chart {
         getChart().setStyle("-fx-font-size: " + 12 + "px;");
 
         getChart().setAnimated(false);
-
-        applyColors();
 
         getChart().setTitle(getUpdatedChartName());
 
@@ -301,8 +296,11 @@ public class XYChart implements Chart {
         XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
 
         hexColors.add(singleRow.getColor());
-        chart.getData().add(serie.getSerie());
-        tableData.add(serie.getTableEntry());
+//        Platform.runLater(() -> {
+            chart.getData().add(serie.getSerie());
+            tableData.add(serie.getTableEntry());
+//        });
+
 
         /**
          * check if timestamps are in serie
@@ -912,15 +910,25 @@ public class XYChart implements Chart {
     }
 
     private void checkForY2Axis() {
-        boolean hasY2Axis = false;
-        for (XYChartSerie serie : xyChartSerieList) {
-            if (serie.getyAxis() == 1) {
-                hasY2Axis = true;
-                break;
+
+//        Platform.runLater(() -> {
+            try {
+                boolean hasY2Axis = false;
+                for (XYChartSerie serie : xyChartSerieList) {
+                    if (serie.getyAxis() == 1) {
+                        hasY2Axis = true;
+                        break;
+                    }
+                }
+
+                if (!hasY2Axis) y2Axis.setVisible(false);
+                else y2Axis.setVisible(true);
+            } catch (Exception ex) {
+                logger.error(ex);
             }
-        }
-        if (!hasY2Axis) y2Axis.setVisible(false);
-        else y2Axis.setVisible(true);
+
+//        });
+
     }
 
     @Override
@@ -944,7 +952,16 @@ public class XYChart implements Chart {
         this.maxValue = maxValue;
     }
 
+    @Override
     public DateTime getNearest() {
         return nearest;
+    }
+
+    public List<Color> getHexColors() {
+        return hexColors;
+    }
+
+    public List<String> getUnitY1() {
+        return unitY1;
     }
 }

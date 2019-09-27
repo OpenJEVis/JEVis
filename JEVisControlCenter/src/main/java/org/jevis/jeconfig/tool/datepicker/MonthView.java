@@ -47,7 +47,7 @@ final class MonthView extends DatePane {
 
         getStyleClass().add(CSS_CALENDAR_MONTH_VIEW);
 
-        // When the locale changed, update the weeks to the new locale.
+        // When the locale changed, updateData the weeks to the new locale.
         calendarView.localeProperty().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
@@ -55,7 +55,7 @@ final class MonthView extends DatePane {
             }
         });
 
-        // When the disabled week days change, update the days.
+        // When the disabled week days change, updateData the days.
         calendarView.getDisabledWeekdays().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
@@ -63,7 +63,7 @@ final class MonthView extends DatePane {
             }
         });
 
-        // When the disabled dates change, update the days.
+        // When the disabled dates change, updateData the days.
         calendarView.getDisabledDates().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
@@ -71,7 +71,7 @@ final class MonthView extends DatePane {
             }
         });
 
-        // When the disabled dates change, update the days.
+        // When the disabled dates change, updateData the days.
         calendarView.showWeeksProperty().addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable observable) {
@@ -87,30 +87,30 @@ final class MonthView extends DatePane {
      */
     @Override
     public void buildContent() {
-        Calendar calendar = calendarView.calendarProperty().get();
+        Calendar calendar = this.calendarView.calendarProperty().get();
 
         // get the maximum number of days in a week for this calendar.
-        numberOfDaysPerWeek = calendar.getMaximum(Calendar.DAY_OF_WEEK);
+        this.numberOfDaysPerWeek = calendar.getMaximum(Calendar.DAY_OF_WEEK);
 
         // get the maximum number of days a month could have.
         int maxNumberOfDaysInMonth = calendar.getMaximum(Calendar.DAY_OF_MONTH);
 
         // assume the first row has only 1 day, then distribute the rest among the remaining weeks and add the first week.
-        int numberOfRows = (int) Math.ceil((maxNumberOfDaysInMonth - 1) / (double) numberOfDaysPerWeek) + 1;
+        int numberOfRows = (int) Math.ceil((maxNumberOfDaysInMonth - 1) / (double) this.numberOfDaysPerWeek) + 1;
 
         // remove all controls
         getChildren().clear();
 
-        int colOffset = calendarView.getShowWeeks() ? 1 : 0;
+        int colOffset = this.calendarView.getShowWeeks() ? 1 : 0;
 
-        if (calendarView.getShowWeeks()) {
+        if (this.calendarView.getShowWeeks()) {
             Label empty = new Label();
             empty.setMaxWidth(Double.MAX_VALUE);
             empty.getStyleClass().add(CSS_CALENDAR_WEEKDAYS);
             add(empty, 0, 0);
         }
         // iterate through the columns
-        for (int i = 0; i < numberOfDaysPerWeek; i++) {
+        for (int i = 0; i < this.numberOfDaysPerWeek; i++) {
             Label label = new Label();
             label.getStyleClass().add(CSS_CALENDAR_WEEKDAYS);
             label.setMaxWidth(Double.MAX_VALUE);
@@ -121,7 +121,7 @@ final class MonthView extends DatePane {
         // iterate through the rows
         for (int rowIndex = 0; rowIndex < numberOfRows; rowIndex++) {
 
-            if (calendarView.getShowWeeks()) {
+            if (this.calendarView.getShowWeeks()) {
                 Label label = new Label();
                 label.setMaxWidth(Double.MAX_VALUE);
                 label.setMaxHeight(Double.MAX_VALUE);
@@ -130,7 +130,7 @@ final class MonthView extends DatePane {
             }
 
             // iterate through the columns
-            for (int colIndex = 0; colIndex < numberOfDaysPerWeek; colIndex++) {
+            for (int colIndex = 0; colIndex < this.numberOfDaysPerWeek; colIndex++) {
                 final Button button = new Button();
                 button.setMaxWidth(Double.MAX_VALUE);
                 button.setMaxHeight(Double.MAX_VALUE);
@@ -141,7 +141,7 @@ final class MonthView extends DatePane {
                     @Override
                     public void handle(ActionEvent actionEvent) {
 
-                        calendarView.selectedDate.set((Date) button.getUserData());
+                        MonthView.this.calendarView.selectedDate.set((Date) button.getUserData());
                     }
                 });
                 // add the button, starting at second row.
@@ -165,10 +165,10 @@ final class MonthView extends DatePane {
      * Updates the days.
      */
     private void updateDays() {
-        Calendar calendar = calendarView.getCalendar();
-        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.FULL, calendarView.localeProperty().get());
+        Calendar calendar = this.calendarView.getCalendar();
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.FULL, this.calendarView.localeProperty().get());
 
-        dateFormat.setCalendar(calendarView.getCalendar());
+        dateFormat.setCalendar(this.calendarView.getCalendar());
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
@@ -195,9 +195,9 @@ final class MonthView extends DatePane {
 
 
         // Ignore the week day row and the week number column
-        for (int i = numberOfDaysPerWeek + (calendarView.getShowWeeks() ? 1 : 0); i < getChildren().size(); i++) {
+        for (int i = this.numberOfDaysPerWeek + (this.calendarView.getShowWeeks() ? 1 : 0); i < getChildren().size(); i++) {
             final Date currentDate = calendar.getTime();
-            if (i % (numberOfDaysPerWeek + 1) == 0 && (calendarView.getShowWeeks())) {
+            if (i % (this.numberOfDaysPerWeek + 1) == 0 && (this.calendarView.getShowWeeks())) {
                 Label label = (Label) getChildren().get(i);
                 label.setText(Integer.toString(calendar.get(Calendar.WEEK_OF_YEAR)));
             } else {
@@ -207,9 +207,9 @@ final class MonthView extends DatePane {
                 control.setText(Integer.toString(calendar.get(Calendar.DAY_OF_MONTH)));
                 control.setTooltip(new Tooltip(dateFormat.format(currentDate)));
 
-                boolean disabled = calendarView.getDisabledWeekdays().contains(calendar.get(Calendar.DAY_OF_WEEK));
+                boolean disabled = this.calendarView.getDisabledWeekdays().contains(calendar.get(Calendar.DAY_OF_WEEK));
 
-                for (Date disabledDate : calendarView.getDisabledDates()) {
+                for (Date disabledDate : this.calendarView.getDisabledDates()) {
                     Calendar clone = (Calendar) calendar.clone();
                     clone.setTime(disabledDate);
                     if (calendar.get(Calendar.YEAR) == clone.get(Calendar.YEAR) && calendar.get(Calendar.MONTH) == clone.get(Calendar.MONTH) && calendar.get(Calendar.DAY_OF_MONTH) == clone.get(Calendar.DAY_OF_MONTH)) {
@@ -240,38 +240,38 @@ final class MonthView extends DatePane {
         }
 
         // Restore original date
-        calendar.setTime(calendarView.calendarDate.get());
+        calendar.setTime(this.calendarView.calendarDate.get());
     }
 
     /**
      * Updates the week names, when the locale changed.
      */
     private void updateWeekNames() {
-        DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(calendarView.localeProperty().get());
+        DateFormatSymbols dateFormatSymbols = new DateFormatSymbols(this.calendarView.localeProperty().get());
         String[] weekDays = dateFormatSymbols.getShortWeekdays();
 
         // Start with 1 instead of 0, since the first element in the array is empty.
         for (int i = 1; i < weekDays.length; i++) {
-			// Get the first character only.
-        	
-        	// FIX submitted by Masayuki Ueki for Japanese language as they only have one character
-			String shortWeekDay = "";
-			if (weekDays[i].length() > 2) {
-				shortWeekDay = weekDays[i].substring(0, 2);
-			} else {
-				shortWeekDay = weekDays[i];
-			}
+            // Get the first character only.
+
+            // FIX submitted by Masayuki Ueki for Japanese language as they only have one character
+            String shortWeekDay = "";
+            if (weekDays[i].length() > 2) {
+                shortWeekDay = weekDays[i].substring(0, 2);
+            } else {
+                shortWeekDay = weekDays[i];
+            }
 
             // Shift the index according to the first day of week.
-            int j = i - calendarView.getCalendar().getFirstDayOfWeek();
+            int j = i - this.calendarView.getCalendar().getFirstDayOfWeek();
             if (j < 0) {
                 j += weekDays.length - 1;
             }
 
-            Label label = (Label) getChildren().get(j + (calendarView.getShowWeeks() ? 1 : 0));
+            Label label = (Label) getChildren().get(j + (this.calendarView.getShowWeeks() ? 1 : 0));
 
             label.setText(shortWeekDay);
         }
-        title.set(getDateFormat("MMMM yyyy").format(calendarView.getCalendar().getTime()));
+        this.title.set(getDateFormat("MMMM yyyy").format(this.calendarView.getCalendar().getTime()));
     }
 }

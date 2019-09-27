@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.graph.view;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -29,6 +30,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -41,6 +43,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,7 +66,9 @@ import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.BubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
@@ -99,6 +104,7 @@ public class GraphPluginView implements Plugin {
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
     private VBox vBox;
+    public static String JOB_NAME = "Graph Update";
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
         this.dataModel = new GraphDataModel(ds, this);
@@ -241,7 +247,7 @@ public class GraphPluginView implements Plugin {
         ChartSelectionDialog selectionDialog = new ChartSelectionDialog(ds, dataModel);
 
 //        AnalysisTimeFrame atf = new AnalysisTimeFrame();
-//        atf.setTimeFrame(TimeFrame.CUSTOM);
+//        atf.setActiveTimeFrame(TimeFrame.CUSTOM);
 //
 //        dataModel.setAnalysisTimeFrame(atf);
 
@@ -379,10 +385,9 @@ public class GraphPluginView implements Plugin {
     }
 
     public void update(Boolean getNewChartViews) {
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "");
 
-        //border.setCenter(new ProgressIndicator(ProgressIndicator.INDETERMINATE_PROGRESS));
-
-        Double autoMinSize = null;
+        AtomicDouble autoMinSize = new AtomicDouble(0);
         double autoMinSizeNormal = 220;
         double autoMinSizeLogical = 50;
 
@@ -395,6 +400,7 @@ public class GraphPluginView implements Plugin {
             Long horizontalTables = dataModel.getHorizontalTables();
             List<HBox> pieFrames = new ArrayList<>();
             List<HBox> tableFrames = new ArrayList<>();
+
 
             if (getNewChartViews) {
                 charts.clear();
@@ -423,21 +429,27 @@ public class GraphPluginView implements Plugin {
             int countOfPies = (int) charts.stream().filter(cv -> cv.getChartType() == ChartType.PIE).count();
             int countOfTables = (int) charts.stream().filter(cv -> cv.getChartType() == ChartType.TABLE).count();
 
+            JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Start Data Fetch");
+            //dataModel.getSelectedData();
+
             for (ChartView cv : charts) {
                 if (cv.getChartType().equals(ChartType.LOGICAL)) {
-                    autoMinSize = autoMinSizeLogical;
+                    autoMinSize.set(autoMinSizeLogical);
                 } else {
-                    autoMinSize = autoMinSizeNormal;
+                    autoMinSize.set(autoMinSizeNormal);
                 }
 
                 BorderPane bp = new BorderPane();
                 bp.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
 
-                bp.setMinHeight(autoMinSize);
+                bp.setMinHeight(autoMinSize.get());
 
                 bp.setMaxWidth(sp.getMaxWidth());
 
+
                 if (!cv.getChartType().equals(ChartType.LOGICAL) || cv.getFirstLogical()) {
+
+
                     for (ChartSettings cset : dataModel.getCharts()) {
                         if (cset.getName().equals(cv.getChartName())) {
 
@@ -450,6 +462,7 @@ public class GraphPluginView implements Plugin {
                             int dataSize = 0;
                             if (cv.getFirstLogical()) dataSize = 4;
 
+                            /** hier werden von allen Charts die daten geupdatet ?? **/
                             for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
                                 for (int i : chartDataModel.getSelectedcharts()) {
                                     if (i == cset.getId()) {
@@ -459,14 +472,13 @@ public class GraphPluginView implements Plugin {
 
                             }
 
-                            bp.setMinHeight(autoMinSize);
-                            bp.setPrefHeight(autoMinSize + (dataSize * dataSizeOffset));
+                            bp.setMinHeight(autoMinSize.get());
+                            bp.setPrefHeight(autoMinSize.get() + (dataSize * dataSizeOffset));
                         }
                     }
                 } else {
-                    bp.setPrefHeight(autoMinSize + 70);
+                    bp.setPrefHeight(autoMinSize.get() + 70);
                 }
-
                 cv.getLegend().maxWidthProperty().bind(bp.widthProperty());
 
                 if (cv.getShowTable()) {
@@ -480,7 +492,6 @@ public class GraphPluginView implements Plugin {
                 } else {
                     bp.setTop(null);
                 }
-
                 if (!cv.getChartType().equals(ChartType.TABLE)) {
                     Platform.runLater(() -> bp.setCenter(cv.getChartRegion()));
                 } else {
@@ -510,7 +521,6 @@ public class GraphPluginView implements Plugin {
                         }
                     }
                 });
-
                 List<ChartView> notActive = new ArrayList<>(charts);
                 notActive.remove(cv);
                 ChartType chartType = cv.getChartType();
@@ -519,7 +529,6 @@ public class GraphPluginView implements Plugin {
 
                 Separator sep = new Separator();
                 sep.setOrientation(Orientation.HORIZONTAL);
-
                 if (cv.getChartType() == ChartType.PIE) {
 
                     if (pieFrames.isEmpty()) {
@@ -574,22 +583,31 @@ public class GraphPluginView implements Plugin {
                     vBox.getChildren().add(bp);
                     vBox.getChildren().add(sep);
                 }
-
+                JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Start Next Chart");
             }
 
-            sp.setContent(vBox);
+            Platform.runLater(() -> {
+                try {
+                    sp.setContent(vBox);
 
-            border.setTop(null);
-            border.setCenter(sp);
-            border.setBottom(null);
-            border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                    border.setTop(null);
+                    border.setCenter(sp);
+                    border.setBottom(null);
+                    border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
-            toolBarView.updateLayout();
+                    toolBarView.updateLayout();
 
-            autoSize(autoMinSize, maxHeight, chartsPerScreen, vBox);
+                    autoSize(autoMinSize.get(), maxHeight, chartsPerScreen, vBox);
+                    formatCharts();
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
 
-            formatCharts();
+            });
+
+
         }
+        JEConfig.getStatusBar().finishProgressJob(GraphPluginView.JOB_NAME, "done");
     }
 
     private void formatCharts() {
@@ -597,6 +615,7 @@ public class GraphPluginView implements Plugin {
             for (ChartView cv : charts) {
                 if (cv.getChartType().equals(ChartType.BUBBLE)) {
                     MultiAxisBubbleChart bubbleChart = (MultiAxisBubbleChart) cv.getChart().getChart();
+                    String yUnit = ((BubbleChart) cv.getChart()).getyUnit();
 
                     bubbleChart.getData().forEach(numberNumberSeries -> {
                         MultiAxisBubbleChart.Series bubbleChartSeries = (MultiAxisBubbleChart.Series) numberNumberSeries;
@@ -617,7 +636,7 @@ public class GraphPluginView implements Plugin {
                                     String yValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getYValue());
 
                                     Label labelCount = new Label(countValue);
-                                    Tooltip tooltipYValue = new Tooltip(yValue);
+                                    Tooltip tooltipYValue = new Tooltip(yValue + " " + yUnit);
                                     labelCount.setAlignment(Pos.CENTER);
                                     labelCount.setBackground(
                                             new Background(
@@ -643,9 +662,37 @@ public class GraphPluginView implements Plugin {
                             }
                         });
                     });
+                } else if (cv.getChartType().equals(ChartType.COLUMN)) {
+                    MultiAxisBarChart columnChart = (MultiAxisBarChart) cv.getChart().getChart();
 
-                    cv.getChart().applyColors();
+                    columnChart.getData().forEach(numberNumberSeries -> {
+                        MultiAxisBarChart.Series columnChartSeries = (MultiAxisBarChart.Series) numberNumberSeries;
+                        columnChartSeries.getData().forEach(data -> {
+                            final StackPane node = (StackPane) ((MultiAxisBarChart.Data) data).getNode();
+                            NumberFormat nf = NumberFormat.getInstance();
+                            nf.setMinimumFractionDigits(2);
+                            nf.setMaximumFractionDigits(2);
+                            String valueString = nf.format(((MultiAxisBarChart.Data) data).getYValue());
+                            final Text dataText = new Text(valueString + "");
+
+                            node.getChildren().add(dataText);
+
+                            Bounds bounds = node.getBoundsInParent();
+                            dataText.setLayoutX(
+                                    Math.round(
+                                            bounds.getMinX() + bounds.getWidth() / 2 - dataText.prefWidth(-1) / 2
+                                    )
+                            );
+                            dataText.setLayoutY(
+                                    Math.round(
+                                            bounds.getMinY() - dataText.prefHeight(-1) * 0.5
+                                    )
+                            );
+                        });
+                    });
                 }
+
+                cv.getChart().applyColors();
             }
         });
     }
@@ -884,6 +931,8 @@ public class GraphPluginView implements Plugin {
                     break;
                 case HEAT_MAP:
                     break;
+                case COLUMN:
+                    break;
                 default:
                     break;
             }
@@ -1041,72 +1090,12 @@ public class GraphPluginView implements Plugin {
                 ChartView view = new ChartView(dataModel);
                 view.drawAreaChart(chart.getId(), type);
                 charts.add(view);
+                JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Create chart");
             } else {
                 createLogicalChart(chart, chartID, type);
+                JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Create Logical chart");
             }
         });
-//        } else {
-//            if (dataModel.getCharts().size() < charts.size()) {
-//
-//                if (!hasLogicalCharts() && dataModel.getCharts().size() < charts.size()) {
-//
-//                    charts.subList(dataModel.getCharts().size(), charts.size()).clear();
-//                }
-//
-//                if (hasLogicalCharts()) {
-//                    charts.removeAll(charts.stream().filter(chartView -> chartView.getChartType().equals(ChartType.LOGICAL)).collect(Collectors.toList()));
-//                    dataModel.getCharts().forEach(chart -> {
-//                        int chartID = chart.getId();
-//                        ChartType type = chart.getChartType();
-//
-//                        if (type.equals(ChartType.LOGICAL)) {
-//                            createLogicalChart(chart, chartID, type);
-//                        }
-//                    });
-//                } else {
-//                    charts.forEach(chart -> {
-//                        if (!chart.getChartType().equals(ChartType.LOGICAL)) {
-//                            int newChartIndex = charts.indexOf(chart);
-//                            chart.setType(dataModel.getCharts().get(newChartIndex).getChartType());
-//                            chart.setChartId(newChartIndex);
-//                            chart.updateChart();
-//                        }
-//                    });
-//
-//                    charts.removeAll(charts.stream().filter(chartView -> chartView.getChartType().equals(ChartType.LOGICAL)).collect(Collectors.toList()));
-//                    dataModel.getCharts().forEach(chart -> {
-//                        int chartID = chart.getId();
-//                        ChartType type = chart.getChartType();
-//
-//                        if (type.equals(ChartType.LOGICAL)) {
-//                            createLogicalChart(chart, chartID, type);
-//                        }
-//                    });
-//                }
-//            } else {
-//
-//                for (ChartView chartView : charts) {
-//                    chartView.setType(dataModel.getCharts().get(charts.indexOf(chartView)).getChartType());
-//                    chartView.updateChart();
-//                }
-//
-//                if (dataModel.getCharts().size() > charts.size()) {
-//                    for (int i = charts.size(); i < dataModel.getCharts().size(); i++) {
-//                        ChartView view = new ChartView(dataModel);
-//
-//                        ChartType type = dataModel.getCharts().get(i).getChartType();
-//
-//                        view.drawAreaChart(dataModel.getCharts().get(i).getId(), type);
-//
-//                        charts.add(view);
-//                    }
-//                }
-//
-//            }
-
-//        }
-
-//        return charts;
     }
 
     private boolean dataModelHasLogicalCharts() {
@@ -1130,7 +1119,6 @@ public class GraphPluginView implements Plugin {
     }
 
     private void createLogicalChart(ChartSettings chart, int chartID, ChartType type) {
-
         List<ChartView> subCharts = new ArrayList<>();
         for (ChartDataModel singleRow : dataModel.getSelectedData()) {
             for (int i : singleRow.getSelectedcharts()) {
@@ -1156,8 +1144,8 @@ public class GraphPluginView implements Plugin {
                 chartView.setShowTable(false);
             }
 
-            chartView.drawAreaChart(chartID, chartView.getSingleRow(), type);
-
+            chartView.drawAreaChart(chartID, chartView.getSingleRow(), type); /** this one takes the most loading time **/
+            JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Crate Chart");
 //            chartView.getSingleRow().calcMinAndMax();
             double min = ((LogicalChart) chartView.getChart()).getMinValue();
             double max = ((LogicalChart) chartView.getChart()).getMaxValue();

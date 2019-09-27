@@ -11,7 +11,10 @@ public class ChartUnits {
 
     public static JEVisUnit parseUnit(String unit) {
         JEVisUnit result = null;
+        Unit _mg = SI.GRAM.divide(1000);
+        Unit _g = SI.GRAM;
         Unit _kg = SI.KILOGRAM;
+        Unit _kkg = SI.KILOGRAM.times(1000);
         Unit _t = NonSI.METRIC_TON;
 
         Unit _l = NonSI.LITER;
@@ -41,6 +44,9 @@ public class ChartUnits {
 
         Unit _one = Unit.ONE;
 
+        final JEVisUnit mg = new JEVisUnitImp(_mg);
+        final JEVisUnit g = new JEVisUnitImp(_g);
+        final JEVisUnit kkg = new JEVisUnitImp(_kkg);
         final JEVisUnit kg = new JEVisUnitImp(_kg);
         final JEVisUnit t = new JEVisUnitImp(_t);
 
@@ -95,8 +101,17 @@ public class ChartUnits {
         kcal.setLabel("kcal");
 
         switch (unit) {
+            case "mg":
+                result = mg;
+                break;
+            case "g":
+                result = g;
+                break;
             case "kg":
                 result = kg;
+                break;
+            case "kkg":
+                result = kkg;
                 break;
             case "t":
                 result = t;
@@ -430,12 +445,78 @@ public class ChartUnits {
                     case "t":
                         factor = 1000d;
                         break;
+                    case "mg":
+                        factor = 1 / 1000000d;
+                        break;
+                    case "g":
+                        factor = 1 / 1000d;
+                        break;
+                    case "kkg":
+                        factor = 1000d;
+                        break;
                 }
                 break;
             case "t":
                 switch (inputUnit) {
                     case "kg":
                         factor = 1d / 1000d;
+                        break;
+                    case "mg":
+                        factor = 1 / 1000000000d;
+                        break;
+                    case "g":
+                        factor = 1 / 1000000d;
+                        break;
+                    case "kkg":
+                        factor = 1d;
+                        break;
+                }
+                break;
+            case "kkg":
+                switch (inputUnit) {
+                    case "kg":
+                        factor = 1d / 1000d;
+                        break;
+                    case "mg":
+                        factor = 1 / 1000000000d;
+                        break;
+                    case "g":
+                        factor = 1 / 1000000d;
+                        break;
+                    case "t":
+                        factor = 1d;
+                        break;
+                }
+                break;
+            case "g":
+                switch (inputUnit) {
+                    case "kg":
+                        factor = 1000d;
+                        break;
+                    case "mg":
+                        factor = 1 / 1000d;
+                        break;
+                    case "kkg":
+                        factor = 1000000d;
+                        break;
+                    case "t":
+                        factor = 1000000d;
+                        break;
+                }
+                break;
+            case "mg":
+                switch (inputUnit) {
+                    case "kg":
+                        factor = 1000000d;
+                        break;
+                    case "g":
+                        factor = 1000d;
+                        break;
+                    case "kkg":
+                        factor = 1000000000d;
+                        break;
+                    case "t":
+                        factor = 1000000000d;
                         break;
                 }
                 break;

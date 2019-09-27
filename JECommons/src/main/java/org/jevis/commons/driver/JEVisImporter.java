@@ -40,6 +40,7 @@ public class JEVisImporter implements Importer {
     private static final Logger logger = LogManager.getLogger(JEVisImporter.class);
 
     private JEVisDataSource _client = null;
+    private JEVisObject dataSource;
     private DateTimeZone _timezone;
 //    private DateTime _latestDateTime;
 
@@ -53,6 +54,7 @@ public class JEVisImporter implements Importer {
     @Override
     public void initialize(JEVisObject dataSource) {
         try {
+            this.dataSource = dataSource;
             _client = dataSource.getDataSource();
             JEVisClass dataSourceClass = _client.getJEVisClass(DataCollectorTypes.DataSource.NAME);
             JEVisType timezoneType = dataSourceClass.getType(DataCollectorTypes.DataSource.TIMEZONE);
@@ -118,13 +120,6 @@ public class JEVisImporter implements Importer {
                     JEVisAttribute valueAtt = onlineData.getAttribute(s.getAttribute());
                     if (valueAtt == null) {
                         logger.error("Target has no Attribute 'Value'");
-                        targetErrors.add(s.getOnlineID());
-                        errorImport++;
-                        continue;
-                    }
-
-                    if (_timezone == null) {
-                        logger.error("Timezone missing for " + onlineData.getID());
                         targetErrors.add(s.getOnlineID());
                         errorImport++;
                         continue;

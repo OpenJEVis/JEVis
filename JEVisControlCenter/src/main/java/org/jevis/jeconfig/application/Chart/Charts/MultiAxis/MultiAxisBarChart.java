@@ -170,7 +170,7 @@ public class MultiAxisBarChart<X, Y> extends MultiAxisChart<X, Y> {
         valueAxis = (ValueAxis) y1Axis;
         orientation = Orientation.VERTICAL;
 
-        // update css
+        // updateData css
         pseudoClassStateChanged(HORIZONTAL_PSEUDOCLASS_STATE, orientation == Orientation.HORIZONTAL);
         pseudoClassStateChanged(VERTICAL_PSEUDOCLASS_STATE, orientation == Orientation.VERTICAL);
         setData(data);
@@ -351,7 +351,7 @@ public class MultiAxisBarChart<X, Y> extends MultiAxisChart<X, Y> {
         // RT-24813 : if the data in a series gets too large, barWidth can get negative.
         if (barWidth <= 0)
             barWidth = 1;
-        // update bar positions and sizes
+        // updateData bar positions and sizes
         int catIndex = 0;
         for (String category : categoryAxis.getCategories()) {
             int index = 0;

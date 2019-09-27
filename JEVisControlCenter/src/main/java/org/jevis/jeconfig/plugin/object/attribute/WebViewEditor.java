@@ -22,14 +22,22 @@ package org.jevis.jeconfig.plugin.object.attribute;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.joda.time.DateTime;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Editor to configure JsonGapFillingConfig elements
@@ -39,21 +47,40 @@ public class WebViewEditor implements AttributeEditor {
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _readOnly = new SimpleBooleanProperty(false);
     public JEVisAttribute _attribute;
-    private HBox box = new HBox(12);
     private JEVisSample _lastSample;
+    private VBox vBox = new VBox();
+    private WebView webView = new WebView();
 
     public WebViewEditor(JEVisAttribute att) {
         logger.debug("==init== for: {}", att.getName());
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
-
+        vBox.setFillWidth(true);
+        vBox.setSpacing(4);
     }
 
     /**
      * Build main UI
      */
     private void init() {
-        WebView webView = new WebView();
+        List<JEVisSample> allSamples = _attribute.getAllSamples();
+        Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
+        List<DateTime> dateTimeList = new ArrayList<>();
+        for (JEVisSample jeVisSample : allSamples) {
+            try {
+                dateTimeList.add(jeVisSample.getTimestamp());
+                sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
+            } catch (JEVisException e) {
+                logger.error("Could not add date to dat list.");
+            }
+        }
+        ComboBox<DateTime> dateTimeComboBox = new ComboBox<>(FXCollections.observableList(dateTimeList));
+        try {
+            dateTimeComboBox.getSelectionModel().select(_lastSample.getTimestamp());
+        } catch (JEVisException e) {
+            logger.error("Could not get Time Stamp of last sample.");
+            dateTimeComboBox.getSelectionModel().select(dateTimeList.size() - 1);
+        }
 
         String lastSampleString = "";
         try {
@@ -65,7 +92,18 @@ public class WebViewEditor implements AttributeEditor {
             logger.error("Could not get sample as String.");
         }
 
-        box.getChildren().addAll(webView);
+        dateTimeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                try {
+                    webView.getEngine().loadContent(sampleMap.get(newValue).getValueAsString());
+                } catch (JEVisException e) {
+                    logger.error("Could not get sample string for datetime {}", newValue);
+                }
+            }
+        });
+
+        vBox.getChildren().setAll(dateTimeComboBox, webView);
+
     }
 
     @Override
@@ -76,10 +114,7 @@ public class WebViewEditor implements AttributeEditor {
 
     @Override
     public void update() {
-        Platform.runLater(() -> {
-            box.getChildren().clear();
-            init();
-        });
+        Platform.runLater(this::init);
     }
 
     @Override
@@ -95,7 +130,7 @@ public class WebViewEditor implements AttributeEditor {
             logger.catching(ex);
         }
 
-        return box;
+        return vBox;
     }
 
     @Override
@@ -120,4 +155,7 @@ public class WebViewEditor implements AttributeEditor {
         return true;
     }
 
+    public WebView getWebView() {
+        return webView;
+    }
 }

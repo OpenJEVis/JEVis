@@ -45,7 +45,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.application.I18nWS;
-import org.jevis.jeconfig.application.jevistree.filter.DirectoryHelper;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -78,10 +77,10 @@ public class ColumnFactory {
                     TreeItem<JEVisTreeRow> item = p.getValue();
                     JEVisTreeRow selectionObject = item.getValue();
 
-                    return new ReadOnlyObjectWrapper<JEVisTreeRow>(selectionObject);
+                    return new ReadOnlyObjectWrapper<>(selectionObject);
 
                 } else {
-                    return new ReadOnlyObjectWrapper<JEVisTreeRow>();
+                    return new ReadOnlyObjectWrapper<>();
                 }
 
             } catch (Exception ex) {
@@ -91,53 +90,7 @@ public class ColumnFactory {
 
         });
 
-        column.setComparator((row1, row2) -> {
-            try {
-                if (row1.getType() == row2.getType()) {
-
-                    /** if they are objects **/
-                    if (row1.getType() == JEVisTreeRow.TYPE.OBJECT) {
-                        boolean o1isDir = DirectoryHelper.getInstance(row1.getJEVisObject().getDataSource()).getDirectoryNames().contains(row1.getJEVisObject().getJEVisClassName());
-                        boolean o2isDir = DirectoryHelper.getInstance(row1.getJEVisObject().getDataSource()).getDirectoryNames().contains(row2.getJEVisObject().getJEVisClassName());
-
-                        /** Check if one of this is an directory, if it will be first **/
-                        if (o1isDir && !o2isDir) {
-                            return -1;
-                        } else if (!o1isDir && o2isDir) {
-                            return 1;
-                        }
-
-                        /** Sort by Classname **/
-                        int className = row1.getJEVisObject().getJEVisClassName().compareTo(row2.getJEVisObject().getJEVisClassName());
-                        if (className == 0) {
-                            /** if same class sort by name **/
-                            return alphanumComparator.compare(row1.getJEVisObject().getName(), row2.getJEVisObject().getName());
-//                                    return row1.getJEVisObject().getName().compareTo(row2.getJEVisObject().getName());
-                        } else {
-                            return className;
-                        }
-
-
-                    } else if (row1.getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
-                        /** attributes are sorted by name **/
-                        return alphanumComparator.compare(row1.getJEVisAttribute().getName(), row2.getJEVisAttribute().getName());
-//                                return row1.getJEVisAttribute().getName().compareTo(row2.getJEVisAttribute().getName());
-                    }
-
-
-                } else {/** one is object the other attribute, Object before attribute **/
-                    if (row1.getType() == JEVisTreeRow.TYPE.OBJECT) {
-                        return -1;
-                    } else {
-                        return 1;
-                    }
-                }
-            } catch (Exception ex) {
-                logger.warn(ex);
-            }
-            return 0;
-        });
-
+        column.setComparator(JEVisTreeItem.getComparator());
 
         final JEVisTreeContextMenu contextMenu = new JEVisTreeContextMenu();
 
@@ -188,9 +141,7 @@ public class ColumnFactory {
 
                                                   try {
 
-//                                                      JEVisTreeRow jeVisTreeRow = getTreeTableRow().getItem();
-                                                      JEVisTreeRow jeVisTreeRow = item;
-                                                      JEVisObject jeVisObject = jeVisTreeRow.getJEVisObject();
+                                                      JEVisObject jeVisObject = item.getJEVisObject();
 
                                                       HBox hbox = new HBox();
                                                       Label nameLabel = new Label();
@@ -201,12 +152,6 @@ public class ColumnFactory {
                                                           contextMenu.setItem(getTreeTableRow());
                                                       });
 //
-//                                                      hbox.setOsetOnAction(new EventHandler<ActionEvent>() {
-//                                                          public void handle(ActionEvent e) {
-//                                                              contextMenu.show(textField, Side.BOTTOM, 0, 0);
-//                                                          }
-//                                                      });
-
                                                       hbox.setStyle("-fx-background-color: transparent;");
                                                       nameLabel.setStyle("-fx-background-color: transparent;");
 
@@ -214,20 +159,7 @@ public class ColumnFactory {
                                                       Region spaceBetween = new Region();
                                                       spaceBetween.setMinWidth(8);
 
-                                                      //highlight(tree.getHighlighterList(), jeVisObject, nameLabel);
-
-                                                      /** if this object is positive in the search highlight the cell,
-                                                       * this seems really bad, a listener for each object in the tree? there goes the memory
-                                                       *
-                                                       * **/
-//                                                      tree.getHighlighterList().addListener(new ListChangeListener<JEVisObject>() {
-//                                                          @Override
-//                                                          public void onChanged(Change<? extends JEVisObject> c) {
-//                                                              highlight(tree.getHighlighterList(), jeVisObject, nameLabel);
-//                                                          }
-//                                                      });
-
-                                                      if (jeVisTreeRow.getType() == JEVisTreeRow.TYPE.OBJECT) {
+                                                      if (item.getType() == JEVisTreeRow.TYPE.OBJECT) {
                                                           nameLabel.setText(jeVisObject.getName());
                                                           try {
                                                               if (!jeVisObject.getJEVisClassName().equals("Link")) {
@@ -241,7 +173,7 @@ public class ColumnFactory {
                                                           }
                                                       } else {//Attribute
 
-                                                          nameLabel.setText(I18nWS.getInstance().getAttributeName(jeVisTreeRow.getJEVisAttribute()));
+                                                          nameLabel.setText(I18nWS.getInstance().getAttributeName(item.getJEVisAttribute()));
                                                           ImageView image = new ImageView(ATTRIBUTE_ICON);
                                                           image.fitHeightProperty().set(18);
                                                           image.fitWidthProperty().set(18);
@@ -250,15 +182,6 @@ public class ColumnFactory {
 
                                                       hbox.getChildren().addAll(icon, spaceBetween, nameLabel);
 
-//                                                      String debugText = "";
-//                                                      try {
-//                                                          debugText += "Parent: " + getTreeTableRow().getTreeItem().getParent().getValue().getJEVisObject().getID();
-//                                                      } catch (Exception ex) {
-//
-//                                                      }
-//                                                      Tooltip debugTip = new Tooltip(debugText);
-//
-//                                                      setTooltip(debugTip);
                                                       setGraphic(hbox);
 
                                                   } catch (Exception ex) {
@@ -296,16 +219,15 @@ public class ColumnFactory {
      * @return
      */
     public static TreeTableColumn<JEVisTreeRow, String> buildDataTS(boolean max) {
-        String coumnName = "Value Max";
+        String columnName;
         if (max) {
-            coumnName = "Max Value TS";
+            columnName = "Max Value TS";
         } else {
-            coumnName = "Min Value TS";
+            columnName = "Min Value TS";
         }
 
-
-        TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn<>(coumnName);
-        column.setId(coumnName);
+        TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn<>(columnName);
+        column.setId(columnName);
         column.setPrefWidth(135);
 
         column.setCellValueFactory((TreeTableColumn.CellDataFeatures<JEVisTreeRow, String> p) -> {
@@ -331,26 +253,25 @@ public class ColumnFactory {
 
                     if (value != null && value.getLatestSample() != null) {
                         if (max) {
-                            return new ReadOnlyObjectWrapper<String>(dateTimeFormatter.print(value.getTimestampFromLastSample()));
+                            return new ReadOnlyObjectWrapper<>(dateTimeFormatter.print(value.getTimestampFromLastSample()));
                         } else {
-                            return new ReadOnlyObjectWrapper<String>(dateTimeFormatter.print(value.getTimestampFromFirstSample()));
+                            return new ReadOnlyObjectWrapper<>(dateTimeFormatter.print(value.getTimestampFromFirstSample()));
                         }
 
                     } else {
-                        return new ReadOnlyObjectWrapper<String>("");
+                        return new ReadOnlyObjectWrapper<>("");
                     }
 
                 } else {
-                    return new ReadOnlyObjectWrapper<String>("Null");
+                    return new ReadOnlyObjectWrapper<>("Null");
                 }
 
             } catch (Exception ex) {
                 logger.info("Error in Column Factory: " + ex);
-                return new ReadOnlyObjectWrapper<String>("Error");
+                return new ReadOnlyObjectWrapper<>("Error");
             }
 
         });
-
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, String>, TreeTableCell<JEVisTreeRow, String>>() {
 
@@ -378,15 +299,6 @@ public class ColumnFactory {
                                                   try {
                                                       HBox hbox = new HBox();//10
                                                       Label nameLabel = new Label();
-//                                                      Node icon = new Region();
-
-//                                                      JEVisTree tree = (JEVisTree) getTreeTableRow().getTreeTableView();
-//                                                      JEVisObject obj = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
-
-//                                                      boolean showCell = tree.getFilter().showCell(getTableColumn(), getTreeTableRow().getTreeItem().getValue());
-//                                                      showCell = true;
-
-//                                                      setContextMenu(new JEVisTreeContextMenu(obj, tree));
 
                                                       hbox.setStyle("-fx-background-color: transparent;");
                                                       nameLabel.setStyle("-fx-background-color: transparent;");
@@ -423,26 +335,24 @@ public class ColumnFactory {
                 if (p != null && p.getValue() != null && p.getValue().getValue() != null && p.getValue().getValue().getJEVisObject() != null) {
                     TreeItem<JEVisTreeRow> item = p.getValue();
                     JEVisTreeRow selectionObject = item.getValue();
-//                    JEVisObject obj = selectionObject.getJEVisObject();
-//                    return new ReadOnlyObjectWrapper<String>(obj.getJEVisClass().getName());
 
                     if (selectionObject.getType() == JEVisTreeRow.TYPE.OBJECT) {
-                        JEVisObject obj = selectionObject.getJEVisObject();
-                        return new ReadOnlyObjectWrapper<String>(p.getValue().getValue().getJEVisObject().getJEVisClass().getName());
+//                        JEVisObject obj = selectionObject.getJEVisObject();
+                        return new ReadOnlyObjectWrapper<>(p.getValue().getValue().getJEVisObject().getJEVisClass().getName());
                     } else if (selectionObject.getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
                         JEVisAttribute att = selectionObject.getJEVisAttribute();
-                        return new ReadOnlyObjectWrapper<String>(att.getType().getName());
+                        return new ReadOnlyObjectWrapper<>(att.getType().getName());
                     } else {
-                        return new ReadOnlyObjectWrapper<String>("");
+                        return new ReadOnlyObjectWrapper<>("");
                     }
 
                 } else {
-                    return new ReadOnlyObjectWrapper<String>("Null");
+                    return new ReadOnlyObjectWrapper<>("Null");
                 }
 
             } catch (Exception ex) {
                 logger.info("Error in Column Fatory: " + ex);
-                return new ReadOnlyObjectWrapper<String>("Error");
+                return new ReadOnlyObjectWrapper<>("Error");
             }
 
         });
@@ -461,15 +371,15 @@ public class ColumnFactory {
                         && p.getValue().getValue() != null
                         && p.getValue().getValue().getJEVisObject() != null) {
 
-                    return new ReadOnlyObjectWrapper<Long>(p.getValue().getValue().getJEVisObject().getID());
+                    return new ReadOnlyObjectWrapper<>(p.getValue().getValue().getJEVisObject().getID());
 
                 } else {
-                    return new ReadOnlyObjectWrapper<Long>(-2L);
+                    return new ReadOnlyObjectWrapper<>(-2L);
                 }
 
             } catch (Exception ex) {
-                logger.info("Error in Column Fatory: " + ex);
-                return new ReadOnlyObjectWrapper<Long>(-1L);
+                logger.info("Error in Column Factory: " + ex);
+                return new ReadOnlyObjectWrapper<>(-1L);
             }
 
         });

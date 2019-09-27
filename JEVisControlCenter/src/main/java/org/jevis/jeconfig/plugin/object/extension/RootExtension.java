@@ -33,7 +33,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisConstants;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisRelationship;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -116,7 +119,7 @@ public class RootExtension implements ObjectEditorExtension {
 
     private void build(final JEVisObject obj) {
         List<JEVisRelationship> rootRel = new ArrayList<>();
-        List<JEVisObject> ownerObj = new ArrayList<>();
+//        List<JEVisObject> ownerObj = new ArrayList<>();
 
         try {
             rootRel.addAll(obj.getRelationships(JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD));
@@ -151,7 +154,7 @@ public class RootExtension implements ObjectEditorExtension {
 //                Label nameLabel = new Label(rel.getOtherObject(obj).getName());
                 Label nameLabel = new Label(getDisplayName(rel.getOtherObject(obj)));
 
-                ownerObj.add(rel.getOtherObject(obj));
+//                ownerObj.add(rel.getOtherObject(obj));
 
                 ImageView usericon = new ImageView();
                 try {
@@ -200,11 +203,7 @@ public class RootExtension implements ObjectEditorExtension {
         gridPane.add(new Separator(Orientation.HORIZONTAL), 0, yAxis, 2, 1);
 
         yAxis++;
-        try {
-            gridPane.add(buildNewBox(obj, ownerObj), 0, yAxis, 2, 1);
-        } catch (JEVisException ex) {
-            logger.fatal(ex);
-        }
+        gridPane.add(buildNewBox(obj), 0, yAxis, 2, 1);
 
         ScrollPane scroll = new ScrollPane();
         scroll.setStyle("-fx-background-color: transparent");
@@ -219,9 +218,7 @@ public class RootExtension implements ObjectEditorExtension {
 
     }
 
-    private HBox buildNewBox(final JEVisObject obj, final List<JEVisObject> allreadyOwner) throws JEVisException {
-        JEVisClass groupClass = obj.getDataSource().getJEVisClass(Constants.JEVisClass.GROUP);
-        List<JEVisObject> allGroups = obj.getDataSource().getObjects(groupClass, true);
+    private HBox buildNewBox(final JEVisObject obj) {
 
         Label newOwnerlabel = new Label(I18n.getInstance().getString("plugin.object.root.ownerlabel"));
         newOwnerlabel.setPrefHeight(21);
@@ -229,9 +226,6 @@ public class RootExtension implements ObjectEditorExtension {
         HBox addNewBox = new HBox(5);
 
         Button newB = new Button();
-        //ToDo
-
-//        newB.setGraphic(JEConfig.getImage("1404843819_node-tree.png", 17, 17));
         newB.setGraphic(JEConfig.getImage("list-add.png", 17, 17));
 
         newB.setOnAction(t -> {
@@ -241,28 +235,22 @@ public class RootExtension implements ObjectEditorExtension {
                 JEVisTreeFilter basicFilter = SelectTargetDialog.buildAllObjects();
                 allFilter.add(basicFilter);
 
-                SelectTargetDialog dia = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE);
+                SelectTargetDialog dia = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.MULTIPLE);
 
-                SelectTargetDialog.Response re = dia.show(
-                        obj.getDataSource(),
-                        I18n.getInstance().getString("plugin.object.root.select.title"),
-                        new ArrayList<>());
-
-                if (re == SelectTargetDialog.Response.OK) {
+                if (dia.show(obj.getDataSource(), I18n.getInstance().getString("plugin.object.root.select.title"),
+                        new ArrayList<>()) == SelectTargetDialog.Response.OK) {
                     for (UserSelection selection : dia.getUserSelection()) {
                         obj.buildRelationship(selection.getSelectedObject(), JEVisConstants.ObjectRelationship.ROOT, JEVisConstants.Direction.FORWARD);
+
+                        Platform.runLater(() -> {
+                            try {
+                                build(_obj);
+                            } catch (Exception ex) {
+                                logger.fatal(ex);
+                            }
+                        });
                     }
-                    Platform.runLater(() -> {
-                        try {
-                            build(_obj);
-                        } catch (Exception ex) {
-                            logger.fatal(ex);
-                        }
-
-                    });
                 }
-
-
             } catch (Exception ex) {
                 logger.fatal(ex);
             }

@@ -12,13 +12,15 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.List;
 
 public class SearchFilterBar extends HBox {
-
+    private static final Logger logger = LogManager.getLogger(SearchFilterBar.class);
     private final Finder finder;
     private Label labelFilter = new Label(I18n.getInstance().getString("searchbar.filter"));
     private Label labelSearch = new Label(I18n.getInstance().getString("searchbar.search"));
@@ -83,7 +85,7 @@ public class SearchFilterBar extends HBox {
 
 
         searchField.getEditor().setOnKeyReleased(event -> {
-            System.out.println("key typed: " + event.getCode());
+            logger.info("key typed: " + event.getCode());
             if (event.getCode() == KeyCode.ENTER) {
                 filter(tree, searchField.getEditor().getText(), originalBackground);
             }
@@ -148,7 +150,7 @@ public class SearchFilterBar extends HBox {
         filterBox.setVisible(!hide);
     }
 
-    public void hideSeachField(boolean hide) {
+    public void hideSearchField(boolean hide) {
         labelSearch.setVisible(!hide);
         searchField.setVisible(!hide);
     }

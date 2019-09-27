@@ -243,7 +243,7 @@ public class AlarmEditor implements AttributeEditor {
 
         dialog.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().getTypeCode().equals(ButtonType.FINISH.getButtonData().getTypeCode())) {
                         try {
                             _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
                             _changed.setValue(true);
@@ -429,12 +429,8 @@ public class AlarmEditor implements AttributeEditor {
             silentTime = new ScheduleEditor();
         }
 
-        silentTime._newValueProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                config.setSilentTime(JsonTools.objectMapper().readValue(newValue, JsonScheduler.class));
-            } catch (IOException e) {
-                logger.error("Could not set new Silent Time: {}", newValue, e);
-            }
+        silentTime.getValueChangedProperty().addListener((observable, oldValue, newValue) -> {
+            config.setSilentTime(silentTime.getInputValue());
         });
 
         ScheduleEditor standbyTime;
@@ -447,12 +443,8 @@ public class AlarmEditor implements AttributeEditor {
             standbyTime = new ScheduleEditor();
         }
 
-        standbyTime._newValueProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                config.setStandbyTime(JsonTools.objectMapper().readValue(newValue, JsonScheduler.class));
-            } catch (IOException e) {
-                logger.error("Could not set new Silent Time: {}", newValue, e);
-            }
+        standbyTime.getValueChangedProperty().addListener((observable, oldValue, newValue) -> {
+            config.setStandbyTime(standbyTime.getInputValue());
         });
 
         double prefFieldWidth = 150;

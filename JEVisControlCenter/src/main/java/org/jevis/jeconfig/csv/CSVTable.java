@@ -218,12 +218,10 @@ public class CSVTable extends TableView<CSVLine> {
                                     }
                                 }
                                 try {
-                                    logger.debug("Import " + _newSamples.size() + " sample into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName());
+                                    logger.debug("Import " + _newSamples.size() + " sample(s) into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName());
                                     header.getTarget().addSamples(_newSamples);
-
-                                    succeeded();
                                 } catch (JEVisException ex) {
-                                    logger.error("error while import sample" + ex);
+                                    logger.error("Error while importing sample(s) into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName(), ex);
                                     failed();
                                 }
 

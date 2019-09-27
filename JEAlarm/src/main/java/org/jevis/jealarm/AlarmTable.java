@@ -53,6 +53,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("    <th>Building</th>");
         sb.append("    <th>Raw Datapoint</th>");
         sb.append("    <th>Clean Datapoint Class</th>");
+        sb.append("    <th>Time Stamp</th>");
         sb.append("    <th>Value</th>");
         sb.append("    <th>Alarm Type</th>");
         sb.append("  </tr>");//border=\"0\"
@@ -137,7 +138,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 sb.append(name);
                 sb.append("</td>");
                 /**
-                 * Is Value
+                 * Time Stamp
                  */
                 sb.append("<td style=\"");
                 sb.append(css);
@@ -149,8 +150,17 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                     logger.error("Could not get current Value.");
                 }
                 if (currentSample != null) {
-                    sb.append(currentSample.getTimestamp().toString("YYYY-MM-DD HH:mm:ss"));
-                    sb.append("\n");
+                    sb.append(currentSample.getTimestamp().toString("yyyy-MM-dd HH:mm:ss"));
+                }
+                sb.append("</td>");
+
+                /**
+                 * Is Value
+                 */
+                sb.append("<td style=\"");
+                sb.append(css);
+                sb.append("\">");
+                if (currentSample != null) {
                     sb.append(currentSample.getValueAsDouble());
                     if (currentUnit != null) {
                         sb.append(" ").append(currentUnit);
@@ -287,6 +297,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("    <th>Building</th>");
         sb.append("    <th>Raw Datapoint</th>");
         sb.append("    <th>Clean Datapoint Class</th>");
+        sb.append("    <th>Time Stamp</th>");
         sb.append("    <th>Is Value</th>");
         sb.append("    <th>Should-be Value</th>");
         sb.append("    <th>Alarm Type</th>");
@@ -362,6 +373,14 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 sb.append(css);
                 sb.append("\">");
                 sb.append(name);
+                sb.append("</td>");
+                /**
+                 * Time Stamp
+                 */
+                sb.append("<td style=\"");
+                sb.append(css);
+                sb.append("\">");
+                sb.append(currentAlarm.getTimeStamp().toString("yyyy-MM-dd HH:mm:ss"));
                 sb.append("</td>");
                 /**
                  * Is Value

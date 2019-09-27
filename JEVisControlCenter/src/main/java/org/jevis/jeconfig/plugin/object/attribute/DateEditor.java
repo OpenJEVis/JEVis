@@ -70,6 +70,7 @@ public class DateEditor implements AttributeEditor {
             DateTime datetime = new DateTime(
                     pickerDate.valueProperty().get().getYear(), pickerDate.valueProperty().get().getMonthValue(), pickerDate.valueProperty().get().getDayOfMonth(), 0, 0, 0, DateTimeZone.getDefault()); // is this timezone correct?
 
+            pickerDate.setPrefWidth(120d);
             JEVisDates.saveDefaultDate(att, new DateTime(), datetime);
             logger.trace("commit.done: {}", att.getName());
         }
@@ -92,21 +93,25 @@ public class DateEditor implements AttributeEditor {
 
     private void buildGUI() {
 
-        pickerDate.setPrefWidth(120d);
 
-        if (originalSample != null) {
-            try {
-                DateTime date = JEVisDates.parseDefaultDate(att);
-                LocalDateTime lDate = LocalDateTime.of(
-                        date.get(DateTimeFieldType.year()), date.get(DateTimeFieldType.monthOfYear()), date.get(DateTimeFieldType.dayOfMonth()), date.get(DateTimeFieldType.hourOfDay()), date.get(DateTimeFieldType.minuteOfHour()), date.get(DateTimeFieldType.secondOfMinute()));
-                lDate.atZone(ZoneId.of(date.getZone().getID()));
-                pickerDate.valueProperty().setValue(lDate.toLocalDate());
+        try {
+            if (originalSample != null && !originalSample.getValueAsString().isEmpty()) {
+                try {
+                    DateTime date = JEVisDates.parseDefaultDate(att);
+                    LocalDateTime lDate = LocalDateTime.of(
+                            date.get(DateTimeFieldType.year()), date.get(DateTimeFieldType.monthOfYear()), date.get(DateTimeFieldType.dayOfMonth()), date.get(DateTimeFieldType.hourOfDay()), date.get(DateTimeFieldType.minuteOfHour()), date.get(DateTimeFieldType.secondOfMinute()));
+                    lDate.atZone(ZoneId.of(date.getZone().getID()));
+                    pickerDate.valueProperty().setValue(lDate.toLocalDate());
 
-            } catch (Exception ex) {
-                logger.catching(ex);
+                } catch (Exception ex) {
+                    logger.catching(ex);
+                }
+
             }
-
+        } catch (Exception ex) {
+            logger.catching(ex);
         }
+
 
         pickerDate.valueProperty().addListener((observable, oldValue, newValue) -> {
             logger.info("///// Value changed: " + newValue);
@@ -114,6 +119,7 @@ public class DateEditor implements AttributeEditor {
                 _changed.setValue(Boolean.TRUE);
             }
         });
+
 
         editor.getChildren().addAll(pickerDate);
     }

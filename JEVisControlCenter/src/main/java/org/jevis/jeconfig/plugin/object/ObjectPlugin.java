@@ -423,14 +423,42 @@ public class ObjectPlugin implements Plugin {
                     break;
                 case Constants.Plugin.Command.RELOAD:
                     ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
-                    ds.clearCache();
-                    ds.preload();
-                    initGUI();
-                    if (items.size() == 1) {
-                        JEVisObject findObj = items.get(0).getValue().getJEVisObject();
-                        List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(findObj);
-                        TreeHelper.openPath(tree, toOpen, tree.getRoot(), findObj);
-                    }
+                    final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("graph.selection.load"));
+
+                    Task<Void> load = new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                            tree = null;
+                            ds.clearCache();
+                            ds.preload();
+                            Platform.runLater(() -> {
+                                initGUI();
+                                if (items.size() == 1) {
+                                    JEVisObject findObj = items.get(0).getValue().getJEVisObject();
+                                    List<JEVisObject> toOpen = org.jevis.commons.utils.ObjectHelper.getAllParents(findObj);
+                                    TreeHelper.openPath(tree, toOpen, tree.getRoot(), findObj);
+                                }
+                            });
+                            return null;
+                        }
+                    };
+                    load.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+                    load.setOnCancelled(event -> {
+                        logger.error(I18n.getInstance().getString("plugin.object.waitload.canceled"));
+                        pForm.getDialogStage().hide();
+                    });
+
+                    load.setOnFailed(event -> {
+                        logger.error(I18n.getInstance().getString("plugin.object.waitload.failed"));
+                        pForm.getDialogStage().hide();
+                    });
+
+                    pForm.activateProgressBar(load);
+                    pForm.getDialogStage().show();
+
+                    new Thread(load).start();
+
                     break;
                 case Constants.Plugin.Command.ADD_TABLE:
                     fireEventCreateTable(((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject());
@@ -469,6 +497,7 @@ public class ObjectPlugin implements Plugin {
                     logger.info("Unknown command ignore...");
             }
         } catch (Exception ex) {
+            logger.error("Error running command: {}", cmdType);
         }
 
     }

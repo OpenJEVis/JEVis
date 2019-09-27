@@ -74,6 +74,13 @@ public class sFTPDataSource implements DataSource {
 //
 //                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
                     JEVisImporterAdapter.importResults(_result, _importer, channel);
+                    for (InputStream inputStream : input) {
+                        try {
+                            inputStream.close();
+                        } catch (Exception ex) {
+                            logger.warn("could not close input stream: {}", ex.getMessage());
+                        }
+                    }
                 }
             } catch (Exception ex) {
                 logger.error(ex);

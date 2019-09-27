@@ -22,7 +22,7 @@ public class ScatterChart extends XYChart {
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
         XYChartSerie serie = new XYScatterChartSerie(singleRow, hideShowIcons);
 
-        hexColors.add(singleRow.getColor());
+        getHexColors().add(singleRow.getColor());
         chart.getData().add(serie.getSerie());
         tableData.add(serie.getTableEntry());
 
@@ -55,8 +55,8 @@ public class ScatterChart extends XYChart {
 
     @Override
     public void applyColors() {
-        for (int i = 0; i < hexColors.size(); i++) {
-            Color currentColor = hexColors.get(i);
+        for (int i = 0; i < getHexColors().size(); i++) {
+            Color currentColor = getHexColors().get(i);
             String hexColor = toRGBCode(currentColor);
 
             Node node = getChart().lookup(".default-color" + i + ".chart-symbol");

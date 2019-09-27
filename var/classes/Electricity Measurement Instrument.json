@@ -1,0 +1,155 @@
+{
+  "name": "Electricity Measurement Instrument",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Electricity Measurement Instrument",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Electricity Measurement Instrument",
+      "end": "Electricity Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Electricity Measurement Instrument",
+      "end": "Electricity Measurement Instrument",
+      "type": 3
+    },
+    {
+      "start": "Electricity Measurement Instrument",
+      "end": "Measurement Instrument",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Location",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Measuring Point ID",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 1,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Measuring Point Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 2,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Serial Number",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 3,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Type",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 4,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Datasheet",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 5,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Accuracy",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 6,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Current Transformer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 7,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Voltage Transformer",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 8,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Conversion Factor",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 9,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Installation Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "guiposition": 10,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Verification Date",
+      "primitiveType": 0,
+      "guiType": "Date",
+      "guiposition": 11,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Online ID",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 12,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Electricity Measurement Instrument"
+    },
+    {
+      "name": "Remarks",
+      "primitiveType": 0,
+      "guiType": "Text Area",
+      "guiposition": 13,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Electricity Measurement Instrument"
+    }
+  ]
+}
+

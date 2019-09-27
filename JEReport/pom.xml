@@ -156,9 +156,9 @@
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>org.artofsolving.jodconverter</groupId>
-            <artifactId>jodconverter-core</artifactId>
-            <version>3.0-beta-4-jahia2</version>
+            <groupId>org.jodconverter</groupId>
+            <artifactId>jodconverter-local</artifactId>
+            <version>4.2.2</version>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>

@@ -1,0 +1,13 @@
+{
+  "jevisclass": "Electricity Measurement Directory",
+  "names": {
+    "de": "Messstellen (Strom)",
+    "ru": "Measurement (electricity)",
+    "en": "Measurement (electricity)"
+  },
+  "descriptions": {
+    "de": "Dient der Verwaltung von Messstellen (Strom).",
+    "ru": "For managing measurements (electricity).",
+    "en": "For managing measurements (electricity)."
+  }
+}
