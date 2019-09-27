@@ -36,6 +36,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
+import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -45,7 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ValueWidget extends Widget {
+public class ValueWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(ValueWidget.class);
     public static String WIDGET_ID = "Value";
@@ -133,6 +134,7 @@ public class ValueWidget extends Widget {
 
         } catch (Exception ex) {
             logger.error("Error while updating ValueWidget: [ID:{}]:{}", widgetUUID, ex);
+            this.labelText.setValue("error");
             showAlertOverview(true, ex.getMessage());
 //            ex.printStackTrace();
         }
@@ -145,6 +147,11 @@ public class ValueWidget extends Widget {
 
     }
 
+    @Override
+    public DataModelDataHandler getDataHandler() {
+        return this.sampleHandler;
+    }
+
     private void checkLimit() {
         Platform.runLater(() -> {
             try {
@@ -152,18 +159,20 @@ public class ValueWidget extends Widget {
                 Color fontColor = this.config.getFontColor();
 
                 if (limit != null) {
-                    if (limit.hasLowerLimit) {
-                        if (displayedSample.get() <= limit.getLowerLimit()) {
-                            fontColor = limit.getLowerLimitColor();
-                        }
-                    }
-                    if (limit.hasUpperLimit) {
-                        if (displayedSample.get() >= limit.getUpperLimit()) {
-                            fontColor = limit.getUpperLimitColor();
-                        }
-                    }
+
+//                    limit.exceedsUpperLimit(displayedSample.get())
+//                    if (limit.hasLowerLimit) {
+//                        if (displayedSample.get() <= (limit.getLowerLimit() * limit.getLowerLimitOffset())) {
+//                            fontColor = limit.getLowerLimitColor();
+//                        }
+//                    }
+//                    if (limit.hasUpperLimit) {
+//                        if (displayedSample.get() >= limit.getUpperLimit() * limit.getUpperLimitOffset()) {
+//                            fontColor = limit.getUpperLimitColor();
+//                        }
+//                    }
                 }
-                this.label.setTextFill(fontColor);
+                this.label.setTextFill(limit.getExceedsLimitColor(fontColor, displayedSample.get()));
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -193,7 +202,8 @@ public class ValueWidget extends Widget {
 
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.get() == ButtonType.OK) {
-            updateConfig();
+            widgetConfigDialog.commitSettings();
+            updateConfig(getConfig());
             updateData(lastInterval);
         }
     }
@@ -217,8 +227,8 @@ public class ValueWidget extends Widget {
 
                         ((ValueWidget) sourceWidget).getDisplayedSampleProperty().addListener((observable, oldValue, newValue) -> {
                             if (!Double.isNaN(newValue.doubleValue())) {
-                                limit.setLowerLimit(newValue.doubleValue() * limit.getLowerLimitOffset());
-                                limit.setUpperLimit(newValue.doubleValue() * limit.getUpperLimitOffset());
+                                limit.setLowerLimitDynamic(newValue.doubleValue());
+                                limit.setUpperLimitDynamic(newValue.doubleValue());
                                 checkLimit();
                             }
                         });
@@ -303,6 +313,10 @@ public class ValueWidget extends Widget {
 
         Double lowerLimit = 0d;
         Double upperLimit = 0d;
+
+        Double lowerLimitDynamic = 0d;
+        Double upperLimitDynamic = 0d;
+
         Double lowerLimitOffset = 1d;
         Double upperLimitOffset = 1d;
 
@@ -332,14 +346,80 @@ public class ValueWidget extends Widget {
                 //limitWidget = UUID.fromString(jsonNode.get("source").asText(""));
             }
 
+
+            boolean isDynamic = (jsonNode.get("source").asInt(-1) > 0);
+
+
+            if (isDynamic) {
+                limitWidget = jsonNode.get("source").asInt(-1);
+                lowerLimitOffset = jsonNode.get("lowerLimitOffset").asDouble(1);
+                upperLimitOffset = jsonNode.get("upperLimitOffset").asDouble(1);
+            } else {
+                lowerLimit = jsonNode.get("lowerLimitValue").asDouble(0);
+                upperLimit = jsonNode.get("upperLimitValue").asDouble(0);
+            }
+
             hasLowerLimit = jsonNode.get("lowerLimit").asBoolean(false);
             hasUpperLimit = jsonNode.get("upperLimit").asBoolean(false);
 
-            lowerLimit = jsonNode.get("lowerLimitValue").asDouble(0);
-            upperLimit = jsonNode.get("upperLimitValue").asDouble(0);
-
             lowerLimitColor = Color.valueOf(jsonNode.get("lowerLimitColor").asText(Color.RED.toString()));
             upperLimitColor = Color.valueOf(jsonNode.get("upperLimitColor").asText(Color.GREEN.toString()));
+
+
+        }
+
+        public Double getUpperLimitDynamic() {
+            return upperLimitDynamic;
+        }
+
+        public void setUpperLimitDynamic(Double upperLimitDynamic) {
+            this.upperLimitDynamic = upperLimitDynamic;
+        }
+
+        public Double getLowerLimitDynamic() {
+            return lowerLimitDynamic;
+        }
+
+        public void setLowerLimitDynamic(Double lowerLimitDynamic) {
+            this.lowerLimitDynamic = lowerLimitDynamic;
+        }
+
+        public Color getExceedsLimitColor(Color defaultColor, double value) {
+            if (exceedsLowerLimit(value)) {
+                return lowerLimitColor;
+            } else if (exceedsUpperLimit(value)) {
+                return upperLimitColor;
+            } else {
+                return defaultColor;
+            }
+        }
+
+        public boolean exceedsLowerLimit(double value) {
+            if (limit.hasLowerLimit) {
+                double limit = getLowerLimit();
+
+                if (limitWidget > 0) {
+                    limit = lowerLimitDynamic;
+                }
+
+                return (value >= (limit * lowerLimitOffset));
+            } else {
+                return false;
+            }
+        }
+
+        public boolean exceedsUpperLimit(double value) {
+            if (limit.hasUpperLimit) {
+                double limit = getUpperLimit();
+
+                if (limitWidget > 0) {
+                    limit = upperLimitDynamic;
+                }
+
+                return (value >= (limit * upperLimitOffset));
+            } else {
+                return false;
+            }
         }
 
         public int getLimitSource() {
@@ -373,7 +453,7 @@ public class ValueWidget extends Widget {
         public ObjectNode toJSON() {
             ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
             if (limitWidget > 0) {
-                dataNode.put("source", isHasLowerLimit());
+                dataNode.put("source", limitWidget);
                 dataNode.put("lowerLimitOffset", lowerLimitOffset);
                 dataNode.put("upperLimitOffset", upperLimitOffset);
             } else {
@@ -385,6 +465,8 @@ public class ValueWidget extends Widget {
             dataNode.put("upperLimit", isHasUpperLimit());
             dataNode.put("lowerLimitColor", lowerLimitColor.toString());
             dataNode.put("upperLimitColor", upperLimitColor.toString());
+
+
             return dataNode;
         }
 
@@ -535,13 +617,19 @@ public class ValueWidget extends Widget {
             widgetBox.setCellFactory(cellFactory);
 
             widgetBox.setOnAction(event -> {
-                limitWidget = widgetBox.getSelectionModel().getSelectedItem().getConfig().getUuid();
+                if (widgetBox.getSelectionModel().getSelectedItem() != null) {
+                    limitWidget = widgetBox.getSelectionModel().getSelectedItem().getConfig().getUuid();
+                }
             });
 
             int row = 3;
 
             if (mode == 1) {
                 /** static mode **/
+                upperLimitOffset = 1d;
+                lowerLimitOffset = 1d;
+                limitWidget = -1;
+
                 upperValueField.setText(upperLimit.toString());
                 lowerValueField.setText(lowerLimit.toString());
 
@@ -586,6 +674,8 @@ public class ValueWidget extends Widget {
                 gridPane.add(lowerColorPicker, 1, row);
             } else {
                 /** dynamic mode **/
+                upperLimit = 0d;
+                lowerLimit = 0d;
 
                 upperValueField.setText(upperLimitOffset.toString());
                 lowerValueField.setText(lowerLimitOffset.toString());
@@ -611,6 +701,17 @@ public class ValueWidget extends Widget {
                         }
                     }
                 });
+
+                if (limitWidget > 0) {
+                    Optional<Widget> widget = dashboardControl.getWidgetList().stream()
+                            .filter(widget1 -> widget1.getConfig().getUuid() == limitWidget)
+                            .findFirst();
+                    if (widget.isPresent()) {
+                        widgetBox.getSelectionModel().select(widget.get());
+                    }
+
+                }
+
                 //sourceLable
                 gridPane.add(sourceLable, 0, row);
                 gridPane.add(widgetBox, 1, row);

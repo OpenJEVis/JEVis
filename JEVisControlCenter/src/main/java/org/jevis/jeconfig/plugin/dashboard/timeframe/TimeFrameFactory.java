@@ -26,5 +26,16 @@ public interface TimeFrameFactory {
 
     boolean hasPreviousPeriod(Interval interval);
 
+    default boolean timeFrameEqual(Object other) {
+        try {
+            if (other instanceof TimeFrameFactory) {
+                return getID().equals(((TimeFrameFactory) other).getID());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
 }
 

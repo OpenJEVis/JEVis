@@ -93,6 +93,10 @@ public abstract class Widget extends Region {
         }
     }
 
+    public DashboardControl getControl() {
+        return this.control;
+    }
+
     private void initLayout() {
         logger.debug("initLayout() {}", config.getTitle());
         makeDragDropOverlay();
@@ -170,11 +174,12 @@ public abstract class Widget extends Region {
     }
 
 
-    public void setGlow(boolean glow) {
+    public void setGlow(boolean glow, boolean ishighlightModus) {
 
         Platform.runLater(() -> {
-
+            logger.debug("[{}] setGlow: {},{}", getConfig().getUuid(), glow, ishighlightModus);
             this.setEffect(null);
+
             if (glow) {
 
                 DropShadow borderGlow = new DropShadow();
@@ -185,8 +190,7 @@ public abstract class Widget extends Region {
                 borderGlow.setHeight(30);
 
                 this.setEffect(borderGlow);
-            } else {
-
+            } else if (ishighlightModus) {
 
                 GaussianBlur gaussianBlur = new GaussianBlur();
                 gaussianBlur.setRadius(5d);
@@ -257,7 +261,11 @@ public abstract class Widget extends Region {
         configItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                Widget.this.openConfig();
+                try {
+                    Widget.this.openConfig();
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
             }
         });
 

@@ -273,8 +273,9 @@ public class PieWidget extends Widget {
         widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.get() == ButtonType.OK) {
-            widgetConfigDialog.updateDataModel();
-            updateData(this.lastInterval);
+            widgetConfigDialog.commitSettings();
+            updateConfig(getConfig());
+            updateData(lastInterval);
         }
     }
 

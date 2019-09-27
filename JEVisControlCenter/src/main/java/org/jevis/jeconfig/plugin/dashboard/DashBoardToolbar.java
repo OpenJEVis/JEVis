@@ -74,7 +74,7 @@ public class DashBoardToolbar extends ToolBar {
     }
 
     public void updateView(final DashboardPojo dashboardSettings) {
-        logger.error("updateDashboard: {}", dashboardSettings);
+        logger.debug("updateDashboard: {}", dashboardSettings);
         ObservableList<JEVisObject> observableList = this.dashboardControl.getAllDashboards();
 
 
@@ -110,8 +110,8 @@ public class DashBoardToolbar extends ToolBar {
         ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", this.iconSize, this.iconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
 
-        ToggleButton exportPDF = new ToggleButton("", JEConfig.getImage("pdf_32_32.png", this.iconSize, this.iconSize));
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPDF);
+        ToggleButton exportPNG = new ToggleButton("", JEConfig.getImage("export-image.png", this.iconSize, this.iconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(exportPNG);
 
 
         ToggleButton newButton = new ToggleButton("", JEConfig.getImage("1390343812_folder-open.png", this.iconSize, this.iconSize));
@@ -152,8 +152,8 @@ public class DashBoardToolbar extends ToolBar {
             this.dashboardControl.reload();
         });
 
-        exportPDF.setOnAction(event -> {
-            this.dashboardControl.toPDF();
+        exportPNG.setOnAction(event -> {
+            this.dashboardControl.toPNG();
         });
 
         save.setOnAction(event -> {
@@ -241,7 +241,7 @@ public class DashBoardToolbar extends ToolBar {
         newButton.setDisable(true);
         delete.setDisable(true);
 //        save.setDisable(true);
-        exportPDF.setVisible(false);/** disabled because of an endless loop JAVAFX bug, should be fixed with JAVA 11**/
+//        exportPDF.setVisible(false);/** disabled because of an endless loop JAVAFX bug, should be fixed with JAVA 11**/
 
         Region spacerForRightSide = new Region();
         HBox.setHgrow(spacerForRightSide, Priority.ALWAYS);
@@ -250,7 +250,7 @@ public class DashBoardToolbar extends ToolBar {
                 this.listAnalysesComboBox, newB
                 , sep3, toolBarIntervalSelector
                 , sep1, zoomOut, zoomIn, reload
-                , sep4, newButton, save, delete, newWidgetButton, exportPDF
+                , sep4, newButton, save, delete, newWidgetButton, exportPNG
                 , sep2, this.runUpdateButton, this.unlockButton, snapGridButton);
 //                , spacerForRightSide, progressBar);
     }

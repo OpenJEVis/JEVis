@@ -242,9 +242,9 @@ public class TableWidget extends Widget {
         widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.get() == ButtonType.OK) {
-            System.out.println("Update data config");
-            widgetConfigDialog.updateDataModel();
-            updateData(this.lastInterval);
+            widgetConfigDialog.commitSettings();
+            updateConfig(getConfig());
+            updateData(lastInterval);
         }
     }
 

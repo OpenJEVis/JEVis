@@ -1,11 +1,14 @@
 package org.jevis.jeconfig.plugin.dashboard.timeframe;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
@@ -32,40 +35,16 @@ public class ToolBarIntervalSelector extends HBox {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(nextButton);
 
 
-        ComboBox<TimeFrameFactory> timeFrameBox = new ComboBox();
-        timeFrameBox.setPrefWidth(200);
-        timeFrameBox.setMinWidth(200);
+        TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
+        timeFactoryBox.setPrefWidth(200);
+        timeFactoryBox.setMinWidth(200);
 
-        Callback<ListView<TimeFrameFactory>, ListCell<TimeFrameFactory>> cellFactory = new Callback<ListView<TimeFrameFactory>, ListCell<TimeFrameFactory>>() {
-            @Override
-            public ListCell<TimeFrameFactory> call(ListView<TimeFrameFactory> param) {
-                final ListCell<TimeFrameFactory> cell = new ListCell<TimeFrameFactory>() {
+        ObservableList<TimeFrameFactory> timeFrames = FXCollections.observableArrayList(controller.getAllTimeFrames().getAll());
+        timeFactoryBox.getItems().addAll(timeFrames);
 
-//                    {
-//                        super.setPrefWidth(300);
-//                    }
-
-                    @Override
-                    protected void updateItem(TimeFrameFactory item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null && !empty) {
-                            setText(item.getListName());
-                            setGraphic(null);
-                        }
-                    }
-                };
-
-                return cell;
-            }
-        };
-
-
-        TimeFrames timeFrames = new TimeFrames(ds);
-        timeFrames.setWorkdays(controller.getActiveDashboard().getDashboardObject());
-        timeFrameBox.setItems(timeFrames.getAll());
 
         dateButton.setText(controller.getActiveTimeFrame().format(controller.getInterval()));
-
+        dateButton.setTooltip(new Tooltip(controller.getInterval().toString()));
 
         this.popup = new TimeFrameEdior(controller.getActiveTimeFrame(), controller.getInterval());
         this.popup.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
@@ -82,21 +61,9 @@ public class ToolBarIntervalSelector extends HBox {
             }
         });
 
+        timeFactoryBox.selectValue(controller.getActiveTimeFrame());
 
-        timeFrameBox.setCellFactory(cellFactory);
-        timeFrameBox.setButtonCell(cellFactory.call(null));
-        timeFrameBox.getItems().forEach(timeFrameFactory -> {
-            if (controller.getActiveTimeFrame().getID().equals(timeFrameFactory.getID())) {
-                timeFrameBox.getSelectionModel().select(timeFrameFactory);
-                return;
-            }
-        });
-
-        timeFrameBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("timeFrameBox: " + oldValue + " // " + newValue);
-            if (oldValue != null && oldValue.getID().equals(newValue.getID())) {
-                return;
-            }
+        timeFactoryBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             controller.setActiveTimeFrame(newValue);
         });
 
@@ -113,24 +80,7 @@ public class ToolBarIntervalSelector extends HBox {
         spacer.setMinWidth(10);
         spacer.setMaxWidth(10);
 
-        getChildren().addAll(timeFrameBox, spacer, prevButton, dateButton, nextButton);
-
-
-//        Platform.runLater(() -> {
-////            ToolBarIntervalSelector.this.setDisable(controller.disableIntervalUI.get());
-////            nextButton.setDisable(controller.disableIntervalUI.get());
-////            prevButton.setDisable(controller.disableIntervalUI.get());
-////            dateButton.setDisable(controller.disableIntervalUI.get());
-////            timeFrameBox.setDisable(controller.disableIntervalUI.get());
-//
-//            timeFrameBox.getItems().forEach(timeFrameFactory -> {
-//                if (controller.getActiveTimeFrame().getID().equals(timeFrameFactory.getID())) {
-//                    timeFrameBox.getSelectionModel().select(timeFrameFactory);
-//                    return;
-//                }
-//            });
-//
-//        });
+        getChildren().addAll(timeFactoryBox, spacer, prevButton, dateButton, nextButton);
 
 
     }

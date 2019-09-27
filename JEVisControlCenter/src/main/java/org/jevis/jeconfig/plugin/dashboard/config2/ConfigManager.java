@@ -1,21 +1,30 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
@@ -31,10 +40,14 @@ import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.jevis.jeconfig.plugin.dashboard.config2.JsonNames.Dashboard.*;
 
@@ -50,6 +63,10 @@ public class ConfigManager {
     public ConfigManager(JEVisDataSource dataSource) {
         this.jeVisDataSource = dataSource;
         this.timeFrames = new TimeFrames(this.jeVisDataSource);
+        this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        this.mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
     }
 
     public JsonNode readDashboardFile(JEVisObject dashboardObject) {
@@ -73,18 +90,39 @@ public class ConfigManager {
         }
     }
 
-    public void saveDashboard(DashboardPojo dashboardPojo, List<Widget> widgets) throws IOException, JEVisException {
+    public ObjectMapper getMapper() {
+        return mapper;
+    }
 
+    public void saveDashboard(DashboardPojo dashboardPojo, List<Widget> widgets, String filename, JEVisObject parent, java.io.File wallpaper) throws IOException, JEVisException {
+
+        JEVisClass dashboardClass = jeVisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
         ObjectNode dashboardNode = toJson(dashboardPojo, widgets);
-
-//        System.out.println("---------\n" + this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode) + "\n-----------------");
-        if (this.dashboardObject != null) {
-            JEVisAttribute dataModel = this.dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE);
-            JEVisFileImp jsonFile = new JEVisFileImp("dashboard.json", this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode).getBytes());
-            JEVisSample newSample = dataModel.buildSample(new DateTime(), jsonFile);
-            newSample.commit();
+        JEVisObject dashboardObject;
+        if (dashboardPojo.getDashboardObject() != null) {
+            dashboardObject = this.dashboardObject;
+            dashboardObject.setName(filename);
+            dashboardObject.commit();
+        } else {
+            dashboardObject = parent.buildObject(filename, dashboardClass);
+            dashboardObject.commit();
         }
 
+
+        System.out.println("---------\n" + this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode) + "\n-----------------");
+        if (this.dashboardObject != null) {
+            JEVisAttribute dataModel = dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE);
+            JEVisFileImp jsonFile = new JEVisFileImp(
+                    filename + "_" + DateTime.now().toString("yyyyMMddHHmm") + ".json"
+                    , this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode).getBytes(StandardCharsets.UTF_8));
+            JEVisSample newSample = dataModel.buildSample(new DateTime(), jsonFile);
+            newSample.commit();
+
+
+            if (wallpaper != null) {
+                setBackgroundImage(dashboardObject, wallpaper);
+            }
+        }
     }
 
     public ObjectNode toJson(DashboardPojo dashboardPojo, List<Widget> widgets) {
@@ -332,5 +370,149 @@ public class ConfigManager {
         empty.setInterval(new Interval(new DateTime(), new DateTime()));
         empty.setJevisObject(null);
         return empty;
+    }
+
+
+    public void openSaveUnder(DashboardPojo dashboardPojo, ObservableList<Widget> widgetList, File wallpaper) {
+        Dialog<ButtonType> newAnalysis = new Dialog<>();
+        newAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
+        Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
+        Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
+        TextField name = new TextField();
+
+        JEVisClass analysesDirectory = null;
+        List<JEVisObject> listAnalysesDirectories = null;
+        AtomicBoolean hasMulitDirs = new AtomicBoolean(false);
+        try {
+            analysesDirectory = jeVisDataSource.getJEVisClass("Analyses Directory");
+            listAnalysesDirectories = jeVisDataSource.getObjects(analysesDirectory, false);
+            hasMulitDirs.set(listAnalysesDirectories.size() > 1);
+
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        ObjectProperty<JEVisObject> currentAnalysisDirectory = new SimpleObjectProperty<>(null);
+        ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
+        ObjectRelations objectRelations = new ObjectRelations(jeVisDataSource);
+        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+            @Override
+            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+                return new ListCell<JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (empty || obj == null || obj.getName() == null) {
+                            setText("");
+                        } else {
+                            if (hasMulitDirs.get())
+                                setText(obj.getName());
+                            else {
+                                String prefix = objectRelations.getObjectPath(obj);
+
+                                setText(prefix + obj.getName());
+                            }
+                        }
+
+                    }
+                };
+            }
+        };
+        parentsDirectories.setCellFactory(cellFactory);
+        parentsDirectories.setButtonCell(cellFactory.call(null));
+
+        parentsDirectories.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                currentAnalysisDirectory.setValue(newValue);
+            }
+        });
+        parentsDirectories.getSelectionModel().selectFirst();
+
+
+        if (dashboardPojo != null) {
+            try {
+                if (dashboardPojo.getDashboardObject().getParents() != null) {
+                    JEVisObject parenObj = dashboardPojo.getDashboardObject().getParents().get(0);
+                    parentsDirectories.getSelectionModel().select(parenObj);
+                }
+            } catch (Exception e) {
+                logger.error("Couldn't select current Analysis Directory: " + e);
+            }
+
+            name.setText(dashboardPojo.getName());
+
+        }
+
+        name.focusedProperty().addListener((ov, t, t1) -> Platform.runLater(() -> {
+            if (name.isFocused() && !name.getText().isEmpty()) {
+                name.selectAll();
+            }
+        }));
+
+        final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), ButtonBar.ButtonData.OK_DONE);
+        final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        GridPane gridLayout = new GridPane();
+        gridLayout.setPadding(new Insets(10, 10, 10, 10));
+        gridLayout.setVgap(10);
+
+        gridLayout.add(directoryText, 0, 0);
+        gridLayout.add(parentsDirectories, 0, 1, 2, 1);
+        GridPane.setFillWidth(parentsDirectories, true);
+        parentsDirectories.setMinWidth(200);
+        gridLayout.add(newText, 0, 2);
+        gridLayout.add(name, 0, 3, 2, 1);
+        GridPane.setFillWidth(name, true);
+        name.setMinWidth(200);
+
+        newAnalysis.getDialogPane().setContent(gridLayout);
+        newAnalysis.getDialogPane().getButtonTypes().addAll(ok, cancel);
+        newAnalysis.getDialogPane().setPrefWidth(450d);
+        newAnalysis.initOwner(JEConfig.getStage());
+
+        newAnalysis.showAndWait()
+                .ifPresent(response -> {
+                    if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+                        List<String> check = new ArrayList<>();
+                        AtomicReference<JEVisObject> currentAnalysis = new AtomicReference<>();
+                        try {
+                            currentAnalysisDirectory.getValue().getChildren().forEach(jeVisObject -> {
+                                if (!check.contains(jeVisObject.getName())) {
+                                    check.add(jeVisObject.getName());
+                                }
+                            });
+                            currentAnalysisDirectory.getValue().getChildren().forEach(jeVisObject -> {
+                                if (jeVisObject.getName().equals(name.getText())) currentAnalysis.set(jeVisObject);
+                            });
+                        } catch (JEVisException e) {
+                            logger.error("Error in current analysis directory: " + e);
+                        }
+
+
+                        if (check.contains(name.getText())) {
+                            Dialog<ButtonType> dialogOverwrite = new Dialog<>();
+                            dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
+                            dialogOverwrite.getDialogPane().setContentText(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
+                            final ButtonType overwrite_ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), ButtonBar.ButtonData.OK_DONE);
+                            final ButtonType overwrite_cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                            dialogOverwrite.getDialogPane().getButtonTypes().addAll(overwrite_ok, overwrite_cancel);
+
+                            dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
+                                if (overwrite_response.getButtonData().getTypeCode() != ButtonType.OK.getButtonData().getTypeCode()) {
+                                    return;
+                                }
+                            });
+                        }
+
+                        try {
+                            dashboardPojo.setName(name.getText());
+                            saveDashboard(dashboardPojo, widgetList, name.getText(), currentAnalysisDirectory.getValue(), wallpaper);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+                    }
+                });
     }
 }

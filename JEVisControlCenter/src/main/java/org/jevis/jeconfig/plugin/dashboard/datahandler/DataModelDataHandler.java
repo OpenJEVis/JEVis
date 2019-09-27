@@ -60,9 +60,11 @@ public class DataModelDataHandler {
 
         }
         System.out.println("----");
-        System.out.println("Interval: " + this.durationProperty.getValue());
+        System.out.println("Interval start: " + this.durationProperty.getValue().getStart());
+        System.out.println("Interval end  : " + this.durationProperty.getValue().getEnd());
         System.out.println("Models: " + getDataModel().size());
         System.out.println("forcedInterval: " + forcedInterval);
+        System.out.println("Interval Factoy: " + timeFrameFactory);
         getDataModel().forEach(chartDataModel -> {
             System.out.println("model: " + chartDataModel.getObject().getID() + " " + chartDataModel.getObject().getName());
             System.out.println("model.datasize: " + chartDataModel.getSamples().size());
@@ -78,8 +80,6 @@ public class DataModelDataHandler {
 
         try {
             if (configNode != null) {
-
-
                 DataModelNode dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
                 this.dataModelNode = dataModelNode;
             } else {
@@ -271,6 +271,10 @@ public class DataModelDataHandler {
 
 
     public TimeFrameFactory getTimeFrameFactory() {
+        if (this.forcedPeriod == null) {
+            return null;
+        }
+
         for (TimeFrameFactory timeFrameFactory : this.timeFrameFactories) {
             if (timeFrameFactory.getID().equals(this.forcedPeriod)) {
                 return timeFrameFactory;
@@ -295,6 +299,7 @@ public class DataModelDataHandler {
             if (timeFrameFactory != null) {
                 interval = timeFrameFactory.getInterval(interval.getEnd());
             } else {
+                logger.error("Widget DataModel is not configured using selected.");
             }
 
         }
@@ -393,6 +398,11 @@ public class DataModelDataHandler {
 
     public void setForcedPeriod(String forcedPeriod) {
         this.forcedPeriod = forcedPeriod;
+    }
+
+    public void setForcedPeriod(TimeFrameFactory forcedPeriod) {
+        this.forcedPeriod = forcedPeriod.getID();
+        setForcedInterval(true);
     }
 
     public static Double getTotal(List<JEVisSample> samples) {

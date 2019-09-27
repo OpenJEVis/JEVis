@@ -96,6 +96,7 @@ public class WelcomePage {
 
         webEngine.getLoadWorker().stateProperty().addListener(
                 new ChangeListener<State>() {
+                    @Override
                     public void changed(ObservableValue ov, State oldState, State newState) {
                         if (newState == State.SUCCEEDED) {
                             Platform.runLater(new Runnable() {
@@ -139,6 +140,7 @@ public class WelcomePage {
         close.setDefaultButton(true);
 
         Region spacer = new Region();
+
 
         bot.getChildren().addAll(remember, spacer, close);
         HBox.setHgrow(spacer, Priority.ALWAYS);

@@ -115,7 +115,7 @@ public class ChartWidget extends Widget {
                     }
                 });
                 /**
-                 * Linechart does not support updateData so we need to create an new one every time;
+                 * LineChart does not support updateData so we need to create an new one every time;
                  */
                 this.lineChart = new LineChart(this.sampleHandler.getDataModel(),
                         false, false, false, false,
@@ -124,6 +124,7 @@ public class ChartWidget extends Widget {
 
                 this.lineChart.getChart().layout();
                 this.borderPane.setCenter(this.lineChart.getChart());
+                updateConfig();/** workaround because we make a new chart everytime**/
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -134,7 +135,6 @@ public class ChartWidget extends Widget {
 
     @Override
     public void updateLayout() {
-
 
     }
 
@@ -180,9 +180,9 @@ public class ChartWidget extends Widget {
         widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.get() == ButtonType.OK) {
-            System.out.println("Update data config");
-            widgetConfigDialog.updateDataModel();
-            updateData(this.lastInterval);
+            widgetConfigDialog.commitSettings();
+            updateConfig(getConfig());
+            updateData(lastInterval);
         }
     }
 
