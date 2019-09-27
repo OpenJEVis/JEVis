@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.JEConfig;
 
 import javax.imageio.ImageIO;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 /**
@@ -25,44 +24,104 @@ public class DashboardExport {
     }
 
 
+    public void toPNG(Node node, String name) {
+        /** disabled in dependency, takes 5 mb and does not work for now because of ChartFX**/
+        try {
+            logger.info("start- converting to pdf");
+
+            FileChooser fileChooser = new FileChooser();
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png");
+            fileChooser.getExtensionFilters().add(extFilter);
+//            Interval interval = dashboardisplayedIntervalProperty.getValue();
+//            DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd");
+//            String intervalString = fmt.print(interval.getStart()) + "_" + fmt.print(interval.getEnd());
+            fileChooser.setInitialFileName(name + ".png");
+
+            File file = fileChooser.showSaveDialog(JEConfig.getStage());
+
+            if (file != null) {
+                logger.info("target file: {}", file);
+                WritableImage image = node.snapshot(new SnapshotParameters(), null);
+
+                logger.info("Start writing screenshot");
+                try {
+                    ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+//                    Desktop.getDesktop().open(file);
+
+                } catch (Exception e) {
+                    // TODO: handle exception here
+                }
+
+//                //                WritableImage wImage = dashBoardPane.snapshot(spa, image);
+//                WritableImage wImage = node.snapshot(new SnapshotParameters(), null);
+//                logger.info("Done screenshot");
+//                ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+//                ImageIO.write(SwingFXUtils.fromFXImage(wImage, null), "png", byteOutput);
+//                logger.info("Convert 1 Done");
+////                com.itextpdf.text.Image graph = com.itextpdf.text.Image.getInstance(byteOutput.toByteArray());
+//                logger.info("Convert 2 Done");
+////                Document document = new Document();
+////                logger.info("Document start");
+////                PdfWriter.getInstance(document, new FileOutputStream(file));
+////                document.open();
+////                logger.info("doc open");
+////                document.add(graph);
+////                logger.info("doc screenshot add done");
+////                document.close();
+////                logger.info("doc done done");
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        /****/
+    }
+
     public void toPDF(Node node, String name) {
         /** disabled in dependency, takes 5 mb and does not work for now because of ChartFX**/
         try {
             logger.info("start- converting to pdf");
 
             FileChooser fileChooser = new FileChooser();
-            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf");
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png");
             fileChooser.getExtensionFilters().add(extFilter);
 //            Interval interval = dashboardisplayedIntervalProperty.getValue();
 //            DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd");
 //            String intervalString = fmt.print(interval.getStart()) + "_" + fmt.print(interval.getEnd());
-            fileChooser.setInitialFileName(name + ".pdf");
+            fileChooser.setInitialFileName(name + ".png");
 
             File file = fileChooser.showSaveDialog(JEConfig.getStage());
 
             if (file != null) {
                 logger.info("target file: {}", file);
-                final SnapshotParameters spa = new SnapshotParameters();
-                //                final WritableImage image = new WritableImage((int) dashBoardPane.getWidth(), (int) dashBoardPane.getHeight());
+                WritableImage image = node.snapshot(new SnapshotParameters(), null);
 
                 logger.info("Start writing screenshot");
-                //                WritableImage wImage = dashBoardPane.snapshot(spa, image);
-                WritableImage wImage = node.snapshot(new SnapshotParameters(), null);
-                logger.info("Done screenshot");
-                ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-                ImageIO.write(SwingFXUtils.fromFXImage(wImage, null), "png", byteOutput);
-                logger.info("Convert 1 Done");
-//                com.itextpdf.text.Image graph = com.itextpdf.text.Image.getInstance(byteOutput.toByteArray());
-                logger.info("Convert 2 Done");
-//                Document document = new Document();
-//                logger.info("Document start");
-//                PdfWriter.getInstance(document, new FileOutputStream(file));
-//                document.open();
-//                logger.info("doc open");
-//                document.add(graph);
-//                logger.info("doc screenshot add done");
-//                document.close();
-//                logger.info("doc done done");
+                try {
+                    ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+//                    Desktop.getDesktop().open(file);
+
+                } catch (Exception e) {
+                    // TODO: handle exception here
+                }
+
+//                //                WritableImage wImage = dashBoardPane.snapshot(spa, image);
+//                WritableImage wImage = node.snapshot(new SnapshotParameters(), null);
+//                logger.info("Done screenshot");
+//                ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+//                ImageIO.write(SwingFXUtils.fromFXImage(wImage, null), "png", byteOutput);
+//                logger.info("Convert 1 Done");
+////                com.itextpdf.text.Image graph = com.itextpdf.text.Image.getInstance(byteOutput.toByteArray());
+//                logger.info("Convert 2 Done");
+////                Document document = new Document();
+////                logger.info("Document start");
+////                PdfWriter.getInstance(document, new FileOutputStream(file));
+////                document.open();
+////                logger.info("doc open");
+////                document.add(graph);
+////                logger.info("doc screenshot add done");
+////                document.close();
+////                logger.info("doc done done");
             }
 
         } catch (Exception ex) {

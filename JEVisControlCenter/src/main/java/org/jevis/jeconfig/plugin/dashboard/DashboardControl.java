@@ -11,7 +11,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +19,6 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.dialog.CommonDialogs;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.plugin.dashboard.common.DashboardExport;
 import org.jevis.jeconfig.plugin.dashboard.config2.ConfigManager;
@@ -59,7 +57,7 @@ public class DashboardControl {
     private java.io.File newBackgroundFile;
     private Interval activeInterval = new Interval(new DateTime(), new DateTime());
     private TimeFrameFactory activeTimeFrame;
-    private final TimeFrames timeFrames;
+    private TimeFrames timeFrames;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
     private boolean fitToParent = false;
     public BooleanProperty highlightProperty = new SimpleBooleanProperty(false);
@@ -67,47 +65,46 @@ public class DashboardControl {
     public BooleanProperty showSnapToGridProperty = new SimpleBooleanProperty(false);
     public BooleanProperty editableProperty = new SimpleBooleanProperty(false);
     public BooleanProperty enableSnapToGridProperty = new SimpleBooleanProperty(false);
-    private TimeFrameFactory defaultTimeFrame = null;
     private DashBoardPane dashboardPane;
-    private boolean unsavedChanged = false;
     private DashBoardToolbar toolBar;
-//    private DoubleProperty totalUpdateJobs = new SimpleDoubleProperty(0d);
-//    private DoubleProperty finishUpdateJobs = new SimpleDoubleProperty(0d);
+    private String firstLoadedConfigHash = null;
 
 
     public DashboardControl(DashBordPlugIn plugin) {
         this.configManager = new ConfigManager(plugin.getDataSource());
         this.dashBordPlugIn = plugin;
         this.jevisDataSource = plugin.getDataSource();
-        this.timeFrames = new TimeFrames(this.jevisDataSource);
 
-
-        this.highlightProperty.addListener((observable, oldValue, newValue) -> {
-            this.widgetList.forEach(widget -> {
-                Platform.runLater(() -> {
-                    try {
-                        if (newValue) {
-                            widget.setGlow(newValue);
-                        } else {
-                            widget.setEffect(null);
-                        }
-                    } catch (Exception ex) {
-                        logger.error(ex);
-                    }
-                });
-
-            });
-        });
-
-//        finishUpdateJobs.addListener((observable, oldValue, newValue) -> {
-//            updateProgressBar(totalUpdateJobs.getValue(), newValue.intValue());
-//        });
-//        totalUpdateJobs.addListener((observable, oldValue, newValue) -> {
-//            updateProgressBar(newValue.intValue(), finishUpdateJobs.getValue());
-//        });
-
-
+        initTimeFrameFactory();
         resetDashboard();
+    }
+
+
+    private void initTimeFrameFactory() {
+        this.timeFrames = new TimeFrames(this.jevisDataSource);
+        try {
+            this.timeFrames.setWorkdays(dashBordPlugIn.getDataSource().getCurrentUser().getUserObject());
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+    }
+
+    public TimeFrames getAllTimeFrames() {
+        return this.timeFrames;
+    }
+
+    public void enableHightlightGlow(boolean disable) {
+        highlightProperty.setValue(disable);
+        this.widgetList.forEach(widget -> {
+            Platform.runLater(() -> {
+                try {
+                    widget.setGlow(false, highlightProperty.get());
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            });
+
+        });
     }
 
     private synchronized void updateProgressBar(double total, double done) {
@@ -184,7 +181,7 @@ public class DashboardControl {
 
     public void highlightWidgetInView(Widget widget, boolean highlight) {
         if (this.highlightProperty.getValue()) {
-            widget.setGlow(highlight);
+            widget.setGlow(highlight, highlightProperty.get());
         }
     }
 
@@ -243,15 +240,38 @@ public class DashboardControl {
     public void selectDashboard(JEVisObject object) {
         logger.error("selectDashboard: {}", object);
         try {
+            /** check if the last dashboard was saved and if not ask user **/
+            if (firstLoadedConfigHash != null) {
+                String newConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
+                if (!firstLoadedConfigHash.equals(newConfigHash)) {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setContentText(I18n.getInstance().getString("plugin.dashboard.dialog.changed.text"));
+                    alert.setResizable(true);
+                    alert.showAndWait().ifPresent(buttonType -> {
+                        if (buttonType.equals(ButtonType.OK)) {
+                            save();
+                        } else {
+
+                        }
+                    });
+                }
+            }
+            firstLoadedConfigHash = null;
+            this.editableProperty.setValue(false);
+            this.enableSnapToGridProperty.setValue(false);
+
             resetDashboard();
             restartExecutor();
             restView();
 
             if (object == null) {
                 this.activeDashboard = new DashboardPojo();
-                unsavedChanged = true;
+                this.activeDashboard.setName("Dashboard");
             } else {
                 this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
+                this.activeDashboard.setName(object.getName());
+
+
             }
 
             this.activeDashboard.setJevisObject(object);
@@ -266,11 +286,8 @@ public class DashboardControl {
                 }
             });
 
-            //hmmm
-            this.activeDashboard.setTimeFrame(timeFrames.day());
 
             this.widgetList.forEach(widget -> {
-//                widget.updateConfig();
                 this.dashBordPlugIn.getDashBoardPane().addWidget(widget);
             });
 
@@ -281,9 +298,16 @@ public class DashboardControl {
 
             this.dashBordPlugIn.getDashBoardToolbar().updateView(this.activeDashboard);
 
+            if (activeDashboard.getTimeFrame() != null) {
+                this.activeTimeFrame = activeDashboard.getTimeFrame();
+            }
+
+            toolBar.updateView(activeDashboard);
 
             setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
-            toolBar.updateView(activeDashboard);
+
+            firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
+
 
         } catch (Exception ex) {
             logger.error(ex);
@@ -307,7 +331,7 @@ public class DashboardControl {
                     }
                 }
             } catch (Exception ex) {
-                logger.error("Widget '{}' getStartDate errot: {}", widget.getId(), ex);
+                logger.error("Widget '{}' getStartDate error: {}", widget.getId(), ex);
             }
         }
         logger.debug("calculated max TS: {}", date);
@@ -331,6 +355,7 @@ public class DashboardControl {
 
     public void reload() {
         this.jevisDataSource.reloadAttribute(this.activeDashboard.getDashboardObject());
+        initTimeFrameFactory();
         selectDashboard(this.activeDashboard.getDashboardObject());
     }
 
@@ -579,52 +604,48 @@ public class DashboardControl {
     }
 
     public void save() {
-        //if(needsave){
 
-        //update
+        this.configManager.openSaveUnder(this.activeDashboard, this.widgetList, this.newBackgroundFile);
 
-        if (this.activeDashboard.getNew()) {//new TODO
-            NewAnalyseDialog newAnalyseDialog = new NewAnalyseDialog();
-            try {
-
-                NewAnalyseDialog.Response response = newAnalyseDialog.show((Stage) this.dashBordPlugIn.getDashBoardPane().getScene().getWindow(), this.jevisDataSource);
-                if (response == NewAnalyseDialog.Response.YES) {
-                    JEVisClass analisisDirClass = this.jevisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS_DIR);
-                    List<JEVisObject> analisisDir = this.jevisDataSource.getObjects(analisisDirClass, true);
-                    JEVisClass analisisClass = this.jevisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
-
-
-                    JEVisObject newObject = newAnalyseDialog.getParent().buildObject(newAnalyseDialog.getCreateName(), analisisClass);
-//                newObject.commit();//TODO
-                    selectDashboard(newObject);
-
-                    if (this.newBackgroundFile != null) {
-                        this.configManager.setBackgroundImage(this.activeDashboard.getDashboardObject(), this.newBackgroundFile);
-                    }
-
-                }
-            } catch (Exception ex) {
-                logger.error(ex);
-                ex.printStackTrace();
-            }
-
-
-        } else {//update
-            try {
-                this.configManager.saveDashboard(this.activeDashboard, this.widgetList);
-            } catch (Exception ex) {
-                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.copy.error.title"),
-                        I18n.getInstance().getString("dashboard.save.error"), null, ex);
-            }
-
-        }
+//        if (this.activeDashboard.getNew()) {//new TODO
+//            NewAnalyseDialog newAnalyseDialog = new NewAnalyseDialog();
+//            try {
+//
+//                NewAnalyseDialog.Response response = newAnalyseDialog.show((Stage) this.dashBordPlugIn.getDashBoardPane().getScene().getWindow(), this.jevisDataSource);
+//                if (response == NewAnalyseDialog.Response.YES) {
+//                    JEVisClass analisisDirClass = this.jevisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS_DIR);
+//                    List<JEVisObject> analisisDir = this.jevisDataSource.getObjects(analisisDirClass, true);
+//                    JEVisClass analisisClass = this.jevisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
+//
+//
+//                    JEVisObject newObject = newAnalyseDialog.getParent().buildObject(newAnalyseDialog.getCreateName(), analisisClass);
+////                newObject.commit();//TODO
+//                    selectDashboard(newObject);
+//
+//                    if (this.newBackgroundFile != null) {
+//                        this.configManager.setBackgroundImage(this.activeDashboard.getDashboardObject(), this.newBackgroundFile);
+//                    }
+//
+//                }
+//            } catch (Exception ex) {
+//                logger.error(ex);
+//                ex.printStackTrace();
+//            }
+//
+//
+//        } else {//update
+//            try {
+//                this.configManager.saveDashboard(this.activeDashboard, this.widgetList);
+//            } catch (Exception ex) {
+//                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.copy.error.title"),
+//                        I18n.getInstance().getString("dashboard.save.error"), null, ex);
+//            }
+//
+//        }
 
 
     }
 
-    public void setDefaultTimeFrame(TimeFrameFactory timeFrame) {
-        this.defaultTimeFrame = timeFrame;
-    }
 
     /**
      * Ask and set the background image.
@@ -692,10 +713,19 @@ public class DashboardControl {
         return null;
     }
 
+    private String intervalToString() {
+        return getInterval().getStart().toString("yyyyMMdd") + "_" + getInterval().getEnd().toString("yyyyMMdd");
+    }
+
+    public void toPNG() {
+        DashboardExport exporter = new DashboardExport();
+        exporter.toPDF(dashboardPane, activeDashboard.getName() + "_" + intervalToString());
+    }
+
 
     public void toPDF() {
         DashboardExport exporter = new DashboardExport();
-        exporter.toPDF(dashboardPane, "test");
+        exporter.toPDF(dashboardPane, activeDashboard.getName() + "_" + intervalToString());
     }
 
 

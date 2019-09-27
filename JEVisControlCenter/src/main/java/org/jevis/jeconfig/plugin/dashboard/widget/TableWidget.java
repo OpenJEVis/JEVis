@@ -238,13 +238,13 @@ public class TableWidget extends Widget {
     @Override
     public void openConfig() {
 
-        WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(null);
-        widgetConfigDialog.addDataModel(this.sampleHandler);
+        WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
+        widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.get() == ButtonType.OK) {
-            System.out.println("Update data config");
-            widgetConfigDialog.updateDataModel();
-            updateData(this.lastInterval);
+            widgetConfigDialog.commitSettings();
+            updateConfig(getConfig());
+            updateData(lastInterval);
         }
     }
 

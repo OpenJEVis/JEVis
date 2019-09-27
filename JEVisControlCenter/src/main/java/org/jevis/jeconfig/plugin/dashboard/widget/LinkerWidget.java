@@ -221,6 +221,8 @@ public class LinkerWidget extends Widget {
 
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.get() == ButtonType.OK) {
+            widgetConfigDialog.commitSettings();
+            updateConfig(getConfig());
             updateData(lastInterval);
         }
     }

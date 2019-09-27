@@ -50,6 +50,7 @@ public class DataModelDataHandler {
     private List<TimeFrameFactory> timeFrameFactories = new ArrayList<>();
     private String forcedPeriod;
     private ObjectMapper mapper = new ObjectMapper();
+    private TimeFrameFactory timeFrameFactory;
 
     public void debug() {
         System.out.println("----------------------------------------");
@@ -59,10 +60,11 @@ public class DataModelDataHandler {
 
         }
         System.out.println("----");
-        System.out.println("Interval: " + this.durationProperty.getValue());
+        System.out.println("Interval start: " + this.durationProperty.getValue().getStart());
+        System.out.println("Interval end  : " + this.durationProperty.getValue().getEnd());
         System.out.println("Models: " + getDataModel().size());
         System.out.println("forcedInterval: " + forcedInterval);
-
+        System.out.println("Interval Factoy: " + timeFrameFactory);
         getDataModel().forEach(chartDataModel -> {
             System.out.println("model: " + chartDataModel.getObject().getID() + " " + chartDataModel.getObject().getName());
             System.out.println("model.datasize: " + chartDataModel.getSamples().size());
@@ -78,8 +80,6 @@ public class DataModelDataHandler {
 
         try {
             if (configNode != null) {
-
-
                 DataModelNode dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
                 this.dataModelNode = dataModelNode;
             } else {
@@ -159,7 +159,6 @@ public class DataModelDataHandler {
 
                         chartDataModel.setManipulationMode(dataPointNode.getManipulationMode());
                         chartDataModel.setAggregationPeriod(dataPointNode.getAggregationPeriod());
-                        chartDataModel.setEnPI(dataPointNode.isEnpi());
 
 
                         if (dataPointNode.getColor() != null) {
@@ -174,13 +173,21 @@ public class DataModelDataHandler {
 
                         this.attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
 
-                        if (dataPointNode.isEnpi()) {
-                            chartDataModel.setEnPI(dataPointNode.isEnpi());
-                            if (dataPointNode.getCalculationID() != null && !dataPointNode.getCalculationID().equals("0")) {
-                                chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
-                            }
 
+                        if (dataPointNode.getCalculationID() != null && !dataPointNode.getCalculationID().equals("0")) {
+                            chartDataModel.setEnPI(dataPointNode.isEnpi());
+                            chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
                         }
+
+
+//                        chartDataModel.setEnPI(dataPointNode.isEnpi());
+//                        if (dataPointNode.isEnpi()) {
+//                            chartDataModel.setEnPI(dataPointNode.isEnpi());
+//                            if (dataPointNode.getCalculationID() != null && !dataPointNode.getCalculationID().equals("0")) {
+//                                chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
+//                            }
+//
+//                        }
 
                     } else {
                         logger.error("Attribute does not exist: {}", dataPointNode.getAttribute());
@@ -212,6 +219,7 @@ public class DataModelDataHandler {
     public void setAutoAggregation(boolean enable) {
         this.autoAggregation = enable;
     }
+
 
     public static String generateValueKey(JEVisAttribute attribute) {
         return attribute.getObjectID() + ":" + attribute.getName();
@@ -262,29 +270,37 @@ public class DataModelDataHandler {
     }
 
 
+    public TimeFrameFactory getTimeFrameFactory() {
+        if (this.forcedPeriod == null) {
+            return null;
+        }
+
+        for (TimeFrameFactory timeFrameFactory : this.timeFrameFactories) {
+            if (timeFrameFactory.getID().equals(this.forcedPeriod)) {
+                return timeFrameFactory;
+            }
+        }
+
+
+        try {
+            LastPeriod lastPeriod = new LastPeriod(Period.parse(this.forcedPeriod));
+            return lastPeriod;
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+
+        return null;
+    }
+
     public void setInterval(Interval interval) {
         if (this.forcedInterval) {
 
-            boolean foundFactory = false;
-
-            for (TimeFrameFactory timeFrameFactory : this.timeFrameFactories) {
-                if (timeFrameFactory.getID().equals(this.forcedPeriod)) {
-                    interval = timeFrameFactory.getInterval(interval.getEnd());
-                    foundFactory = true;
-                    logger.debug("found factory: {}:{}", timeFrameFactory.getID(), interval);
-                }
+            TimeFrameFactory timeFrameFactory = getTimeFrameFactory();
+            if (timeFrameFactory != null) {
+                interval = timeFrameFactory.getInterval(interval.getEnd());
+            } else {
+                logger.error("Widget DataModel is not configured using selected.");
             }
-
-            if (!foundFactory) {
-                try {
-                    LastPeriod lastPeriod = new LastPeriod(Period.parse(this.forcedPeriod));
-                    interval = lastPeriod.getInterval(interval.getEnd());
-                    logger.debug("last Period: {}:{}", lastPeriod.getID(), interval);
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-            }
-
 
         }
 
@@ -310,10 +326,15 @@ public class DataModelDataHandler {
                 ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
                 dataNode.put("objectID", dataPointNode.getObjectID());
                 dataNode.put("attribute", dataPointNode.getAttribute());
-                dataNode.put("cleanObjectID", dataPointNode.getCleanObjectID());
                 dataNode.put("calculationID", dataPointNode.getCalculationID());
                 dataNode.put("aggregationPeriod", dataPointNode.getAggregationPeriod().toString());
                 dataNode.put("manipulationMode", dataPointNode.getManipulationMode().toString());
+                dataNode.put("absolute", dataPointNode.isAbsolute());
+
+                dataNode.put("enpi", dataPointNode.getCleanObjectID() != null);
+                if (dataPointNode.getCleanObjectID() != null) {
+                    dataNode.put("cleanObjectID", dataPointNode.getCleanObjectID());
+                }
 
                 dataNode.put("color", dataPointNode.getColor().toString());
                 dataArrayNode.add(dataNode);
@@ -324,6 +345,9 @@ public class DataModelDataHandler {
         ObjectNode dataHandlerNode = JsonNodeFactory.instance.objectNode();
         dataHandlerNode.set("data", dataArrayNode);
         dataHandlerNode.set("type", JsonNodeFactory.instance.textNode(TYPE));
+        if (this.forcedInterval) {
+            dataHandlerNode.put("forcedInterval", this.forcedPeriod);
+        }
 
         return dataHandlerNode;
 
@@ -360,6 +384,26 @@ public class DataModelDataHandler {
         return this.unitProperty;
     }
 
+    public boolean isForcedInterval() {
+        return forcedInterval;
+    }
+
+    public void setForcedInterval(boolean forcedInterval) {
+        this.forcedInterval = forcedInterval;
+    }
+
+    public String getForcedPeriod() {
+        return forcedPeriod;
+    }
+
+    public void setForcedPeriod(String forcedPeriod) {
+        this.forcedPeriod = forcedPeriod;
+    }
+
+    public void setForcedPeriod(TimeFrameFactory forcedPeriod) {
+        this.forcedPeriod = forcedPeriod.getID();
+        setForcedInterval(true);
+    }
 
     public static Double getTotal(List<JEVisSample> samples) {
         Double total = 0d;

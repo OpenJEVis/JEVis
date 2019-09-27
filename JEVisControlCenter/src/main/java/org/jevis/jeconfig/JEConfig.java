@@ -337,7 +337,6 @@ public class JEConfig extends Application {
                     logger.error("Error while preloading datasource", ex);
                     ex.printStackTrace();
                 }
-                //test
 
 
                 logger.error("start GUI");

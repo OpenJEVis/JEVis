@@ -7,7 +7,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
@@ -79,8 +78,9 @@ public class WidgetColumnFactory {
         this.table.getColumns().add(yAttributeColumn());
         this.table.getColumns().add(widthAttributeColumn());
         this.table.getColumns().add(heightAttributeColumn());
-        this.table.getColumns().add(bgColorAttributeColumn());
         this.table.getColumns().add(fgColorAttributeColumn());
+        this.table.getColumns().add(bgColorAttributeColumn());
+
 
         this.table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
@@ -258,6 +258,7 @@ public class WidgetColumnFactory {
         column.setId("Settings");
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
+        column.setMaxWidth(45d);
 
         return column;
     }
@@ -312,54 +313,20 @@ public class WidgetColumnFactory {
         column.setCellValueFactory(valueFactory);
         column.setCellFactory(treeTableColumnCallback);
 
-//        ObservableList types = FXCollections.observableArrayList();
-//
-//        types.clear();
-//        types.add("-");
-//        Widgets.getAvabableWidgets(control, new WidgetPojo()).forEach(widget -> {
-//            widget.getConfig().getType();
-//        });
-//        this.fullList.forEach(o -> {
-//            if (!types.contains(o.getConfig().getType())) {
-//                types.add(o.getConfig().getType());
-//            }
-//        });
-
-
-//        JFXComboBox<String> typeFilterBox = new JFXComboBox<>(types);
-//        typeFilterBox.getSelectionModel().selectFirst();
-//
-//        typeFilterBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-//            this.filteredData.setPredicate(widget -> {
-//                if (newValue.equals("-")) {
-//                    return true;
-//                }
-//                try {
-//                    if (widget.getConfig().getType().equals(newValue)) {
-//                        return true;
-//                    } else {
-//                        return false;
-//                    }
-//                } catch (Exception ex) {
-//                    ex.printStackTrace();
-//                    return false;
-//                }
-//            });
-//            this.table.refresh();
-//        });
-
-//        Label label = new Label(I18n.getInstance().getString("jevistree.widget.column.type"));
-//        label.setAlignment(Pos.BOTTOM_LEFT);
-//        GridPane gridPane = new GridPane();
-//        gridPane.add(label, 0, 0);
-//        gridPane.add(typeFilterBox, 1, 0);
-
-//        column.setGraphic(gridPane);
-//        column.setText("");
-
-        column.setPrefWidth(200);
+        column.setPrefWidth(100);
 
         return column;
+    }
+
+    public void addFocusRefreshListener(Control field) {
+        field.focusedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (oldValue == true && newValue == false) {
+                    WidgetColumnFactory.this.table.refresh();
+                }
+            }
+        });
     }
 
     public TableColumn<Widget, String> titleAttributeColumn() {
@@ -373,14 +340,20 @@ public class WidgetColumnFactory {
                         if (item != null && !empty) {
                             TextField textField = new TextField(item.toString());
 
-                            textField.setOnKeyPressed(event -> {
-                                if (event.getCode() == KeyCode.ENTER) {
-                                    setWidgetTitle(textField.getText(), (Widget) getTableRow().getItem());
-                                }
-                                if (event.getCode() == KeyCode.ESCAPE) {
-                                    WidgetColumnFactory.this.table.refresh();
-                                }
+                            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                                setWidgetTitle(textField.getText(), (Widget) getTableRow().getItem());
                             });
+
+                            addFocusRefreshListener(textField);
+
+//                            textField.setOnKeyPressed(event -> {
+//                                if (event.getCode() == KeyCode.ENTER) {
+//                                    setWidgetTitle(textField.getText(), (Widget) getTableRow().getItem());
+//                                }
+//                                if (event.getCode() == KeyCode.ESCAPE) {
+//                                    WidgetColumnFactory.this.table.refresh();
+//                                }
+//                            });
 
                             setGraphic(textField);
                         }
@@ -432,6 +405,8 @@ public class WidgetColumnFactory {
                                 setWidgetFGColor(colorPicker.getValue(), (Widget) getTableRow().getItem());
                             });
 
+                            addFocusRefreshListener(colorPicker);
+
                             setGraphic(colorPicker);
                         }
 
@@ -481,6 +456,7 @@ public class WidgetColumnFactory {
                                 setWidgetBGColor(colorPicker.getValue(), (Widget) getTableRow().getItem());
                             });
 
+                            addFocusRefreshListener(colorPicker);
                             setGraphic(colorPicker);
                         }
 
@@ -524,16 +500,15 @@ public class WidgetColumnFactory {
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
                             TextField textField = buildDoubleTextField(item.toString());
-                            textField.setOnKeyPressed(event -> {
-                                if (event.getCode() == KeyCode.ENTER) {
+                            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                                try {
                                     setWidgetXPosition(textField, (Widget) getTableRow().getItem());
-                                }
-                                if (event.getCode() == KeyCode.ESCAPE) {
-                                    WidgetColumnFactory.this.table.refresh();
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
                                 }
                             });
 
-
+                            addFocusRefreshListener(textField);
                             setGraphic(textField);
                         }
                     }
@@ -576,15 +551,14 @@ public class WidgetColumnFactory {
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
                             TextField textField = buildDoubleTextField(item.toString());
-                            textField.setOnKeyPressed(event -> {
-                                if (event.getCode() == KeyCode.ENTER) {
+                            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                                try {
                                     setWidgetYPosition(textField, (Widget) getTableRow().getItem());
-                                }
-                                if (event.getCode() == KeyCode.ESCAPE) {
-                                    WidgetColumnFactory.this.table.refresh();
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
                                 }
                             });
-
+                            addFocusRefreshListener(textField);
 
                             setGraphic(textField);
                         }
@@ -626,14 +600,22 @@ public class WidgetColumnFactory {
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
                             TextField textField = buildDoubleTextField(item.toString());
-                            textField.setOnKeyPressed(event -> {
-                                if (event.getCode() == KeyCode.ENTER) {
+                            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                                try {
                                     setWidgetWidth(textField, (Widget) getTableRow().getItem());
-                                }
-                                if (event.getCode() == KeyCode.ESCAPE) {
-                                    WidgetColumnFactory.this.table.refresh();
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
                                 }
                             });
+
+//                            textField.setOnKeyPressed(event -> {
+//                                if (event.getCode() == KeyCode.ENTER) {
+//                                    setWidgetWidth(textField, (Widget) getTableRow().getItem());
+//                                }
+//                                if (event.getCode() == KeyCode.ESCAPE) {
+//                                    WidgetColumnFactory.this.table.refresh();
+//                                }
+//                            });
 
 
                             setGraphic(textField);
@@ -678,7 +660,7 @@ public class WidgetColumnFactory {
             });
         }
 
-        this.table.refresh();
+//        this.table.refresh();
     }
 
 
@@ -693,7 +675,7 @@ public class WidgetColumnFactory {
             });
         }
 
-        this.table.refresh();
+//        this.table.refresh();
     }
 
     private void setWidgetBGColor(Color color, Widget srcWidget) {
@@ -707,7 +689,7 @@ public class WidgetColumnFactory {
             });
         }
 
-        this.table.refresh();
+//        this.table.refresh();
     }
 
     private void setWidgetXPosition(TextField textField, Widget srcWidget) {
@@ -723,7 +705,7 @@ public class WidgetColumnFactory {
             });
         }
 
-        this.table.refresh();
+//        this.table.refresh();
     }
 
     private void setWidgetHeight(TextField textField, Widget srcWidget) {
@@ -736,15 +718,16 @@ public class WidgetColumnFactory {
             this.table.getSelectionModel().getSelectedItems().forEach(widget -> {
                 widget.getConfig().setSize(newSize);
                 WidgetColumnFactory.this.control.requestViewUpdate(widget);
+
             });
         }
 
-        this.table.refresh();
+//        this.table.refresh();
     }
 
     private void setWidgetWidth(TextField textField, Widget srcWidget) {
         Double width = Double.parseDouble(textField.getText());
-        Size newSize = new Size(srcWidget.getConfig().getSize().getWidth(), width);
+        Size newSize = new Size(srcWidget.getConfig().getSize().getHeight(), width);
         srcWidget.getConfig().setSize(newSize);
         WidgetColumnFactory.this.control.requestViewUpdate(srcWidget);
 
@@ -755,7 +738,7 @@ public class WidgetColumnFactory {
             });
         }
 
-        this.table.refresh();
+//        this.table.refresh();
     }
 
     private void setWidgetTitle(String title, Widget srcWidget) {
@@ -769,7 +752,9 @@ public class WidgetColumnFactory {
             });
         }
 
-        this.table.refresh();
+//        System.out.println("SelectItem.A: " + this.table.getSelectionModel().getSelectedItems());
+//        this.table.refresh();
+//        System.out.println("SelectItem.B: " + this.table.getSelectionModel().getSelectedItems());
     }
 
 
@@ -790,15 +775,15 @@ public class WidgetColumnFactory {
                     protected void updateItem(Double item, boolean empty) {
                         if (item != null && !empty) {
                             TextField textField = buildDoubleTextField(item.toString());
-                            textField.setOnKeyPressed(event -> {
-                                if (event.getCode() == KeyCode.ENTER) {
+
+                            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                                try {
                                     setWidgetHeight(textField, (Widget) getTableRow().getItem());
-                                }
-                                if (event.getCode() == KeyCode.ESCAPE) {
-                                    WidgetColumnFactory.this.table.refresh();
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
                                 }
                             });
-
+                            addFocusRefreshListener(textField);
 
                             setGraphic(textField);
                         }
