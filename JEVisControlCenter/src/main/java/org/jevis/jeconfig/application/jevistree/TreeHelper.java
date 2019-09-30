@@ -24,6 +24,7 @@ import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -32,6 +33,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -44,6 +46,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.export.ExportMaster;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.ReportLink;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
@@ -1254,7 +1257,28 @@ public class TreeHelper {
                     Alert alert = new Alert(AlertType.CONFIRMATION);
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.enable.title"));
                     alert.setHeaderText(null);
-                    alert.setContentText(question);
+                    VBox vBox = new VBox();
+                    Label qLabel = new Label(question);
+                    qLabel.setWrapText(true);
+
+                    JEVisDataSource ds = items.get(0).getValue().getJEVisObject().getDataSource();
+                    List<JEVisClass> jeVisClasses = ds.getJEVisClasses();
+                    List<String> jeVisClassesStrings = new ArrayList<>();
+                    for (JEVisClass jeVisClass : jeVisClasses) {
+                        try {
+                            jeVisClassesStrings.add(jeVisClass.getName());
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    AlphanumComparator ac = new AlphanumComparator();
+                    jeVisClassesStrings.sort(ac);
+                    jeVisClassesStrings.add(0, "All");
+                    ComboBox<String> jeVisClassComboBox = new ComboBox<>(FXCollections.observableList(jeVisClassesStrings));
+                    jeVisClassComboBox.getSelectionModel().selectFirst();
+                    vBox.getChildren().addAll(qLabel, jeVisClassComboBox);
+
+                    alert.getDialogPane().setContent(vBox);
 
                     alert.showAndWait().ifPresent(buttonType -> {
                         if (buttonType.equals(ButtonType.OK)) {
@@ -1266,7 +1290,7 @@ public class TreeHelper {
                                     @Override
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            setEnabled(item.getValue().getJEVisObject(), b);
+                                            setEnabled(item.getValue().getJEVisObject(), jeVisClassComboBox.getSelectionModel().getSelectedItem(), b);
                                         }
 
                                         return null;
@@ -1312,17 +1336,17 @@ public class TreeHelper {
         }
     }
 
-    private static void setEnabled(JEVisObject object, boolean b) {
+    private static void setEnabled(JEVisObject object, String selectedClass, boolean b) {
         try {
             JEVisAttribute enabled = object.getAttribute("Enabled");
             if (enabled != null) {
-                if (object.getJEVisClassName().equals("Periodic Report")) {
+                if (object.getJEVisClassName().equals(selectedClass) || selectedClass.equals("All")) {
                     JEVisSample sample = enabled.buildSample(new DateTime(), b);
                     sample.commit();
                 }
             }
             for (JEVisObject child : object.getChildren()) {
-                setEnabled(child, b);
+                setEnabled(child, selectedClass, b);
             }
         } catch (JEVisException e) {
             logger.error("Could not set enabled for {}:{}", object.getName(), object.getID());
