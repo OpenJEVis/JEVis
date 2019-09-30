@@ -645,7 +645,7 @@ public class ToolBarView {
                     if (skin != null) {
                         ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
                         if (popupContent != null) {
-                            popupContent.scrollTo(listAnalysesComboBox.getSelectionModel().getSelectedIndex());
+                            popupContent.scrollTo(model.getObservableListAnalyses().indexOf(model.getCurrentAnalysis()));
                         }
                     }
                 });
