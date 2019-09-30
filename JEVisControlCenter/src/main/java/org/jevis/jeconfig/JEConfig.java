@@ -85,6 +85,7 @@ public class JEConfig extends Application {
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
     private static Statusbar statusBar = new Statusbar();
+    private TopMenu menu;
 
     public static boolean getExpert() {
         final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
@@ -373,7 +374,7 @@ public class JEConfig extends Application {
                 });
 
                 pluginManager = new PluginManager(_mainDS);
-                TopMenu menu = new TopMenu();
+                menu = new TopMenu();
                 pluginManager.setMenuBar(menu);
 
                 final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
@@ -522,4 +523,9 @@ public class JEConfig extends Application {
 //    static public List<JEVisObject> getPreLodedRootObjects() {
 //        return preLodedRootObjects;
 //    }
+
+
+    public TopMenu getMenu() {
+        return menu;
+    }
 }

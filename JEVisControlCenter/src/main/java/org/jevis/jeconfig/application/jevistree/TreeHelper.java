@@ -24,6 +24,7 @@ import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -32,6 +33,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -44,6 +46,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.export.ExportMaster;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.ReportLink;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
@@ -812,7 +815,7 @@ public class TreeHelper {
                 } else if (re == CopyObjectDialog.Response.LINK) {
                     buildLink(dragObj, targetParent, dia.getCreateName());
                 } else if (re == CopyObjectDialog.Response.COPY) {
-                    copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isRecursion(), dia.getCreateCount());
+                    copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isIncludeValues(), dia.isRecursion(), dia.getCreateCount());
                 }
             } else {
                 Platform.runLater(() -> {
@@ -828,7 +831,7 @@ public class TreeHelper {
     }
 
     public static void copyObjectUnder(JEVisObject toCopyObj, final JEVisObject newParent, String newName,
-                                       boolean includeContent, boolean recursive) throws JEVisException {
+                                       boolean includeData, boolean includeValues, boolean recursive) throws JEVisException {
         logger.debug("-> copyObjectUnder ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
         JEVisObject newObject = newParent.buildObject(newName, toCopyObj.getJEVisClass());
@@ -844,7 +847,8 @@ public class TreeHelper {
             newAtt.setInputUnit(originalAtt.getInputUnit());
             newAtt.commit();
             //if chosen copy the samples
-            if (includeContent) {
+            if ((includeData && !newAtt.getName().equals(CleanDataObject.AttributeName.VALUE.getAttributeName()))
+                    || (includeValues && newAtt.getName().equals(CleanDataObject.AttributeName.VALUE.getAttributeName()))) {
                 if (originalAtt.hasSample()) {
                     logger.debug("Include samples");
 
@@ -873,14 +877,14 @@ public class TreeHelper {
         if (recursive) {
             logger.debug("recursive is enabled");
             for (JEVisObject otherChild : toCopyObj.getChildren()) {
-                copyObjectUnder(otherChild, newObject, otherChild.getName(), includeContent, recursive);
+                copyObjectUnder(otherChild, newObject, otherChild.getName(), includeData, includeValues, recursive);
             }
         }
 
     }
 
     public static void copyObject(final JEVisObject toCopyObj, final JEVisObject newParent, String newName,
-                                  boolean includeContent, boolean recursive, int createCount) {
+                                  boolean includeData, boolean includeValues, boolean recursive, int createCount) {
         try {
             logger.debug("-> Copy ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
@@ -896,7 +900,7 @@ public class TreeHelper {
                             if (createCount > 1) {
                                 name += (" " + (i + 1));
                             }
-                            copyObjectUnder(toCopyObj, newParent, name, includeContent, recursive);
+                            copyObjectUnder(toCopyObj, newParent, name, includeData, includeValues, recursive);
                         }
 
                     } catch (Exception ex) {
@@ -1254,7 +1258,28 @@ public class TreeHelper {
                     Alert alert = new Alert(AlertType.CONFIRMATION);
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.enable.title"));
                     alert.setHeaderText(null);
-                    alert.setContentText(question);
+                    VBox vBox = new VBox();
+                    Label qLabel = new Label(question);
+                    qLabel.setWrapText(true);
+
+                    JEVisDataSource ds = items.get(0).getValue().getJEVisObject().getDataSource();
+                    List<JEVisClass> jeVisClasses = ds.getJEVisClasses();
+                    List<String> jeVisClassesStrings = new ArrayList<>();
+                    for (JEVisClass jeVisClass : jeVisClasses) {
+                        try {
+                            jeVisClassesStrings.add(jeVisClass.getName());
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    AlphanumComparator ac = new AlphanumComparator();
+                    jeVisClassesStrings.sort(ac);
+                    jeVisClassesStrings.add(0, "All");
+                    ComboBox<String> jeVisClassComboBox = new ComboBox<>(FXCollections.observableList(jeVisClassesStrings));
+                    jeVisClassComboBox.getSelectionModel().selectFirst();
+                    vBox.getChildren().addAll(qLabel, jeVisClassComboBox);
+
+                    alert.getDialogPane().setContent(vBox);
 
                     alert.showAndWait().ifPresent(buttonType -> {
                         if (buttonType.equals(ButtonType.OK)) {
@@ -1266,7 +1291,7 @@ public class TreeHelper {
                                     @Override
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            setEnabled(item.getValue().getJEVisObject(), b);
+                                            setEnabled(item.getValue().getJEVisObject(), jeVisClassComboBox.getSelectionModel().getSelectedItem(), b);
                                         }
 
                                         return null;
@@ -1312,17 +1337,17 @@ public class TreeHelper {
         }
     }
 
-    private static void setEnabled(JEVisObject object, boolean b) {
+    private static void setEnabled(JEVisObject object, String selectedClass, boolean b) {
         try {
             JEVisAttribute enabled = object.getAttribute("Enabled");
             if (enabled != null) {
-                if (object.getJEVisClassName().equals("Periodic Report")) {
+                if (object.getJEVisClassName().equals(selectedClass) || selectedClass.equals("All")) {
                     JEVisSample sample = enabled.buildSample(new DateTime(), b);
                     sample.commit();
                 }
             }
             for (JEVisObject child : object.getChildren()) {
-                setEnabled(child, b);
+                setEnabled(child, selectedClass, b);
             }
         } catch (JEVisException e) {
             logger.error("Could not set enabled for {}:{}", object.getName(), object.getID());

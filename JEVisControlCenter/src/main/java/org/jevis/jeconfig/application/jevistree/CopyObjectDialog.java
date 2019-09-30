@@ -65,6 +65,7 @@ public class CopyObjectDialog {
     private TextField nameField = new TextField();
     private boolean recursionAllowed = false;
     private boolean includeDataAllowed = true;
+    private final CheckBox includeValues = new CheckBox(I18n.getInstance().getString("jevistree.dialog.copy.addvalues"));
     private final Button ok = new Button(I18n.getInstance().getString("jevistree.dialog.copy.ok"));
 
     private final RadioButton move = new RadioButton(I18n.getInstance().getString("jevistree.dialog.copy.move"));
@@ -72,6 +73,7 @@ public class CopyObjectDialog {
     private final RadioButton copy = new RadioButton(I18n.getInstance().getString("jevistree.dialog.copy.copy"));
     private final CheckBox recursion = new CheckBox(I18n.getInstance().getString("jevistree.dialog.copy.substructure"));
     private final CheckBox includeSamples = new CheckBox(I18n.getInstance().getString("jevistree.dialog.copy.adddata"));
+    private boolean includeValuesAllowed = true;
     private final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
     /**
@@ -208,6 +210,8 @@ public class CopyObjectDialog {
 
                         CopyObjectDialog.this.includeSamples.setDisable(true);
                         CopyObjectDialog.this.includeSamples.setSelected(true);
+                        CopyObjectDialog.this.includeValues.setDisable(true);
+                        CopyObjectDialog.this.includeValues.setSelected(true);
                         CopyObjectDialog.this.recursion.setDisable(true);
                         CopyObjectDialog.this.recursion.setSelected(true);
 
@@ -218,6 +222,8 @@ public class CopyObjectDialog {
                         countLabel.setDisable(true);
                         CopyObjectDialog.this.includeSamples.setDisable(true);
                         CopyObjectDialog.this.includeSamples.setSelected(false);
+                        CopyObjectDialog.this.includeValues.setDisable(true);
+                        CopyObjectDialog.this.includeValues.setSelected(false);
                         CopyObjectDialog.this.recursion.setDisable(true);
                         CopyObjectDialog.this.recursion.setSelected(false);
 
@@ -232,6 +238,8 @@ public class CopyObjectDialog {
 
                         CopyObjectDialog.this.includeSamples.setDisable(!CopyObjectDialog.this.includeDataAllowed);
                         CopyObjectDialog.this.includeSamples.setSelected(true);
+                        CopyObjectDialog.this.includeValues.setDisable(!CopyObjectDialog.this.includeValuesAllowed);
+                        CopyObjectDialog.this.includeValues.setSelected(true);
                         CopyObjectDialog.this.recursion.setDisable(!CopyObjectDialog.this.recursionAllowed);
                         CopyObjectDialog.this.recursion.setSelected(true);
 
@@ -292,6 +300,7 @@ public class CopyObjectDialog {
 
         gp.add(this.recursion, 0, ++yAxis, 3, 1);//new
         gp.add(this.includeSamples, 0, ++yAxis, 3, 1);//new
+        gp.add(this.includeValues, 0, ++yAxis, 3, 1);//new
         gp.add(countBox, 0, ++yAxis, 3, 1);
         gp.add(new Separator(Orientation.HORIZONTAL), 0, ++yAxis, 3, 1);
         gp.add(nameBox, 0, ++yAxis, 3, 1);
@@ -412,6 +421,10 @@ public class CopyObjectDialog {
 
     public boolean isIncludeData() {
         return this.includeSamples.isSelected();
+    }
+
+    public boolean isIncludeValues() {
+        return this.includeValues.isSelected();
     }
 
     private void checkName() {
