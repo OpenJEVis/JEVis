@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
@@ -52,6 +53,7 @@ public class ReportPlugin implements Plugin {
     private ListView<JEVisObject> listView;
     private WebView web = new WebView();
     private ComboBox<DateTime> dateTimeComboBox;
+    private List<JEVisObject> disabledItemList;
 
     public ReportPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -268,6 +270,7 @@ public class ReportPlugin implements Plugin {
 
         listView = new ListView<>(reports);
         listView.setPrefWidth(250);
+        disabledItemList = getDisabledItems(reports);
         setupCellFactory(listView);
 
         BorderPane view = new BorderPane();
@@ -286,6 +289,26 @@ public class ReportPlugin implements Plugin {
         borderPane.setCenter(sp);
 
         initialized = true;
+    }
+
+    private List<JEVisObject> getDisabledItems(ObservableList<JEVisObject> reports) {
+        List<JEVisObject> list = new ArrayList<>();
+        for (JEVisObject reportObject : reports) {
+            JEVisAttribute lastReportPDFAttribute = null;
+            try {
+                lastReportPDFAttribute = reportObject.getAttribute("Last Report PDF");
+            } catch (JEVisException e) {
+                logger.error("Could not get 'Last Report' Attribute from object {}:{}", reportObject.getName(), reportObject.getID(), e);
+            }
+
+            if (lastReportPDFAttribute != null) {
+                if (!lastReportPDFAttribute.hasSample()) {
+                    list.add(reportObject);
+                }
+            }
+        }
+
+        return list;
     }
 
     private void loadReport(BorderPane view, JEVisObject reportObject) {
@@ -409,10 +432,10 @@ public class ReportPlugin implements Plugin {
                                 }
                             }
                         });
+            } else {
+                view.setTop(null);
+                view.setCenter(null);
             }
-        } else {
-            view.setTop(null);
-            view.setCenter(null);
         }
     }
 
@@ -428,6 +451,14 @@ public class ReportPlugin implements Plugin {
                             setGraphic(null);
                             setText(null);
                         } else {
+                            if (disabledItemList.contains(obj)) {
+                                setTextFill(Color.LIGHTGRAY);
+                                setDisable(true);
+                            } else {
+                                setTextFill(Color.BLACK);
+                                setDisable(false);
+                            }
+
                             String prefix = objectRelations.getObjectPath(obj);
 
                             setText(prefix + obj.getName());

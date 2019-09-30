@@ -93,36 +93,58 @@ public class PickerCombo {
                             switch (timeFrame) {
                                 case CUSTOM:
                                     text = custom;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
                                     break;
                                 case TODAY:
                                     text = today;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
                                     break;
                                 case YESTERDAY:
                                     text = yesterday;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
                                     break;
                                 case LAST_7_DAYS:
                                     text = last7Days;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
                                     break;
                                 case THIS_WEEK:
                                     text = thisWeek;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
                                     break;
                                 case LAST_WEEK:
                                     text = lastWeek;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
                                     break;
                                 case LAST_30_DAYS:
                                     text = last30Days;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
                                     break;
                                 case THIS_MONTH:
                                     text = thisMonth;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
                                     break;
                                 case LAST_MONTH:
                                     text = lastMonth;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
                                     break;
                                 case THIS_YEAR:
                                     text = thisYear;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
                                     break;
                                 case LAST_YEAR:
                                     text = lastYear;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
                                     break;
                                 case CUSTOM_START_END:
                                     text = customStartEnd;
@@ -150,16 +172,12 @@ public class PickerCombo {
         startTimePicker.setPrefWidth(100d);
         startTimePicker.setMaxWidth(100d);
         startTimePicker.set24HourView(true);
-        startTimePicker.setConverter(new
-
-                LocalTimeStringConverter(FormatStyle.SHORT));
+        startTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         endTimePicker.setPrefWidth(100d);
         endTimePicker.setMaxWidth(100d);
         endTimePicker.set24HourView(true);
-        endTimePicker.setConverter(new
-
-                LocalTimeStringConverter(FormatStyle.SHORT));
+        endTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         if (chartDataModels != null && !chartDataModels.isEmpty()) {
             if (graphDataModel != null && !graphDataModel.getCharts().isEmpty()) {

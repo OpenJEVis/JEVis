@@ -237,7 +237,22 @@ public class ChartSelectionDialog {
 
         stage.showAndWait();
 
+        removeEmptyCharts();
+
         return _response;
+    }
+
+    private void removeEmptyCharts() {
+        List<ChartSettings> toBeRemoved = new ArrayList<>();
+
+        data.getCharts().forEach(chartSettings -> {
+            boolean hasData = data.getSelectedData().stream().anyMatch(model -> model.getSelectedcharts().contains(chartSettings.getId()));
+            if (!hasData) {
+                toBeRemoved.add(chartSettings);
+            }
+        });
+
+        data.getCharts().removeAll(toBeRemoved);
     }
 
     private Tab getCommonTab() {
