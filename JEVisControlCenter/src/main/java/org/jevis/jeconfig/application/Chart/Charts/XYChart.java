@@ -297,8 +297,8 @@ public class XYChart implements Chart {
 
         hexColors.add(singleRow.getColor());
 //        Platform.runLater(() -> {
-            chart.getData().add(serie.getSerie());
-            tableData.add(serie.getTableEntry());
+        chart.getData().add(serie.getSerie());
+        tableData.add(serie.getTableEntry());
 //        });
 
 
@@ -739,7 +739,7 @@ public class XYChart implements Chart {
                     tableEntry.setNote(formattedNote.getNoteAsString());
                     String unit = serie.getUnit();
 
-                    if (!sample.getNote().contains("Empty")) {
+                    if (!sample.getNote().contains("Zeros")) {
                         Double valueAsDouble = null;
                         String formattedDouble = null;
                         if (!serie.getSingleRow().isStringData()) {
@@ -769,13 +769,11 @@ public class XYChart implements Chart {
         xyChartSerieList.parallelStream().forEach(serie -> {
             try {
 
-                TableEntry tableEntry = serie.getTableEntry();
-                TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
-
                 double min = Double.MAX_VALUE;
                 double max = -Double.MAX_VALUE;
                 double avg = 0.0;
                 Double sum = 0.0;
+                long zeroCount = 0;
 
                 List<JEVisSample> samples = serie.getSingleRow().getSamples();
                 List<JEVisSample> newList = new ArrayList<>();
@@ -787,18 +785,23 @@ public class XYChart implements Chart {
                         newList.add(smp);
                         Double currentValue = smp.getValueAsDouble();
 
-                        min = Math.min(min, currentValue);
-                        max = Math.max(max, currentValue);
-                        sum += currentValue;
+                        if (!smp.getNote().contains("Zeros")) {
+                            min = Math.min(min, currentValue);
+                            max = Math.max(max, currentValue);
+                            sum += currentValue;
+                        } else {
+                            zeroCount++;
+                        }
                     }
                 }
 
                 double finalMin = min;
                 double finalMax = max;
                 Double finalSum = sum;
+                long finalZeroCount = zeroCount;
                 Platform.runLater(() -> {
                     try {
-                        serie.updateTableEntry(newList, unit, finalMin, finalMax, avg, finalSum);
+                        serie.updateTableEntry(newList, unit, finalMin, finalMax, avg, finalSum, finalZeroCount);
                     } catch (JEVisException e) {
                         logger.error("Could not update Table Entry for {}", serie.getSingleRow().getObject().getName(), e);
                     }
@@ -912,20 +915,20 @@ public class XYChart implements Chart {
     private void checkForY2Axis() {
 
 //        Platform.runLater(() -> {
-            try {
-                boolean hasY2Axis = false;
-                for (XYChartSerie serie : xyChartSerieList) {
-                    if (serie.getyAxis() == 1) {
-                        hasY2Axis = true;
-                        break;
-                    }
+        try {
+            boolean hasY2Axis = false;
+            for (XYChartSerie serie : xyChartSerieList) {
+                if (serie.getyAxis() == 1) {
+                    hasY2Axis = true;
+                    break;
                 }
-
-                if (!hasY2Axis) y2Axis.setVisible(false);
-                else y2Axis.setVisible(true);
-            } catch (Exception ex) {
-                logger.error(ex);
             }
+
+            if (!hasY2Axis) y2Axis.setVisible(false);
+            else y2Axis.setVisible(true);
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
 
 //        });
 

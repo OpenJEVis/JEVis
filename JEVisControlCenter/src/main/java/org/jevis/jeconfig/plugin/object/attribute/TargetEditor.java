@@ -106,6 +106,7 @@ public class TargetEditor implements AttributeEditor {
         _treeButton = new Button(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));
+        _treeButton.wrapTextProperty().setValue(true);
 
         Button gotoButton = new Button(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
                 JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon

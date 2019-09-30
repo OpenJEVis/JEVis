@@ -171,7 +171,7 @@ public class ChartDataModel {
                     startTS = startTS.minus(getAttribute().getDisplaySampleRate());
                     if (startTS.isAfter(selectedStart)) {
                         JEVisSample smp = new VirtualSample(startTS, 0.0);
-                        smp.setNote("Empty");
+                        smp.setNote("Zeros");
                         samples.add(0, smp);
                     }
                 }
@@ -181,7 +181,7 @@ public class ChartDataModel {
                     endTS = endTS.plus(getAttribute().getDisplaySampleRate());
                     if (endTS.isBefore(selectedEnd)) {
                         JEVisSample smp = new VirtualSample(endTS, 0.0);
-                        smp.setNote("Empty");
+                        smp.setNote("Zeros");
                         samples.add(smp);
                     }
                 }
