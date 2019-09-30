@@ -36,6 +36,32 @@
         "ru": "Timezone",
         "en": "Timezone"
       }
+    },
+    {
+      "type": "Last Run",
+      "descriptions": {
+        "de": "Der letzte Zeitpunkt an dem die Datenquelle abgerufen wurde.",
+        "ru": "Timezone description",
+        "en": "The data source has been read last at this time."
+      },
+      "names": {
+        "de": "Letzte Auslesung",
+        "ru": "Last Run",
+        "en": "Last Run"
+      }
+    },
+    {
+      "type": "Cycle Time",
+      "descriptions": {
+        "de": "Bestimmt das Intervall in dem sich die Auslesung des Datenservers wiederholt.",
+        "ru": "Timezone description",
+        "en": "Defines the interval in which the readout of the Data Server is repeated"
+      },
+      "names": {
+        "de": "Taktdauer",
+        "ru": "Cycle Time",
+        "en": "Cycle Time"
+      }
     }
   ]
 }
