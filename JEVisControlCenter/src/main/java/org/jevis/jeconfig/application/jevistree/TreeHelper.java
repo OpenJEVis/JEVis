@@ -815,7 +815,7 @@ public class TreeHelper {
                 } else if (re == CopyObjectDialog.Response.LINK) {
                     buildLink(dragObj, targetParent, dia.getCreateName());
                 } else if (re == CopyObjectDialog.Response.COPY) {
-                    copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isRecursion(), dia.getCreateCount());
+                    copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isIncludeValues(), dia.isRecursion(), dia.getCreateCount());
                 }
             } else {
                 Platform.runLater(() -> {
@@ -831,7 +831,7 @@ public class TreeHelper {
     }
 
     public static void copyObjectUnder(JEVisObject toCopyObj, final JEVisObject newParent, String newName,
-                                       boolean includeContent, boolean recursive) throws JEVisException {
+                                       boolean includeData, boolean includeValues, boolean recursive) throws JEVisException {
         logger.debug("-> copyObjectUnder ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
         JEVisObject newObject = newParent.buildObject(newName, toCopyObj.getJEVisClass());
@@ -847,7 +847,8 @@ public class TreeHelper {
             newAtt.setInputUnit(originalAtt.getInputUnit());
             newAtt.commit();
             //if chosen copy the samples
-            if (includeContent) {
+            if ((includeData && !newAtt.getName().equals(CleanDataObject.AttributeName.VALUE.getAttributeName()))
+                    || (includeValues && newAtt.getName().equals(CleanDataObject.AttributeName.VALUE.getAttributeName()))) {
                 if (originalAtt.hasSample()) {
                     logger.debug("Include samples");
 
@@ -876,14 +877,14 @@ public class TreeHelper {
         if (recursive) {
             logger.debug("recursive is enabled");
             for (JEVisObject otherChild : toCopyObj.getChildren()) {
-                copyObjectUnder(otherChild, newObject, otherChild.getName(), includeContent, recursive);
+                copyObjectUnder(otherChild, newObject, otherChild.getName(), includeData, includeValues, recursive);
             }
         }
 
     }
 
     public static void copyObject(final JEVisObject toCopyObj, final JEVisObject newParent, String newName,
-                                  boolean includeContent, boolean recursive, int createCount) {
+                                  boolean includeData, boolean includeValues, boolean recursive, int createCount) {
         try {
             logger.debug("-> Copy ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
@@ -899,7 +900,7 @@ public class TreeHelper {
                             if (createCount > 1) {
                                 name += (" " + (i + 1));
                             }
-                            copyObjectUnder(toCopyObj, newParent, name, includeContent, recursive);
+                            copyObjectUnder(toCopyObj, newParent, name, includeData, includeValues, recursive);
                         }
 
                     } catch (Exception ex) {
