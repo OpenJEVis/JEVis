@@ -175,9 +175,13 @@ public class ToolBarView {
                             setGraphic(null);
                             setText(null);
                         } else {
-                            String prefix = objectRelations.getObjectPath(obj);
+                            if (!model.getMultipleDirectories())
+                                setText(obj.getName());
+                            else {
+                                String prefix = objectRelations.getObjectPath(obj);
 
-                            setText(prefix + obj.getName());
+                                setText(prefix + obj.getName());
+                            }
                         }
 
                     }
@@ -187,6 +191,18 @@ public class ToolBarView {
 
         listAnalysesComboBox.setCellFactory(cellFactory);
         listAnalysesComboBox.setButtonCell(cellFactory.call(null));
+
+        listAnalysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) listAnalysesComboBox.getSkin();
+                if (skin != null) {
+                    ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
+                    if (popupContent != null) {
+                        popupContent.scrollTo(model.getObservableListAnalyses().indexOf(model.getCurrentAnalysis()));
+                    }
+                }
+            });
+        });
     }
 
     private void loadNewDialog() {
@@ -639,17 +655,6 @@ public class ToolBarView {
         Platform.runLater(() -> {
 
             listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
-            listAnalysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-                Platform.runLater(() -> {
-                    ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) listAnalysesComboBox.getSkin();
-                    if (skin != null) {
-                        ListView<?> popupContent = (ListView<?>) skin.getPopupContent();
-                        if (popupContent != null) {
-                            popupContent.scrollTo(model.getObservableListAnalyses().indexOf(model.getCurrentAnalysis()));
-                        }
-                    }
-                });
-            });
 
             listAnalysesComboBox.setPrefWidth(300);
 
@@ -718,7 +723,21 @@ public class ToolBarView {
         });
 
         exportCSV.setOnAction(action -> {
-            GraphExportCSV ge = new GraphExportCSV(ds, model);
+            GraphExportCSV ge = null;
+            if (graphPluginView.isZoomed()) {
+                ge = new GraphExportCSV(
+                        ds,
+                        model,
+                        new DateTime(graphPluginView.getxAxisLowerBound().longValue()),
+                        new DateTime(graphPluginView.getxAxisUpperBound().longValue()));
+            } else {
+                ge = new GraphExportCSV(
+                        ds,
+                        model,
+                        model.getGlobalAnalysisTimeFrame().getStart(),
+                        model.getGlobalAnalysisTimeFrame().getEnd());
+            }
+
             try {
                 ge.export();
             } catch (FileNotFoundException | UnsupportedEncodingException | JEVisException e) {
