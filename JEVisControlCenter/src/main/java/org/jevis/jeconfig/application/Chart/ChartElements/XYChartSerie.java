@@ -132,6 +132,10 @@ public class XYChartSerie {
             }
         }
 
+        if (singleRow.getManipulationMode().equals(ManipulationMode.CUMULATE)) {
+            avg = max / samples.size();
+            sum = max;
+        }
 
         Platform.runLater(() -> {
             serie.getData().setAll(dataList);
@@ -160,7 +164,7 @@ public class XYChartSerie {
         QuantityUnits qu = new QuantityUnits();
         boolean isQuantity = qu.isQuantityUnit(unit);
 
-        if (samples.size() > 0) {
+        if (!singleRow.getManipulationMode().equals(ManipulationMode.CUMULATE) && samples.size() > 0) {
             avg = sum / (samples.size() - zeroCount);
         }
 
