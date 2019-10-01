@@ -138,7 +138,6 @@ public class XYChartSerie {
         });
 
         updateTableEntry(samples, unit, min, max, avg, sum, zeroCount);
-
     }
 
     public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, double min, double max, double avg, Double sum, long zeroCount) throws JEVisException {
@@ -213,7 +212,8 @@ public class XYChartSerie {
                             long hourMillis = Period.hours(1).toStandardDuration().getMillis();
                             Double factor = (double) hourMillis / (double) periodMillis;
 //                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
-                            tableEntry.setSum(nf_out.format(sum / singleRow.getScaleFactor() / singleRow.getTimeFactor()) + " " + qu.getSumUnit(unit));
+                            sum = sum / singleRow.getScaleFactor() / singleRow.getTimeFactor();
+                            tableEntry.setSum(nf_out.format(sum) + " " + qu.getSumUnit(unit));
                         } else {
                             double periodMillis = 0.0;
 
@@ -228,7 +228,8 @@ public class XYChartSerie {
                             long hourMillis = Period.hours(1).toStandardDuration().getMillis();
                             Double factor = (double) hourMillis / periodMillis;
 //                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
-                            tableEntry.setSum(nf_out.format(sum / singleRow.getScaleFactor() / singleRow.getTimeFactor()) + " " + qu.getSumUnit(unit));
+                            sum = sum / singleRow.getScaleFactor() / singleRow.getTimeFactor();
+                            tableEntry.setSum(nf_out.format(sum) + " " + qu.getSumUnit(unit));
                         }
                     } catch (Exception e) {
                         logger.error("Couldn't calculate periods");
@@ -239,6 +240,11 @@ public class XYChartSerie {
                 }
             }
         }
+
+        singleRow.setMin(min);
+        singleRow.setMax(max);
+        singleRow.setAvg(avg);
+        singleRow.setSum(sum);
     }
 
 

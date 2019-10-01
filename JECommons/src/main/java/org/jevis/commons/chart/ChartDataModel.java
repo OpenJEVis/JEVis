@@ -49,6 +49,10 @@ public class ChartDataModel {
     private double timeFactor = 1.0;
     private Double scaleFactor = 1d;
     private boolean fillZeroes = true;
+    private double min;
+    private double max;
+    private double avg;
+    private Double sum;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -551,5 +555,37 @@ public class ChartDataModel {
 
     public Double getScaleFactor() {
         return scaleFactor;
+    }
+
+    public double getMin() {
+        return min;
+    }
+
+    public void setMin(double min) {
+        this.min = min;
+    }
+
+    public double getMax() {
+        return max;
+    }
+
+    public void setMax(double max) {
+        this.max = max;
+    }
+
+    public double getAvg() {
+        return avg;
+    }
+
+    public void setAvg(double avg) {
+        this.avg = avg;
+    }
+
+    public Double getSum() {
+        return sum;
+    }
+
+    public void setSum(Double sum) {
+        this.sum = sum;
     }
 }
