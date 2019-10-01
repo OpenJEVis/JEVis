@@ -795,13 +795,19 @@ public class XYChart implements Chart {
                     }
                 }
 
+                if (manipulationMode.get().equals(ManipulationMode.CUMULATE)) {
+                    avg = max / samples.size();
+                    sum = max;
+                }
+
                 double finalMin = min;
                 double finalMax = max;
                 Double finalSum = sum;
                 long finalZeroCount = zeroCount;
+                double finalAvg = avg;
                 Platform.runLater(() -> {
                     try {
-                        serie.updateTableEntry(newList, unit, finalMin, finalMax, avg, finalSum, finalZeroCount);
+                        serie.updateTableEntry(newList, unit, finalMin, finalMax, finalAvg, finalSum, finalZeroCount);
                     } catch (JEVisException e) {
                         logger.error("Could not update Table Entry for {}", serie.getSingleRow().getObject().getName(), e);
                     }
