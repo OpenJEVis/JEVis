@@ -105,6 +105,9 @@ public class GraphPluginView implements Plugin {
     private boolean firstStart = true;
     private VBox vBox;
     public static String JOB_NAME = "Graph Update";
+    private Double xAxisLowerBound;
+    private Double xAxisUpperBound;
+    private boolean zoomed = false;
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
         this.dataModel = new GraphDataModel(ds, this);
@@ -998,8 +1001,9 @@ public class GraphPluginView implements Plugin {
     private void setupLinkedZoom(ChartView cv, List<ChartView> notActive) {
         cv.getChart().getPanner().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                Double xAxisLowerBound = cv.getChart().getPanner().getXAxisLowerBound();
-                Double xAxisUpperBound = cv.getChart().getPanner().getXAxisUpperBound();
+                zoomed = true;
+                xAxisLowerBound = cv.getChart().getPanner().getXAxisLowerBound();
+                xAxisUpperBound = cv.getChart().getPanner().getXAxisUpperBound();
                 notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
                         && !chartView.getChartType().equals(ChartType.BAR)
                         && !chartView.getChartType().equals(ChartType.BUBBLE)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateValueAxis) chart.getXAxis()).forEach(xAxis -> {
@@ -1016,8 +1020,9 @@ public class GraphPluginView implements Plugin {
 
         cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                Double xAxisLowerBound = cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound();
-                Double xAxisUpperBound = cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound();
+                zoomed = true;
+                xAxisLowerBound = cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound();
+                xAxisUpperBound = cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound();
                 notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
                         && !chartView.getChartType().equals(ChartType.BAR)
                         && !chartView.getChartType().equals(ChartType.BUBBLE)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateValueAxis) chart.getXAxis()).forEach(xAxis -> {
@@ -1061,6 +1066,7 @@ public class GraphPluginView implements Plugin {
                 DateTime lastTS = cv.getChart().getEndDateTime();
                 cv.getChart().updateTableZoom(firstTS.getMillis(), lastTS.getMillis());
                 notActive.forEach(chartView -> chartView.getChart().updateTableZoom(firstTS.getMillis(), lastTS.getMillis()));
+                zoomed = false;
             }
         });
     }
@@ -1185,5 +1191,17 @@ public class GraphPluginView implements Plugin {
 
     public VBox getvBox() {
         return vBox;
+    }
+
+    public Double getxAxisLowerBound() {
+        return xAxisLowerBound;
+    }
+
+    public Double getxAxisUpperBound() {
+        return xAxisUpperBound;
+    }
+
+    public boolean isZoomed() {
+        return zoomed;
     }
 }

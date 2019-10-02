@@ -362,6 +362,7 @@ public class LoadAnalysisDialog {
         final String keyCentricRunningMean = I18n.getInstance().getString("plugin.graph.manipulation.centricrunningmean");
         final String keySortedMin = I18n.getInstance().getString("plugin.graph.manipulation.sortedmin");
         final String keySortedMax = I18n.getInstance().getString("plugin.graph.manipulation.sortedmax");
+        final String keyCumulate = I18n.getInstance().getString("plugin.graph.manipulation.cumulate");
 
         DisabledItemsComboBox<ManipulationMode> math = new DisabledItemsComboBox<>();
         List<ManipulationMode> customList = new ArrayList<>();
@@ -370,6 +371,7 @@ public class LoadAnalysisDialog {
         customList.add(ManipulationMode.CENTRIC_RUNNING_MEAN);
         customList.add(ManipulationMode.SORTED_MIN);
         customList.add(ManipulationMode.SORTED_MAX);
+        customList.add(ManipulationMode.CUMULATE);
 
         math.setItems(FXCollections.observableArrayList(customList));
         math.getSelectionModel().selectFirst();
@@ -400,6 +402,9 @@ public class LoadAnalysisDialog {
                                     break;
                                 case SORTED_MAX:
                                     text = keySortedMax;
+                                    break;
+                                case CUMULATE:
+                                    text = keyCumulate;
                                     break;
                             }
                             setText(text);

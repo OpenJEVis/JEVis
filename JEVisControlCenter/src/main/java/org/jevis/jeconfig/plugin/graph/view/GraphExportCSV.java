@@ -37,26 +37,54 @@ import java.util.*;
 
 public class GraphExportCSV {
     private static final Logger logger = LogManager.getLogger(GraphExportCSV.class);
-    final DateTimeFormatter standard = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    private final String NAME;
+    private final String IN;
+    private final String NOTE;
+    private final String MIN;
+    private final String MAX;
+    private final String AVG;
+    private final String SUM;
+    private final String DATE;
+    private final String UNIT;
+    private final String ID;
+    private final String DATA_NOTES = "Data Notes";
+    private final String USER_NOTES = "User Notes";
+    private final String LINE_SEPARATOR = "line.separator";
+    private final String COL_SEP = ";";
+    private final String SPACE = " ";
+    private final DateTimeFormatter standard = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     private final GraphDataModel model;
     private final JEVisDataSource ds;
     private Boolean xlsx = false;
     private boolean needSave = false;
     private File destinationFile;
-    private DateTime minDate = null;
-    private DateTime maxDate = null;
+    private final DateTime minDate;
+    private final DateTime maxDate;
     private Boolean multiAnalyses = false;
-    private List<ChartSettings> charts = new ArrayList<>();
-    final ObservableList<Locale> choices = FXCollections.observableArrayList(Locale.getAvailableLocales());
+    private final ObservableList<Locale> choices = FXCollections.observableArrayList(Locale.getAvailableLocales());
+    private List<ChartSettings> charts;
     private Locale selectedLocale;
     private NumberFormat numberFormat;
     private Boolean withUserNotes = false;
 
-    public GraphExportCSV(JEVisDataSource ds, GraphDataModel model) {
+    public GraphExportCSV(JEVisDataSource ds, GraphDataModel model, DateTime xAxisLowerBound, DateTime xAxisUpperBound) {
+        this.NAME = I18n.getInstance().getString("plugin.graph.export.text.name");
+        this.IN = I18n.getInstance().getString("plugin.graph.export.text.in");
+        this.NOTE = I18n.getInstance().getString("plugin.graph.export.text.note");
+        this.MIN = I18n.getInstance().getString("plugin.graph.export.text.min");
+        this.MAX = I18n.getInstance().getString("plugin.graph.export.text.max");
+        this.AVG = I18n.getInstance().getString("plugin.graph.export.text.avg");
+        this.SUM = I18n.getInstance().getString("plugin.graph.export.text.sum");
+        this.DATE = I18n.getInstance().getString("plugin.graph.export.text.date");
+        this.UNIT = I18n.getInstance().getString("plugin.graph.export.text.unit");
+        this.ID = I18n.getInstance().getString("plugin.graph.export.text.id");
+
         this.model = model;
         this.charts = model.getCharts();
         this.ds = ds;
-        this.setDates();
+//        this.setDates();
+        this.minDate = xAxisLowerBound;
+        this.maxDate = xAxisUpperBound;
         AlphanumComparator ac = new AlphanumComparator();
         choices.sort((o1, o2) -> ac.compare(o1.getDisplayLanguage(), o2.getDisplayLanguage()));
 
@@ -134,13 +162,13 @@ public class GraphExportCSV {
 
                 String formattedName = "";
                 if (model.getCurrentAnalysis() != null)
-                    formattedName = model.getCurrentAnalysis().getName().replaceAll(" ", "_");
+                    formattedName = model.getCurrentAnalysis().getName().replaceAll(SPACE, "_");
 
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("CSV File Destination");
                 DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
-                FileChooser.ExtensionFilter csvFilter = new FileChooser.ExtensionFilter("CSV Files (*.csv)", "*.csv");
-                FileChooser.ExtensionFilter xlsxFilter = new FileChooser.ExtensionFilter("Excel Files (*.xlsx)", "*.xlsx");
+                FileChooser.ExtensionFilter csvFilter = new FileChooser.ExtensionFilter("CSV Files (*.csv)", ".csv");
+                FileChooser.ExtensionFilter xlsxFilter = new FileChooser.ExtensionFilter("Excel Files (*.xlsx)", ".xlsx");
                 fileChooser.getExtensionFilters().addAll(csvFilter, xlsxFilter);
                 fileChooser.setSelectedExtensionFilter(csvFilter);
 
@@ -176,8 +204,8 @@ public class GraphExportCSV {
         for (ChartDataModel mdl : model.getSelectedData()) {
             DateTime startNow = mdl.getSelectedStart();
             DateTime endNow = mdl.getSelectedEnd();
-            if (minDate == null || startNow.isBefore(minDate)) minDate = startNow;
-            if (maxDate == null || endNow.isAfter(maxDate)) maxDate = endNow;
+//            if (minDate == null || startNow.isBefore(minDate)) minDate = startNow;
+//            if (maxDate == null || endNow.isAfter(maxDate)) maxDate = endNow;
         }
     }
 
@@ -217,8 +245,8 @@ public class GraphExportCSV {
 
         int columnIndex = 0;
         for (ChartSettings cset : charts) {
-            Cell dateHeaderCell = getOrCreateCell(sheet, 0, columnIndex);
-            dateHeaderCell.setCellValue("Date");
+            Cell nameHeaderCell = getOrCreateCell(sheet, 0, columnIndex);
+            nameHeaderCell.setCellValue(NAME);
             columnIndex++;
 
             for (ChartDataModel mdl : model.getSelectedData()) {
@@ -231,19 +259,123 @@ public class GraphExportCSV {
                         String dpName = mdl.getDataProcessor().getName();
                         header.append(" (").append(dpName).append(")");
                     }
-                    header.append(" in ");
+                    nameHeader.setCellValue(header.toString());
+                    columnIndex++;
+
+                    if (withUserNotes) {
+                        columnIndex++;
+                    }
+                }
+            }
+        }
+
+        columnIndex = 0;
+        for (ChartSettings cset : charts) {
+            Cell idHeaderCell = getOrCreateCell(sheet, 1, columnIndex);
+            idHeaderCell.setCellValue(ID);
+            columnIndex++;
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                if (mdl.getSelectedcharts().contains(cset.getId())) {
+                    Cell idHeader = getOrCreateCell(sheet, 1, columnIndex);
+                    if (mdl.getDataProcessor() != null) {
+                        idHeader.setCellValue(mdl.getDataProcessor().getID());
+                    } else {
+                        idHeader.setCellValue(mdl.getObject().getID());
+                    }
+                    columnIndex++;
+
+                    if (withUserNotes) {
+                        columnIndex++;
+                    }
+                }
+            }
+        }
+
+        columnIndex = 0;
+        for (ChartSettings cset : charts) {
+            Cell unitCell = getOrCreateCell(sheet, 3, columnIndex);
+            unitCell.setCellValue(UNIT);
+            columnIndex++;
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                if (mdl.getSelectedcharts().contains(cset.getId())) {
+                    Cell unitHeader = getOrCreateCell(sheet, 3, columnIndex);
                     String currentUnit = UnitManager.getInstance().format(mdl.getUnit());
                     if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
                         currentUnit = mdl.getUnit().getLabel();
                     }
-                    header.append(currentUnit);
+                    unitHeader.setCellValue(currentUnit);
+                    columnIndex++;
+
                     if (withUserNotes) {
-                        Cell noteHeader = getOrCreateCell(sheet, 0, columnIndex);
-                        noteHeader.setCellValue("Note");
                         columnIndex++;
                     }
-                    nameHeader.setCellValue(header.toString());
+                }
+            }
+        }
+
+        columnIndex = 0;
+        for (ChartSettings cset : charts) {
+            for (int i = 0; i < 4; i++) {
+                Cell descriptorCell = getOrCreateCell(sheet, i + 4, columnIndex);
+                switch (i) {
+                    case 0:
+                        descriptorCell.setCellValue(MIN);
+                        break;
+                    case 1:
+                        descriptorCell.setCellValue(MAX);
+                        break;
+                    case 2:
+                        descriptorCell.setCellValue(AVG);
+                        break;
+                    case 3:
+                        descriptorCell.setCellValue(SUM);
+                        break;
+                }
+            }
+            columnIndex++;
+
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                if (mdl.getSelectedcharts().contains(cset.getId())) {
+                    for (int i = 0; i < 4; i++) {
+                        Cell valueCell = getOrCreateCell(sheet, i + 4, columnIndex);
+                        switch (i) {
+                            case 0:
+                                valueCell.setCellValue(numberFormat.format(mdl.getMin()));
+                                break;
+                            case 1:
+                                valueCell.setCellValue(numberFormat.format(mdl.getMax()));
+                                break;
+                            case 2:
+                                valueCell.setCellValue(numberFormat.format(mdl.getAvg()));
+                                break;
+                            case 3:
+                                valueCell.setCellValue(numberFormat.format(mdl.getSum()));
+                                break;
+                        }
+                    }
                     columnIndex++;
+
+                    if (withUserNotes) {
+                        columnIndex++;
+                    }
+                }
+            }
+        }
+
+        columnIndex = 0;
+        for (ChartSettings cset : charts) {
+            Cell dateHeaderCell = getOrCreateCell(sheet, 9, columnIndex);
+            dateHeaderCell.setCellValue(DATE);
+            columnIndex++;
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                if (mdl.getSelectedcharts().contains(cset.getId())) {
+                    columnIndex++;
+
+                    if (withUserNotes) {
+                        Cell noteHeader = getOrCreateCell(sheet, 9, columnIndex);
+                        noteHeader.setCellValue(NOTE);
+                        columnIndex++;
+                    }
                 }
             }
         }
@@ -267,9 +399,13 @@ public class GraphExportCSV {
 
                 if (firstSet && mdl.getSelectedcharts().contains(cset.getId())) {
                     for (JEVisSample sample : mdl.getSamples()) {
-                        dateColumn.add(standard.print(sample.getTimestamp()));
-                        dateTimes.put(sample.getTimestamp(), dateCounter);
-                        dateCounter++;
+                        if (sample.getTimestamp().equals(minDate)
+                                || (sample.getTimestamp().isAfter(minDate) && sample.getTimestamp().isBefore(maxDate))
+                                || sample.getTimestamp().equals(maxDate)) {
+                            dateColumn.add(standard.print(sample.getTimestamp()));
+                            dateTimes.put(sample.getTimestamp(), dateCounter);
+                            dateCounter++;
+                        }
                     }
                     firstSet = false;
                     size = Math.max(size, dateColumn.size());
@@ -286,16 +422,28 @@ public class GraphExportCSV {
             Map<String, List<JEVisSample>> map = new HashMap<>();
             for (ChartDataModel mdl : model.getSelectedData()) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
-                    map.put(mdl.getObject().getName(), mdl.getSamples());
+                    List<JEVisSample> filteredSamples = new ArrayList<>();
+                    for (JEVisSample jeVisSample : mdl.getSamples()) {
+                        if (jeVisSample.getTimestamp().equals(minDate)
+                                || (jeVisSample.getTimestamp().isAfter(minDate) && jeVisSample.getTimestamp().isBefore(maxDate))
+                                || jeVisSample.getTimestamp().equals(maxDate)) {
+                            filteredSamples.add(jeVisSample);
+                        }
+                    }
+                    map.put(mdl.getObject().getName(), filteredSamples);
 
                     Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
                     for (JEVisObject jeVisObject : mdl.getObject().getChildren()) {
                         try {
-                            if (jeVisObject.getJEVisClassName().equals("Data Notes")) {
-                                JEVisAttribute notes = jeVisObject.getAttribute("User Notes");
+                            if (jeVisObject.getJEVisClassName().equals(DATA_NOTES)) {
+                                JEVisAttribute notes = jeVisObject.getAttribute(USER_NOTES);
                                 if (notes != null && notes.hasSample()) {
                                     for (JEVisSample jeVisSample : notes.getSamples(mdl.getSelectedStart(), mdl.getSelectedEnd())) {
-                                        sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
+                                        if (jeVisSample.getTimestamp().equals(minDate)
+                                                || (jeVisSample.getTimestamp().isAfter(minDate) && jeVisSample.getTimestamp().isBefore(maxDate))
+                                                || jeVisSample.getTimestamp().equals(maxDate)) {
+                                            sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
+                                        }
                                     }
 
                                 }
@@ -316,7 +464,7 @@ public class GraphExportCSV {
             int chartsIndex = cset.getId();
             int currentSize = listDateColumns.get(chartsIndex).size();
             for (int i = 0; i < currentSize; i++) {
-                Cell dateCell = getOrCreateCell(sheet, i + 1, columnIndex);
+                Cell dateCell = getOrCreateCell(sheet, i + 10, columnIndex);
                 dateCell.setCellValue(listDateColumns.get(chartsIndex).get(i));
                 dateCell.setCellStyle(cellStyleDateTime);
             }
@@ -327,7 +475,7 @@ public class GraphExportCSV {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     List<JEVisSample> jeVisSamples = listMaps.get(chartsIndex).get(objName);
                     for (JEVisSample jeVisSample : jeVisSamples) {
-                        Cell valueCell = getOrCreateCell(sheet, jeVisSamples.indexOf(jeVisSample) + 1, columnIndex);
+                        Cell valueCell = getOrCreateCell(sheet, jeVisSamples.indexOf(jeVisSample) + 10, columnIndex);
                         valueCell.setCellValue(jeVisSample.getValueAsDouble());
                         valueCell.setCellStyle(cellStyleValues);
                     }
@@ -339,7 +487,7 @@ public class GraphExportCSV {
                             DateTime dateTime = entry.getKey();
                             JEVisSample jeVisSample = entry.getValue();
                             if (jeVisSample != null) {
-                                Cell noteCell = getOrCreateCell(sheet, dateTimeLongMap.get(dateTime).intValue() + 1, columnIndex);
+                                Cell noteCell = getOrCreateCell(sheet, dateTimeLongMap.get(dateTime).intValue() + 10, columnIndex);
                                 noteCell.setCellValue(jeVisSample.getValueAsString());
                             }
                         }
@@ -383,9 +531,8 @@ public class GraphExportCSV {
         cellStyleValues.setDataFormat((short) 4);
 
         Sheet sheet = workbook.createSheet("Data");
-        Cell dateHeaderCell = getOrCreateCell(sheet, 0, 0);
-        dateHeaderCell.setCellValue("Date");
-
+        Cell nameHeaderCell = getOrCreateCell(sheet, 0, 0);
+        nameHeaderCell.setCellValue(NAME);
 
         int columnIndex = 1;
         for (ChartDataModel mdl : model.getSelectedData()) {
@@ -397,18 +544,104 @@ public class GraphExportCSV {
                 String dpName = mdl.getDataProcessor().getName();
                 header.append(" (").append(dpName).append(")");
             }
-            header.append(" in ");
+            nameHeader.setCellValue(header.toString());
+            columnIndex++;
+
+            if (withUserNotes) {
+                columnIndex++;
+            }
+        }
+
+        columnIndex = 0;
+        Cell idHeaderCell = getOrCreateCell(sheet, 1, columnIndex);
+        idHeaderCell.setCellValue(ID);
+        columnIndex++;
+        for (ChartDataModel mdl : model.getSelectedData()) {
+            Cell idHeader = getOrCreateCell(sheet, 1, columnIndex);
+            if (mdl.getDataProcessor() != null) {
+                idHeader.setCellValue(mdl.getDataProcessor().getID());
+            } else {
+                idHeader.setCellValue(mdl.getObject().getID());
+            }
+            columnIndex++;
+
+            if (withUserNotes) {
+                columnIndex++;
+            }
+        }
+
+        columnIndex = 0;
+        Cell unitCell = getOrCreateCell(sheet, 3, columnIndex);
+        unitCell.setCellValue(UNIT);
+        columnIndex++;
+        for (ChartDataModel mdl : model.getSelectedData()) {
+            Cell unitHeader = getOrCreateCell(sheet, 3, columnIndex);
             String currentUnit = UnitManager.getInstance().format(mdl.getUnit());
             if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
                 currentUnit = mdl.getUnit().getLabel();
             }
-            header.append(currentUnit);
+            unitHeader.setCellValue(currentUnit);
+            columnIndex++;
+
             if (withUserNotes) {
-                Cell noteHeader = getOrCreateCell(sheet, 0, columnIndex);
-                noteHeader.setCellValue("Note");
                 columnIndex++;
             }
-            nameHeader.setCellValue(header.toString());
+        }
+
+        columnIndex = 1;
+        for (int i = 0; i < 4; i++) {
+            Cell descriptorCell = getOrCreateCell(sheet, i + 4, 0);
+            switch (i) {
+                case 0:
+                    descriptorCell.setCellValue(MIN);
+                    break;
+                case 1:
+                    descriptorCell.setCellValue(MAX);
+                    break;
+                case 2:
+                    descriptorCell.setCellValue(AVG);
+                    break;
+                case 3:
+                    descriptorCell.setCellValue(SUM);
+                    break;
+            }
+        }
+
+        for (ChartDataModel mdl : model.getSelectedData()) {
+            for (int i = 0; i < 4; i++) {
+                Cell valueCell = getOrCreateCell(sheet, i + 4, columnIndex);
+                switch (i) {
+                    case 0:
+                        valueCell.setCellValue(numberFormat.format(mdl.getMin()));
+                        break;
+                    case 1:
+                        valueCell.setCellValue(numberFormat.format(mdl.getMax()));
+                        break;
+                    case 2:
+                        valueCell.setCellValue(numberFormat.format(mdl.getAvg()));
+                        break;
+                    case 3:
+                        valueCell.setCellValue(numberFormat.format(mdl.getSum()));
+                        break;
+                }
+            }
+            columnIndex++;
+
+            if (withUserNotes) {
+                columnIndex++;
+            }
+        }
+
+        Cell dateHeaderCell = getOrCreateCell(sheet, 9, 0);
+        dateHeaderCell.setCellValue(DATE);
+        columnIndex = 1;
+        for (ChartDataModel mdl : model.getSelectedData()) {
+            columnIndex++;
+            if (withUserNotes) {
+                Cell noteHeader = getOrCreateCell(sheet, 9, columnIndex);
+                noteHeader.setCellValue(NOTE);
+                columnIndex++;
+            }
         }
 
         List<String> dateColumn = new ArrayList<>();
@@ -418,9 +651,13 @@ public class GraphExportCSV {
         for (ChartDataModel mdl : model.getSelectedData()) {
             if (firstSet) {
                 for (JEVisSample sample : mdl.getSamples()) {
-                    dateColumn.add(standard.print(sample.getTimestamp()));
-                    dateTimes.put(sample.getTimestamp(), dateCounter);
-                    dateCounter++;
+                    if (sample.getTimestamp().equals(minDate)
+                            || (sample.getTimestamp().isAfter(minDate) && sample.getTimestamp().isBefore(maxDate))
+                            || sample.getTimestamp().equals(maxDate)) {
+                        dateColumn.add(standard.print(sample.getTimestamp()));
+                        dateTimes.put(sample.getTimestamp(), dateCounter);
+                        dateCounter++;
+                    }
                 }
                 firstSet = false;
             }
@@ -429,16 +666,28 @@ public class GraphExportCSV {
         Map<String, Map<DateTime, JEVisSample>> mapNotes = new HashMap<>();
         Map<String, List<JEVisSample>> map = new HashMap<>();
         for (ChartDataModel mdl : model.getSelectedData()) {
-            map.put(mdl.getObject().getName(), mdl.getSamples());
+            List<JEVisSample> filteredSamples = new ArrayList<>();
+            for (JEVisSample jeVisSample : mdl.getSamples()) {
+                if (jeVisSample.getTimestamp().equals(minDate)
+                        || (jeVisSample.getTimestamp().isAfter(minDate) && jeVisSample.getTimestamp().isBefore(maxDate))
+                        || jeVisSample.getTimestamp().equals(maxDate)) {
+                    filteredSamples.add(jeVisSample);
+                }
+            }
+            map.put(mdl.getObject().getName(), filteredSamples);
 
             Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
             for (JEVisObject jeVisObject : mdl.getObject().getChildren()) {
                 try {
-                    if (jeVisObject.getJEVisClassName().equals("Data Notes")) {
-                        JEVisAttribute notes = jeVisObject.getAttribute("User Notes");
+                    if (jeVisObject.getJEVisClassName().equals(DATA_NOTES)) {
+                        JEVisAttribute notes = jeVisObject.getAttribute(USER_NOTES);
                         if (notes != null && notes.hasSample()) {
                             for (JEVisSample jeVisSample : notes.getSamples(mdl.getSelectedStart(), mdl.getSelectedEnd())) {
-                                sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
+                                if (jeVisSample.getTimestamp().equals(minDate)
+                                        || (jeVisSample.getTimestamp().isAfter(minDate) && jeVisSample.getTimestamp().isBefore(maxDate))
+                                        || jeVisSample.getTimestamp().equals(maxDate)) {
+                                    sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
+                                }
                             }
 
                         }
@@ -452,7 +701,7 @@ public class GraphExportCSV {
 
         columnIndex = 1;
         for (int i = 0; i < dateColumn.size(); i++) {
-            Cell dateCell = getOrCreateCell(sheet, i + 1, 0);
+            Cell dateCell = getOrCreateCell(sheet, i + 10, 0);
             dateCell.setCellValue(dateColumn.get(i));
             dateCell.setCellStyle(cellStyleDateTime);
         }
@@ -462,7 +711,7 @@ public class GraphExportCSV {
             List<JEVisSample> jeVisSamples = map.get(name);
             for (JEVisSample sample : jeVisSamples) {
                 DateTime timeStamp = sample.getTimestamp();
-                Cell valueCell = getOrCreateCell(sheet, dateTimes.get(timeStamp).intValue() + 1, columnIndex);
+                Cell valueCell = getOrCreateCell(sheet, dateTimes.get(timeStamp).intValue() + 10, columnIndex);
                 valueCell.setCellValue(sample.getValueAsDouble());
                 valueCell.setCellStyle(cellStyleValues);
             }
@@ -474,7 +723,7 @@ public class GraphExportCSV {
                     DateTime timeStamp = entry.getKey();
                     JEVisSample sample = notes.get(timeStamp);
                     if (sample != null) {
-                        Cell noteCell = getOrCreateCell(sheet, dateTimes.get(timeStamp).intValue() + 1, columnIndex);
+                        Cell noteCell = getOrCreateCell(sheet, dateTimes.get(timeStamp).intValue() + 10, columnIndex);
                         noteCell.setCellValue(sample.getValueAsString());
                     }
                 }
@@ -500,52 +749,170 @@ public class GraphExportCSV {
     private String createCSVString() throws JEVisException {
         final StringBuilder sb = new StringBuilder();
 
-        StringBuilder header = new StringBuilder("Date");
+        /**
+         * Building the header
+         */
+        StringBuilder header = new StringBuilder(NAME);
         for (ChartDataModel mdl : model.getSelectedData()) {
             String objectName = mdl.getObject().getName();
 
-            header.append(";").append(objectName);
+            header.append(COL_SEP).append(objectName);
             if (mdl.getDataProcessor() != null) {
                 String dpName = mdl.getDataProcessor().getName();
                 header.append(" (").append(dpName).append(")");
             }
-            header.append(" in ");
+
+            if (withUserNotes) {
+                header.append(COL_SEP);
+            }
+        }
+
+        header.append(COL_SEP);
+        header.append(System.getProperty(LINE_SEPARATOR));
+
+        header.append(ID);
+        header.append(COL_SEP);
+
+        for (ChartDataModel mdl : model.getSelectedData()) {
+            if (mdl.getDataProcessor() != null) {
+                header.append(mdl.getDataProcessor().getID());
+            } else {
+                header.append(mdl.getObject().getID());
+            }
+            header.append(COL_SEP);
+
+            if (withUserNotes) {
+                header.append(COL_SEP);
+            }
+        }
+
+        header.append(System.getProperty(LINE_SEPARATOR));
+        header.append(System.getProperty(LINE_SEPARATOR));
+
+
+        header.append(UNIT);
+        header.append(COL_SEP);
+
+        for (ChartDataModel mdl : model.getSelectedData()) {
             String currentUnit = UnitManager.getInstance().format(mdl.getUnit());
             if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
                 currentUnit = mdl.getUnit().getLabel();
             }
             header.append(currentUnit);
+            header.append(COL_SEP);
+
             if (withUserNotes) {
-                header.append(";Note");
+                header.append(COL_SEP);
             }
         }
+
+        for (int i = 0; i < 4; i++) {
+            header.append(System.getProperty(LINE_SEPARATOR));
+            switch (i) {
+                case 0:
+                    header.append(MIN);
+                    header.append(COL_SEP);
+                    break;
+                case 1:
+                    header.append(MAX);
+                    header.append(COL_SEP);
+                    break;
+                case 2:
+                    header.append(AVG);
+                    header.append(COL_SEP);
+                    break;
+                case 3:
+                    header.append(SUM);
+                    header.append(COL_SEP);
+                    break;
+            }
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                switch (i) {
+                    case 0:
+                        header.append(numberFormat.format(mdl.getMin()));
+                        header.append(COL_SEP);
+                        break;
+                    case 1:
+                        header.append(numberFormat.format(mdl.getMax()));
+                        header.append(COL_SEP);
+                        break;
+                    case 2:
+                        header.append(numberFormat.format(mdl.getAvg()));
+                        header.append(COL_SEP);
+                        break;
+                    case 3:
+                        header.append(numberFormat.format(mdl.getSum()));
+                        header.append(COL_SEP);
+                        break;
+                }
+
+                if (withUserNotes) {
+                    header.append(COL_SEP);
+                }
+            }
+        }
+
         sb.append(header);
-        sb.append(System.getProperty("line.separator"));
+        sb.append(System.getProperty(LINE_SEPARATOR));
+        sb.append(System.getProperty(LINE_SEPARATOR));
+        sb.append(DATE);
+        sb.append(COL_SEP);
+        for (ChartDataModel mdl : model.getSelectedData()) {
+            sb.append(COL_SEP);
+            if (withUserNotes) {
+                sb.append(NOTE);
+                sb.append(COL_SEP);
+            }
+        }
+        sb.append(System.getProperty(LINE_SEPARATOR));
+
+        /**
+         * Building a list for the date Column
+         */
 
         List<String> dateColumn = new ArrayList<>();
         boolean firstSet = true;
         for (ChartDataModel mdl : model.getSelectedData()) {
             if (firstSet) {
                 for (JEVisSample sample : mdl.getSamples()) {
-                    dateColumn.add(standard.print(sample.getTimestamp()));
+                    if (sample.getTimestamp().equals(minDate)
+                            || (sample.getTimestamp().isAfter(minDate) && sample.getTimestamp().isBefore(maxDate))
+                            || sample.getTimestamp().equals(maxDate)) {
+                        dateColumn.add(standard.print(sample.getTimestamp()));
+                    }
                 }
                 firstSet = false;
             }
         }
 
+        /**
+         * Building maps for the samples
+         */
         Map<String, Map<DateTime, JEVisSample>> mapNotes = new HashMap<>();
         Map<String, List<JEVisSample>> map = new HashMap<>();
         for (ChartDataModel mdl : model.getSelectedData()) {
-            map.put(mdl.getObject().getName(), mdl.getSamples());
+            List<JEVisSample> filteredSamples = new ArrayList<>();
+            for (JEVisSample jeVisSample : mdl.getSamples()) {
+                if (jeVisSample.getTimestamp().equals(minDate)
+                        || (jeVisSample.getTimestamp().isAfter(minDate) && jeVisSample.getTimestamp().isBefore(maxDate))
+                        || jeVisSample.getTimestamp().equals(maxDate)) {
+                    filteredSamples.add(jeVisSample);
+                }
+            }
+            map.put(mdl.getObject().getName(), filteredSamples);
 
             Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
             for (JEVisObject jeVisObject : mdl.getObject().getChildren()) {
                 try {
-                    if (jeVisObject.getJEVisClassName().equals("Data Notes")) {
-                        JEVisAttribute notes = jeVisObject.getAttribute("User Notes");
+                    if (jeVisObject.getJEVisClassName().equals(DATA_NOTES)) {
+                        JEVisAttribute notes = jeVisObject.getAttribute(USER_NOTES);
                         if (notes != null && notes.hasSample()) {
                             for (JEVisSample jeVisSample : notes.getAllSamples()) {
-                                sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
+                                if (jeVisSample.getTimestamp().equals(minDate)
+                                        || (jeVisSample.getTimestamp().isAfter(minDate) && jeVisSample.getTimestamp().isBefore(maxDate))
+                                        || jeVisSample.getTimestamp().equals(maxDate)) {
+                                    sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
+                                }
                             }
 
                         }
@@ -557,9 +924,12 @@ public class GraphExportCSV {
             mapNotes.put(mdl.getObject().getName(), sampleMap);
         }
 
+        /**
+         * Building the final date and value columns
+         */
         for (int i = 0; i < dateColumn.size(); i++) {
             StringBuilder s = new StringBuilder();
-            s.append(dateColumn.get(i)).append(";");
+            s.append(dateColumn.get(i)).append(COL_SEP);
 
             for (ChartDataModel mdl : model.getSelectedData()) {
                 String name = mdl.getObject().getName();
@@ -571,20 +941,20 @@ public class GraphExportCSV {
                     String formattedValue = numberFormat.format(sample.getValueAsDouble());
                     s.append(formattedValue);
                 }
-                s.append(";");
+                s.append(COL_SEP);
                 if (withUserNotes && timeStamp != null) {
                     Map<DateTime, JEVisSample> notes = mapNotes.get(name);
                     JEVisSample sample = notes.get(timeStamp);
                     if (sample != null) {
                         s.append(sample.getValueAsString());
                     }
-                    s.append(";");
+                    s.append(COL_SEP);
                 } else if (withUserNotes) {
-                    s.append(";");
+                    s.append(COL_SEP);
                 }
             }
             sb.append(s);
-            sb.append(System.getProperty("line.separator"));
+            sb.append(System.getProperty(LINE_SEPARATOR));
         }
 
         return sb.toString();
@@ -594,34 +964,141 @@ public class GraphExportCSV {
         final StringBuilder sb = new StringBuilder();
 
         for (ChartSettings cset : charts) {
-            StringBuilder header = new StringBuilder("Date");
+            StringBuilder header = new StringBuilder(NAME);
             for (ChartDataModel mdl : model.getSelectedData()) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     String objectName = mdl.getObject().getName();
 
-                    header.append(";").append(objectName);
+                    header.append(COL_SEP).append(objectName);
                     if (mdl.getDataProcessor() != null) {
                         String dpName = mdl.getDataProcessor().getName();
                         header.append(" (").append(dpName).append(")");
                     }
 
-                    header.append(" in ");
+                    if (withUserNotes) {
+                        header.append(COL_SEP);
+                    }
+                }
+            }
+            header.append(COL_SEP);
+            sb.append(header);
+        }
+
+        sb.append(System.getProperty(LINE_SEPARATOR));
+
+        for (ChartSettings cset : charts) {
+            sb.append(ID);
+            sb.append(COL_SEP);
+
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                if (mdl.getSelectedcharts().contains(cset.getId())) {
+                    if (mdl.getDataProcessor() != null) {
+                        sb.append(mdl.getDataProcessor().getID());
+                    } else {
+                        sb.append(mdl.getObject().getID());
+                    }
+                    sb.append(COL_SEP);
+
+                    if (withUserNotes) {
+                        sb.append(COL_SEP);
+                    }
+                }
+            }
+        }
+
+        sb.append(System.getProperty(LINE_SEPARATOR));
+        sb.append(System.getProperty(LINE_SEPARATOR));
+
+        for (ChartSettings cset : charts) {
+            sb.append(UNIT);
+            sb.append(COL_SEP);
+
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                if (mdl.getSelectedcharts().contains(cset.getId())) {
                     String currentUnit = UnitManager.getInstance().format(mdl.getUnit());
                     if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
                         currentUnit = mdl.getUnit().getLabel();
                     }
-                    header.append(currentUnit);
+                    sb.append(currentUnit);
+                    sb.append(COL_SEP);
+
                     if (withUserNotes) {
-                        header.append(";Note");
+                        sb.append(COL_SEP);
                     }
                 }
             }
-            header.append(";");
-            sb.append(header);
         }
 
-        sb.append(System.getProperty("line.separator"));
+        for (int i = 0; i < 4; i++) {
+            StringBuilder row = new StringBuilder();
+            row.append(System.getProperty(LINE_SEPARATOR));
+            for (ChartSettings cset : charts) {
+                switch (i) {
+                    case 0:
+                        row.append(MIN);
+                        row.append(COL_SEP);
+                        break;
+                    case 1:
+                        row.append(MAX);
+                        row.append(COL_SEP);
+                        break;
+                    case 2:
+                        row.append(AVG);
+                        row.append(COL_SEP);
+                        break;
+                    case 3:
+                        row.append(SUM);
+                        row.append(COL_SEP);
+                        break;
+                }
+                for (ChartDataModel mdl : model.getSelectedData()) {
+                    if (mdl.getSelectedcharts().contains(cset.getId())) {
+                        switch (i) {
+                            case 0:
+                                row.append(numberFormat.format(mdl.getMin()));
+                                row.append(COL_SEP);
+                                break;
+                            case 1:
+                                row.append(numberFormat.format(mdl.getMax()));
+                                row.append(COL_SEP);
+                                break;
+                            case 2:
+                                row.append(numberFormat.format(mdl.getAvg()));
+                                row.append(COL_SEP);
+                                break;
+                            case 3:
+                                row.append(numberFormat.format(mdl.getSum()));
+                                row.append(COL_SEP);
+                                break;
+                        }
 
+                        if (withUserNotes) {
+                            row.append(COL_SEP);
+                        }
+                    }
+                }
+            }
+            sb.append(row);
+        }
+
+        sb.append(System.getProperty(LINE_SEPARATOR));
+        sb.append(System.getProperty(LINE_SEPARATOR));
+        for (ChartSettings cset : charts) {
+            StringBuilder dateHeader = new StringBuilder(DATE);
+            dateHeader.append(COL_SEP);
+            for (ChartDataModel mdl : model.getSelectedData()) {
+                if (mdl.getSelectedcharts().contains(cset.getId())) {
+                    dateHeader.append(COL_SEP);
+
+                    if (withUserNotes) {
+                        dateHeader.append(NOTE);
+                        dateHeader.append(COL_SEP);
+                    }
+                }
+            }
+            sb.append(dateHeader);
+        }
+        sb.append(System.getProperty(LINE_SEPARATOR));
 
         long size = 0L;
 
@@ -639,7 +1116,11 @@ public class GraphExportCSV {
 
                 if (firstSet && mdl.getSelectedcharts().contains(cset.getId())) {
                     for (JEVisSample sample : mdl.getSamples()) {
-                        dateColumn.add(standard.print(sample.getTimestamp()));
+                        if (sample.getTimestamp().equals(minDate)
+                                || (sample.getTimestamp().isAfter(minDate) && sample.getTimestamp().isBefore(maxDate))
+                                || sample.getTimestamp().equals(maxDate)) {
+                            dateColumn.add(standard.print(sample.getTimestamp()));
+                        }
                     }
                     firstSet = false;
                     size = Math.max(size, dateColumn.size());
@@ -655,16 +1136,28 @@ public class GraphExportCSV {
             Map<String, List<JEVisSample>> map = new HashMap<>();
             for (ChartDataModel mdl : model.getSelectedData()) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
-                    map.put(mdl.getObject().getName(), mdl.getSamples());
+                    List<JEVisSample> filteredSamples = new ArrayList<>();
+                    for (JEVisSample jeVisSample : mdl.getSamples()) {
+                        if (jeVisSample.getTimestamp().equals(minDate)
+                                || (jeVisSample.getTimestamp().isAfter(minDate) && jeVisSample.getTimestamp().isBefore(maxDate))
+                                || jeVisSample.getTimestamp().equals(maxDate)) {
+                            filteredSamples.add(jeVisSample);
+                        }
+                    }
+                    map.put(mdl.getObject().getName(), filteredSamples);
 
                     Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
                     for (JEVisObject jeVisObject : mdl.getObject().getChildren()) {
                         try {
-                            if (jeVisObject.getJEVisClassName().equals("Data Notes")) {
-                                JEVisAttribute notes = jeVisObject.getAttribute("User Notes");
+                            if (jeVisObject.getJEVisClassName().equals(DATA_NOTES)) {
+                                JEVisAttribute notes = jeVisObject.getAttribute(USER_NOTES);
                                 if (notes != null && notes.hasSample()) {
                                     for (JEVisSample jeVisSample : notes.getAllSamples()) {
-                                        sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
+                                        if (jeVisSample.getTimestamp().equals(minDate)
+                                                || (jeVisSample.getTimestamp().isAfter(minDate) && jeVisSample.getTimestamp().isBefore(maxDate))
+                                                || jeVisSample.getTimestamp().equals(maxDate)) {
+                                            sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
+                                        }
                                     }
 
                                 }
@@ -687,9 +1180,9 @@ public class GraphExportCSV {
                 boolean hasValues = i < listDateColumns.get(chartsIndex).size();
 
                 if (hasValues) {
-                    str.append(listDateColumns.get(chartsIndex).get(i)).append(";");
+                    str.append(listDateColumns.get(chartsIndex).get(i)).append(COL_SEP);
                 } else {
-                    str.append(";");
+                    str.append(COL_SEP);
                 }
 
                 for (ChartDataModel mdl : model.getSelectedData()) {
@@ -698,25 +1191,25 @@ public class GraphExportCSV {
                         if (hasValues) {
                             JEVisSample sample1 = listMaps.get(chartsIndex).get(objName).get(i);
                             String formattedValue = numberFormat.format(sample1.getValueAsDouble());
-                            str.append(formattedValue).append(";");
+                            str.append(formattedValue).append(COL_SEP);
                             if (withUserNotes) {
                                 JEVisSample sample = listNotes.get(chartsIndex).get(objName).get(sample1.getTimestamp());
                                 if (sample != null) {
                                     str.append(sample.getValueAsString());
                                 }
-                                str.append(";");
+                                str.append(COL_SEP);
                             }
                         } else {
-                            str.append(";");
+                            str.append(COL_SEP);
                             if (withUserNotes) {
-                                str.append(";");
+                                str.append(COL_SEP);
                             }
                         }
                     }
                 }
             }
             sb.append(str);
-            sb.append(System.getProperty("line.separator"));
+            sb.append(System.getProperty(LINE_SEPARATOR));
         }
 
         return sb.toString();

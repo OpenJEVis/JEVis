@@ -1,7 +1,9 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import com.sun.javafx.scene.control.skin.ColorPickerSkin;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
@@ -121,7 +123,8 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel data1 = getData(getTreeTableRow().getItem());
+                                    ChartDataModel currentDataModel = getData(getTreeTableRow().getItem());
+
                                     ColorPicker colorPicker = new ColorPicker();
 
                                     StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
@@ -131,9 +134,10 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
 
                                     colorPicker.setOnAction(event -> commitEdit(colorPicker.getValue()));
 
-                                    colorPicker.setDisable(!data1.isSelectable());
+                                    colorPicker.setDisable(!currentDataModel.isSelectable());
                                     stackPane.getChildren().setAll(colorPicker);
                                     setGraphic(stackPane);
+
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -146,6 +150,18 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
         });
 
         this.colorColumn = column;
+    }
+
+    public class CustomColorPickerSkin extends ColorPickerSkin {
+
+        public CustomColorPickerSkin(ColorPicker colorPicker) {
+            super(colorPicker);
+        }
+
+        @Override
+        public Node getPopupContent() {
+            return super.getPopupContent();
+        }
     }
 
     public Color getNextColor() {

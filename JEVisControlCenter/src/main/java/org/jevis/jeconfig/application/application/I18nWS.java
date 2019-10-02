@@ -10,6 +10,7 @@ import org.jevis.commons.ws.json.JsonI18nClass;
 import org.jevis.commons.ws.json.JsonI18nType;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -23,6 +24,7 @@ public class I18nWS {
 
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(I18nWS.class);
     private static I18nWS i18n;
+    private static JEVisDataSourceWS ds;
     private Locale locale = LocaleBeanUtils.getDefaultLocale();
     private static List<JsonI18nClass> i18nfiles;
 
@@ -48,6 +50,7 @@ public class I18nWS {
      * @todo replace this prototype with an the JEDataSource interface
      */
     public static void setDataSource(JEVisDataSourceWS ws) {
+        ds = ws;
         i18nfiles = ws.getTranslation();
     }
 
@@ -66,21 +69,66 @@ public class I18nWS {
         try {
             JsonI18nClass json = getJsonClass(jevisClass);
 
+            String translatedString = "";
+            boolean found = false;
             for (JsonI18nType type : json.getTypes()) {
                 if (type.getType().equalsIgnoreCase(typeName)) {
                     if (type.getNames().containsKey(locale.getLanguage())) {
-                        return type.getNames().get(locale.getLanguage());
-                    } else {
-                        logger.warn("Type name not found: {}-{}", jevisClass, typeName);
-                        return typeName;
+                        translatedString = type.getNames().get(locale.getLanguage());
+                        found = true;
                     }
                 }
             }
+            if (!found) {
+                JEVisClass inheritanceClass = ds.getJEVisClass(jevisClass).getInheritance();
+                List<JsonI18nClass> possibleParents = new ArrayList<>();
+                getPossibleParents(possibleParents, inheritanceClass);
+
+                for (JsonI18nClass jsonI18nClass : possibleParents) {
+                    for (JsonI18nType type : jsonI18nClass.getTypes()) {
+                        if (type.getType().equalsIgnoreCase(typeName)) {
+                            if (type.getNames().containsKey(locale.getLanguage())) {
+                                translatedString = type.getNames().get(locale.getLanguage());
+                                found = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!found) {
+                logger.warn("Type name not found: {}-{}", jevisClass, typeName);
+                translatedString = typeName;
+            }
+
+            return translatedString;
         } catch (Exception ex) {
             logger.error(ex);
         }
 
         return typeName;
+    }
+
+    private void getPossibleParents(List<JsonI18nClass> possibleParents, JEVisClass inheritanceClass) {
+
+        JsonI18nClass parentJson = null;
+        try {
+            parentJson = getJsonClass(inheritanceClass.getName());
+        } catch (JEVisException e) {
+            logger.error(e);
+        }
+        if (parentJson != null) {
+            possibleParents.add(parentJson);
+            JEVisClass parentInheritanceClass = null;
+            try {
+                parentInheritanceClass = ds.getJEVisClass(parentJson.getJevisclass()).getInheritance();
+            } catch (JEVisException e) {
+                logger.error(e);
+            }
+            if (parentInheritanceClass != null) {
+                getPossibleParents(possibleParents, parentInheritanceClass);
+            }
+        }
     }
 
     public String getAttributeName(JEVisAttribute attribute) throws JEVisException {

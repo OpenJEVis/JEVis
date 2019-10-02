@@ -21,10 +21,8 @@ import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
-import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -167,7 +165,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                     checkBox.setSelected(item);
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel data1 = getData(getTreeTableRow().getItem());
+                                    ChartDataModel currentDataModel = getData(getTreeTableRow().getItem());
 
                                     stackPane.getChildren().setAll(checkBox);
                                     StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
@@ -177,7 +175,9 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                             boolean isSelected = false;
                                             Color currentColor = null;
                                             for (ChartDataModel dataModel : data.getSelectedData()) {
-                                                if (data1.getObject().equals(dataModel.getObject()) && data1.getDataProcessor().equals(dataModel.getDataProcessor())) {
+                                                if (currentDataModel.getObject().equals(dataModel.getObject())
+                                                        && (currentDataModel.getDataProcessor() != null
+                                                        && currentDataModel.getDataProcessor().equals(dataModel.getDataProcessor()))) {
                                                     isSelected = true;
                                                     currentColor = dataModel.getColor();
                                                     break;
@@ -191,9 +191,9 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                  * if the checkbox is selected, get a color for it
                                                  */
                                                 if (!isSelected) {
-                                                    data1.setColor(colorColumn.getNextColor());
+                                                    currentDataModel.setColor(colorColumn.getNextColor());
                                                 } else if (currentColor != null) {
-                                                    data1.setColor(currentColor);
+                                                    currentDataModel.setColor(currentColor);
                                                 }
                                                 Platform.runLater(() -> {
                                                     JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
@@ -205,7 +205,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                  */
                                                 boolean foundOther = false;
                                                 for (ChartDataModel dataModel : data.getSelectedData()) {
-                                                    if (data1.getObject().equals(dataModel.getObject()) && data1.getDataProcessor().equals(dataModel.getDataProcessor())) {
+                                                    if (currentDataModel.getObject().equals(dataModel.getObject()) && currentDataModel.getDataProcessor().equals(dataModel.getDataProcessor())) {
                                                         foundOther = true;
                                                         break;
                                                     }
@@ -215,83 +215,83 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                     /**
                                                      * if the box is unselected and no other selected, remove the color
                                                      */
-                                                    colorColumn.removeUsedColor(data1.getColor());
-                                                    data1.setColor(colorColumn.getStandardColor());
+                                                    colorColumn.removeUsedColor(currentDataModel.getColor());
+                                                    currentDataModel.setColor(colorColumn.getStandardColor());
                                                     Platform.runLater(() -> {
                                                         JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
                                                         getTreeTableRow().getTreeItem().setValue(sobj);
                                                     });
 
 
-                                                    /**
-                                                     * remove the chart column from the tree and data model
-                                                     */
-
-                                                    if (getData().getCharts().size() > 1) {
-                                                        getTableColumn().setVisible(false);
-
-                                                        /**
-                                                         * remove the ChartSettings from the data model
-                                                         */
-                                                        ChartSettings toBeRemoved = null;
-                                                        Integer removeId = null;
-                                                        for (ChartSettings settings : getData().getCharts()) {
-                                                            if (settings.getId().equals(getChartId())) {
-                                                                toBeRemoved = settings;
-                                                                removeId = settings.getId();
-                                                                break;
-                                                            }
-                                                        }
-                                                        getData().getCharts().remove(toBeRemoved);
-
-                                                        /**
-                                                         *  for all remaining ChartSettings decrease the ids for chart indices greater than the removed chart
-                                                         */
-                                                        List<ChartSettings> charts = getData().getCharts();
-                                                        for (ChartSettings chartSettings : charts) {
-                                                            int oldId = chartSettings.getId();
-                                                            if (oldId > getChartId()) {
-                                                                chartSettings.setId(oldId - 1);
-                                                            }
-                                                        }
-
-                                                        /**
-                                                         * apply the changed chart ids to the data rows
-                                                         */
-                                                        for (ChartDataModel chartDataModel : getData().getSelectedData()) {
-                                                            List<Integer> selectedCharts = chartDataModel.getSelectedcharts();
-                                                            List<Integer> newList = new ArrayList<>();
-                                                            for (Integer integer : selectedCharts) {
-                                                                if (integer < getChartId()) {
-                                                                    newList.add(integer);
-                                                                } else {
-                                                                    newList.add(integer - 1);
-                                                                }
-                                                            }
-                                                            chartDataModel.setSelectedCharts(newList);
-                                                        }
-                                                        getTableColumn().getParentColumn().getColumns().remove(getTableColumn());
-
-                                                        List<TreeTableColumn<JEVisTreeRow, Boolean>> tobeRemovedColumn = new ArrayList<>();
-                                                        for (int i = 0; i < selectionColumns.size(); i++) {
-
-                                                            TreeTableColumn<JEVisTreeRow, Boolean> jeVisTreeRowLongTreeTableColumn = selectionColumns.get(i);
-                                                            if (i > getChartId()) {
-                                                                tobeRemovedColumn.add(jeVisTreeRowLongTreeTableColumn);
-                                                            }
-                                                        }
-                                                        selectionColumns.removeAll(tobeRemovedColumn);
-                                                        allColumns.getColumns().removeAll(tobeRemovedColumn);
-
-                                                        for (int i = removeId; i < getData().getCharts().size(); i++) {
-                                                            SelectionColumn selectColumn = new SelectionColumn(tree, dataSource, colorColumn, i, selectionColumns, allColumns);
-                                                            selectColumn.setGraphDataModel(getData());
-                                                            selectionColumns.add(selectColumn.getSelectionColumn());
-                                                            allColumns.getColumns().add(allColumns.getColumns().size() - ChartPluginTree.NO_OF_COLUMNS, selectColumn.getSelectionColumn());
-                                                        }
-
-                                                        tree.refresh();
-                                                    }
+//                                                    /**
+//                                                     * remove the chart column from the tree and data model
+//                                                     */
+//
+//                                                    if (getData().getCharts().size() > 1) {
+//                                                        getTableColumn().setVisible(false);
+//
+//                                                        /**
+//                                                         * remove the ChartSettings from the data model
+//                                                         */
+//                                                        ChartSettings toBeRemoved = null;
+//                                                        Integer removeId = null;
+//                                                        for (ChartSettings settings : getData().getCharts()) {
+//                                                            if (settings.getId().equals(getChartId())) {
+//                                                                toBeRemoved = settings;
+//                                                                removeId = settings.getId();
+//                                                                break;
+//                                                            }
+//                                                        }
+//                                                        getData().getCharts().remove(toBeRemoved);
+//
+//                                                        /**
+//                                                         *  for all remaining ChartSettings decrease the ids for chart indices greater than the removed chart
+//                                                         */
+//                                                        List<ChartSettings> charts = getData().getCharts();
+//                                                        for (ChartSettings chartSettings : charts) {
+//                                                            int oldId = chartSettings.getId();
+//                                                            if (oldId > getChartId()) {
+//                                                                chartSettings.setId(oldId - 1);
+//                                                            }
+//                                                        }
+//
+//                                                        /**
+//                                                         * apply the changed chart ids to the data rows
+//                                                         */
+//                                                        for (ChartDataModel chartDataModel : getData().getSelectedData()) {
+//                                                            List<Integer> selectedCharts = chartDataModel.getSelectedcharts();
+//                                                            List<Integer> newList = new ArrayList<>();
+//                                                            for (Integer integer : selectedCharts) {
+//                                                                if (integer < getChartId()) {
+//                                                                    newList.add(integer);
+//                                                                } else {
+//                                                                    newList.add(integer - 1);
+//                                                                }
+//                                                            }
+//                                                            chartDataModel.setSelectedCharts(newList);
+//                                                        }
+//                                                        getTableColumn().getParentColumn().getColumns().remove(getTableColumn());
+//
+//                                                        List<TreeTableColumn<JEVisTreeRow, Boolean>> tobeRemovedColumn = new ArrayList<>();
+//                                                        for (int i = 0; i < selectionColumns.size(); i++) {
+//
+//                                                            TreeTableColumn<JEVisTreeRow, Boolean> jeVisTreeRowLongTreeTableColumn = selectionColumns.get(i);
+//                                                            if (i > getChartId()) {
+//                                                                tobeRemovedColumn.add(jeVisTreeRowLongTreeTableColumn);
+//                                                            }
+//                                                        }
+//                                                        selectionColumns.removeAll(tobeRemovedColumn);
+//                                                        allColumns.getColumns().removeAll(tobeRemovedColumn);
+//
+//                                                        for (int i = removeId; i < getData().getCharts().size(); i++) {
+//                                                            SelectionColumn selectColumn = new SelectionColumn(tree, dataSource, colorColumn, i, selectionColumns, allColumns);
+//                                                            selectColumn.setGraphDataModel(getData());
+//                                                            selectionColumns.add(selectColumn.getSelectionColumn());
+//                                                            allColumns.getColumns().add(allColumns.getColumns().size() - ChartPluginTree.NO_OF_COLUMNS, selectColumn.getSelectionColumn());
+//                                                        }
+//
+//                                                        tree.refresh();
+//                                                    }
                                                 }
                                             }
                                         } catch (Exception ex) {

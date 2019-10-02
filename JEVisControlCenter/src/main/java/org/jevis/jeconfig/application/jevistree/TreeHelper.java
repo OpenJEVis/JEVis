@@ -24,6 +24,7 @@ import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -32,6 +33,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -44,6 +46,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.export.ExportMaster;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.ReportLink;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
@@ -346,6 +349,303 @@ public class TreeHelper {
         } catch (JEVisException e) {
             logger.error("Could not get JEVis data source.", e);
         }
+    }
+
+    public static void EventDeleteAllCalculations(JEVisTree tree) {
+        logger.debug("EventDeleteAllCalculations");
+        try {
+            if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
+                String question = I18n.getInstance().getString("jevistree.dialog.delete.message");
+                ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
+                for (TreeItem<JEVisTreeRow> item : items) {
+                    if (items.indexOf(item) > 0 && items.indexOf(item) < items.size() - 1)
+                        question += item.getValue().getJEVisObject().getName();
+                }
+                question += "?";
+
+                if (tree.getJEVisDataSource().getCurrentUser().canWrite(items.get(0).getValue().getJEVisObject().getID())) {
+
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle(I18n.getInstance().getString("jevistree.dialog.deleteCalculations.title"));
+                    alert.setHeaderText(null);
+                    alert.setContentText(question);
+                    GridPane gp = new GridPane();
+                    gp.setHgap(4);
+                    gp.setVgap(6);
+
+                    Label dateLabelFrom = new Label(I18n.getInstance().getString("tree.treehelper.from"));
+                    JFXDatePicker datePickerFrom = new JFXDatePicker();
+                    JFXTimePicker timePickerFrom = new JFXTimePicker();
+                    timePickerFrom.set24HourView(true);
+                    timePickerFrom.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+                    AtomicBoolean changedFrom = new AtomicBoolean(false);
+
+                    datePickerFrom.valueProperty().addListener((observable, oldValue, newValue) -> {
+                        if (newValue != oldValue) {
+                            changedFrom.set(true);
+                        }
+                    });
+
+                    timePickerFrom.valueProperty().addListener((observable, oldValue, newValue) -> {
+                        if (newValue != oldValue) {
+                            changedFrom.set(true);
+                        }
+                    });
+
+                    Label dateLabelTo = new Label(I18n.getInstance().getString("tree.treehelper.to"));
+                    JFXDatePicker datePickerTo = new JFXDatePicker();
+                    JFXTimePicker timePickerTo = new JFXTimePicker();
+                    timePickerTo.set24HourView(true);
+                    timePickerTo.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
+                    AtomicBoolean changedTo = new AtomicBoolean(false);
+
+                    datePickerTo.valueProperty().addListener((observable, oldValue, newValue) -> {
+                        if (newValue != oldValue) {
+                            changedTo.set(true);
+                        }
+                    });
+
+                    datePickerTo.valueProperty().addListener((observable, oldValue, newValue) -> {
+                        if (newValue != oldValue) {
+                            changedTo.set(true);
+                        }
+                    });
+
+
+                    gp.add(dateLabelFrom, 0, 0);
+                    gp.add(datePickerFrom, 1, 0);
+                    gp.add(timePickerFrom, 2, 0);
+                    gp.add(dateLabelTo, 0, 1);
+                    gp.add(datePickerTo, 1, 1);
+                    gp.add(timePickerTo, 2, 1);
+
+                    alert.getDialogPane().setContent(gp);
+
+                    alert.showAndWait().ifPresent(buttonType -> {
+                        if (buttonType.equals(ButtonType.OK)) {
+                            try {
+
+                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title") + "...");
+
+                                Task<Void> reload = new Task<Void>() {
+                                    @Override
+                                    protected Void call() {
+                                        for (TreeItem<JEVisTreeRow> item : items) {
+                                            if (!changedFrom.get() && !changedTo.get()) {
+                                                deleteAllCalculations(item.getValue().getJEVisObject(), null, null);
+                                            } else if (changedFrom.get() && !changedTo.get()) {
+                                                DateTime dateTimeFrom = new DateTime(
+                                                        datePickerFrom.valueProperty().get().getYear(),
+                                                        datePickerFrom.valueProperty().get().getMonthValue(),
+                                                        datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                                        timePickerFrom.valueProperty().get().getHour(),
+                                                        timePickerFrom.valueProperty().get().getMinute(),
+                                                        timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                                deleteAllCalculations(item.getValue().getJEVisObject(),
+                                                        dateTimeFrom,
+                                                        null);
+                                            } else if (!changedFrom.get() && changedTo.get()) {
+                                                DateTime dateTimeTo = new DateTime(
+                                                        datePickerTo.valueProperty().get().getYear(),
+                                                        datePickerTo.valueProperty().get().getMonthValue(),
+                                                        datePickerTo.valueProperty().get().getDayOfMonth(),
+                                                        timePickerTo.valueProperty().get().getHour(),
+                                                        timePickerTo.valueProperty().get().getMinute(),
+                                                        timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                                deleteAllCalculations(item.getValue().getJEVisObject(),
+                                                        null,
+                                                        dateTimeTo);
+                                            } else {
+                                                DateTime dateTimeFrom = new DateTime(
+                                                        datePickerFrom.valueProperty().get().getYear(),
+                                                        datePickerFrom.valueProperty().get().getMonthValue(),
+                                                        datePickerFrom.valueProperty().get().getDayOfMonth(),
+                                                        timePickerFrom.valueProperty().get().getHour(),
+                                                        timePickerFrom.valueProperty().get().getMinute(),
+                                                        timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                                DateTime dateTimeTo = new DateTime(
+                                                        datePickerTo.valueProperty().get().getYear(),
+                                                        datePickerTo.valueProperty().get().getMonthValue(),
+                                                        datePickerTo.valueProperty().get().getDayOfMonth(),
+                                                        timePickerTo.valueProperty().get().getHour(),
+                                                        timePickerTo.valueProperty().get().getMinute(),
+                                                        timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
+
+                                                deleteAllCalculations(item.getValue().getJEVisObject(),
+                                                        dateTimeFrom,
+                                                        dateTimeTo);
+                                            }
+                                        }
+
+                                        return null;
+                                    }
+                                };
+                                reload.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+                                reload.setOnCancelled(event -> {
+                                    logger.debug("Delete all samples Cancelled");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                reload.setOnFailed(event -> {
+                                    logger.debug("Delete all samples failed");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                pForm.activateProgressBar(reload);
+                                pForm.getDialogStage().show();
+
+                                new Thread(reload).start();
+
+                            } catch (Exception ex) {
+                                logger.catching(ex);
+                                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
+                                        I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                            }
+                        } else {
+                            // ... user chose CANCEL or closed the dialog
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        alert1.showAndWait();
+                    });
+
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not get JEVis data source.", e);
+        }
+    }
+
+    private static void deleteAllCalculations(JEVisObject jeVisObject, DateTime from, DateTime to) {
+        JEVisClass calculationClass = null;
+        JEVisClass outputClass = null;
+        JEVisClass cleanDataClass = null;
+        JEVisClass rawDataClass = null;
+        try {
+            calculationClass = jeVisObject.getDataSource().getJEVisClass("Calculation");
+            outputClass = jeVisObject.getDataSource().getJEVisClass("Output");
+            rawDataClass = jeVisObject.getDataSource().getJEVisClass("Data");
+            cleanDataClass = jeVisObject.getDataSource().getJEVisClass("Clean Data");
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        List<JEVisObject> rawData = new ArrayList<>();
+        try {
+            rawData = getAllRawDataRec(jeVisObject, rawDataClass);
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        List<JEVisObject> allCalculations = new ArrayList<>();
+        try {
+            allCalculations = jeVisObject.getDataSource().getObjects(calculationClass, false);
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        List<JEVisObject> allTargets = new ArrayList<>();
+        Map<JEVisObject, JEVisObject> targetAndCalc = new HashMap<>();
+        for (JEVisObject calcObject : allCalculations) {
+            try {
+                for (JEVisObject output : calcObject.getChildren(outputClass, false)) {
+                    JEVisAttribute attribute = output.getAttribute("Output");
+                    if (attribute != null && attribute.hasSample()) {
+                        TargetHelper th = new TargetHelper(jeVisObject.getDataSource(), attribute);
+                        allTargets.addAll(th.getObject());
+                        targetAndCalc.put(th.getObject().get(0), calcObject);
+                    }
+                }
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+        }
+
+        List<JEVisObject> foundCalcTarget = new ArrayList<>();
+        List<JEVisObject> calculationsToDisable = new ArrayList<>();
+        for (JEVisObject target : allTargets) {
+            if (rawData.contains(target)) {
+                foundCalcTarget.add(target);
+                calculationsToDisable.add(targetAndCalc.get(target));
+            }
+        }
+
+        for (JEVisObject visObject : calculationsToDisable) {
+            setEnabled(visObject, "Calculation", false);
+        }
+
+        deleteSamplesInList(from, to, foundCalcTarget);
+
+        List<JEVisObject> allCleanData = new ArrayList<>();
+        for (JEVisObject data : foundCalcTarget) {
+            try {
+                allCleanData.addAll(data.getChildren(cleanDataClass, false));
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+        }
+
+        deleteSamplesInList(from, to, allCleanData);
+
+        for (JEVisObject object : calculationsToDisable) {
+            setEnabled(object, "Calculation", true);
+        }
+    }
+
+    private static void deleteSamplesInList(DateTime from, DateTime to, List<JEVisObject> list) {
+        for (JEVisObject object : list) {
+            JEVisAttribute valueAtt = null;
+            try {
+                valueAtt = object.getAttribute("Value");
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+            if (valueAtt != null) {
+                if (from == null && to == null) {
+                    try {
+                        valueAtt.deleteAllSample();
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                } else if (from != null && to != null) {
+                    try {
+                        valueAtt.deleteSamplesBetween(from, to);
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                } else if (from != null) {
+                    try {
+                        valueAtt.deleteSamplesBetween(from, new DateTime());
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    try {
+                        valueAtt.deleteSamplesBetween(new DateTime(2001, 1, 1, 0, 0, 0), to);
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    private static List<JEVisObject> getAllRawDataRec(JEVisObject parent, JEVisClass rawDataClass) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+        if (parent.getJEVisClass().equals(rawDataClass)) {
+            list.add(parent);
+        }
+        for (JEVisObject child : parent.getChildren()) {
+            list.addAll(getAllRawDataRec(child, rawDataClass));
+        }
+        return list;
     }
 
     public static void EventCreateMultiplierAndDifferential(JEVisTree tree) {
@@ -812,7 +1112,7 @@ public class TreeHelper {
                 } else if (re == CopyObjectDialog.Response.LINK) {
                     buildLink(dragObj, targetParent, dia.getCreateName());
                 } else if (re == CopyObjectDialog.Response.COPY) {
-                    copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isRecursion(), dia.getCreateCount());
+                    copyObject(dragObj, targetParent, dia.getCreateName(), dia.isIncludeData(), dia.isIncludeValues(), dia.isRecursion(), dia.getCreateCount());
                 }
             } else {
                 Platform.runLater(() -> {
@@ -828,7 +1128,7 @@ public class TreeHelper {
     }
 
     public static void copyObjectUnder(JEVisObject toCopyObj, final JEVisObject newParent, String newName,
-                                       boolean includeContent, boolean recursive) throws JEVisException {
+                                       boolean includeData, boolean includeValues, boolean recursive) throws JEVisException {
         logger.debug("-> copyObjectUnder ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
         JEVisObject newObject = newParent.buildObject(newName, toCopyObj.getJEVisClass());
@@ -844,7 +1144,8 @@ public class TreeHelper {
             newAtt.setInputUnit(originalAtt.getInputUnit());
             newAtt.commit();
             //if chosen copy the samples
-            if (includeContent) {
+            if ((includeData && !newAtt.getName().equals(CleanDataObject.AttributeName.VALUE.getAttributeName()))
+                    || (includeValues && newAtt.getName().equals(CleanDataObject.AttributeName.VALUE.getAttributeName()))) {
                 if (originalAtt.hasSample()) {
                     logger.debug("Include samples");
 
@@ -873,14 +1174,14 @@ public class TreeHelper {
         if (recursive) {
             logger.debug("recursive is enabled");
             for (JEVisObject otherChild : toCopyObj.getChildren()) {
-                copyObjectUnder(otherChild, newObject, otherChild.getName(), includeContent, recursive);
+                copyObjectUnder(otherChild, newObject, otherChild.getName(), includeData, includeValues, recursive);
             }
         }
 
     }
 
     public static void copyObject(final JEVisObject toCopyObj, final JEVisObject newParent, String newName,
-                                  boolean includeContent, boolean recursive, int createCount) {
+                                  boolean includeData, boolean includeValues, boolean recursive, int createCount) {
         try {
             logger.debug("-> Copy ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
@@ -896,7 +1197,7 @@ public class TreeHelper {
                             if (createCount > 1) {
                                 name += (" " + (i + 1));
                             }
-                            copyObjectUnder(toCopyObj, newParent, name, includeContent, recursive);
+                            copyObjectUnder(toCopyObj, newParent, name, includeData, includeValues, recursive);
                         }
 
                     } catch (Exception ex) {
@@ -1254,7 +1555,28 @@ public class TreeHelper {
                     Alert alert = new Alert(AlertType.CONFIRMATION);
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.enable.title"));
                     alert.setHeaderText(null);
-                    alert.setContentText(question);
+                    VBox vBox = new VBox();
+                    Label qLabel = new Label(question);
+                    qLabel.setWrapText(true);
+
+                    JEVisDataSource ds = items.get(0).getValue().getJEVisObject().getDataSource();
+                    List<JEVisClass> jeVisClasses = ds.getJEVisClasses();
+                    List<String> jeVisClassesStrings = new ArrayList<>();
+                    for (JEVisClass jeVisClass : jeVisClasses) {
+                        try {
+                            jeVisClassesStrings.add(jeVisClass.getName());
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    AlphanumComparator ac = new AlphanumComparator();
+                    jeVisClassesStrings.sort(ac);
+                    jeVisClassesStrings.add(0, "All");
+                    ComboBox<String> jeVisClassComboBox = new ComboBox<>(FXCollections.observableList(jeVisClassesStrings));
+                    jeVisClassComboBox.getSelectionModel().selectFirst();
+                    vBox.getChildren().addAll(qLabel, jeVisClassComboBox);
+
+                    alert.getDialogPane().setContent(vBox);
 
                     alert.showAndWait().ifPresent(buttonType -> {
                         if (buttonType.equals(ButtonType.OK)) {
@@ -1266,7 +1588,7 @@ public class TreeHelper {
                                     @Override
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            setEnabled(item.getValue().getJEVisObject(), b);
+                                            setEnabled(item.getValue().getJEVisObject(), jeVisClassComboBox.getSelectionModel().getSelectedItem(), b);
                                         }
 
                                         return null;
@@ -1312,17 +1634,17 @@ public class TreeHelper {
         }
     }
 
-    private static void setEnabled(JEVisObject object, boolean b) {
+    private static void setEnabled(JEVisObject object, String selectedClass, boolean b) {
         try {
             JEVisAttribute enabled = object.getAttribute("Enabled");
             if (enabled != null) {
-                if (object.getJEVisClassName().equals("Periodic Report")) {
+                if (object.getJEVisClassName().equals(selectedClass) || selectedClass.equals("All")) {
                     JEVisSample sample = enabled.buildSample(new DateTime(), b);
                     sample.commit();
                 }
             }
             for (JEVisObject child : object.getChildren()) {
-                setEnabled(child, b);
+                setEnabled(child, selectedClass, b);
             }
         } catch (JEVisException e) {
             logger.error("Could not set enabled for {}:{}", object.getName(), object.getID());

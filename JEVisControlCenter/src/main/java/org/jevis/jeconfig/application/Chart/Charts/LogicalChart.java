@@ -139,7 +139,7 @@ public class LogicalChart extends XYChart {
                     tableEntry.setNote(formattedNote.getNoteAsString());
                     String unit = serie.getUnit();
 
-                    if (!sample.getNote().contains("Empty")) {
+                    if (!sample.getNote().contains("Zeros")) {
                         tableEntry.setValue(formattedDouble + " " + unit);
                     } else tableEntry.setValue("- " + unit);
 
