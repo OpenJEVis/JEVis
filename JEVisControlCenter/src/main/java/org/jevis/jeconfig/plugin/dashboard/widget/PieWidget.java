@@ -34,9 +34,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Clone of the JAVA 8 PIe Chart to fix the color every time an update is made, THis is most likely cured by the Animator.
+ */
 public class PieWidget extends Widget {
     private static final Logger logger = LogManager.getLogger(PieWidget.class);
     public static String WIDGET_ID = "Pie";
+    //    private PieChart chart;
     private PieChart chart;
     private NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
@@ -56,9 +60,7 @@ public class PieWidget extends Widget {
 
     @Override
     public void debug() {
-
         this.sampleHandler.debug();
-
     }
 
     @Override
@@ -74,7 +76,7 @@ public class PieWidget extends Widget {
 
     @Override
     public void updateData(Interval interval) {
-        logger.debug("Pie.Update: {}", interval);
+        logger.debug("Pie.Update: [{}] {}", getConfig().getUuid(), interval);
 
         this.lastInterval = interval;
         if (sampleHandler == null) {
@@ -102,20 +104,18 @@ public class PieWidget extends Widget {
 //                chartDataModel.setAbsolute(true);
                 Double dataModelTotal = DataModelDataHandler.getTotal(chartDataModel.getSamples());
                 total.set(total.get() + dataModelTotal);
-
+                logger.debug("dataModelTotal: [{}] {}", chartDataModel.getObject().getName(), dataModelTotal);
             } catch (Exception ex) {
                 logger.error(ex);
             }
         });
+        logger.debug("Total.Total: {}", total.get());
+
 
         this.sampleHandler.getDataModel().forEach(chartDataModel -> {
             try {
-                double dpSum = 0d;
-
-                String dataName = chartDataModel.getObject().getName();
                 double value = 0;
-
-
+                String dataName = chartDataModel.getObject().getName();
                 boolean hasNoData = chartDataModel.getSamples().isEmpty();
 
                 String textValue = "";
@@ -125,16 +125,13 @@ public class PieWidget extends Widget {
                     logger.debug("Samples: ({}) {}", dataName, chartDataModel.getSamples());
                     try {
                         value = DataModelDataHandler.getTotal(chartDataModel.getSamples());
-
+                        logger.debug("part.total: [{}] {}", chartDataModel.getObject().getName(), value);
                         double proC = (value / total.get()) * 100;
                         if (Double.isInfinite(proC)) proC = 100;
                         if (Double.isNaN(proC)) proC = 0;
 
 
                         textValue = this.nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + this.nf.format(proC) + "%";
-//                        textValue = this.nf.format(value);
-//                        textValue = this.nf.format(proC) + "%";
-//                        textValue = this.nf.format(proC) + "% " + this.nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnitLabel());
 
 
                     } catch (Exception ex) {
@@ -143,20 +140,23 @@ public class PieWidget extends Widget {
                     }
                 } else {
                     logger.debug("Empty Samples for: {}", this.config.getTitle());
-                    value = 1;
+                    value = 0;
                     textValue = "n.a.  " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + this.nf.format(0) + "%";
                     showAlertOverview(true, "");
                 }
 
 
                 legendItemList.add(this.legend.buildLegendItem(
-                        dataName, chartDataModel.getColor(), this.config.getFontColor(), this.config.getFontSize()));
+                        dataName, chartDataModel.getColor(), this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject()));
 
-                javafx.scene.chart.PieChart.Data pieData = new javafx.scene.chart.PieChart.Data(textValue, value);
+                if (!hasNoData) {
+                    PieChart.Data pieData = new PieChart.Data(textValue, value);
+                    series.add(pieData);
+                    colors.add(chartDataModel.getColor());
+                }
 
-                series.add(pieData);
-                colors.add(chartDataModel.getColor());
 
+//                applyColors(colors);
 
             } catch (Exception ex) {
                 logger.error(ex);
@@ -187,6 +187,7 @@ public class PieWidget extends Widget {
                 showProgressIndicator(false);
             } catch (Exception ex) {
                 logger.error(ex);
+                ex.printStackTrace();
             }
 
         });
@@ -239,17 +240,18 @@ public class PieWidget extends Widget {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        this.chart = new PieChart() {
+        this.chart = new PieChart();
+        /** we have to disable animation or the color will be wrong ever second update**/
+        chart.setAnimated(false);
 
-        };
-        chart.setAnimated(true);
+
         /** Dummy data to render pie**/
-        ObservableList<PieChart.Data> series = FXCollections.observableArrayList();
-        series.add(new javafx.scene.chart.PieChart.Data("A", 1));
-        series.add(new javafx.scene.chart.PieChart.Data("B", 1));
-        series.add(new javafx.scene.chart.PieChart.Data("C", 1));
-        series.add(new javafx.scene.chart.PieChart.Data("D", 1));
-
+//        ObservableList<ColorPieChart.Data> series = FXCollections.observableArrayList();
+//        series.add(new ColorPieChart.Data("A", 1));
+//        series.add(new ColorPieChart.Data("B", 1));
+//        series.add(new ColorPieChart.Data("C", 1));
+//        series.add(new ColorPieChart.Data("D", 1));
+//        this.chart.setData(series);
 
         this.legendPane.setPadding(new Insets(10, 5, 5, 0));
 

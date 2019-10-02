@@ -265,12 +265,15 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);
-        logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(LIMIT_NODE_NAME));
+        logger.error("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(LIMIT_NODE_NAME));
         try {
             this.limit = new Limit(this.control, this.config.getConfigNode(LIMIT_NODE_NAME));
         } catch (Exception ex) {
+            logger.error(ex);
+            ex.printStackTrace();
         }
         if (limit == null) {
+            logger.error("Limit is null make new: " + config.getUuid());
             this.limit = new Limit(this.control);
         }
 

@@ -5,12 +5,15 @@ import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import org.jevis.api.JEVisObject;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 
 import java.lang.reflect.Field;
 
 public class WidgetLegend extends Legend {
 
-    public Legend.LegendItem buildLegendItem(String name, Color color, Color fontcolor, double fontSize) {
+    public Legend.LegendItem buildLegendItem(String name, Color color, Color fontcolor, double fontSize, JEVisObject obj) {
 
         Rectangle r = new Rectangle();
         r.setX(0);
@@ -38,6 +41,16 @@ public class WidgetLegend extends Legend {
 //            label.setMaxWidth(180);
             label.setMaxWidth(140);
             label.setMinWidth(140);
+
+            try {
+                label.setOnMouseClicked(event -> {
+                    if (event.isShiftDown() && event.getClickCount() == 2) {
+                        JEConfig.openObjectInPlugin(ObjectPlugin.PLUGIN_NAME, obj);
+                    }
+                });
+            } catch (Exception ex) {
+
+            }
 
         } catch (Exception ex) {
             ex.printStackTrace();
