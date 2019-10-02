@@ -2,7 +2,9 @@ package org.jevis.jeconfig.plugin.dashboard;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -52,7 +54,9 @@ public class DashboardControl {
     private ExecutorService executor;
     private boolean isUpdateRunning = false;
     private java.io.File newBackgroundFile;
+
     private Interval activeInterval = new Interval(new DateTime(), new DateTime());
+    private ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
     private TimeFrameFactory activeTimeFrame;
     private TimeFrames timeFrames;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
@@ -440,6 +444,7 @@ public class DashboardControl {
         try {
             logger.error("SetInterval to: {}", interval);
             this.activeInterval = interval;
+            activeIntervalProperty.setValue(activeInterval);//workaround
             rundataUpdateTasks(false);
 
         } catch (Exception ex) {
@@ -447,6 +452,9 @@ public class DashboardControl {
         }
     }
 
+    public ObjectProperty<Interval> getActiveIntervalProperty() {
+        return activeIntervalProperty;
+    }
 
     public void requestViewUpdate(Widget widget) {
         logger.debug("requestViewUpdate: {}", widget.getConfig().getTitle());

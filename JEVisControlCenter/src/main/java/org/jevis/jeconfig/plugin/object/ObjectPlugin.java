@@ -68,7 +68,7 @@ import java.util.List;
  */
 public class ObjectPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(ObjectPlugin.class);
-
+    public static String PLUGIN_NAME = "Configuration Plugin";
     private StringProperty name = new SimpleStringProperty("*NO_NAME*");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
@@ -121,7 +121,24 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public void openObject(Object object) {
+        try {
+//            tree.getSearchFilterBar().showObject((JEVisObject) object);
 
+
+            tree.getSelectionModel().clearSelection();
+            JEVisTreeItem item = tree.getItemForObject((JEVisObject) object);
+
+            Platform.runLater(() -> {
+                item.setExpanded(true);
+
+                tree.openPathToObject((JEVisObject) object);
+                tree.getSelectionModel().select(item);
+
+            });
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override

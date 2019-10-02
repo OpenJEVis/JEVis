@@ -14,6 +14,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.tool.I18n;
 
@@ -153,6 +154,10 @@ public class SearchFilterBar extends HBox {
     public void hideSearchField(boolean hide) {
         labelSearch.setVisible(!hide);
         searchField.setVisible(!hide);
+    }
+
+    public void showObject(JEVisObject object) {
+        finder.showObject(object);
     }
 
 

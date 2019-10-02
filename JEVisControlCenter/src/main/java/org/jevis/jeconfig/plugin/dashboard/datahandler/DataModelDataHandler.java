@@ -413,7 +413,6 @@ public class DataModelDataHandler {
                 ex.printStackTrace();
             }
         }
-
         return total;
 
     }

@@ -108,7 +108,7 @@ public class ChartWidget extends Widget {
                         String dataName = chartDataModel.getObject().getName();
                         this.legend.getItems().add(
                                 this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), chartDataModel.getColor(),
-                                        this.config.getFontColor(), this.config.getFontSize()));
+                                        this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject()));
                         if (chartDataModel.getSamples().isEmpty()) {
                             showAlertOverview(true, "");
                         }
@@ -127,6 +127,7 @@ public class ChartWidget extends Widget {
 
                 this.lineChart.getChart().layout();
                 this.borderPane.setCenter(this.lineChart.getChart());
+                this.lineChart.applyColors();
                 updateConfig();/** workaround because we make a new chart everytime**/
             } catch (Exception ex) {
                 logger.error(ex);
