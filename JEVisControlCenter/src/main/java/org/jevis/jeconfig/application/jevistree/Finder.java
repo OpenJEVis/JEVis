@@ -42,41 +42,22 @@ public class Finder {
 
     }
 
-    private void showObject(JEVisObject obj) {
+    public void showObject(JEVisObject obj) {
         Platform.runLater(() -> {
             try {
                 System.out.println("showFind: " + obj);
-                tree.openPathToObject(obj);
-
                 JEVisTreeItem item = tree.getItemForObject(obj);
                 if (item != null) {
                     tree.getSelectionModel().clearSelection();
-                    tree.getSelectionModel().clearAndSelect(tree.getRow(item));
+                    Platform.runLater(() -> {
+                        item.setExpanded(true);
+                        tree.openPathToObject(obj);
+                        tree.getSelectionModel().select(item);
+                        int index = tree.getRow(item) - 5 < 0 ? 0 : tree.getRow(item) - 5;
 
-//                    tree.getRow(item);
-                    tree.getSelectionModel().focus(tree.getRow(item));
-                    tree.scrollTo(tree.getRow(item));
-
-
-//                    tree.getSelectionModel().select(item);
-
-
-//                    tree.getSelectionModel().select(item);
-
-//                    System.out.println("Selected item: " + tree.getSelectionModel().getSelectedItem().toString());
-//                    int selected = tree.getSelectionModel().getSelectedIndex();
-//                    System.out.println("Index: " + selected);
-//                    tree.scrollTo(selected);
+                        tree.scrollTo(index);
+                    });
                 }
-
-//                tree.getSelectionModel().select(selected);
-
-//                VirtualFlow flow = (VirtualFlow) tree.getChildrenUnmodifiable().get(1);
-//                int selected = tree.getSelectionModel().getSelectedIndex();
-//                flow.show(selected);
-//                tree.getSelectionModel().focus(selected);
-//                tree.scrollTo(selected);
-
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

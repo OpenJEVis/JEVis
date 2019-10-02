@@ -59,15 +59,17 @@ public class Limit {
         this.dashboardControl = control;
 
         if (jsonNode != null) {
-            boolean isDynamic = (jsonNode.get("source").asInt(-1) > 0);
-            if (isDynamic) {
-                mode = MODE.DYNAMIC;
+            boolean isDynamic = false;
+            if ((jsonNode.get("source")) != null) {
+                mode = (jsonNode.get("source").asInt(-1) > 0) ? MODE.DYNAMIC : MODE.STATIC;
+            }
+
+            if (mode == MODE.DYNAMIC) {
+                System.out.println("Is dyn");
                 limitWidget = jsonNode.get("source").asInt(-1);
                 lowerLimitOffset = jsonNode.get("lowerLimitOffset").asDouble(1);
                 upperLimitOffset = jsonNode.get("upperLimitOffset").asDouble(1);
-            } else {
-                mode = MODE.STATIC;
-                limitWidget = jsonNode.get("source").asInt(0);
+            } else if (mode == MODE.STATIC) {
                 lowerLimit = jsonNode.get("lowerLimitValue").asDouble(Double.NaN);
                 upperLimit = jsonNode.get("upperLimitValue").asDouble(Double.NaN);
             }
@@ -83,8 +85,23 @@ public class Limit {
     }
 
 
+    private class LimitTab extends Tab implements ConfigTab {
+        Limit limit;
+
+        public LimitTab(String text, Limit limit) {
+            super(text);
+            this.limit = limit;
+        }
+
+        @Override
+        public void commitChanges() {
+            //TODO;
+        }
+    }
+
     public Tab getConfigTab() {
-        Tab tab = new Tab(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.tab"));
+        LimitTab tab = new LimitTab(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.tab")
+                , this);
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(10));
@@ -181,6 +198,10 @@ public class Limit {
         if (hasLowerLimit) {
             Double limitValue = getLowerLimit();
 
+            if (mode == MODE.DYNAMIC) {
+                limitValue = lowerLimitDynamic * lowerLimitOffset;
+            }
+
             if (limitWidget > 0) {
                 if (limitValue.isNaN()) {
                     return false;
@@ -197,7 +218,13 @@ public class Limit {
 
     public boolean exceedsUpperLimit(double value) {
         if (hasUpperLimit) {
+
             Double limitValue = getUpperLimit();
+
+            if (mode == MODE.DYNAMIC) {
+                limitValue = upperLimitDynamic * upperLimitOffset;
+            }
+
 
             if (limitWidget > 0) {
                 if (limitValue.isNaN()) {
@@ -242,11 +269,11 @@ public class Limit {
 
     public ObjectNode toJSON() {
         ObjectNode dataNode = JsonNodeFactory.instance.objectNode();
-        if (limitWidget > 0) {
+        if (mode == MODE.DYNAMIC) {
             dataNode.put("source", limitWidget);
             dataNode.put("lowerLimitOffset", lowerLimitOffset);
             dataNode.put("upperLimitOffset", upperLimitOffset);
-        } else {
+        } else if (mode == MODE.STATIC) {
             dataNode.put("lowerLimitValue", lowerLimit);
             dataNode.put("upperLimitValue", upperLimit);
         }
@@ -256,7 +283,7 @@ public class Limit {
         dataNode.put("lowerLimitColor", lowerLimitColor.toString());
         dataNode.put("upperLimitColor", upperLimitColor.toString());
 
-
+//        System.out.println("Limit json: " + dataNode);
         return dataNode;
     }
 

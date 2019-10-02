@@ -287,6 +287,9 @@ public class TimeFrames {
 
             @Override
             public String format(Interval interval) {
+//                System.out.println("Day: "
+//                        + DateTimeFormat.forPattern("E, yyyy-MM-dd").print(interval.getEnd())
+//                        + "  aus" + interval);
                 return DateTimeFormat.forPattern("E, yyyy-MM-dd").print(interval.getEnd());
             }
 

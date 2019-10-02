@@ -129,7 +129,7 @@ public class LimitDynamicPane extends GridPane {
         upperColorPicker.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                
+
             }
         });
 
@@ -146,7 +146,7 @@ public class LimitDynamicPane extends GridPane {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 try {
-                    limit.upperLimit = Double.parseDouble(newValue.replaceAll(",", "."));
+                    limit.upperLimitOffset = Double.parseDouble(newValue.replaceAll(",", "."));
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
@@ -157,7 +157,7 @@ public class LimitDynamicPane extends GridPane {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 try {
-                    limit.lowerLimit = Double.parseDouble(newValue.replaceAll(",", "."));
+                    limit.lowerLimitOffset = Double.parseDouble(newValue.replaceAll(",", "."));
                 } catch (Exception ex) {
                     logger.error(ex);
                 }

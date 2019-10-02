@@ -124,7 +124,7 @@ public class TableWidget extends Widget {
                 }
             } catch (Exception ex) {
                 logger.error(ex);
-                ex.printStackTrace();
+//                ex.printStackTrace();
                 tableDatas.add(new TableData("", "", ""));
             }
 
