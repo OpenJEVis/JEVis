@@ -122,7 +122,6 @@ public class ChartDataModel {
 
                         somethingChanged = false;
 
-                        setSamples(new ArrayList<>());
                         if (getSelectedStart() == null || getSelectedEnd() == null) {
                             return samples;
                         }
@@ -138,8 +137,7 @@ public class ChartDataModel {
                                         samples = factorizeSamples(samples);
                                     }
 
-
-                                    AddZerosForMissingValues();
+                                    AddZerosForMissingValues(samples);
                                 } else {
                                     CalcJobFactory calcJobCreator = new CalcJobFactory();
 
@@ -193,7 +191,7 @@ public class ChartDataModel {
         this.samples = samples;
     }
 
-    private void AddZerosForMissingValues() throws JEVisException {
+    private void AddZerosForMissingValues(List<JEVisSample> samples) throws JEVisException {
         if (!fillZeroes) {
             return;
         }
