@@ -20,6 +20,10 @@ import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 public class ChartDataModel {
     private static final Logger logger = LogManager.getLogger(ChartDataModel.class);
@@ -49,6 +53,11 @@ public class ChartDataModel {
     private double timeFactor = 1.0;
     private Double scaleFactor = 1d;
     private boolean fillZeroes = true;
+
+    /**
+     * Maximum number of parallel running getSamples(), not the Dashboard need multiple
+     */
+    private static ExecutorService executor = Executors.newFixedThreadPool(10);
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -96,61 +105,83 @@ public class ChartDataModel {
 
     public List<JEVisSample> getSamples() {
         if (this.somethingChanged) {
-            getAttribute();
-            /** i thing we will not need to reload the attribute, because we dont use getMin/Max-TS **/
-            //dataSource.reloadAttribute(attribute);
+//            ExecutorService executor = Executors.newFixedThreadPool(1);
 
-            somethingChanged = false;
+            FutureTask<List<JEVisSample>> datatask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
+                @Override
+                public List<JEVisSample> call() {
 
-            setSamples(new ArrayList<>());
-            if (getSelectedStart() == null || getSelectedEnd() == null) {
-                return samples;
-            }
-            if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
-                try {
-                    if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
-                        SampleGenerator sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
+                    try {
+                        logger.debug("CDM.getSample.thread: {}{}", Thread.currentThread().getId(), Thread.currentThread().getName());
+                        List<JEVisSample> samples = new ArrayList<>();
+                        getAttribute();
 
-                        samples = sg.generateSamples();
-                        samples = sg.getAggregatedSamples(samples);
+                        somethingChanged = false;
 
-                        if (!isStringData) {
-                            samples = factorizeSamples(samples);
+                        setSamples(new ArrayList<>());
+                        if (getSelectedStart() == null || getSelectedEnd() == null) {
+                            return samples;
                         }
+                        if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
+                            try {
+                                if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
+                                    SampleGenerator sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
+
+                                    samples = sg.generateSamples();
+                                    samples = sg.getAggregatedSamples(samples);
+
+                                    if (!isStringData) {
+                                        samples = factorizeSamples(samples);
+                                    }
 
 
-                        AddZerosForMissingValues();
-                    } else {
-                        CalcJobFactory calcJobCreator = new CalcJobFactory();
+                                    AddZerosForMissingValues();
+                                } else {
+                                    CalcJobFactory calcJobCreator = new CalcJobFactory();
 
-                        CalcJob calcJob;
+                                    CalcJob calcJob;
 
-                        if (!getAbsolute()) {
-                            calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
-                                    selectedStart, selectedEnd, aggregationPeriod);
+                                    if (!getAbsolute()) {
+                                        calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                                selectedStart, selectedEnd, aggregationPeriod);
+                                    } else {
+                                        calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                                selectedStart, selectedEnd, true);
+                                    }
+
+                                    samples = calcJob.getResults();
+                                }
+
+                            } catch (Exception ex) {
+                                logger.error(ex);
+                            }
                         } else {
-                            calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
-                                    selectedStart, selectedEnd, true);
+                            if (getDataProcessor() != null) {
+                                logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                                        getDataProcessor().getName(), getDataProcessor().getID());
+                            } else {
+                                logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                                        getObject().getName(), getObject().getID());
+                            }
                         }
+                        return samples;
 
-                        samples = calcJob.getResults();
+                    } catch (Exception ex) {
+                        logger.error(ex);
                     }
 
-                } catch (Exception ex) {
-                    logger.error(ex);
+                    return new ArrayList<JEVisSample>();
                 }
-            } else {
-                if (getDataProcessor() != null) {
-                    logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
-                            getDataProcessor().getName(), getDataProcessor().getID());
-                } else {
-                    logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
-                            getObject().getName(), getObject().getID());
-                }
-            }
-        }
-//        logger.debug("ChartDataModel: sample.size: {} Aggregation:  {} EnPI: {} absolute: {} {}/{}  {}-{} ", samples.size(), aggregationPeriod, isEnPI, absolute, getAttribute().getObjectID(), getAttribute().getName(), selectedStart, selectedEnd);
+            });
 
+            executor.execute(datatask);
+            try {
+                samples = datatask.get();
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+//            executor.shutdown();
+        }
         return samples;
     }
 
