@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -41,7 +40,6 @@ public class TableWidget extends Widget {
 
     private static final Logger logger = LogManager.getLogger(TableWidget.class);
     public static String WIDGET_ID = "Table";
-    private static Button testB = new Button();
     private NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
     private TableView<TableData> table;
@@ -74,12 +72,14 @@ public class TableWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Table.Update: {}", interval);
-        showProgressIndicator(true);
+
         this.lastInterval = interval;
         showAlertOverview(false, "");
 
-        if (this.sampleHandler == null) {
+        if (sampleHandler == null) {
             return;
+        } else {
+            showProgressIndicator(true);
         }
 
         this.sampleHandler.setInterval(interval);

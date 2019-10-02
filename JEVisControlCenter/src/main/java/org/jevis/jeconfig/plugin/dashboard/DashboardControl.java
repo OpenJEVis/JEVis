@@ -21,10 +21,7 @@ import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.plugin.dashboard.common.DashboardExport;
-import org.jevis.jeconfig.plugin.dashboard.config2.ConfigManager;
-import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
-import org.jevis.jeconfig.plugin.dashboard.config2.DashboardSorter;
-import org.jevis.jeconfig.plugin.dashboard.config2.Size;
+import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
@@ -151,6 +148,23 @@ public class DashboardControl {
         this.dashboardPane.activateGrid(snapToGrid);
     }
 
+
+    public int getNextFreeUUID() {
+        final Comparator<Widget> comp = (p1, p2) -> Integer.compare(p1.getConfig().getUuid(), p2.getConfig().getUuid());
+
+        try {
+            Widget maxIDWidget = getWidgetList().stream().max(comp).get();
+            return maxIDWidget.getConfig().getUuid();
+        } catch (Exception ex) {
+            return 1;
+        }
+    }
+
+    public Widget createNewWidget(WidgetPojo widgetPojo) {
+        widgetPojo.setUuid(getNextFreeUUID());
+
+        return configManager.createWidget(this, widgetPojo);
+    }
 
     public void loadFirstDashboard() {
         try {
@@ -295,6 +309,15 @@ public class DashboardControl {
                 this.dashBordPlugIn.getDashBoardPane().addWidget(widget);
             });
 
+
+            this.widgetList.forEach(widget -> {
+                try {
+                    widget.updateConfig();
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            });
+
             /** sollten die Widgets autostarten? **/
 //            this.widgetList.forEach(widget -> {
 //                addWidgetUpdateTask(widget, this.getInterval());
@@ -426,7 +449,7 @@ public class DashboardControl {
 
 
     public void requestViewUpdate(Widget widget) {
-        logger.error("requestViewUpdate: {}", widget.getConfig().getTitle());
+        logger.debug("requestViewUpdate: {}", widget.getConfig().getTitle());
 //        widget.updateData(getInterval());
         try {
             widget.updateConfig(widget.getConfig());
@@ -441,7 +464,6 @@ public class DashboardControl {
     }
 
     public void switchUpdating() {
-        System.out.println("switchUpdating: " + isUpdateRunning + " -> " + !this.isUpdateRunning);
         this.isUpdateRunning = !this.isUpdateRunning;
         if (this.isUpdateRunning) {
             rundataUpdateTasks(isUpdateRunning);
@@ -547,10 +569,9 @@ public class DashboardControl {
                     if (!widget.isStatic()) {
                         widget.updateData(interval);
 //                        finishUpdateJobs.setValue(finishUpdateJobs.getValue() + 1);
-
                     }
                 } catch (Exception ex) {
-                    logger.error(ex);
+                    logger.error("Widget update error: [{}]", widget.getConfig().getUuid(), ex);
                     ex.printStackTrace();
                 } finally {
                     JEConfig.getStatusBar().progressProgressJob("Dashboard", 1
@@ -576,6 +597,7 @@ public class DashboardControl {
     public void addWidget(Widget widget) {
         try {
             widget.init();
+            widget.updateConfig(widget.getConfig());
             this.widgetList.add(widget);
             this.dashboardPane.addWidget(widget);
             widget.updateData(this.activeInterval);

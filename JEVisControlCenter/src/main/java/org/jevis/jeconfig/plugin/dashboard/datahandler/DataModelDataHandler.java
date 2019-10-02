@@ -35,7 +35,7 @@ public class DataModelDataHandler {
 
     public final static String TYPE = "SimpleDataHandler";
     private static final Logger logger = LogManager.getLogger(DataModelDataHandler.class);
-    private final JEVisDataSource jeVisDataSource;
+    private JEVisDataSource jeVisDataSource;
     public ObjectProperty<DateTime> lastUpdate = new SimpleObjectProperty<>();
     private Map<String, JEVisAttribute> attributeMap = new HashMap<>();
     private BooleanProperty enableMultiSelect = new SimpleBooleanProperty(false);
@@ -85,7 +85,6 @@ public class DataModelDataHandler {
             } else {
                 this.dataModelNode = new DataModelNode();
             }
-
         } catch (Exception ex) {
             logger.error(ex);
         }

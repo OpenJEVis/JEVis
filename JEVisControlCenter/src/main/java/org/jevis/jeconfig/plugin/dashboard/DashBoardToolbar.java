@@ -167,11 +167,14 @@ public class DashBoardToolbar extends ToolBar {
         snapGridButton.selectedProperty().setValue(this.dashboardControl.enableSnapToGridProperty.getValue());
         snapGridButton.setDisable(true);
 
+
         unlockButton.setOnAction(event -> {
+            this.snapGridButton.setDisable(!unlockButton.isSelected());
+            this.dashboardControl.enableSnapToGridProperty.setValue(unlockButton.isSelected());
             this.dashboardControl.setEditable(unlockButton.isSelected());
             this.dashboardControl.showGrid(unlockButton.isSelected());
-            this.snapGridButton.setDisable(!unlockButton.isSelected());
-            this.snapGridButton.selectedProperty().setValue(true);
+            this.snapGridButton.setSelected(this.dashboardControl.enableSnapToGridProperty.get());
+
         });
 
         snapGridButton.setOnAction(event -> {

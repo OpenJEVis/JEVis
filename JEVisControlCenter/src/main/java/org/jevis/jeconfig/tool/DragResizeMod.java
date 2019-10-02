@@ -86,13 +86,14 @@ public class DragResizeMod {
         }
 
         private void setNodeSize(Node node, double x, double y, double h, double w) {
+//            System.out.println("setNodeSize: x:" + x + " y:" + y + " h:" + h + " w:" + w);
 
             if (dashBoardPane != null && dashBoardPane.getSnapToGrid()) {
                 node.setLayoutX(dashBoardPane.getNextGridX(x));
                 node.setLayoutY(dashBoardPane.getNextGridY(y));
 
                 double snapX = dashBoardPane.getNextGridX(w + ((Widget) node).getLayoutX()) - ((Widget) node).getLayoutX();
-                double snapY = dashBoardPane.getNextGridX(h + ((Widget) node).getLayoutY()) - ((Widget) node).getLayoutY();
+                double snapY = dashBoardPane.getNextGridY(h + ((Widget) node).getLayoutY()) - ((Widget) node).getLayoutY();
                 ((Widget) node).setNodeSize(snapX, snapY);
             } else {
                 node.setLayoutX(x);
@@ -174,6 +175,12 @@ public class DragResizeMod {
     protected void mouseOver(MouseEvent event) {
         S state = currentMouseState(event);
         Cursor cursor = getCursorForState(state);
+        if (node instanceof Widget) {
+            if (!((Widget) node).getControl().editableProperty.getValue()) {
+                cursor = getCursorForState(S.DEFAULT);
+            }
+        }
+
         node.setCursor(cursor);
     }
 
@@ -226,7 +233,8 @@ public class DragResizeMod {
         if (listener != null) {
             double mouseX = parentX(event.getX());
             double mouseY = parentY(event.getY());
-            if (state == S.DRAG) {
+            if (state == S.DRAG && event.isControlDown()) {
+//                System.out.println("mouseDragged" + event + "  crontorl: " + event.isControlDown());
                 listener.onDrag(node, mouseX - clickX, mouseY - clickY, nodeH, nodeW);
             } else if (state != S.DEFAULT) {
                 //resizing
@@ -340,11 +348,14 @@ public class DragResizeMod {
     }
 
     private double nodeX() {
-        return node.getBoundsInParent().getMinX();
+        return node.getLayoutX();
+
+//        return node.getBoundsInParent().getMinX();
     }
 
     private double nodeY() {
-        return node.getBoundsInParent().getMinY();
+        return node.getLayoutY();
+//        return node.getBoundsInParent().getMinY();
     }
 
     private double nodeW() {

@@ -100,7 +100,6 @@ public class WidgetTreePlugin implements TreePlugin {
 
         userSelection.forEach(dataModelNode -> {
             try {
-                System.out.println("isselected: " + dataModelNode.getObjectID());
                 JEVisObject object = this.jeVisTree.getJEVisDataSource().getObject(dataModelNode.getObjectID());
                 if (object != null) {
                     JEVisTreeItem item = this.jeVisTree.getItemForObject(object);
@@ -271,9 +270,9 @@ public class WidgetTreePlugin implements TreePlugin {
 
                                 processorBox.setOnAction(event -> {
                                     if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
-                                        System.out.println("getDataPointNode(getTreeTableRow()): " + getDataPointNode(getTreeTableRow()));
-                                        System.out.println("processorBox.getSelectionModel().getSelectedItem(): " + processorBox.getSelectionModel().getSelectedItem());
-                                        System.out.println("+.getid: " + processorBox.getSelectionModel().getSelectedItem().getID());
+//                                        System.out.println("getDataPointNode(getTreeTableRow()): " + getDataPointNode(getTreeTableRow()));
+//                                        System.out.println("processorBox.getSelectionModel().getSelectedItem(): " + processorBox.getSelectionModel().getSelectedItem());
+//                                        System.out.println("+.getid: " + processorBox.getSelectionModel().getSelectedItem().getID());
                                         getDataPointNode(getTreeTableRow()).setCleanObjectID(processorBox.getSelectionModel().getSelectedItem().getID());
                                     }
                                 });
@@ -693,7 +692,7 @@ public class WidgetTreePlugin implements TreePlugin {
                                                 if (WidgetTreePlugin.this.targetCalcMap.containsKey(getDataPointNode(getTreeTableRow()).getObjectID())) {
                                                     getDataPointNode(getTreeTableRow()).setCleanObjectID(WidgetTreePlugin.this.targetCalcMap.get(getDataPointNode(getTreeTableRow()).getObjectID()));
                                                 } else {
-                                                    System.out.println("----> keine calc id gefunden");
+//                                                    System.out.println("----> keine calc id gefunden");
                                                 }
 
                                             } else {
