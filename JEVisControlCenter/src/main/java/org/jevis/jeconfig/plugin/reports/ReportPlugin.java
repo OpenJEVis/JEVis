@@ -44,7 +44,7 @@ import java.util.*;
 public class ReportPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(ReportPlugin.class);
     public static String PLUGIN_NAME = "Report Plugin";
-    public static String REPORT_CLASS = "Periodic Report";
+    public static String REPORT_CLASS = "Report";
     private final JEVisDataSource ds;
     private final String title;
     private final BorderPane borderPane = new BorderPane();
@@ -57,6 +57,7 @@ public class ReportPlugin implements Plugin {
     private List<JEVisObject> disabledItemList;
     private WebEngine engine = web.getEngine();
     private HBox hBox = new HBox();
+    private final int iconSize = 24;
 
     public ReportPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -70,7 +71,6 @@ public class ReportPlugin implements Plugin {
         view.setCenter(web);
 
         SplitPane sp = new SplitPane();
-        sp.setDividerPositions(.3d);
         sp.setOrientation(Orientation.HORIZONTAL);
         sp.setId("mainsplitpane");
         sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
@@ -78,7 +78,7 @@ public class ReportPlugin implements Plugin {
         sp.getItems().setAll(listView, view);
         this.borderPane.setCenter(sp);
 
-        SplitPane.setResizableWithParent(borderPane, true);
+        sp.setDividerPositions(0.3);
 
         initToolBar();
 
@@ -94,7 +94,7 @@ public class ReportPlugin implements Plugin {
     }
 
     private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", 20, 20));
+        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.reload.progress.reload"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
@@ -134,7 +134,7 @@ public class ReportPlugin implements Plugin {
 
         Separator sep1 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton pdfButton = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", 20, 20));
+        ToggleButton pdfButton = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", iconSize, iconSize));
         Tooltip pdfTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
         pdfButton.setTooltip(pdfTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(pdfButton);
@@ -163,7 +163,7 @@ public class ReportPlugin implements Plugin {
             }
         });
 
-        ToggleButton xlsxButton = new ToggleButton("", JEConfig.getImage("xlsx_315594.png", 20, 20));
+        ToggleButton xlsxButton = new ToggleButton("", JEConfig.getImage("xlsx_315594.png", iconSize, iconSize));
         Tooltip xlsxTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.xlsx"));
         xlsxButton.setTooltip(xlsxTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(xlsxButton);
@@ -194,7 +194,7 @@ public class ReportPlugin implements Plugin {
 
         Separator sep2 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", 20, 20));
+        ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", iconSize, iconSize));
         Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
         printButton.setTooltip(printTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
@@ -420,6 +420,7 @@ public class ReportPlugin implements Plugin {
                 labelDateTimeComboBox.setAlignment(Pos.CENTER_LEFT);
 
                 hBox.getChildren().setAll(labelDateTimeComboBox, leftImage, sep1, dateTimeComboBox, sep2, rightImage);
+                hBox.setAlignment(Pos.CENTER);
 
                 dateTimeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                     if (!newValue.equals(oldValue)) {

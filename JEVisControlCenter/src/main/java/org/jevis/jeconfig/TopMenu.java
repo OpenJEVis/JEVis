@@ -187,7 +187,7 @@ public class TopMenu extends MenuBar {
             MenuItem resetCalculation = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.resetcalc"));
             resetCalculation.setAccelerator(new KeyCodeCombination(KeyCode.J, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
-            menuEdit.getItems().addAll(deleteAllCleanAndRaw, createMultiplierAndDifferential, enableAll, disableAll);
+            menuEdit.getItems().addAll(deleteAllCleanAndRaw, createMultiplierAndDifferential, enableAll, disableAll, resetCalculation);
         }
 
 //        menuEdit.getItems().addAll(copie, delete, rename);
