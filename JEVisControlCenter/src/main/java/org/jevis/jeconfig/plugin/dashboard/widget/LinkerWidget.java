@@ -60,7 +60,6 @@ public class LinkerWidget extends Widget {
 
     @Override
     public WidgetPojo createDefaultConfig() {
-        System.out.println("link.createDefaultConfig");
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.linkerwidget.newname"));
         widgetPojo.setType(typeID());
@@ -72,7 +71,6 @@ public class LinkerWidget extends Widget {
 
     @Override
     public void updateData(Interval interval) {
-        System.out.println("link.updateData: " + interval + " hä:" + this);
         try {
             lastInterval = interval;
 
@@ -101,7 +99,6 @@ public class LinkerWidget extends Widget {
 
     @Override
     public void updateConfig() {
-        System.out.println("update link: " + this.config.getBackgroundColor() + " hä:" + this);
         Platform.runLater(() -> {
             try {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
@@ -110,11 +107,9 @@ public class LinkerWidget extends Widget {
                 this.setBackground(bgColorTrans);
                 this.anchorPane.setBackground(bgColor);
                 this.setBorder(null);
-                System.out.println(" this.anchorPane.getChildren(): " + this.anchorPane.getChildren());
                 this.graphAnalysisLinker.applyNode(dataModelNode);
                 this.anchorPane.getChildren().setAll(graphAnalysisLinker.getLinkerButton());
                 Layouts.setAnchor(graphAnalysisLinker.getLinkerButton(), 0);
-                System.out.println("new Button: " + graphAnalysisLinker.getLinkerButton());
                 this.layout();
             } catch (Exception ex) {
                 logger.error(ex);
