@@ -51,8 +51,6 @@ public class TimeFrameEdior extends Popup {
         }
 
         DateTime newDateTime = new DateTime(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth(), 0, 0);
-//        this.intervalProperty = this.timeFrame.getInterval(newDateTime);
-        System.out.println("TimeFrameEdior event: " + newDateTime + " = " + this.timeFrame.getInterval(newDateTime));
         this.intervalProperty.setValue(this.timeFrame.getInterval(newDateTime));
     }
 

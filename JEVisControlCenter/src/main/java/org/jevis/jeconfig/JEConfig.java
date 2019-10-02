@@ -85,6 +85,7 @@ public class JEConfig extends Application {
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
     private static Statusbar statusBar = new Statusbar();
+    private static ExecutorService taskExecutor = Executors.newFixedThreadPool(10);
     private TopMenu menu;
 
     public static boolean getExpert() {
@@ -231,6 +232,10 @@ public class JEConfig extends Application {
             logger.error("Could not load icon: " + "/icons/" + icon + ": ", ex);
             return new Image(JEConfig.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
         }
+    }
+
+    public static ExecutorService executor() {
+        return taskExecutor;
     }
 
     /**

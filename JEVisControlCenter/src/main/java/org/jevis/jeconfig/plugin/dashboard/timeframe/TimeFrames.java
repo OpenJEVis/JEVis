@@ -302,7 +302,6 @@ public class TimeFrames {
 
             @Override
             public boolean hasNextPeriod(Interval interval) {
-                System.out.println("day.hasNextPeriod: " + interval + " = " + interval.getEnd().isAfterNow());
                 return interval.getEnd().isBeforeNow();
             }
 

@@ -74,7 +74,7 @@ public class DashBoardPane extends Pane {
                     if (selectionRect.getBoundsInParent().intersects(shape.getBoundsInParent())) {
 //                        shape.setFill(Color.RED);
 //                        if(!this.selected.contains(shape))
-                        System.out.println("Selected: " + shape);
+//                        System.out.println("Selected: " + shape);
 //                            this.selected.add(shape);
                     } else {
 //                        shape.setFill(Color.BLACK);

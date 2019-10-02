@@ -102,19 +102,43 @@ public class GenericConfigNode extends Tab implements ConfigTab {
 
     @Override
     public void commitChanges() {
-        widget.getConfig().setShowShadow(showShadowField.isSelected());
-        widget.getConfig().setTitle(nameField.getText());
+        try {
+            widget.getConfig().setShowShadow(showShadowField.isSelected());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+            widget.getConfig().setTitle(nameField.getText());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         try {
             widget.getConfig().setxPosition(Double.parseDouble(xPosField.getText()));
             widget.getConfig().setyPosition(Double.parseDouble(yPosField.getText()));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        widget.getConfig().setBackgroundColor(bgColorPicker.getValue());
-        widget.getConfig().setFontColor(fColorPicker.getValue());
 
-        widget.getConfig().setBorderSize(new BorderWidths(borderSizeSpinner.getValue()));
-        widget.getConfig().setFontSize(fontSizeSpinner.getValueFactory().getValue().doubleValue());
+        try {
+            widget.getConfig().setBackgroundColor(bgColorPicker.getValue());
+            widget.getConfig().setFontColor(fColorPicker.getValue());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+            widget.getConfig().setBorderSize(new BorderWidths(borderSizeSpinner.getValue()));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+            widget.getConfig().setFontSize(fontSizeSpinner.getValueFactory().getValue().doubleValue());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
 
         try {
             TimeFrameFactory timeFrameFactory = timeFrameBox.getValue();

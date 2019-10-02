@@ -75,8 +75,14 @@ public class PieWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Pie.Update: {}", interval);
-        showProgressIndicator(true);
+
         this.lastInterval = interval;
+        if (sampleHandler == null) {
+            return;
+        } else {
+            showProgressIndicator(true);
+        }
+
         this.sampleHandler.setAutoAggregation(true);
 
         this.sampleHandler.setInterval(interval);

@@ -5,11 +5,85 @@
     "ru": "VIDA350",
     "en": "VIDA350"
   },
-  "descriptions": {
-    "de": "Ein VIDA-Datenserver ist eine Datenquelle, welche über TCP/IP kommuniziert.",
-    "ru": "",
-    "en": "A VIDA-Data Server is a data source communicating via TCP/IP"
-  },
+  "descriptions": {},
   "types": [
+    {
+      "type": "Connection Timeout",
+      "descriptions": {
+        "de": "Connection Timeout description",
+        "ru": "Connection Timeout description",
+        "en": "Connection Timeout description"
+      },
+      "names": {
+        "de": "Verbindungs-Timeout",
+        "ru": "Connection Timeout",
+        "en": "Connection Timeout"
+      }
+    },
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Enabled description",
+        "ru": "Enabled description",
+        "en": "Enabled description"
+      },
+      "names": {
+        "de": "Aktiviert",
+        "ru": "Enabled",
+        "en": "Enabled"
+      }
+    },
+    {
+      "type": "Host",
+      "descriptions": {
+        "de": "Host description",
+        "ru": "Host description",
+        "en": "Host description"
+      },
+      "names": {
+        "de": "Host",
+        "ru": "Host",
+        "en": "Host"
+      }
+    },
+    {
+      "type": "Port",
+      "descriptions": {
+        "de": "Port description",
+        "ru": "Port description",
+        "en": "Port description"
+      },
+      "names": {
+        "de": "Port",
+        "ru": "Port",
+        "en": "Port"
+      }
+    },
+    {
+      "type": "Read Timeout",
+      "descriptions": {
+        "de": "Read Timeout description",
+        "ru": "Read Timeout description",
+        "en": "Read Timeout description"
+      },
+      "names": {
+        "de": "Lese-Timeout",
+        "ru": "Read Timeout",
+        "en": "Read Timeout"
+      }
+    },
+    {
+      "type": "Timezone",
+      "descriptions": {
+        "de": "Timezone description",
+        "ru": "Timezone description",
+        "en": "Timezone description"
+      },
+      "names": {
+        "de": "Zeitzone",
+        "ru": "Timezone",
+        "en": "Timezone"
+      }
+    }
   ]
 }

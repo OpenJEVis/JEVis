@@ -58,8 +58,8 @@
         "en": "Allows the manual trigger of the data read-out"
       },
       "names": {
-        "de": "Manueller Auslöser",
-        "ru": "Manual Trigger",
+        "de": "Manual Trigger",
+        "ru": "Manueller Auslöser",
         "en": "Manual Trigger"
       }
     },
@@ -100,19 +100,6 @@
         "de": "Zeitzone",
         "ru": "Timezone",
         "en": "Timezone"
-      }
-    },
-    {
-      "type": "Max thread time",
-      "descriptions": {
-        "de": "Bestimmt die maximale Dauer eines Threads (ms)",
-        "ru": "Timezone desctiption",
-        "en": "Defines the maximum time a thread will be alive (ms)"
-      },
-      "names": {
-        "de": "Max Thread Dauer",
-        "ru": "Timezone",
-        "en": "Max thread time"
       }
     }
   ]

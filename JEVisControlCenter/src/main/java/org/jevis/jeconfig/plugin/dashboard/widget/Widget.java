@@ -128,7 +128,6 @@ public abstract class Widget extends Region {
 
         setOnMouseClicked(event -> {
             if (event.isShiftDown()) {
-                System.out.println("debug");
                 debug();
             }
         });
@@ -253,6 +252,7 @@ public abstract class Widget extends Region {
         this.editPane.setBackground(new Background(new BackgroundFill(Color.GREY, new CornerRadii(0), new Insets(0, 0, 0, 0))));
         this.editPane.setOpacity(0.7);
 
+
         final ContextMenu contextMenu = new ContextMenu();
         MenuItem delete = new MenuItem("Delete", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", 18, 18));
         delete.setOnAction(new EventHandler<ActionEvent>() {
@@ -295,6 +295,16 @@ public abstract class Widget extends Region {
         contextMenu.getItems().addAll(infoMenuItem, separatorMenuItem, configItem, delete);
 
         this.editPane.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                try {
+                    Widget.this.openConfig();
+                } catch (Exception ex) {
+                    logger.error(ex);
+                    ex.printStackTrace();
+                }
+            }
+
+
             if (event.getButton().equals(MouseButton.SECONDARY)) {
                 contextMenu.show(this.editPane, event.getScreenX(), event.getScreenY());
             }
@@ -304,7 +314,9 @@ public abstract class Widget extends Region {
     }
 
     public void setNodeSize(double width, double height) {
+
         logger.debug("setNodeSize: old w:{}/h:{}  new w:{}/h:{}", this.getWidth(), this.getHeight(), width, height);
+        logger.debug("setNodePos : old x:{}/y:{}", this.getLayoutX(), this.getLayoutY());
 
         Platform.runLater(() -> {
             this.contentRoot.setMaxHeight(height);
@@ -375,7 +387,7 @@ public abstract class Widget extends Region {
                 if (show) {
                     loadingPane.setVisible(true);
                 } else {
-                    logger.error("Hide loading: widget: {}", getConfig().getUuid());
+                    logger.debug("Hide loading: widget: {}", getConfig().getUuid());
                     loadingPane.setVisible(false);
                 }
             } catch (Exception ex) {

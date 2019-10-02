@@ -99,10 +99,6 @@ public class SampleGenerator {
                 basicProcess.setFunction(new MathFunction(ManipulationMode.SORTED_MAX, aggregationPeriod));
                 basicProcess.setID(ManipulationMode.SORTED_MAX.toString());
                 break;
-            case CUMULATE:
-                basicProcess.setFunction(new MathFunction(ManipulationMode.CUMULATE, aggregationPeriod));
-                basicProcess.setID(ManipulationMode.CUMULATE.toString());
-                break;
             default:
                 basicProcess.setFunction(new NullFunction(manipulationMode, aggregationPeriod));
                 basicProcess.setID("Null");

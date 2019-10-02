@@ -2,7 +2,7 @@ package org.jevis.commons.dataprocessing;
 
 public enum ManipulationMode {
 
-    AVERAGE, MIN, MAX, MEDIAN, RUNNING_MEAN, CENTRIC_RUNNING_MEAN, SORTED_MIN, SORTED_MAX, CUMULATE, NONE;
+    AVERAGE, MIN, MAX, MEDIAN, RUNNING_MEAN, CENTRIC_RUNNING_MEAN, SORTED_MIN, SORTED_MAX, NONE;
 
     public static ManipulationMode get(String modeName) {
         String[] modeArray = modeName.split("_");
@@ -35,8 +35,6 @@ public enum ManipulationMode {
                 return SORTED_MIN;
             case ("Sorted Max"):
                 return SORTED_MAX;
-            case ("Cumulate"):
-                return CUMULATE;
             default:
                 return NONE;
         }

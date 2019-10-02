@@ -80,6 +80,8 @@ public class ChartWidget extends Widget {
         if (sampleHandler == null) {
             showProgressIndicator(false);
             return;
+        } else {
+            showProgressIndicator(true);
         }
 
         showProgressIndicator(true);
