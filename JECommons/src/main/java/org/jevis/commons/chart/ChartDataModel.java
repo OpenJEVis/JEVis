@@ -53,6 +53,10 @@ public class ChartDataModel {
     private double timeFactor = 1.0;
     private Double scaleFactor = 1d;
     private boolean fillZeroes = true;
+    private double min;
+    private double max;
+    private double avg;
+    private Double sum;
 
     /**
      * Maximum number of parallel running getSamples(), not the Dashboard need multiple
@@ -202,7 +206,7 @@ public class ChartDataModel {
                     startTS = startTS.minus(getAttribute().getDisplaySampleRate());
                     if (startTS.isAfter(selectedStart)) {
                         JEVisSample smp = new VirtualSample(startTS, 0.0);
-                        smp.setNote("Empty");
+                        smp.setNote("Zeros");
                         samples.add(0, smp);
                     }
                 }
@@ -212,7 +216,7 @@ public class ChartDataModel {
                     endTS = endTS.plus(getAttribute().getDisplaySampleRate());
                     if (endTS.isBefore(selectedEnd)) {
                         JEVisSample smp = new VirtualSample(endTS, 0.0);
-                        smp.setNote("Empty");
+                        smp.setNote("Zeros");
                         samples.add(smp);
                     }
                 }
@@ -582,5 +586,37 @@ public class ChartDataModel {
 
     public Double getScaleFactor() {
         return scaleFactor;
+    }
+
+    public double getMin() {
+        return min;
+    }
+
+    public void setMin(double min) {
+        this.min = min;
+    }
+
+    public double getMax() {
+        return max;
+    }
+
+    public void setMax(double max) {
+        this.max = max;
+    }
+
+    public double getAvg() {
+        return avg;
+    }
+
+    public void setAvg(double avg) {
+        this.avg = avg;
+    }
+
+    public Double getSum() {
+        return sum;
+    }
+
+    public void setSum(Double sum) {
+        this.sum = sum;
     }
 }
