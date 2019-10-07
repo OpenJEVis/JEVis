@@ -81,6 +81,7 @@ public class GraphAnalysisLinker {
     }
 
     public void applyConfig(AggregationPeriod aggregationPeriod, ManipulationMode manipulationMode, Interval interval) {
+//        System.out.println("ApplyConfig: " + aggregationPeriod + "  man: " + manipulationMode + "  int: " + interval);
         this.aggregationPeriod = aggregationPeriod;
         this.manipulationMode = manipulationMode;
         this.interval = interval;
