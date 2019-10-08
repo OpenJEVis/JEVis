@@ -114,7 +114,6 @@ public class ImportStep implements ProcessStep {
                 break;
             }
         }
-        samples.clear();
     }
 
 }

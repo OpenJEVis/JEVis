@@ -82,6 +82,7 @@ public class CleanDataObject {
     private JEVisAttribute valueOffsetAttribute;
     private JEVisAttribute counterOverflowAttribute;
     private DateTime lastRawDate;
+    private int processingSize = 10000;
 
     public CleanDataObject(JEVisObject calcObject, ObjectHandler objectHandler) {
         cleanObject = calcObject;
@@ -414,8 +415,8 @@ public class CleanDataObject {
                     firstDate,
                     getLastRawDate());
 
-            if (rawSamplesDown.size() > 10000) {
-                rawSamplesDown = rawSamplesDown.subList(0, 10000);
+            if (rawSamplesDown.size() > processingSize) {
+                rawSamplesDown = rawSamplesDown.subList(0, processingSize);
             }
         }
         return rawSamplesDown;
@@ -434,8 +435,8 @@ public class CleanDataObject {
                     firstDate,
                     getLastRawDate());
 
-            if (rawSamplesUp.size() > 100000) {
-                rawSamplesUp.subList(0, 100000);
+            if (rawSamplesUp.size() > processingSize) {
+                rawSamplesUp.subList(0, processingSize);
             }
         }
         return rawSamplesUp;
@@ -581,6 +582,10 @@ public class CleanDataObject {
     public void clearLists() {
         rawSamplesDown = null;
         rawSamplesUp = null;
+    }
+
+    public void setProcessingSize(int processingSize) {
+        this.processingSize = processingSize;
     }
 
     public enum AttributeName {
