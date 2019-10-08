@@ -143,7 +143,13 @@ public class PieChart implements Chart {
         nf.setMinimumFractionDigits(2);
         nf.setMaximumFractionDigits(2);
         for (Double d : listSumsPiePieces) whole += d;
-        for (Double d : listSumsPiePieces) listPercentages.add(d / whole);
+        for (Double d : listSumsPiePieces) {
+            if (d > 0) {
+                listPercentages.add(d / whole);
+            } else {
+                listPercentages.add(0d);
+            }
+        }
 
         series = new ArrayList<>();
         seriesNames.clear();
