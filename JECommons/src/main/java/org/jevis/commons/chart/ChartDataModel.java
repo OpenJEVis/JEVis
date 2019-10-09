@@ -617,4 +617,9 @@ public class ChartDataModel {
     public void setSum(Double sum) {
         this.sum = sum;
     }
+
+    public boolean equals(ChartDataModel obj) {
+        return this.getObject().getID().equals(obj.getObject().getID())
+                && this.getDataProcessor().getID().equals(obj.getDataProcessor().getID());
+    }
 }
