@@ -202,9 +202,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                  */
                                                 boolean foundOther = false;
                                                 for (ChartDataModel dataModel : data.getSelectedData()) {
-                                                    if (!dataModel.getSelectedcharts().isEmpty() &&
-                                                            currentDataModel.getObject().equals(dataModel.getObject())
-                                                            && currentDataModel.getDataProcessor().equals(dataModel.getDataProcessor())) {
+                                                    if (!dataModel.getSelectedcharts().isEmpty() && currentDataModel.equals(dataModel)) {
                                                         foundOther = true;
                                                         break;
                                                     }
