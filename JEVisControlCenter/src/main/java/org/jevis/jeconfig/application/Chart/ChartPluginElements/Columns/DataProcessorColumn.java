@@ -16,6 +16,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
@@ -70,8 +71,11 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
         final List<JEVisObject> _dataProcessors = new ArrayList<JEVisObject>();
         String rawDataString = I18n.getInstance().getString("graph.processing.raw");
 
-        if (data.getObject() != null)
+        if (data.getObject() != null) {
             _dataProcessors.addAll(getAllChildrenOf(data.getObject()));
+        }
+        AlphanumComparator ac = new AlphanumComparator();
+        _dataProcessors.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
 
         ComboBox<JEVisObject> processorBox = new ComboBox<>();
         processorBox.setPrefWidth(160);
@@ -106,7 +110,9 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
         processorBox.setButtonCell(cellFactory.call(null));
 
         if (data.getDataProcessor() != null) processorBox.getSelectionModel().select(data.getDataProcessor());
-        else processorBox.getSelectionModel().selectFirst();
+        else {
+            processorBox.getSelectionModel().selectFirst();
+        }
 
         return processorBox;
     }

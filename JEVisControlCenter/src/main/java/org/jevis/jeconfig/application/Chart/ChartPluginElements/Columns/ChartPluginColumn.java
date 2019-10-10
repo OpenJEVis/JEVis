@@ -6,11 +6,14 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.tool.I18n;
+
+import java.util.*;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -29,10 +32,24 @@ public interface ChartPluginColumn {
             ChartDataModel newData = new ChartDataModel(getDataSource());
             newData.setObject(row.getJEVisObject());
             try {
-                for (JEVisObject obj : row.getJEVisObject().getChildren()) {
-                    if (obj.getJEVisClassName().equals("Clean Data"))
-                        newData.setDataProcessor(obj);
-                    break;
+                List<JEVisObject> children = row.getJEVisObject().getChildren();
+                AlphanumComparator ac = new AlphanumComparator();
+                children.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+                List<String> cleanNames = new ArrayList<>();
+                for (Map.Entry<Locale, ResourceBundle> entry : I18n.getInstance().getAllBundles().entrySet()) {
+                    ResourceBundle resourceBundle = entry.getValue();
+                    try {
+                        cleanNames.add(resourceBundle.getString("tree.treehelper.cleandata.name"));
+                    } catch (NullPointerException | java.util.MissingResourceException e) {
+                    }
+                }
+                for (JEVisObject object : children) {
+                    for (String s : cleanNames) {
+                        if (object.getName().contains(s)) {
+                            newData.setDataProcessor(object);
+                            break;
+                        }
+                    }
                 }
             } catch (JEVisException e) {
                 e.printStackTrace();
