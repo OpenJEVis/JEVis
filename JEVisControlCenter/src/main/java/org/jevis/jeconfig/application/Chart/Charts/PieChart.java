@@ -18,6 +18,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
@@ -83,26 +85,31 @@ public class PieChart implements Chart {
         if (chartDataModels != null) {
             for (ChartDataModel singleRow : chartDataModels) {
                 if (!singleRow.getSelectedcharts().isEmpty()) {
+                    ChartDataModel clonedModel = singleRow.clone();
+                    clonedModel.setAggregationPeriod(AggregationPeriod.NONE);
                     Double sumPiePiece = 0d;
                     QuantityUnits qu = new QuantityUnits();
-                    boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
-                    boolean isSummable = qu.isSumCalculable(singleRow.getUnit());
+                    boolean isQuantity = qu.isQuantityUnit(clonedModel.getUnit());
+                    boolean isSummable = qu.isSumCalculable(clonedModel.getUnit());
 
-                    List<JEVisSample> samples = singleRow.getSamples();
+                    List<JEVisSample> samples = clonedModel.getSamples();
                     if (!isQuantity && isSummable) {
+                        List<JEVisSample> scaledSamples = new ArrayList<>();
 
-                        JEVisUnit sumUnit = qu.getSumUnit(singleRow.getUnit());
+                        JEVisUnit sumUnit = qu.getSumUnit(clonedModel.getUnit());
                         String outputUnit = UnitManager.getInstance().format(sumUnit).replace("·", "");
                         if (outputUnit.equals("")) outputUnit = sumUnit.getLabel();
 
-                        String inputUnit = UnitManager.getInstance().format(singleRow.getUnit()).replace("·", "");
-                        if (inputUnit.equals("")) inputUnit = singleRow.getUnit().getLabel();
+                        String inputUnit = UnitManager.getInstance().format(clonedModel.getUnit()).replace("·", "");
+                        if (inputUnit.equals("")) inputUnit = clonedModel.getUnit().getLabel();
 
                         ChartUnits cu = new ChartUnits();
                         Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
                         samples.forEach(sample -> {
                             try {
-                                sample.setValue(sample.getValueAsDouble() * finalFactor);
+                                JEVisSample smp = new VirtualSample(sample.getTimestamp(), sample.getValueAsDouble() * finalFactor);
+                                smp.setNote(sample.getNote());
+                                scaledSamples.add(smp);
                             } catch (Exception e) {
                                 try {
                                     logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue());
@@ -111,6 +118,8 @@ public class PieChart implements Chart {
                                 }
                             }
                         });
+
+                        samples = scaledSamples;
                     }
 
                     int samplecount = samples.size();
@@ -127,12 +136,12 @@ public class PieChart implements Chart {
                     }
 
                     listSumsPiePieces.add(sumPiePiece);
-                    if (!listTableEntryNames.contains(singleRow.getObject().getName())) {
-                        listTableEntryNames.add(singleRow.getObject().getName());
+                    if (!listTableEntryNames.contains(clonedModel.getObject().getName())) {
+                        listTableEntryNames.add(clonedModel.getObject().getName());
                     } else {
-                        listTableEntryNames.add(singleRow.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
+                        listTableEntryNames.add(clonedModel.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
                     }
-                    hexColors.add(singleRow.getColor());
+                    hexColors.add(clonedModel.getColor());
                 }
             }
         }
