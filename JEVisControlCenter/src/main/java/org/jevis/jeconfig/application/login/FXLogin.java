@@ -113,6 +113,7 @@ public class FXLogin extends AnchorPane {
     private boolean useCSSFile = false;
     private ApplicationInfo app = new ApplicationInfo("FXLogin", "");
     private Locale selectedLocale = Locale.getDefault();
+    private List<Locale> availableLang = new ArrayList<>();
 
 
     private FXLogin() {
@@ -124,6 +125,12 @@ public class FXLogin extends AnchorPane {
         this.mainStage = stage;
         this.app = app;
         this.parameters = parameters;
+
+        availableLang.add(UK);
+        availableLang.add(GERMANY);
+        availableLang.add(Locale.forLanguageTag("ru"));
+        availableLang.add(Locale.forLanguageTag("uk"));
+        availableLang.add(Locale.forLanguageTag("th"));
 
         this.configuration = parseConfig(parameters);
         for (JEVisOption opt : this.configuration) {
@@ -189,11 +196,11 @@ public class FXLogin extends AnchorPane {
                     });
 
                 } else {
-                    I18n.getInstance().loadBundle(getSelectedLocale());
+                    I18n.getInstance().loadAndSelectBundles(getAvailableLang(), getSelectedLocale());
                     throw new RuntimeException(I18n.getInstance().getString("app.login.exception.runtime"));
                 }
             } catch (Exception ex) {
-                I18n.getInstance().loadBundle(getSelectedLocale());
+                I18n.getInstance().loadAndSelectBundles(getAvailableLang(), getSelectedLocale());
                 logger.trace("{}: {}", I18n.getInstance().getString("app.login.error.message"), ex, ex);
                 Platform.runLater(() -> {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -295,12 +302,6 @@ public class FXLogin extends AnchorPane {
      * @return
      */
     private ComboBox buildLanguageBox() {
-        List<Locale> availableLang = new ArrayList<>();
-        availableLang.add(UK);
-        availableLang.add(GERMANY);
-        availableLang.add(Locale.forLanguageTag("ru"));
-        availableLang.add(Locale.forLanguageTag("uk"));
-        availableLang.add(Locale.forLanguageTag("th"));
 
         Callback<ListView<Locale>, ListCell<Locale>> cellFactory = new Callback<ListView<Locale>, ListCell<Locale>>() {
             @Override
@@ -444,7 +445,7 @@ public class FXLogin extends AnchorPane {
      *
      * @return
      */
-    private Node buidButtonsbar() {
+    private Node buildButtonsbar() {
         Region spacer = new Region();
         setDefaultStyle(spacer, "-fx-background-color: transparent;");
 
@@ -464,7 +465,7 @@ public class FXLogin extends AnchorPane {
      */
     private Node buildAuthForm() {
 
-        Node buttonBox = buidButtonsbar();
+        Node buttonBox = buildButtonsbar();
 //        Node serverConfigBox = buildServerSelection();
         Region serverConfigBox = new Region();
         ComboBox langSelect = buildLanguageBox();
@@ -838,4 +839,7 @@ public class FXLogin extends AnchorPane {
         String LIGHT_GREY2 = "#f4f4f4";
     }
 
+    public List<Locale> getAvailableLang() {
+        return availableLang;
+    }
 }

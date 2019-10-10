@@ -70,7 +70,7 @@ public class FillGapStep implements ProcessStep {
 
                     if (newGaps.size() == 0) {
                         logger.error("No gaps in this interval.");
-                        break;
+                        continue;
                     } else
                         logger.info("[{}] Start Gap filling, mode: '{}' gap size: {}", resourceManager.getID(), c.getType(), newGaps.size());
 
