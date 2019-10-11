@@ -13,8 +13,10 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -29,9 +31,8 @@ public class ColumnChartSerie {
     private final Boolean hideShowIcons;
     private ChartDataModel singleRow;
     private Integer yAxis;
-    private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private ObservableList<MultiAxisBarChart.Data<String, Number>> seriesData = FXCollections.observableArrayList();
-    private MultiAxisBarChart.Series<String, Number> serie;
+    private MultiAxisBarChart.Series<String, Number> serie = new MultiAxisBarChart.Series<>(seriesData);
     private TableEntry tableEntry;
     private DateTime timeStampFromFirstSample = DateTime.now();
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
@@ -41,7 +42,6 @@ public class ColumnChartSerie {
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
         this.hideShowIcons = hideShowIcons;
-        this.serie = new MultiAxisBarChart.Series<>(seriesData);
 
         generateSeriesFromSamples();
     }
@@ -60,15 +60,6 @@ public class ColumnChartSerie {
         serie.getData().clear();
 
         int samplesSize = samples.size();
-//        int seriesDataSize = serie.getData().size();
-
-//        if (samplesSize < seriesDataSize) {
-//            serie.getData().subList(samplesSize, seriesDataSize).clear();
-//        } else if (samplesSize > seriesDataSize) {
-//            for (int i = seriesDataSize; i < samplesSize; i++) {
-//                serie.getData().add(new MultiAxisChart.Data<>());
-//            }
-//        }
 
         if (samplesSize > 0) {
             try {
@@ -93,7 +84,6 @@ public class ColumnChartSerie {
 
         for (JEVisSample sample : samples) {
             try {
-//                int index = samples.indexOf(sample);
 
                 DateTime dateTime = sample.getTimestamp();
                 Double currentValue = sample.getValueAsDouble();
@@ -102,17 +92,10 @@ public class ColumnChartSerie {
                 max = Math.max(max, currentValue);
                 sum += currentValue;
 
-
-//                MultiAxisChart.Data<Number, Number> data = serie.getData().get(index);
                 MultiAxisBarChart.Data<String, Number> data = new MultiAxisBarChart.Data<>();
                 data.setXValue(dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm")));
                 data.setYValue(currentValue);
                 data.setExtraValue(yAxis);
-
-//                data.setNode(null);
-//                data.setNode(generateNode(sample));
-//
-//                setDataNodeColor(data);
 
                 serie.getData().add(data);
 
@@ -167,6 +150,8 @@ public class ColumnChartSerie {
                 }
             }
         }
+
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
     }
 
     public void setDataNodeColor(MultiAxisBarChart.Data<String, Number> data) {
@@ -233,5 +218,9 @@ public class ColumnChartSerie {
                 (int) (color.getRed() * 255),
                 (int) (color.getGreen() * 255),
                 (int) (color.getBlue() * 255));
+    }
+
+    public Integer getyAxis() {
+        return yAxis;
     }
 }

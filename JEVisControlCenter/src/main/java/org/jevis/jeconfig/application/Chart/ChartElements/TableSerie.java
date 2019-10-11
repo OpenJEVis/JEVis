@@ -1,15 +1,19 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -47,7 +51,7 @@ public class TableSerie extends XYChartSerie {
         }
 
         sampleMap = new TreeMap<>();
-
+        List<MultiAxisChart.Data<Number, Number>> dataList = new ArrayList<>();
         for (JEVisSample sample : samples) {
             try {
 
@@ -61,7 +65,7 @@ public class TableSerie extends XYChartSerie {
 
                 data.setNode(null);
 
-                serie.getData().add(data);
+                dataList.add(data);
 
                 sampleMap.put(dateTime, sample);
 
@@ -69,6 +73,12 @@ public class TableSerie extends XYChartSerie {
 
             }
         }
+
+        Platform.runLater(() -> {
+            serie.getData().setAll(dataList);
+            JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
+        });
+
     }
 
     public void setDataNodeColor(MultiAxisChart.Data<Number, Number> data) {

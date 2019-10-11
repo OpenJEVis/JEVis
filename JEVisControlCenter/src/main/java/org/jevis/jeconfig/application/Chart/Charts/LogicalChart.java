@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
@@ -13,10 +14,8 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartElements.*;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.LogicalYAxisStringConverter;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.PeriodFormat;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -37,8 +36,6 @@ public class LogicalChart extends XYChart {
         setMaxValue(Math.max(maxValue, serie.getMaxValue()));
 
         getHexColors().add(singleRow.getColor());
-        chart.getData().add(serie.getSerie());
-        tableData.add(serie.getTableEntry());
 
         /**
          * check if timestamps are in serie
@@ -60,6 +57,14 @@ public class LogicalChart extends XYChart {
 
         checkManipulation(singleRow);
         return serie;
+    }
+
+    @Override
+    public void addSeriesToChart() {
+        for (XYChartSerie xyChartSerie : xyChartSerieList) {
+            chart.getData().add(xyChartSerie.getSerie());
+            tableData.add(xyChartSerie.getTableEntry());
+        }
     }
 
     @Override
@@ -130,20 +135,18 @@ public class LogicalChart extends XYChart {
                     String formattedDouble = nf.format(valueAsDouble);
 
                     if (!asDuration) {
-                        tableEntry.setDate(nearest
-                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                        Platform.runLater(() -> tableEntry.setDate(nearest
+                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss"))));
                     } else {
-                        tableEntry.setDate((nearest.getMillis() -
-                                timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
+                        Platform.runLater(() -> tableEntry.setDate((nearest.getMillis() -
+                                timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h"));
                     }
-                    tableEntry.setNote(formattedNote.getNoteAsString());
+                    Platform.runLater(() -> tableEntry.setNote(formattedNote.getNoteAsString()));
                     String unit = serie.getUnit();
 
                     if (!sample.getNote().contains("Zeros")) {
-                        tableEntry.setValue(formattedDouble + " " + unit);
-                    } else tableEntry.setValue("- " + unit);
-
-                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
+                        Platform.runLater(() -> tableEntry.setValue(formattedDouble + " " + unit));
+                    } else Platform.runLater(() -> tableEntry.setValue("- " + unit));
 
                 } catch (Exception ex) {
                 }
