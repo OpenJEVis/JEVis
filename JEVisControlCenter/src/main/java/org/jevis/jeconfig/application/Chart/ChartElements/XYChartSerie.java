@@ -17,7 +17,9 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -59,6 +61,7 @@ public class XYChartSerie {
         tableEntry.setColor(singleRow.getColor());
 
         List<JEVisSample> samples = singleRow.getSamples();
+
         JEVisUnit unit = singleRow.getUnit();
 
         serie.getData().clear();
@@ -137,9 +140,10 @@ public class XYChartSerie {
             sum = max;
         }
 
-        Platform.runLater(() -> {
-            serie.getData().setAll(dataList);
-        });
+
+        serie.getData().setAll(dataList);
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
+
 
         updateTableEntry(samples, unit, min, max, avg, sum, zeroCount);
     }
@@ -158,7 +162,9 @@ public class XYChartSerie {
         }
 
         if (firstTS != null && secondTS != null) {
-            tableEntry.setPeriod(new Period(firstTS, secondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
+            DateTime finalFirstTS = firstTS;
+            DateTime finalSecondTS = secondTS;
+            Platform.runLater(() -> tableEntry.setPeriod(new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()))));
         }
 
         QuantityUnits qu = new QuantityUnits();
@@ -173,23 +179,24 @@ public class XYChartSerie {
         nf_out.setMinimumFractionDigits(2);
 
         if (min == Double.MAX_VALUE || samples.size() == 0) {
-            tableEntry.setMin("- " + getUnit());
+            Platform.runLater(() -> tableEntry.setMin("- " + getUnit()));
         } else {
-            tableEntry.setMin(nf_out.format(min) + " " + getUnit());
+            Platform.runLater(() -> tableEntry.setMin(nf_out.format(min) + " " + getUnit()));
         }
 
         if (max == Double.MIN_VALUE || samples.size() == 0) {
-            tableEntry.setMax("- " + getUnit());
+            Platform.runLater(() -> tableEntry.setMax("- " + getUnit()));
         } else {
-            tableEntry.setMax(nf_out.format(max) + " " + getUnit());
+            Platform.runLater(() -> tableEntry.setMax(nf_out.format(max) + " " + getUnit()));
         }
 
         if (samples.size() == 0) {
-            tableEntry.setAvg("- " + getUnit());
-            tableEntry.setSum("- " + getUnit());
+            Platform.runLater(() -> tableEntry.setAvg("- " + getUnit()));
+            Platform.runLater(() -> tableEntry.setSum("- " + getUnit()));
         } else {
             if (!singleRow.getEnPI()) {
-                tableEntry.setAvg(nf_out.format(avg) + " " + getUnit());
+                double finalAvg = avg;
+                Platform.runLater(() -> tableEntry.setAvg(nf_out.format(finalAvg) + " " + getUnit()));
             } else {
                 CalcJobFactory calcJobCreator = new CalcJobFactory();
 
@@ -198,15 +205,23 @@ public class XYChartSerie {
                 List<JEVisSample> results = calcJob.getResults();
 
                 if (results.size() == 1) {
-                    tableEntry.setAvg(nf_out.format(results.get(0).getValueAsDouble()) + " " + getUnit());
+                    Platform.runLater(() -> {
+                        try {
+                            tableEntry.setAvg(nf_out.format(results.get(0).getValueAsDouble()) + " " + getUnit());
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                    });
                 } else {
-                    tableEntry.setAvg("- " + getUnit());
+                    Platform.runLater(() -> tableEntry.setAvg("- " + getUnit()));
                 }
-                tableEntry.setEnpi(nf_out.format(avg) + " " + getUnit());
+                double finalAvg1 = avg;
+                Platform.runLater(() -> tableEntry.setEnpi(nf_out.format(finalAvg1) + " " + getUnit()));
             }
             if (isQuantity) {
 //                tableEntry.setSum(nf_out.format(sum / singleRow.getScaleFactor() / singleRow.getTimeFactor()) + " " + getUnit());
-                tableEntry.setSum(nf_out.format(sum) + " " + getUnit());
+                Double finalSum = sum;
+                Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum) + " " + getUnit()));
             } else {
                 if (qu.isSumCalculable(unit) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
                     try {
@@ -217,7 +232,8 @@ public class XYChartSerie {
                             Double factor = (double) hourMillis / (double) periodMillis;
 //                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
                             sum = sum / singleRow.getScaleFactor() / singleRow.getTimeFactor();
-                            tableEntry.setSum(nf_out.format(sum) + " " + qu.getSumUnit(unit));
+                            Double finalSum1 = sum;
+                            Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum1) + " " + qu.getSumUnit(unit)));
                         } else {
                             double periodMillis = 0.0;
 
@@ -233,14 +249,15 @@ public class XYChartSerie {
                             Double factor = (double) hourMillis / periodMillis;
 //                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
                             sum = sum / singleRow.getScaleFactor() / singleRow.getTimeFactor();
-                            tableEntry.setSum(nf_out.format(sum) + " " + qu.getSumUnit(unit));
+                            Double finalSum2 = sum;
+                            Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum2) + " " + qu.getSumUnit(unit)));
                         }
                     } catch (Exception e) {
                         logger.error("Couldn't calculate periods");
-                        tableEntry.setSum("- " + getUnit());
+                        Platform.runLater(() -> tableEntry.setSum("- " + getUnit()));
                     }
                 } else {
-                    tableEntry.setSum("- " + getUnit());
+                    Platform.runLater(() -> tableEntry.setSum("- " + getUnit()));
                 }
             }
         }

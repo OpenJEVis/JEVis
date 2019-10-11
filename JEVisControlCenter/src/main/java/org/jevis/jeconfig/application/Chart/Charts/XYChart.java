@@ -250,17 +250,13 @@ public class XYChart implements Chart {
                 logger.error("Could not generate sum of data rows: ", e);
             }
             try {
-                chart.getData().forEach(serie -> ((MultiAxisChart.Series) serie).getData().forEach(numberNumberData -> {
-                    MultiAxisChart.Data node = (MultiAxisChart.Data) numberNumberData;
-                    node.setExtraValue(0);
-                }));
-
                 xyChartSerieList.add(generateSerie(changedBoth, sumModel));
-
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
         }
+
+        addSeriesToChart();
 
         if (asDuration) {
             ((DateValueAxis) dateAxis).setAsDuration(true);
@@ -288,6 +284,22 @@ public class XYChart implements Chart {
         Platform.runLater(() -> updateTable(null, timeStampOfFirstSample.get()));
     }
 
+    public void addSeriesToChart() {
+        for (XYChartSerie xyChartSerie : xyChartSerieList) {
+            int index = xyChartSerieList.indexOf(xyChartSerie);
+            Platform.runLater(() -> {
+                if (showSum && index < xyChartSerieList.size() - 2) {
+                    xyChartSerie.getSerie().getData().forEach(numberNumberData -> {
+                        MultiAxisChart.Data node = (MultiAxisChart.Data) numberNumberData;
+                        node.setExtraValue(0);
+                    });
+                }
+                chart.getData().add(xyChartSerie.getSerie());
+                tableData.add(xyChartSerie.getTableEntry());
+            });
+        }
+    }
+
     public void initializeChart() {
         setChart(new MultiAxisAreaChart(dateAxis, y1Axis, y2Axis));
     }
@@ -296,11 +308,6 @@ public class XYChart implements Chart {
         XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
 
         hexColors.add(singleRow.getColor());
-//        Platform.runLater(() -> {
-        chart.getData().add(serie.getSerie());
-        tableData.add(serie.getTableEntry());
-//        });
-
 
         /**
          * check if timestamps are in serie
@@ -341,7 +348,9 @@ public class XYChart implements Chart {
             XYChartSerie serie2 = new XYChartSerie(singleRow, hideShowIcons);
 
             hexColors.add(singleRow.getColor().darker());
+
             chart.getData().add(serie2.getSerie());
+
             tableData.add(serie2.getTableEntry());
 
             singleRow.setManipulationMode(oldMode);
@@ -407,7 +416,6 @@ public class XYChart implements Chart {
         if (!unitY1.isEmpty()) y1Axis.setLabel(allUnitsY1.toString());
         if (!unitY2.isEmpty()) y2Axis.setLabel(allUnitsY2.toString());
 
-        checkForY2Axis();
     }
 
     public void generateXAxis(Boolean[] changedBoth) {
@@ -730,13 +738,13 @@ public class XYChart implements Chart {
                     Note formattedNote = new Note(sample);
 
                     if (!asDuration) {
-                        tableEntry.setDate(nearest
-                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                        Platform.runLater(() -> tableEntry.setDate(nearest
+                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss"))));
                     } else {
-                        tableEntry.setDate((nearest.getMillis() -
-                                timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
+                        Platform.runLater(() -> tableEntry.setDate((nearest.getMillis() -
+                                timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h"));
                     }
-                    tableEntry.setNote(formattedNote.getNoteAsString());
+                    Platform.runLater(() -> tableEntry.setNote(formattedNote.getNoteAsString()));
                     String unit = serie.getUnit();
 
                     if (!sample.getNote().contains("Zeros")) {
@@ -745,12 +753,19 @@ public class XYChart implements Chart {
                         if (!serie.getSingleRow().isStringData()) {
                             valueAsDouble = sample.getValueAsDouble();
                             formattedDouble = nf.format(valueAsDouble);
-                            tableEntry.setValue(formattedDouble + " " + unit);
+                            String finalFormattedDouble = formattedDouble;
+                            Platform.runLater(() -> tableEntry.setValue(finalFormattedDouble + " " + unit));
                         } else {
-                            tableEntry.setValue(sample.getValueAsString() + " " + unit);
+                            Platform.runLater(() -> {
+                                try {
+                                    tableEntry.setValue(sample.getValueAsString() + " " + unit);
+                                } catch (JEVisException e) {
+                                    e.printStackTrace();
+                                }
+                            });
                         }
 
-                    } else tableEntry.setValue("- " + unit);
+                    } else Platform.runLater(() -> tableEntry.setValue("- " + unit));
 
 //                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
 
@@ -805,13 +820,11 @@ public class XYChart implements Chart {
                 Double finalSum = sum;
                 long finalZeroCount = zeroCount;
                 double finalAvg = avg;
-                Platform.runLater(() -> {
-                    try {
-                        serie.updateTableEntry(newList, unit, finalMin, finalMax, finalAvg, finalSum, finalZeroCount);
-                    } catch (JEVisException e) {
-                        logger.error("Could not update Table Entry for {}", serie.getSingleRow().getObject().getName(), e);
-                    }
-                });
+                try {
+                    serie.updateTableEntry(newList, unit, finalMin, finalMax, finalAvg, finalSum, finalZeroCount);
+                } catch (JEVisException e) {
+                    logger.error("Could not update Table Entry for {}", serie.getSingleRow().getObject().getName(), e);
+                }
 
 
             } catch (Exception ex) {
@@ -862,11 +875,11 @@ public class XYChart implements Chart {
 
             NoteDialog nd = new NoteDialog(map);
 
-            nd.showAndWait().ifPresent(response -> {
+            Platform.runLater(() -> nd.showAndWait().ifPresent(response -> {
                 if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
                     saveUserNotes(nd.getNoteMap());
                 }
-            });
+            }));
         }
     }
 
@@ -918,9 +931,8 @@ public class XYChart implements Chart {
         return areaChartRegion;
     }
 
-    private void checkForY2Axis() {
-
-//        Platform.runLater(() -> {
+    @Override
+    public void checkForY2Axis() {
         try {
             boolean hasY2Axis = false;
             for (XYChartSerie serie : xyChartSerieList) {
@@ -935,9 +947,6 @@ public class XYChart implements Chart {
         } catch (Exception ex) {
             logger.error(ex);
         }
-
-//        });
-
     }
 
     @Override

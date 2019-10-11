@@ -40,7 +40,7 @@ public interface ChartPluginColumn {
                     ResourceBundle resourceBundle = entry.getValue();
                     try {
                         cleanNames.add(resourceBundle.getString("tree.treehelper.cleandata.name"));
-                    } catch (NullPointerException | java.util.MissingResourceException e) {
+                    } catch (Exception e) {
                     }
                 }
                 for (JEVisObject object : children) {
@@ -49,6 +49,9 @@ public interface ChartPluginColumn {
                             newData.setDataProcessor(object);
                             break;
                         }
+                    }
+                    if (newData.getDataProcessor() != null) {
+                        break;
                     }
                 }
             } catch (JEVisException e) {
