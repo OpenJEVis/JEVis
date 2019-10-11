@@ -106,9 +106,10 @@ public class ReportProperty {
             List<JEVisObject> notificationObjects = reportObject.getChildren(notificationType, false);
             if (notificationObjects.size() == 1) {
                 notificationObject = notificationObjects.get(0);
-            } else {
-                throw new IllegalStateException("Too many or no Notification Object for report Object: id: " + reportObject.getID() + " and name: " + reportObject.getName());
-            }
+            } else logger.info("No notification object found.");
+//            else {
+//                throw new IllegalStateException("Too many or no Notification Object for report Object: id: " + reportObject.getID() + " and name: " + reportObject.getName());
+//            }
         } catch (JEVisException ex) {
             throw new RuntimeException("Error while parsing Notification Object for report Object: id: " + reportObject.getID() + " and name: " + reportObject.getName(), ex);
         }
