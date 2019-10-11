@@ -704,6 +704,8 @@ public class GraphPluginView implements Plugin {
                 cv.getChart().applyColors();
 
                 cv.getChart().checkForY2Axis();
+
+                cv.getTableView().sort();
             }
         });
     }

@@ -440,8 +440,6 @@ public class ChartView implements Observer {
         }
 
         generateChart(chartId, chartType, currentSelectedChartDataModels);
-
-        tableView.sort();
     }
 
     public void drawAreaChart(Integer chartId, ChartDataModel model, ChartType chartType) {
