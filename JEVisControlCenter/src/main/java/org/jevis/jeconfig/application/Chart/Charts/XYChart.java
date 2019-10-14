@@ -875,11 +875,11 @@ public class XYChart implements Chart {
 
             NoteDialog nd = new NoteDialog(map);
 
-            Platform.runLater(() -> nd.showAndWait().ifPresent(response -> {
+            nd.showAndWait().ifPresent(response -> {
                 if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
                     saveUserNotes(nd.getNoteMap());
                 }
-            }));
+            });
         }
     }
 

@@ -414,13 +414,12 @@ public class ChartDataModel {
     public JEVisAttribute getAttribute() {
         if (attribute == null || somethingChanged) {
             try {
-                JEVisAttribute attribute = null;
+
                 String jevisClassName = getObject().getJEVisClassName();
                 if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data")) {
-                    if (dataProcessorObject == null) attribute = getObject().getAttribute("Value");
-                    else attribute = getDataProcessor().getAttribute("Value");
+                    if (dataProcessorObject == null) this.attribute = getObject().getAttribute("Value");
+                    else this.attribute = getDataProcessor().getAttribute("Value");
 
-                    this.attribute = attribute;
 
                     if (jevisClassName.equals("String Data")) {
                         this.isStringData = true;
