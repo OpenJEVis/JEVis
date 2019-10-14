@@ -811,9 +811,9 @@ public class GraphPluginView implements Plugin {
                     ChartDataModel chartDataModel = new ChartDataModel(ds);
 
                     try {
-                        if (jeVisObject.getJEVisClassName().equals("Data"))
+                        if (jeVisObject.getJEVisClassName().equals("Data")) {
                             chartDataModel.setObject(jeVisObject);
-                        else if (jeVisObject.getJEVisClassName().equals("Clean Data")) {
+                        } else if (jeVisObject.getJEVisClassName().equals("Clean Data")) {
                             chartDataModel.setDataProcessor(jeVisObject);
                             chartDataModel.setObject(jeVisObject.getParents().get(0));
                         }
@@ -824,7 +824,6 @@ public class GraphPluginView implements Plugin {
                     List<Integer> list = new ArrayList<>();
                     list.add(0);
                     chartDataModel.setSelectedCharts(list);
-                    chartDataModel.setAttribute(analysisRequest.getAttribute());
                     chartDataModel.setColor(Color.BLUE);
                     chartDataModel.setSomethingChanged(true);
 
@@ -841,7 +840,7 @@ public class GraphPluginView implements Plugin {
 
                     org.jevis.commons.ws.json.JsonObject newJsonObject = new JsonObject();
                     newJsonObject.setName("Temp");
-                    newJsonObject.setId(0l);
+                    newJsonObject.setId(0L);
                     newJsonObject.setJevisClass("Analysis");
                     JEVisObject newObject = new JEVisObjectWS((JEVisDataSourceWS) ds, newJsonObject) {
                         @Override
@@ -850,13 +849,12 @@ public class GraphPluginView implements Plugin {
                         }
                     };
                     dataModel.setTemporary(true);
-                    dataModel.setCurrentAnalysis(newObject);
+                    dataModel.setCurrentAnalysisNOEVENT(newObject);
                     dataModel.setCharts(chartSettingsList);
                     dataModel.setData(chartDataModels);
                     dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
                     dataModel.isGlobalAnalysisTimeFrame(true);
-                    dataModel.updateSamples();
                     dataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisTimeFrame);
                     toolBarView.getPickerCombo().updateCellFactory();
                     dataModel.update();

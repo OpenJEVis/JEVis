@@ -899,6 +899,10 @@ public class GraphDataModel {
         }
     }
 
+    public void setCurrentAnalysisNOEVENT(JEVisObject currentAnalysis) {
+        this.currentAnalysis = currentAnalysis;
+    }
+
 
     private List<Integer> stringToList(String s) {
         if (Objects.nonNull(s)) {
@@ -1008,30 +1012,34 @@ public class GraphDataModel {
         }
 
         if (isglobalAnalysisTimeFrame()) {
-            List<ChartDataModel> chartDataModels = new ArrayList<>();
-            for (ChartSettings chartSettings : charts) {
-                chartSettings.setAnalysisTimeFrame(globalAnalysisTimeFrame);
-            }
-
-            selectedData.forEach(chartDataModel -> {
-                if (!chartDataModel.getSelectedcharts().isEmpty())
-                    chartDataModels.add(chartDataModel);
-            });
-
-            if (!globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.PREVIEW)) {
-                DateHelper dateHelper = new DateHelper();
-                dateHelper.setMinMaxForDateHelper(chartDataModels);
-                dateHelper.setType(TimeFrame.parseTransformType(globalAnalysisTimeFrame.getTimeFrame()));
-                globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());
-                globalAnalysisTimeFrame.setEnd(dateHelper.getEndDate());
-                selectedData.forEach(chartDataModel -> setChartDataModelStartAndEnd(chartDataModel, dateHelper.getStartDate(), dateHelper.getEndDate()));
-            } else {
-                checkForPreviewData(chartDataModels, globalAnalysisTimeFrame);
-                selectedData.forEach(chartDataModel -> setChartDataModelStartAndEnd(chartDataModel, globalAnalysisTimeFrame.getStart(), globalAnalysisTimeFrame.getEnd()));
-            }
+            setGlobalAnalysisTimeFrame(selectedData);
         }
 
         this.selectedData = selectedData;
+    }
+
+    public void setGlobalAnalysisTimeFrame(Set<ChartDataModel> selectedData) {
+        List<ChartDataModel> chartDataModels = new ArrayList<>();
+        for (ChartSettings chartSettings : charts) {
+            chartSettings.setAnalysisTimeFrame(globalAnalysisTimeFrame);
+        }
+
+        selectedData.forEach(chartDataModel -> {
+            if (!chartDataModel.getSelectedcharts().isEmpty())
+                chartDataModels.add(chartDataModel);
+        });
+
+        if (!globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.PREVIEW)) {
+            DateHelper dateHelper = new DateHelper();
+            dateHelper.setMinMaxForDateHelper(chartDataModels);
+            dateHelper.setType(TimeFrame.parseTransformType(globalAnalysisTimeFrame.getTimeFrame()));
+            globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());
+            globalAnalysisTimeFrame.setEnd(dateHelper.getEndDate());
+            selectedData.forEach(chartDataModel -> setChartDataModelStartAndEnd(chartDataModel, dateHelper.getStartDate(), dateHelper.getEndDate()));
+        } else {
+            checkForPreviewData(chartDataModels, globalAnalysisTimeFrame);
+            selectedData.forEach(chartDataModel -> setChartDataModelStartAndEnd(chartDataModel, globalAnalysisTimeFrame.getStart(), globalAnalysisTimeFrame.getEnd()));
+        }
     }
 
     public AggregationPeriod getAggregationPeriod() {
@@ -1157,6 +1165,7 @@ public class GraphDataModel {
 
     public void setGlobalAnalysisTimeFrameNOEVENT(AnalysisTimeFrame globalAnalysisTimeFrame) {
         this.globalAnalysisTimeFrame = globalAnalysisTimeFrame;
+        setGlobalAnalysisTimeFrame(getSelectedData());
     }
 
     public boolean isChanged() {
