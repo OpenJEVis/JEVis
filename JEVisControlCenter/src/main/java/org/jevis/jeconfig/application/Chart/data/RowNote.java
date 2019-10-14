@@ -74,6 +74,7 @@ public class RowNote {
                             formattedNote.append(limitsConfig1.getMin());
                             formattedNote.append(" ");
                             formattedNote.append(cleanDataObject.getValueAttribute().getDisplayUnit().getLabel());
+                            formattedNote.append(System.getProperty("line.separator"));
                             formattedNote.append(" L1 Max: ");
                             formattedNote.append(limitsConfig1.getMax());
                             formattedNote.append(" ");
@@ -139,11 +140,13 @@ public class RowNote {
                             formattedNote.append(limitsConfig1.getMin());
                             formattedNote.append(" ");
                             formattedNote.append(cleanDataObject.getValueAttribute().getDisplayUnit().getLabel());
+                            formattedNote.append(System.getProperty("line.separator"));
                             formattedNote.append(" L2 Max: ");
                             formattedNote.append(limitsConfig1.getMax());
                             formattedNote.append(System.getProperty("line.separator"));
                             formattedNote.append(" ");
                             formattedNote.append(cleanDataObject.getValueAttribute().getDisplayUnit().getLabel());
+                            formattedNote.append(System.getProperty("line.separator"));
                         }
                     }
 
