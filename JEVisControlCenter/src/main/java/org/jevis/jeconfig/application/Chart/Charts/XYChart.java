@@ -738,8 +738,12 @@ public class XYChart implements Chart {
                     Note formattedNote = new Note(sample);
 
                     if (!asDuration) {
-                        Platform.runLater(() -> tableEntry.setDate(nearest
-                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss"))));
+                        Platform.runLater(() -> {
+                            if (nearest != null) {
+                                tableEntry.setDate(nearest
+                                        .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                            } else tableEntry.setValue("-");
+                        });
                     } else {
                         Platform.runLater(() -> tableEntry.setDate((nearest.getMillis() -
                                 timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h"));
