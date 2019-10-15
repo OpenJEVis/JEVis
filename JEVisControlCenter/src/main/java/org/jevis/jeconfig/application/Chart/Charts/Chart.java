@@ -218,4 +218,6 @@ public interface Chart {
     JFXChartUtil getJfxChartUtil();
 
     void setRegion(Region region);
+
+    void checkForY2Axis();
 }

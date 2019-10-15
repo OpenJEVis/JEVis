@@ -89,7 +89,7 @@ public class NoteDialog extends Dialog<ButtonType> {
             @Override
             public TableCell<RowNote, String> call(TableColumn<RowNote, String> param) {
 
-                TableCell<RowNote, String> stringTableCell = new TableCell<RowNote, String>() {
+                return new TableCell<RowNote, String>() {
 
                     @Override
                     protected void updateItem(String item, boolean empty) {
@@ -140,7 +140,6 @@ public class NoteDialog extends Dialog<ButtonType> {
                         }
                     }
                 };
-                return stringTableCell;
             }
         });
 

@@ -328,7 +328,7 @@ public class JEConfig extends Application {
                 _mainDS = login.getDataSource();
 
                 JEConfig.userpassword = login.getUserPassword();
-                I18n.getInstance().loadBundle(login.getSelectedLocale());
+                I18n.getInstance().loadAndSelectBundles(login.getAvailableLang(), login.getSelectedLocale());
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
 

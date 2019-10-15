@@ -174,6 +174,11 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
+    public void checkForY2Axis() {
+
+    }
+
+    @Override
     public void initializeZoom() {
 
     }

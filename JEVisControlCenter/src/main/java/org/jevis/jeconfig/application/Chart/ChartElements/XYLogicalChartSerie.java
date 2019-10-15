@@ -7,7 +7,9 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -102,7 +104,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
 
             }
         }
-
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
     }
 
     private List<JEVisSample> getModifiedList(List<JEVisSample> samples) throws JEVisException {

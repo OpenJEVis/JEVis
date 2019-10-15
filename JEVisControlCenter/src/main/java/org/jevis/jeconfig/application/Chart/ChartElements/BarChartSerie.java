@@ -16,6 +16,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -73,8 +75,9 @@ public class BarChartSerie {
 
             seriesData.clear();
             seriesData.add(data);
-
         }
+
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
 
     }
 

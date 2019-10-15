@@ -127,7 +127,6 @@ public class ChartWidget extends Widget {
 
                 this.lineChart.getChart().layout();
                 this.borderPane.setCenter(this.lineChart.getChart());
-                this.lineChart.applyColors();
                 updateConfig();/** workaround because we make a new chart everytime**/
             } catch (Exception ex) {
                 logger.error(ex);
@@ -155,7 +154,7 @@ public class ChartWidget extends Widget {
                 //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
 //            lineChart.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Inset
                 this.borderPane.setBackground(bgColor);
-
+                this.lineChart.applyColors();
                 this.layout();
             } catch (Exception ex) {
                 logger.error(ex);

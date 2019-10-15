@@ -62,6 +62,23 @@
         "ru": "Статус",
         "en": "State"
       }
+    },
+    {
+      "type": "Processing Size",
+      "descriptions": {
+        "de": "Die maximale Anzahl an Samples, die während einees Prozessordurchlaufs bearbeitet wird.",
+        "ru": "Максимальное количество выборок, обработанных за один проход процессора.",
+        "uk": "Максимальна кількість проб, оброблених під час проходження процесора.",
+        "th": "จำนวนตัวอย่างสูงสุดที่ประมวลผลระหว่างตัวประมวลผลผ่าน",
+        "en": "The maximum amount of samples which are processed in one processor cycle."
+      },
+      "names": {
+        "de": "Verarbeitungsgröße",
+        "ru": "Размер обработки",
+        "uk": "Розмір обробки",
+        "th": "ขนาดการประมวลผล",
+        "en": "Processing Size"
+      }
     }
   ]
 }
