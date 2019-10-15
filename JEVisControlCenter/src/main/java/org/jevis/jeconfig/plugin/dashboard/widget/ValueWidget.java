@@ -105,7 +105,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
-                    total.set(results.get(results.size() - 1).getValueAsDouble());
+                    total.set(DataModelDataHandler.getTotal(results));
+//                    total.set(results.get(results.size() - 1).getValueAsDouble());
                     displayedSample.setValue(total.get());
                     Platform.runLater(() -> {
                         this.label.setText((this.nf.format(total.get())) + " " + unit);
@@ -143,6 +144,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
 
     }
+
 
     @Override
     public DataModelDataHandler getDataHandler() {
@@ -184,7 +186,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 //        System.out.println("The Thread name is0 " + Thread.currentThread().getName());
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
         widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
-
+        sampleHandler.setAutoAggregation(true);
 
         logger.error("Value.openConfig() [{}] limit ={}", config.getUuid(), limit);
         if (limit != null) {
@@ -222,6 +224,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 this.label.setContentDisplay(ContentDisplay.CENTER);
             });
         });
+
+        sampleHandler.setAutoAggregation(true);
 
         try {
             if (limit != null && limit.getLimitWidgetID() > 0) {

@@ -42,7 +42,7 @@ public class EmailNotificationDriver implements NotificationDriver {
     private long _port;
     private String _userName;
     private String _password;
-    private final String _type = "EMail Plugin";
+    public static final String _type = "EMail Plugin";
     private TansportSecurity _transportSecurity;
     private Authenticator _authentication;
     //
@@ -131,6 +131,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      * @param notiObj
      * @throws JEVisException
      */
+    @Override
     public void setNotificationDriverObject(JEVisObject notiObj) throws JEVisException {
         if (notiObj.getJEVisClass().getName().equals(_type)) {
             _jeDri = notiObj;
@@ -224,6 +225,7 @@ public class EmailNotificationDriver implements NotificationDriver {
     public void setDefaultAuthenticator() {
         _authentication = new Authenticator() {
             //override the getPasswordAuthentication method
+            @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(getUser(), getPassword());
             }
@@ -319,6 +321,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      *
      * @return
      */
+    @Override
     public JEVisObject getJEVisObjectDriver() {
         return _jeDri;
     }
@@ -365,6 +368,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      *
      * @return
      */
+    @Override
     public String getDriverType() {
         return _type;
     }
@@ -377,6 +381,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      * @param jenoti type: Notification
      * @return
      */
+    @Override
     public boolean sendNotification(Notification jenoti) {
         boolean successful = false;
         if (jenoti.getType().equals(APPLICATIVE_NOTI_TYPE)) {
@@ -398,6 +403,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      * @param jenoti type: Notification
      * @return
      */
+    @Override
     public boolean sendNotification(Notification jenoti, String customMessage) {
         boolean successful = false;
         if (jenoti.getType().equals(APPLICATIVE_NOTI_TYPE)) {
@@ -607,6 +613,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      * @param jenoti
      * @return
      */
+    @Override
     public boolean isSupported(Notification jenoti) {
         boolean support;
         support = jenoti.getType().equals(APPLICATIVE_NOTI_TYPE);
@@ -621,6 +628,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      *
      * @return
      */
+    @Override
     public boolean isDriverConfigured() {
         boolean isConfigured = false;
         if (_SMTPServer != null && _userName != null && _password != null) {
@@ -641,6 +649,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      * @param driverObj
      * @return
      */
+    @Override
     public boolean isConfigurationObject(JEVisObject driverObj) {
         try {
             return driverObj.getJEVisClass().getName().equals(_type);
@@ -656,6 +665,7 @@ public class EmailNotificationDriver implements NotificationDriver {
      * @param noti
      * @return
      */
+    @Override
     public boolean sendTimeRecorder(Notification noti) {
         boolean re = false;
         if (noti.isSendSuccessfully()) {
@@ -679,6 +689,7 @@ public class EmailNotificationDriver implements NotificationDriver {
         return re;
     }
 
+    @Override
     public void setNotificationDriver(List<String> str) {
     }
 }
