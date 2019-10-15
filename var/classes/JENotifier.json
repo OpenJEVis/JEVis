@@ -13,5 +13,40 @@
       "end": "Service Directory",
       "type": 3
     }
+  ],
+  "types": [
+    {
+      "name": "Enable",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JENotifier"
+    },
+    {
+      "name": "Max Number Threads",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JENotifier"
+    },
+    {
+      "name": "Cycle Time",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JENotifier"
+    },
+    {
+      "name": "Status",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JENotifier"
+    }
   ]
 }

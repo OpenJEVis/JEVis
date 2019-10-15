@@ -1,0 +1,81 @@
+{
+  "name": "CSV Export",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "CSV Export",
+      "end": "Export",
+      "type": 0
+    },
+    {
+      "start": "CSV Export",
+      "end": "Export Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+      {
+        "name": "Separator",
+        "primitiveType": 0,
+        "guiType": "Text",
+        "guiposition": 0,
+        "validity": 0,
+        "inherited": false,
+        "jevisClass": "CSV Export"
+      },
+      {
+        "name": "Enclosed",
+        "primitiveType": 0,
+        "guiType": "Text",
+        "guiposition": 0,
+        "validity": 0,
+        "inherited": false,
+        "jevisClass": "CSV Export"
+      },
+      {
+        "name": "File Name",
+        "primitiveType": 0,
+        "guiType": "Text",
+        "guiposition": 0,
+        "validity": 0,
+        "inherited": false,
+        "jevisClass": "CSV Export"
+      },
+      {
+        "name": "Header",
+        "primitiveType": 0,
+        "guiType": "Text",
+        "guiposition": 0,
+        "validity": 0,
+        "inherited": false,
+        "jevisClass": "CSV Export"
+      },
+      {
+        "name": "Timestamp Format",
+        "primitiveType": 0,
+        "guiType": "Text",
+        "guiposition": 0,
+        "validity": 0,
+        "inherited": false,
+        "jevisClass": "CSV Export"
+      },
+      {
+        "name": "Export Date",
+        "primitiveType": 0,
+        "guiType": "Date Time",
+        "guiposition": 0,
+        "validity": 0,
+        "inherited": false,
+        "jevisClass": "CSV Export"
+     },
+     {
+        "name": "Export Status",
+        "primitiveType": 0,
+        "guiType": "Text",
+        "guiposition": 0,
+        "validity": 0,
+        "inherited": false,
+        "jevisClass": "CSV Export"
+     }
+  ]
+}

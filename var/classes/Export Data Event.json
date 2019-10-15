@@ -1,0 +1,45 @@
+{
+  "name": "Export Data Event",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Export Data Event",
+      "end": "Export Event",
+      "type": 0
+    },
+    {
+      "start": "Export Data Event",
+      "end": "CSV Export",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Operator",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Periodic Report"
+    },
+    {
+      "name": "JEVis ID",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Periodic Report"
+    },
+    {
+      "name": "Limit",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Periodic Report"
+    }
+  ]
+}

@@ -15,7 +15,7 @@
         <artifactId>JEVisCore</artifactId>
         <version>3.4</version>
     </parent>
-    
+
     <repositories>
         <repository>
             <id>maven.jahia.org</id>
@@ -23,7 +23,7 @@
         </repository>
         <repository>
             <id>maven2</id>
-            <url> http://repo.maven.apache.org/maven2/</url>
+            <url>http://repo.maven.apache.org/maven2/</url>
         </repository>
         <repository>
             <releases>
@@ -47,7 +47,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <skipTests>true</skipTests>
     </properties>
-    
+
     <build>
         <plugins>
             <plugin>

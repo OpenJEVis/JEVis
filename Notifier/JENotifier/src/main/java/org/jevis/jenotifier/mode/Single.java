@@ -133,7 +133,7 @@ public class Single {
 //                    } else {
 //                        thr = new SendNoti(id, notiDri);//fication
 //                    }
-//                    executor.execute(thr);
+//                    executor.executeExport(thr);
 //                }
 //            }
 

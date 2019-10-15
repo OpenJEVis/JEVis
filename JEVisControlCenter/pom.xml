@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.8.25</version>
+    <version>3.8.26</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
