@@ -146,6 +146,9 @@ public class ChartPluginTree implements TreePlugin {
         DataProcessorColumn dataProcessorColumn = new DataProcessorColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.cleaning"));
         dataProcessorColumn.setGraphDataModel(data);
 
+        NameColumn nameColumn = new NameColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.cleaning"));
+        nameColumn.setGraphDataModel(data);
+
 //        DateColumn startDateColumn = new DateColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.startdate"), DateColumn.DATE_TYPE.START);
 //        startDateColumn.setGraphDataModel(data);
 //        DateColumn endDateColumn = new DateColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.enddate"), DateColumn.DATE_TYPE.END);
@@ -159,8 +162,8 @@ public class ChartPluginTree implements TreePlugin {
         axisColumn.setGraphDataModel(data);
 
         for (TreeTableColumn<JEVisTreeRow, Boolean> ttc : selectionColumns) column.getColumns().add(ttc);
-        column.getColumns().addAll(colorColumn.getColorColumn(), aggregationColumn.getAggregationColumn(),
-                dataProcessorColumn.getDataProcessorColumn(),
+        column.getColumns().addAll(colorColumn.getColorColumn(), nameColumn.getNameColumn(),
+                aggregationColumn.getAggregationColumn(), dataProcessorColumn.getDataProcessorColumn(),
                 unitColumn.getUnitColumn(), axisColumn.getAxisColumn());
 
         allColumns.add(column);

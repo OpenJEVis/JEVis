@@ -14,6 +14,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
@@ -189,7 +190,9 @@ public class GraphDataModel {
         ProgressDialog pd = new ProgressDialog(service);
         pd.setHeaderText(I18n.getInstance().getString("graph.progress.header"));
         pd.setTitle(I18n.getInstance().getString("graph.progress.title"));
-        pd.getDialogPane().setContent(null);
+        Button cancelButton = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
+        cancelButton.setOnAction(event -> service.cancel());
+        pd.getDialogPane().setContent(cancelButton);
 
         service.start();
     }

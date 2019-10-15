@@ -347,8 +347,8 @@ public class ChartDataModel {
         return title;
     }
 
-    public void setTitle(String _title) {
-        this.title = _title;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public DateTime getSelectedStart() {
