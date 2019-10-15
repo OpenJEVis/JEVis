@@ -525,7 +525,7 @@ public class ToolBarView {
             for (ChartDataModel mdl : selectedData) {
                 if (!mdl.getSelectedcharts().isEmpty()) {
                     JsonAnalysisDataRow json = new JsonAnalysisDataRow();
-                    json.setName(mdl.getObject().getName() + ":" + mdl.getObject().getID());
+                    json.setName(mdl.getTitle());
                     json.setColor(mdl.getColor().toString());
                     json.setObject(mdl.getObject().getID().toString());
                     if (mdl.getDataProcessor() != null)
