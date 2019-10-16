@@ -24,7 +24,6 @@
         <module>JEDataProcessor</module>
         <module>JEStatus</module>
         <module>JEAlarm</module>
-        <module>msconsexport</module>
     </modules>
 
     <profiles>

@@ -332,7 +332,11 @@ public class XYChartSerie {
     }
 
     public String getTableEntryName() {
-        return singleRow.getObject().getName();
+        if (singleRow.getTitle() == null) {
+            return singleRow.getObject().getName();
+        } else {
+            return singleRow.getTitle();
+        }
     }
 
     public String getUnit() {

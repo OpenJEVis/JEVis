@@ -37,7 +37,7 @@ public class WidgetTreePlugin implements TreePlugin {
     public static String COLUMN_SELECTED = "Selection";
     public static String COLUMN_ENPI = "ENPI";
     public static String COLUMN_AGGREGATION = "Aggregation";
-    public static String COLUMN_MANIPULATION = "Manipulation";
+    public static String COLUMN_MANIPULATION = I18n.getInstance().getString("plugin.graph.manipulation.label");
     public static String DATA_MODEL_NODE = "DataModelNode";
     public static String COLUMN_CLEANING = "datenbereinigung";
 

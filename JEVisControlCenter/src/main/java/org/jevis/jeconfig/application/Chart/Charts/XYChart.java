@@ -156,13 +156,15 @@ public class XYChart implements Chart {
 
                     if (showL1L2 && singleRow.getDataProcessor() != null) {
                         CleanDataObject cleanDataObject = new CleanDataObject(singleRow.getDataProcessor(), new ObjectHandler(singleRow.getObject().getDataSource()));
+                        singleRow.updateScaleFactor();
+                        Double scaleFactor = singleRow.getScaleFactor();
                         if (cleanDataObject.getLimitsEnabled()) {
                             List<JsonLimitsConfig> limitsConfigs = cleanDataObject.getLimitsConfig();
                             for (int i = 0; i < limitsConfigs.size(); i++) {
                                 JsonLimitsConfig limitsConfig = limitsConfigs.get(i);
                                 String max = limitsConfig.getMax();
                                 if (max != null && !max.equals("")) {
-                                    Double value = Double.parseDouble(max);
+                                    Double value = Double.parseDouble(max) * scaleFactor;
                                     List<Double> list = Arrays.asList(25d, 20d, 5d, 20d);
                                     ObservableList<Double> doubles = FXCollections.observableList(list);
                                     if (i == 0) {
@@ -174,7 +176,7 @@ public class XYChart implements Chart {
 
                                 String min = limitsConfig.getMin();
                                 if (min != null && !min.equals("")) {
-                                    Double value = Double.parseDouble(min);
+                                    Double value = Double.parseDouble(min) * scaleFactor;
                                     List<Double> list = Arrays.asList(2d, 21d);
                                     ObservableList<Double> doubles = FXCollections.observableList(list);
                                     if (i == 0) {
@@ -738,8 +740,12 @@ public class XYChart implements Chart {
                     Note formattedNote = new Note(sample);
 
                     if (!asDuration) {
-                        Platform.runLater(() -> tableEntry.setDate(nearest
-                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss"))));
+                        Platform.runLater(() -> {
+                            if (nearest != null) {
+                                tableEntry.setDate(nearest
+                                        .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                            } else tableEntry.setValue("-");
+                        });
                     } else {
                         Platform.runLater(() -> tableEntry.setDate((nearest.getMillis() -
                                 timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h"));
