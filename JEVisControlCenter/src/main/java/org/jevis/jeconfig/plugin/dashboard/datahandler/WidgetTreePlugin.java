@@ -33,10 +33,10 @@ import java.util.Map;
 public class WidgetTreePlugin implements TreePlugin {
 
     public static String COLUMN = "DataModel";
-    public static String COLUMN_COLOR = "Color";
-    public static String COLUMN_SELECTED = "Selection";
+    public static String COLUMN_COLOR = I18n.getInstance().getString("plugin.dashboard.datatree.color");
+    public static String COLUMN_SELECTED = I18n.getInstance().getString("plugin.dashboard.datatree.selection");
     public static String COLUMN_ENPI = I18n.getInstance().getString("plugin.dashboard.datatree.math");
-    public static String COLUMN_AGGREGATION = "Aggregation";
+    public static String COLUMN_AGGREGATION = I18n.getInstance().getString("plugin.graph.interval.label");
     public static String COLUMN_MANIPULATION = I18n.getInstance().getString("plugin.graph.manipulation.label");
     public static String DATA_MODEL_NODE = "DataModelNode";
     public static String COLUMN_CLEANING = I18n.getInstance().getString("graph.table.cleaning");
@@ -650,7 +650,7 @@ public class WidgetTreePlugin implements TreePlugin {
     }
 
     public TreeTableColumn<JEVisTreeRow, Boolean> buildENIPColumn() {
-        TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn("ENPI");
+        TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn(COLUMN_ENPI);
         column.setPrefWidth(80);
         column.setId(COLUMN_ENPI);
 
