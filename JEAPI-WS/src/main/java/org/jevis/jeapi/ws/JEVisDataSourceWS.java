@@ -201,14 +201,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 /**
                  * Give objects which have no attributes an empty list
                  */
-//                this.objectCache.keySet().forEach(aLong -> {
-//                    if (!this.attributeCache.containsKey(aLong)) {
-//                        this.attributeCache.put(aLong, new ArrayList<>());
-//                    }
-//                    fixMissingAttributes(getObject(aLong), this.attributeCache.get(aLong));
-//
-//                });
-//                logger.debug("done fixing attributes");
+                this.objectCache.keySet().forEach(aLong -> {
+                    if (!this.attributeCache.containsKey(aLong)) {
+                        this.attributeCache.put(aLong, new ArrayList<>());
+                    }
+                    fixMissingAttributes(getObject(aLong), this.attributeCache.get(aLong));
+
+                });
+                logger.debug("done fixing attributes");
 
                 this.allAttributesPreloaded = true;
 
