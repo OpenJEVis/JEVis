@@ -38,11 +38,12 @@ public class ProcessManager {
     private DateTime lastFirstDate;
     private boolean isWorking = true;
 
-    public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler) {
-        resourceManager = new ResourceManager();
-        resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
-        name = cleanObject.getName();
-        id = cleanObject.getID();
+    public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler, int processingSize) {
+        this.resourceManager = new ResourceManager();
+        this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
+        this.name = cleanObject.getName();
+        this.id = cleanObject.getID();
+        this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
 
         addDefaultSteps();
     }
@@ -96,7 +97,6 @@ public class ProcessManager {
         resourceManager.setSampleCache(null);
         resourceManager.setRawIntervals(null);
         resourceManager.getCleanDataObject().clearLists();
-
     }
 
     private void reRun() throws Exception {

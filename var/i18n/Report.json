@@ -28,9 +28,22 @@
         "en": "Last Report description"
       },
       "names": {
-        "de": "Letzter Bericht",
+        "de": "Berichtsdatei",
         "ru": "Last Report",
-        "en": "Last Report"
+        "en": "Report File"
+      }
+    },
+    {
+      "type": "Last Report PDF",
+      "descriptions": {
+        "de": "Last Report description",
+        "ru": "Last Report description",
+        "en": "Last Report description"
+      },
+      "names": {
+        "de": "Berichts-PDF",
+        "ru": "Last Report",
+        "en": "Report PDF"
       }
     },
     {

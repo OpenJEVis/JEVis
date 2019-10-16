@@ -7,6 +7,7 @@ package org.jevis.jedataprocessor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -31,6 +32,7 @@ public class Launcher extends AbstractCliApp {
     public static String KEY = "process-id";
     private final String APP_SERVICE_CLASS_NAME = "JEDataProcessor";
     private final Command commands = new Command();
+    private int processingSize = 10000;
 
     private Launcher(String[] args, String appname) {
         super(args, appname);
@@ -59,7 +61,7 @@ public class Launcher extends AbstractCliApp {
                                 LogTaskManager.getInstance().buildNewTask(currentCleanDataObject.getID(), currentCleanDataObject.getName());
                                 LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.STARTED);
 
-                                currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds));
+                                currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds), processingSize);
                                 currentProcess.start();
                             } catch (Exception ex) {
                                 logger.debug(ex);
@@ -103,7 +105,7 @@ public class Launcher extends AbstractCliApp {
 
         try {
             JEVisObject object = ds.getObject(id);
-            ProcessManager currentProcess = new ProcessManager(object, new ObjectHandler(ds));
+            ProcessManager currentProcess = new ProcessManager(object, new ObjectHandler(ds), getProcessingSizeFromService(APP_SERVICE_CLASS_NAME));
             currentProcess.start();
         } catch (Exception e) {
             e.printStackTrace();
@@ -123,6 +125,7 @@ public class Launcher extends AbstractCliApp {
             }
 
             getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+            this.processingSize = getProcessingSizeFromService(APP_SERVICE_CLASS_NAME);
 
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                 try {
@@ -152,6 +155,23 @@ public class Launcher extends AbstractCliApp {
 
     }
 
+    private int getProcessingSizeFromService(String serviceClassName) {
+        int size = processingSize;
+        try {
+            JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
+            List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
+            JEVisAttribute sizeAtt = listServices.get(0).getAttribute("Processing Size");
+            if (sizeAtt != null && sizeAtt.hasSample()) {
+                size = sizeAtt.getLatestSample().getValueAsLong().intValue();
+            }
+            logger.info("Processing size from service: " + size);
+        } catch (Exception e) {
+            logger.error("Couldn't get processsing size from the JEVis System. Using standard Size of {}", processingSize, e);
+        }
+        processingSize = size;
+        return size;
+    }
+
     @Override
     protected void runComplete() {
         List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
@@ -162,7 +182,7 @@ public class Launcher extends AbstractCliApp {
         }
         enabledCleanDataObjects.forEach(jeVisObject -> {
             try {
-                ProcessManager currentProcess = new ProcessManager(jeVisObject, new ObjectHandler(ds));
+                ProcessManager currentProcess = new ProcessManager(jeVisObject, new ObjectHandler(ds), getProcessingSizeFromService(APP_SERVICE_CLASS_NAME));
                 currentProcess.start();
             } catch (Exception e) {
                 e.printStackTrace();

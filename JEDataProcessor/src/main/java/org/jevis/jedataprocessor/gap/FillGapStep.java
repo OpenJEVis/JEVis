@@ -70,7 +70,7 @@ public class FillGapStep implements ProcessStep {
 
                     if (newGaps.size() == 0) {
                         logger.error("No gaps in this interval.");
-                        break;
+                        continue;
                     } else
                         logger.info("[{}] Start Gap filling, mode: '{}' gap size: {}", resourceManager.getID(), c.getType(), newGaps.size());
 
@@ -187,14 +187,14 @@ public class FillGapStep implements ProcessStep {
                                 int currentIntervalIndex = intervals.indexOf(currentInterval);
                                 if (currentIntervalIndex < intervals.size() - 2) {
                                     CleanInterval nextInterval = intervals.get(currentIntervalIndex + 1);
-                                    if (currentGap != null && nextInterval != null) { //end of the gap
+                                    if (currentGap != null && nextInterval != null && !nextInterval.getTmpSamples().isEmpty()) { //end of the gap
                                         currentGap.addInterval(currentInterval);
                                         Double raw2Value = nextInterval.getTmpSamples().get(nextInterval.getTmpSamples().size() - 1).getValueAsDouble();
                                         currentGap.setLastValue(raw2Value);
                                         gaps.add(currentGap);
                                         currentGap = null;
                                         lastValue = sample.getValueAsDouble();
-                                    } else { //not in a gap
+                                    } else if (nextInterval != null && !nextInterval.getTmpSamples().isEmpty()) { //not in a gap
                                         lastValue = sample.getValueAsDouble();
                                     }
                                 }

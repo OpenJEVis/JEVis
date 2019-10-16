@@ -12,15 +12,17 @@ public class PeriodComparator implements Comparator<Period> {
 
     @Override
     public int compare(Period p1, Period p2) {
-        boolean p1HasMonths = p1.getMonths() > 0;
         boolean p1HasYear = p1.getYears() > 0;
+        boolean p1HasMonths = p1.getMonths() > 0;
+        boolean p1HasWeeks = p1.getWeeks() > 0;
         boolean p1HasDays = p1.getDays() > 0;
         boolean p1HasHours = p1.getHours() > 0;
         boolean p1HasMinutes = p1.getMinutes() > 0;
         boolean p1HasSeconds = p1.getSeconds() > 0;
 
-        boolean p2HasMonths = p2.getMonths() > 0;
         boolean p2HasYear = p2.getYears() > 0;
+        boolean p2HasMonths = p2.getMonths() > 0;
+        boolean p2HasWeeks = p2.getWeeks() > 0;
         boolean p2HasDays = p2.getDays() > 0;
         boolean p2HasHours = p2.getHours() > 0;
         boolean p2HasMinutes = p2.getMinutes() > 0;
@@ -31,17 +33,20 @@ public class PeriodComparator implements Comparator<Period> {
         } else if (!p1HasYear && p1HasMonths
                 && !p2HasYear && !p2HasMonths) {
             return 1;
-        } else if (!p1HasYear && !p1HasMonths && p1HasDays
-                && !p2HasYear && !p2HasMonths && !p2HasDays) {
+        } else if (!p1HasYear && !p1HasMonths && p1HasWeeks
+                && !p2HasYear && !p2HasMonths && !p2HasWeeks) {
             return 1;
-        } else if (!p1HasYear && !p1HasMonths && !p1HasDays && p1HasHours
-                && !p2HasYear && !p2HasMonths && !p2HasDays && !p2HasHours) {
+        } else if (!p1HasYear && !p1HasMonths && !p1HasWeeks && p1HasDays
+                && !p2HasYear && !p2HasMonths && !p2HasWeeks && !p2HasDays) {
             return 1;
-        } else if (!p1HasYear && !p1HasMonths && !p1HasDays && !p1HasHours && p1HasMinutes
-                && !p2HasYear && !p2HasMonths && !p2HasDays && !p2HasHours && !p2HasMinutes) {
+        } else if (!p1HasYear && !p1HasMonths && !p1HasWeeks && !p1HasDays && p1HasHours
+                && !p2HasYear && !p2HasMonths && !p2HasWeeks && !p2HasDays && !p2HasHours) {
             return 1;
-        } else if (!p1HasYear && !p1HasMonths && !p1HasDays && !p1HasHours && !p1HasMinutes && p1HasSeconds
-                && !p2HasYear && !p2HasMonths && !p2HasDays && !p2HasHours && !p2HasMinutes && !p2HasSeconds) {
+        } else if (!p1HasYear && !p1HasMonths && !p1HasWeeks && !p1HasDays && !p1HasHours && p1HasMinutes
+                && !p2HasYear && !p2HasMonths && !p2HasWeeks && !p2HasDays && !p2HasHours && !p2HasMinutes) {
+            return 1;
+        } else if (!p1HasYear && !p1HasMonths && !p1HasWeeks && !p1HasDays && !p1HasHours && !p1HasMinutes && p1HasSeconds
+                && !p2HasYear && !p2HasMonths && !p2HasWeeks && !p2HasDays && !p2HasHours && !p2HasMinutes && !p2HasSeconds) {
             return 1;
         } else if (p1HasYear && p2HasYear) {
             if (p1.getYears() > p2.getYears()) {
@@ -53,6 +58,12 @@ public class PeriodComparator implements Comparator<Period> {
             if (p1.getMonths() > p2.getMonths()) {
                 return 1;
             } else if (p1.getMonths() == p2.getMonths()) {
+                return 0;
+            }
+        } else if (p1HasWeeks && p2HasWeeks) {
+            if (p1.getWeeks() > p2.getWeeks()) {
+                return 1;
+            } else if (p1.getWeeks() == p2.getWeeks()) {
                 return 0;
             }
         } else if (p1HasDays && p2HasDays) {

@@ -202,8 +202,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                                     ComboBox box = buildUnitBox(data);
 
                                     box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
-                                        if (oldValue == null || newValue != oldValue) {
-                                            JEVisUnit jeVisUnit = ChartUnits.parseUnit(String.valueOf(newValue));
+                                        if (!newValue.equals(oldValue)) {
+                                            JEVisUnit jeVisUnit = ChartUnits.parseUnit(newValue);
                                             commitEdit(jeVisUnit);
                                         }
                                     });
