@@ -2,6 +2,7 @@ package org.jevis.commons.unit.ChartUnits;
 
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.JEVisUnitImp;
+import org.jscience.economics.money.Currency;
 
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
@@ -41,6 +42,16 @@ public class ChartUnits {
         Unit _kWh = SI.KILO(SI.WATT).times(NonSI.HOUR);
         Unit _MWh = SI.MEGA(SI.WATT).times(NonSI.HOUR);
         Unit _GWh = SI.GIGA(SI.WATT).times(NonSI.HOUR);
+
+        Unit _eur = Currency.EUR;
+        Unit _usd = Currency.USD;
+        Unit _gbp = Currency.GBP;
+        Unit _jpy = Currency.JPY;
+        Unit _aud = Currency.AUD;
+        Unit _cad = Currency.CAD;
+        Unit _cny = Currency.CNY;
+        Unit _krw = Currency.KRW;
+        Unit _twd = Currency.TWD;
 
         Unit _one = Unit.ONE;
 
@@ -99,6 +110,16 @@ public class ChartUnits {
         cal.setLabel("cal");
         final JEVisUnit kcal = new JEVisUnitImp(_one);
         kcal.setLabel("kcal");
+
+        final JEVisUnit eur = new JEVisUnitImp(_eur);
+        final JEVisUnit usd = new JEVisUnitImp(_usd);
+        final JEVisUnit gbp = new JEVisUnitImp(_gbp);
+        final JEVisUnit jpy = new JEVisUnitImp(_jpy);
+        final JEVisUnit aud = new JEVisUnitImp(_aud);
+        final JEVisUnit cad = new JEVisUnitImp(_cad);
+        final JEVisUnit cny = new JEVisUnitImp(_cny);
+        final JEVisUnit krw = new JEVisUnitImp(_krw);
+        final JEVisUnit twd = new JEVisUnitImp(_twd);
 
         switch (unit) {
             case "mg":
@@ -199,6 +220,33 @@ public class ChartUnits {
                 break;
             case "kcal":
                 result = kcal;
+                break;
+            case ("EUR"):
+                result = eur;
+                break;
+            case ("USD"):
+                result = usd;
+                break;
+            case ("GBP"):
+                result = gbp;
+                break;
+            case ("JPY"):
+                result = jpy;
+                break;
+            case ("AUD"):
+                result = aud;
+                break;
+            case ("CAD"):
+                result = cad;
+                break;
+            case ("CNY"):
+                result = cny;
+                break;
+            case ("KRW"):
+                result = krw;
+                break;
+            case ("TWD"):
+                result = twd;
                 break;
             default:
                 break;

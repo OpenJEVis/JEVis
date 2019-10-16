@@ -172,7 +172,7 @@ public interface JEVisDataSource {
 
     List<JEVisClassRelationship> getClassRelationships(String jclass) throws JEVisException;
 
-    List<JEVisAttribute> getAttributes() throws JEVisException;
+    void getAttributes() throws JEVisException;
 
     /**
      * Connect to the DataSource as a JEVis user
@@ -310,9 +310,9 @@ public interface JEVisDataSource {
      *
      * @param object
      */
-    public void reloadAttribute(JEVisObject object);
+    void reloadAttribute(JEVisObject object);
 
-    public void reloadObject(JEVisObject object);
+    void reloadObject(JEVisObject object);
 
     /**
      * Clears the internal cache
