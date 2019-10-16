@@ -7,6 +7,7 @@ package org.jevis.jedataprocessor.data;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.joda.time.DateTime;
@@ -92,11 +93,11 @@ public class ResourceManager {
 
     public List<CleanInterval> getRawIntervals() {
         if (rawIntervals.isEmpty()) {
-            Period periodAlignment = getCleanDataObject().getRawDataPeriodAlignment();
-            if (periodAlignment.getMonths() == 0 && periodAlignment.getYears() == 0) {
-                Duration duration = periodAlignment.toStandardDuration();
-                if (periodAlignment.toStandardMinutes().getMinutes() < 1) {
-                    throw new IllegalStateException("Cant calculate the intervals with rawDataPeriodAlignment " + periodAlignment);
+            Period rawPeriodAlignment = getCleanDataObject().getRawDataPeriodAlignment();
+            if (!rawPeriodAlignment.equals(Period.ZERO) && rawPeriodAlignment.getMonths() == 0 && rawPeriodAlignment.getYears() == 0) {
+                Duration duration = rawPeriodAlignment.toStandardDuration();
+                if (rawPeriodAlignment.toStandardMinutes().getMinutes() < 1) {
+                    throw new IllegalStateException("Cant calculate the intervals with rawDataPeriodAlignment " + rawPeriodAlignment);
                 }
                 //the interval with date x begins at x - (duration/2) and ends at x + (duration/2)
                 //Todo Month has no well defined duration -> cant handle months atm
@@ -123,12 +124,22 @@ public class ResourceManager {
                     rawIntervals.add(currentInterval);
 
                     //calculate the next date
-                    currentDate = currentDate.plus(periodAlignment);
+                    currentDate = currentDate.plus(rawPeriodAlignment);
                 }
             } else {
                 /**
                  * TODO: months and years
                  */
+                for (JEVisSample sample : cleanDataObject.getRawSamplesDown()) {
+                    try {
+                        DateTime timestamp = sample.getTimestamp();
+                        Interval interval = new Interval(timestamp.minusMillis(1), timestamp);
+                        CleanInterval cleanInterval = new CleanInterval(interval, timestamp);
+                        rawIntervals.add(cleanInterval);
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
             logger.info("{} intervals calculated", rawIntervals.size());
         }
