@@ -1,0 +1,14 @@
+[Unit]
+Description=JENotifier
+
+
+[Service]
+User=jevis
+Group=jevis
+Type=simple
+ExecStart=/home/jevis/jevis/bin/jenotifier
+
+
+[Install]
+WantedBy=multi-user.target
+
