@@ -104,27 +104,22 @@ public class PrepareStep implements ProcessStep {
             LocalTime dtEnd = wd.getWorkdayEnd();
             DateTime lastDate = null;
 
+            boolean periodCleanHasYear = periodCleanData.getYears() > 0;
+            boolean periodCleanHasMonths = periodCleanData.getMonths() > 0;
+            boolean periodCleanHasWeeks = periodCleanData.getWeeks() > 0;
+            boolean periodCleanHasDays = periodCleanData.getDays() > 0;
+            boolean periodCleanHasHours = periodCleanData.getHours() > 0;
+            boolean periodCleanHasMinutes = periodCleanData.getMinutes() > 0;
+            boolean periodCleanHasSeconds = periodCleanData.getSeconds() > 0;
+
+            if (periodCleanHasYear) {
+                //year period needs bigger enddate
+                maxEndDate = maxEndDate.plusMonths(6);
+            }
+
             while (currentDate.isBefore(maxEndDate) && !periodCleanData.equals(Period.ZERO) && !currentDate.equals(lastDate)) {
                 DateTime startInterval = null;
                 DateTime endInterval = null;
-                lastDate = currentDate;
-
-                boolean periodRawHasYear = periodRawData.getYears() > 0;
-                boolean periodRawHasMonths = periodRawData.getMonths() > 0;
-                boolean periodRawHasWeeks = periodRawData.getWeeks() > 0;
-                boolean periodRawHasDays = periodRawData.getDays() > 0;
-                boolean periodRawHasHours = periodRawData.getHours() > 0;
-                boolean periodRawHasMinutes = periodRawData.getMinutes() > 0;
-                boolean periodRawHasSeconds = periodRawData.getSeconds() > 0;
-
-                boolean periodCleanHasYear = periodCleanData.getYears() > 0;
-                boolean periodCleanHasMonths = periodCleanData.getMonths() > 0;
-                boolean periodCleanHasWeeks = periodCleanData.getWeeks() > 0;
-                boolean periodCleanHasDays = periodCleanData.getDays() > 0;
-                boolean periodCleanHasHours = periodCleanData.getHours() > 0;
-                boolean periodCleanHasMinutes = periodCleanData.getMinutes() > 0;
-                boolean periodCleanHasSeconds = periodCleanData.getSeconds() > 0;
-
 
                 startInterval = new DateTime(currentDate.getYear(), currentDate.getMonthOfYear(), currentDate.getDayOfMonth(),
                         currentDate.getHourOfDay(), currentDate.getMinuteOfHour(), currentDate.getSecondOfMinute());
@@ -156,7 +151,6 @@ public class PrepareStep implements ProcessStep {
                     startInterval = startInterval.minusSeconds(periodCleanData.getSeconds());
                 }
 
-
                 if (periodCleanHasDays || periodCleanHasWeeks || periodCleanHasMonths || periodCleanHasYear) {
                     startInterval = new DateTime(startInterval.getYear(), startInterval.getMonthOfYear(), startInterval.getDayOfMonth(),
                             dtStart.getHour(), dtStart.getMinute(), dtStart.getSecond());
@@ -173,9 +167,9 @@ public class PrepareStep implements ProcessStep {
                     Interval interval = new Interval(startInterval, endInterval);
                     CleanInterval currentInterval = new CleanInterval(interval, startInterval);
                     cleanIntervals.add(currentInterval);
-
                 }
 
+                lastDate = currentDate;
                 currentDate = currentDate.plus(periodCleanData);
             }
 
