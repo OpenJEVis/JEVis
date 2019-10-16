@@ -72,16 +72,15 @@ public class LinkerWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         try {
+            Platform.runLater(() -> {
+                showProgressIndicator(false);
+            });
             lastInterval = interval;
 
             this.graphAnalysisLinker.applyConfig(
                     DataModelDataHandler.getAggregationPeriod(interval),
                     DataModelDataHandler.getManipulationMode(interval),
                     interval);
-
-            Platform.runLater(() -> {
-                showProgressIndicator(false);
-            });
 
 
         } catch (

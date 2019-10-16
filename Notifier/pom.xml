@@ -38,5 +38,4 @@
             <artifactId>log4j-1.2-api</artifactId>
         </dependency>
     </dependencies>
-   
 </project>

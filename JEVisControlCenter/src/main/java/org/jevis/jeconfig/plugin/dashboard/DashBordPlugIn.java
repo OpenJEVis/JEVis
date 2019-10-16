@@ -15,6 +15,7 @@ import javafx.scene.layout.Pane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.tool.Layouts;
@@ -183,6 +184,10 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public void openObject(Object object) {
+        if (object instanceof JEVisObject) {
+            JEVisObject dashboardObject = (JEVisObject) object;
+            dashboardControl.selectDashboard(dashboardObject);
+        }
 
     }
 

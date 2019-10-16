@@ -20,6 +20,7 @@ public class Widgets {
             put(LinkerWidget.WIDGET_ID, LinkerWidget.class.getName());
             put(TitleWidget.WIDGET_ID, TitleWidget.class.getName());
             put(ValueWidget.WIDGET_ID, ValueWidget.class.getName());
+            put(DashboadLinkWidget.WIDGET_ID, DashboadLinkWidget.class.getName());
 
         }
     };
@@ -34,6 +35,7 @@ public class Widgets {
         widgetList.add(new TableWidget(control, config));
 //        widgetList.add(new WebPieWidget(control, config));
         widgetList.add(new LinkerWidget(control, config));
+        widgetList.add(new DashboadLinkWidget(control, config));
 
         return widgetList;
     }
