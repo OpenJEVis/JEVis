@@ -100,7 +100,7 @@ public class SampleExportExtension implements SampleEditorExtension {
     private JEVisAttribute _att;
     private boolean needSave = false;
     private boolean _isBuild = false;
-    private Boolean xlsx;
+    private Boolean xlsx = false;
 
     public SampleExportExtension(JEVisAttribute att) {
         _att = att;
