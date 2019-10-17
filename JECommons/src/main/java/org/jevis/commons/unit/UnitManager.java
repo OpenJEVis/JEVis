@@ -604,13 +604,15 @@ public class UnitManager {
     }
 
     public String format(JEVisUnit junit) {
-        if (junit != null && junit.getFormula() != null) {
-            String uString = junit.getFormula();
-            uString = format(uString);
+        if (junit != null && junit.getLabel() != null) {
+//            if (junit != null && junit.getFormula() != null) {
+//            String uString = junit.getFormula();
+//            uString = format(uString);
 //            uString = uString.replace("(", "");
 //            uString = uString.replace(")", "");
 //            uString = uString.replace("·", "");
-            return getPrefixChar(junit.getPrefix()) + uString;
+//            return getPrefixChar(junit.getPrefix()) + uString;
+            return junit.getLabel();
         } else {
             logger.warn("No unit for format");
             return "";

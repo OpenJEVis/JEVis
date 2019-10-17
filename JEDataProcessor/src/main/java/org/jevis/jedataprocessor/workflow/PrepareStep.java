@@ -112,9 +112,26 @@ public class PrepareStep implements ProcessStep {
             boolean periodCleanHasMinutes = periodCleanData.getMinutes() > 0;
             boolean periodCleanHasSeconds = periodCleanData.getSeconds() > 0;
 
+            //add half a period to maxEndDate
             if (periodCleanHasYear) {
-                //year period needs bigger enddate
+                currentDate = currentDate.minusMonths(6);
                 maxEndDate = maxEndDate.plusMonths(6);
+            }
+            if (periodCleanHasMonths) {
+                currentDate = currentDate.minusWeeks(2);
+                maxEndDate = maxEndDate.plusWeeks(2);
+            }
+            if (periodCleanHasWeeks) {
+                currentDate = currentDate.minusDays(3).minusHours(12);
+                maxEndDate = maxEndDate.plusDays(3).plusHours(12);
+            }
+            if (periodCleanHasDays) {
+                currentDate = currentDate.minusHours(12);
+                maxEndDate = maxEndDate.plusHours(12);
+            }
+            if (periodCleanHasHours) {
+                currentDate = currentDate.minusMinutes(30);
+                maxEndDate = maxEndDate.plusMinutes(30);
             }
 
             while (currentDate.isBefore(maxEndDate) && !periodCleanData.equals(Period.ZERO) && !currentDate.equals(lastDate)) {
