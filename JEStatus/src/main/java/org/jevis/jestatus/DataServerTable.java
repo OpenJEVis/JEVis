@@ -67,6 +67,24 @@ public class DataServerTable extends AlarmTable {
             JEVisAttribute targetAtt = null;
             JEVisSample lastSampleTarget = null;
             JEVisAttribute lastReadoutAtt = null;
+            DateTime lr = latestReported;
+            DateTime fr = furthestReported;
+
+            try {
+                JEVisAttribute channelLRAtt = channel.getAttribute(LATEST_REPORTED);
+                JEVisAttribute channelFRAtt = channel.getAttribute(FURTHEST_REPORTED);
+
+                if (channelLRAtt.hasSample()) {
+                    lr = DateTime.now().minus(Period.hours(channelLRAtt.getLatestSample().getValueAsLong().intValue()));
+                }
+
+                if (channelFRAtt.hasSample()) {
+                    fr = DateTime.now().minus(Period.hours(channelFRAtt.getLatestSample().getValueAsLong().intValue()));
+                }
+            } catch (Exception e) {
+                logger.error(e);
+            }
+
 
             lastReadoutAtt = channel.getAttribute(LAST_READOUT_ATTRIBUTE_NAME);
             if (lastReadoutAtt != null) {
@@ -84,7 +102,7 @@ public class DataServerTable extends AlarmTable {
 
                             }
                         }
-                        if (ts != null && ts.isBefore(latestReported) && ts.isAfter(furthestReported)) {
+                        if (ts != null && ts.isBefore(lr) && ts.isAfter(fr)) {
                             if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
                         }
                     }
@@ -118,7 +136,7 @@ public class DataServerTable extends AlarmTable {
                                 if (resultAtt.hasSample()) {
                                     JEVisSample lastSample = resultAtt.getLatestSample();
                                     if (lastSample != null) {
-                                        if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
+                                        if (lastSample.getTimestamp().isBefore(lr) && lastSample.getTimestamp().isAfter(fr)) {
                                             if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
                                         }
                                     }
@@ -128,7 +146,7 @@ public class DataServerTable extends AlarmTable {
                     }
                 }
             } else {
-                getOtherChannelsTarget(channel, channelAndTarget, outOfBounds, latestReported, furthestReported);
+                getOtherChannelsTarget(channel, channelAndTarget, outOfBounds, lr, fr);
             }
         }
 

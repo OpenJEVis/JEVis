@@ -296,7 +296,6 @@ public class XYChartSerie {
         }
     }
 
-
     public MultiAxisChart.Series getSerie() {
         return serie;
     }
