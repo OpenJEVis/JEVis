@@ -216,7 +216,7 @@ public class CSVExport extends Export {
             for (ExportLink exportLink : exportLinkList) {
                 try {
                     DateTime maxInSource = null;
-                    Map<DateTime, JEVisSample> sampleList = exportLink.getSamples(lastUpdate, now);
+                    Map<DateTime, JEVisSample> sampleList = exportLink.getSamples(lastUpdate.plusSeconds(1), now);
 
 
                     exportLinkListMap.put(exportLink, sampleList);
