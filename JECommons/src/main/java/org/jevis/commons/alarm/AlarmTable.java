@@ -61,7 +61,6 @@ public class AlarmTable {
     private JEVisClass inputClass;
     private JEVisClass calculationClass;
     private Comparator<JEVisObject> objectComparator = (o1, o2) -> {
-        System.out.println("o1: " + o1.getName() + ":" + o1.getID() + " o2: " + o2.getName() + ":" + o2.getID());
         DateTime o1ts = getDateTime(o1);
         DateTime o2ts = getDateTime(o2);
 

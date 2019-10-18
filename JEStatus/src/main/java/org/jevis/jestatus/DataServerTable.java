@@ -70,16 +70,26 @@ public class DataServerTable extends AlarmTable {
             DateTime lr = latestReported;
             DateTime fr = furthestReported;
 
+            JEVisObject dataSource = getCorrespondingDataSource(channel);
+
             try {
-                JEVisAttribute channelLRAtt = channel.getAttribute(LATEST_REPORTED);
-                JEVisAttribute channelFRAtt = channel.getAttribute(FURTHEST_REPORTED);
+                JEVisAttribute channelLRAtt = dataSource.getAttribute(LATEST_REPORTED);
+                JEVisAttribute channelFRAtt = dataSource.getAttribute(FURTHEST_REPORTED);
 
                 if (channelLRAtt.hasSample()) {
-                    lr = DateTime.now().minus(Period.hours(channelLRAtt.getLatestSample().getValueAsLong().intValue()));
+                    JEVisSample latestSample = channelLRAtt.getLatestSample();
+                    if (latestSample != null) {
+                        Long valueAsLong = latestSample.getValueAsLong();
+                        lr = DateTime.now().minus(Period.hours(valueAsLong.intValue()));
+                    }
                 }
 
                 if (channelFRAtt.hasSample()) {
-                    fr = DateTime.now().minus(Period.hours(channelFRAtt.getLatestSample().getValueAsLong().intValue()));
+                    JEVisSample latestSample = channelFRAtt.getLatestSample();
+                    if (latestSample != null) {
+                        Long valueAsLong = latestSample.getValueAsLong();
+                        fr = DateTime.now().minus(Period.hours(valueAsLong.intValue()));
+                    }
                 }
             } catch (Exception e) {
                 logger.error(e);
@@ -285,7 +295,26 @@ public class DataServerTable extends AlarmTable {
         setTableString(sb.toString());
     }
 
-    private void getOtherChannelsTarget(JEVisObject channel, Map<JEVisObject, JEVisObject> channelAndTarget, List<JEVisObject> outOfBounds, DateTime limit, DateTime ignoreTS) throws JEVisException {
+    private JEVisObject getCorrespondingDataSource(JEVisObject channel) throws JEVisException {
+        JEVisClass dataSourceClass = channel.getDataSource().getJEVisClass("Data Source");
+
+        return getDSParentRec(channel, dataSourceClass);
+    }
+
+    private JEVisObject getDSParentRec(JEVisObject channel, JEVisClass dataSourceClass) throws JEVisException {
+        for (JEVisObject parent : channel.getParents()) {
+            for (JEVisClass heir : dataSourceClass.getHeirs()) {
+                if (parent.getJEVisClass().equals(heir)) {
+                    return parent;
+                }
+            }
+            return getDSParentRec(parent, dataSourceClass);
+        }
+        return null;
+    }
+
+    private void getOtherChannelsTarget(JEVisObject channel, Map<JEVisObject, JEVisObject> channelAndTarget,
+                                        List<JEVisObject> outOfBounds, DateTime latestReported, DateTime furthestReported) throws JEVisException {
         List<JEVisObject> dps = new ArrayList<>();
 
         final JEVisClass channelClass = channel.getJEVisClass();
@@ -335,7 +364,7 @@ public class DataServerTable extends AlarmTable {
                             if (resultAtt.hasSample()) {
                                 JEVisSample lastSample = resultAtt.getLatestSample();
                                 if (lastSample != null) {
-                                    if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                                    if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
                                         if (!outOfBounds.contains(target)) outOfBounds.add(target);
                                     }
                                 }
@@ -391,7 +420,7 @@ public class DataServerTable extends AlarmTable {
                             if (resultAtt.hasSample()) {
                                 JEVisSample lastSample = resultAtt.getLatestSample();
                                 if (lastSample != null) {
-                                    if (lastSample.getTimestamp().isBefore(limit) && lastSample.getTimestamp().isAfter(ignoreTS)) {
+                                    if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
                                         if (!outOfBounds.contains(target)) outOfBounds.add(target);
                                     }
                                 }
