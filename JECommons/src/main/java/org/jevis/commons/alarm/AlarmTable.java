@@ -31,6 +31,8 @@ public class AlarmTable {
     protected final DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     protected final String VALUE_ATTRIBUTE_NAME = "Value";
     protected final String LAST_READOUT_ATTRIBUTE_NAME = "Last Readout";
+    protected final String LATEST_REPORTED = "Latest reported";
+    protected final String FURTHEST_REPORTED = "Furthest reported";
     protected final String OUTPUT_ATTRIBUTE_NAME = "Output";
     protected final String INPUT_DATA_ATTRIBUTE_NAME = "Input Data";
     protected final String STANDARD_TARGET_ATTRIBUTE_NAME = "Target";
