@@ -71,6 +71,22 @@ public class DataServerTable extends AlarmTable {
             DateTime fr = furthestReported;
 
             JEVisObject dataSource = getCorrespondingDataSource(channel);
+            if (dataSource != null) {
+                JEVisAttribute enabledAtt = dataSource.getAttribute(ENABLED);
+                if (enabledAtt != null) {
+                    JEVisSample latestSample = enabledAtt.getLatestSample();
+                    if (latestSample != null) {
+                        if (!latestSample.getValueAsBoolean()) {
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
+                }
+            } else {
+                logger.error("Could not find Data Source for channel {}:{}", channel.getName(), channel.getID());
+                continue;
+            }
 
             try {
                 JEVisAttribute channelLRAtt = dataSource.getAttribute(LATEST_REPORTED);
