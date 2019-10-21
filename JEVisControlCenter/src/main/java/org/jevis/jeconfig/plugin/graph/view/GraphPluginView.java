@@ -191,10 +191,12 @@ public class GraphPluginView implements Plugin {
             loadAnalysis.setOnAction(event -> openDialog());
 
             Region top = new Region();
-            top.setPrefHeight(border.getHeight() / 3);
-            vBox.getChildren().addAll(top, loadAnalysis, newAnalysis);
+
+            vBox.getChildren().setAll(top, loadAnalysis, newAnalysis);
 
             this.sp.setContent(vBox);
+
+            Platform.runLater(() -> top.setPrefHeight(border.getHeight() / 3));
         }
     }
 
