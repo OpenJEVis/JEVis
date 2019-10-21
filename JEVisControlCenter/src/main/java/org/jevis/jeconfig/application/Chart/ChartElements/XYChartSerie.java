@@ -330,7 +330,7 @@ public class XYChartSerie {
     }
 
     public String getTableEntryName() {
-        if (singleRow.getTitle() == null) {
+        if (singleRow.getTitle() == null || singleRow.getTitle().equals("")) {
             return singleRow.getObject().getName();
         } else {
             return singleRow.getTitle();
