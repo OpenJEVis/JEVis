@@ -92,7 +92,7 @@ public class SQLtoJsonFactory {
                 JEVisUnitImp jeVisInputUnitImp = new JEVisUnitImp(objectMapper.readValue(inputUnit, JsonUnit.class));
                 jatt.setInputUnit(JsonFactory.buildUnit(jeVisInputUnitImp));
             } catch (Exception ex) {
-                logger.error("Could not parse input unit {} from attribute {} of object {}", inputUnit, jatt.getType(), objectID, ex);
+//                logger.error("Could not parse input unit {} from attribute {} of object {}", inputUnit, jatt.getType(), objectID, ex);
             }
         }
 
@@ -101,7 +101,7 @@ public class SQLtoJsonFactory {
                 JEVisUnitImp jeVisDisplayUnitImp = new JEVisUnitImp(objectMapper.readValue(displayUnit, JsonUnit.class));
                 jatt.setDisplayUnit(JsonFactory.buildUnit(jeVisDisplayUnitImp));
             } catch (Exception ex) {
-                logger.error("Could not parse display unit {} from attribute {} of object {}", displayUnit, jatt.getType(), objectID, ex);
+//                logger.error("Could not parse display unit {} from attribute {} of object {}", displayUnit, jatt.getType(), objectID, ex);
             }
         }
 
