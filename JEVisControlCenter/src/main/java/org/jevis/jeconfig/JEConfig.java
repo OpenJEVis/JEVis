@@ -388,7 +388,7 @@ public class JEConfig extends Application {
                 final KeyCombination newCombo = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
                 final KeyCombination hiddenSettings = new KeyCodeCombination(KeyCode.H, KeyCombination.CONTROL_DOWN);
                 scene.setOnKeyPressed(ke -> {
-                    Platform.runLater(() -> pluginManager.getToolbar().requestFocus());//the most attribute will validate if the lose focus so we do
+//                    Platform.runLater(() -> pluginManager.getToolbar().requestFocus());//the most attribute will validate if the lose focus so we do
                     if (saveCombo.match(ke)) {
                         pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.SAVE);
                     } else if (reloadF5.match(ke)) {
