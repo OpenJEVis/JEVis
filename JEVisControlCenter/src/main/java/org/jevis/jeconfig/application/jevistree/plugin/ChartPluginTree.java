@@ -29,7 +29,7 @@ import java.util.List;
  * @author
  */
 public class ChartPluginTree implements TreePlugin {
-    public static int NO_OF_COLUMNS = 5;
+    public static int NO_OF_COLUMNS = 6;
     private final Image img = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "list-add.png"));
     private final ImageView image = new ImageView(img);
     private final String chartTitle = I18n.getInstance().getString("graph.title");
@@ -146,7 +146,7 @@ public class ChartPluginTree implements TreePlugin {
         DataProcessorColumn dataProcessorColumn = new DataProcessorColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.cleaning"));
         dataProcessorColumn.setGraphDataModel(data);
 
-        NameColumn nameColumn = new NameColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.cleaning"));
+        NameColumn nameColumn = new NameColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.name"));
         nameColumn.setGraphDataModel(data);
 
 //        DateColumn startDateColumn = new DateColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.startdate"), DateColumn.DATE_TYPE.START);

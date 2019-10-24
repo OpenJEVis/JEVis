@@ -1,10 +1,10 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -36,7 +36,7 @@ public class Note {
         ObjectHandler objectHandler = new ObjectHandler(sample.getDataSource());
 
         if (note != null) {
-            HBox hbox = new HBox();
+
             boolean changed = false;
             StringBuilder sb = new StringBuilder();
             int noOfNotes = 0;
@@ -123,86 +123,35 @@ public class Note {
 
                     changed = true;
 
-//                    try {
-//                        JEVisObject obj = sample.getAttribute().getObject();
-//                        JEVisObject correspondingNoteObject = null;
-//
-//                        final JEVisClass dataNoteClass = obj.getDataSource().getJEVisClass("Data Notes");
-//                        List<JEVisObject> listParents = obj.getParents();
-//                        for (JEVisObject parent : listParents) {
-//                            for (JEVisObject child : parent.getChildren()) {
-//                                if (child.getJEVisClass().equals(dataNoteClass) && child.getName().contains(obj.getName())) {
-//                                    correspondingNoteObject = child;
-//                                    break;
-//                                }
-//                            }
-//                        }
-//                        if (correspondingNoteObject != null) {
-//                            try {
-//                                JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
-//                                List<JEVisSample> listSamples = userNoteAttribute.getSamples(timeStamp.minusMillis(1), timeStamp.plusMillis(1));
-//                                if (listSamples.size() == 1) {
-//                                    for (JEVisSample smp : listSamples) {
-//                                        toolTipString += smp.getValueAsString();
-//                                    }
-//                                }
-//                            } catch (JEVisException e) {
-//
-//                            }
-//                        }
-//
-//                    } catch (Exception e) {
-//                        logger.error("Error while getting user notes" + e);
-//                    }
                 } catch (Exception e) {
                 }
             }
 
-//            try {
-//                JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
-//                JEVisObject object = sample.getAttribute().getObject();
-//                if (object.getJEVisClass().equals(cleanDataClass)) {
-//                    JEVisAttribute log = object.getAttribute("Alarm Log");
-//                    if (log != null) {
-//                        List<JEVisSample> logSamples = log.getSamples(sample.getTimestamp(), sample.getTimestamp());
-//                        if (logSamples != null && !logSamples.isEmpty()) {
-//                            if (noOfNotes > 0) sb.append(", ");
-//                            sb.append(I18n.getInstance().getString("plugin.graph.chart.note.alarm"));
-//                            noOfNotes++;
-//
-//                            changed = true;
-//
-//                            toolTipString += "Alarm " + logSamples.get(0).getValueAsDouble();
-//                        }
-//                    }
-//                }
-//            } catch (Exception e) {
-//                logger.error("Error while getting alarm log" + e);
-//            }
-
-
-//            if (hbox.getChildren().size() > ) {
-//                hbox.getChildren().clear();
-//                try {
-//                    Label labelMultiple = new Label(I18n.getInstance().getString("plugin.graph.chart.note.multiple"));
-//                    hbox.getChildren().add(labelMultiple);
-//
-//                    changed = true;
-//                } catch (Exception e) {
-//                }
-//            }
-
-            //hbox.setBorder(new Border(new BorderStroke(color, BorderStrokeStyle.NONE, CornerRadii.EMPTY, BorderWidths.EMPTY)));
-
             if (changed) {
-                hbox.setPadding(new Insets(2, 2, 2, 2));
-                this.node = hbox;
+                Pane hbox = new Pane() {
+                    @Override
+                    protected void setWidth(double value) {
+                        //
+                    }
+
+                    @Override
+                    protected void setHeight(double value) {
+                        //
+                    }
+                };
+////                HBox hbox = new HBox();
+//                hbox.setPadding(new Insets(2, 2, 2, 2));
+//                this.node = hbox;
                 this.noteString = sb.toString();
                 Label label = new Label(sb.toString());
+                label.setBorder(new Border(new BorderStroke(Color.RED,
+                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
                 label.setStyle("-fx-background-color: #ffffff;");
                 hbox.getChildren().add(label);
-                Tooltip tooltip = new Tooltip(toolTipString);
+                this.node = hbox;
                 if (!toolTipString.equals("")) {
+                    Tooltip tooltip = new Tooltip(toolTipString);
                     label.setTooltip(tooltip);
                 }
             }

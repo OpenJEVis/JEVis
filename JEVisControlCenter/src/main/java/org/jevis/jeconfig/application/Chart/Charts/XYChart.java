@@ -776,6 +776,7 @@ public class XYChart implements Chart {
 //                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
 
                 } catch (Exception ex) {
+//                    ex.printStackTrace();
                 }
 
             });
