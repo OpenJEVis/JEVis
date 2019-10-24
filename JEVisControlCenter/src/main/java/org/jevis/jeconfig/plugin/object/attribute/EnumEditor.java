@@ -13,13 +13,15 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,34 +48,24 @@ public class EnumEditor implements AttributeEditor {
         });
     }
 
-    public ObservableList<String> getEnumList(JEVisAttribute att) {
-        ObservableList<String> enumList = FXCollections.observableArrayList();
+    private List<String> getEnumList(JEVisAttribute att) {
+        List<String> enumList = new ArrayList<>();
         try {
             JEVisClass enumClass = att.getDataSource().getJEVisClass("Enum");
             JEVisClass constantsClass = att.getDataSource().getJEVisClass("Constants");
-            List<JEVisObject> enumObjs = att.getDataSource().getObjects(enumClass, true);
+            List<JEVisObject> enumObjects = att.getDataSource().getObjects(enumClass, true);
 
-            for (JEVisObject enumObj : enumObjs) {
-                logger.debug("Enum Obj: {}", enumObj);
-                String jclass = enumObj.getAttribute("JEVisClass").getLatestSample().getValueAsString();
-                logger.debug("Class to compare to: {}", jclass);
+            for (JEVisObject enumObj : enumObjects) {
+                String jeVisClass = enumObj.getAttribute("JEVisClass").getLatestSample().getValueAsString();
                 try {
-                    if (jclass.equals(att.getObject().getJEVisClassName())) {
-                        logger.debug("true");
+                    if (jeVisClass.equals(att.getObject().getJEVisClassName())) {
                         List<JEVisObject> constants = enumObj.getChildren(constantsClass, true);
                         for (JEVisObject con : constants) {
-                            logger.debug("Constants obj: {}", con.getID());
-
-
                             if (con.getAttribute("Attribute").getLatestSample().getValueAsString().equals(att.getName())) {
-                                logger.debug("Attribute matched");
-                                JEVisAttribute entrieA = con.getAttribute("Entries");
-                                if (entrieA.hasSample()) {
-                                    String[] entries = entrieA.getLatestSample().getValueAsString().split(";");
-                                    for (String value : entries) {
-                                        logger.debug("add Value: {}", value);
-                                        enumList.add(value);
-                                    }
+                                JEVisAttribute jeVisAttribute = con.getAttribute("Entries");
+                                if (jeVisAttribute.hasSample()) {
+                                    String[] entries = jeVisAttribute.getLatestSample().getValueAsString().split(";");
+                                    Collections.addAll(enumList, entries);
                                 }
                             }
                         }
@@ -94,8 +86,9 @@ public class EnumEditor implements AttributeEditor {
         JEVisSample sample = _attribute.getLatestSample();
         ObservableList<String> enumList = FXCollections.observableArrayList();
         enumList.addAll(getEnumList(_attribute));
+        AlphanumComparator ac = new AlphanumComparator();
+        enumList.sort(ac);
 
-//        ComboBox picker = new ComboBox(enumList);
         JFXComboBox picker = new JFXComboBox(enumList);
         picker.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
 
@@ -103,7 +96,7 @@ public class EnumEditor implements AttributeEditor {
             try {
                 String value = sample.getValueAsString();
                 if (enumList.contains(value)) {
-                    picker.setValue(sample.getValueAsString());
+                    picker.getSelectionModel().select(sample.getValueAsString());
                 }
 
             } catch (JEVisException ex) {
@@ -121,12 +114,7 @@ public class EnumEditor implements AttributeEditor {
         });
 
         _editor.setPrefWidth(GenericAttributeExtension.editorWidth.getValue());
-        Region spacer = new Region();
-//        HBox box = new HBox();
-//        HBox.setHgrow(picker, Priority.NEVER);
-//        HBox.setHgrow(spacer, Priority.ALWAYS);
-//        box.getChildren().addAll(spacer,picker);
-        _editor.getChildren().addAll(picker);
+        _editor.getChildren().setAll(picker);
 
     }
 
