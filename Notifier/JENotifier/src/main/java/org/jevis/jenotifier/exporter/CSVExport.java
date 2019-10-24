@@ -3,6 +3,7 @@ package org.jevis.jenotifier.exporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.utils.PrettyError;
 import org.jevis.jenotifier.config.JENotifierConfig;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -83,28 +84,32 @@ public class CSVExport extends Export {
             attSeperator = exportObject.getAttribute(TYPE_SEPARATOR);
             seperator = attSeperator.getLatestSample().getValueAsString();
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            logger.error("Error in Separator Attribute: {}", PrettyError.getJEVisLineFilter(e));
         }
 
 
         try {
             attEnclosed = exportObject.getAttribute(TYPE_ENCLOSED);
             enclosed = attEnclosed.getLatestSample().getValueAsString();
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+//            e.printStackTrace();
+            logger.error("Error in Enclosed Attribute: {}", PrettyError.getJEVisLineFilter(e));
         }
         try {
             attFilename = exportObject.getAttribute(TYPE_FILENAME);
             filename = attFilename.getLatestSample().getValueAsString();
             filename = filename.replaceAll(".csv", "");
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            logger.error("Error in Filename Attribute: {}", PrettyError.getJEVisLineFilter(e));
         }
         try {
             attHeader = exportObject.getAttribute(TYPE_HEADER);
             header = attHeader.getLatestSample().getValueAsString();
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            logger.error("Error in Header Attribute: {}", PrettyError.getJEVisLineFilter(e));
         }
 
         try {
@@ -112,7 +117,8 @@ public class CSVExport extends Export {
             lastUpdate = new DateTime(attLastExport.getLatestSample().getValueAsString());
 //            lastUpdate = attLastExport.getLatestSample().getTimestamp();
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            logger.error("Error in Last Export Attribute: {}", PrettyError.getJEVisLineFilter(e));
         }
 
         try {
@@ -120,7 +126,8 @@ public class CSVExport extends Export {
 //            lastUpdate = new DateTime(attLastExport.getLatestSample().getValueAsString());
 //            lastUpdate = attLastExport.getLatestSample().getTimestamp();
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            logger.error("Error in Export Status Attribute: {}", PrettyError.getJEVisLineFilter(e));
         }
 
 //        try {
@@ -134,14 +141,16 @@ public class CSVExport extends Export {
             attTimestampFormat = exportObject.getAttribute(TYPE_TIMESTAMP_FORMAT);
             dateTimeFormatter = DateTimeFormat.forPattern(attTimestampFormat.getLatestSample().getValueAsString());
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            logger.error("Error in Timestamp Format Attribute: {}", PrettyError.getJEVisLineFilter(e));
         }
 
         try {
             attTimeZone = exportObject.getAttribute(TYPE_TIMEZONE);
             dateTimeZone = DateTimeZone.forID(attTimeZone.getLatestSample().getValueAsString());
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            logger.error("Error in Timezone Attribute: {}", PrettyError.getJEVisLineFilter(e));
         }
 
 
@@ -323,7 +332,7 @@ public class CSVExport extends Export {
         try {
             JEVisSample status = attLastExportStatus.buildSample(logDate, STATUS_IDEL);
             status.commit();
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -341,7 +350,7 @@ public class CSVExport extends Export {
             sample.commit();
             JEVisSample status = attLastExportStatus.buildSample(logDate, STATUS_SUCESS + "; " + exportCount);
             status.commit();
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

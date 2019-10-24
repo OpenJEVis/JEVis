@@ -593,8 +593,10 @@ public class GraphPluginView implements Plugin {
                     }
                 } else {
                     Platform.runLater(() -> {
+                        System.out.println("CPU abkratzen");
                         vBox.getChildren().add(bp);
                         vBox.getChildren().add(sep);
+                        System.out.println("Done cpu");
                         JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Chart");
                     });
                 }
@@ -886,11 +888,8 @@ public class GraphPluginView implements Plugin {
                 case LINE:
                 case SCATTER:
                     setupNoteDialog(cv);
-
                     setupMouseMoved(cv, notActive);
-
                     setupLinkedZoom(cv, notActive);
-
                     setupDoubleClick(cv, notActive);
                     break;
                 case LOGICAL:
