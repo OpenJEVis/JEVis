@@ -612,7 +612,7 @@ public class UnitManager {
 //            uString = uString.replace(")", "");
 //            uString = uString.replace("·", "");
 //            return getPrefixChar(junit.getPrefix()) + uString;
-            return junit.getLabel();
+            return junit.getLabel().replace("·", "");
         } else {
             logger.warn("No unit for format");
             return "";

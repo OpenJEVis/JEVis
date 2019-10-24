@@ -38,7 +38,6 @@ import org.apache.commons.math3.fitting.WeightedObservedPoint;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.commons.utils.Benchmark;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.*;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 
@@ -106,9 +105,11 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
     private final ListChangeListener<MultiAxisChart.Series<X, Y>> seriesChanged = c -> {
         ObservableList<? extends MultiAxisChart.Series<X, Y>> series = c.getList();
         while (c.next()) {
+
             if (c.wasPermutated()) {
                 displayedSeries.sort((o1, o2) -> series.indexOf(o2) - series.indexOf(o1));
             }
+
             if (c.getRemoved().size() > 0)
                 updateLegend();
 
@@ -129,6 +130,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                 int idx = seriesColorMap.remove(s);
 //                colorBits.clear(idx);
             }
+
             for (int i = c.getFrom(); i < c.getTo() && !c.wasPermutated(); i++) {
                 final MultiAxisChart.Series<X, Y> s = c.getList().get(i);
                 // add new listener to data
@@ -660,12 +662,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
     private void dataItemsChanged(MultiAxisChart.Series<X, Y> series, List<Data<X, Y>> removed, int addedFrom,
                                   int addedTo, boolean permutation) {
-
-        Benchmark benchmark = new Benchmark();
         if (HiddenConfig.CHART_PRECISION_ON && series.getDataSize() > HiddenConfig.CHART_PRECISION_LIMIT) {
-
-            benchmark.printBenchmarkDetail("Start MAC.dataItemsChanged");
-
             /**
              * This experimental code will use the "Douglas Peucker Algorithm" to improve drawing performance.
              * Enable via HiddenConfig editor STRG+H
@@ -775,7 +772,6 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
 
         invalidateRange();
         requestChartLayout();
-        benchmark.printBenchmarkDetail("Start MAC.dataItemsChanged.done");
     }
 
     private void dataXValueChanged(Data<X, Y> item) {
