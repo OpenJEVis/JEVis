@@ -14,7 +14,6 @@ import javafx.scene.Node;
 import javafx.scene.chart.Axis;
 import javafx.scene.shape.*;
 import javafx.util.Duration;
-import org.jevis.commons.utils.Benchmark;
 
 import java.util.*;
 
@@ -41,10 +40,6 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
     private FadeTransition fadeSymbolTransition = null;
     private Map<Data<X, Y>, Double> XYValueMap = new HashMap<Data<X, Y>, Double>();
     private Timeline seriesRemoveTimeline = null;
-    private int symbolCount = 0;
-    private Map<Integer, Integer> symbolCountMap = new HashMap<>();
-    Benchmark benchmark = new Benchmark();
-
     // -------------- PUBLIC PROPERTIES ----------------------------------------
 
     /**
@@ -126,17 +121,6 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
      */
     public MultiAxisLineChart(Axis<X> xAxis, Axis<Y> y1Axis, Axis<Y> y2Axis) {
         this(xAxis, y1Axis, y2Axis, FXCollections.observableArrayList());
-        benchmark = new Benchmark();
-        symbolCountMap = new HashMap<>();
-        symbolCountMap.put(0, 0);
-        symbolCountMap.put(1, 0);
-        symbolCountMap.put(2, 0);
-        symbolCountMap.put(3, 0);
-        symbolCountMap.put(4, 0);
-        symbolCountMap.put(5, 0);
-        symbolCountMap.put(6, 0);
-        symbolCountMap.put(7, 0);
-        symbolCountMap.put(8, 0);
     }
 
     /**
@@ -152,7 +136,6 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
         super(xAxis, y1Axis, y2Axis);
         setLegend(legend);
         setData(data);
-
     }
 
     /**
@@ -240,14 +223,12 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
 
     @Override
     protected void dataItemAdded(final Series<X, Y> series, int itemIndex, final Data<X, Y> item) {
-        System.out.println("dataItemAdded");
         final Node symbol = createSymbol(series, getData().indexOf(series), item, itemIndex);
 
         if (symbol != null) {
             getPlotChildren().add(symbol);
             symbol.getStyleClass().setAll("chart-series-line", "series" + itemIndex, series.defaultColorStyleClass);
         }
-
     }
 
     @Override
@@ -279,7 +260,6 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
 
     @Override
     protected void seriesChanged(Change<? extends MultiAxisChart.Series<X, Y>> c) {
-        benchmark.printBenchmarkDetail("seriesChanged");
         // Update style classes for all series lines and symbols
         // Note: is there a more efficient way of doing this?
         for (int i = 0; i < getDataSize(); i++) {
@@ -289,13 +269,10 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
                 seriesNode.getStyleClass().setAll("chart-series-line", "series" + i, s.defaultColorStyleClass);
             }
         }
-        benchmark.printBenchmarkDetail("seriesChanged.done");
     }
 
     @Override
     protected void seriesAdded(Series<X, Y> series, int seriesIndex) {
-        benchmark.printBenchmarkDetail("seriesAdded: index: " + seriesIndex + "size: " + series.getData().size() + " name:" + series.getName());
-        Benchmark benchmark = new Benchmark();
         // create new path for series
         Path seriesLine = new Path();
         seriesLine.setStrokeLineJoin(StrokeLineJoin.BEVEL);
@@ -316,11 +293,9 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
                 getPlotChildren().add(symbol);
             }
         }
-        benchmark.printBenchmarkDetail("seriesAdded.done: index: " + seriesIndex);
     }
 
     private Node createSymbol(Series<X, Y> series, int seriesIndex, final Data<X, Y> item, int itemIndex) {
-//        benchmark.printBenchmarkDetail("createSymbol: " + seriesIndex + " item: " + itemIndex);
         Node symbol = item.getNode();
         if (symbol != null)
             symbol.getStyleClass().addAll("chart-line-symbol", "series" + seriesIndex, "data" + itemIndex,
@@ -329,7 +304,6 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
     }
 
     private void updateDefaultColorIndex(final Series<X, Y> series) {
-        benchmark.printBenchmarkDetail("updateDefaultColorIndex: " + series.getName());
         int clearIndex = seriesColorMap.get(series);
         series.getNode().getStyleClass().remove(DEFAULT_COLOR + clearIndex);
         for (int j = 0; j < series.getData().size(); j++) {
@@ -338,7 +312,6 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
                 node.getStyleClass().remove(DEFAULT_COLOR + clearIndex);
             }
         }
-        benchmark.printBenchmarkDetail("updateDefaultColorIndex.done: " + series.getName());
     }
 
     @Override
@@ -348,8 +321,9 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
         seriesYMultiplierMap.remove(series);
 
         getPlotChildren().remove(series.getNode());
-        for (Data<X, Y> d : series.getData())
+        for (Data<X, Y> d : series.getData()) {
             getPlotChildren().remove(d.getNode());
+        }
         removeSeriesFromDisplay(series);
     }
 
@@ -358,7 +332,6 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
      */
     @Override
     protected void layoutPlotChildren() {
-        benchmark.printBenchmarkDetail("Start layoutPlotChildren(): " + getPlotChildren().size());
         List<LineTo> constructedPath = new ArrayList<>(getDataSize());
         for (int seriesIndex = 0; seriesIndex < getDataSize(); seriesIndex++) {
             Series<X, Y> series = getData().get(seriesIndex);
@@ -417,7 +390,6 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
                 }
             }
         }
-        benchmark.printBenchmarkDetail("Done layoutPlotChildren()");
     }
 
     /**

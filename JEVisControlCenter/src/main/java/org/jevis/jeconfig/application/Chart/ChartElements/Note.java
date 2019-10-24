@@ -142,7 +142,7 @@ public class Note {
 ////                HBox hbox = new HBox();
 //                hbox.setPadding(new Insets(2, 2, 2, 2));
 //                this.node = hbox;
-//                this.noteString = sb.toString();
+                this.noteString = sb.toString();
                 Label label = new Label(sb.toString());
                 label.setBorder(new Border(new BorderStroke(Color.RED,
                         BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
@@ -150,12 +150,10 @@ public class Note {
                 label.setStyle("-fx-background-color: #ffffff;");
                 hbox.getChildren().add(label);
                 this.node = hbox;
-//                if (!toolTipString.equals("aus")) {
-                Tooltip tooltip = new Tooltip(toolTipString);
-                label.setTooltip(tooltip);
-//                }
-
-
+                if (!toolTipString.equals("")) {
+                    Tooltip tooltip = new Tooltip(toolTipString);
+                    label.setTooltip(tooltip);
+                }
             }
         }
     }

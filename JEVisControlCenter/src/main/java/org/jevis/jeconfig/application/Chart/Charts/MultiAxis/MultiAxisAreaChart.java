@@ -46,25 +46,24 @@ public class MultiAxisAreaChart<X, Y> extends MultiAxisChart<X, Y> {
     private BooleanProperty createSymbols = new StyleableBooleanProperty(true) {
         @Override
         protected void invalidated() {
-            for (int seriesIndex = 0; seriesIndex < getData().size(); seriesIndex++) {
-                MultiAxisChart.Series<X, Y> series = getData().get(seriesIndex);
-                for (int itemIndex = 0; itemIndex < series.getData().size(); itemIndex++) {
-                    Data<X, Y> item = series.getData().get(itemIndex);
-                    Node symbol = item.getNode();
-                    if (get() && symbol == null) { // create any symbols
-                        symbol = createSymbol(series, getData().indexOf(series), item, itemIndex);
-                        if (null != symbol) {
-                            getPlotChildren().add(symbol);
-                        }
-                    } else if (!get() && symbol != null) { // remove symbols
-                        getPlotChildren().remove(symbol);
-                        symbol = null;
-                        item.setNode(null);
-                    }
-                }
-            }
-            System.out.println("createSymbols");
-            requestChartLayout();
+//            for (int seriesIndex = 0; seriesIndex < getData().size(); seriesIndex++) {
+//                MultiAxisChart.Series<X, Y> series = getData().get(seriesIndex);
+//                for (int itemIndex = 0; itemIndex < series.getData().size(); itemIndex++) {
+//                    Data<X, Y> item = series.getData().get(itemIndex);
+//                    Node symbol = item.getNode();
+//                    if (get() && symbol == null) { // create any symbols
+//                        symbol = createSymbol(series, getData().indexOf(series), item, itemIndex);
+//                        if (null != symbol) {
+//                            getPlotChildren().add(symbol);
+//                        }
+//                    } else if (!get() && symbol != null) { // remove symbols
+//                        getPlotChildren().remove(symbol);
+//                        symbol = null;
+//                        item.setNode(null);
+//                    }
+//                }
+//            }
+//            requestChartLayout();
         }
 
         @Override
@@ -192,8 +191,9 @@ public class MultiAxisAreaChart<X, Y> extends MultiAxisChart<X, Y> {
         final Node symbol = createSymbol(series, getData().indexOf(series), item, itemIndex);
         if (symbol != null) {
             getPlotChildren().add(symbol);
+            symbol.getStyleClass().setAll("chart-series-area-fill", "series" + itemIndex, series.defaultColorStyleClass,
+                    "chart-series-area-line", "series" + itemIndex, series.defaultColorStyleClass);
         }
-        System.out.println("dataItemAdded");
     }
 
     @Override
@@ -240,14 +240,11 @@ public class MultiAxisAreaChart<X, Y> extends MultiAxisChart<X, Y> {
                             s.defaultColorStyleClass);
                 }
             }
-            System.out.println("seriesChanged:1 " + s.getData().size());
         }
-        System.out.println("seriesChanged");
     }
 
     @Override
     protected void seriesAdded(MultiAxisChart.Series<X, Y> series, int seriesIndex) {
-        System.out.println("MAAC.seriesAdded");
         // create new paths for series
         Path seriesLine = new Path();
         Path fillPath = new Path();
@@ -386,18 +383,18 @@ public class MultiAxisAreaChart<X, Y> extends MultiAxisChart<X, Y> {
                               int itemIndex) {
         Node symbol = item.getNode();
         // check if symbol has already been created
-        if (symbol == null && getCreateSymbols()) {
+//        if (symbol == null && getCreateSymbols()) {
 //            symbol = new StackPane();
 //            symbol.setAccessibleRole(AccessibleRole.TEXT);
 //            symbol.setAccessibleRoleDescription("Point");
 //            symbol.focusTraversableProperty().bind(Platform.accessibilityActiveProperty());
 //            item.setNode(symbol);
-        }
+//        }
         // set symbol styles
         // Note: not sure if we want to add or check, ie be more careful and efficient
         // here
         if (symbol != null)
-            symbol.getStyleClass().setAll("chart-area-symbol", "series" + seriesIndex, "data" + itemIndex,
+            symbol.getStyleClass().addAll("chart-area-symbol", "series" + seriesIndex, "data" + itemIndex,
                     series.defaultColorStyleClass);
         return symbol;
     }
