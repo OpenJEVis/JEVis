@@ -68,7 +68,7 @@ public abstract class Export {
             exportObject.getChildren(mailClass, true).forEach(object -> {
                 try {
 
-                    System.out.println("send email: " + object);
+                    //System.out.println("send email: " + object);
                     Notification nofi = new EmailNotification();
                     JEVisFile jeVisFile = null;
 
@@ -93,6 +93,7 @@ public abstract class Export {
                     System.out.println("notification driver: " + jeNotifierConfig.getDefaultEmailNotificationDriver());
                     SendNotification sn = new SendNotification(nofi, jeNotifierConfig.getDefaultEmailNotificationDriver(), "");
                     sn.run();
+                    sn = null;
                     setOnSuccess();
                     cleanUp();
 

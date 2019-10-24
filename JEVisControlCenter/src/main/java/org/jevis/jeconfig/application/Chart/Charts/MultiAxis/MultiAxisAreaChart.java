@@ -2,7 +2,6 @@ package org.jevis.jeconfig.application.Chart.Charts.MultiAxis;
 
 import com.sun.javafx.charts.Legend;
 import com.sun.javafx.charts.Legend.LegendItem;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -12,11 +11,9 @@ import javafx.collections.ObservableList;
 import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.css.StyleableBooleanProperty;
-import javafx.scene.AccessibleRole;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.chart.Axis;
-import javafx.scene.layout.StackPane;
 import javafx.scene.shape.*;
 
 import java.util.*;
@@ -66,6 +63,7 @@ public class MultiAxisAreaChart<X, Y> extends MultiAxisChart<X, Y> {
                     }
                 }
             }
+            System.out.println("createSymbols");
             requestChartLayout();
         }
 
@@ -195,6 +193,7 @@ public class MultiAxisAreaChart<X, Y> extends MultiAxisChart<X, Y> {
         if (symbol != null) {
             getPlotChildren().add(symbol);
         }
+        System.out.println("dataItemAdded");
     }
 
     @Override
@@ -241,11 +240,14 @@ public class MultiAxisAreaChart<X, Y> extends MultiAxisChart<X, Y> {
                             s.defaultColorStyleClass);
                 }
             }
+            System.out.println("seriesChanged:1 " + s.getData().size());
         }
+        System.out.println("seriesChanged");
     }
 
     @Override
     protected void seriesAdded(MultiAxisChart.Series<X, Y> series, int seriesIndex) {
+        System.out.println("MAAC.seriesAdded");
         // create new paths for series
         Path seriesLine = new Path();
         Path fillPath = new Path();
@@ -385,11 +387,11 @@ public class MultiAxisAreaChart<X, Y> extends MultiAxisChart<X, Y> {
         Node symbol = item.getNode();
         // check if symbol has already been created
         if (symbol == null && getCreateSymbols()) {
-            symbol = new StackPane();
-            symbol.setAccessibleRole(AccessibleRole.TEXT);
-            symbol.setAccessibleRoleDescription("Point");
-            symbol.focusTraversableProperty().bind(Platform.accessibilityActiveProperty());
-            item.setNode(symbol);
+//            symbol = new StackPane();
+//            symbol.setAccessibleRole(AccessibleRole.TEXT);
+//            symbol.setAccessibleRoleDescription("Point");
+//            symbol.focusTraversableProperty().bind(Platform.accessibilityActiveProperty());
+//            item.setNode(symbol);
         }
         // set symbol styles
         // Note: not sure if we want to add or check, ie be more careful and efficient

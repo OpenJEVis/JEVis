@@ -37,6 +37,7 @@ import org.jevis.api.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -728,6 +729,48 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         };
     }
 
+    private Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>> valueCellBoolean() {
+        return new Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>>() {
+            @Override
+            public TableCell<TableSample, Object> call(TableColumn<TableSample, Object> param) {
+                return new TableCell<TableSample, Object>() {
+
+                    @Override
+                    protected void updateItem(Object item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            JEVisSample sample = tableSample.getJevisSample();
+
+                            ToggleSwitchPlus toggleSwitchPlus = new ToggleSwitchPlus();
+                            try {
+                                toggleSwitchPlus.setSelected(sample.getValueAsBoolean());
+                            } catch (JEVisException e) {
+                                e.printStackTrace();
+                            }
+                            toggleSwitchPlus.selectedProperty().addListener((ov, t, t1) -> {
+                                try {
+                                    sample.setValue(t1);
+                                    sample.commit();
+                                } catch (Exception ex) {
+                                    logger.fatal(ex);
+                                }
+                            });
+
+                            setGraphic(toggleSwitchPlus);
+
+                        }
+
+                    }
+                };
+            }
+
+        };
+    }
+
     /**
      * Create an Callback cell for String based values
      *
@@ -925,7 +968,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         column.setCellValueFactory(param -> new ReadOnlyObjectWrapper(param.getValue().getValue()));
 
         try {
-
             switch (attribute.getPrimitiveType()) {
                 case JEVisConstants.PrimitiveType.LONG:
                     column.setCellFactory(valueCellInteger());
@@ -935,6 +977,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                     break;
                 case JEVisConstants.PrimitiveType.FILE:
                     column.setCellFactory(valueCellFile());
+                    break;
+                case JEVisConstants.PrimitiveType.BOOLEAN:
+                    column.setCellFactory(valueCellBoolean());
                     break;
                 default:
                     if (attribute.getName().equalsIgnoreCase("Password") || attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.PASSWORD_PBKDF2) {

@@ -1,9 +1,11 @@
 package org.jevis.jenotifier.exporter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.utils.PrettyError;
 import org.joda.time.DateTime;
 
 import java.text.DecimalFormat;
@@ -12,7 +14,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class CSVExportLink extends ExportLink {
-
+    private static final Logger logger = LogManager.getLogger(CSVExportLink.class);
     public static String CLASS_NAME = "CSV Export Link";
     public static String TYPE_COLUMN = "Column ID";
     public static String TYPE_VALUE_FORMAT = "Value Format";
@@ -36,8 +38,9 @@ public class CSVExportLink extends ExportLink {
         try {
             attColumn = linkObject.getAttribute(TYPE_COLUMN);
             column = attColumn.getLatestSample().getValueAsLong().intValue();
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        } catch (Exception ex) {
+//            e.printStackTrace();
+            logger.error("Error in Column ID: {}", PrettyError.getJEVisLineFilter(ex));
         }
 
 
@@ -46,18 +49,21 @@ public class CSVExportLink extends ExportLink {
             attValueFormat = linkObject.getAttribute(TYPE_VALUE_FORMAT);
             valueFormate = attValueFormat.getLatestSample().getValueAsString();
 
+            System.out.println("---valueFormate: " + valueFormate);
+
             if (valueFormate != null || !valueFormate.isEmpty()) {
-                try {
-                    DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols();
-                    otherSymbols.setDecimalSeparator(valueFormate.charAt(0));
-                    decimalFormat.setDecimalFormatSymbols(otherSymbols);
-                    //TODO case String formate
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols();
+                otherSymbols.setDecimalSeparator(valueFormate.charAt(0));
+                System.out.println("---otherSymbols: " + otherSymbols.getDecimalSeparator());
+                decimalFormat.setDecimalFormatSymbols(otherSymbols);
+                decimalFormat.setGroupingUsed(false);
+                System.out.println("---decimalFormat: " + decimalFormat.getDecimalFormatSymbols());
+                System.out.println("---Decimal test: " + decimalFormat.format(12313.23));
+                //TODO case String formate
             }
-        } catch (JEVisException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+//            e.printStackTrace();
+            logger.error("[{}] Error in Decimal Format: {}", linkObject.getID(), PrettyError.getJEVisLineFilter(e));
         }
 
     }
@@ -81,11 +87,13 @@ public class CSVExportLink extends ExportLink {
     @Override
     String formatValue(Object sample) {
         if (sample instanceof Double) {
+            //System.out.println("Using double format: " + decimalFormat.format(sample));
             return decimalFormat.format(sample);
         }
 //        else if (sample instanceof String) {
 //            return String.format(valueFormate, sample);
 //        }
+        //System.out.println("using to string value");
         return sample.toString();
 
 //        System.out.print("Value type: " + sample);
