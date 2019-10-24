@@ -65,18 +65,21 @@ public class JEVisUnitImp implements JEVisUnit {
 //        Gson gson = new Gson();
         _label = json.getLabel();
         _prefix = UnitManager.getInstance().getPrefix(json.getPrefix(), Locale.getDefault());
-        ParsePosition pp = new ParsePosition(0);
         try {
             try {
-                _unit = UnitFormat.getInstance().parseProductUnit(json.getFormula(), pp);
+                _unit = (Unit) UnitFormat.getInstance().parseObject(json.getFormula());
             } catch (ParseException pe) {
                 try {
-                    for (MoneyUnit mu : MoneyUnit.values()) {
-                        if (json.getFormula().equals(mu.toString())) {
-                            JEVisUnit jeVisUnit = ChartUnits.parseUnit(json.getLabel());
-                            _unit = jeVisUnit.getUnit();
-                            break;
+                    if (!json.getLabel().equals("")) {
+                        for (MoneyUnit mu : MoneyUnit.values()) {
+                            if (json.getFormula().equals(mu.toString())) {
+                                JEVisUnit jeVisUnit = ChartUnits.parseUnit(json.getLabel());
+                                _unit = jeVisUnit.getUnit();
+                                break;
+                            }
                         }
+                    } else {
+                        logger.info("Empty unit: {}", JsonTools.prettyObjectMapper().writeValueAsString(json));
                     }
                 } catch (Exception e) {
                     logger.warn("Warning! Could not parse unit from json: '" + JsonTools.prettyObjectMapper().writeValueAsString(json) + "' " + pe.getMessage());

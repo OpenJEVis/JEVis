@@ -16,7 +16,6 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
-import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
@@ -297,7 +296,6 @@ public class XYChartSerie {
         }
     }
 
-
     public MultiAxisChart.Series getSerie() {
         return serie;
     }
@@ -332,7 +330,7 @@ public class XYChartSerie {
     }
 
     public String getTableEntryName() {
-        if (singleRow.getTitle() == null) {
+        if (singleRow.getTitle() == null || singleRow.getTitle().equals("")) {
             return singleRow.getObject().getName();
         } else {
             return singleRow.getTitle();
@@ -341,7 +339,7 @@ public class XYChartSerie {
 
     public String getUnit() {
 
-        String unit = UnitManager.getInstance().format(singleRow.getUnit());
+        String unit = "" + singleRow.getUnit();
 
         if (unit.equals("")) unit = singleRow.getUnit().getLabel();
 //        if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");

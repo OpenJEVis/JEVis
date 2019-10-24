@@ -74,9 +74,7 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
-import org.jevis.jeconfig.dialog.ChartSelectionDialog;
-import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
-import org.jevis.jeconfig.dialog.Response;
+import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -191,10 +189,12 @@ public class GraphPluginView implements Plugin {
             loadAnalysis.setOnAction(event -> openDialog());
 
             Region top = new Region();
-            top.setPrefHeight(border.getHeight() / 3);
-            vBox.getChildren().addAll(top, loadAnalysis, newAnalysis);
+
+            vBox.getChildren().setAll(top, loadAnalysis, newAnalysis);
 
             this.sp.setContent(vBox);
+
+            Platform.runLater(() -> top.setPrefHeight(border.getHeight() / 3));
         }
     }
 
@@ -302,13 +302,13 @@ public class GraphPluginView implements Plugin {
     public boolean supportsRequest(int cmdType) {
         switch (cmdType) {
             case Constants.Plugin.Command.SAVE:
-                return false;
+                return true;
             case Constants.Plugin.Command.DELETE:
-                return false;
+                return true;
             case Constants.Plugin.Command.EXPAND:
                 return false;
             case Constants.Plugin.Command.NEW:
-                return false;
+                return true;
             case Constants.Plugin.Command.RELOAD:
                 return true;
             case Constants.Plugin.Command.ADD_TABLE:
@@ -337,12 +337,15 @@ public class GraphPluginView implements Plugin {
         try {
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
+                    new SaveAnalysisDialog(ds, dataModel, toolBarView.getPickerCombo(), toolBarView.getListAnalysesComboBox(), toolBarView.getChanged());
                     break;
                 case Constants.Plugin.Command.DELETE:
+                    new DeleteAnalysisDialog(ds, dataModel, toolBarView.getListAnalysesComboBox());
                     break;
                 case Constants.Plugin.Command.EXPAND:
                     break;
                 case Constants.Plugin.Command.NEW:
+                    new NewAnalysisDialog(ds, dataModel, this, toolBarView.getChanged());
                     break;
                 case Constants.Plugin.Command.RELOAD:
                     JEVisObject currentAnalysis = dataModel.getCurrentAnalysis();
@@ -380,6 +383,7 @@ public class GraphPluginView implements Plugin {
         }
 
     }
+
 
     @Override
     public void fireCloseEvent() {
