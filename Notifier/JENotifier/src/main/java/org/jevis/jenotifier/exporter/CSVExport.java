@@ -191,7 +191,7 @@ public class CSVExport extends Export {
 
     @Override
     public void executeExport() throws Exception {
-        logger.error("executeExport()");
+//        logger.error("executeExport()");
         System.out.println("Export from: " + lastUpdate);
 
         logDate = new DateTime();
@@ -199,7 +199,7 @@ public class CSVExport extends Export {
         if (lastUpdate == null) { /** if there was never an export export all data **/
             export.set(true);
         } else if (exportEventList.isEmpty()) {
-            System.out.println("No Event configured using simple new Value Event");
+//            System.out.println("No Event configured using simple new Value Event");
             export.set(true);
         } else {
             exportEventList.forEach(exportEvent -> {
@@ -225,7 +225,14 @@ public class CSVExport extends Export {
             for (ExportLink exportLink : exportLinkList) {
                 try {
                     DateTime maxInSource = null;
-                    Map<DateTime, JEVisSample> sampleList = exportLink.getSamples(lastUpdate.plusSeconds(1), now);
+
+                    /** Also fetch x previous periods add add one second to not have the same sample because >=**/
+                    DateTime startTime = lastUpdate.minus(
+                            exportLink.targetAttribute.getInputSampleRate().getMillis() * exportLink.startOffset)
+                            .plusSeconds(1);
+
+                    Map<DateTime, JEVisSample> sampleList = exportLink.getSamples(startTime, now);
+//                    Map<DateTime, JEVisSample> sampleList = exportLink.getSamples(lastUpdate.plusSeconds(1), now);
 
 
                     exportLinkListMap.put(exportLink, sampleList);
@@ -237,7 +244,7 @@ public class CSVExport extends Export {
                             maxInSource = jeVisSample.getTimestamp();
                         }
                     }
-                    System.out.println("Exported: " + exportLink.getTargetAttribute().getObject().getName() + " " + sampleList.values().size() + "");
+//                    System.out.println("Exported: " + exportLink.getTargetAttribute().getObject().getName() + " " + sampleList.values().size() + "");
                     shareMax.add(maxInSource);
 
 
@@ -320,7 +327,7 @@ public class CSVExport extends Export {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(tmpCSVFile))) {
                 writer.write(stringBuilder.toString());
             }
-            System.out.println("Exporterd file: " + tmpCSVFile.getName());
+//            System.out.println("Exporterd file: " + tmpCSVFile.getName());
             exportFiles.add(tmpCSVFile);
 
         } else {

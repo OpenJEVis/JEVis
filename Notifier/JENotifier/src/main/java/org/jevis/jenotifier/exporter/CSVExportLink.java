@@ -49,16 +49,16 @@ public class CSVExportLink extends ExportLink {
             attValueFormat = linkObject.getAttribute(TYPE_VALUE_FORMAT);
             valueFormate = attValueFormat.getLatestSample().getValueAsString();
 
-            System.out.println("---valueFormate: " + valueFormate);
+//            System.out.println("---valueFormate: " + valueFormate);
 
             if (valueFormate != null || !valueFormate.isEmpty()) {
                 DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols();
                 otherSymbols.setDecimalSeparator(valueFormate.charAt(0));
-                System.out.println("---otherSymbols: " + otherSymbols.getDecimalSeparator());
+//                System.out.println("---otherSymbols: " + otherSymbols.getDecimalSeparator());
                 decimalFormat.setDecimalFormatSymbols(otherSymbols);
                 decimalFormat.setGroupingUsed(false);
-                System.out.println("---decimalFormat: " + decimalFormat.getDecimalFormatSymbols());
-                System.out.println("---Decimal test: " + decimalFormat.format(12313.23));
+//                System.out.println("---decimalFormat: " + decimalFormat.getDecimalFormatSymbols());
+//                System.out.println("---Decimal test: " + decimalFormat.format(12313.23));
                 //TODO case String formate
             }
         } catch (Exception e) {

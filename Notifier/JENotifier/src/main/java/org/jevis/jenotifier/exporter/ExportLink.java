@@ -19,10 +19,13 @@ public abstract class ExportLink {
     public static String TYPE_OPTIONAL = "Optional";
     public static String TYPE_VARIABLE_NAME = "Template Variable Name";
     public static String TYPE_JEVISID = "JEVis ID";
+    public static String TYPE_PERIOD_OFFSET = "Start Period Offset";
 
+    protected JEVisAttribute attStartPeriodOffset;
     protected JEVisAttribute attOptional;
     protected JEVisAttribute attJEVsiID;
     protected JEVisAttribute attVarName;
+    protected long startOffset = 1;
     protected String varname = UUID.randomUUID().toString();
     protected boolean hasVariableName = false;
     protected JEVisAttribute targetAttribute;
@@ -52,6 +55,17 @@ public abstract class ExportLink {
             attVarName = linkObject.getAttribute(TYPE_VARIABLE_NAME);
             varname = attVarName.getLatestSample().getValueAsString();
             hasVariableName = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            attStartPeriodOffset = linkObject.getAttribute(TYPE_PERIOD_OFFSET);
+            startOffset = attStartPeriodOffset.getLatestSample().getValueAsLong();
+            if (startOffset == 0) {
+                startOffset = 1;
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
