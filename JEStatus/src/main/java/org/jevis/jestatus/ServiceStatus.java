@@ -7,11 +7,11 @@ import org.joda.time.DateTime;
 
 import java.util.List;
 
-public class ServiceStati extends AlarmTable {
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ServiceStati.class);
+public class ServiceStatus extends AlarmTable {
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ServiceStatus.class);
     private static final String timestampFormat = "yyyy-MM-dd HH:MM:ss";
 
-    public ServiceStati(JEVisDataSource ds) {
+    public ServiceStatus(JEVisDataSource ds) {
         super(ds);
 
         try {
@@ -27,7 +27,7 @@ public class ServiceStati extends AlarmTable {
         sb.append("<br>");
         sb.append("<br>");
 
-        sb.append("<h2>Service Stati</h2>");
+        sb.append("<h2>Service Status</h2>");
 
         JEVisClass alarmClass = ds.getJEVisClass("JEAlarm");
         JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
