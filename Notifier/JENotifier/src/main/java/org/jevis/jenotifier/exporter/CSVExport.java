@@ -244,7 +244,7 @@ public class CSVExport extends Export {
 
                     /** Also fetch x previous periods add add one second to not have the same sample because >=**/
                     DateTime startTime = lastUpdate.minus(
-                            exportLink.targetAttribute.getInputSampleRate().getMillis() * startOffset)
+                            exportLink.targetAttribute.getInputSampleRate().toStandardDuration().getMillis() * startOffset)
                             .plusSeconds(1);
 
                     Map<DateTime, JEVisSample> sampleList = exportLink.getSamples(startTime, now);
@@ -265,7 +265,7 @@ public class CSVExport extends Export {
 
 
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error(PrettyError.getJEVisLineFilter(ex));
                 }
             }
 
