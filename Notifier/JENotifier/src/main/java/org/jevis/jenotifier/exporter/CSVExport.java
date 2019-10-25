@@ -26,6 +26,7 @@ public class CSVExport extends Export {
     public static String TYPE_TIMESTAMP_FORMAT = "Timestamp Format";
     public static String TYPE_LAST_DATE = "Export Date";
     public static String TYPE_STATUS = "Export Status";
+    public static String TYPE_PERIOD_OFFSET = "Start Period Offset";
 
 //    public static String TYPE_EXPORTET_LOG = "Export Status";
 
@@ -42,6 +43,7 @@ public class CSVExport extends Export {
     private JEVisAttribute attTimeZone;
     private JEVisAttribute attLastExport;
     private JEVisAttribute attLastExportStatus;
+    protected JEVisAttribute attStartPeriodOffset;
 
     //    protected JEVisAttribute attExportStatus;
     private int exportCount = 0;
@@ -53,6 +55,7 @@ public class CSVExport extends Export {
     protected String filename = "export";
     protected String header = "";
     private DateTime logDate = null;
+    protected long startOffset = 1;
 
     private boolean hasNewData = false;
     //    private DateTime lastTimeStamp;
@@ -146,6 +149,19 @@ public class CSVExport extends Export {
         }
 
         try {
+            attStartPeriodOffset = exportObject.getAttribute(TYPE_PERIOD_OFFSET);
+            startOffset = attStartPeriodOffset.getLatestSample().getValueAsLong();
+
+            /** 0 makes no sense in a multiplication **/
+            if (startOffset == 0) {
+                startOffset = 1;
+            }
+        } catch (Exception e) {
+//            e.printStackTrace();
+            logger.error("Error in Start Period Offset Format Attribute: {}", PrettyError.getJEVisLineFilter(e));
+        }
+
+        try {
             attTimeZone = exportObject.getAttribute(TYPE_TIMEZONE);
             dateTimeZone = DateTimeZone.forID(attTimeZone.getLatestSample().getValueAsString());
         } catch (Exception e) {
@@ -228,7 +244,7 @@ public class CSVExport extends Export {
 
                     /** Also fetch x previous periods add add one second to not have the same sample because >=**/
                     DateTime startTime = lastUpdate.minus(
-                            exportLink.targetAttribute.getInputSampleRate().getMillis() * exportLink.startOffset)
+                            exportLink.targetAttribute.getInputSampleRate().getMillis() * startOffset)
                             .plusSeconds(1);
 
                     Map<DateTime, JEVisSample> sampleList = exportLink.getSamples(startTime, now);

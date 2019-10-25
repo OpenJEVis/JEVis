@@ -14,68 +14,77 @@
     }
   ],
   "types": [
-      {
-        "name": "Separator",
-        "primitiveType": 0,
-        "guiType": "Text",
-        "guiposition": 0,
-        "validity": 0,
-        "inherited": false,
-        "jevisClass": "CSV Export"
-      },
-      {
-        "name": "Enclosed",
-        "primitiveType": 0,
-        "guiType": "Text",
-        "guiposition": 0,
-        "validity": 0,
-        "inherited": false,
-        "jevisClass": "CSV Export"
-      },
-      {
-        "name": "File Name",
-        "primitiveType": 0,
-        "guiType": "Text",
-        "guiposition": 0,
-        "validity": 0,
-        "inherited": false,
-        "jevisClass": "CSV Export"
-      },
-      {
-        "name": "Header",
-        "primitiveType": 0,
-        "guiType": "Text",
-        "guiposition": 0,
-        "validity": 0,
-        "inherited": false,
-        "jevisClass": "CSV Export"
-      },
-      {
-        "name": "Timestamp Format",
-        "primitiveType": 0,
-        "guiType": "Text",
-        "guiposition": 0,
-        "validity": 0,
-        "inherited": false,
-        "jevisClass": "CSV Export"
-      },
-      {
-        "name": "Export Date",
-        "primitiveType": 0,
-        "guiType": "Date Time",
-        "guiposition": 0,
-        "validity": 0,
-        "inherited": false,
-        "jevisClass": "CSV Export"
-     },
-     {
-        "name": "Export Status",
-        "primitiveType": 0,
-        "guiType": "Text",
-        "guiposition": 0,
-        "validity": 0,
-        "inherited": false,
-        "jevisClass": "CSV Export"
-     }
+    {
+      "name": "Separator",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Export"
+    },
+    {
+      "name": "Enclosed",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Export"
+    },
+    {
+      "name": "File Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Export"
+    },
+    {
+      "name": "Header",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Export"
+    },
+    {
+      "name": "Timestamp Format",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Export"
+    },
+    {
+      "name": "Export Date",
+      "primitiveType": 0,
+      "guiType": "Date Time",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Export"
+    },
+    {
+      "name": "Start Period Offset",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Export"
+    },
+    {
+      "name": "Export Status",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Export"
+    }
   ]
 }
