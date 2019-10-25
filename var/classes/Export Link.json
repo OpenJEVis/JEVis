@@ -36,15 +36,6 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Report Link"
-    },
-    {
-      "name": "Start Period Offset",
-      "primitiveType": 2,
-      "guiType": "Number",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Report Link"
     }
   ]
 }
