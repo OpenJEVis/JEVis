@@ -8,7 +8,6 @@ import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -21,7 +20,6 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.tool.I18n;
@@ -91,15 +89,6 @@ public class BarChart implements Chart {
 
         barChart = new javafx.scene.chart.BarChart(numberAxis, catAxis);
 
-        Platform.runLater(() -> {
-            for (BarChartSerie serie : barChartSerieList) {
-                barChart.getData().add(serie.getSerie());
-                tableData.add(serie.getTableEntry());
-            }
-        });
-
-        barChart.applyCss();
-
         barChart.setTitle(chartName);
         barChart.setLegendVisible(false);
         barChart.getXAxis().setAutoRanging(true);
@@ -108,7 +97,17 @@ public class BarChart implements Chart {
         barChart.getXAxis().setLabel(unit);
 
         //initializeZoom();
-        setTimer();
+//        setTimer();
+        addSeriesToChart();
+    }
+
+    public void addSeriesToChart() {
+        for (BarChartSerie barChartSerie : barChartSerieList) {
+            Platform.runLater(() -> {
+                barChart.getData().add(barChartSerie.getSerie());
+                tableData.add(barChartSerie.getTableEntry());
+            });
+        }
     }
 
     private void setTimer() {
@@ -155,36 +154,36 @@ public class BarChart implements Chart {
 
     @Override
     public void initializeZoom() {
-        panner = null;
-
-        getChart().setOnMouseMoved(mouseEvent -> {
-            updateTable(mouseEvent, null);
-        });
-
-        panner = new ChartPanManager((MultiAxisChart<?, ?>) getChart());
-
-        panner.setMouseFilter(mouseEvent -> {
-            if (mouseEvent.getButton() != MouseButton.SECONDARY
-                    && (mouseEvent.getButton() != MouseButton.PRIMARY
-                    || !mouseEvent.isShortcutDown())) {
-                mouseEvent.consume();
-            }
-        });
-        panner.start();
-
-        JFXChartUtil jfxChartUtil = new JFXChartUtil();
-        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
-
-            if (mouseEvent.getButton() != MouseButton.PRIMARY
-                    || mouseEvent.isShortcutDown()) {
-                mouseEvent.consume();
-                if (mouseEvent.isControlDown()) {
-                    showNote(mouseEvent);
-                }
-            }
-        });
-
-        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
+//        panner = null;
+//
+//        getChart().setOnMouseMoved(mouseEvent -> {
+//            updateTable(mouseEvent, null);
+//        });
+//
+//        panner = new ChartPanManager((MultiAxisChart<?, ?>) getChart());
+//
+//        panner.setMouseFilter(mouseEvent -> {
+//            if (mouseEvent.getButton() != MouseButton.SECONDARY
+//                    && (mouseEvent.getButton() != MouseButton.PRIMARY
+//                    || !mouseEvent.isShortcutDown())) {
+//                mouseEvent.consume();
+//            }
+//        });
+//        panner.start();
+//
+//        JFXChartUtil jfxChartUtil = new JFXChartUtil();
+//        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
+//
+//            if (mouseEvent.getButton() != MouseButton.PRIMARY
+//                    || mouseEvent.isShortcutDown()) {
+//                mouseEvent.consume();
+//                if (mouseEvent.isControlDown()) {
+//                    showNote(mouseEvent);
+//                }
+//            }
+//        });
+//
+//        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
 
     }
 
@@ -245,7 +244,7 @@ public class BarChart implements Chart {
 
         barChart.setTitle(chartName);
         barChart.getXAxis().setLabel(unit);
-        setTimer();
+//        setTimer();
     }
 
     @Override

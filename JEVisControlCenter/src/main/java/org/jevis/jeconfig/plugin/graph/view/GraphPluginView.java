@@ -20,6 +20,7 @@
 package org.jevis.jeconfig.plugin.graph.view;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import eu.hansolo.fx.charts.MatrixPane;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -702,6 +703,55 @@ public class GraphPluginView implements Plugin {
                         });
                     } catch (Exception e) {
                         logger.error(e);
+                    }
+                } else if (cv.getChartType().equals(ChartType.HEAT_MAP)) {
+                    VBox spVer = (VBox) cv.getChartRegion();
+                    MatrixPane matrixHeatMap = null;
+                    for (Node node : spVer.getChildren()) {
+                        if (node instanceof HBox) {
+                            HBox spHor = (HBox) node;
+                            matrixHeatMap = spHor.getChildren().stream().filter(node1 -> node1 instanceof MatrixPane).findFirst().map(node1 -> (MatrixPane) node1).orElse(matrixHeatMap);
+                        }
+                    }
+
+                    if (matrixHeatMap != null) {
+                        double pixelHeight = matrixHeatMap.getMatrix().getPixelHeight();
+                        double pixelWidth = matrixHeatMap.getMatrix().getPixelWidth();
+                        double spacerSizeFactor = matrixHeatMap.getMatrix().getSpacerSizeFactor();
+                        System.out.println("pixelHeight " + pixelHeight + " pixelWidth " + pixelWidth + " spacer " + spacerSizeFactor);
+
+                        double leftAxisWidth = 0;
+                        for (Node node : spVer.getChildren()) {
+                            if (node instanceof HBox) {
+                                HBox spHor = (HBox) node;
+                                for (Node node1 : spHor.getChildren()) {
+                                    if (node1 instanceof GridPane) {
+                                        GridPane leftAxis = (GridPane) node1;
+                                        leftAxisWidth = leftAxis.getWidth();
+                                        for (Node node2 : leftAxis.getChildren()) {
+                                            if (node2 instanceof Label) {
+                                                ((Label) node2).setPrefHeight(pixelHeight - (spacerSizeFactor * 2));
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if (node instanceof GridPane) {
+                                GridPane bottomAxis = (GridPane) node;
+                                Region firstFreeSpace = (Region) bottomAxis.getChildren().stream().filter(node1 -> node1 instanceof Region).findFirst().orElse(null);
+                                if (firstFreeSpace != null) {
+                                    firstFreeSpace.setPrefWidth(leftAxisWidth + 4);
+                                }
+
+                                for (Node node1 : bottomAxis.getChildren()) {
+                                    if (node1 instanceof HBox) {
+                                        HBox hBox = ((HBox) node1);
+                                        if (GridPane.getRowIndex(hBox) == 0) {
+                                            hBox.setPrefWidth(pixelWidth - (spacerSizeFactor * 2));
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
