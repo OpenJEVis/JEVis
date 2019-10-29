@@ -1,5 +1,8 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import de.jollyday.Holiday;
+import de.jollyday.HolidayManager;
+import de.jollyday.ManagerParameters;
 import eu.hansolo.fx.charts.ChartType;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
@@ -11,6 +14,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -23,14 +27,13 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
+import java.time.LocalDate;
+import java.util.*;
 
 public class HeatMapChart implements Chart {
 
@@ -43,6 +46,7 @@ public class HeatMapChart implements Chart {
     private Region chartRegion;
     private String X_FORMAT;
     private String Y_FORMAT;
+    private String Y2_FORMAT;
 
     public HeatMapChart(List<ChartDataModel> chartDataModels, String chartTitle) {
         this.chartDataModels = chartDataModels;
@@ -60,17 +64,20 @@ public class HeatMapChart implements Chart {
         String unit = UnitManager.getInstance().format(chartDataModel.getUnit());
         Period period = new Period(chartDataModel.getSelectedStart(), chartDataModel.getSelectedEnd());
         Period inputSampleRate = chartDataModel.getAttribute().getInputSampleRate();
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
+        numberFormat.setMinimumFractionDigits(2);
+        numberFormat.setMaximumFractionDigits(2);
 
         HeatMapXY heatMapXY = getHeatMapXY(period, inputSampleRate);
         X_MAX = heatMapXY.getX();
         Y_MAX = heatMapXY.getY();
         X_FORMAT = heatMapXY.getX_FORMAT();
-        System.out.println("X: " + X_FORMAT);
         Y_FORMAT = heatMapXY.getY_FORMAT();
-        System.out.println("Y: " + Y_FORMAT);
+        Y2_FORMAT = heatMapXY.getY2_FORMAT();
         chartDataModel.setAggregationPeriod(heatMapXY.getAggregationPeriod());
 
         List<JEVisSample> samples = chartDataModel.getSamples();
+        System.out.println("samples: " + samples.size());
         try {
             inputSampleRate = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
 
@@ -93,37 +100,38 @@ public class HeatMapChart implements Chart {
             e.printStackTrace();
         }
 
-        int cellX = 0;
-        int cellY = 0;
         double minValue = Double.MAX_VALUE;
         double maxValue = -Double.MAX_VALUE;
         List<DateTime> yAxisList = new ArrayList<>();
         List<DateTime> xAxisList = new ArrayList<>();
+
         for (int y = 0; y < Y_MAX; y++) {
-            cellX = 0;
+            int xCell = 0;
             yAxisList.add(currentTS);
+            System.out.println("yts: " + currentTS);
             for (int x = 0; x < X_MAX; x++) {
                 if (xAxisList.size() < X_MAX) {
                     xAxisList.add(currentTS);
                 }
+
                 try {
                     JEVisSample jeVisSample = sampleHashMap.get(currentTS);
+                    System.out.println("xts: " + currentTS);
 
                     if (jeVisSample != null) {
                         Double valueAsDouble = jeVisSample.getValueAsDouble();
                         minValue = Math.min(minValue, valueAsDouble);
                         maxValue = Math.max(maxValue, valueAsDouble);
-                        matrixData1.add(new MatrixChartItem(cellX, cellY, valueAsDouble));
-                    } else {
-                        matrixData1.add(new MatrixChartItem(cellX, cellY, 0d));
+                        matrixData1.add(new MatrixChartItem(xCell, y, valueAsDouble));
+
+                        xCell++;
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
                 currentTS = currentTS.plus(inputSampleRate);
-                cellX++;
             }
-            cellY++;
         }
 
         MatrixItemSeries<MatrixChartItem> matrixItemSeries1 = new MatrixItemSeries<>(matrixData1, ChartType.MATRIX_HEATMAP);
@@ -136,16 +144,45 @@ public class HeatMapChart implements Chart {
         GridPane leftAxis = new GridPane();
         leftAxis.setPadding(new Insets(4));
 
+        GridPane rightAxis = new GridPane();
+        rightAxis.setPadding(new Insets(4));
+
+        HolidayManager holidayManager = HolidayManager.getInstance(ManagerParameters.create(I18n.getInstance().getLocale()));
+
         int row = 0;
         for (DateTime dateTime : yAxisList) {
-            Label ts = new Label(dateTime.toString(Y_FORMAT));
-            leftAxis.add(ts, 0, row);
-            GridPane.setFillWidth(ts, true);
+            Label tsLeft = new Label(dateTime.toString(Y_FORMAT));
+
+            Label tsRight = new Label(dateTime.toString(Y2_FORMAT));
+            String toolTipString = "";
+            if (holidayManager.isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()))) {
+                LocalDate localDate = LocalDate.of(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth());
+                Set<Holiday> holidays = holidayManager.getHolidays(localDate, localDate, "");
+                for (Holiday holiday : holidays) {
+                    toolTipString = holiday.getDescription(I18n.getInstance().getLocale());
+                }
+            }
+            if (dateTime.getDayOfWeek() == 6 || dateTime.getDayOfWeek() == 7 || !toolTipString.equals("")) {
+                tsRight.setTextFill(Color.RED);
+                if (!toolTipString.equals("")) {
+                    Tooltip tooltip = new Tooltip(toolTipString);
+                    tsRight.setTooltip(tooltip);
+                }
+            }
+
+            leftAxis.add(tsLeft, 0, row);
+            rightAxis.add(tsRight, 0, row);
+            GridPane.setFillWidth(tsLeft, true);
+            GridPane.setFillWidth(tsRight, true);
             row++;
             if (yAxisList.indexOf(dateTime) < yAxisList.size() - 1) {
-                Region separator = new Region();
-                separator.setPrefHeight(0.05);
-                leftAxis.add(separator, 0, row);
+                Region leftSeparator = new Region();
+                leftSeparator.setPrefHeight(0.05);
+                leftAxis.add(leftSeparator, 0, row);
+
+                Region rightSeparator = new Region();
+                rightSeparator.setPrefHeight(0.05);
+                rightAxis.add(rightSeparator, 0, row);
                 row++;
             }
         }
@@ -154,25 +191,30 @@ public class HeatMapChart implements Chart {
         titleBox.setAlignment(Pos.CENTER);
         Label titleLabel = new Label(chartTitle);
         titleLabel.getStyleClass().setAll("chart-title");
+        titleBox.setPadding(new Insets(8));
         titleLabel.setAlignment(Pos.CENTER);
         titleBox.getChildren().setAll(titleLabel);
 
         HBox spHor = new HBox();
-        spHor.getChildren().setAll(leftAxis, matrixHeatMap);
+        spHor.getChildren().setAll(leftAxis, matrixHeatMap, rightAxis);
         HBox.setHgrow(matrixHeatMap, Priority.ALWAYS);
 
 
         GridPane bottomAxis = new GridPane();
         bottomAxis.setMinHeight(30d);
-        Region freeSpace = new Region();
-        bottomAxis.add(freeSpace, 0, 0);
+        Region leftFreeSpace = new Region();
+        bottomAxis.add(leftFreeSpace, 0, 0);
 
         int col = 1;
-//        boolean odd = true;
+        int div = 5;
+        if (xAxisList.size() < 10) {
+            div = 3;
+        }
+
         for (DateTime dateTime : xAxisList) {
             Label ts = new Label(dateTime.toString(X_FORMAT));
 
-            if ((xAxisList.indexOf(dateTime) == 0) || (xAxisList.indexOf(dateTime) + 1) % 5 == 0) {
+            if ((xAxisList.indexOf(dateTime) == 0) || (xAxisList.indexOf(dateTime) + 1) % div == 0) {
                 HBox hBox = new HBox();
                 hBox.setAlignment(Pos.CENTER);
                 Rectangle rectangle = new Rectangle(2, 10);
@@ -197,12 +239,14 @@ public class HeatMapChart implements Chart {
             col++;
         }
 
+        Region rightFreeSpace = new Region();
+        bottomAxis.add(rightFreeSpace, col, 0);
+
         HBox legend = new HBox();
+        legend.setPadding(new Insets(8));
         legend.setSpacing(4);
         legend.setAlignment(Pos.CENTER);
-        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
-        numberFormat.setMinimumFractionDigits(2);
-        numberFormat.setMaximumFractionDigits(2);
+
         for (int i = 0; i <= 100; i = i + 20) {
             Color color = Helper.getColorAt(matrixHeatMap.getMatrixGradient(), i / 100d);
             Rectangle rectangle = new Rectangle(16, 16, color);
@@ -353,16 +397,47 @@ public class HeatMapChart implements Chart {
     private HeatMapXY getHeatMapXY(Period period, Period inputSampleRate) {
         long y;
         String y_Format = "HH";
+        String y2_Format = "EEEE";
         long x;
         String x_Format = "mm";
         AggregationPeriod aggregationPeriod;
 
-        if (period.getYears() > 1) {
+        if (period.getYears() > 1 || period.getMonths() >= 12 || period.getWeeks() >= 52 || period.getDays() >= 365) {
             int years = period.getYears();
             int months = period.getMonths();
             Period newPeriod = period.minusYears(years).minusMonths(months);
             y = newPeriod.toStandardDays().getDays();
             y += (years * 365.25) + (months * 30.25);
+            y_Format = "yyyy-MM";
+            if (inputSampleRate.equals(Period.minutes(15))) {
+                x = 31;
+                x_Format = "dd";
+                aggregationPeriod = AggregationPeriod.DAILY;
+            } else {
+                x = 31;
+                x_Format = "dd";
+                aggregationPeriod = AggregationPeriod.DAILY;
+            }
+        } else if (period.getYears() == 1 || period.getMonths() >= 12 || period.getWeeks() >= 52 || period.getDays() >= 365) {
+            int months = period.getMonths();
+            Period newPeriod = period.minusYears(1).minusMonths(months);
+            y = newPeriod.toStandardDays().getDays();
+            y += months * 30.25;
+            y_Format = "yyyy-MM";
+            if (inputSampleRate.equals(Period.minutes(15))) {
+                x = 31;
+                x_Format = "dd";
+                aggregationPeriod = AggregationPeriod.DAILY;
+            } else {
+                x = 31;
+                x_Format = "dd";
+                aggregationPeriod = AggregationPeriod.DAILY;
+            }
+        } else if (period.getMonths() > 1 || period.getWeeks() >= 4 || period.getDays() >= 31) {
+            int months = period.getMonths();
+            Period newPeriod = period.minusMonths(months);
+            y = newPeriod.toStandardDays().getDays() + 1;
+            y += months * 30.25;
             y_Format = "yyyy-MM-dd";
             if (inputSampleRate.equals(Period.minutes(15))) {
                 x = 24 * 4;
@@ -373,41 +448,11 @@ public class HeatMapChart implements Chart {
                 x_Format = "HH";
                 aggregationPeriod = AggregationPeriod.HOURLY;
             }
-        } else if (period.getYears() == 1) {
-            int months = period.getMonths();
-            Period newPeriod = period.minusYears(1).minusMonths(months);
-            y = newPeriod.toStandardDays().getDays();
-            y += months * 30.25;
-            y_Format = "MM-dd (dddd)";
-            if (inputSampleRate.equals(Period.minutes(15))) {
-                x = 24 * 4;
-                x_Format = "HH:mm";
-                aggregationPeriod = AggregationPeriod.NONE;
-            } else {
-                x = 24;
-                x_Format = "HH";
-                aggregationPeriod = AggregationPeriod.HOURLY;
-            }
-        } else if (period.getMonths() > 1) {
-            int months = period.getMonths();
-            Period newPeriod = period.minusMonths(months);
-            y = newPeriod.toStandardDays().getDays();
-            y += months * 30.25;
-            y_Format = "MM-dd (dddd)";
-            if (inputSampleRate.equals(Period.minutes(15))) {
-                x = 24 * 4;
-                x_Format = "HH:mm";
-                aggregationPeriod = AggregationPeriod.NONE;
-            } else {
-                x = 24;
-                x_Format = "HH";
-                aggregationPeriod = AggregationPeriod.HOURLY;
-            }
-        } else if (period.getMonths() == 1) {
+        } else if (period.getMonths() == 1 || period.getWeeks() >= 4 || period.getDays() >= 31) {
             Period newPeriod = period.minusMonths(1);
-            y = newPeriod.toStandardDays().getDays() * 7;
+            y = newPeriod.toStandardDays().getDays() * 7 + 1;
             y += 4 * 7;
-            y_Format = "MM-dd (dddd)";
+            y_Format = "yyyy-MM-dd";
             if (inputSampleRate.equals(Period.minutes(15))) {
                 x = 24 * 4;
                 x_Format = "HH:mm";
@@ -417,9 +462,9 @@ public class HeatMapChart implements Chart {
                 x_Format = "HH";
                 aggregationPeriod = AggregationPeriod.HOURLY;
             }
-        } else if (period.getWeeks() > 1) {
-            y = period.getWeeks() * 7;
-            y_Format = "MM-dd (dddd)";
+        } else if (period.getWeeks() > 1 || period.getDays() >= 7) {
+            y = period.getWeeks() * 7 + 1;
+            y_Format = "MM-dd";
             if (inputSampleRate.equals(Period.minutes(15))) {
                 x = 24 * 4;
                 x_Format = "HH:mm";
@@ -429,8 +474,8 @@ public class HeatMapChart implements Chart {
                 x_Format = "HH";
                 aggregationPeriod = AggregationPeriod.HOURLY;
             }
-        } else if (period.getWeeks() == 1) {
-            y = period.toStandardDays().getDays();
+        } else if (period.getWeeks() == 1 || period.getDays() >= 7) {
+            y = period.toStandardDays().getDays() + 1;
             y_Format = "dd";
             if (inputSampleRate.equals(Period.minutes(15))) {
                 x = 24 * 4;
@@ -442,7 +487,7 @@ public class HeatMapChart implements Chart {
                 aggregationPeriod = AggregationPeriod.HOURLY;
             }
         } else if (period.getDays() > 1) {
-            y = period.getDays();
+            y = period.getDays() + 1;
             y_Format = "dd";
             if (inputSampleRate.equals(Period.minutes(15))) {
                 x = 24 * 4;
@@ -471,6 +516,6 @@ public class HeatMapChart implements Chart {
             aggregationPeriod = AggregationPeriod.NONE;
         }
 
-        return new HeatMapXY(x, x_Format, y, y_Format, aggregationPeriod);
+        return new HeatMapXY(x, x_Format, y, y_Format, y2_Format, aggregationPeriod);
     }
 }

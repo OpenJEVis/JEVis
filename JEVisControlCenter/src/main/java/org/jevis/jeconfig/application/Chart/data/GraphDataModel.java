@@ -695,7 +695,7 @@ public class GraphDataModel {
 
     public void checkForPreviewData(List<ChartDataModel> chartDataModels, AnalysisTimeFrame analysisTimeFrame) {
         try {
-            AtomicReference<DateTime> start = new AtomicReference<>(DateTime.now().minusDays(1));
+            AtomicReference<DateTime> start = new AtomicReference<>(DateTime.now().minusDays(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0));
             AtomicReference<DateTime> end = new AtomicReference<>(DateTime.now());
 
             for (ChartDataModel chartDataModel : chartDataModels) {
@@ -705,7 +705,7 @@ public class GraphDataModel {
                         end.set(valueAtt.getTimestampFromLastSample());
                 }
 
-                start.set(end.get().minusDays(1));
+                start.set(end.get().minusDays(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0));
 
                 if (valueAtt != null) {
                     if (valueAtt.getTimestampFromFirstSample().isAfter(start.get()))

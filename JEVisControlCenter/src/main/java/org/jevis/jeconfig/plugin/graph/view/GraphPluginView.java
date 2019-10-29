@@ -724,10 +724,14 @@ public class GraphPluginView implements Plugin {
                         for (Node node : spVer.getChildren()) {
                             if (node instanceof HBox) {
                                 HBox spHor = (HBox) node;
+                                boolean isLeftAxis = true;
                                 for (Node node1 : spHor.getChildren()) {
                                     if (node1 instanceof GridPane) {
                                         GridPane leftAxis = (GridPane) node1;
-                                        leftAxisWidth = leftAxis.getWidth();
+                                        if (isLeftAxis) {
+                                            leftAxisWidth = leftAxis.getWidth();
+                                            isLeftAxis = false;
+                                        }
                                         for (Node node2 : leftAxis.getChildren()) {
                                             if (node2 instanceof Label) {
                                                 ((Label) node2).setPrefHeight(pixelHeight - (spacerSizeFactor * 2));
@@ -737,7 +741,14 @@ public class GraphPluginView implements Plugin {
                                 }
                             } else if (node instanceof GridPane) {
                                 GridPane bottomAxis = (GridPane) node;
-                                Region firstFreeSpace = (Region) bottomAxis.getChildren().stream().filter(node1 -> node1 instanceof Region).findFirst().orElse(null);
+                                Node found = null;
+                                for (Node node11 : bottomAxis.getChildren()) {
+                                    if (node11 instanceof Region) {
+                                        found = node11;
+                                        break;
+                                    }
+                                }
+                                Region firstFreeSpace = (Region) found;
                                 if (firstFreeSpace != null) {
                                     firstFreeSpace.setPrefWidth(leftAxisWidth + 4);
                                 }

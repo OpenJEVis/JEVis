@@ -338,14 +338,12 @@ public class LoadAnalysisDialog {
             graphDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
             stage.close();
-            stage = null;
         });
 
         newButton.setOnAction(event -> {
             response = Response.NEW;
 
             stage.close();
-            stage = null;
 
         });
 

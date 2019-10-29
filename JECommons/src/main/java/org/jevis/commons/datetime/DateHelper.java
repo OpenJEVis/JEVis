@@ -244,7 +244,7 @@ public class DateHelper {
                 break;
             case PREVIEW:
                 startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
-                        now.getHourOfDay(), now.getMinuteOfHour(), now.getSecondOfMinute())
+                        now.getHourOfDay(), startTime.getMinute(), startTime.getSecond())
                         .minusDays(1);
                 break;
             default:
