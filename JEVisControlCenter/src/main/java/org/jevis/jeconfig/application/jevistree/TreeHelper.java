@@ -22,7 +22,7 @@ package org.jevis.jeconfig.application.jevistree;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import com.sun.javafx.scene.control.skin.VirtualFlow;
+//import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -31,6 +31,7 @@ import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.skin.VirtualFlow;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -837,6 +838,8 @@ public class TreeHelper {
                 }
                 if (target.getID().equals(child.getValue().getJEVisObject().getID())) {
                     tree.getSelectionModel().select(child);
+                    tree.scrollTo(tree.getRow(child));
+                    /** TODO: J11Fix
                     try {
                         VirtualFlow flow = (VirtualFlow) tree.getChildrenUnmodifiable().get(1);
                         int selected = tree.getSelectionModel().getSelectedIndex();
@@ -844,7 +847,7 @@ public class TreeHelper {
                     } catch (Exception ex) {
 
                     }
-
+**/
                 }
             }
 

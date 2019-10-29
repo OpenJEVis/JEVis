@@ -70,7 +70,7 @@ public class JEVisTree extends TreeTableView {
         this.ds = ds;
 //        cellFilter = FilterFactory.buildDefaultItemFilter();
         this.cellFilter = filter;
-        this.getStylesheets().add(JEVisTree.class.getResource("/styles/JEVisTree.css").toExternalForm());
+//        this.getStylesheets().add(JEVisTree.class.getResource("/styles/JEVisTree.css").toExternalForm());
 
 //        addCellFactory();
         init();

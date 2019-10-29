@@ -47,8 +47,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.jevistree.*;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
-import org.jevis.jeconfig.bulkedit.CreateTable;
-import org.jevis.jeconfig.bulkedit.EditTable;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.LoadingPane;
@@ -480,10 +478,10 @@ public class ObjectPlugin implements Plugin {
 
                     break;
                 case Constants.Plugin.Command.ADD_TABLE:
-                    fireEventCreateTable(((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject());
+                    //fireEventCreateTable(((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject());
                     break;
                 case Constants.Plugin.Command.EDIT_TABLE:
-                    fireEventEditTable(((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject());
+                    //fireEventEditTable(((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject());
                     break;
                 case Constants.Plugin.Command.CREATE_WIZARD:
                     //TODO: need changes to work with the new JEVisTree
@@ -543,209 +541,6 @@ public class ObjectPlugin implements Plugin {
         return JEConfig.getImage("1394482640_package_settings.png", 20, 20);
     }
 
-    //@AITBilal - Edit a new Table!
-    public void fireEventEditTable(final JEVisObject parent) throws JEVisException {
-        EditTable table = new EditTable();
-        if (parent != null) {
-            if (table.show(JEConfig.getStage(), null, parent, false, EditTable.Type.EDIT, null) == EditTable.Response.YES) {
-                for (int i = 0; i < table.getListChildren().size(); i++) {
-                    JEVisObject childObject = null;
-
-                    if (table.getSelectedClass().getName().equals("Data")) {
-                        childObject = table.getListChildren().get(i);
-//                      childObject.commit();
-                        List<JEVisAttribute> attributes = childObject.getAttributes();
-                        int counter = 6;
-                        for (JEVisAttribute attribute : attributes) {
-                            if (attribute.getName().equals("Value")) {
-
-                                //get objekt mit ID from Tabelle
-                                if (table.getPairList().get(i).getValue().get(0).isEmpty() && table.getPairList().get(i).getValue().get(1).isEmpty()) {
-                                    attribute.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
-                                } else {
-                                    String displaySymbol = table.getPairList().get(i).getValue().get(1);
-                                    if (table.getPairList().get(i).getValue().get(0).isEmpty() && !table.getPairList().get(i).getValue().get(1).isEmpty()) {
-                                        attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", JEVisUnit.Prefix.NONE));
-                                    } else {
-                                        JEVisUnit.Prefix prefixDisplayUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(0));
-                                        attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", prefixDisplayUnit));
-                                    }
-                                }
-
-                                if (table.getPairList().get(i).getValue().get(3).isEmpty() && table.getPairList().get(i).getValue().get(4).isEmpty()) {
-                                    attribute.setInputUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
-                                } else {
-                                    String inputSymbol = table.getPairList().get(i).getValue().get(4);
-                                    if (table.getPairList().get(i).getValue().get(3).isEmpty() && !table.getPairList().get(i).getValue().get(4).isEmpty()) {
-                                        attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", JEVisUnit.Prefix.NONE));
-                                    } else {
-                                        JEVisUnit.Prefix prefixInputUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(3));
-                                        attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", prefixInputUnit));
-                                    }
-                                }
-
-                                if (table.getPairList().get(i).getValue().get(2).isEmpty()) {
-                                    attribute.setDisplaySampleRate(Period.parse("PT0S"));//Period.ZERO
-                                } else {
-                                    String displaySampleRate = table.getPairList().get(i).getValue().get(2);
-                                    attribute.setDisplaySampleRate(Period.parse(displaySampleRate));
-                                }
-
-                                if (table.getPairList().get(i).getValue().get(5).isEmpty()) {
-                                    attribute.setInputSampleRate(Period.parse("PT0S"));//Period.ZERO
-                                } else {
-                                    String inputSampleRate = table.getPairList().get(i).getValue().get(5);
-                                    attribute.setInputSampleRate(Period.parse(inputSampleRate));
-                                }
-
-                                attribute.commit();
-                            } else {
-                                attribute.buildSample(new DateTime(), table.getPairList().get(i).getValue().get(counter)).commit();
-                                counter++;
-                            }
-                        }
-
-                    } else {
-                        childObject = table.getListChildren().get(i);
-
-//                      childObject.commit();
-                        List<JEVisAttribute> attributes = childObject.getAttributes();
-
-                        for (int j = 0; j < attributes.size(); j++) {
-                            if (attributes.get(j).getLatestSample() == null) {
-                                attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(j)).commit();
-                            } else if (!attributes.get(j).getLatestSample().getValueAsString().equals(table.getPairList().get(i).getValue().get(j))) {
-                                attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(j)).commit();
-                            }
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-
-    //@AITBilal - Create a new Wizard-Table!
-    //parent kommt von --> tree.fireEventCreateWizard(tree.getSelectedObject());
-    public void fireEventCreateWizard(final JEVisObject parent) {
-        //TODO:
-
-//        WizardMain wizardmain = new WizardMain(parent, this);
-//        if (parent != null) {
-//            // parent.getJEVisClass().getName().equals("Monitored Object Directory")
-//            if (parent.getName().equals("Monitored Object Directory")) {
-//                wizardmain.showAndWait();
-//            } else {
-//                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-//                alert.setTitle("Information Dialog");
-//                alert.setHeaderText(null);
-//                alert.setContentText("This is not a Monitored Object Directory!");
-//                alert.showAndWait();
-//            }
-//        }
-    }
-
-    //@AITBilal - Create a new Table!
-    public void fireEventCreateTable(final JEVisObject parent) {
-        CreateTable table = new CreateTable();
-        if (parent != null) {
-            if (table.show(JEConfig.getStage(), null, parent, false, CreateTable.Type.NEW, null) == CreateTable.Response.YES) {
-                for (int i = 0; i < table.getPairList().size(); i++) {
-                    JEVisObject newObject = null;
-                    try {
-                        if (table.getCreateClass().getName().equals("Data")) {
-                            String objectName = table.getPairList().get(i).getKey();
-                            newObject = parent.buildObject(objectName, table.getCreateClass());
-                            newObject.commit();
-
-                            List<JEVisAttribute> attributes = newObject.getAttributes();
-                            //Counter ist für die attribute. Es anfangt ab Spalte "Input Sample Rate" zu zahlen.
-                            int counter = 6;
-                            for (JEVisAttribute attribute : attributes) {
-                                if (attribute.getName().equals("Value")) {
-
-                                    if (table.getPairList().get(i).getValue().get(0).isEmpty() && table.getPairList().get(i).getValue().get(1).isEmpty()) {
-                                        attribute.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
-                                    } else {
-                                        String displaySymbol = table.getPairList().get(i).getValue().get(1);
-                                        if (table.getPairList().get(i).getValue().get(0).isEmpty() && !table.getPairList().get(i).getValue().get(1).isEmpty()) {
-                                            attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", JEVisUnit.Prefix.NONE));
-                                        } else {
-                                            JEVisUnit.Prefix prefixDisplayUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(0));
-                                            attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", prefixDisplayUnit));
-                                        }
-                                    }
-
-                                    if (table.getPairList().get(i).getValue().get(3).isEmpty() && table.getPairList().get(i).getValue().get(4).isEmpty()) {
-                                        attribute.setInputUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
-                                    } else {
-                                        String inputSymbol = table.getPairList().get(i).getValue().get(4);
-                                        if (table.getPairList().get(i).getValue().get(3).isEmpty() && !table.getPairList().get(i).getValue().get(4).isEmpty()) {
-                                            attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", JEVisUnit.Prefix.NONE));
-                                        } else {
-                                            JEVisUnit.Prefix prefixInputUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(3));
-                                            attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", prefixInputUnit));
-                                        }
-                                    }
-
-                                    if (table.getPairList().get(i).getValue().get(2).isEmpty()) {
-                                        attribute.setDisplaySampleRate(Period.parse("PT0S"));//Period.ZERO
-                                    } else {
-                                        String displaySampleRate = table.getPairList().get(i).getValue().get(2);
-                                        attribute.setDisplaySampleRate(Period.parse(displaySampleRate));
-                                    }
-
-                                    if (table.getPairList().get(i).getValue().get(5).isEmpty()) {
-                                        attribute.setInputSampleRate(Period.parse("PT0S"));//Period.ZERO
-                                    } else {
-                                        String inputSampleRate = table.getPairList().get(i).getValue().get(5);
-                                        attribute.setInputSampleRate(Period.parse(inputSampleRate));
-                                    }
-                                    attribute.commit();
-                                } else {
-                                    attribute.buildSample(new DateTime(), table.getPairList().get(i).getValue().get(counter)).commit();
-                                    counter++;
-                                }
-                            }
-
-                        } else {
-                            String objectName = table.getPairList().get(i).getKey();
-                            newObject = parent.buildObject(objectName, table.getCreateClass());
-                            newObject.commit();
-
-                            List<JEVisAttribute> attributes = newObject.getAttributes();
-                            for (int j = 0; j < attributes.size(); j++) {
-                                attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(j)).commit();
-                            }
-                        }
-//
-//                        final TreeItem<JEVisObject> newTreeItem = buildItem(newObject);
-//                        TreeItem<JEVisObject> parentItem = getObjectTreeItem(parent);
-//                        parentItem.getChildren().add(newTreeItem);
-
-//                        Platform.runLater(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                getSelectionModel().select(newTreeItem);
-//                            }
-//                        });
-                    } catch (JEVisException ex) {
-                        logger.error(ex);
-
-                        if (ex.getMessage().equals("Can not create User with this name. The User has to be unique on the System")) {
-                            InfoDialog info = new InfoDialog();
-                            info.show("Waring", "Could not create user", "Could not create new user because this user exists already.");
-
-                        } else {
-                            ExceptionDialog errorDia = new ExceptionDialog();
-                            errorDia.show("Error", "Could not create user", "Could not create new user.", ex, null);
-
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     private void changed(ObservableValue observable, Object oldValue, Object newValue) {
         if (newValue instanceof JEVisTreeItem) {

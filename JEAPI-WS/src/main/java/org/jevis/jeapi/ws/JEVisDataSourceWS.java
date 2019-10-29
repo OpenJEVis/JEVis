@@ -76,6 +76,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
+    private boolean loginPreload = true;
+
     /**
      * fallback because some old client will call preload but we now a days do per default
      **/
@@ -1206,6 +1208,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 try {
                     this.classCache.put(jclass.getName(), jclass);
                     jclass.getRelationships();
+                    System.out.println("Load class "+jclass.getName());
                 } catch (Exception ex) {
                     logger.error("Error in class relationship {}", jclass, ex);
                 }
@@ -1369,10 +1372,13 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return new ArrayList<>();
     }
 
+    public void setLoginPreload(boolean preload) {
+        this.loginPreload = preload;
+    }
 
     @Override
     public void preload() {
-        if (this.hasPreloaded) return;
+        if (this.hasPreloaded || !loginPreload) return;
 
         try {
             logger.info("Start preload");

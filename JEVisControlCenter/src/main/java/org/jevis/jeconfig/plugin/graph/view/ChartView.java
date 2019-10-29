@@ -7,6 +7,7 @@ package org.jevis.jeconfig.plugin.graph.view;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -102,7 +103,8 @@ public class ChartView implements Observer {
          * Table Column 1
          */
         nameCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
-        nameCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
+//        nameCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
+        nameCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getName()));
         nameCol.setSortable(false);
         nameCol.setPrefWidth(500);
         nameCol.setMinWidth(100);
@@ -119,7 +121,9 @@ public class ChartView implements Observer {
                  */
 
                 TableColumn<TableEntry, String> xValue = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.xValue"));
-                xValue.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("xValue"));
+//                xValue.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("xValue"));
+                xValue.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getxValue()));
+
                 xValue.setStyle("-fx-alignment: CENTER-RIGHT");
                 xValue.setSortable(false);
 
@@ -131,7 +135,8 @@ public class ChartView implements Observer {
                  */
 
                 TableColumn<TableEntry, String> yValue = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.yValue"));
-                yValue.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("yValue"));
+//                yValue.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("yValue"));
+                yValue.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getyValue()));
                 yValue.setStyle("-fx-alignment: CENTER-RIGHT");
                 yValue.setSortable(false);
 
@@ -143,7 +148,8 @@ public class ChartView implements Observer {
                  */
 
                 TableColumn<TableEntry, String> standardDeviation = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.standardDeviation"));
-                standardDeviation.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("standardDeviation"));
+//                standardDeviation.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("standardDeviation"));
+                standardDeviation.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getStandardDeviation()));
                 standardDeviation.setStyle("-fx-alignment: CENTER-RIGHT");
                 standardDeviation.setSortable(false);
 
@@ -155,7 +161,8 @@ public class ChartView implements Observer {
                  */
 
                 TableColumn<TableEntry, String> variance = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.variance"));
-                variance.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("variance"));
+//                variance.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("variance"));
+                variance.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getVariance()));
                 variance.setStyle("-fx-alignment: CENTER-RIGHT");
                 variance.setSortable(false);
 
@@ -169,7 +176,8 @@ public class ChartView implements Observer {
                  * Table Column 2
                  */
                 periodCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.period"));
-                periodCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("period"));
+//                periodCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("period"));
+                periodCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getPeriod()));
                 periodCol.setStyle("-fx-alignment: CENTER-RIGHT");
                 periodCol.setSortable(false);
                 periodCol.setPrefWidth(100);
@@ -179,7 +187,8 @@ public class ChartView implements Observer {
                  * Table Column 3
                  */
                 TableColumn<TableEntry, String> value = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.value"));
-                value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
+//                value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
+                value.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getValue()));
                 value.setStyle("-fx-alignment: CENTER-RIGHT");
                 value.setSortable(false);
 
@@ -190,7 +199,8 @@ public class ChartView implements Observer {
                  * Table Column 4
                  */
                 dateCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.date"));
-                dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("date"));
+//                dateCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("date"));
+                dateCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getDate()));
                 dateCol.setStyle("-fx-alignment: CENTER");
                 dateCol.setSortable(false);
                 dateCol.setPrefWidth(160);
@@ -200,7 +210,8 @@ public class ChartView implements Observer {
                  * Table Column 5
                  */
                 noteCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.note"));
-                noteCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
+//                noteCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("note"));
+                noteCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getNote()));
                 noteCol.setStyle("-fx-alignment: CENTER");
                 noteCol.setPrefWidth(50);
                 noteCol.setMinWidth(50);
@@ -210,7 +221,8 @@ public class ChartView implements Observer {
                  * Table Column 6
                  */
                 TableColumn<TableEntry, String> minCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.min"));
-                minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
+//                minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
+                minCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getMin()));
                 minCol.setStyle("-fx-alignment: CENTER-RIGHT");
                 minCol.setSortable(false);
                 minCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
@@ -220,7 +232,8 @@ public class ChartView implements Observer {
                  * Table Column 7
                  */
                 TableColumn<TableEntry, String> maxCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.max"));
-                maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
+//                maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
+                maxCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getMax()));
                 maxCol.setStyle("-fx-alignment: CENTER-RIGHT");
                 maxCol.setSortable(false);
                 maxCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
@@ -230,7 +243,8 @@ public class ChartView implements Observer {
                  * Table Column 8
                  */
                 TableColumn<TableEntry, String> avgCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.avg"));
-                avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
+//                avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
+                avgCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getAvg()));
                 avgCol.setStyle("-fx-alignment: CENTER-RIGHT");
                 avgCol.setSortable(false);
                 avgCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
@@ -240,7 +254,8 @@ public class ChartView implements Observer {
                  * Table Column 9
                  */
                 TableColumn<TableEntry, String> enPICol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.enpi"));
-                enPICol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("enpi"));
+//                enPICol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("enpi"));
+                enPICol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getEnpi()));
                 enPICol.setStyle("-fx-alignment: CENTER-RIGHT");
                 enPICol.setSortable(false);
                 enPICol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
@@ -251,7 +266,8 @@ public class ChartView implements Observer {
                  * Table Column 10
                  */
                 TableColumn<TableEntry, String> sumCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.sum"));
-                sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
+//                sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
+                sumCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getSum()));
                 sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
                 sumCol.setSortable(false);
                 sumCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);

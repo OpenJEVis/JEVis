@@ -58,7 +58,7 @@ public class TopMenu extends MenuBar {
     public TopMenu() {
         super();
 
-        updateLayout();
+        //updateLayout();
 
     }
 

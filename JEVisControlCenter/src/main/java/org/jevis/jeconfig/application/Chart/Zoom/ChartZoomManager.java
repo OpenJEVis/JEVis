@@ -147,6 +147,7 @@ public class ChartZoomManager {
      * @param chart      Chart to manage, where both X and Y axis are a {@link ValueAxis}.
      */
     public ChartZoomManager(StackPane chartPane, Rectangle selectRect, MultiAxisChart<?, ?> chart) {
+        System.out.println("##ChartZoomManager...");
         this.selectRect = selectRect;
         this.chartPane = chartPane;
         this.chartPane.getChildren().addAll(startLabel, endLabel);
@@ -190,6 +191,7 @@ public class ChartZoomManager {
         handlerManager.addEventHandler(false, MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
+                System.out.println("zoom MOUSE_PRESSED");
                 if (passesFilter(mouseEvent))
                     onMousePressed(mouseEvent);
             }
@@ -198,6 +200,7 @@ public class ChartZoomManager {
         handlerManager.addEventHandler(false, MouseEvent.DRAG_DETECTED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
+                System.out.println("zoom DRAG_DETECTED");
                 if (passesFilter(mouseEvent))
                     onDragStart();
             }
@@ -386,6 +389,7 @@ public class ChartZoomManager {
      * Start managing zoom management by adding event handlers and bindings as appropriate.
      */
     public void start() {
+        System.out.println("ZoomManager.start");
         handlerManager.addAllHandlers();
 
         selectRect.widthProperty().bind(rectX.subtract(selectRect.translateXProperty()));
@@ -420,33 +424,45 @@ public class ChartZoomManager {
     }
 
     private void onMousePressed(MouseEvent mouseEvent) {
-        double x = mouseEvent.getX();
-        double y = mouseEvent.getY();
+        System.out.println("ZoomMager.onMoudPressed");
+        try {
+            double x = mouseEvent.getX();
+            double y = mouseEvent.getY();
 
-        Rectangle2D plotArea = chartInfo.getPlotArea();
-        DefaultChartInputContext context = new DefaultChartInputContext(chartInfo, x, y);
-        zoomMode = axisConstraintStrategy.getConstraint(context);
+            Rectangle2D plotArea = chartInfo.getPlotArea();
+            System.out.println("dddd");
+            DefaultChartInputContext context = new DefaultChartInputContext(chartInfo, x, y);
+//        zoomMode = axisConstraintStrategy.getConstraint(context);
+            zoomMode = AxisConstraint.Horizontal;
+            System.out.println("A,DSASD");
 
-        if (zoomMode == AxisConstraint.Both) {
-            selectRect.setTranslateX(x);
-            selectRect.setTranslateY(y);
-            rectX.set(x);
-            rectY.set(y);
-        } else if (zoomMode == AxisConstraint.Horizontal) {
-            selectRect.setTranslateX(x);
-            selectRect.setTranslateY(plotArea.getMinY());
-            rectX.set(x);
-            rectY.set(plotArea.getMaxY());
 
-        } else if (zoomMode == AxisConstraint.Vertical) {
-            selectRect.setTranslateX(plotArea.getMinX());
-            selectRect.setTranslateY(y);
-            rectX.set(plotArea.getMaxX());
-            rectY.set(y);
+            if (zoomMode == AxisConstraint.Both) {
+                selectRect.setTranslateX(x);
+                selectRect.setTranslateY(y);
+                rectX.set(x);
+                rectY.set(y);
+            } else if (zoomMode == AxisConstraint.Horizontal) {
+                selectRect.setTranslateX(x);
+                selectRect.setTranslateY(plotArea.getMinY());
+                rectX.set(x);
+                rectY.set(plotArea.getMaxY());
+
+            } else if (zoomMode == AxisConstraint.Vertical) {
+                selectRect.setTranslateX(plotArea.getMinX());
+                selectRect.setTranslateY(y);
+                rectX.set(plotArea.getMaxX());
+                rectY.set(y);
+            }
+
+            System.out.println("...s.dd: "+selectRect);
+            Point2D dataCoordinatesY1 = chartInfo.getDataCoordinatesY1(x, y);
+            startLabel.setText(minStr + new DateTime((long) dataCoordinatesY1.getX()).toString("yyyy-MM-dd HH:mm"));
+            System.out.println("llllllllllll");
+        }catch (Exception ex){
+            System.out.println("ZoomError: "+ex.getMessage());
+            ex.printStackTrace();
         }
-
-        Point2D dataCoordinatesY1 = chartInfo.getDataCoordinatesY1(x, y);
-        startLabel.setText(minStr + new DateTime((long) dataCoordinatesY1.getX()).toString("yyyy-MM-dd HH:mm"));
     }
 
 
@@ -458,9 +474,12 @@ public class ChartZoomManager {
     }
 
     private void onMouseDragged(MouseEvent mouseEvent) {
+        System.out.println("ZoomMager.onMouseDragged");
+
         if (!selecting.get())
             return;
 
+        System.out.println("hhhhh");
         Rectangle2D plotArea = chartInfo.getPlotArea();
 
         if (zoomMode == AxisConstraint.Both || zoomMode == AxisConstraint.Horizontal) {
@@ -483,6 +502,7 @@ public class ChartZoomManager {
 
         Point2D dataCoordinatesY1 = chartInfo.getDataCoordinatesY1(rectX.get(), rectY.get());
         endLabel.setText(maxStr + new DateTime((long) dataCoordinatesY1.getX()).toString("yyyy-MM-dd HH:mm"));
+        System.out.println("tttttttttttttt");
     }
 
     private void onMouseReleased() {
@@ -509,7 +529,7 @@ public class ChartZoomManager {
         xAxis.setAutoRanging(false);
         y1Axis.setAutoRanging(false);
         y2Axis.setAutoRanging(false);
-        if (zoomAnimated.get()) {
+            if (zoomAnimated.get()) {
             zoomAnimation.stop();
             zoomAnimation.getKeyFrames().setAll(
                     new KeyFrame(Duration.ZERO,

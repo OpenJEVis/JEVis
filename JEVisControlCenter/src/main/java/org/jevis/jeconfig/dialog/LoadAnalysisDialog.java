@@ -131,7 +131,7 @@ public class LoadAnalysisDialog {
 
         stage.showAndWait();
 
-        return response;
+            return response;
     }
 
     private void addListener() {

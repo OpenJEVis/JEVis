@@ -83,6 +83,7 @@ public class UnitEditor {
 
     }
 
+    /** TODO: J11FIX
     public void hideImageNodesMatching(Node node, Pattern imageNamePattern, int depth) {
         if (node instanceof ImageView) {
             ImageView imageView = (ImageView) node;
@@ -99,6 +100,7 @@ public class UnitEditor {
             }
         }
     }
+     **/
 
     public Node getView() {
         return _view;

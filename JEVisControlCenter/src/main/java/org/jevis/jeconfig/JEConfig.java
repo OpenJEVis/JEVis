@@ -30,6 +30,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
@@ -49,6 +50,7 @@ import org.jevis.jeconfig.application.login.FXLogin;
 import org.jevis.jeconfig.application.statusbar.Statusbar;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.Layouts;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
 
@@ -56,6 +58,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.prefs.Preferences;
@@ -84,7 +87,7 @@ public class JEConfig extends Application {
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
-    private static Statusbar statusBar = new Statusbar();
+    private static Statusbar statusBar;
     private static ExecutorService taskExecutor = Executors.newFixedThreadPool(10);
     private TopMenu menu;
 
@@ -172,6 +175,12 @@ public class JEConfig extends Application {
         }
     }
 
+    public JEConfig() {
+        super();
+        System.out.println("Super");
+    }
+
+
     /**
      * The main() method is ignored in correctly deployed JavaFX application.
      * main() serves only as fallback in case the application can not be
@@ -181,8 +190,183 @@ public class JEConfig extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        launch(args);
+        System.out.println("JAVA 11 JEConfig.Main: " + args);
+        Application.launch(args);
+
+        System.out.println("lauche 2");
+//        launch(args);
     }
+
+    public static void hmmDebug(String text) {
+        System.out.println("##" + text);
+    }
+
+    public void initJEVisCC(Stage primaryStage, AnchorPane rootPane, JEVisDataSource ds) throws JEVisException {
+        hmmDebug("initJEVisCC");
+        hmmDebug("primaryStage: " + primaryStage);
+
+
+//        if(ds!=null){
+//            System.out.println("End init premature");
+//            return;
+//        }
+        _primaryStage = primaryStage;
+        _mainDS = ds;
+        ds.preload();
+
+        Locale locale = Locale.GERMANY;
+        I18n.getInstance().loadBundle(locale);
+        I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
+        I18nWS.getInstance().setLocale(locale);
+        _config.setLocale(locale);
+
+
+        hmmDebug("1111");
+//        _mainDS.preload();
+
+        hmmDebug("22222");
+        statusBar = new Statusbar();
+        statusBar.setDataSource(_mainDS);
+        hmmDebug("ds: " + ds);
+        hmmDebug(ds.getObject(3693l).getName());
+        logger.error("start GUI");
+
+//        PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
+//        PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
+
+        hmmDebug("33333");
+//                ExecutorService exe = Executors.newSingleThreadExecutor();
+//                exe.submit(() -> {
+//                    try {
+//                        JEVisAttribute activities = getDataSource().getCurrentUser().getUserObject().getAttribute("Activities");
+//                        if (activities != null) {
+//                            JEVisSample log = activities.buildSample(new DateTime(), "Login: " + PROGRAM_INFO.getName() + " Version: " + PROGRAM_INFO.getVersion());
+//                            log.commit();
+//                        } else {
+//                            logger.warn("Missing activities attribute for user");
+//                        }
+//
+//
+//                    } catch (Exception ex) {
+//                        ex.printStackTrace();
+//                    }
+//                });
+
+        hmmDebug("444444");
+        pluginManager = new PluginManager(_mainDS);
+        menu = new TopMenu();
+        pluginManager.setMenuBar(menu);
+        pluginManager.addPluginsByUserSetting(_mainDS.getCurrentUser());
+
+        hmmDebug("55555");
+//        final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+//        final KeyCombination reloadF5 = new KeyCodeCombination(KeyCode.F5);
+//        final KeyCombination hiddenSettings = new KeyCodeCombination(KeyCode.H, KeyCombination.CONTROL_DOWN);
+//
+//        scene.setOnKeyPressed(ke -> {
+//            if (saveCombo.match(ke)) {
+//                pluginManager.getToolbar().requestFocus();//the most attribute will validate if the lose focus so we do
+//                pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.SAVE);
+//            } else if (reloadF5.match(ke)) {
+//                pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.RELOAD);
+//            } else if (hiddenSettings.match(ke)) {
+//                HiddenConfig.showHiddenConfig();
+//            }
+//        });
+        hmmDebug("66666");
+        GlobalToolBar toolbar = new GlobalToolBar(pluginManager);
+
+
+        hmmDebug("7777777");
+
+
+        //Disable GUI is StatusBar note an disconnect
+//        border.disableProperty().bind(statusBar.connectedProperty.not());
+
+//                Platform.runLater(() -> {
+//
+//                    AnchorPane.setTopAnchor(border, 0.0);
+//                    AnchorPane.setRightAnchor(border, 0.0);
+//                    AnchorPane.setLeftAnchor(border, 0.0);
+//                    AnchorPane.setBottomAnchor(border, 0.0);
+//
+//                    jeconfigRoot.getChildren().setAll(border);
+//                    try {
+//                        WelcomePage welcome = new WelcomePage();
+//                        welcome.show(primaryStage, _config.getWelcomeURL());
+//                    } catch (URISyntaxException ex) {
+//                        logger.fatal(ex);
+//                    }
+//                    logger.info("Time to start: {}ms", ((new Date()).getTime() - start.getTime()));
+//                });
+
+        hmmDebug("888888");
+
+
+        Platform.runLater(() -> {
+            BorderPane jeconfigRoot = new BorderPane();
+            Layouts.setAnchor(jeconfigRoot, 0);
+            rootPane.setStyle("-fx-background-color: red;");
+            hmmDebug("asdadsadsasd");
+            System.out.println("make a scene");
+//            Scene scene = new Scene(jeconfigRoot);
+
+//            primaryStage.setScene(scene);
+            System.out.println("add done");
+
+            statusBar.initView();
+
+            VBox vbox = new VBox();
+            vbox.setStyle("-fx-background-color: black;");
+            vbox.getChildren().addAll(menu, pluginManager.getToolbar());
+//        border.setTop(vbox);
+//        border.setCenter(pluginManager.getView());
+            BorderPane testPane = new BorderPane();
+            testPane.setStyle("-fx-background-color: blue;");
+            jeconfigRoot.setCenter(pluginManager.getView());
+            jeconfigRoot.setTop(vbox);
+            jeconfigRoot.setBottom(statusBar);
+            rootPane.getChildren().setAll(jeconfigRoot);
+
+
+//            System.out.println("Scece: "+scene.getWidth()+" x"+scene.getHeight());
+//                statusBar = new Statusbar(_mainDS);
+//            statusBar.setDataSource(_mainDS);
+//
+
+//        border.setBottom(statusBar);
+
+
+        });
+
+//        scene.getStylesheets().add("/styles/Styles.css");
+//        scene.getStylesheets().add("/styles/charts.css");
+//        primaryStage.getIcons().add(getImage("JEVisIconBlue.png"));
+//        primaryStage.setTitle("JEVis Control Center");
+
+
+//        primaryStage.onCloseRequestProperty().addListener((ov, t, t1) -> {
+//            try {
+//                logger.info("Disconnect");
+//                try {
+//                    JEVisAttribute activities = _mainDS.getCurrentUser().getUserObject().getAttribute("Activities");
+//                    JEVisSample log = activities.buildSample(new DateTime(), "Logout: " + PROGRAM_INFO.getName() + " Version: " + PROGRAM_INFO.getVersion());
+//                    log.commit();
+//                } catch (Exception ex) {
+//                    logger.error("Could not write logout to activities log:", ex);
+//                }
+//
+//                _mainDS.disconnect();
+//            } catch (JEVisException ex) {
+//                logger.fatal(ex);
+//            }
+//        });
+
+        hmmDebug("END!!");
+
+
+    }
+
 
     /**
      * Returns the main JEVis Datasource of this JEConfig Try not to use this
@@ -272,6 +456,7 @@ public class JEConfig extends Application {
     @Override
     public void init() throws Exception {
         super.init();
+        System.out.println("init");
         BasicConfigurator.configure();//Load an default log4j config
         org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
         Parameters parameters = getParameters();
@@ -289,26 +474,29 @@ public class JEConfig extends Application {
      * @param primaryStage
      */
     private void initGUI(Stage primaryStage) {
+
+        System.out.println("initGUI");
         primaryStage.setOnCloseRequest(t -> {
             Platform.exit();
             System.exit(0);
         });
 
+/** TODO:J11FIX
+ if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+ try {
+ java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
+ Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
+ awtAppClassNameField.setAccessible(true);
+ awtAppClassNameField.set(xToolkit, "JEVis Control Center");
 
-        if (System.getProperty("os.name").toLowerCase().contains("linux")) {
-            try {
-                java.awt.Toolkit xToolkit = java.awt.Toolkit.getDefaultToolkit();
-                Field awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
-                awtAppClassNameField.setAccessible(true);
-                awtAppClassNameField.set(xToolkit, "JEVis Control Center");
-
-            } catch (Exception e) {
-                // TODO
-            }
-        }
-
+ } catch (Exception e) {
+ // TODO
+ }
+ }
+ **/
 
         final AnchorPane jeconfigRoot = new AnchorPane();
+        statusBar = new Statusbar();
 
         Scene scene = new Scene(jeconfigRoot);
         primaryStage.setScene(scene);

@@ -141,11 +141,8 @@ public class UnitPlugin implements Plugin {
             left.getChildren().addAll(tree);
             VBox.setVgrow(tree, Priority.ALWAYS);
 
-            SplitPane sp = SplitPaneBuilder.create()
-                    .items(left, _editor.getView())
-                    .dividerPositions(new double[]{.2d, 0.8d}) // why does this not work!?
-                    .orientation(Orientation.HORIZONTAL)
-                    .build();
+            SplitPane sp = new SplitPane(left, _editor.getView());
+            sp.setOrientation(Orientation.HORIZONTAL);
             sp.setId("mainsplitpane");
             sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
             border = new BorderPane();

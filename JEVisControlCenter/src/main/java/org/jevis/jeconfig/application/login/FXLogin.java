@@ -20,6 +20,7 @@
  */
 package org.jevis.jeconfig.application.login;
 
+import com.google.inject.internal.util.$AsynchronousComputationException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -193,21 +194,25 @@ public class FXLogin extends AnchorPane {
                     throw new RuntimeException(I18n.getInstance().getString("app.login.exception.runtime"));
                 }
             } catch (Exception ex) {
-                I18n.getInstance().loadBundle(getSelectedLocale());
-                logger.trace("{}: {}", I18n.getInstance().getString("app.login.error.message"), ex, ex);
-                Platform.runLater(() -> {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle(I18n.getInstance().getString("app.login.error.title"));
-                    alert.setHeaderText("");
-                    alert.setContentText(ex.getMessage());
-                    alert.showAndWait();
+                ex.printStackTrace();
+                try {
+                    I18n.getInstance().loadBundle(getSelectedLocale());
+                    logger.trace("{}: {}", I18n.getInstance().getString("app.login.error.message"), ex, ex);
+                    Platform.runLater(() -> {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle(I18n.getInstance().getString("app.login.error.title"));
+                        alert.setHeaderText("");
+                        alert.setContentText(ex.getMessage());
+                        alert.showAndWait();
 
-                    this.loginButton.setDisable(false);
-                    this.authGrid.setDisable(false);
-                    this.progress.setVisible(false);
-                    this.progress.setVisible(false);
-                });
-
+                        this.loginButton.setDisable(false);
+                        this.authGrid.setDisable(false);
+                        this.progress.setVisible(false);
+                        this.progress.setVisible(false);
+                    });
+                }catch (Exception ex2 ){
+                    ex2.printStackTrace();
+                }
             }
 
         };
@@ -227,14 +232,17 @@ public class FXLogin extends AnchorPane {
      * @throws IllegalAccessException
      */
     private JEVisDataSource loadDataSource(List<JEVisOption> config) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        System.out.println("Load DataSource: "+config);
         for (JEVisOption opt : config) {
-            logger.trace("Option: {} {}", opt.getKey(), opt.getValue());
+            logger.error("Option: {} {}", opt.getKey(), opt.getValue());
             if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
+                System.out.println("Match");
                 DataSourceLoader dsl = new DataSourceLoader();
                 JEVisDataSource ds = dsl.getDataSource(opt);
 //            config.completeWith(ds.getConfiguration());
 
                 ds.setConfiguration(config);
+                System.out.println("return: "+ds);
                 return ds;
             }
         }

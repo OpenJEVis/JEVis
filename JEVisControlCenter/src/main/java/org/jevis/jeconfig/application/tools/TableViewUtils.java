@@ -1,12 +1,13 @@
 package org.jevis.jeconfig.application.tools;
 
 import com.google.common.util.concurrent.AtomicDouble;
-import com.sun.javafx.scene.control.skin.TableViewSkin;
+//import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
 import javafx.util.Callback;
@@ -251,9 +252,8 @@ public class TableViewUtils {
         maxWidth += padding;
         if (tableView.getColumnResizePolicy() == TableView.CONSTRAINED_RESIZE_POLICY) {
             maxWidth = Math.max(maxWidth, tc.getWidth());
-        }
-
-        tc.impl_setWidth(maxWidth);
+        }tc.setPrefWidth(maxWidth);
+        //tc.impl_setWidth(maxWidth); //TODO: J11FIX
     }
 
 }

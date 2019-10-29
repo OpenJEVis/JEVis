@@ -2,6 +2,7 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -193,19 +194,23 @@ public class TableWidget extends Widget {
         String name = I18n.getInstance().getString("plugin.dashboard.tablewidget.column.name");
         TableColumn<TableData, String> nameCol = new TableColumn<TableData, String>(name);
         nameCol.setMinWidth(225);
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+//        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        nameCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getName()));
 
         String value = I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value");
         TableColumn<TableData, String> valueCol = new TableColumn<TableData, String>(value);
         valueCol.setPrefWidth(150);
         valueCol.setStyle("-fx-alignment: CENTER-RIGHT;");
-        valueCol.setCellValueFactory(new PropertyValueFactory<>("value"));
+        //valueCol.setCellValueFactory(new PropertyValueFactory<>("value"));
+        valueCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getValue()));
 
 
         String unit = I18n.getInstance().getString("plugin.dashboard.tablewidget.column.unit");
         TableColumn<TableData, String> unitCol = new TableColumn<TableData, String>(unit);
-        unitCol.setCellValueFactory(new PropertyValueFactory<>("unit"));
+//        unitCol.setCellValueFactory(new PropertyValueFactory<>("unit"));
+        unitCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getUnit()));
 
+//        this.table.getColumns().setAll(nameCol, valueCol);
         this.table.getColumns().setAll(nameCol, valueCol, unitCol);
 
         TableData dummy = new TableData("", "", "");

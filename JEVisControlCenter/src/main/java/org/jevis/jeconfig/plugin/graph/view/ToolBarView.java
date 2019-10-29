@@ -7,7 +7,7 @@ package org.jevis.jeconfig.plugin.graph.view;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin;
+//import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -192,6 +192,7 @@ public class ToolBarView {
         listAnalysesComboBox.setCellFactory(cellFactory);
         listAnalysesComboBox.setButtonCell(cellFactory.call(null));
 
+        /** TODO:J11FIX
         listAnalysesComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
                 ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) listAnalysesComboBox.getSkin();
@@ -203,6 +204,7 @@ public class ToolBarView {
                 }
             });
         });
+         **/
     }
 
     private void loadNewDialog() {

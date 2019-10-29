@@ -89,7 +89,7 @@ public class JFXChartUtil {
         chartPane.getChildren().addAll(chart, selectRect);
 
         zoomManager = new ChartZoomManager(chartPane, selectRect, chart);
-        zoomManager.setMouseWheelZoomAllowed(false);
+        zoomManager.setMouseWheelZoomAllowed(true);
         zoomManager.setMouseFilter(mouseFilter);
         zoomManager.start();
         return chartPane;

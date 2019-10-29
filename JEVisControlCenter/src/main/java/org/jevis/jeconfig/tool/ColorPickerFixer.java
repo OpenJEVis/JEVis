@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.tool;
 
-import com.sun.javafx.scene.control.skin.CustomColorDialog;
+//import com.sun.javafx.scene.control.skin.CustomColorDialog;
+import com.sun.javafx.scene.control.CustomColorDialog;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ColorPicker;

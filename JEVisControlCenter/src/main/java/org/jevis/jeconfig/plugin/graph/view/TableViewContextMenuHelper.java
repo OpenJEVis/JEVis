@@ -1,12 +1,14 @@
 package org.jevis.jeconfig.plugin.graph.view;
 
-import com.sun.javafx.scene.control.skin.TableHeaderRow;
-import com.sun.javafx.scene.control.skin.TableViewSkin;
+//import com.sun.javafx.scene.control.skin.TableHeaderRow;
+//import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.TableHeaderRow;
+import javafx.scene.control.skin.TableViewSkin;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -153,9 +155,12 @@ public class TableViewContextMenuHelper {
         // and with it the table menu button
         // by setting the preferred height the header will always be visible
         // note: this may need adjustments in case you have different heights in columns (eg when you use grouping)
+
+        /** TODO: J11Fix
         Region tableHeaderRow = getTableHeaderRow();
         double defaultHeight = tableHeaderRow.getHeight();
         tableHeaderRow.setPrefHeight(defaultHeight);
+         **/
     }
 
     private Node findButtonNode() {
@@ -172,6 +177,7 @@ public class TableViewContextMenuHelper {
             }
         }
         return null;
+
     }
 
     public Node getButtonNode() {

@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.reports;
 
+import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,8 +21,8 @@ import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.printing.PDFPageable;
+//import org.apache.pdfbox.pdmodel.PDDocument;
+//import org.apache.pdfbox.printing.PDFPageable;
 import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
 import org.jevis.commons.relationship.ObjectRelations;
@@ -52,10 +53,10 @@ public class ReportPlugin implements Plugin {
     private final ToolBar toolBar = new ToolBar();
     private boolean initialized = false;
     private ListView<JEVisObject> listView = new ListView<>();
-    private WebView web = new WebView();
+    private WebView web;
     private ComboBox<DateTime> dateTimeComboBox;
     private List<JEVisObject> disabledItemList;
-    private WebEngine engine = web.getEngine();
+    private WebEngine engine;
     private HBox hBox = new HBox();
     private final int iconSize = 24;
 
@@ -66,31 +67,43 @@ public class ReportPlugin implements Plugin {
         this.hBox.setPadding(new Insets(4, 4, 4, 4));
         this.hBox.setSpacing(4);
 
-        BorderPane view = new BorderPane();
-        view.setTop(hBox);
-        view.setCenter(web);
-
-        SplitPane sp = new SplitPane();
-        sp.setOrientation(Orientation.HORIZONTAL);
-        sp.setId("mainsplitpane");
-        sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-
-        sp.getItems().setAll(listView, view);
-        this.borderPane.setCenter(sp);
-
-        sp.setDividerPositions(0.3);
-
-        initToolBar();
-
+        String url = JEConfig.class.getResource("/web/viewer.html").toExternalForm();
         this.objectRelations = new ObjectRelations(ds);
 
-        String url = JEConfig.class.getResource("/web/viewer.html").toExternalForm();
+        Platform.runLater(() -> {
+            this.web = new WebView();
+            this.engine = web.getEngine();
+            this.engine.setUserStyleSheetLocation(JEConfig.class.getResource("/web/web.css").toExternalForm());
+            this.engine.setJavaScriptEnabled(true);
+            this.engine.load(url);
+
+            BorderPane view = new BorderPane();
+            view.setTop(hBox);
+            view.setCenter(web);
+
+            SplitPane sp = new SplitPane();
+            sp.setOrientation(Orientation.HORIZONTAL);
+            sp.setId("mainsplitpane");
+            sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+
+            sp.getItems().setAll(listView, view);
+            this.borderPane.setCenter(sp);
+
+            sp.setDividerPositions(0.3);
+
+            initToolBar();
+
+        });
+
+
+
+
+
 
         // connect CSS styles to customize pdf.js appearance
-        this.engine.setUserStyleSheetLocation(JEConfig.class.getResource("/web/web.css").toExternalForm());
 
-        this.engine.setJavaScriptEnabled(true);
-        this.engine.load(url);
+
+
     }
 
     private void initToolBar() {
@@ -206,12 +219,12 @@ public class ReportPlugin implements Plugin {
                 JEVisAttribute last_report_pdf = selectedItem.getAttribute("Last Report PDF");
                 DateTime dateTime = dateTimeComboBox.getSelectionModel().getSelectedItem();
                 List<JEVisSample> samples = last_report_pdf.getSamples(dateTime, dateTime);
-                PDDocument document = PDDocument.load(samples.get(0).getValueAsFile().getBytes());
-                printerJob.setPageable(new PDFPageable(document));
-                if (printerJob.printDialog()) {
-                    printerJob.print();
-                }
-            } catch (IOException | JEVisException | PrinterException e) {
+//                PDDocument document = PDDocument.load(samples.get(0).getValueAsFile().getBytes());
+//                printerJob.setPageable(new PDFPageable(document));
+//                if (printerJob.printDialog()) {
+//                    printerJob.print();
+//                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
@@ -438,15 +451,15 @@ public class ReportPlugin implements Plugin {
 //                        .stateProperty()
 //                        .addListener((observable, oldValue, newValue) -> {
 //                            if (newValue == Worker.State.SUCCEEDED) {
-                                try {
+                try {
 
-                                    byte[] bytes = sampleMap.get(lastSample.getTimestamp()).getValueAsFile().getBytes();
-                                    String base64 = Base64.getEncoder().encodeToString(bytes);
-                                    // call JS function from Java code
-                                    engine.executeScript("openFileFromBase64('" + base64 + "')");
-                                } catch (Exception e) {
-                                    logger.error("Could not load latest report for {}:{}", reportObject.getName(), reportObject.getID(), e);
-                                }
+                    byte[] bytes = sampleMap.get(lastSample.getTimestamp()).getValueAsFile().getBytes();
+                    String base64 = Base64.getEncoder().encodeToString(bytes);
+                    // call JS function from Java code
+                    engine.executeScript("openFileFromBase64('" + base64 + "')");
+                } catch (Exception e) {
+                    logger.error("Could not load latest report for {}:{}", reportObject.getName(), reportObject.getID(), e);
+                }
 //                            }
 //                        });
             }

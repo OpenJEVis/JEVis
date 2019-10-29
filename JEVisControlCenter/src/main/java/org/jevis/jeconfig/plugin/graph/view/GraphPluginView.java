@@ -20,6 +20,7 @@
 package org.jevis.jeconfig.plugin.graph.view;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import com.google.inject.internal.util.$AsynchronousComputationException;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -30,16 +31,21 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.chart.Chart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.ValueAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -71,6 +77,7 @@ import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
@@ -484,17 +491,25 @@ public class GraphPluginView implements Plugin {
                 }
                 cv.getLegend().maxWidthProperty().bind(bp.widthProperty());
 
-                if (cv.getShowTable()) {
-                    if (!cv.getChartType().equals(ChartType.TABLE)) {
-                        Platform.runLater(() -> bp.setTop(cv.getLegend()));
-                    } else {
-                        TableChart chart = (TableChart) cv.getChart();
+                Platform.runLater(() -> {
+                    try {
+                        if (cv.getShowTable()) {
+                            if (!cv.getChartType().equals(ChartType.TABLE)) {
+                                Platform.runLater(() -> bp.setTop(cv.getLegend()));
+                            } else {
+                                TableChart chart = (TableChart) cv.getChart();
 
-                        Platform.runLater(() -> bp.setTop(chart.getTopPicker()));
+                                Platform.runLater(() -> bp.setTop(chart.getTopPicker()));
+                            }
+                        } else {
+                            bp.setTop(null);
+                        }
+                    }catch (Exception ex){
+                        logger.error(ex);
                     }
-                } else {
-                    bp.setTop(null);
-                }
+
+                });
+
                 if (!cv.getChartType().equals(ChartType.TABLE)) {
                     Platform.runLater(() -> bp.setCenter(cv.getChartRegion()));
                 } else {
@@ -877,6 +892,7 @@ public class GraphPluginView implements Plugin {
                 case AREA:
                 case LINE:
                 case SCATTER:
+                    setupWebSwingWorkaround(cv,null);
                     setupNoteDialog(cv);
 
                     setupMouseMoved(cv, notActive);
@@ -884,6 +900,7 @@ public class GraphPluginView implements Plugin {
                     setupLinkedZoom(cv, notActive);
 
                     setupDoubleClick(cv, notActive);
+
                     break;
                 case LOGICAL:
                     setupMouseMoved(cv, notActive);
@@ -978,27 +995,59 @@ public class GraphPluginView implements Plugin {
 
     private void setupMouseMoved(ChartView cv, List<ChartView> notActive) {
         cv.getChart().getChart().setOnMouseMoved(event -> {
-            cv.updateTablesSimultaneously(event, null);
-            notActive.forEach(na -> {
-                if (!na.getChartType().equals(ChartType.PIE)
-                        && !na.getChartType().equals(ChartType.BAR)
-                        && !na.getChartType().equals(ChartType.BUBBLE)
-                        && !na.getChartType().equals(ChartType.TABLE)) {
-                    na.updateTablesSimultaneously(null, cv.getValueForDisplay());
-                } else if (na.getChartType().equals(ChartType.TABLE)) {
-                    na.updateTablesSimultaneously(null, cv.getValueForDisplay());
-                    TableChart chart = (TableChart) na.getChart();
-                    chart.setBlockDatePickerEvent(true);
-                    TableTopDatePicker tableTopDatePicker = chart.getTableTopDatePicker();
-                    ComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
-                    datePicker.getSelectionModel().select(cv.getValueForDisplay());
-                    chart.setBlockDatePickerEvent(false);
-                }
-            });
+            try {
+                cv.updateTablesSimultaneously(event, null);
+                cv.getTableView().refresh();
+                notActive.forEach(na -> {
+                    try {
+
+                        if (!na.getChartType().equals(ChartType.PIE)
+                                && !na.getChartType().equals(ChartType.BAR)
+                                && !na.getChartType().equals(ChartType.BUBBLE)
+                                && !na.getChartType().equals(ChartType.TABLE)) {
+                            na.updateTablesSimultaneously(null, cv.getValueForDisplay());
+                            na.getTableView().refresh();
+                        } else if (na.getChartType().equals(ChartType.TABLE)) {
+                            na.updateTablesSimultaneously(null, cv.getValueForDisplay());
+                            na.getTableView().refresh();
+                            TableChart chart = (TableChart) na.getChart();
+                            chart.setBlockDatePickerEvent(true);
+                            TableTopDatePicker tableTopDatePicker = chart.getTableTopDatePicker();
+                            ComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
+                            datePicker.getSelectionModel().select(cv.getValueForDisplay());
+                            chart.setBlockDatePickerEvent(false);
+                        }
+                    }catch (Exception iex){
+                        iex.printStackTrace();
+                    }
+                });
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+
         });
     }
 
+    private void setupWebSwingWorkaround(ChartView cv, List<ChartView> notActive){
+//        cv.getChart().getChart().addEventHandler(MouseEvent.ANY, new EventHandler<MouseEvent>() {
+//            @Override
+//            public void handle(MouseEvent mouseEvent) {
+////                System.out.println("#### MouseEvent: "+mouseEvent.getEventType().getName());
+//                if(mouseEvent.getEventType().getName().equals("223")){
+//                    System.out.println("##### Catch 223");
+//                    //mouseEvent.consume();
+//                }
+//
+//
+//            }
+//        });
+
+
+    }
+
     private void setupLinkedZoom(ChartView cv, List<ChartView> notActive) {
+
+
         cv.getChart().getPanner().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 zoomed = true;
@@ -1020,6 +1069,7 @@ public class GraphPluginView implements Plugin {
 
         cv.getChart().getJfxChartUtil().getZoomManager().zoomFinishedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                System.out.println("Zoom finised");
                 zoomed = true;
                 xAxisLowerBound = cv.getChart().getJfxChartUtil().getZoomManager().getXAxisLowerBound();
                 xAxisUpperBound = cv.getChart().getJfxChartUtil().getZoomManager().getXAxisUpperBound();

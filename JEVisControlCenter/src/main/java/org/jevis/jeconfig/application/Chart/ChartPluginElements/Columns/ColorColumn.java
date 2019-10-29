@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
-import com.sun.javafx.scene.control.skin.ColorPickerSkin;
+//import com.sun.javafx.scene.control.skin.ColorPickerSkin;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -152,6 +152,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
         this.colorColumn = column;
     }
 
+    /** TODO:J11FIX
     public class CustomColorPickerSkin extends ColorPickerSkin {
 
         public CustomColorPickerSkin(ColorPicker colorPicker) {
@@ -163,7 +164,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
             return super.getPopupContent();
         }
     }
-
+**/
     public Color getNextColor() {
         for (Color color : getColorList()) {
             if (!getUsedColors().contains(color)) {

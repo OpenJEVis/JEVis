@@ -63,9 +63,10 @@ public class JEVisUnitImp implements JEVisUnit {
         _label = json.getLabel();
         _prefix = UnitManager.getInstance().getPrefix(json.getPrefix(), Locale.getDefault());
         ParsePosition pp = new ParsePosition(0);
-        _unit = UnitFormat.getInstance().parseObject(json.getFormula(), pp);
 
         try {
+            System.out.println("!!!!");
+            _unit = UnitFormat.getInstance().parseObject(json.getFormula(), pp);
             UnitManager.getInstance().getUnitWithPrefix(_unit, _prefix);
             _unit.toString();
         } catch (Exception ex) {

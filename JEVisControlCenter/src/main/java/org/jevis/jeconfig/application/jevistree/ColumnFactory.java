@@ -143,6 +143,17 @@ public class ColumnFactory {
 
                                                       JEVisObject jeVisObject = item.getJEVisObject();
 
+                                                      setText(jeVisObject.getName());
+                                                      if (item.getType() == JEVisTreeRow.TYPE.OBJECT) {
+                                                          setGraphic( getClassIcon(jeVisObject.getJEVisClass(), 18, 18));
+                                                      }else{
+                                                          ImageView image = new ImageView(ATTRIBUTE_ICON);
+                                                          image.fitHeightProperty().set(18);
+                                                          image.fitWidthProperty().set(18);
+                                                         setGraphic(image);
+                                                      }
+                                                      if(!empty) return;
+
                                                       HBox hbox = new HBox();
                                                       Label nameLabel = new Label();
                                                       Node icon;
