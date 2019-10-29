@@ -24,6 +24,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.json.JsonTools;
+import org.jevis.commons.unit.ChartUnits.ChartUnits;
+import org.jevis.commons.unit.ChartUnits.MoneyUnit;
 import org.jevis.commons.ws.json.JsonFactory;
 import org.jevis.commons.ws.json.JsonUnit;
 
@@ -31,6 +33,7 @@ import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
+import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.Locale;
 import java.util.Objects;
@@ -62,16 +65,31 @@ public class JEVisUnitImp implements JEVisUnit {
 //        Gson gson = new Gson();
         _label = json.getLabel();
         _prefix = UnitManager.getInstance().getPrefix(json.getPrefix(), Locale.getDefault());
-        ParsePosition pp = new ParsePosition(0);
-
         try {
-            System.out.println("!!!!");
-            _unit = UnitFormat.getInstance().parseObject(json.getFormula(), pp);
-            UnitManager.getInstance().getUnitWithPrefix(_unit, _prefix);
-            _unit.toString();
-        } catch (Exception ex) {
             try {
-                logger.info("Warning! Could not parse unit from json: '" + JsonTools.prettyObjectMapper().writeValueAsString(json) + "' " + ex.getMessage());
+                _unit = (Unit) UnitFormat.getInstance().parseObject(json.getFormula());
+            } catch (ParseException pe) {
+                try {
+                    if (!json.getLabel().equals("")) {
+                        for (MoneyUnit mu : MoneyUnit.values()) {
+                            if (json.getFormula().equals(mu.toString())) {
+                                JEVisUnit jeVisUnit = ChartUnits.parseUnit(json.getLabel());
+                                _unit = jeVisUnit.getUnit();
+                                break;
+                            }
+                        }
+                    } else {
+                        logger.info("Empty unit: {}", JsonTools.prettyObjectMapper().writeValueAsString(json));
+                    }
+                } catch (Exception e) {
+                    logger.warn("Warning! Could not parse unit from json: '" + JsonTools.prettyObjectMapper().writeValueAsString(json) + "' " + pe.getMessage());
+                }
+            }
+
+            _unit = UnitManager.getInstance().getUnitWithPrefix(_unit, _prefix);
+        } catch (JsonProcessingException ex) {
+            try {
+                logger.error("Warning! Could not create unit from json: '" + JsonTools.prettyObjectMapper().writeValueAsString(json) + "' " + ex.getMessage());
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
@@ -309,8 +327,7 @@ public class JEVisUnitImp implements JEVisUnit {
 
     @Override
     protected Object clone() {
-        JEVisUnit clone = new JEVisUnitImp(_unit);
 
-        return clone;
+        return new JEVisUnitImp(_unit);
     }
 }

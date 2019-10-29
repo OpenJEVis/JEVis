@@ -57,7 +57,7 @@ public class ChartView implements Observer {
     private ChartDataModel singleRow;
     private List<ChartDataModel> currentSelectedChartDataModels;
     private final double VALUE_COLUMNS_PREF_SIZE = 200;
-    private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 70;
+    private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 60;
     private TableColumn<TableEntry, String> nameCol;
     private TableColumn<TableEntry, Color> colorCol;
     private TableColumn<TableEntry, String> periodCol;
@@ -456,8 +456,6 @@ public class ChartView implements Observer {
         }
 
         generateChart(chartId, chartType, currentSelectedChartDataModels);
-
-        tableView.sort();
     }
 
     public void drawAreaChart(Integer chartId, ChartDataModel model, ChartType chartType) {
@@ -543,7 +541,7 @@ public class ChartView implements Observer {
                 tableView.getColumns().get(10).setVisible(false);
                 break;
             case HEAT_MAP:
-                chart = new HeatMapChart(chartDataModels);
+                chart = new HeatMapChart(chartDataModels, getChartName());
                 disableTable();
                 break;
             default:

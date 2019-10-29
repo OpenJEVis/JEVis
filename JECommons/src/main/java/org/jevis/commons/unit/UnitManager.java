@@ -22,6 +22,7 @@ package org.jevis.commons.unit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisUnit;
+import org.jscience.economics.money.Currency;
 import org.jscience.economics.money.Money;
 
 import javax.measure.quantity.*;
@@ -603,13 +604,15 @@ public class UnitManager {
     }
 
     public String format(JEVisUnit junit) {
-        if (junit != null && junit.getFormula() != null) {
-            String uString = junit.getFormula();
-            uString = format(uString);
+        if (junit != null && junit.getLabel() != null) {
+//            if (junit != null && junit.getFormula() != null) {
+//            String uString = junit.getFormula();
+//            uString = format(uString);
 //            uString = uString.replace("(", "");
 //            uString = uString.replace(")", "");
 //            uString = uString.replace("·", "");
-            return getPrefixChar(junit.getPrefix()) + uString;
+//            return getPrefixChar(junit.getPrefix()) + uString;
+            return junit.getLabel().replace("·", "");
         } else {
             logger.warn("No unit for format");
             return "";
@@ -649,12 +652,15 @@ public class UnitManager {
         additionalUnits.add(SI.WATT.times(SI.SECOND));
         additionalUnits.add(SI.WATT.times(NonSI.HOUR));
 
-        additionalUnits.add(Money.BASE_UNIT.alternate("€"));
-        additionalUnits.add(Money.BASE_UNIT.alternate("$"));
-        additionalUnits.add(Money.BASE_UNIT.alternate("£"));
-        additionalUnits.add(Money.BASE_UNIT.alternate("¥"));
-        additionalUnits.add(Money.BASE_UNIT.alternate("₦"));
-        additionalUnits.add(Money.BASE_UNIT.alternate("₹"));
+        additionalUnits.add(Currency.EUR);
+        additionalUnits.add(Currency.USD);
+        additionalUnits.add(Currency.GBP);
+        additionalUnits.add(Currency.JPY);
+        additionalUnits.add(Currency.AUD);
+        additionalUnits.add(Currency.CAD);
+        additionalUnits.add(Currency.CNY);
+        additionalUnits.add(Currency.KRW);
+        additionalUnits.add(Currency.TWD);
 
 
         additionalUnits.add(SI.WATT.divide(SI.SQUARE_METRE));

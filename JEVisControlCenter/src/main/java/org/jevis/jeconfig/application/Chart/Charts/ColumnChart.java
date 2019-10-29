@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
@@ -55,14 +56,12 @@ public class ColumnChart implements Chart {
     private Boolean hideShowIcons;
     private List<ColumnChartSerie> columnChartSerieList = new ArrayList<>();
     private MultiAxisBarChart columnChart;
-    private ObservableList<MultiAxisBarChart.Series<String, Number>> series = FXCollections.observableArrayList();
     private List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region barChartRegion;
     private Period period;
     private Region areaChartRegion;
-    private boolean asDuration = false;
     private AtomicReference<ManipulationMode> manipulationMode;
     private ChartPanManager panner;
     private CategoryAxis catAxis = new CategoryAxis();
@@ -81,21 +80,18 @@ public class ColumnChart implements Chart {
     private void init() {
         manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
-        chartDataModels.forEach(singleRow -> {
+        for (ChartDataModel singleRow : chartDataModels) {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
                     ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons);
-
-
+                    columnChartSerieList.add(serie);
                     hexColors.add(singleRow.getColor());
-                    series.add(serie.getSerie());
-                    tableData.add(serie.getTableEntry());
 
                 } catch (JEVisException e) {
                     e.printStackTrace();
                 }
             }
-        });
+        }
 
         if (chartDataModels != null && chartDataModels.size() > 0) {
             unit = UnitManager.getInstance().format(chartDataModels.get(0).getUnit());
@@ -105,19 +101,25 @@ public class ColumnChart implements Chart {
         NumberAxis numberAxis1 = new NumberAxis();
         NumberAxis numberAxis2 = new NumberAxis();
 
-        columnChart = new MultiAxisBarChart(catAxis, numberAxis1, numberAxis2, series);
-        columnChart.applyCss();
-
-        applyColors();
+        columnChart = new MultiAxisBarChart(catAxis, numberAxis1, numberAxis2);
 
         columnChart.setTitle(chartName);
         columnChart.setLegendVisible(false);
         columnChart.getXAxis().setAutoRanging(true);
-//        columnChart.getXAxis().setTickLabelRotation(-90);
-        //columnChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
+
         columnChart.getXAxis().setLabel(unit);
 
-        //initializeZoom();
+        addSeriesToChart();
+
+    }
+
+    private void addSeriesToChart() {
+        for (ColumnChartSerie columnChartSerie : columnChartSerieList) {
+            Platform.runLater(() -> {
+                columnChart.getData().add(columnChartSerie.getSerie());
+                tableData.add(columnChartSerie.getTableEntry());
+            });
+        }
     }
 
     @Override
@@ -182,8 +184,8 @@ public class ColumnChart implements Chart {
 
     @Override
     public void updateChart() {
-        chartDataModels.forEach(singleRow -> {
-            JEVisAttribute att = singleRow.getAttribute();
+        for (ChartDataModel chartDataModel : chartDataModels) {
+            JEVisAttribute att = chartDataModel.getAttribute();
             if (att != null) {
                 try {
                     att.getDataSource().reloadAttribute(att);
@@ -191,29 +193,29 @@ public class ColumnChart implements Chart {
                     logger.error("Could not reload Attribute: " + att.getObject().getName() + ":" + att.getObject().getID() + ":" + att.getName());
                 }
             }
-        });
+        }
 
 
         manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
-        series.clear();
+//        series.clear();
         hexColors.clear();
         tableData.clear();
 
-        chartDataModels.forEach(singleRow -> {
+        for (ChartDataModel singleRow : chartDataModels) {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
                     ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons);
 
                     hexColors.add(singleRow.getColor());
-                    series.add(serie.getSerie());
+//                    series.add(serie.getSerie());
                     tableData.add(serie.getTableEntry());
 
                 } catch (JEVisException e) {
                     e.printStackTrace();
                 }
             }
-        });
+        }
 
         if (chartDataModels != null && chartDataModels.size() > 0) {
             unit = UnitManager.getInstance().format(chartDataModels.get(0).getUnit());
@@ -222,7 +224,6 @@ public class ColumnChart implements Chart {
         }
 
         columnChart.applyCss();
-        applyColors();
 
         columnChart.setTitle(chartName);
 //        columnChart.getXAxis().setTickLabelRotation(-90d);
@@ -255,6 +256,24 @@ public class ColumnChart implements Chart {
     }
 
     @Override
+    public void checkForY2Axis() {
+        try {
+            boolean hasY2Axis = false;
+            for (ColumnChartSerie serie : columnChartSerieList) {
+                if (serie.getyAxis() == 1) {
+                    hasY2Axis = true;
+                    break;
+                }
+            }
+
+            if (!hasY2Axis) y2Axis.setVisible(false);
+            else y2Axis.setVisible(true);
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
     }
@@ -284,13 +303,12 @@ public class ColumnChart implements Chart {
         }
         if (valueForDisplay != null) {
             setValueForDisplay(valueForDisplay);
-            DateTime finalValueForDisplay = valueForDisplay;
-            columnChartSerieList.parallelStream().forEach(serie -> {
+            for (ColumnChartSerie serie : columnChartSerieList) {
                 try {
                     TableEntry tableEntry = serie.getTableEntry();
                     TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
 
-                    DateTime nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
+                    DateTime nearest = sampleTreeMap.lowerKey(valueForDisplay);
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
 
@@ -302,22 +320,23 @@ public class ColumnChart implements Chart {
                         Note formattedNote = new Note(sample);
                         String formattedDouble = nf.format(valueAsDouble);
 
+                        boolean asDuration = false;
                         if (!asDuration) {
-                            tableEntry.setDate(nearest
-                                    .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                            Platform.runLater(() -> tableEntry.setDate(nearest
+                                    .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss"))));
                         } else {
-                            tableEntry.setDate((nearest.getMillis() -
-                                    timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
+                            Platform.runLater(() -> tableEntry.setDate((nearest.getMillis() -
+                                    timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h"));
                         }
-                        tableEntry.setNote(formattedNote.getNoteAsString());
+                        Platform.runLater(() -> tableEntry.setNote(formattedNote.getNoteAsString()));
                         String unit = serie.getUnit();
-                        tableEntry.setValue(formattedDouble + " " + unit);
-                        tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
+                        Platform.runLater(() -> tableEntry.setValue(formattedDouble + " " + unit));
+                        Platform.runLater(() -> tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()))));
                     }
                 } catch (Exception ex) {
                 }
 
-            });
+            }
         }
     }
 

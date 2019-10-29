@@ -34,6 +34,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.drivermanagment.ClassImporter;
 import org.jevis.jeconfig.csv.CSVImportDialog;
 import org.jevis.jeconfig.dialog.AboutDialog;
+import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.PasswordDialog;
 import org.joda.time.DateTime;
@@ -69,11 +70,12 @@ public class TopMenu extends MenuBar {
         MenuItem importCSV = new MenuItem(I18n.getInstance().getString("menu.file.import.csv"));
         MenuItem importXML = new MenuItem(I18n.getInstance().getString("menu.file.import.XML"));
         MenuItem importJSON = new MenuItem(I18n.getInstance().getString("menu.file.import.jevis"));
+        MenuItem manualData = new MenuItem(I18n.getInstance().getString("menu.file.import.manual"));
 
         subMenuImport.getItems().addAll(importCSV);//, importXML, importJSON);
 //        menuFile.getItems().add(new MenuItem("New"));
         menuFile.getItems().add(new SeparatorMenuItem());
-        menuFile.getItems().add(subMenuImport);
+        menuFile.getItems().addAll(subMenuImport, manualData);
         MenuItem exit = new MenuItem(I18n.getInstance().getString("menu.exit"));
 //        exit.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
         menuFile.getItems().add(exit);
@@ -94,6 +96,11 @@ public class TopMenu extends MenuBar {
                 CSVImportDialog impDia = new CSVImportDialog();
                 impDia.show(JEConfig.getStage(), JEConfig.getDataSource());
             }
+        });
+
+        manualData.setOnAction(event -> {
+            EnterDataDialog enterDataDialog = new EnterDataDialog(activePlugin.getDataSource());
+            enterDataDialog.show();
         });
 
         // --- Menu Edit

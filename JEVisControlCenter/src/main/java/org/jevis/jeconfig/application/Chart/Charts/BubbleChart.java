@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
@@ -319,14 +320,14 @@ public class BubbleChart implements Chart {
                 String formattedX = nf.format(xValue.get());
                 String formattedY = nf.format(yValue);
                 if (!xUnit.equals("")) {
-                    tableEntry.setxValue(formattedX + " " + xUnit);
+                    Platform.runLater(() -> tableEntry.setxValue(formattedX + " " + xUnit));
                 } else {
-                    tableEntry.setxValue(formattedX);
+                    Platform.runLater(() -> tableEntry.setxValue(formattedX));
                 }
                 if (!yUnit.equals("")) {
-                    tableEntry.setyValue(formattedY + " " + yUnit);
+                    Platform.runLater(() -> tableEntry.setyValue(formattedY + " " + yUnit));
                 } else {
-                    tableEntry.setyValue(formattedY);
+                    Platform.runLater(() -> tableEntry.setyValue(formattedY));
                 }
 
             } catch (Exception ex) {
@@ -381,6 +382,11 @@ public class BubbleChart implements Chart {
 
     @Override
     public void setRegion(Region region) {
+
+    }
+
+    @Override
+    public void checkForY2Axis() {
 
     }
 

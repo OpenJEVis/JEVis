@@ -367,8 +367,11 @@ public class DataModelDataHandler {
     public void update() {
         logger.debug("Update Samples: {}", this.durationProperty.getValue());
         this.chartDataModels.forEach(chartDataModel -> {
+//            System.out.println("Set autoAggrigate: " + chartDataModel.getObject().getName() + " b: " + autoAggregation);
+//            chartDataModel.setAbsolute(autoAggregation);
             chartDataModel.setSelectedStart(this.durationProperty.getValue().getStart());
             chartDataModel.setSelectedEnd(this.durationProperty.getValue().getEnd());
+
         });
 
         this.lastUpdate.setValue(new DateTime());

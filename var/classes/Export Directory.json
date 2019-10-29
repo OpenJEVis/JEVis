@@ -1,0 +1,21 @@
+{
+  "name": "Export Directory",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Report Directory",
+      "end": "Monitored Object",
+      "type": 3
+    },
+    {
+      "start": "Report Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Export Directory",
+      "end": "Building",
+      "type": 3
+    }
+  ]
+}

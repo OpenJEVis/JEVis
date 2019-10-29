@@ -1,0 +1,36 @@
+{
+  "name": "Export",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Periodic Report",
+      "end": "Report",
+      "type": 0
+    },
+    {
+      "start": "Export",
+      "end": "Export Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report"
+    },
+    {
+      "name": "Time Zone",
+      "primitiveType": 0,
+      "guiType": "Time Zone",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report"
+    }
+  ]
+}

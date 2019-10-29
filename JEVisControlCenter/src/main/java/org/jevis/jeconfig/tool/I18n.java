@@ -6,9 +6,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
+import java.util.*;
 
 
 /**
@@ -21,7 +19,7 @@ public class I18n {
     private Locale locale = LocaleBeanUtils.getDefaultLocale();
     private PropertyResourceBundle bundle;
     private ResourceBundle defaultBundle;
-    private Reader reader;
+    private Map<Locale, ResourceBundle> allBundles = new HashMap<>();
 
     public static synchronized I18n getInstance() {
         if (i18n == null)
@@ -37,23 +35,30 @@ public class I18n {
         return this.bundle;
     }
 
-    public void loadBundle(Locale local) {
+    public void loadAndSelectBundles(List<Locale> availableLang, Locale local) {
         this.locale = local;
 //        bundle = ResourceBundle.getBundle("JEVisCC", local);
 
-        try {
-            String s = "JEVisCC_" + local.getLanguage() + ".properties";
+        for (Locale locale : availableLang) {
+            try {
+                String s = "JEVisCC_" + locale.getLanguage() + ".properties";
 
-            InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(s);
-            if (resourceAsStream != null) {
-                InputStreamReader inputStreamReader = new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8);
-                this.reader = new BufferedReader(inputStreamReader);
-                this.bundle = new PropertyResourceBundle(this.reader);
+                InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(s);
+                if (resourceAsStream != null) {
+                    InputStreamReader inputStreamReader = new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8);
+                    Reader reader = new BufferedReader(inputStreamReader);
+                    if (locale.equals(local)) {
+                        this.bundle = new PropertyResourceBundle(reader);
+                        this.allBundles.put(locale, this.bundle);
+                    } else {
+                        this.allBundles.put(locale, new PropertyResourceBundle(reader));
+                    }
+                }
+            } catch (UnsupportedEncodingException e) {
+                logger.error("Unsupported encoding exception. Error while reading resource file.", e);
+            } catch (IOException e) {
+                logger.error("IO exception. Error while reading resource file.", e);
             }
-        } catch (UnsupportedEncodingException e) {
-            logger.error("Unsupported encoding exception. Error while reading resource file.", e);
-        } catch (IOException e) {
-            logger.error("IO exception. Error while reading resource file.", e);
         }
     }
 
@@ -96,6 +101,10 @@ public class I18n {
                 return "*" + key + "*";
             }
         }
+    }
+
+    public Map<Locale, ResourceBundle> getAllBundles() {
+        return allBundles;
     }
 }
 

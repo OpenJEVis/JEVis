@@ -3,7 +3,6 @@ package org.jevis.jeconfig.application.Chart.Charts.MultiAxis;
 import com.sun.javafx.charts.Legend;
 import com.sun.javafx.charts.Legend.LegendItem;
 import javafx.animation.*;
-import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
@@ -11,10 +10,8 @@ import javafx.collections.ObservableList;
 import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.css.StyleableBooleanProperty;
-import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.chart.Axis;
-import javafx.scene.layout.StackPane;
 import javafx.scene.shape.*;
 import javafx.util.Duration;
 
@@ -52,22 +49,23 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
     private BooleanProperty createSymbols = new StyleableBooleanProperty(true) {
         @Override
         protected void invalidated() {
-            for (int seriesIndex = 0; seriesIndex < getData().size(); seriesIndex++) {
-                Series<X, Y> series = getData().get(seriesIndex);
-                for (int itemIndex = 0; itemIndex < series.getData().size(); itemIndex++) {
-                    Data<X, Y> item = series.getData().get(itemIndex);
-                    Node symbol = item.getNode();
-                    if (get() && symbol == null) { // create any symbols
-                        symbol = createSymbol(series, getData().indexOf(series), item, itemIndex);
-                        getPlotChildren().add(symbol);
-                    } else if (!get() && symbol != null) { // remove symbols
-                        getPlotChildren().remove(symbol);
-                        symbol = null;
-                        item.setNode(null);
-                    }
-                }
-            }
-            requestChartLayout();
+/** Disabled by FS, performance FIX **/
+//            for (int seriesIndex = 0; seriesIndex < getData().size(); seriesIndex++) {
+//                Series<X, Y> series = getData().get(seriesIndex);
+//                for (int itemIndex = 0; itemIndex < series.getData().size(); itemIndex++) {
+//                    Data<X, Y> item = series.getData().get(itemIndex);
+//                    Node symbol = item.getNode();
+//                    if (get() && symbol == null) { // create any symbols
+//                        symbol = createSymbol(series, getData().indexOf(series), item, itemIndex);
+//                        getPlotChildren().add(symbol);
+//                    } else if (!get() && symbol != null) { // remove symbols
+//                        getPlotChildren().remove(symbol);
+//                        symbol = null;
+//                        item.setNode(null);
+//                    }
+//                }
+//            }
+//            requestChartLayout();
         }
 
         @Override
@@ -227,9 +225,10 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
     protected void dataItemAdded(final Series<X, Y> series, int itemIndex, final Data<X, Y> item) {
         final Node symbol = createSymbol(series, getData().indexOf(series), item, itemIndex);
 
-        if (symbol != null)
+        if (symbol != null) {
             getPlotChildren().add(symbol);
-
+            symbol.getStyleClass().setAll("chart-series-line", "series" + itemIndex, series.defaultColorStyleClass);
+        }
     }
 
     @Override
@@ -296,6 +295,14 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
         }
     }
 
+    private Node createSymbol(Series<X, Y> series, int seriesIndex, final Data<X, Y> item, int itemIndex) {
+        Node symbol = item.getNode();
+        if (symbol != null)
+            symbol.getStyleClass().addAll("chart-line-symbol", "series" + seriesIndex, "data" + itemIndex,
+                    series.defaultColorStyleClass);
+        return symbol;
+    }
+
     private void updateDefaultColorIndex(final Series<X, Y> series) {
         int clearIndex = seriesColorMap.get(series);
         series.getNode().getStyleClass().remove(DEFAULT_COLOR + clearIndex);
@@ -314,8 +321,9 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
         seriesYMultiplierMap.remove(series);
 
         getPlotChildren().remove(series.getNode());
-        for (Data<X, Y> d : series.getData())
+        for (Data<X, Y> d : series.getData()) {
             getPlotChildren().remove(d.getNode());
+        }
         removeSeriesFromDisplay(series);
     }
 
@@ -446,22 +454,6 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
         return t;
     }
 
-    private Node createSymbol(Series<X, Y> series, int seriesIndex, final Data<X, Y> item, int itemIndex) {
-        Node symbol = item.getNode();
-        // check if symbol has already been created
-        if (symbol == null && getCreateSymbols()) {
-            symbol = new StackPane();
-            symbol.setAccessibleRole(AccessibleRole.TEXT);
-            symbol.setAccessibleRoleDescription("Point");
-            symbol.focusTraversableProperty().bind(Platform.accessibilityActiveProperty());
-            item.setNode(symbol);
-        }
-        // set symbol styles
-        if (symbol != null)
-            symbol.getStyleClass().addAll("chart-line-symbol", "series" + seriesIndex, "data" + itemIndex,
-                    series.defaultColorStyleClass);
-        return symbol;
-    }
 
     /**
      * This is called whenever a series is added or removed and the legend needs to

@@ -77,26 +77,32 @@ public class SQLtoJsonFactory {
 
         String name = rs.getString(AttributeTable.COLUMN_NAME);
         Long objectID = rs.getLong(AttributeTable.COLUMN_OBJECT);
-        String imputSRate = rs.getString(AttributeTable.COLUMN_INPUT_RATE);
+        String inputSRate = rs.getString(AttributeTable.COLUMN_INPUT_RATE);
+        String inputUnit = rs.getString(AttributeTable.COLUMN_INPUT_UNIT);
         String displayRate = rs.getString(AttributeTable.COLUMN_DISPLAY_RATE);
+        String displayUnit = rs.getString(AttributeTable.COLUMN_DISPLAY_UNIT);
 
-        jatt.setInputSampleRate(imputSRate);
+        jatt.setInputSampleRate(inputSRate);
         jatt.setDisplaySampleRate(displayRate);
         jatt.setType(name);
         jatt.setObjectID(objectID);
 
-        try {
-            JEVisUnitImp imputUnit = new JEVisUnitImp(objectMapper.readValue(rs.getString(AttributeTable.COLUMN_INPUT_UNIT), JsonUnit.class));
-            jatt.setInputUnit(JsonFactory.buildUnit(imputUnit));
-        } catch (Exception ex) {
-
+        if (inputUnit != null) {
+            try {
+                JEVisUnitImp jeVisInputUnitImp = new JEVisUnitImp(objectMapper.readValue(inputUnit, JsonUnit.class));
+                jatt.setInputUnit(JsonFactory.buildUnit(jeVisInputUnitImp));
+            } catch (Exception ex) {
+//                logger.error("Could not parse input unit {} from attribute {} of object {}", inputUnit, jatt.getType(), objectID, ex);
+            }
         }
 
-        try {
-            JEVisUnitImp displayUnit = new JEVisUnitImp(objectMapper.readValue(rs.getString(AttributeTable.COLUMN_DISPLAY_UNIT), JsonUnit.class));
-            jatt.setDisplayUnit(JsonFactory.buildUnit(displayUnit));
-        } catch (Exception ex) {
-
+        if (displayUnit != null) {
+            try {
+                JEVisUnitImp jeVisDisplayUnitImp = new JEVisUnitImp(objectMapper.readValue(displayUnit, JsonUnit.class));
+                jatt.setDisplayUnit(JsonFactory.buildUnit(jeVisDisplayUnitImp));
+            } catch (Exception ex) {
+//                logger.error("Could not parse display unit {} from attribute {} of object {}", displayUnit, jatt.getType(), objectID, ex);
+            }
         }
 
         try {

@@ -158,6 +158,8 @@ public class ReportLauncher extends AbstractCliApp {
             }
 
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+
+
                 List<JEVisObject> reports = getEnabledReports();
                 executeReports(reports);
 
@@ -197,12 +199,12 @@ public class ReportLauncher extends AbstractCliApp {
         List<JEVisObject> enabledReports = new ArrayList<>();
         reportObjects.forEach(jeVisObject -> {
                     ReportPolicy reportPolicy = new ReportPolicy();
-            if (reportPolicy.isReportEnabled(jeVisObject)) {
-                enabledReports.add(jeVisObject);
-                if (!plannedJobs.containsKey(jeVisObject.getID())) {
-                    plannedJobs.put(jeVisObject.getID(), "true");
-                }
-            }
+                    if (reportPolicy.isReportEnabled(jeVisObject)) {
+                        enabledReports.add(jeVisObject);
+                        if (!plannedJobs.containsKey(jeVisObject.getID())) {
+                            plannedJobs.put(jeVisObject.getID(), "true");
+                        }
+                    }
                 }
         );
         return enabledReports;

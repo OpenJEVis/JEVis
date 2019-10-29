@@ -516,7 +516,7 @@ public class JEConfig extends Application {
                 _mainDS = login.getDataSource();
 
                 JEConfig.userpassword = login.getUserPassword();
-                I18n.getInstance().loadBundle(login.getSelectedLocale());
+                I18n.getInstance().loadAndSelectBundles(login.getAvailableLang(), login.getSelectedLocale());
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
 
@@ -571,14 +571,20 @@ public class JEConfig extends Application {
                 pluginManager.setMenuBar(menu);
 
                 final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+                final KeyCombination deleteCombo = new KeyCodeCombination(KeyCode.DELETE);
                 final KeyCombination reloadF5 = new KeyCodeCombination(KeyCode.F5);
+                final KeyCombination newCombo = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
                 final KeyCombination hiddenSettings = new KeyCodeCombination(KeyCode.H, KeyCombination.CONTROL_DOWN);
                 scene.setOnKeyPressed(ke -> {
+//                    Platform.runLater(() -> pluginManager.getToolbar().requestFocus());//the most attribute will validate if the lose focus so we do
                     if (saveCombo.match(ke)) {
-                        pluginManager.getToolbar().requestFocus();//the most attribute will validate if the lose focus so we do
                         pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.SAVE);
                     } else if (reloadF5.match(ke)) {
                         pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.RELOAD);
+                    } else if (deleteCombo.match(ke)) {
+                        pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.DELETE);
+                    } else if (newCombo.match(ke)) {
+                        pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.NEW);
                     } else if (hiddenSettings.match(ke)) {
                         HiddenConfig.showHiddenConfig();
                     }

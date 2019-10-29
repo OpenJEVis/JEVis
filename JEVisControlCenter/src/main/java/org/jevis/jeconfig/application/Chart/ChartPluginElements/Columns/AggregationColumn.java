@@ -92,7 +92,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
 
                                     ChartDataModel data = getData(getTreeTableRow().getItem());
 
-                                    AggregationBox aggBox = new AggregationBox(getData(), data);
+                                    AggregationBox aggBox = new AggregationBox(data.getAggregationPeriod());
 
                                     ImageView imageMarkAll = new ImageView(imgMarkAll);
                                     imageMarkAll.fitHeightProperty().set(13);
@@ -105,7 +105,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
                                     aggBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> commitEdit(newValue));
 
                                     tb.setOnAction(event -> {
-                                        AggregationPeriod selection = AggregationPeriod.parseAggregation(aggBox.getSelectionModel().getSelectedItem().toString());
+                                        AggregationPeriod selection = aggBox.getSelectionModel().getSelectedItem();
                                         getData().getSelectedData().forEach(mdl -> {
                                             if (!mdl.getSelectedcharts().isEmpty()) {
                                                 mdl.setAggregationPeriod(selection);

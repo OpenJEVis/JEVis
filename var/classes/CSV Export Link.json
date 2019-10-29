@@ -1,0 +1,37 @@
+{
+  "name": "CSV Export Link",
+  "description": "The CSV Export Link is needed for the data filling process. It links a JEVisObject in the tree of the JEConfig to a variable in the template file.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "CSV Export Link",
+      "end": "CSV Export",
+      "type": 3
+    },
+    {
+      "start": "CSV Export Link",
+      "end": "Export Link",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Column ID",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "CSV Export Link"
+    },
+    {
+        "name": "Value Format",
+        "primitiveType": 0,
+        "guiType": "Text",
+        "guiposition": 0,
+        "validity": 0,
+        "inherited": false,
+        "jevisClass": "CSV Export"
+     }
+  ]
+}

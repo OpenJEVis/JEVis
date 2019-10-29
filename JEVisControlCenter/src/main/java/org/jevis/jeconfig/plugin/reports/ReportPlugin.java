@@ -263,7 +263,7 @@ public class ReportPlugin implements Plugin {
 
     @Override
     public String getToolTip() {
-        return null;
+        return I18n.getInstance().getString("plugin.reports.tooltip");
     }
 
     @Override

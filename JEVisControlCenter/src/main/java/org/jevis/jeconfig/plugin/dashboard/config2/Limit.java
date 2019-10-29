@@ -65,7 +65,6 @@ public class Limit {
             }
 
             if (mode == MODE.DYNAMIC) {
-                System.out.println("Is dyn");
                 limitWidget = jsonNode.get("source").asInt(-1);
                 lowerLimitOffset = jsonNode.get("lowerLimitOffset").asDouble(1);
                 upperLimitOffset = jsonNode.get("upperLimitOffset").asDouble(1);

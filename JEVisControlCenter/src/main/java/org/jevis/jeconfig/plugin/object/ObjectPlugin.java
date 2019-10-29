@@ -98,7 +98,7 @@ public class ObjectPlugin implements Plugin {
             if (tree.getSelectionModel().getSelectedItem() == null) {
                 Platform.runLater(() -> {
                     try {
-                        /** disabled for now, nils dont like it if the analisis folder is open every time **/
+                        /** disabled for now, nils doesnt like it if the analysis folder is open every time **/
 //                        tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
                         tree.getSelectionModel().selectFirst();
                     } catch (Exception ex) {
@@ -552,7 +552,8 @@ public class ObjectPlugin implements Plugin {
             //new
             if (_editor.needSave()) {
                 ConfirmDialog dia = new ConfirmDialog();
-                ConfirmDialog.Response re = dia.show("Save", "Save Attribute Changes", "Changes will be lost if not saved, do you want to save now?");
+                ConfirmDialog.Response re = dia.show(I18n.getInstance().getString("plugin.object.attributes.save"),
+                        I18n.getInstance().getString("plugin.object.attributes.changes"), "plugin.object.attributes.message");
                 if (re == ConfirmDialog.Response.YES) {
                     _editor.commitAll();
                 } else {
@@ -563,7 +564,7 @@ public class ObjectPlugin implements Plugin {
             try {
                 _editor.setTree(tree);
                 if (obj.getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
-                    logger.info("changed: oh object is a link so im loading the linked object");
+                    logger.debug("changed: object is a link so im loading the linked object");
                     _editor.setObject(obj.getLinkedObject());
                 } else {
                     _editor.setObject(obj);

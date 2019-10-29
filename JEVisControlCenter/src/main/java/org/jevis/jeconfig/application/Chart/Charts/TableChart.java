@@ -34,8 +34,6 @@ public class TableChart extends XYChart {
         TableSerie serie = new TableSerie(singleRow, hideShowIcons);
 
         getHexColors().add(singleRow.getColor());
-        chart.getData().add(serie.getSerie());
-        tableData.add(serie.getTableEntry());
 
         /**
          * check if timestamps are in serie

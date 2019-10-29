@@ -72,16 +72,15 @@ public class LinkerWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         try {
+            Platform.runLater(() -> {
+                showProgressIndicator(false);
+            });
             lastInterval = interval;
 
             this.graphAnalysisLinker.applyConfig(
                     DataModelDataHandler.getAggregationPeriod(interval),
                     DataModelDataHandler.getManipulationMode(interval),
                     interval);
-
-            Platform.runLater(() -> {
-                showProgressIndicator(false);
-            });
 
 
         } catch (
@@ -121,7 +120,7 @@ public class LinkerWidget extends Widget {
 
     @Override
     public boolean isStatic() {
-        return true;
+        return false;
     }
 
     @Override
@@ -137,6 +136,7 @@ public class LinkerWidget extends Widget {
 
 
         if (dataModelNode != null) {
+            /** TODO: implement ConfigTab **/
             Tab tab = new Tab("Link");
             widgetConfigDialog.addTab(tab);
 
@@ -224,12 +224,11 @@ public class LinkerWidget extends Widget {
                 logger.error(ex);
             }
         }
-        System.out.println("LinkreWidget.openConfig.end");
     }
 
     @Override
     public void init() {
-        logger.error("Linker.Widget.init");
+        logger.debug("Linker.Widget.init");
 
         try {
 //            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));

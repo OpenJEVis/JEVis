@@ -160,7 +160,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
      * @throws JEVisException
      */
     @Override
-    public List<JEVisAttribute> getAttributes() throws JEVisException {
+    public void getAttributes() throws JEVisException {
         logger.debug("Get all attributes Objects");
 
         try {
@@ -196,8 +196,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
                 /**
                  * TODO:
-                 * 1. use fixMissingAttributes(attributes); fi fix missing attribes
-                 * 2. is the function belov oK?
+                 * 1. use fixMissingAttributes(attributes); fi fix missing attributes
+                 * 2. is the function below oK?
                  */
 
                 /**
@@ -214,24 +214,24 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
                 this.allAttributesPreloaded = true;
 
-                return attributeList;
+//                return attributeList;
             }
 
             /**
              * Load from cache
              */
-            List<JEVisAttribute> result = new ArrayList<>();
-            this.attributeCache.values().forEach(result::addAll);
+//            List<JEVisAttribute> result = new ArrayList<>();
+//            this.attributeCache.values().forEach(result::addAll);
 //                System.out.println("end get attributes");
-            return result;
+//            return result;
 
         } catch (ProtocolException ex) {
             logger.error(ex);
             //TODO: throw excption?! so the other function can handel it?
-            return new ArrayList<>();
+//            return new ArrayList<>();
         } catch (Exception ex) {
             logger.error(ex);
-            return new ArrayList<>();
+//            return new ArrayList<>();
         }
     }
 

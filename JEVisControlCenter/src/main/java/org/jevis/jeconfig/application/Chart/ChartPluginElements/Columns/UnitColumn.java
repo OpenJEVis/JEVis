@@ -56,11 +56,12 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
 
                 List<String> proNames = new ArrayList<>();
 
-                Boolean isEnergyUnit = false;
-                Boolean isVolumeUnit = false;
-                Boolean isMassUnit = false;
-                Boolean isPressureUnit = false;
-                Boolean isVolumeFlowUnit = false;
+                boolean isEnergyUnit = false;
+                boolean isVolumeUnit = false;
+                boolean isMassUnit = false;
+                boolean isPressureUnit = false;
+                boolean isVolumeFlowUnit = false;
+                Boolean isMoneyUnit = false;
 
                 JEVisUnit currentUnit = singleRow.getUnit();
 
@@ -124,6 +125,17 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                 if (!isEnergyUnit && !isMassUnit && !isPressureUnit && !isVolumeFlowUnit && !isVolumeUnit) {
                     if (singleRow.getUnit() != null)
                         proNames.add(singleRow.getUnit().getLabel());
+                }
+
+                for (MoneyUnit mu : MoneyUnit.values()) {
+                    if (mu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isMoneyUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(mu.toString())) {
+                        isMoneyUnit = true;
+                    }
+                }
+                if (isMoneyUnit) for (MoneyUnit mu : MoneyUnit.values()) {
+                    proNames.add(mu.toString());
                 }
 
 
@@ -202,8 +214,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                                     ComboBox box = buildUnitBox(data);
 
                                     box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
-                                        if (oldValue == null || newValue != oldValue) {
-                                            JEVisUnit jeVisUnit = ChartUnits.parseUnit(String.valueOf(newValue));
+                                        if (!newValue.equals(oldValue)) {
+                                            JEVisUnit jeVisUnit = ChartUnits.parseUnit(newValue);
                                             commitEdit(jeVisUnit);
                                         }
                                     });

@@ -5,6 +5,12 @@
     "ru": "Report Link Directory",
     "en": "Report Link Directory"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "Im Berichtsverknüpfungsverzeichnis werden die Berichtsverknüpfungen verwaltet.",
+    "ru": "Каталог ссылок отчета управляет ссылками отчета.",
+    "uk": "Каталог посилань звітів управляє посиланнями звітів.",
+    "th": "ไดเรกทอรีลิงก์รายงานจัดการลิงค์รายงาน",
+    "en": "In the Report Link Directory report links are managed."
+  },
   "types": []
 }
