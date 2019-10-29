@@ -94,7 +94,9 @@ public class ResourceManager {
     public List<CleanInterval> getRawIntervals() {
         if (rawIntervals.isEmpty()) {
             Period rawPeriodAlignment = getCleanDataObject().getRawDataPeriodAlignment();
-            if (!rawPeriodAlignment.equals(Period.ZERO) && rawPeriodAlignment.getMonths() == 0 && rawPeriodAlignment.getYears() == 0) {
+            Period cleanDataPeriodAlignment = getCleanDataObject().getCleanDataPeriodAlignment();
+            if (!rawPeriodAlignment.equals(Period.ZERO) && rawPeriodAlignment.getMonths() == 0 && rawPeriodAlignment.getYears() == 0
+                    && cleanDataPeriodAlignment.getMonths() == 0 && cleanDataPeriodAlignment.getYears() == 0) {
                 Duration duration = rawPeriodAlignment.toStandardDuration();
                 if (rawPeriodAlignment.toStandardMinutes().getMinutes() < 1) {
                     throw new IllegalStateException("Cant calculate the intervals with rawDataPeriodAlignment " + rawPeriodAlignment);
@@ -103,7 +105,7 @@ public class ResourceManager {
                 //Todo Month has no well defined duration -> cant handle months atm
                 long halfDuration = duration.getMillis() / 2;
 
-                Period cleanDataPeriodAlignment = getCleanDataObject().getCleanDataPeriodAlignment();
+
                 if (cleanDataPeriodAlignment.toStandardMinutes().getMinutes() < 1) {
                     throw new IllegalStateException("Cant calculate the intervals with cleanDataPeriodAlignment " + cleanDataPeriodAlignment);
                 }
