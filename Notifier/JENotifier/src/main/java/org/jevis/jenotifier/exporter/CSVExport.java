@@ -230,7 +230,7 @@ public class CSVExport extends Export {
             });
         }
 
-
+        boolean newData = false;
         if (export.get()) {
             int maxColoum = 0;
             DateTime now = DateTime.now();
@@ -263,6 +263,9 @@ public class CSVExport extends Export {
 //                    System.out.println("Exported: " + exportLink.getTargetAttribute().getObject().getName() + " " + sampleList.values().size() + "");
                     shareMax.add(maxInSource);
 
+                    if (maxInSource.isAfter(lastUpdate)) {
+                        newData = true;
+                    }
 
                 } catch (Exception ex) {
                     logger.error(PrettyError.getJEVisLineFilter(ex));
@@ -284,7 +287,7 @@ public class CSVExport extends Export {
             /** TODO: support timestamp position and sometimes Time and Date are split **/
 
             /** nothing todo return**/
-            if (exportCount <= 0) {
+            if (!newData || exportCount <= 0) {
                 try {
                     JEVisSample status = attLastExportStatus.buildSample(logDate, STATUS_IDEL + "; " + exportCount);
                     status.commit();
@@ -300,8 +303,7 @@ public class CSVExport extends Export {
                 stringBuilder.append(header);
                 stringBuilder.append(System.lineSeparator());
             }
-
-
+            
             for (DateTime timeStamp : timeStampList) {
                 stringBuilder.append(enclosed);
                 stringBuilder.append(dateTimeFormatter.print(timeStamp.withZone(dateTimeZone)));

@@ -1,0 +1,491 @@
+[Mo 11:44|INFO |ExporterLauncher    ] -------Start JENotifier-------
+[Mo 11:44|ERROR|JEVisDataSourceWS   ] Catching
+java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getGetConnection(HTTPConnection.java:427) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.connect(JEVisDataSourceWS.java:1291) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.handleBasic(AbstractCliApp.java:159) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.init(AbstractCliApp.java:123) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.execute(AbstractCliApp.java:90) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.main(ExporterLauncher.java:47) [JENotifier-1.0-jar-with-dependencies.jar:?]
+[Mo 11:44|ERROR|JEVisException      ] [402] Verbindungsaufbau abgelehnt (Connection refused)
+[Mo 11:44|FATAL|AbstractCliApp      ] Could not connect! Check login and password.
+org.jevis.api.JEVisException: Verbindungsaufbau abgelehnt (Connection refused)
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.connect(JEVisDataSourceWS.java:1316) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.handleBasic(AbstractCliApp.java:159) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.init(AbstractCliApp.java:123) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.execute(AbstractCliApp.java:90) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.main(ExporterLauncher.java:47) [JENotifier-1.0-jar-with-dependencies.jar:?]
+Caused by: java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getGetConnection(HTTPConnection.java:427) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.connect(JEVisDataSourceWS.java:1291) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	... 4 more
+[Mo 11:44|ERROR|JEVisDataSourceWS   ] IO exception. Error getting classes from ws.
+java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getInputStreamRequest(HTTPConnection.java:149) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getJEVisClassesWS(JEVisDataSourceWS.java:1226) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getJEVisClasses(JEVisDataSourceWS.java:1205) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.preload(JEVisDataSourceWS.java:1380) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.runServiceHelp(ExporterLauncher.java:158) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_191]
+[Mo 11:44|ERROR|Benchmark           ] [6 ms | 26 ms] Preload - Classes
+[Mo 11:44|ERROR|JEVisDataSourceWS   ] IO exception. Error getting relationships. 
+java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getInputStreamRequest(HTTPConnection.java:149) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getRelationshipsWS(JEVisDataSourceWS.java:467) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getRelationships(JEVisDataSourceWS.java:338) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.preload(JEVisDataSourceWS.java:1391) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.runServiceHelp(ExporterLauncher.java:158) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_191]
+[Mo 11:44|ERROR|JEVisDataSourceWS   ] IO exception. Error getting all objects. 
+java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getInputStreamRequest(HTTPConnection.java:149) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getObjectsWS(JEVisDataSourceWS.java:304) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getObjects(JEVisDataSourceWS.java:276) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.preload(JEVisDataSourceWS.java:1394) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.runServiceHelp(ExporterLauncher.java:158) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_191]
+[Mo 11:44|ERROR|Benchmark           ] [8 ms | 34 ms] Preload - Objects
+[Mo 11:44|ERROR|JEVisDataSourceWS   ] java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+[Mo 11:44|ERROR|Benchmark           ] [1 ms | 35 ms] Preload - Attributes
+[Mo 11:44|ERROR|JEVisDataSourceWS   ] Class does not exist null
+[Mo 11:44|ERROR|AbstractCliApp      ] Couldn't get Service cycle time from the JEVis System
+[Mo 11:44|ERROR|JEVisDataSourceWS   ] Class does not exist null
+[Mo 11:44|ERROR|AbstractCliApp      ] Couldn't get Service status from the JEVis System
+[Mo 11:44|ERROR|JEVisDataSourceWS   ] Class does not exist null
+[Mo 11:44|INFO |ExporterLauncher    ] Number of Reports: 0
+[Mo 11:44|ERROR|JEVisDataSourceWS   ] Class does not exist null
+[Mo 11:44|ERROR|AbstractCliApp      ] Couldn't write status to the JEVis System
+[Mo 11:44|INFO |ExporterLauncher    ] ---------------------finish------------------------
+[Mo 11:44|INFO |ExporterLauncher    ] Queued all report objects, entering sleep mode for 900000 ms.
+[Mo 11:45|INFO |ExporterLauncher    ] -------Start JENotifier-------
+[Mo 11:45|DEBUG|ConfigurationUtils  ] ConfigurationUtils.locate(): base is /home/fs/Development/JEVis/etc, name is jevis.xml
+[Mo 11:45|DEBUG|DefaultFileSystem   ] Could not locate file jevis.xml at /home/fs/Development/JEVis/etc: no protocol: /home/fs/Development/JEVis/etc
+[Mo 11:45|DEBUG|ConfigurationUtils  ] Loading configuration from the path /home/fs/Development/JEVis/etc/jevis.xml
+[Mo 11:45|DEBUG|ConfigurationUtils  ] ConfigurationUtils.locate(): base is /home/fs/Development/JEVis/etc, name is jevis.xml
+[Mo 11:45|DEBUG|DefaultFileSystem   ] Could not locate file jevis.xml at /home/fs/Development/JEVis/etc: no protocol: /home/fs/Development/JEVis/etc
+[Mo 11:45|DEBUG|ConfigurationUtils  ] Loading configuration from the path /home/fs/Development/JEVis/etc/jevis.xml
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] Catching
+java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getGetConnection(HTTPConnection.java:427) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.connect(JEVisDataSourceWS.java:1291) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.handleBasic(AbstractCliApp.java:159) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.init(AbstractCliApp.java:123) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.execute(AbstractCliApp.java:90) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.main(ExporterLauncher.java:47) [JENotifier-1.0-jar-with-dependencies.jar:?]
+[Mo 11:45|ERROR|JEVisException      ] [402] Verbindungsaufbau abgelehnt (Connection refused)
+[Mo 11:45|FATAL|AbstractCliApp      ] Could not connect! Check login and password.
+org.jevis.api.JEVisException: Verbindungsaufbau abgelehnt (Connection refused)
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.connect(JEVisDataSourceWS.java:1316) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.handleBasic(AbstractCliApp.java:159) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.init(AbstractCliApp.java:123) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.execute(AbstractCliApp.java:90) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.main(ExporterLauncher.java:47) [JENotifier-1.0-jar-with-dependencies.jar:?]
+Caused by: java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getGetConnection(HTTPConnection.java:427) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.connect(JEVisDataSourceWS.java:1291) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	... 4 more
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] IO exception. Error getting classes from ws.
+java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getInputStreamRequest(HTTPConnection.java:149) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getJEVisClassesWS(JEVisDataSourceWS.java:1226) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getJEVisClasses(JEVisDataSourceWS.java:1205) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.preload(JEVisDataSourceWS.java:1380) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.runServiceHelp(ExporterLauncher.java:158) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_191]
+[Mo 11:45|ERROR|Benchmark           ] [6 ms | 25 ms] Preload - Classes
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] IO exception. Error getting relationships. 
+java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getInputStreamRequest(HTTPConnection.java:149) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getRelationshipsWS(JEVisDataSourceWS.java:467) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getRelationships(JEVisDataSourceWS.java:338) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.preload(JEVisDataSourceWS.java:1391) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.runServiceHelp(ExporterLauncher.java:158) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_191]
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] IO exception. Error getting all objects. 
+java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getInputStreamRequest(HTTPConnection.java:149) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getObjectsWS(JEVisDataSourceWS.java:304) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getObjects(JEVisDataSourceWS.java:276) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.preload(JEVisDataSourceWS.java:1394) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.runServiceHelp(ExporterLauncher.java:158) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_191]
+[Mo 11:45|ERROR|Benchmark           ] [8 ms | 33 ms] Preload - Objects
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+[Mo 11:45|ERROR|Benchmark           ] [1 ms | 35 ms] Preload - Attributes
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] Class does not exist null
+[Mo 11:45|ERROR|AbstractCliApp      ] Couldn't get Service cycle time from the JEVis System
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] Class does not exist null
+[Mo 11:45|ERROR|AbstractCliApp      ] Couldn't get Service status from the JEVis System
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] Class does not exist null
+[Mo 11:45|INFO |ExporterLauncher    ] Number of Reports: 0
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] Class does not exist null
+[Mo 11:45|ERROR|AbstractCliApp      ] Couldn't write status to the JEVis System
+[Mo 11:45|INFO |ExporterLauncher    ] ---------------------finish------------------------
+[Mo 11:45|INFO |ExporterLauncher    ] Queued all report objects, entering sleep mode for 900000 ms.
+[Mo 11:45|FATAL|ExporterLauncher    ] Thread was interrupted: java.lang.InterruptedException: sleep interrupted
+[Mo 11:45|INFO |ExporterLauncher    ] -------Start JENotifier-------
+[Mo 11:45|DEBUG|ConfigurationUtils  ] ConfigurationUtils.locate(): base is /home/fs/Development/JEVis/etc, name is jevis.xml
+[Mo 11:45|DEBUG|DefaultFileSystem   ] Could not locate file jevis.xml at /home/fs/Development/JEVis/etc: no protocol: /home/fs/Development/JEVis/etc
+[Mo 11:45|DEBUG|ConfigurationUtils  ] Loading configuration from the path /home/fs/Development/JEVis/etc/jevis.xml
+[Mo 11:45|DEBUG|ConfigurationUtils  ] ConfigurationUtils.locate(): base is /home/fs/Development/JEVis/etc, name is jevis.xml
+[Mo 11:45|DEBUG|DefaultFileSystem   ] Could not locate file jevis.xml at /home/fs/Development/JEVis/etc: no protocol: /home/fs/Development/JEVis/etc
+[Mo 11:45|DEBUG|ConfigurationUtils  ] Loading configuration from the path /home/fs/Development/JEVis/etc/jevis.xml
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] Catching
+java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getGetConnection(HTTPConnection.java:427) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.connect(JEVisDataSourceWS.java:1291) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.handleBasic(AbstractCliApp.java:159) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.init(AbstractCliApp.java:123) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.execute(AbstractCliApp.java:90) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.main(ExporterLauncher.java:47) [JENotifier-1.0-jar-with-dependencies.jar:?]
+[Mo 11:45|ERROR|JEVisException      ] [402] Verbindungsaufbau abgelehnt (Connection refused)
+[Mo 11:45|FATAL|AbstractCliApp      ] Could not connect! Check login and password.
+org.jevis.api.JEVisException: Verbindungsaufbau abgelehnt (Connection refused)
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.connect(JEVisDataSourceWS.java:1316) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.handleBasic(AbstractCliApp.java:159) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.init(AbstractCliApp.java:123) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.commons.cli.AbstractCliApp.execute(AbstractCliApp.java:90) [JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.main(ExporterLauncher.java:47) [JENotifier-1.0-jar-with-dependencies.jar:?]
+Caused by: java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getGetConnection(HTTPConnection.java:427) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.connect(JEVisDataSourceWS.java:1291) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	... 4 more
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] IO exception. Error getting classes from ws.
+java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getInputStreamRequest(HTTPConnection.java:149) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getJEVisClassesWS(JEVisDataSourceWS.java:1226) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getJEVisClasses(JEVisDataSourceWS.java:1205) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.preload(JEVisDataSourceWS.java:1380) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.runServiceHelp(ExporterLauncher.java:158) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_191]
+[Mo 11:45|ERROR|Benchmark           ] [6 ms | 24 ms] Preload - Classes
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] IO exception. Error getting relationships. 
+java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getInputStreamRequest(HTTPConnection.java:149) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getRelationshipsWS(JEVisDataSourceWS.java:467) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getRelationships(JEVisDataSourceWS.java:338) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.preload(JEVisDataSourceWS.java:1391) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.runServiceHelp(ExporterLauncher.java:158) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_191]
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] IO exception. Error getting all objects. 
+java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+	at java.net.PlainSocketImpl.socketConnect(Native Method) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206) ~[?:1.8.0_191]
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188) ~[?:1.8.0_191]
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:589) ~[?:1.8.0_191]
+	at java.net.Socket.connect(Socket.java:538) ~[?:1.8.0_191]
+	at sun.net.NetworkClient.doConnect(NetworkClient.java:180) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:463) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.openServer(HttpClient.java:558) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.<init>(HttpClient.java:242) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:339) ~[?:1.8.0_191]
+	at sun.net.www.http.HttpClient.New(HttpClient.java:357) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getNewHttpClient(HttpURLConnection.java:1220) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect0(HttpURLConnection.java:1156) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.plainConnect(HttpURLConnection.java:1050) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.connect(HttpURLConnection.java:984) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream0(HttpURLConnection.java:1564) ~[?:1.8.0_191]
+	at sun.net.www.protocol.http.HttpURLConnection.getInputStream(HttpURLConnection.java:1492) ~[?:1.8.0_191]
+	at java.net.HttpURLConnection.getResponseCode(HttpURLConnection.java:480) ~[?:1.8.0_191]
+	at org.jevis.jeapi.ws.HTTPConnection.getInputStreamRequest(HTTPConnection.java:149) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getObjectsWS(JEVisDataSourceWS.java:304) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.getObjects(JEVisDataSourceWS.java:276) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jeapi.ws.JEVisDataSourceWS.preload(JEVisDataSourceWS.java:1394) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at org.jevis.jenotifier.ExporterLauncher.runServiceHelp(ExporterLauncher.java:158) ~[JENotifier-1.0-jar-with-dependencies.jar:?]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_191]
+[Mo 11:45|ERROR|Benchmark           ] [7 ms | 31 ms] Preload - Objects
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] java.net.ConnectException: Verbindungsaufbau abgelehnt (Connection refused)
+[Mo 11:45|ERROR|Benchmark           ] [1 ms | 32 ms] Preload - Attributes
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] Class does not exist null
+[Mo 11:45|ERROR|AbstractCliApp      ] Couldn't get Service cycle time from the JEVis System
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] Class does not exist null
+[Mo 11:45|ERROR|AbstractCliApp      ] Couldn't get Service status from the JEVis System
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] Class does not exist null
+[Mo 11:45|INFO |ExporterLauncher    ] Number of Reports: 0
+[Mo 11:45|ERROR|JEVisDataSourceWS   ] Class does not exist null
+[Mo 11:45|ERROR|AbstractCliApp      ] Couldn't write status to the JEVis System
+[Mo 11:45|INFO |ExporterLauncher    ] ---------------------finish------------------------
+[Mo 11:45|INFO |ExporterLauncher    ] Queued all report objects, entering sleep mode for 900000 ms.
+[Mo 11:46|FATAL|ExporterLauncher    ] Thread was interrupted: java.lang.InterruptedException: sleep interrupted
