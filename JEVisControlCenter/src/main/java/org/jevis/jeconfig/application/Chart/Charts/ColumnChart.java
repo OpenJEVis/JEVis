@@ -56,7 +56,6 @@ public class ColumnChart implements Chart {
     private Boolean hideShowIcons;
     private List<ColumnChartSerie> columnChartSerieList = new ArrayList<>();
     private MultiAxisBarChart columnChart;
-    private ObservableList<MultiAxisBarChart.Series<String, Number>> series = FXCollections.observableArrayList();
     private List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -87,8 +86,6 @@ public class ColumnChart implements Chart {
                     ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons);
                     columnChartSerieList.add(serie);
                     hexColors.add(singleRow.getColor());
-                    series.add(serie.getSerie());
-                    tableData.add(serie.getTableEntry());
 
                 } catch (JEVisException e) {
                     e.printStackTrace();
@@ -104,8 +101,7 @@ public class ColumnChart implements Chart {
         NumberAxis numberAxis1 = new NumberAxis();
         NumberAxis numberAxis2 = new NumberAxis();
 
-        columnChart = new MultiAxisBarChart(catAxis, numberAxis1, numberAxis2, series);
-        columnChart.applyCss();
+        columnChart = new MultiAxisBarChart(catAxis, numberAxis1, numberAxis2);
 
         columnChart.setTitle(chartName);
         columnChart.setLegendVisible(false);
@@ -113,6 +109,17 @@ public class ColumnChart implements Chart {
 
         columnChart.getXAxis().setLabel(unit);
 
+        addSeriesToChart();
+
+    }
+
+    private void addSeriesToChart() {
+        for (ColumnChartSerie columnChartSerie : columnChartSerieList) {
+            Platform.runLater(() -> {
+                columnChart.getData().add(columnChartSerie.getSerie());
+                tableData.add(columnChartSerie.getTableEntry());
+            });
+        }
     }
 
     @Override
@@ -191,7 +198,7 @@ public class ColumnChart implements Chart {
 
         manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
-        series.clear();
+//        series.clear();
         hexColors.clear();
         tableData.clear();
 
@@ -201,7 +208,7 @@ public class ColumnChart implements Chart {
                     ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons);
 
                     hexColors.add(singleRow.getColor());
-                    series.add(serie.getSerie());
+//                    series.add(serie.getSerie());
                     tableData.add(serie.getTableEntry());
 
                 } catch (JEVisException e) {

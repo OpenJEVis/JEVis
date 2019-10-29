@@ -3,11 +3,12 @@ package org.jevis.commons.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import javax.xml.bind.annotation.XmlElement;
+import java.util.ArrayList;
 import java.util.List;
 
 public class JsonChartDataModel {
 
-    private List<JsonAnalysisDataRow> listDataRows;
+    private List<JsonAnalysisDataRow> listDataRows = new ArrayList<>();
 
     @XmlElement(name = "listDataRows")
     public List<JsonAnalysisDataRow> getListDataRows() {

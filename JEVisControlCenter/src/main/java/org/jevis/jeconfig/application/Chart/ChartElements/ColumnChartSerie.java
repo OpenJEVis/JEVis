@@ -109,8 +109,9 @@ public class ColumnChartSerie {
         QuantityUnits qu = new QuantityUnits();
         boolean isQuantity = qu.isQuantityUnit(unit);
 
-        if (samples.size() > 0)
+        if (samples.size() > 0) {
             avg = sum / samples.size();
+        }
 
         NumberFormat nf_out = NumberFormat.getNumberInstance();
         nf_out.setMaximumFractionDigits(2);

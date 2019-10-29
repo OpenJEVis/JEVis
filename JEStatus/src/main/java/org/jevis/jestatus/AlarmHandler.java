@@ -117,8 +117,8 @@ public class AlarmHandler {
 //        sb.append("<br>");
 //        sb.append(alarm.getMessage());
 
-        ServiceStati serviceStati = new ServiceStati(_ds);
-        sb.append(serviceStati.getTableString());
+        ServiceStatus serviceStatus = new ServiceStatus(_ds);
+        sb.append(serviceStatus.getTableString());
 
         DataServerTable dataServerTable = new DataServerTable(_ds, getFurthestReported(), getLatestReported());
         sb.append(dataServerTable.getTableString());

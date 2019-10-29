@@ -145,15 +145,15 @@ public class PrepareStep implements ProcessStep {
 
                 if (periodCleanHasYear) {
                     startInterval = startInterval.minusYears(periodCleanData.getYears()).withMonthOfYear(1).withDayOfMonth(1);
-                    endInterval = startInterval.plusYears(periodCleanData.getYears()).withMonthOfYear(1).withDayOfMonth(1);
+                    endInterval = startInterval.plusYears(periodCleanData.getYears()).withMonthOfYear(1).withDayOfMonth(1).minusDays(1);
                 }
                 if (periodCleanHasMonths) {
                     startInterval = startInterval.minusMonths(periodCleanData.getMonths()).withDayOfMonth(1);
-                    endInterval = startInterval.plusMonths(periodCleanData.getMonths()).withDayOfMonth(1);
+                    endInterval = startInterval.plusMonths(periodCleanData.getMonths()).withDayOfMonth(1).minusDays(1);
                 }
                 if (periodCleanHasWeeks) {
                     startInterval = startInterval.minusWeeks(periodCleanData.getWeeks()).withDayOfWeek(1);
-                    endInterval = startInterval.plusWeeks(periodCleanData.getWeeks()).withDayOfWeek(1);
+                    endInterval = startInterval.plusWeeks(periodCleanData.getWeeks()).withDayOfWeek(1).minusDays(1);
                 }
                 if (periodCleanHasDays) {
                     startInterval = startInterval.minusDays(periodCleanData.getDays());

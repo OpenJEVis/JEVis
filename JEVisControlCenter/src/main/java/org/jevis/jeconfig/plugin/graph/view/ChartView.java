@@ -525,7 +525,7 @@ public class ChartView implements Observer {
                 tableView.getColumns().get(10).setVisible(false);
                 break;
             case HEAT_MAP:
-                chart = new HeatMapChart(chartDataModels);
+                chart = new HeatMapChart(chartDataModels, getChartName());
                 disableTable();
                 break;
             default:
