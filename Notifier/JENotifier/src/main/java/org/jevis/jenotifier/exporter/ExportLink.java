@@ -6,6 +6,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.utils.PrettyError;
 import org.joda.time.DateTime;
 
 import java.util.Map;
@@ -20,9 +21,11 @@ public abstract class ExportLink {
     public static String TYPE_VARIABLE_NAME = "Template Variable Name";
     public static String TYPE_JEVISID = "JEVis ID";
 
+
     protected JEVisAttribute attOptional;
     protected JEVisAttribute attJEVsiID;
     protected JEVisAttribute attVarName;
+
     protected String varname = UUID.randomUUID().toString();
     protected boolean hasVariableName = false;
     protected JEVisAttribute targetAttribute;
@@ -37,7 +40,7 @@ public abstract class ExportLink {
         try {
             attOptional = linkObject.getAttribute(TYPE_OPTIONAL);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(PrettyError.getJEVisLineFilter(e));
         }
 
         try {
@@ -45,7 +48,7 @@ public abstract class ExportLink {
             TargetHelper targetHelper = new TargetHelper(attJEVsiID.getDataSource(), attJEVsiID);
             targetAttribute = targetHelper.getAttribute().get(0);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(PrettyError.getJEVisLineFilter(e));
         }
 
         try {
@@ -53,13 +56,14 @@ public abstract class ExportLink {
             varname = attVarName.getLatestSample().getValueAsString();
             hasVariableName = true;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(PrettyError.getJEVisLineFilter(e));
         }
+
 
         try {
             initAttributes();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error(PrettyError.getJEVisLineFilter(ex));
         }
     }
 

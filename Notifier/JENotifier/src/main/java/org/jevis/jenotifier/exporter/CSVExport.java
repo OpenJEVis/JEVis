@@ -26,6 +26,7 @@ public class CSVExport extends Export {
     public static String TYPE_TIMESTAMP_FORMAT = "Timestamp Format";
     public static String TYPE_LAST_DATE = "Export Date";
     public static String TYPE_STATUS = "Export Status";
+    public static String TYPE_PERIOD_OFFSET = "Start Period Offset";
 
 //    public static String TYPE_EXPORTET_LOG = "Export Status";
 
@@ -42,6 +43,7 @@ public class CSVExport extends Export {
     private JEVisAttribute attTimeZone;
     private JEVisAttribute attLastExport;
     private JEVisAttribute attLastExportStatus;
+    protected JEVisAttribute attStartPeriodOffset;
 
     //    protected JEVisAttribute attExportStatus;
     private int exportCount = 0;
@@ -53,6 +55,7 @@ public class CSVExport extends Export {
     protected String filename = "export";
     protected String header = "";
     private DateTime logDate = null;
+    protected long startOffset = 1;
 
     private boolean hasNewData = false;
     //    private DateTime lastTimeStamp;
@@ -146,6 +149,19 @@ public class CSVExport extends Export {
         }
 
         try {
+            attStartPeriodOffset = exportObject.getAttribute(TYPE_PERIOD_OFFSET);
+            startOffset = attStartPeriodOffset.getLatestSample().getValueAsLong();
+
+            /** 0 makes no sense in a multiplication **/
+            if (startOffset == 0) {
+                startOffset = 1;
+            }
+        } catch (Exception e) {
+//            e.printStackTrace();
+            logger.error("Error in Start Period Offset Format Attribute: {}", PrettyError.getJEVisLineFilter(e));
+        }
+
+        try {
             attTimeZone = exportObject.getAttribute(TYPE_TIMEZONE);
             dateTimeZone = DateTimeZone.forID(attTimeZone.getLatestSample().getValueAsString());
         } catch (Exception e) {
@@ -191,7 +207,7 @@ public class CSVExport extends Export {
 
     @Override
     public void executeExport() throws Exception {
-        logger.error("executeExport()");
+//        logger.error("executeExport()");
         System.out.println("Export from: " + lastUpdate);
 
         logDate = new DateTime();
@@ -199,7 +215,7 @@ public class CSVExport extends Export {
         if (lastUpdate == null) { /** if there was never an export export all data **/
             export.set(true);
         } else if (exportEventList.isEmpty()) {
-            System.out.println("No Event configured using simple new Value Event");
+//            System.out.println("No Event configured using simple new Value Event");
             export.set(true);
         } else {
             exportEventList.forEach(exportEvent -> {
@@ -214,7 +230,7 @@ public class CSVExport extends Export {
             });
         }
 
-
+        boolean newData = false;
         if (export.get()) {
             int maxColoum = 0;
             DateTime now = DateTime.now();
@@ -225,7 +241,14 @@ public class CSVExport extends Export {
             for (ExportLink exportLink : exportLinkList) {
                 try {
                     DateTime maxInSource = null;
-                    Map<DateTime, JEVisSample> sampleList = exportLink.getSamples(lastUpdate.plusSeconds(1), now);
+
+                    /** Also fetch x previous periods add add one second to not have the same sample because >=**/
+                    DateTime startTime = lastUpdate.minus(
+                            exportLink.targetAttribute.getInputSampleRate().toStandardDuration().getMillis() * startOffset)
+                            .plusSeconds(1);
+
+                    Map<DateTime, JEVisSample> sampleList = exportLink.getSamples(startTime, now);
+//                    Map<DateTime, JEVisSample> sampleList = exportLink.getSamples(lastUpdate.plusSeconds(1), now);
 
 
                     exportLinkListMap.put(exportLink, sampleList);
@@ -237,12 +260,15 @@ public class CSVExport extends Export {
                             maxInSource = jeVisSample.getTimestamp();
                         }
                     }
-                    System.out.println("Exported: " + exportLink.getTargetAttribute().getObject().getName() + " " + sampleList.values().size() + "");
+//                    System.out.println("Exported: " + exportLink.getTargetAttribute().getObject().getName() + " " + sampleList.values().size() + "");
                     shareMax.add(maxInSource);
 
+                    if (maxInSource.isAfter(lastUpdate)) {
+                        newData = true;
+                    }
 
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    logger.error(PrettyError.getJEVisLineFilter(ex));
                 }
             }
 
@@ -261,7 +287,7 @@ public class CSVExport extends Export {
             /** TODO: support timestamp position and sometimes Time and Date are split **/
 
             /** nothing todo return**/
-            if (exportCount <= 0) {
+            if (!newData || exportCount <= 0) {
                 try {
                     JEVisSample status = attLastExportStatus.buildSample(logDate, STATUS_IDEL + "; " + exportCount);
                     status.commit();
@@ -277,8 +303,7 @@ public class CSVExport extends Export {
                 stringBuilder.append(header);
                 stringBuilder.append(System.lineSeparator());
             }
-
-
+            
             for (DateTime timeStamp : timeStampList) {
                 stringBuilder.append(enclosed);
                 stringBuilder.append(dateTimeFormatter.print(timeStamp.withZone(dateTimeZone)));
@@ -320,7 +345,7 @@ public class CSVExport extends Export {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(tmpCSVFile))) {
                 writer.write(stringBuilder.toString());
             }
-            System.out.println("Exporterd file: " + tmpCSVFile.getName());
+//            System.out.println("Exporterd file: " + tmpCSVFile.getName());
             exportFiles.add(tmpCSVFile);
 
         } else {

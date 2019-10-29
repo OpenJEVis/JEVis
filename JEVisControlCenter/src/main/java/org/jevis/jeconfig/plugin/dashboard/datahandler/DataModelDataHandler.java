@@ -65,8 +65,10 @@ public class DataModelDataHandler {
         System.out.println("Models: " + getDataModel().size());
         System.out.println("forcedInterval: " + forcedInterval);
         System.out.println("Interval Factoy: " + timeFrameFactory);
+        System.out.println("isautoAggregation: " + autoAggregation);
         getDataModel().forEach(chartDataModel -> {
             System.out.println("model: " + chartDataModel.getObject().getID() + " " + chartDataModel.getObject().getName());
+            System.out.println("EnPI: " + chartDataModel.getEnPI());
             System.out.println("model.datasize: " + chartDataModel.getSamples().size());
             chartDataModel.getSamples().forEach(jeVisSample -> {
                 System.out.println("S: " + jeVisSample);
@@ -147,6 +149,7 @@ public class DataModelDataHandler {
                         chartDataModel.setSelectedEnd(new DateTime(1000, 1, 1, 1, 1, 2));
                         chartDataModel.setFillZeroes(false);
                         chartDataModel.setAbsolute(dataPointNode.isAbsolute());
+
                         chartDataModel.setSelectedCharts(list);
                         chartDataModel.setObject(jeVisAttribute.getObject());
                         chartDataModel.setAttribute(jeVisAttribute);
@@ -168,25 +171,16 @@ public class DataModelDataHandler {
 
 
                         this.chartDataModels.add(chartDataModel);
-
-
                         this.attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
-
 
                         if (dataPointNode.getCalculationID() != null && !dataPointNode.getCalculationID().equals("0")) {
                             chartDataModel.setEnPI(dataPointNode.isEnpi());
                             chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
                         }
+                        if (autoAggregation) {
+                            chartDataModel.setAbsolute(true);
+                        }
 
-
-//                        chartDataModel.setEnPI(dataPointNode.isEnpi());
-//                        if (dataPointNode.isEnpi()) {
-//                            chartDataModel.setEnPI(dataPointNode.isEnpi());
-//                            if (dataPointNode.getCalculationID() != null && !dataPointNode.getCalculationID().equals("0")) {
-//                                chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
-//                            }
-//
-//                        }
 
                     } else {
                         logger.error("Attribute does not exist: {}", dataPointNode.getAttribute());
@@ -216,7 +210,15 @@ public class DataModelDataHandler {
      * @param enable
      */
     public void setAutoAggregation(boolean enable) {
+
         this.autoAggregation = enable;
+        this.dataModelNode.getData().forEach(dataPointNode -> {
+            if (enable) {
+                dataPointNode.setAbsolute(true);
+//                System.out.println("dataPointNode abolut: " + dataPointNode.getObjectID());
+            }
+
+        });
     }
 
 
@@ -312,6 +314,8 @@ public class DataModelDataHandler {
 
             chartDataModel.setAggregationPeriod(aggregationPeriod);
             chartDataModel.setManipulationMode(manipulationMode);
+            if (autoAggregation) chartDataModel.setAbsolute(true);
+
         }
     }
 

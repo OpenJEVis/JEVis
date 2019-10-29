@@ -89,8 +89,8 @@ public abstract class Export {
                     }
 
 
-                    System.out.println("notification: " + nofi);
-                    System.out.println("notification driver: " + jeNotifierConfig.getDefaultEmailNotificationDriver());
+//                    System.out.println("notification: " + nofi);
+//                    System.out.println("notification driver: " + jeNotifierConfig.getDefaultEmailNotificationDriver());
                     SendNotification sn = new SendNotification(nofi, jeNotifierConfig.getDefaultEmailNotificationDriver(), "");
                     sn.run();
                     sn = null;
