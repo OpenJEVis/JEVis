@@ -97,10 +97,12 @@ public class ValueWidget extends Widget implements DataModelWidget {
         try {
             widgetUUID = getConfig().getUuid() + "";
             this.sampleHandler.setInterval(interval);
+            this.sampleHandler.setAutoAggregation(true);
             this.sampleHandler.update();
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataModel dataModel = this.sampleHandler.getDataModel().get(0);
                 List<JEVisSample> results;
+
                 String unit = dataModel.getUnitLabel();
 
                 results = dataModel.getSamples();
@@ -225,7 +227,6 @@ public class ValueWidget extends Widget implements DataModelWidget {
             });
         });
 
-        sampleHandler.setAutoAggregation(true);
 
         try {
             if (limit != null && limit.getLimitWidgetID() > 0) {
@@ -265,10 +266,11 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     @Override
     public void init() {
-        logger.debug("init");
+        logger.debug("init Value Widget: " + getConfig().getUuid());
 
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);
+
         logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(LIMIT_NODE_NAME));
         try {
             this.limit = new Limit(this.control, this.config.getConfigNode(LIMIT_NODE_NAME));

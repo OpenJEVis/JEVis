@@ -85,7 +85,7 @@ public class PieWidget extends Widget {
             showProgressIndicator(true);
         }
 
-        this.sampleHandler.setAutoAggregation(true);
+//        this.sampleHandler.setAutoAggregation(true);
 
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
