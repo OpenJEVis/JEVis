@@ -77,7 +77,6 @@ public class HeatMapChart implements Chart {
         chartDataModel.setAggregationPeriod(heatMapXY.getAggregationPeriod());
 
         List<JEVisSample> samples = chartDataModel.getSamples();
-        System.out.println("samples: " + samples.size());
         try {
             inputSampleRate = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
 
@@ -108,7 +107,6 @@ public class HeatMapChart implements Chart {
         for (int y = 0; y < Y_MAX; y++) {
             int xCell = 0;
             yAxisList.add(currentTS);
-            System.out.println("yts: " + currentTS);
             for (int x = 0; x < X_MAX; x++) {
                 if (xAxisList.size() < X_MAX) {
                     xAxisList.add(currentTS);
@@ -116,7 +114,6 @@ public class HeatMapChart implements Chart {
 
                 try {
                     JEVisSample jeVisSample = sampleHashMap.get(currentTS);
-                    System.out.println("xts: " + currentTS);
 
                     if (jeVisSample != null) {
                         Double valueAsDouble = jeVisSample.getValueAsDouble();

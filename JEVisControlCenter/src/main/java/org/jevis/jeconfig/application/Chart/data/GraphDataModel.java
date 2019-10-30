@@ -1032,15 +1032,19 @@ public class GraphDataModel {
                 chartDataModels.add(chartDataModel);
         });
 
-        if (!globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.PREVIEW)) {
+        if (!globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.PREVIEW)
+                && !globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM)
+                && !globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
             DateHelper dateHelper = new DateHelper();
             dateHelper.setMinMaxForDateHelper(chartDataModels);
             dateHelper.setType(TimeFrame.parseTransformType(globalAnalysisTimeFrame.getTimeFrame()));
             globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());
             globalAnalysisTimeFrame.setEnd(dateHelper.getEndDate());
             selectedData.forEach(chartDataModel -> setChartDataModelStartAndEnd(chartDataModel, dateHelper.getStartDate(), dateHelper.getEndDate()));
-        } else {
+        } else if (globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.PREVIEW)) {
             checkForPreviewData(chartDataModels, globalAnalysisTimeFrame);
+            selectedData.forEach(chartDataModel -> setChartDataModelStartAndEnd(chartDataModel, globalAnalysisTimeFrame.getStart(), globalAnalysisTimeFrame.getEnd()));
+        } else {
             selectedData.forEach(chartDataModel -> setChartDataModelStartAndEnd(chartDataModel, globalAnalysisTimeFrame.getStart(), globalAnalysisTimeFrame.getEnd()));
         }
     }
