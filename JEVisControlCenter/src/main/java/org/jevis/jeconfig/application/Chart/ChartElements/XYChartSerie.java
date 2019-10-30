@@ -183,7 +183,7 @@ public class XYChartSerie {
             Platform.runLater(() -> tableEntry.setMin(nf_out.format(min) + " " + getUnit()));
         }
 
-        if (max == Double.MIN_VALUE || samples.size() == 0) {
+        if (max == -Double.MAX_VALUE || samples.size() == 0) {
             Platform.runLater(() -> tableEntry.setMax("- " + getUnit()));
         } else {
             Platform.runLater(() -> tableEntry.setMax(nf_out.format(max) + " " + getUnit()));

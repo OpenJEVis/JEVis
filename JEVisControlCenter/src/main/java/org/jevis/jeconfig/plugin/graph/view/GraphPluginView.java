@@ -718,7 +718,6 @@ public class GraphPluginView implements Plugin {
                         double pixelHeight = matrixHeatMap.getMatrix().getPixelHeight();
                         double pixelWidth = matrixHeatMap.getMatrix().getPixelWidth();
                         double spacerSizeFactor = matrixHeatMap.getMatrix().getSpacerSizeFactor();
-                        System.out.println("pixelHeight " + pixelHeight + " pixelWidth " + pixelWidth + " spacer " + spacerSizeFactor);
 
                         double leftAxisWidth = 0;
                         for (Node node : spVer.getChildren()) {
