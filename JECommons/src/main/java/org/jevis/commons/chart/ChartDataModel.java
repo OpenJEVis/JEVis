@@ -437,6 +437,9 @@ public class ChartDataModel {
     }
 
     public String getColor() {
+        if (color.contains("0x")) {
+            color = color.replace("0x", "#");
+        }
         return color;
     }
 
