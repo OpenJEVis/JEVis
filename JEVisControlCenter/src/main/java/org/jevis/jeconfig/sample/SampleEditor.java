@@ -23,7 +23,6 @@ import com.jfoenix.controls.JFXDatePicker;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -34,21 +33,27 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisConstants;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ProcessorBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.TimeZoneBox;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * GUI Dialog to configure attributes and there sample.
@@ -78,6 +83,7 @@ public class SampleEditor {
 //    private DateTime _until;
     private boolean initial = true;
     private SampleEditorExtension activExtensions;
+    private DateTimeZone dateTimeZone = DateTimeZone.getDefault();
 
     /**
      * @param owner
@@ -149,7 +155,15 @@ public class SampleEditor {
             }
         }
 
-        Node preClean = buildProcessorBox(attribute.getObject());
+        Node preClean = buildProcessorBox();
+
+        TimeZoneBox timeZoneBox = new TimeZoneBox();
+        HBox bottomBox = new HBox(timeZoneBox);
+        bottomBox.setPadding(new Insets(10));
+        timeZoneBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            dateTimeZone = newValue;
+            updateSamples(startDate, endDate);
+        });
 
         Label timeRangeL = new Label(I18n.getInstance().getString("attribute.editor.timerange"));
         timeRangeL.setStyle("-fx-font-weight: bold");
@@ -165,7 +179,7 @@ public class SampleEditor {
 
         buttonPanel.getChildren().addAll(timeSpan, preClean, spacer, ok, cancel);
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
-        buttonPanel.setPadding(new Insets(10, 10, 10, 10));
+        buttonPanel.setPadding(new Insets(10));
         buttonPanel.setSpacing(15);//10
         buttonPanel.setMaxHeight(25);
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -205,16 +219,14 @@ public class SampleEditor {
             });
         });
 
-
         final TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
         tabPane.getTabs().addAll(tabs);
 
-
         Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("attribute.editor.title"));//new Separator(Orientation.HORIZONTAL),
 
-        root.getChildren().addAll(header, tabPane, new Separator(Orientation.HORIZONTAL), buttonPanel);
+        root.getChildren().addAll(header, tabPane, new Separator(Orientation.HORIZONTAL), buttonPanel, bottomBox);
         VBox.setVgrow(tabPane, Priority.ALWAYS);
         VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
@@ -273,115 +285,43 @@ public class SampleEditor {
         disableEditing.setValue(true);
     }
 
-    private Node buildProcessorBox(final JEVisObject parentObj) {
-        List<String> proNames = new ArrayList<>();
-        proNames.add("Raw Data");
+    private Node buildProcessorBox() {
 
-        try {
-            JEVisClass dpClass = parentObj.getDataSource().getJEVisClass("Data Processor");
-
-            if (dpClass != null) {
-                _dataProcessors = parentObj.getChildren(dpClass, true);
-                if (_dataProcessors != null) {
-
-                    for (JEVisObject configObject : _dataProcessors) {
-                        proNames.add(configObject.getName());
-                    }
-                }
-            }
-
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
-
-        ChoiceBox<String> processorBox = new ChoiceBox<>();
-        processorBox.setItems(FXCollections.observableArrayList(proNames));
-        processorBox.getSelectionModel().selectFirst();
-        processorBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-
+        ProcessorBox processorBox = new ProcessorBox(_attribute.getObject(), null);
+        processorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                if (newValue.equals("None")) {
-                    disableEditing.setValue(true);
-                    updateSamples(startDate, endDate);
-                } else {
-                    for (JEVisObject configObject : _dataProcessors) {
-                        if (configObject.getName().equals(newValue)) {
-                            updateSamples(startDate, endDate);
-                        }
-                    }
-                }
-
+                _attribute = newValue.getAttribute("Value");
+                updateSamples(startDate, endDate);
             } catch (Exception ex) {
                 logger.fatal(ex);
             }
         });
 
-        List<String> aggList = new ArrayList<>();
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.none"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.hourly"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.daily"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.weekly"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.monthly"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.quarterly"));
-        aggList.add(I18n.getInstance().getString("plugin.object.attribute.sampleeditor.aggregationPeriod.yearly"));
-
-        ChoiceBox<String> aggregate = new ChoiceBox<String>();
-        aggregate.setItems(FXCollections.observableArrayList(aggList));
-        aggregate.getSelectionModel().selectFirst();
-        aggregate.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && !Objects.equals(newValue, oldValue)) {
-                disableEditing.setValue(true);
-
-                switch (newValue.intValue()) {
-                    case 0:
-                        _period = AggregationPeriod.NONE;
-                        logger.info("Processor disable");
-                        disableEditing.setValue(false);/** only original DB data can be edited **/
-                        break;
-                    case 1:
-                        _period = AggregationPeriod.HOURLY;
-                        break;
-                    case 2:
-                        _period = AggregationPeriod.DAILY;
-                        break;
-                    case 3:
-                        _period = AggregationPeriod.WEEKLY;
-                        break;
-                    case 4:
-                        _period = AggregationPeriod.MONTHLY;
-                        break;
-                    case 5:
-                        _period = AggregationPeriod.QUARTERLY;
-                        break;
-                    case 6:
-                        _period = AggregationPeriod.YEARLY;
-                        break;
-                }
-                updateSamples(startDate, endDate);
-            }
+        AggregationBox aggregationBox = new AggregationBox(AggregationPeriod.NONE);
+        aggregationBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            _period = newValue;
+            updateSamples(startDate, endDate);
         });
 
         processorBox.setMinWidth(150);
-        aggregate.setMinWidth(150);
-
-        HBox hbox = new HBox(2);
+        aggregationBox.setMinWidth(150);
 
         Label header = new Label(I18n.getInstance().getString("attribute.editor.dataprocessing"));
         header.setStyle("-fx-font-weight: bold");
-        Label settingL = new Label(I18n.getInstance().getString("attribute.editor.setting"));
+        Label dataProcessor = new Label(I18n.getInstance().getString("attribute.editor.processor"));
         Label aggregation = new Label(I18n.getInstance().getString("attribute.editor.aggregate"));
 
         Button config = new Button();
         config.setGraphic(JEConfig.getImage("Service Manager.png", 16, 16));
-
-        hbox.getChildren().addAll(processorBox);//, config);
 
         GridPane grid = new GridPane();
         grid.setHgap(5);
         grid.setVgap(2);
         grid.add(header, 0, 0, 2, 1); // column=1 row=0
         grid.add(aggregation, 0, 2, 1, 1); // column=1 row=0
-        grid.add(aggregate, 1, 2, 1, 1); // column=1 row=0
+        grid.add(aggregationBox, 1, 2, 1, 1); // column=1 row=0
+        grid.add(dataProcessor, 0, 3, 1, 1);
+        grid.add(processorBox, 1, 3, 1, 1);
 
         return grid;
     }
@@ -389,13 +329,16 @@ public class SampleEditor {
     private void updateSamples(JFXDatePicker startDate, JFXDatePicker endDate) {
 
         if (startDate != null && endDate != null && startDate.getValue() != null && endDate.getValue() != null) {
-            updateSamples(new DateTime(startDate.getValue().getYear(), startDate.getValue().getMonth().getValue(), startDate.getValue().getDayOfMonth(), 0, 0)
-                    , new DateTime(endDate.getValue().getYear(), endDate.getValue().getMonth().getValue(), endDate.getValue().getDayOfMonth(), 23, 59, 59, 999));
+            updateSamples(
+                    new DateTime(startDate.getValue().getYear(), startDate.getValue().getMonth().getValue(), startDate.getValue().getDayOfMonth(),
+                            0, 0).withZone(dateTimeZone),
+                    new DateTime(endDate.getValue().getYear(), endDate.getValue().getMonth().getValue(), endDate.getValue().getDayOfMonth(),
+                            23, 59, 59, 999).withZone(dateTimeZone));
         }
     }
 
-    private int getLastDataSettings(final DateTime from, final DateTime until, AggregationPeriod period) {
-        return from.hashCode() * until.hashCode() * period.hashCode();
+    private int getLastDataSettings(final JEVisAttribute _attribute, final DateTimeZone dateTimeZone, final DateTime from, final DateTime until, AggregationPeriod period) {
+        return _attribute.hashCode() * dateTimeZone.hashCode() * from.hashCode() * until.hashCode() * period.hashCode();
     }
 
     /**
@@ -406,7 +349,7 @@ public class SampleEditor {
 
         try {
 
-            if (lastDataSettings != getLastDataSettings(from, until, _period)) {
+            if (lastDataSettings != getLastDataSettings(_attribute, dateTimeZone, from, until, _period)) {
                 DateTime _from = new DateTime(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth(),
                         workdayStart.getHour(), workdayStart.getMinute(), workdayStart.getSecond(), workdayStart.getNano());
                 DateTime _until = new DateTime(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth(),
@@ -424,6 +367,7 @@ public class SampleEditor {
                 for (SampleEditorExtension extension : extensions) {
                     Platform.runLater(() -> {
                         try {
+                            extension.setDateTimeZone(dateTimeZone);
                             extension.setSamples(_attribute, samples);
 //                        extension.update();
                         } catch (Exception excp) {
@@ -438,7 +382,7 @@ public class SampleEditor {
                 activExtensions.update();
             }
 
-            lastDataSettings = getLastDataSettings(from, until, _period);
+            lastDataSettings = getLastDataSettings(_attribute, dateTimeZone, from, until, _period);
 
         } catch (Exception ex) {
             logger.error(ex);

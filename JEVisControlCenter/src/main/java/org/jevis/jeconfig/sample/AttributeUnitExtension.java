@@ -21,6 +21,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTimeZone;
 
 import java.util.List;
 import java.util.Locale;
@@ -55,6 +56,11 @@ public class AttributeUnitExtension implements SampleEditorExtension {
 
     @Override
     public void setSamples(JEVisAttribute att, List<JEVisSample> samples) {
+
+    }
+
+    @Override
+    public void setDateTimeZone(DateTimeZone dateTimeZone) {
 
     }
 

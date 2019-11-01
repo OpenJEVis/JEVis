@@ -48,6 +48,7 @@ import org.jevis.jeconfig.dialog.ExceptionDialog;
 import org.jevis.jeconfig.sample.csvexporttable.CSVExportTableSampleTable;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -426,6 +427,11 @@ public class SampleExportExtension implements SampleEditorExtension {
     public void setSamples(final JEVisAttribute att, final List<JEVisSample> samples) {
         _samples = samples;
         _att = att;
+    }
+
+    @Override
+    public void setDateTimeZone(DateTimeZone dateTimeZone) {
+
     }
 
     @Override
