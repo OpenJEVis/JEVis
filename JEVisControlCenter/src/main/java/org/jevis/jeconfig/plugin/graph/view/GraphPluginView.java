@@ -75,6 +75,7 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.tool.I18n;
@@ -888,7 +889,7 @@ public class GraphPluginView implements Plugin {
                     List<Integer> list = new ArrayList<>();
                     list.add(0);
                     chartDataModel.setSelectedCharts(list);
-                    chartDataModel.setColor(Color.BLUE);
+                    chartDataModel.setColor(ColorHelper.toRGBCode(Color.BLUE));
                     chartDataModel.setSomethingChanged(true);
 
                     Set<ChartDataModel> chartDataModels = Collections.singleton(chartDataModel);

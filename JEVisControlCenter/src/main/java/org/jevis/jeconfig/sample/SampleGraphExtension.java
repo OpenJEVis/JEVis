@@ -32,6 +32,8 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.tools.ColorHelper;
+import org.joda.time.DateTimeZone;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +83,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
             chartDataModel.setSelectedCharts(list);
             chartDataModel.setAttribute(obj);
             chartDataModel.setSamples(samples);
-            chartDataModel.setColor(Color.BLUE);
+            chartDataModel.setColor(ColorHelper.toRGBCode(Color.BLUE));
             chartDataModel.setSomethingChanged(false);
 
             List<ChartDataModel> chartDataModelList = new ArrayList<>();
@@ -115,6 +117,11 @@ public class SampleGraphExtension implements SampleEditorExtension {
         _samples = samples;
         _att = att;
         _dataChanged = true;
+    }
+
+    @Override
+    public void setDateTimeZone(DateTimeZone dateTimeZone) {
+
     }
 
     @Override

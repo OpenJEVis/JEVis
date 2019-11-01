@@ -10,6 +10,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class TableChart extends XYChart {
         this.singleRow = singleRow;
         TableSerie serie = new TableSerie(singleRow, hideShowIcons);
 
-        getHexColors().add(singleRow.getColor());
+        getHexColors().add(ColorHelper.toColor(singleRow.getColor()));
 
         /**
          * check if timestamps are in serie

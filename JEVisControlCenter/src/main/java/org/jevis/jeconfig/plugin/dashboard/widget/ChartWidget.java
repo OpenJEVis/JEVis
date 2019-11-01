@@ -21,6 +21,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
@@ -107,7 +108,7 @@ public class ChartWidget extends Widget {
                     try {
                         String dataName = chartDataModel.getObject().getName();
                         this.legend.getItems().add(
-                                this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), chartDataModel.getColor(),
+                                this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), ColorHelper.toColor(chartDataModel.getColor()),
                                         this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject()));
                         if (chartDataModel.getSamples().isEmpty()) {
                             showAlertOverview(true, "");

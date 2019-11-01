@@ -42,6 +42,7 @@ import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -57,6 +58,7 @@ public class SampleTableExtension implements SampleEditorExtension {
     private final static String TITLE = "Editor";
     private final BorderPane _view = new BorderPane();
     private final Window owner;
+    private DateTimeZone dateTimeZone;
     private JEVisAttribute _att;
     private List<JEVisSample> _samples = new ArrayList<>();
     private boolean _dataChanged = true;
@@ -72,7 +74,7 @@ public class SampleTableExtension implements SampleEditorExtension {
         HBox box = new HBox(10);
         box.setAlignment(Pos.CENTER);
 
-        final SampleTable table = new SampleTable(att, samples);
+        final SampleTable table = new SampleTable(att, dateTimeZone, samples);
         table.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
         boolean canDelete = false;
@@ -162,7 +164,7 @@ public class SampleTableExtension implements SampleEditorExtension {
                         value = 1.0d;
                         break;
                     case JEVisConstants.PrimitiveType.LONG:
-                        value = 1l;
+                        value = 1L;
                         break;
                     case JEVisConstants.PrimitiveType.BOOLEAN:
                         value = true;
@@ -283,6 +285,11 @@ public class SampleTableExtension implements SampleEditorExtension {
         _samples = samples;
         _att = att;
         _dataChanged = true;
+    }
+
+    @Override
+    public void setDateTimeZone(DateTimeZone dateTimeZone) {
+        this.dateTimeZone = dateTimeZone;
     }
 
     @Override

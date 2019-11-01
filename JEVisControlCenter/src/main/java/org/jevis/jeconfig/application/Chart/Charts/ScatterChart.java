@@ -9,6 +9,7 @@ import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYScatterChartSerie;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisScatterChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class ScatterChart extends XYChart {
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
         XYChartSerie serie = new XYScatterChartSerie(singleRow, hideShowIcons);
 
-        getHexColors().add(singleRow.getColor());
+        getHexColors().add(ColorHelper.toColor(singleRow.getColor()));
         chart.getData().add(serie.getSerie());
         tableData.add(serie.getTableEntry());
 
@@ -57,7 +58,7 @@ public class ScatterChart extends XYChart {
     public void applyColors() {
         for (int i = 0; i < getHexColors().size(); i++) {
             Color currentColor = getHexColors().get(i);
-            String hexColor = toRGBCode(currentColor);
+            String hexColor = ColorHelper.toRGBCode(currentColor);
 
             Node node = getChart().lookup(".default-color" + i + ".chart-symbol");
 //            String style = node.getStyle();

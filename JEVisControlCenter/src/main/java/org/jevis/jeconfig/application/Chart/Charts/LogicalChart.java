@@ -14,6 +14,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartElements.*;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.LogicalYAxisStringConverter;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
@@ -35,7 +36,7 @@ public class LogicalChart extends XYChart {
         setMinValue(Math.min(minValue, serie.getMinValue()));
         setMaxValue(Math.max(maxValue, serie.getMaxValue()));
 
-        getHexColors().add(singleRow.getColor());
+        getHexColors().add(ColorHelper.toColor(singleRow.getColor()));
 
         /**
          * check if timestamps are in serie
@@ -72,7 +73,7 @@ public class LogicalChart extends XYChart {
 
         for (int i = 0; i < getHexColors().size(); i++) {
             Color currentColor = getHexColors().get(i);
-            String hexColor = toRGBCode(currentColor);
+            String hexColor = ColorHelper.toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = getChart().lookup(preIdent + ".chart-series-area-fill");
             Node nodew = getChart().lookup(preIdent + ".chart-series-area-line");

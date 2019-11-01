@@ -17,6 +17,7 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -40,7 +41,7 @@ public class BarChartSerie {
         serie.setName(tableEntryName);
         serie.getData().clear();
         tableEntry = new TableEntry(tableEntryName);
-        tableEntry.setColor(singleRow.getColor());
+        tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
         tableData.add(tableEntry);
 
 //        JEVisAttribute att = singleRow.getAttribute();

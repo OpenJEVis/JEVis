@@ -32,6 +32,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTimeZone;
 
 import java.util.List;
 
@@ -167,6 +168,11 @@ public class AttributeStatesExtension implements SampleEditorExtension {
         _samples = samples;
         _att = att;
         _dataChanged = true;
+    }
+
+    @Override
+    public void setDateTimeZone(DateTimeZone dateTimeZone) {
+
     }
 
     @Override

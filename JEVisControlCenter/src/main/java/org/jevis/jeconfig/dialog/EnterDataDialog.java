@@ -2,6 +2,7 @@ package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -24,6 +25,7 @@ import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.FormatStyle;
@@ -43,10 +45,18 @@ public class EnterDataDialog {
     private JEVisObject selectedObject;
     private Stage stage;
     private Response response;
+    private Label lastValueLabel = new Label();
+    private Label lastTSLabel = new Label();
+    private NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
+    private Double lastValue;
+    private JEVisClass dataClass;
+    private JEVisClass cleanDataClass;
 
     public EnterDataDialog(JEVisDataSource dataSource) {
         this.ds = dataSource;
         this.objectRelations = new ObjectRelations(ds);
+        this.numberFormat.setMinimumFractionDigits(2);
+        this.numberFormat.setMaximumFractionDigits(2);
     }
 
     public Response show() {
@@ -80,7 +90,8 @@ public class EnterDataDialog {
         List<JEVisObject> allData = new ArrayList<>();
         HashMap<Long, JEVisObject> map = new HashMap<>();
         try {
-            JEVisClass dataClass = ds.getJEVisClass("Data");
+            dataClass = ds.getJEVisClass("Data");
+            cleanDataClass = ds.getJEVisClass("Clean Data");
             allData = ds.getObjects(dataClass, false);
             map = allData.stream().collect(Collectors.toMap(JEVisObject::getID, object -> object, (a, b) -> b, HashMap::new));
         } catch (JEVisException e) {
@@ -114,6 +125,7 @@ public class EnterDataDialog {
         idBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != oldValue) {
                 selectedObject = newValue;
+                loadLastValue();
             }
         });
 
@@ -150,6 +162,12 @@ public class EnterDataDialog {
         Separator sep = new Separator(Orientation.HORIZONTAL);
 
         Button confirm = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.save"));
+        Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
+        cancel.setOnAction(event -> {
+                    stage.close();
+                    stage = null;
+                }
+        );
         confirm.setOnAction(event -> {
             if (selectedObject != null) {
                 DoubleValidator validator = new DoubleValidator();
@@ -158,8 +176,13 @@ public class EnterDataDialog {
                 if (newVal != null) {
 
                     JEVisAttribute valueAttribute = null;
+                    JEVisAttribute diffAttribute = null;
                     try {
                         valueAttribute = selectedObject.getAttribute("Value");
+                        for (JEVisObject jeVisObject : selectedObject.getChildren(cleanDataClass, false)) {
+                            diffAttribute = jeVisObject.getAttribute("Conversion to Differential");
+                            break;
+                        }
                     } catch (JEVisException e) {
                         logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
                     }
@@ -168,26 +191,43 @@ public class EnterDataDialog {
                             timePicker.valueProperty().get().getHour(), timePicker.valueProperty().get().getMinute(), timePicker.valueProperty().get().getSecond());
 
                     if (valueAttribute != null) {
-                        JEVisSample sample = null;
-                        try {
-                            sample = valueAttribute.buildSample(ts, newVal, I18n.getInstance().getString("menu.file.import.manual") + " " + DateTime.now());
-                        } catch (JEVisException e) {
-                            logger.error("Could not build sample with value {} and ts {}", newVal, ts, e);
-                        }
-                        if (sample != null) {
+
+                        JEVisSample diffSample = null;
+                        Boolean isDiff = false;
+                        if (diffAttribute != null && diffAttribute.hasSample()) {
+                            diffSample = diffAttribute.getLatestSample();
                             try {
-                                sample.commit();
-                                String message = sample.toString() + " " + I18n.getInstance().getString("plugin.object.dialog.data.import");
-                                Alert ok = new Alert(Alert.AlertType.INFORMATION, message);
-                                ok.showAndWait();
+                                isDiff = diffSample.getValueAsBoolean();
                             } catch (JEVisException e) {
-                                logger.error("Could not commit sample {}", sample, e);
+                                e.printStackTrace();
                             }
                         }
+
+                        if (isDiff) {
+                            if (lastValue != null && lastValue > newVal) {
+                                Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.differror"));
+                                warning.setResizable(true);
+                                JEVisAttribute finalValueAttribute = valueAttribute;
+                                Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
+                                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                        buildSample(finalValueAttribute, ts, newVal);
+                                    } else {
+
+                                    }
+                                }));
+
+                            } else {
+                                buildSample(valueAttribute, ts, newVal);
+                            }
+                        } else {
+                            buildSample(valueAttribute, ts, newVal);
+                        }
+
                     }
 
                 } else {
                     Alert warning = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("plugin.object.dialog.data.error.number"));
+                    warning.setResizable(true);
                     warning.showAndWait();
                 }
             }
@@ -200,15 +240,18 @@ public class EnterDataDialog {
         gridPane.add(valueLabel, 5, row);
         row++;
         gridPane.add(searchIdField, 0, row);
-        gridPane.add(idBox, 1, row);
+        gridPane.add(idBox, 1, row, 2, 1);
 //        gridPane.add(diffSwitch, 2, row);
         gridPane.add(datePicker, 3, row);
         gridPane.add(timePicker, 4, row);
         gridPane.add(doubleField, 5, row);
         row++;
-        gridPane.add(sep, 0, row, 5, 1);
+        gridPane.add(sep, 0, row, 6, 1);
         row++;
-        gridPane.add(confirm, 4, row);
+        gridPane.add(lastTSLabel, 1, row);
+        gridPane.add(lastValueLabel, 2, row);
+        gridPane.add(cancel, 4, row);
+        gridPane.add(confirm, 5, row);
 
         Scene scene = new Scene(gridPane);
         stage.setScene(scene);
@@ -220,5 +263,59 @@ public class EnterDataDialog {
         stage.showAndWait();
 
         return response;
+    }
+
+    private void buildSample(JEVisAttribute valueAttribute, DateTime ts, Double newVal) {
+        JEVisSample sample = null;
+        try {
+            sample = valueAttribute.buildSample(ts, newVal, I18n.getInstance().getString("menu.file.import.manual") + " " + DateTime.now());
+        } catch (JEVisException e) {
+            logger.error("Could not build sample with value {} and ts {}", newVal, ts, e);
+        }
+        if (sample != null) {
+            try {
+                sample.commit();
+                String message = sample.getTimestamp() + " : " + sample.getValueAsDouble() + " " + I18n.getInstance().getString("plugin.object.dialog.data.import");
+                Alert ok = new Alert(Alert.AlertType.INFORMATION, message);
+                ok.setResizable(true);
+                ok.showAndWait();
+            } catch (JEVisException e) {
+                logger.error("Could not commit sample {}", sample, e);
+            }
+        }
+    }
+
+    private void loadLastValue() {
+        if (selectedObject != null) {
+            JEVisAttribute valueAttribute = null;
+            try {
+                valueAttribute = selectedObject.getAttribute("Value");
+            } catch (JEVisException e) {
+                logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
+            }
+
+            JEVisSample sample = null;
+            DateTime lastTS = null;
+            lastValue = null;
+            if (valueAttribute != null && valueAttribute.hasSample())
+                try {
+                    sample = valueAttribute.getLatestSample();
+                    if (sample != null) {
+                        lastTS = sample.getTimestamp();
+                        lastValue = sample.getValueAsDouble();
+                        if (lastTS != null && lastValue != null) {
+                            DateTime finalLastTS = lastTS;
+                            Double finalLastValue = lastValue;
+                            Platform.runLater(() -> {
+                                this.lastTSLabel.setText(finalLastTS.toString("yyyy-MM-dd HH:mm") + " : ");
+
+                                this.lastValueLabel.setText(numberFormat.format(finalLastValue));
+                            });
+                        }
+                    }
+                } catch (JEVisException e) {
+                    logger.error("Could not get last sample.", e);
+                }
+        }
     }
 }
