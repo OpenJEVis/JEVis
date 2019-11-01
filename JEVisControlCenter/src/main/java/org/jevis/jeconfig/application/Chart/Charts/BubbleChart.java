@@ -392,6 +392,11 @@ public class BubbleChart implements Chart {
     }
 
     @Override
+    public void applyBounds() {
+
+    }
+
+    @Override
     public void showNote(MouseEvent mouseEvent) {
 
     }

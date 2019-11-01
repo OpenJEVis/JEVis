@@ -146,8 +146,8 @@ public class DataModelDataHandler {
                         list.add(0);
 
                         /** add fake start date so the model does not ty to load the last 7 days **/
-                        chartDataModel.setSelectedStart(new DateTime(1000, 1, 1, 1, 1, 1));
-                        chartDataModel.setSelectedEnd(new DateTime(1000, 1, 1, 1, 1, 2));
+                        chartDataModel.setSelectedStart(new DateTime(2001, 1, 1, 1, 1, 1));
+                        chartDataModel.setSelectedEnd(new DateTime(2001, 1, 1, 1, 1, 2));
                         chartDataModel.setFillZeroes(false);
                         chartDataModel.setAbsolute(dataPointNode.isAbsolute());
 

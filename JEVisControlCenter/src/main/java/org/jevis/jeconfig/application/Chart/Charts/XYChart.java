@@ -6,7 +6,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.chart.Axis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseButton;
@@ -68,11 +67,12 @@ public class XYChart implements Chart {
     //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
     private List<Color> hexColors = new ArrayList<>();
     ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-    AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
+    DateTime now = DateTime.now();
+    AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(now);
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
     NumberAxis y1Axis = new NumberAxis();
     NumberAxis y2Axis = new NumberAxis();
-    Axis dateAxis = new DateValueAxis();
+    DateValueAxis dateAxis = new DateValueAxis();
     List<ChartDataModel> chartDataModels;
     MultiAxisChart chart;
     Double minValue = Double.MAX_VALUE;
@@ -262,12 +262,11 @@ public class XYChart implements Chart {
         addSeriesToChart();
 
         if (asDuration) {
-            ((DateValueAxis) dateAxis).setAsDuration(true);
-            ((DateValueAxis) dateAxis).setTimeStampFromFirstSample(timeStampOfFirstSample.get());
+            dateAxis.setAsDuration(true);
+            dateAxis.setTimeStampFromFirstSample(timeStampOfFirstSample.get());
         }
 
         generateXAxis(changedBoth);
-        dateAxis.setAutoRanging(true);
 
         generateYAxis();
 
@@ -422,11 +421,15 @@ public class XYChart implements Chart {
     }
 
     public void generateXAxis(Boolean[] changedBoth) {
-        dateAxis.setAutoRanging(true);
-        if (!asDuration) ((DateValueAxis) dateAxis).setAsDuration(false);
+
+        dateAxis.setAutoRanging(false);
+        dateAxis.setUpperBound((double) chartDataModels.get(0).getSelectedEnd().getMillis());
+        dateAxis.setLowerBound((double) chartDataModels.get(0).getSelectedStart().getMillis());
+
+        if (!asDuration) dateAxis.setAsDuration(false);
         else {
-            ((DateValueAxis) dateAxis).setAsDuration(true);
-            ((DateValueAxis) dateAxis).setTimeStampFromFirstSample(timeStampOfFirstSample.get());
+            dateAxis.setAsDuration(true);
+            dateAxis.setTimeStampFromFirstSample(timeStampOfFirstSample.get());
         }
 
         Period realPeriod = Period.minutes(15);
@@ -491,7 +494,7 @@ public class XYChart implements Chart {
         });
         panner.start();
 
-        jfxChartUtil = new JFXChartUtil();
+        jfxChartUtil = new JFXChartUtil(chartDataModels.get(0).getSelectedStart().getMillis(), chartDataModels.get(0).getSelectedEnd().getMillis());
 
         jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
 
@@ -955,6 +958,12 @@ public class XYChart implements Chart {
         } catch (Exception ex) {
             logger.error(ex);
         }
+    }
+
+    @Override
+    public void applyBounds() {
+        dateAxis.setUpperBound((double) chartDataModels.get(0).getSelectedEnd().getMillis());
+        dateAxis.setLowerBound((double) chartDataModels.get(0).getSelectedStart().getMillis());
     }
 
     @Override

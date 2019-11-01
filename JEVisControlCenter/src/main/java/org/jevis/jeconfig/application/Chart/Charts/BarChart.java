@@ -279,6 +279,11 @@ public class BarChart implements Chart {
     }
 
     @Override
+    public void applyBounds() {
+
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
     }
