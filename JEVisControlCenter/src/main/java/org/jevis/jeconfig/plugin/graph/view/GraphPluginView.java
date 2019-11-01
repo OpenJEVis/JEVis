@@ -44,6 +44,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
@@ -686,6 +687,38 @@ public class GraphPluginView implements Plugin {
                                 nf.setMaximumFractionDigits(2);
                                 String valueString = nf.format(((MultiAxisBarChart.Data) data).getYValue());
                                 final Text dataText = new Text(valueString + "");
+
+                                node.getChildren().add(dataText);
+
+                                Bounds bounds = node.getBoundsInParent();
+                                dataText.setLayoutX(
+                                        Math.round(
+                                                bounds.getMinX() + bounds.getWidth() / 2 - dataText.prefWidth(-1) / 2
+                                        )
+                                );
+                                dataText.setLayoutY(
+                                        Math.round(
+                                                bounds.getMinY() - dataText.prefHeight(-1) * 0.5
+                                        )
+                                );
+                            });
+                        });
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
+                } else if (cv.getChartType().equals(ChartType.BAR)) {
+                    javafx.scene.chart.BarChart barChart = (javafx.scene.chart.BarChart) cv.getChart().getChart();
+                    try {
+                        barChart.getData().forEach(numberNumberSeries -> {
+                            javafx.scene.chart.BarChart.Series barChartSeries = (javafx.scene.chart.BarChart.Series) numberNumberSeries;
+                            barChartSeries.getData().forEach(data -> {
+                                final StackPane node = (StackPane) ((javafx.scene.chart.BarChart.Data) data).getNode();
+                                NumberFormat nf = NumberFormat.getInstance();
+                                nf.setMinimumFractionDigits(2);
+                                nf.setMaximumFractionDigits(2);
+                                String valueString = nf.format(((javafx.scene.chart.BarChart.Data) data).getXValue());
+                                final Text dataText = new Text(valueString + "");
+                                dataText.setFont(new Font(12));
 
                                 node.getChildren().add(dataText);
 
