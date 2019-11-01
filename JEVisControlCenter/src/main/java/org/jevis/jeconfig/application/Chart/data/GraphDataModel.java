@@ -16,7 +16,6 @@ import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
@@ -44,6 +43,7 @@ import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -937,7 +937,7 @@ public class GraphDataModel {
     public void selectNone() {
         getSelectedData().forEach(mdl -> {
             mdl.setSelectedCharts(new ArrayList<>());
-            mdl.setColor(ColorColumn.STANDARD_COLOR);
+            mdl.setColor(ColorHelper.toRGBCode(ColorColumn.STANDARD_COLOR));
         });
     }
 
@@ -968,7 +968,7 @@ public class GraphDataModel {
                     JEVisUnit unit = new JEVisUnitImp(objectMapper.readValue(mdl.getUnit(), JsonUnit.class));
                     newData.setObject(obj);
 
-                    newData.setColor(Color.valueOf(mdl.getColor()));
+                    newData.setColor(mdl.getColor());
                     newData.setTitle(mdl.getName());
                     if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
                     newData.getAttribute();

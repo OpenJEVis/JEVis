@@ -15,6 +15,7 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +80,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     public void setGraphDataModel(GraphDataModel graphDataModel) {
         this.data = graphDataModel;
         for (ChartDataModel model : data.getSelectedData()) {
-            if (!this.usedColors.contains(model.getColor())) this.usedColors.add(model.getColor());
+            if (!this.usedColors.contains(model.getColor())) this.usedColors.add(ColorHelper.toColor(model.getColor()));
         }
         update();
     }
@@ -91,7 +92,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
         column.setId(COLUMN_ID);
         column.setCellValueFactory(param -> {
             ChartDataModel data = getData(param.getValue().getValue());
-            return new ReadOnlyObjectWrapper<>(data.getColor());
+            return new ReadOnlyObjectWrapper<>(ColorHelper.toColor(data.getColor()));
         });
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, Color>, TreeTableCell<JEVisTreeRow, Color>>() {
@@ -105,7 +106,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
                     public void commitEdit(Color newValue) {
                         super.commitEdit(newValue);
                         ChartDataModel data1 = getData(getTreeTableRow().getItem());
-                        data1.setColor(newValue);
+                        data1.setColor(ColorHelper.toRGBCode(newValue));
                         if (!usedColors.contains(newValue)) usedColors.add(newValue);
                     }
 

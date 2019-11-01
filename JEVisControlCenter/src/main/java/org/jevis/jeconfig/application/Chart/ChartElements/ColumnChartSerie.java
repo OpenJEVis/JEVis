@@ -16,6 +16,7 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -52,7 +53,7 @@ public class ColumnChartSerie {
         tableEntry = new TableEntry(getTableEntryName());
         this.serie.setName(getTableEntryName());
 
-        tableEntry.setColor(singleRow.getColor());
+        tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
 
         List<JEVisSample> samples = singleRow.getSamples();
         JEVisUnit unit = singleRow.getUnit();
@@ -157,9 +158,8 @@ public class ColumnChartSerie {
 
     public void setDataNodeColor(MultiAxisBarChart.Data<String, Number> data) {
         if (data.getNode() != null) {
-            Color currentColor = singleRow.getColor();
-            String hexColor = toRGBCode(currentColor);
-            data.getNode().setStyle("-fx-background-color: " + hexColor + ";");
+
+            data.getNode().setStyle("-fx-background-color: " + singleRow.getColor() + ";");
         }
     }
 

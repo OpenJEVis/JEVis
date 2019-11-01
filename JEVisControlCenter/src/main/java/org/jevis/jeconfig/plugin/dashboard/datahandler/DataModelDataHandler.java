@@ -17,6 +17,7 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.config.DataModelNode;
 import org.jevis.jeconfig.plugin.dashboard.config.DataPointNode;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.LastPeriod;
@@ -164,9 +165,9 @@ public class DataModelDataHandler {
 
 
                         if (dataPointNode.getColor() != null) {
-                            chartDataModel.setColor(dataPointNode.getColor());
+                            chartDataModel.setColor(ColorHelper.toRGBCode(dataPointNode.getColor()));
                         } else {
-                            chartDataModel.setColor(Color.LIGHTBLUE);
+                            chartDataModel.setColor(ColorHelper.toRGBCode(Color.LIGHTBLUE));
                         }
 
 

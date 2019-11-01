@@ -18,6 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
@@ -147,12 +148,12 @@ public class PieWidget extends Widget {
 
 
                 legendItemList.add(this.legend.buildLegendItem(
-                        dataName, chartDataModel.getColor(), this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject()));
+                        dataName, ColorHelper.toColor(chartDataModel.getColor()), this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject()));
 
                 if (!hasNoData) {
                     PieChart.Data pieData = new PieChart.Data(textValue, value);
                     series.add(pieData);
-                    colors.add(chartDataModel.getColor());
+                    colors.add(ColorHelper.toColor(chartDataModel.getColor()));
                 }
 
 

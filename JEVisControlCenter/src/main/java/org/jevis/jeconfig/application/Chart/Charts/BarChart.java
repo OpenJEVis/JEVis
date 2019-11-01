@@ -22,6 +22,7 @@ import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -71,7 +72,7 @@ public class BarChart implements Chart {
                 try {
                     BarChartSerie serie = new BarChartSerie(singleRow, hideShowIcons);
                     barChartSerieList.add(serie);
-                    hexColors.add(singleRow.getColor());
+                    hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 
                 } catch (JEVisException e) {
                     e.printStackTrace();
@@ -223,7 +224,7 @@ public class BarChart implements Chart {
                     BarChartSerie serie = new BarChartSerie(singleRow, hideShowIcons);
 
 
-                    hexColors.add(singleRow.getColor());
+                    hexColors.add(ColorHelper.toColor(singleRow.getColor()));
                     barChart.getData().add(serie.getSerie());
                     tableData.add(serie.getTableEntry());
 
@@ -311,7 +312,7 @@ public class BarChart implements Chart {
     public void applyColors() {
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
-            String hexColor = toRGBCode(currentColor);
+            String hexColor = ColorHelper.toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = barChart.lookup(preIdent + ".chart-bar");
             if (node != null) {

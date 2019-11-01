@@ -21,6 +21,7 @@ import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -176,7 +177,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                             for (ChartDataModel mdl : getData().getSelectedData()) {
                                                 if (currentDataModel.equals(mdl) && !mdl.getSelectedcharts().isEmpty()) {
                                                     wasSelected = true;
-                                                    oldColor = mdl.getColor();
+                                                    oldColor = ColorHelper.toColor(mdl.getColor());
                                                     break;
                                                 }
                                             }
@@ -188,9 +189,9 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                  * if the checkbox is selected, get a color for it
                                                  */
                                                 if (!wasSelected) {
-                                                    currentDataModel.setColor(colorColumn.getNextColor());
+                                                    currentDataModel.setColor(ColorHelper.toRGBCode(colorColumn.getNextColor()));
                                                 } else if (oldColor != null) {
-                                                    currentDataModel.setColor(oldColor);
+                                                    currentDataModel.setColor(ColorHelper.toRGBCode(oldColor));
                                                 }
                                                 Platform.runLater(() -> {
                                                     JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
@@ -212,8 +213,8 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                     /**
                                                      * if the box is unselected and no other selected, remove the color
                                                      */
-                                                    colorColumn.removeUsedColor(currentDataModel.getColor());
-                                                    currentDataModel.setColor(colorColumn.getStandardColor());
+                                                    colorColumn.removeUsedColor(ColorHelper.toColor(currentDataModel.getColor()));
+                                                    currentDataModel.setColor(ColorHelper.toRGBCode(colorColumn.getStandardColor()));
                                                     Platform.runLater(() -> {
                                                         JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
                                                         getTreeTableRow().getTreeItem().setValue(sobj);

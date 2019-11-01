@@ -41,6 +41,7 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.Regressi
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.NoteDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -140,7 +141,7 @@ public class XYChart implements Chart {
                         newModel.setAttribute(null);
                         newModel.setSamples(null);
                         newModel.setUnit(null);
-                        newModel.setColor(newModel.getColor().darker());
+                        newModel.setColor(ColorHelper.toRGBCode(ColorHelper.toColor(newModel.getColor()).darker()));
 
                         singleRow.setAxis(0);
                         newModel.setAxis(1);
@@ -150,7 +151,7 @@ public class XYChart implements Chart {
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
 
                     if (calcRegression) {
-                        chart.setRegressionColor(singleRow.getAxis(), singleRow.getColor());
+                        chart.setRegressionColor(singleRow.getAxis(), ColorHelper.toColor(singleRow.getColor()));
                         chart.setRegression(singleRow.getAxis(), regressionType, polyRegressionDegree);
                     }
 
@@ -168,9 +169,9 @@ public class XYChart implements Chart {
                                     List<Double> list = Arrays.asList(25d, 20d, 5d, 20d);
                                     ObservableList<Double> doubles = FXCollections.observableList(list);
                                     if (i == 0) {
-                                        chart.setLimitLine("L1 MAX", value, singleRow.getColor().brighter(), singleRow.getAxis(), doubles);
+                                        chart.setLimitLine("L1 MAX", value, ColorHelper.toColor(singleRow.getColor()).brighter(), singleRow.getAxis(), doubles);
                                     } else {
-                                        chart.setLimitLine("L2 MAX", value, singleRow.getColor().darker(), singleRow.getAxis(), doubles);
+                                        chart.setLimitLine("L2 MAX", value, ColorHelper.toColor(singleRow.getColor()).darker(), singleRow.getAxis(), doubles);
                                     }
                                 }
 
@@ -180,9 +181,9 @@ public class XYChart implements Chart {
                                     List<Double> list = Arrays.asList(2d, 21d);
                                     ObservableList<Double> doubles = FXCollections.observableList(list);
                                     if (i == 0) {
-                                        chart.setLimitLine("L1 MIN", value, singleRow.getColor().brighter(), singleRow.getAxis(), doubles);
+                                        chart.setLimitLine("L1 MIN", value, ColorHelper.toColor(singleRow.getColor()).brighter(), singleRow.getAxis(), doubles);
                                     } else {
-                                        chart.setLimitLine("L2 MIN", value, singleRow.getColor().darker(), singleRow.getAxis(), doubles);
+                                        chart.setLimitLine("L2 MIN", value, ColorHelper.toColor(singleRow.getColor()).darker(), singleRow.getAxis(), doubles);
                                     }
                                 }
                             }
@@ -208,7 +209,7 @@ public class XYChart implements Chart {
 
                 sumModel.setObject(test);
                 sumModel.setAxis(1);
-                sumModel.setColor(Color.BLACK);
+                sumModel.setColor(ColorHelper.toRGBCode(Color.BLACK));
                 Map<DateTime, JEVisSample> sumSamples = new HashMap<>();
                 for (ChartDataModel model : chartDataModels) {
                     for (JEVisSample jeVisSample : model.getSamples()) {
@@ -309,7 +310,7 @@ public class XYChart implements Chart {
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
         XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
 
-        hexColors.add(singleRow.getColor());
+        hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 
         /**
          * check if timestamps are in serie
@@ -349,7 +350,7 @@ public class XYChart implements Chart {
             singleRow.setManipulationMode(addSeriesOfType);
             XYChartSerie serie2 = new XYChartSerie(singleRow, hideShowIcons);
 
-            hexColors.add(singleRow.getColor().darker());
+            hexColors.add(ColorHelper.toColor(singleRow.getColor()).darker());
 
             chart.getData().add(serie2.getSerie());
 
@@ -617,7 +618,7 @@ public class XYChart implements Chart {
             }
 
             if (model != null) {
-                hexColors.set(i, model.getColor());
+                hexColors.set(i, ColorHelper.toColor(model.getColor()));
                 xyChartSerie.setSingleRow(model);
                 try {
                     xyChartSerie.generateSeriesFromSamples();
@@ -897,8 +898,8 @@ public class XYChart implements Chart {
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
             Color brighter = currentColor.deriveColor(1, 1, 50, 0.3);
-            String hexColor = toRGBCode(currentColor);
-            String hexBrighter = toRGBCode(brighter) + "55";
+            String hexColor = ColorHelper.toRGBCode(currentColor);
+            String hexBrighter = ColorHelper.toRGBCode(brighter) + "55";
             String preIdent = ".default-color" + i;
             Node node = getChart().lookup(preIdent + ".chart-series-area-fill");
             Node nodew = getChart().lookup(preIdent + ".chart-series-area-line");

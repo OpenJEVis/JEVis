@@ -1,6 +1,5 @@
 package org.jevis.commons.chart;
 
-import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -34,7 +33,7 @@ public class ChartDataModel {
     private DateTime selectedEnd;
     private JEVisObject object;
     private JEVisAttribute attribute;
-    private Color color = Color.LIGHTBLUE;
+    private String color = "#1FBED6ff";
     private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
     private JEVisObject dataProcessorObject = null;
@@ -437,12 +436,12 @@ public class ChartDataModel {
         this.attribute = _attribute;
     }
 
-    public Color getColor() {
+    public String getColor() {
         return color;
     }
 
-    public void setColor(Color _color) {
-        this.color = _color;
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public boolean isSelectable() {

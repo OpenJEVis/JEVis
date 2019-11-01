@@ -27,6 +27,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -141,7 +142,7 @@ public class PieChart implements Chart {
                     } else {
                         listTableEntryNames.add(clonedModel.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
                     }
-                    hexColors.add(clonedModel.getColor());
+                    hexColors.add(ColorHelper.toColor(clonedModel.getColor()));
                 }
             }
         }
@@ -396,7 +397,7 @@ public class PieChart implements Chart {
         for (int i = 0; i < hexColors.size(); i++) {
 
             Color currentColor = hexColors.get(i);
-            String hexColor = toRGBCode(currentColor);
+            String hexColor = ColorHelper.toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = pieChart.lookup(preIdent + ".chart-pie");
 

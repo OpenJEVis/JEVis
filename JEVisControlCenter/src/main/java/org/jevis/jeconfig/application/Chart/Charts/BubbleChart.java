@@ -24,6 +24,7 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChar
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -77,7 +78,7 @@ public class BubbleChart implements Chart {
                     } else if (model.getBubbleType() == BubbleType.Y) {
                         yList.add(sample);
                         if (!hexColors.contains(model.getColor())) {
-                            hexColors.add(model.getColor());
+                            hexColors.add(ColorHelper.toColor(model.getColor()));
                         }
                     }
                 } catch (JEVisException e) {
@@ -400,7 +401,7 @@ public class BubbleChart implements Chart {
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
             currentColor = currentColor.deriveColor(0, 1, 1, 0.7);
-            String hexColor = toRGBCode(currentColor);
+            String hexColor = ColorHelper.toRGBCode(currentColor);
             int noOfBubbles = this.noOfBubbles.get(i);
             String preIdent = "";
             for (int j = 0; j < noOfBubbles; j++) {

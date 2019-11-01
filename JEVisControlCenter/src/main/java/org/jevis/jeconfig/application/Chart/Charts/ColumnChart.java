@@ -30,6 +30,7 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.NoteDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -85,7 +86,7 @@ public class ColumnChart implements Chart {
                 try {
                     ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons);
                     columnChartSerieList.add(serie);
-                    hexColors.add(singleRow.getColor());
+                    hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 
                 } catch (JEVisException e) {
                     e.printStackTrace();
@@ -207,7 +208,7 @@ public class ColumnChart implements Chart {
                 try {
                     ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons);
 
-                    hexColors.add(singleRow.getColor());
+                    hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 //                    series.add(serie.getSerie());
                     tableData.add(serie.getTableEntry());
 
@@ -397,7 +398,7 @@ public class ColumnChart implements Chart {
     public void applyColors() {
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
-            String hexColor = toRGBCode(currentColor);
+            String hexColor = ColorHelper.toRGBCode(currentColor);
             for (Node n : columnChart.lookupAll(".default-color" + i + ".chart-bar")) {
                 n.setStyle("-fx-bar-fill: " + hexColor + ";");
             }

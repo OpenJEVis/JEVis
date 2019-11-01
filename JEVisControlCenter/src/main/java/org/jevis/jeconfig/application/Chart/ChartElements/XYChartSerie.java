@@ -18,6 +18,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -57,7 +58,7 @@ public class XYChartSerie {
         tableEntry = new TableEntry(getTableEntryName());
         this.serie.setName(getTableEntryName());
 
-        tableEntry.setColor(singleRow.getColor());
+        tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
 
         List<JEVisSample> samples = singleRow.getSamples();
 
@@ -270,8 +271,7 @@ public class XYChartSerie {
 
     public void setDataNodeColor(MultiAxisChart.Data<Number, Number> data) {
         if (data.getNode() != null) {
-            Color currentColor = singleRow.getColor();
-            String hexColor = toRGBCode(currentColor);
+            String hexColor = singleRow.getColor();
             data.getNode().setStyle("-fx-background-color: " + hexColor + ";");
         }
     }
@@ -290,7 +290,7 @@ public class XYChartSerie {
                 return null;
             }
             Rectangle rect = new Rectangle(0, 0);
-            rect.setFill(singleRow.getColor());
+            rect.setFill(ColorHelper.toColor(singleRow.getColor()));
             rect.setVisible(false);
             return rect;
         }
