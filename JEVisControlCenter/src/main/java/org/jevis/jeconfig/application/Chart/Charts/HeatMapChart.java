@@ -337,6 +337,11 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
+    public void applyBounds() {
+
+    }
+
+    @Override
     public void initializeZoom() {
 
     }

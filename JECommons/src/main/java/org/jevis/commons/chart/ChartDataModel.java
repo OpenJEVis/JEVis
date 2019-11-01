@@ -33,7 +33,7 @@ public class ChartDataModel {
     private DateTime selectedEnd;
     private JEVisObject object;
     private JEVisAttribute attribute;
-    private String color = "#1FBED6ff";
+    private String color = "#1FBED6";
     private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
     private JEVisObject dataProcessorObject = null;
@@ -136,7 +136,7 @@ public class ChartDataModel {
                                         samples = factorizeSamples(samples);
                                     }
 
-                                    AddZerosForMissingValues(samples);
+//                                    AddZerosForMissingValues(samples);
                                 } else {
                                     CalcJobFactory calcJobCreator = new CalcJobFactory();
 
@@ -437,6 +437,9 @@ public class ChartDataModel {
     }
 
     public String getColor() {
+        if (color.contains("0x")) {
+            color = color.replace("0x", "#");
+        }
         return color;
     }
 

@@ -157,7 +157,7 @@ public class ColumnChart implements Chart {
         });
         panner.start();
 
-        JFXChartUtil jfxChartUtil = new JFXChartUtil();
+        JFXChartUtil jfxChartUtil = new JFXChartUtil(timeStampOfFirstSample.get().getMillis(), timeStampOfLastSample.get().getMillis());
         areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
 
             if (mouseEvent.getButton() != MouseButton.PRIMARY
@@ -272,6 +272,11 @@ public class ColumnChart implements Chart {
         } catch (Exception ex) {
             logger.error(ex);
         }
+    }
+
+    @Override
+    public void applyBounds() {
+
     }
 
     @Override

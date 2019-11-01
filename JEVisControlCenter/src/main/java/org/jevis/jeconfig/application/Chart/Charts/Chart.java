@@ -212,4 +212,6 @@ public interface Chart {
     void setRegion(Region region);
 
     void checkForY2Axis();
+
+    void applyBounds();
 }

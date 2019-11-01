@@ -770,6 +770,8 @@ public class GraphPluginView implements Plugin {
 
                 cv.getChart().checkForY2Axis();
 
+                cv.getChart().applyBounds();
+
                 cv.getTableView().sort();
             }
         });
