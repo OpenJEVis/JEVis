@@ -28,8 +28,8 @@ public class TimeZoneBox extends ComboBox<DateTimeZone> {
                         } else {
 
                             String text = dateTimeZone.getID() + " | " +
-                                    DateTimeZone.getNameProvider().getShortName(I18n.getInstance().getLocale(), dateTimeZone.getID(), dateTimeZone.getNameKey(0)) + " | " +
-                                    DateTimeZone.getNameProvider().getName(I18n.getInstance().getLocale(), dateTimeZone.getID(), dateTimeZone.getNameKey(0));
+                                    DateTimeZone.getNameProvider().getShortName(I18n.getInstance().getLocale(), dateTimeZone.getID(), dateTimeZone.getNameKey(0));
+//                                    + " | " + DateTimeZone.getNameProvider().getName(I18n.getInstance().getLocale(), dateTimeZone.getID(), dateTimeZone.getNameKey(0));
 
                             setText(text);
                         }

@@ -691,16 +691,8 @@ public class GraphPluginView implements Plugin {
                                 node.getChildren().add(dataText);
 
                                 Bounds bounds = node.getBoundsInParent();
-                                dataText.setLayoutX(
-                                        Math.round(
-                                                bounds.getMinX() + bounds.getWidth() / 2 - dataText.prefWidth(-1) / 2
-                                        )
-                                );
-                                dataText.setLayoutY(
-                                        Math.round(
-                                                bounds.getMinY() - dataText.prefHeight(-1) * 0.5
-                                        )
-                                );
+                                dataText.setLayoutX(Math.round(bounds.getMinX() + bounds.getWidth() / 2 - dataText.prefWidth(-1) / 2));
+                                dataText.setLayoutY(Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5));
                             });
                         });
                     } catch (Exception e) {
@@ -718,21 +710,14 @@ public class GraphPluginView implements Plugin {
                                 nf.setMaximumFractionDigits(2);
                                 String valueString = nf.format(((javafx.scene.chart.BarChart.Data) data).getXValue());
                                 final Text dataText = new Text(valueString + "");
+                                dataText.setPickOnBounds(false);
                                 dataText.setFont(new Font(12));
 
                                 node.getChildren().add(dataText);
 
                                 Bounds bounds = node.getBoundsInParent();
-                                dataText.setLayoutX(
-                                        Math.round(
-                                                bounds.getMinX() + bounds.getWidth() / 2 - dataText.prefWidth(-1) / 2
-                                        )
-                                );
-                                dataText.setLayoutY(
-                                        Math.round(
-                                                bounds.getMinY() - dataText.prefHeight(-1) * 0.5
-                                        )
-                                );
+                                dataText.setLayoutX(Math.round(bounds.getMinX() + bounds.getWidth() + 4));
+                                dataText.setLayoutY(Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5));
                             });
                         });
                     } catch (Exception e) {
