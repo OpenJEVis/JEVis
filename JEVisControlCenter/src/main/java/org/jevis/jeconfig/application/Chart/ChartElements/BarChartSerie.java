@@ -3,12 +3,7 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -76,14 +71,6 @@ public class BarChartSerie {
         }
 
         XYChart.Data<Number, String> data = new XYChart.Data<>(result, dataName);
-
-        StackPane node = new StackPane();
-        Label label = new Label(text);
-        Group group = new Group(label);
-        StackPane.setAlignment(group, Pos.CENTER_RIGHT);
-        StackPane.setMargin(group, new Insets(0, 0, 5, 0));
-        node.getChildren().add(group);
-        data.setNode(node);
 
         serie.getData().setAll(data);
 
