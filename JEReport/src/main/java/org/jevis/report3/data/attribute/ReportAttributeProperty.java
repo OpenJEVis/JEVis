@@ -11,7 +11,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.database.JEVisObjectDataManager;
-import org.jevis.commons.database.JEVisSampleDAO;
 import org.jevis.report3.data.attribute.AttributeConfigurationFactory.ReportConfigurationName;
 
 import javax.inject.Inject;

@@ -176,15 +176,19 @@ public class DashboardControl {
 
             JEVisObject userDashboad = getUserSelectedDashboard();
 
-            if (this.dashboardObjects.isEmpty()) {
+            if ( this.dashboardObjects.isEmpty()) {
+                System.out.println("##Load Emtpy Dasgboard");
                 selectDashboard(null);
             } else if (userDashboad != null) {
+                System.out.println("##Load User selected Dashboard");
                 selectDashboard(userDashboad);
             } else if (!this.dashboardObjects.isEmpty()) {
+                System.out.println("##Load First Dashboard");
                 selectDashboard(this.dashboardObjects.get(0));
             }
         } catch (Exception ex) {
             logger.error(ex);
+            selectDashboard(null);
             ex.printStackTrace();
         }
     }
@@ -339,7 +343,7 @@ public class DashboardControl {
 
             firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
 
-
+            logger.error("Dashboard.select.done");
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();

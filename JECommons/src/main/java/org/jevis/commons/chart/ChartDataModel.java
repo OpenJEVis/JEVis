@@ -87,7 +87,7 @@ public class ChartDataModel {
                     unit = getAttribute().getDisplayUnit();
                 }
             }
-        } catch (JEVisException ex) {
+        } catch (Exception ex) {
             logger.fatal(ex);
         }
         return unit;

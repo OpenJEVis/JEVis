@@ -19,8 +19,6 @@
  */
 package org.jevis.jeapi.ws;
 
-//import javafx.embed.swing.SwingFXUtils;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import org.apache.logging.log4j.LogManager;
@@ -133,7 +131,8 @@ public class JEVisClassWS implements JEVisClass {
         }
 
         if (image == null) {
-            image = SwingFXUtils.fromFXImage(JEVisClassWS.getImage("1472562626_unknown.png", 60, 60).getImage(), null);
+            //image = SwingFXUtils.fromFXImage(JEVisClassWS.getImage("1472562626_unknown.png", 60, 60).getImage(), null);
+            image = new BufferedImage(60,60,BufferedImage.TYPE_INT_RGB);
             iconChanged = true;
         }
         return image;

@@ -220,7 +220,7 @@ public class Utils {
     }
 
     static double computeTextWidth(Font font, String text, double wrappingWidth) {
-        layout.setContent(text != null ? text : "", font.impl_getNativeFont());
+        layout.setContent(text != null ? text : "", font);
         layout.setWrapWidth((float) wrappingWidth);
         return layout.getBounds().getWidth();
     }
@@ -235,7 +235,10 @@ public class Utils {
         // clear what causes the small discrepancies.
         Bounds bounds = helper.getLayoutBounds();
         Point2D endPoint = new Point2D(width - 2, bounds.getMinY() + bounds.getHeight() / 2);
-        final int index = helper.impl_hitTestChar(endPoint).getCharIndex();
+
+        final int index =text.length()-1;
+        /** Does not work with openFX **/
+        //final int index = helper.getText().impl_hitTestChar(endPoint).getCharIndex();
         // RESTORE STATE
         helper.setWrappingWidth(DEFAULT_WRAPPING_WIDTH);
         helper.setLineSpacing(DEFAULT_LINE_SPACING);

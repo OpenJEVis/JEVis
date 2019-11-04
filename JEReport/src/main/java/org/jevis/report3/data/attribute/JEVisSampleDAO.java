@@ -17,7 +17,7 @@
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.commons.database;
+package org.jevis.report3.data.attribute;
 
 import com.google.inject.Inject;
 import java.util.ArrayList;
@@ -25,6 +25,7 @@ import java.util.List;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.database.JEVisAttributeDAO;
 import org.joda.time.DateTime;
 
 /**

@@ -745,48 +745,51 @@ public class XYChart implements Chart {
 
                     Note formattedNote = new Note(sample);
                     Platform.runLater(() -> {
-                        if (!asDuration) {
-                            Platform.runLater(() -> {
-                                if (nearest != null) {
-                                    tableEntry.setDate(nearest
-                                            .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
-                                } else tableEntry.setValue("-");
-                            });
-                        } else {
-                            Platform.runLater(() -> tableEntry.setDate((nearest.getMillis() -
-                                    timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h"));
-                        }
-                        Platform.runLater(() -> tableEntry.setNote(formattedNote.getNoteAsString()));
-                        String unit = serie.getUnit();
-
-                        if (!sample.getNote().contains("Zeros")) {
-                            Double valueAsDouble = null;
-                            String formattedDouble = null;
-                            if (!serie.getSingleRow().isStringData()) {
-                                valueAsDouble = sample.getValueAsDouble();
-                                formattedDouble = nf.format(valueAsDouble);
-                                String finalFormattedDouble = formattedDouble;
-                                Platform.runLater(() -> tableEntry.setValue(finalFormattedDouble + " " + unit));
-                            } else {
+                        try {
+                            if (!asDuration) {
                                 Platform.runLater(() -> {
-                                    try {
-                                        tableEntry.setValue(sample.getValueAsString() + " " + unit);
-                                    } catch (JEVisException e) {
-                                        e.printStackTrace();
-                                    }
+                                    if (nearest != null) {
+                                        tableEntry.setDate(nearest
+                                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                                    } else tableEntry.setValue("-");
                                 });
+                            } else {
+                                Platform.runLater(() -> tableEntry.setDate((nearest.getMillis() -
+                                        timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h"));
                             }
+                            Platform.runLater(() -> tableEntry.setNote(formattedNote.getNoteAsString()));
+                            String unit = serie.getUnit();
 
-                        } else Platform.runLater(() -> tableEntry.setValue("- " + unit));
+                            if (!sample.getNote().contains("Zeros")) {
+                                Double valueAsDouble = null;
+                                String formattedDouble = null;
+                                if (!serie.getSingleRow().isStringData()) {
+                                    valueAsDouble = sample.getValueAsDouble();
+                                    formattedDouble = nf.format(valueAsDouble);
+                                    String finalFormattedDouble = formattedDouble;
+                                    Platform.runLater(() -> tableEntry.setValue(finalFormattedDouble + " " + unit));
+                                } else {
+                                    Platform.runLater(() -> {
+                                        try {
+                                            tableEntry.setValue(sample.getValueAsString() + " " + unit);
+                                        } catch (JEVisException e) {
+                                            e.printStackTrace();
+                                        }
+                                    });
+                                }
+
+                            } else Platform.runLater(() -> tableEntry.setValue("- " + unit));
 
 //                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
 
-                    } catch(Exception ex){
+                    });
+
+                } catch (Exception ex) {
 //                    ex.printStackTrace();
-                    }
-                });
-
-
+                }
             });
         }
     }

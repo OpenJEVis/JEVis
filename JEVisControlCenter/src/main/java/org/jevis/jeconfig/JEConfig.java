@@ -215,21 +215,13 @@ public class JEConfig extends Application {
         ds.preload();
 
         Locale locale = Locale.GERMANY;
-        I18n.getInstance().loadBundle(locale);
+        I18n.getInstance().getAllBundles();
         I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
         I18nWS.getInstance().setLocale(locale);
         _config.setLocale(locale);
 
-
-        hmmDebug("1111");
-//        _mainDS.preload();
-
-        hmmDebug("22222");
         statusBar = new Statusbar();
         statusBar.setDataSource(_mainDS);
-        hmmDebug("ds: " + ds);
-        hmmDebug(ds.getObject(3693l).getName());
-        logger.error("start GUI");
 
 //        PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
 //        PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
@@ -304,46 +296,36 @@ public class JEConfig extends Application {
 
 
         Platform.runLater(() -> {
+            System.out.println("make a scene");
+            menu.updateLayout();
             BorderPane jeconfigRoot = new BorderPane();
             Layouts.setAnchor(jeconfigRoot, 0);
             rootPane.setStyle("-fx-background-color: red;");
-            hmmDebug("asdadsadsasd");
-            System.out.println("make a scene");
-//            Scene scene = new Scene(jeconfigRoot);
 
-//            primaryStage.setScene(scene);
-            System.out.println("add done");
 
             statusBar.initView();
 
-            VBox vbox = new VBox();
-            vbox.setStyle("-fx-background-color: black;");
-            vbox.getChildren().addAll(menu, pluginManager.getToolbar());
+            VBox topMenuBox = new VBox();
+            topMenuBox.setStyle("-fx-background-color: black;");
+            topMenuBox.getChildren().addAll(menu, pluginManager.getToolbar());
+
+
+
 //        border.setTop(vbox);
 //        border.setCenter(pluginManager.getView());
             BorderPane testPane = new BorderPane();
             testPane.setStyle("-fx-background-color: blue;");
+
+            jeconfigRoot.setTop(topMenuBox);
             jeconfigRoot.setCenter(pluginManager.getView());
-            jeconfigRoot.setTop(vbox);
             jeconfigRoot.setBottom(statusBar);
             rootPane.getChildren().setAll(jeconfigRoot);
 
 
-//            System.out.println("Scece: "+scene.getWidth()+" x"+scene.getHeight());
-//                statusBar = new Statusbar(_mainDS);
-//            statusBar.setDataSource(_mainDS);
-//
-
-//        border.setBottom(statusBar);
-
-
         });
 
-//        scene.getStylesheets().add("/styles/Styles.css");
-//        scene.getStylesheets().add("/styles/charts.css");
-//        primaryStage.getIcons().add(getImage("JEVisIconBlue.png"));
-//        primaryStage.setTitle("JEVis Control Center");
-
+        rootPane.getScene().getStylesheets().add("/styles/Styles.css");
+        rootPane.getScene().getStylesheets().add("/styles/charts.css");
 
 //        primaryStage.onCloseRequestProperty().addListener((ov, t, t1) -> {
 //            try {
@@ -396,9 +378,11 @@ public class JEConfig extends Application {
     public static String getResource(String file) {
         //        scene.getStylesheets().addAll(this.getClass().getResource("/org/jevis/jeconfig/css/main.css").toExternalForm());
 
+
 //        logger.info("get Resouce: " + file);
         return JEConfig.class.getResource("/styles/" + file).toExternalForm();
 //        return JEConfig.class.getResource("/org/jevis/jeconfig/css/" + file).toExternalForm();
+
 
     }
 
@@ -475,7 +459,7 @@ public class JEConfig extends Application {
      */
     private void initGUI(Stage primaryStage) {
 
-        System.out.println("initGUI");
+        System.out.println("initGUI old");
         primaryStage.setOnCloseRequest(t -> {
             Platform.exit();
             System.exit(0);

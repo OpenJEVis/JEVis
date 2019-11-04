@@ -300,7 +300,7 @@ public class ConfigManager {
                     widgetList.add(newWidget);
                 }
             } catch (Exception ex) {
-                logger.error(ex);
+                logger.error("Error while crete new Widget '{}'",widgetPojo);
             }
 
         });

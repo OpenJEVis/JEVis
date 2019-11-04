@@ -79,7 +79,7 @@ public class I18n {
         try {
             return String.format(this.bundle.getString(key), arguments);
         } catch (NullPointerException | java.util.MissingResourceException np) {
-            logger.info("Missing translation [" + this.locale.getLanguage() + "] Key: " + key);
+            logger.info("Missing translation [{}][{}|Key:'{}' {}",bundle, this.locale.getLanguage(),key,np.getMessage());
             try {
                 return String.format(this.defaultBundle.getString(key), arguments);
             } catch (NullPointerException | java.util.MissingResourceException np1) {
@@ -93,7 +93,7 @@ public class I18n {
         try {
             return this.bundle.getString(key);
         } catch (NullPointerException | java.util.MissingResourceException np) {
-            logger.info("Missing translation [" + this.locale.getLanguage() + "] Key: " + key + "");
+            logger.info("Missing translation [{}][{}|Key:'{}' {}",bundle, this.locale.getLanguage(),key,np.getMessage());
             try {
                 return this.defaultBundle.getString(key);
             } catch (NullPointerException | java.util.MissingResourceException np2) {

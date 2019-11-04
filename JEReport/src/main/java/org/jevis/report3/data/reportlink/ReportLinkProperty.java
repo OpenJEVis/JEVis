@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.database.JEVisAttributeDAO;
 import org.jevis.commons.database.JEVisObjectDataManager;
-import org.jevis.commons.database.JEVisSampleDAO;
+import org.jevis.report3.data.attribute.JEVisSampleDAO;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.WorkDays;

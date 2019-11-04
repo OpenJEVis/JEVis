@@ -40,6 +40,7 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
@@ -130,8 +131,7 @@ public class LoadAnalysisDialog {
         updateGridLayout();
 
         stage.showAndWait();
-
-            return response;
+        return response;
     }
 
     private void addListener() {

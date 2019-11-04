@@ -152,6 +152,7 @@ public class Statusbar extends ToolBar {
     }
 
     public void initView() {
+        logger.error("Statusbar.initView()");
         HBox root = new HBox();
 
         root.setSpacing(10);
@@ -175,6 +176,8 @@ public class Statusbar extends ToolBar {
 
         Label loadStatus = new Label(I18n.getInstance().getString("statusbar.loading"));
 
+        System.out.println("add to status: progressbox: "+progressbox.getChildren());
+        progressbox = new HBox();
         progressbox.getChildren().addAll(loadStatus, progressBar);
         //TODO implement notification
         root.getChildren().addAll(userIcon, this.userName, spacerLeft, progressbox, spacer, this.conBox, this.onlineInfo);

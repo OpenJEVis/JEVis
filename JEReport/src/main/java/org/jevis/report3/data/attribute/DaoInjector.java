@@ -17,7 +17,7 @@
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.commons.database;
+package org.jevis.report3.data.attribute;
 
 import com.google.inject.AbstractModule;
 

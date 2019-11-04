@@ -63,7 +63,7 @@ public class TopMenu extends MenuBar {
 
     }
 
-    private void updateLayout() {
+    public void updateLayout() {
 
         Menu menuFile = new Menu(I18n.getInstance().getString("menu.file"));
         Menu subMenuImport = new Menu(I18n.getInstance().getString("menu.file.import"));

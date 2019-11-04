@@ -4,6 +4,25 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="[%d{HH:mm:ss} %logger{1}.%M | %L] - %msg%n"/>
         </Console>
+
+        <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+            <!-- in the absence of the class attribute, it is assumed that the
+                 desired discriminator type is
+                 ch.qos.logback.classic.sift.MDCBasedDiscriminator -->
+            <discriminator>
+                <key>userid</key>
+                <defaultValue>unknown</defaultValue>
+            </discriminator>
+            <sift>
+                <appender name="FILE-${userid}" class="ch.qos.logback.core.FileAppender">
+                    <file>${userid}.log</file>
+                    <append>false</append>
+                    <layout class="ch.qos.logback.classic.PatternLayout">
+                        <pattern>%d [%thread] %level %mdc %logger{35} - %msg%n</pattern>
+                    </layout>
+                </appender>
+            </sift>
+        </appender>
     </Appenders>
     <Loggers>
         <Logger name="org.jevis.api.sql" level="error" additivity="false">

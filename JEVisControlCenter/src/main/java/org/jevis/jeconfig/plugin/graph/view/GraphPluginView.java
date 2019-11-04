@@ -21,7 +21,6 @@ package org.jevis.jeconfig.plugin.graph.view;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import eu.hansolo.fx.charts.MatrixPane;
-import com.google.inject.internal.util.$AsynchronousComputationException;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;

@@ -19,6 +19,8 @@
  */
 package org.jevis.jeapi.ws;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -53,14 +55,15 @@ public class JEVisAttributeWS implements JEVisAttribute {
         this.json = json;
         this.json.setObjectID(obj);
 
-        Optimization.getInstance().addAttribute(this);
+//        Optimization.getInstance().addAttribute(this);
     }
 
     public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json) {
         this.ds = ds;
         this.json = json;
+        ObjectMapper objectMapper = new ObjectMapper();
 
-        Optimization.getInstance().addAttribute(this);
+//        Optimization.getInstance().addAttribute(this);
     }
 
     public void update(JsonAttribute json) {
@@ -320,8 +323,16 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public JEVisUnit getDisplayUnit() {
         try {
-            return new JEVisUnitImp(json.getDisplayUnit());
+            if(json.getDisplayUnit()!=null){
+                logger.error("Att.unit [{}-{}] {}",json.getObjectID(),json.getType());
+                return new JEVisUnitImp(json.getDisplayUnit());
+            }else{
+                logger.error("Missing DisplayUnit [{}] {}",json.getObjectID(),json.getType());
+                return new JEVisUnitImp(Unit.ONE);
+            }
+
         } catch (Exception ex) {
+            System.out.println("erro in unit tring: "+json.getDisplayUnit());
             return new JEVisUnitImp(Unit.ONE);
         }
     }

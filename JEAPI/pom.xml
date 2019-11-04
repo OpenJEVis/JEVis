@@ -15,6 +15,7 @@
         <additionalparam>-Xdoclint:none</additionalparam>
     </properties>
 
+    <!--
     <repositories>
         <repository>
             <releases>
@@ -33,7 +34,7 @@
             <layout>default</layout>
         </repository>
     </repositories>
-
+    -->
     <parent>
         <groupId>org.jevis</groupId>
         <artifactId>JEVisCore</artifactId>
@@ -78,8 +79,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>

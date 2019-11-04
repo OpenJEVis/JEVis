@@ -49,7 +49,9 @@ import org.jevis.api.JEVisOption;
 import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.datasource.DataSourceLoader;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.application.ParameterHelper;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.tool.I18n;
 
@@ -126,11 +128,6 @@ public class FXLogin extends AnchorPane {
         this.app = app;
         this.parameters = parameters;
 
-        availableLang.add(UK);
-        availableLang.add(GERMANY);
-        availableLang.add(Locale.forLanguageTag("ru"));
-        availableLang.add(Locale.forLanguageTag("uk"));
-        availableLang.add(Locale.forLanguageTag("th"));
 
         this.configuration = parseConfig(parameters);
         for (JEVisOption opt : this.configuration) {

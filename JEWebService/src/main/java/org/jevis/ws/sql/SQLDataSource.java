@@ -83,6 +83,40 @@ public class SQLDataSource {
         }
     }
 
+    public SQLDataSource(String username,String password) throws AuthenticationException, JEVisException {
+
+        try {
+            ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
+
+            this.dbConn = ConnectionFactory.getInstance().getConnection();
+
+            if (this.dbConn.isValid(2000)) {
+
+                try {
+                    this.user = this.lTable.loginUser(username, password);
+
+                } catch (JEVisException ex) {
+                    ex.printStackTrace();
+                    throw new AuthenticationException("Username/Password is not correct.");
+                }
+
+
+                this.lTable = new LoginTable(this);
+                this.oTable = new ObjectTable(this);
+                this.aTable = new AttributeTable(this);
+                this.sTable = new SampleTable(this);
+                this.rTable = new RelationshipTable(this);
+                this.um = new UserRightManagerForWS(this);
+
+            }
+        } catch (SQLException se) {
+            logger.error(se);
+            throw new JEVisException("Database connection error", 5438, se);
+        }
+    }
+
+
+
     public Connection getConnection() throws SQLException {
         return this.dbConn;
     }
