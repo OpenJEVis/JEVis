@@ -34,6 +34,7 @@ import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.datasource.DataSourceLoader;
 import org.jevis.commons.utils.Benchmark;
+import org.jevis.commons.utils.PrettyError;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.Configuration;
 import org.jevis.jeconfig.JEConfig;
@@ -387,17 +388,19 @@ public class WebLogin extends Application {
 
 
             try {
-                Platform.runLater(() -> {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle(I18n.getInstance().getString("app.login.error.title"));
-                    alert.setHeaderText("");
-                    alert.setContentText(ex.getMessage());
-                    alert.show();
-                });
+//                Platform.runLater(() -> {
+//                    Alert alert = new Alert(Alert.AlertType.ERROR);
+//                    alert.setTitle(I18n.getInstance().getString("app.login.error.title"));
+//                    alert.setHeaderText("");
+//                    alert.setContentText(ex.getMessage());
+//                    alert.show();
+//                });
 
 
                 System.out.println("WRITE error");
                 logger.error("Login Faild: {}",ex.getMessage());
+                logger.error("PrettyError: {}", PrettyError.getJEVisLineFilter(ex));
+                logger.error(ex);
 //                BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/hmmmmm.log")));
 //                writer.write(ExceptionUtils.getStackTrace(ex));
 //

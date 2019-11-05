@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- const.xml -->
+<config>
+    <datasource>
+        <url>127.0.0.1</url>
+        <port>3306</port>
+        <login>jevis</login>
+        <password>jevispw</password>
+        <schema>jevis</schema>
+    </datasource>
+    <webservice>
+        <uri>http://localhost:8000/</uri>
+        <i18ndir>/home/fs/IdeaProjects/JEVis/var/i18n</i18ndir>
+        <filedir>/home/fs/IdeaProjects/JEVis/var/files/</filedir>
+        <classdir>/home/fs/IdeaProjects/JEVis/var/classes/</classdir>
+        <freemarkerdir>/home/fs/IdeaProjects/JEVis/var/freemarker/</freemarkerdir>
+        <registration>
+            <root>1</root>
+            <demogroup>1</demogroup>
+            <apikey>UIGDUSG023Bxdh283frehbo90</apikey>
+        </registration>
+    </webservice>   
+    
+    
+</config>

@@ -88,16 +88,14 @@ public class PluginManager {
      */
     public List<Plugin> getInstalledPlugins() {
         List<Plugin> plugins = new ArrayList<>();
-//        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
-        plugins.add(new GraphPluginView(this._ds, I18n.getInstance().getString("plugin.graph.title")));
-        plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
-        plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
 
-//        plugins.add(new SCADAPlugin(_ds));
-        plugins.add(new ISO50001Browser(this._ds));
-        plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(this._ds, I18n.getInstance().getString("plugin.classes.title")));
-        plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(this._ds, I18n.getInstance().getString("plugin.units.title")));
-        plugins.add(new MapViewPlugin(this._ds, I18n.getInstance().getString("plugin.map.title")));
+        plugins.add(new GraphPluginView(this._ds, I18n.getInstance().getString("plugin.graph.title")));
+//        plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
+        plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
+//        plugins.add(new ISO50001Browser(this._ds));
+//        plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(this._ds, I18n.getInstance().getString("plugin.classes.title")));
+//        plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(this._ds, I18n.getInstance().getString("plugin.units.title")));
+//        plugins.add(new MapViewPlugin(this._ds, I18n.getInstance().getString("plugin.map.title")));
 
 //        plugins.add(new LoytecBrowser(_ds));
 

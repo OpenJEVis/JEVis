@@ -273,13 +273,13 @@ public class DashboardControl {
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setContentText(I18n.getInstance().getString("plugin.dashboard.dialog.changed.text"));
                     alert.setResizable(true);
-                    alert.showAndWait().ifPresent(buttonType -> {
-                        if (buttonType.equals(ButtonType.OK)) {
-                            save();
-                        } else {
-
-                        }
-                    });
+//                    alert.showAndWait().ifPresent(buttonType -> {
+//                        if (buttonType.equals(ButtonType.OK)) {
+//                            save();
+//                        } else {
+//
+//                        }
+//                    });
                 }
             }
             firstLoadedConfigHash = null;

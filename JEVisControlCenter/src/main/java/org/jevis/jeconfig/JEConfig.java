@@ -43,10 +43,11 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.commons.utils.PrettyError;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
-import org.jevis.jeconfig.application.login.FXLogin;
+import org.jevis.jeconfig.application.login.FXLogin; //<----------------------- hier
 import org.jevis.jeconfig.application.statusbar.Statusbar;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.I18n;
@@ -220,8 +221,7 @@ public class JEConfig extends Application {
         I18nWS.getInstance().setLocale(locale);
         _config.setLocale(locale);
 
-        statusBar = new Statusbar();
-        statusBar.setDataSource(_mainDS);
+
 
 //        PROGRAM_INFO.setJEVisAPI(_mainDS.getInfo());
 //        PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
@@ -245,10 +245,7 @@ public class JEConfig extends Application {
 //                });
 
         hmmDebug("444444");
-        pluginManager = new PluginManager(_mainDS);
-        menu = new TopMenu();
-        pluginManager.setMenuBar(menu);
-        pluginManager.addPluginsByUserSetting(_mainDS.getCurrentUser());
+
 
         hmmDebug("55555");
 //        final KeyCombination saveCombo = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
@@ -266,7 +263,7 @@ public class JEConfig extends Application {
 //            }
 //        });
         hmmDebug("66666");
-        GlobalToolBar toolbar = new GlobalToolBar(pluginManager);
+
 
 
         hmmDebug("7777777");
@@ -295,37 +292,47 @@ public class JEConfig extends Application {
         hmmDebug("888888");
 
 
+
         Platform.runLater(() -> {
-            System.out.println("make a scene");
-            menu.updateLayout();
-            BorderPane jeconfigRoot = new BorderPane();
-            Layouts.setAnchor(jeconfigRoot, 0);
-            rootPane.setStyle("-fx-background-color: red;");
+            try {
+                rootPane.getScene().getStylesheets().add("/styles/Styles.css");
+                rootPane.getScene().getStylesheets().add("/styles/charts.css");
+                rootPane.setStyle("-fx-background-color: red;");
+
+                System.out.println("make a scene");
+
+                menu = new TopMenu();
+                pluginManager = new PluginManager(_mainDS);
+                pluginManager.setMenuBar(menu);
+                pluginManager.addPluginsByUserSetting(_mainDS.getCurrentUser());
+                menu.updateLayout();
 
 
-            statusBar.initView();
+                statusBar = new Statusbar();
+                statusBar.setDataSource(_mainDS);
+                statusBar.initView();
 
-            VBox topMenuBox = new VBox();
-            topMenuBox.setStyle("-fx-background-color: black;");
-            topMenuBox.getChildren().addAll(menu, pluginManager.getToolbar());
+                BorderPane jeconfigRoot = new BorderPane();
+                Layouts.setAnchor(jeconfigRoot, 0);
 
+                VBox topMenuBox = new VBox();
+                topMenuBox.setStyle("-fx-background-color: black;");
+                topMenuBox.getChildren().addAll(menu, pluginManager.getToolbar());
 
+                BorderPane testPane = new BorderPane();
+                testPane.setStyle("-fx-background-color: blue;");
 
-//        border.setTop(vbox);
-//        border.setCenter(pluginManager.getView());
-            BorderPane testPane = new BorderPane();
-            testPane.setStyle("-fx-background-color: blue;");
-
-            jeconfigRoot.setTop(topMenuBox);
-            jeconfigRoot.setCenter(pluginManager.getView());
-            jeconfigRoot.setBottom(statusBar);
-            rootPane.getChildren().setAll(jeconfigRoot);
-
-
+                jeconfigRoot.setTop(topMenuBox);
+                jeconfigRoot.setCenter(pluginManager.getView());
+                jeconfigRoot.setBottom(statusBar);
+                rootPane.getChildren().setAll(jeconfigRoot);
+            }catch (Exception ex){
+                logger.error("Error whili init UI: {}", PrettyError.getJEVisLineFilter(ex));
+                ex.printStackTrace();
+            }
         });
 
-        rootPane.getScene().getStylesheets().add("/styles/Styles.css");
-        rootPane.getScene().getStylesheets().add("/styles/charts.css");
+
 
 //        primaryStage.onCloseRequestProperty().addListener((ov, t, t1) -> {
 //            try {
@@ -457,7 +464,7 @@ public class JEConfig extends Application {
      *
      * @param primaryStage
      */
-    private void initGUI(Stage primaryStage) {
+    private void initGUIOld(Stage primaryStage) {
 
         System.out.println("initGUI old");
         primaryStage.setOnCloseRequest(t -> {
@@ -665,7 +672,7 @@ public class JEConfig extends Application {
         }
 
         _primaryStage = primaryStage;
-        initGUI(primaryStage);
+        initGUIOld(primaryStage);
     }
 
     public static final class OsUtils {
