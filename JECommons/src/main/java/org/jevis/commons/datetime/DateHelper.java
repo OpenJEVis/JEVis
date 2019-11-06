@@ -430,7 +430,7 @@ public class DateHelper {
                             case "CURRENT_DAY":
                                 now = DateTime.now();
                                 endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
-                                        endTime.getHour(), endTime.getMinute(), endTime.getSecond());
+                                        startTime.getHour(), startTime.getMinute(), startTime.getSecond());
                                 break;
                             case "SPECIFIED_DATE":
                                 try {

@@ -38,7 +38,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.Constants;
@@ -561,25 +564,25 @@ public class ObjectPlugin implements Plugin {
 
                                 //get objekt mit ID from Tabelle
                                 if (table.getPairList().get(i).getValue().get(0).isEmpty() && table.getPairList().get(i).getValue().get(1).isEmpty()) {
-                                    attribute.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                    attribute.setDisplayUnit(new JEVisUnitImp("", "", null));
                                 } else {
                                     String displaySymbol = table.getPairList().get(i).getValue().get(1);
                                     if (table.getPairList().get(i).getValue().get(0).isEmpty() && !table.getPairList().get(i).getValue().get(1).isEmpty()) {
-                                        attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", JEVisUnit.Prefix.NONE));
+                                        attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", null));
                                     } else {
-                                        JEVisUnit.Prefix prefixDisplayUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(0));
+                                        String prefixDisplayUnit = table.getPairList().get(i).getValue().get(0);
                                         attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", prefixDisplayUnit));
                                     }
                                 }
 
                                 if (table.getPairList().get(i).getValue().get(3).isEmpty() && table.getPairList().get(i).getValue().get(4).isEmpty()) {
-                                    attribute.setInputUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                    attribute.setInputUnit(new JEVisUnitImp("", "", null));
                                 } else {
                                     String inputSymbol = table.getPairList().get(i).getValue().get(4);
                                     if (table.getPairList().get(i).getValue().get(3).isEmpty() && !table.getPairList().get(i).getValue().get(4).isEmpty()) {
-                                        attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", JEVisUnit.Prefix.NONE));
+                                        attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", null));
                                     } else {
-                                        JEVisUnit.Prefix prefixInputUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(3));
+                                        String prefixInputUnit = table.getPairList().get(i).getValue().get(3);
                                         attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", prefixInputUnit));
                                     }
                                 }
@@ -665,25 +668,25 @@ public class ObjectPlugin implements Plugin {
                                 if (attribute.getName().equals("Value")) {
 
                                     if (table.getPairList().get(i).getValue().get(0).isEmpty() && table.getPairList().get(i).getValue().get(1).isEmpty()) {
-                                        attribute.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                        attribute.setDisplayUnit(new JEVisUnitImp("", "", null));
                                     } else {
                                         String displaySymbol = table.getPairList().get(i).getValue().get(1);
                                         if (table.getPairList().get(i).getValue().get(0).isEmpty() && !table.getPairList().get(i).getValue().get(1).isEmpty()) {
-                                            attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", JEVisUnit.Prefix.NONE));
+                                            attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", null));
                                         } else {
-                                            JEVisUnit.Prefix prefixDisplayUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(0));
+                                            String prefixDisplayUnit = table.getPairList().get(i).getValue().get(0);
                                             attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", prefixDisplayUnit));
                                         }
                                     }
 
                                     if (table.getPairList().get(i).getValue().get(3).isEmpty() && table.getPairList().get(i).getValue().get(4).isEmpty()) {
-                                        attribute.setInputUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                        attribute.setInputUnit(new JEVisUnitImp("", "", null));
                                     } else {
                                         String inputSymbol = table.getPairList().get(i).getValue().get(4);
                                         if (table.getPairList().get(i).getValue().get(3).isEmpty() && !table.getPairList().get(i).getValue().get(4).isEmpty()) {
-                                            attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", JEVisUnit.Prefix.NONE));
+                                            attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", null));
                                         } else {
-                                            JEVisUnit.Prefix prefixInputUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(3));
+                                            String prefixInputUnit = table.getPairList().get(i).getValue().get(3);
                                             attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", prefixInputUnit));
                                         }
                                     }

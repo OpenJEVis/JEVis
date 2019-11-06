@@ -21,8 +21,6 @@
 package org.jevis.jeconfig.application.unit;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -38,7 +36,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.UnitManager;
 
-import java.util.Locale;
+import javax.measure.MetricPrefix;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -62,21 +60,21 @@ public class UnitPanel extends GridPane {
 
         final JEVisUnit.Prefix prefix = unit.getPrefix();
 
-        ComboBox<String> prefixBox = new ComboBox(FXCollections.observableArrayList(UnitManager.getInstance().getPrefixes()));
+        ComboBox<MetricPrefix> prefixBox = new ComboBox(FXCollections.observableArrayList(MetricPrefix.values()));
         prefixBox.setMaxWidth(520);
 //        prefixBox.getSelectionModel().select("");//toto get elsewhere?!
 
-        prefixBox.setButtonCell(new ListCell<String>() {
+        prefixBox.setButtonCell(new ListCell<MetricPrefix>() {
             @Override
-            protected void updateItem(String t, boolean bln) {
+            protected void updateItem(MetricPrefix t, boolean bln) {
                 super.updateItem(t, bln); //To change body of generated methods, choose Tools | Templates.
                 if (!bln) {
                     setAlignment(Pos.CENTER);
-                    setText(t);//TODo: replace this dirty workaround to center the text in line with he buttonbelow
+                    setText(t.getName());//TODo: replace this dirty workaround to center the text in line with he buttonbelow
                 }
             }
         });
-        prefixBox.getSelectionModel().select(UnitManager.getInstance().getPrefixName(prefix, Locale.getDefault()));
+        prefixBox.getSelectionModel().select(UnitManager.getInstance().getPrefix(prefix));
 
         final TextField labelField = new TextField();
         labelField.setEditable(false);
@@ -108,14 +106,10 @@ public class UnitPanel extends GridPane {
 //            add(setDefault, 2, 2, 1, 1);
 //        }
 
-        prefixBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+        prefixBox.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
 
-            @Override
-            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-
-                _returnUnit.setPrefix(UnitManager.getInstance().getPrefix(t1, Locale.getDefault()));
-                printExample(labelField, _returnUnit);
-            }
+            _returnUnit.setPrefix(UnitManager.getInstance().getPrefix(t1));
+            printExample(labelField, _returnUnit);
         });
 
         labelField.setOnAction(new EventHandler<ActionEvent>() {

@@ -26,6 +26,7 @@ import org.jevis.commons.relationship.RelationshipFactory;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.joda.time.DateTime;
 
+import javax.measure.MetricPrefix;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import java.util.List;
@@ -129,12 +130,12 @@ public class UserFactory {
             dataOutdoor.getAttribute("Value").setDisplayUnit(new JEVisUnitImp(SI.CELSIUS));
             dataOutdoor.commit();
 
-            dataElectric.getAttribute("Value").setInputUnit(new JEVisUnitImp(SI.WATT.times(NonSI.HOUR), "Wh", JEVisUnit.Prefix.KILO));
-            dataElectric.getAttribute("Value").setDisplayUnit(new JEVisUnitImp(SI.WATT.times(NonSI.HOUR), "Wh", JEVisUnit.Prefix.KILO));
+            dataElectric.getAttribute("Value").setInputUnit(new JEVisUnitImp(SI.WATT.times(NonSI.HOUR), "Wh", MetricPrefix.KILO.toString()));
+            dataElectric.getAttribute("Value").setDisplayUnit(new JEVisUnitImp(SI.WATT.times(NonSI.HOUR), "Wh", MetricPrefix.KILO.toString()));
             dataElectric.commit();
 
-            dataHeat.getAttribute("Value").setInputUnit(new JEVisUnitImp(SI.WATT.times(NonSI.HOUR), "Wh", JEVisUnit.Prefix.KILO));
-            dataHeat.getAttribute("Value").setDisplayUnit(new JEVisUnitImp(SI.WATT.times(NonSI.HOUR), "Wh", JEVisUnit.Prefix.KILO));
+            dataHeat.getAttribute("Value").setInputUnit(new JEVisUnitImp(SI.WATT.times(NonSI.HOUR), "Wh", MetricPrefix.KILO.toString()));
+            dataHeat.getAttribute("Value").setDisplayUnit(new JEVisUnitImp(SI.WATT.times(NonSI.HOUR), "Wh", MetricPrefix.KILO.toString()));
             dataHeat.commit();
 
             dataWater.getAttribute("Value").setInputUnit(new JEVisUnitImp(SI.CUBIC_METRE));

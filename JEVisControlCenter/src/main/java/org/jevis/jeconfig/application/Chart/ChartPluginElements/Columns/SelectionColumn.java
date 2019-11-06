@@ -18,7 +18,7 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -36,7 +36,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     private final List<TreeTableColumn<JEVisTreeRow, Boolean>> selectionColumns;
     private final TreeTableColumn<JEVisTreeRow, Long> allColumns;
     private TreeTableColumn<JEVisTreeRow, Boolean> selectionColumn;
-    private GraphDataModel data;
+    private AnalysisDataModel data;
     private JEVisTree tree;
     private ColorColumn colorColumn;
     private Integer chartId;
@@ -64,8 +64,8 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     }
 
     @Override
-    public void setGraphDataModel(GraphDataModel graphDataModel) {
-        this.data = graphDataModel;
+    public void setGraphDataModel(AnalysisDataModel analysisDataModel) {
+        this.data = analysisDataModel;
         update();
     }
 
@@ -272,7 +272,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     }
 
     @Override
-    public GraphDataModel getData() {
+    public AnalysisDataModel getData() {
         return this.data;
     }
 

@@ -18,7 +18,7 @@ import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
@@ -30,14 +30,14 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SaveAnalysisDialog {
     private static final Logger logger = LogManager.getLogger(SaveAnalysisDialog.class);
     private final JEVisDataSource ds;
-    private final GraphDataModel model;
+    private final AnalysisDataModel model;
     private final ObjectRelations objectRelations;
     private PickerCombo pickerCombo;
     private ComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean changed;
     private JEVisObject currentAnalysisDirectory = null;
 
-    public SaveAnalysisDialog(JEVisDataSource ds, GraphDataModel model, PickerCombo pickerCombo, ComboBox<JEVisObject> listAnalysesComboBox, Boolean changed) {
+    public SaveAnalysisDialog(JEVisDataSource ds, AnalysisDataModel model, PickerCombo pickerCombo, ComboBox<JEVisObject> listAnalysesComboBox, Boolean changed) {
         this.ds = ds;
         this.model = model;
         this.objectRelations = new ObjectRelations(ds);
@@ -211,13 +211,13 @@ public class SaveAnalysisDialog {
             JEVisAttribute dataModel = analysis.getAttribute("Data Model");
             JEVisAttribute charts = analysis.getAttribute("Charts");
 
-            JEVisAttribute noOfChartsPerScreenAttribute = analysis.getAttribute(GraphDataModel.NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME);
+            JEVisAttribute noOfChartsPerScreenAttribute = analysis.getAttribute(AnalysisDataModel.NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME);
             Long noOfChartsPerScreen = model.getChartsPerScreen();
 
-            JEVisAttribute horizontalPiesAttribute = analysis.getAttribute(GraphDataModel.NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME);
+            JEVisAttribute horizontalPiesAttribute = analysis.getAttribute(AnalysisDataModel.NUMBER_OF_HORIZONTAL_PIES_ATTRIBUTE_NAME);
             Long horizontalPies = model.getHorizontalPies();
 
-            JEVisAttribute horizontalTablesAttribute = analysis.getAttribute(GraphDataModel.NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME);
+            JEVisAttribute horizontalTablesAttribute = analysis.getAttribute(AnalysisDataModel.NUMBER_OF_HORIZONTAL_TABLES_ATTRIBUTE_NAME);
             Long horizontalTables = model.getHorizontalTables();
 
             JsonChartDataModel jsonChartDataModel = new JsonChartDataModel();
@@ -226,7 +226,7 @@ public class SaveAnalysisDialog {
                 if (!mdl.getSelectedcharts().isEmpty()) {
                     JsonAnalysisDataRow json = new JsonAnalysisDataRow();
                     json.setName(mdl.getTitle());
-                    json.setColor(mdl.getColor().toString());
+                    json.setColor(mdl.getColor());
                     json.setObject(mdl.getObject().getID().toString());
                     if (mdl.getDataProcessor() != null)
                         json.setDataProcessorObject(mdl.getDataProcessor().getID().toString());

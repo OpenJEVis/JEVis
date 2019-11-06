@@ -35,7 +35,7 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
@@ -58,7 +58,7 @@ public class ToolBarView {
     private final JEVisDataSource ds;
     private final GraphPluginView graphPluginView;
     private final ObjectRelations objectRelations;
-    private GraphDataModel model;
+    private AnalysisDataModel model;
     private ComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean _initialized = false;
     private ToggleButton save;
@@ -118,7 +118,7 @@ public class ToolBarView {
     private ToggleButton showL1L2;
     private ToggleButton calcRegression;
 
-    public ToolBarView(GraphDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
+    public ToolBarView(AnalysisDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.model = model;
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);

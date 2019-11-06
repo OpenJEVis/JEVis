@@ -21,9 +21,7 @@
 package org.jevis.jeconfig.plugin.unit;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -40,88 +38,98 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.application.unit.SimpleTreeUnitChooser;
 
-import java.util.Locale;
+import javax.measure.MetricPrefix;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class UnitSelectUI {
 
-    private final JEVisUnit originalUnit;
-
-    private ObjectProperty<JEVisUnit> unitProperty = new SimpleObjectProperty<>();
+    private final TextField symbolField = new TextField();
     private static final Logger logger = LogManager.getLogger(UnitSelectUI.class);
-
-    private final TextField labelField = new TextField();
+    private final ComboBox<MetricPrefix> prefixBox;
     private final Button changeBaseUnit = new Button();//new Button("Basic Unit");
-    private final ComboBox<String> prefixBox = new ComboBox<>(FXCollections.observableArrayList(UnitManager.getInstance().getPrefixes()));
+    private JEVisUnit jeVisUnit;
     //workaround
     private final BooleanProperty valueChangedProperty = new SimpleBooleanProperty(false);
 
     public UnitSelectUI(JEVisDataSource ds, JEVisUnit unit) {
         final JEVisUnit.Prefix prefix = unit.getPrefix();
-        originalUnit = unit;
-        unitProperty.setValue(unit);
+        jeVisUnit = unit;
+        prefixBox = new ComboBox<>(FXCollections.observableArrayList(MetricPrefix.values()));
+        prefixBox.getItems().add(0, null);
 
-        prefixBox.setButtonCell(new ListCell<String>() {
+        prefixBox.setButtonCell(new ListCell<MetricPrefix>() {
             @Override
-            protected void updateItem(String t, boolean bln) {
-                super.updateItem(t, bln); //To change body of generated methods, choose Tools | Templates.
+            protected void updateItem(MetricPrefix prefix, boolean bln) {
+                super.updateItem(prefix, bln);
                 setGraphic(null);
                 if (!bln) {
                     setAlignment(Pos.CENTER);
-                    if (t == null || t.isEmpty()) {
-                        setText("Unitless");
+                    if (prefix == null) {
+                        setText("None");
                     } else {
-                        setText(t);
+                        setText(prefix.getName());
                     }
 
                 }
             }
         });
-        prefixBox.getSelectionModel().select(UnitManager.getInstance().getPrefixName(unit.getPrefix(), Locale.getDefault()));
-        changeBaseUnit.setText(UnitManager.getInstance().format(unit));
-        labelField.setText(unit.getLabel());
+        prefixBox.getSelectionModel().select(UnitManager.getInstance().getPrefix(prefix));
+        if (unit.getUnit().toString().length() > 1) {
+            String sub = unit.toString().substring(0, 0);
+            if (UnitManager.getInstance().getPrefixFromShort(sub) != null) {
+                changeBaseUnit.setText(unit.getUnit().toString().replace(sub, ""));
+            } else {
+                changeBaseUnit.setText(unit.getUnit().toString().replace(sub, ""));
+            }
+        }
 
-//        unitProperty.addListener((observable, oldValue, newValue) -> {
-//        });
+        symbolField.setText(unit.getLabel());
 
-        prefixBox.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
-//                unitProperty.getValue().setPrefix(prefix);
-            JEVisUnit cloneUnit = UnitManager.cloneUnit(unitProperty.getValue());
-            cloneUnit.setPrefix(UnitManager.getInstance().getPrefix(t1, Locale.getDefault()));
-            unitProperty.setValue(cloneUnit);
 
-            labelField.setText(UnitManager.getInstance().format(unitProperty.getValue()));
+        prefixBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                String oldSymbol = "";
+                if (symbolField.getText() != null) {
+                    oldSymbol = symbolField.getText();
+                }
+                if (oldSymbol.length() > 1) {
+                    String sub = unit.toString().substring(0, 1);
+                    if (UnitManager.getInstance().getPrefixFromShort(sub) != null) {
+                        oldSymbol = oldSymbol.replace(sub, "");
+                    }
+                }
+                if (newValue != null) {
+                    symbolField.setText(newValue.getSymbol() + oldSymbol);
+                    JEVisUnit.Prefix newPrefix = UnitManager.getInstance().getPrefix(newValue);
+                    jeVisUnit.setPrefix(newPrefix);
+                } else {
+                    symbolField.setText(oldSymbol);
+                    jeVisUnit.setPrefix(JEVisUnit.Prefix.NONE);
+                }
+            }
         });
 
-        labelField.textProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                logger.info("Label event: " + newValue);
-                JEVisUnit cloneUnit = cloneUnit(unitProperty.getValue());
-                cloneUnit.setLabel(newValue);
-                unitProperty.setValue(cloneUnit);
-            } catch (Exception ex) {
-                ex.printStackTrace();
+        symbolField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                try {
+                    jeVisUnit.setLabel(newValue);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 
         changeBaseUnit.setOnAction(event -> {
-
             SimpleTreeUnitChooser stc = new SimpleTreeUnitChooser();
             if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {
                 logger.info("Unit selected: " + stc.getUnit().getFormula());
-//                        JEVisUnit cloneUnit = cloneUnit(unitProperty.getValue());
-//                        cloneUnit.setFormula(stc.getUnit().getFormula());
-//                        unitProperty.setValue(cloneUnit);
-                JEVisUnit newUnit = stc.getUnit();
-                unitProperty.setValue(newUnit);
-
-//                        unitProperty.getValue().setFormula(stc.getUnit().getFormula());
-                changeBaseUnit.setText(unitProperty.getValue().getFormula());
-                labelField.setText(UnitManager.getInstance().format(unitProperty.getValue()));//proble: the unitChang event cone tow times
+                jeVisUnit = stc.getUnit();
+                prefixBox.getSelectionModel().select(null);
+                changeBaseUnit.setText(jeVisUnit.getFormula());
+                symbolField.setText(jeVisUnit.getLabel());
             }
-
         });
 
     }
@@ -139,23 +147,27 @@ public class UnitSelectUI {
         JsonUnit ju = new JsonUnit();
         ju.setFormula(unit.getFormula());
         ju.setLabel(unit.getLabel());
-        ju.setPrefix(UnitManager.getInstance().getPrefixName(unit.getPrefix(), Locale.getDefault()));
+        ju.setPrefix(unit.getPrefix().toString());
         return new JEVisUnitImp(ju);
     }
 
-    public ObjectProperty<JEVisUnit> unitProperty() {
-        return unitProperty;
+    public JEVisUnit getUnit() {
+        return jeVisUnit;
     }
 
-    public TextField getLabelField() {
-        return labelField;
+    public void setUnit(JEVisUnit unit) {
+        this.jeVisUnit = unit;
+    }
+
+    public TextField getSymbolField() {
+        return symbolField;
     }
 
     public Button getUnitButton() {
         return changeBaseUnit;
     }
 
-    public ComboBox<String> getPrefixBox() {
+    public ComboBox<MetricPrefix> getPrefixBox() {
         return prefixBox;
     }
 //
@@ -201,7 +213,4 @@ public class UnitSelectUI {
 //        return gp;
 //    }
 
-    public JEVisUnit getSelectedUnit() {
-        return originalUnit;
-    }
 }

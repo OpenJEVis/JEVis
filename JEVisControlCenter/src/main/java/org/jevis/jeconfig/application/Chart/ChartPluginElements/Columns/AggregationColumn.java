@@ -13,7 +13,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 
@@ -24,7 +24,7 @@ import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, AggregationPeriod> implements ChartPluginColumn {
     public static String COLUMN_ID = "AggregationColumn";
     private TreeTableColumn<JEVisTreeRow, AggregationPeriod> aggregationColumn;
-    private GraphDataModel data;
+    private AnalysisDataModel data;
     private JEVisTree tree;
     private String columnName;
     private final JEVisDataSource dataSource;
@@ -41,8 +41,8 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
     }
 
     @Override
-    public void setGraphDataModel(GraphDataModel graphDataModel) {
-        this.data = graphDataModel;
+    public void setGraphDataModel(AnalysisDataModel analysisDataModel) {
+        this.data = analysisDataModel;
 
         update();
     }
@@ -141,7 +141,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
     }
 
     @Override
-    public GraphDataModel getData() {
+    public AnalysisDataModel getData() {
         return this.data;
     }
 

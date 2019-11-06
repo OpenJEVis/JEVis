@@ -19,7 +19,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.GraphAnalysisLinker;
 import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
@@ -141,7 +141,7 @@ public class LinkerWidget extends Widget {
             widgetConfigDialog.addTab(tab);
 
             try {
-                JEVisClass analysisClass = getDataSource().getJEVisClass(GraphDataModel.ANALYSIS_CLASS_NAME);
+                JEVisClass analysisClass = getDataSource().getJEVisClass(AnalysisDataModel.ANALYSIS_CLASS_NAME);
                 List<JEVisObject> allAnalysis = getDataSource().getObjects(analysisClass, true);
                 AlphanumComparator alphanumComparator = new AlphanumComparator();
                 Collections.sort(allAnalysis, new Comparator<JEVisObject>() {

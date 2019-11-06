@@ -29,13 +29,13 @@ import org.jevis.commons.unit.ChartUnits.MoneyUnit;
 import org.jevis.commons.ws.json.JsonFactory;
 import org.jevis.commons.ws.json.JsonUnit;
 
+import javax.measure.MetricPrefix;
 import javax.measure.converter.ConversionException;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
-import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -45,36 +45,33 @@ import java.util.Objects;
  */
 public class JEVisUnitImp implements JEVisUnit {
 
-    private Unit _unit = Unit.ONE;
-    private String _label = "";
-    private Prefix _prefix = Prefix.NONE;
+    private Unit unit = Unit.ONE;
+    private String label = "";
+    private String prefix = "";
     private static final Logger logger = LogManager.getLogger(JEVisUnitImp.class);
-//    private JsonUnit _json = null;
 
     public JEVisUnitImp(Unit unit) {
-        _unit = unit;
-        _label = unit.toString();
-    }
-
-    public JEVisUnitImp() {
-        _label = _unit.toString();
+        this.unit = unit;
+        UnitFormat unitFormat = UnitFormat.getInstance();
+        String uString = unitFormat.format(unit);
+        this.label = UnitManager.getInstance().format(uString);
+        this.prefix = getPrefixFromUnit(unit);
     }
 
     public JEVisUnitImp(org.jevis.commons.ws.json.JsonUnit json) {
 
-//        Gson gson = new Gson();
-        _label = json.getLabel();
-        _prefix = UnitManager.getInstance().getPrefix(json.getPrefix(), Locale.getDefault());
+        this.label = json.getLabel();
+        this.prefix = json.getPrefix();
         try {
             try {
-                _unit = (Unit) UnitFormat.getInstance().parseObject(json.getFormula());
+                this.unit = (Unit) UnitFormat.getInstance().parseObject(json.getFormula());
             } catch (ParseException pe) {
                 try {
                     if (!json.getLabel().equals("")) {
                         for (MoneyUnit mu : MoneyUnit.values()) {
                             if (json.getFormula().equals(mu.toString())) {
                                 JEVisUnit jeVisUnit = ChartUnits.parseUnit(json.getLabel());
-                                _unit = jeVisUnit.getUnit();
+                                this.unit = jeVisUnit.getUnit();
                                 break;
                             }
                         }
@@ -85,19 +82,16 @@ public class JEVisUnitImp implements JEVisUnit {
                     logger.warn("Warning! Could not parse unit from json: '" + JsonTools.prettyObjectMapper().writeValueAsString(json) + "' " + pe.getMessage());
                 }
             }
-
-            _unit = UnitManager.getInstance().getUnitWithPrefix(_unit, _prefix);
         } catch (JsonProcessingException ex) {
             try {
                 logger.error("Warning! Could not create unit from json: '" + JsonTools.prettyObjectMapper().writeValueAsString(json) + "' " + ex.getMessage());
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
-            _unit = Unit.ONE;
-            _label = "Unknown";
-            _prefix = Prefix.NONE;
         }
+    }
 
+    public JEVisUnitImp() {
     }
 
     /**
@@ -108,18 +102,11 @@ public class JEVisUnitImp implements JEVisUnit {
      * @param label
      * @TODO example of an string
      */
-    public JEVisUnitImp(String unit, String label, Prefix prefix) {
-//        logger.info("new JEVisUnitImp2: " + unit + " - " + label + " - " + prefix);
+    public JEVisUnitImp(String unit, String label, String prefix) {
         UnitFormula up = new UnitFormula(unit, label);
-        _unit = up.getUnit();
-        _label = label;
-        _prefix = prefix;
-    }
-
-    public Unit toUnit() {
-
-        return UnitManager.getInstance().getUnitWithPrefix(_unit, getPrefix());
-//        return _unit;
+        this.unit = up.getUnit();
+        this.label = label;
+        this.prefix = prefix;
     }
 
     /**
@@ -127,20 +114,28 @@ public class JEVisUnitImp implements JEVisUnit {
      * @param label
      * @param prefix
      */
-    public JEVisUnitImp(Unit unit, String label, Prefix prefix) {
-//        logger.info("new JEVisUnitImp1: " + unit + " - " + label + " - " + prefix);
+    public JEVisUnitImp(Unit unit, String label, String prefix) {
         try {
-            _unit = unit;
+            this.unit = unit;
         } catch (Exception ex) {
             logger.info("Warning! Could not parse unit: '" + unit + "' " + ex.getMessage());
         }
-        _label = label;
-        _prefix = prefix;
+        this.label = label;
+        this.prefix = prefix;
+    }
+
+    private String getPrefixFromUnit(Unit unit) {
+        if (unit.toString().length() > 1) {
+            String sub = unit.toString().substring(0, 1);
+            MetricPrefix prefixFromShort = UnitManager.getInstance().getPrefixFromShort(sub);
+            if (prefixFromShort != null) {
+                return prefixFromShort.toString();
+            } else return "";
+        } else return "";
     }
 
     @Override
     public String toJSON() {
-//        Gson gson = new GsonBuilder().create();
         JsonUnit junit = JsonFactory.buildUnit(this);
 
         try {
@@ -152,48 +147,47 @@ public class JEVisUnitImp implements JEVisUnit {
     }
 
     @Override
-    public void setPrefix(Prefix prefix) {
-        //TODO remove pre prefix?
-        _prefix = prefix;
+    public Prefix getPrefix() {
+        return UnitManager.getInstance().getJEVisUnitPrefix(this.prefix);
     }
 
     @Override
-    public Prefix getPrefix() {
-        return _prefix;
+    public void setPrefix(Prefix prefix) {
+        this.prefix = UnitManager.getInstance().getPrefix(prefix).toString();
     }
 
     @Override
     public Unit getUnit() {
-        return _unit;
+        return unit;
     }
 
     @Override
     public String getLabel() {
-//        if (_label == null || _label.isEmpty()) {
-//            String formatted = _unit.toString().replace("·", "");
-//
-//            return UnitManager.getInstance().getPrefixChar(_prefix) + formatted;
-//        }
-
-        return _label;
+        return this.label;
     }
 
     @Override
     public void setLabel(String label) {
-        _label = label;
+        this.label = label;
     }
 
     @Override
     public String getFormula() {
-        return _unit.toString();
+        return this.unit.toString();
+    }
+
+    @Override
+    public void setFormula(String formula) {
+        ParsePosition pp = new ParsePosition(0);
+        this.unit = UnitFormat.getInstance().parseObject(formula, pp);
     }
 
     @Override
     public double convertTo(JEVisUnit unit, double number) {
         //TODo check if unit is compatible
         try {
-            Unit targetUnit = UnitManager.getInstance().getUnitWithPrefix(unit.getUnit(), unit.getPrefix());
-            Unit sourceUnit = UnitManager.getInstance().getUnitWithPrefix(_unit, getPrefix());
+            Unit targetUnit = UnitManager.getInstance().getUnitWithPrefix(unit.getUnit(), UnitManager.getInstance().getPrefix(this.prefix));
+            Unit sourceUnit = UnitManager.getInstance().getUnitWithPrefix(this.unit, UnitManager.getInstance().getPrefix(this.prefix));
 
             UnitConverter uc = sourceUnit.getConverterTo(targetUnit);
             return uc.convert(number);
@@ -201,12 +195,6 @@ public class JEVisUnitImp implements JEVisUnit {
             throw new ConversionException("Unit error: " + ex.getMessage());
         }
 
-    }
-
-    @Override
-    public void setFormula(String formula) {
-        ParsePosition pp = new ParsePosition(0);
-        _unit = UnitFormat.getInstance().parseObject(formula, pp);
     }
 
     @Override
@@ -252,54 +240,11 @@ public class JEVisUnitImp implements JEVisUnit {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this._unit);
-        hash = 97 * hash + Objects.hashCode(this._label);
-        hash = 97 * hash + Objects.hashCode(this._prefix);
+        hash = 97 * hash + Objects.hashCode(this.unit);
+        hash = 97 * hash + Objects.hashCode(this.label);
+        hash = 97 * hash + Objects.hashCode(this.prefix);
         return hash;
     }
-
-
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (obj == null) {
-//            return false;
-//        }
-//        if (getClass() != obj.getClass()) {
-//            return false;
-//        }
-//        final JEVisUnitImp other = (JEVisUnitImp) obj;
-//        if (!Objects.equals(this._unit, other._unit)) {
-//            return false;
-//        }
-//        return true;
-//        
-//        
-//        
-//    }
-
-//    @Override
-//    public boolean equals(Object obj) {
-//        if (this == obj) {
-//            return true;
-//        }
-//        if (obj == null) {
-//            return false;
-//        }
-//        if (getClass() != obj.getClass()) {
-//            return false;
-//        }
-//        final JEVisUnitImp other = (JEVisUnitImp) obj;
-//        if (!Objects.equals(this._label, other._label)) {
-//            return false;
-//        }
-//        if (!Objects.equals(this._unit, other._unit)) {
-//            return false;
-//        }
-//        if (this._prefix != other._prefix) {
-//            return false;
-//        }
-//        return true;
-//    }
 
     @Override
     public boolean equals(Object obj) {
@@ -328,6 +273,6 @@ public class JEVisUnitImp implements JEVisUnit {
     @Override
     protected Object clone() {
 
-        return new JEVisUnitImp(_unit);
+        return new JEVisUnitImp(this.unit);
     }
 }

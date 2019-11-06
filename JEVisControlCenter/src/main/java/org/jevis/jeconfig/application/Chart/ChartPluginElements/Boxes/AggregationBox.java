@@ -7,7 +7,7 @@ import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.tool.I18n;
 
 public class AggregationBox extends ComboBox<AggregationPeriod> {
@@ -70,8 +70,8 @@ public class AggregationBox extends ComboBox<AggregationPeriod> {
         getSelectionModel().select(period);
     }
 
-    public AggregationBox(GraphDataModel graphDataModel, ChartDataModel data) {
-        this(graphDataModel.getAggregationPeriod());
+    public AggregationBox(AnalysisDataModel analysisDataModel, ChartDataModel data) {
+        this(analysisDataModel.getAggregationPeriod());
     }
 
 }

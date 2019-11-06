@@ -8,7 +8,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.tool.I18n;
@@ -71,7 +71,7 @@ public interface ChartPluginColumn {
         }
     }
 
-    void setGraphDataModel(GraphDataModel graphDataModel);
+    void setGraphDataModel(AnalysisDataModel analysisDataModel);
 
     void buildColumn();
 
@@ -79,7 +79,7 @@ public interface ChartPluginColumn {
         buildColumn();
     }
 
-    GraphDataModel getData();
+    AnalysisDataModel getData();
 
     JEVisDataSource getDataSource();
 

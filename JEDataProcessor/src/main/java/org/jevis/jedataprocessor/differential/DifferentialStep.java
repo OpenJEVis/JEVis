@@ -103,7 +103,9 @@ public class DifferentialStep implements ProcessStep {
                                 lastDiffVal = smp.getValueAsDouble();
                             }
                         }
-                    } else {
+                    }
+
+                    if (lastDiffVal == null) {
                         logger.warn("No raw samples! Assuming starting value .");
                         lastDiffVal = 0d;
                         if (intervals.size() > 1) {

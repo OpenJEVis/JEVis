@@ -8,13 +8,13 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.utils.AlphanumComparator;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jevis.jeconfig.application.Chart.data.GraphDataModel.BUILDING_CLASS_NAME;
-import static org.jevis.jeconfig.application.Chart.data.GraphDataModel.ORGANIZATION_CLASS_NAME;
+import static org.jevis.jeconfig.application.Chart.data.AnalysisDataModel.BUILDING_CLASS_NAME;
+import static org.jevis.jeconfig.application.Chart.data.AnalysisDataModel.ORGANIZATION_CLASS_NAME;
 
 /**
  * Sort lists of dashboard objects
@@ -35,7 +35,7 @@ public class DashboardSorter {
         boolean multipleDirectories = false;
 
         try {
-            JEVisClass analysesDirectory = ds.getJEVisClass(GraphDataModel.ANALYSES_DIRECTORY_CLASS_NAME);
+            JEVisClass analysesDirectory = ds.getJEVisClass(AnalysisDataModel.ANALYSES_DIRECTORY_CLASS_NAME);
             listAnalysesDirectories = ds.getObjects(analysesDirectory, false);
 
             if (listAnalysesDirectories.size() > 1) {

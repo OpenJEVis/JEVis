@@ -40,7 +40,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.*;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.filter.BasicCellFilter;
 import org.jevis.jeconfig.application.jevistree.filter.FilterFactory;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
@@ -285,7 +285,7 @@ public class JEVisTreeFactory {
     }
 
 
-    public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds, GraphDataModel graphDataModel) {
+    public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds, AnalysisDataModel analysisDataModel) {
 
         TreeTableColumn<JEVisTreeRow, JEVisTreeRow> nameCol = ColumnFactory.buildName();
         nameCol.setPrefWidth(500);
@@ -332,7 +332,7 @@ public class JEVisTreeFactory {
         SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder);
         tree.setSearchFilterBar(searchBar);
 
-        TreePlugin bp = new ChartPluginTree(graphDataModel);
+        TreePlugin bp = new ChartPluginTree(analysisDataModel);
         //((ChartPluginTree) bp).setData(graphDataModel);
         tree.getColumns().addAll(nameCol);
         tree.getSortOrder().addAll(nameCol);

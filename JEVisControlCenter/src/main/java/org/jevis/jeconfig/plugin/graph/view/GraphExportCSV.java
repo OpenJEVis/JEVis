@@ -24,7 +24,7 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -53,7 +53,7 @@ public class GraphExportCSV {
     private final String COL_SEP = ";";
     private final String SPACE = " ";
     private final DateTimeFormatter standard = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-    private final GraphDataModel model;
+    private final AnalysisDataModel model;
     private final JEVisDataSource ds;
     private Boolean xlsx = false;
     private boolean needSave = false;
@@ -67,7 +67,7 @@ public class GraphExportCSV {
     private NumberFormat numberFormat;
     private Boolean withUserNotes = false;
 
-    public GraphExportCSV(JEVisDataSource ds, GraphDataModel model, DateTime xAxisLowerBound, DateTime xAxisUpperBound) {
+    public GraphExportCSV(JEVisDataSource ds, AnalysisDataModel model, DateTime xAxisLowerBound, DateTime xAxisUpperBound) {
         this.NAME = I18n.getInstance().getString("plugin.graph.export.text.name");
         this.IN = I18n.getInstance().getString("plugin.graph.export.text.in");
         this.NOTE = I18n.getInstance().getString("plugin.graph.export.text.note");

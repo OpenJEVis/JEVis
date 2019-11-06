@@ -12,7 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -51,7 +51,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     public static String COLUMN_ID = "ColorColumn";
     private final JEVisDataSource dataSource;
     private TreeTableColumn<JEVisTreeRow, Color> colorColumn;
-    private GraphDataModel data;
+    private AnalysisDataModel data;
     private List<Color> usedColors = new ArrayList<>();
     private JEVisTree tree;
     private String columnName;
@@ -77,8 +77,8 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     }
 
     @Override
-    public void setGraphDataModel(GraphDataModel graphDataModel) {
-        this.data = graphDataModel;
+    public void setGraphDataModel(AnalysisDataModel analysisDataModel) {
+        this.data = analysisDataModel;
         for (ChartDataModel model : data.getSelectedData()) {
             if (!this.usedColors.contains(model.getColor())) this.usedColors.add(ColorHelper.toColor(model.getColor()));
         }
@@ -180,7 +180,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     }
 
     @Override
-    public GraphDataModel getData() {
+    public AnalysisDataModel getData() {
         return this.data;
     }
 
