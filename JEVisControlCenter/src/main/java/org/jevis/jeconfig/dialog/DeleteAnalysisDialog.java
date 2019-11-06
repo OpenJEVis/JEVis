@@ -6,16 +6,16 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.tool.I18n;
 
 public class DeleteAnalysisDialog {
     private static final Logger logger = LogManager.getLogger(DeleteAnalysisDialog.class);
     private JEVisDataSource ds;
-    private GraphDataModel model;
+    private AnalysisDataModel model;
     private ComboBox<JEVisObject> listAnalysesComboBox;
 
-    public DeleteAnalysisDialog(JEVisDataSource ds, GraphDataModel model, ComboBox<JEVisObject> listAnalysesComboBox) {
+    public DeleteAnalysisDialog(JEVisDataSource ds, AnalysisDataModel model, ComboBox<JEVisObject> listAnalysesComboBox) {
         this.ds = ds;
         this.model = model;
         this.listAnalysesComboBox = listAnalysesComboBox;

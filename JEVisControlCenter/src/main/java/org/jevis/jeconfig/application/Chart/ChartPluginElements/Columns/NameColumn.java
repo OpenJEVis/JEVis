@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 
@@ -21,7 +21,7 @@ public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> imple
     public static String COLUMN_ID = "NameColumn";
     private final JEVisDataSource dataSource;
     private TreeTableColumn<JEVisTreeRow, String> nameColumn;
-    private GraphDataModel data;
+    private AnalysisDataModel data;
     private JEVisTree tree;
     private String columnName;
 
@@ -40,8 +40,8 @@ public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> imple
     }
 
     @Override
-    public void setGraphDataModel(GraphDataModel graphDataModel) {
-        this.data = graphDataModel;
+    public void setGraphDataModel(AnalysisDataModel analysisDataModel) {
+        this.data = analysisDataModel;
         update();
     }
 
@@ -117,7 +117,7 @@ public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> imple
     }
 
     @Override
-    public GraphDataModel getData() {
+    public AnalysisDataModel getData() {
         return this.data;
     }
 

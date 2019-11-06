@@ -59,10 +59,10 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * @author broder
  */
-public class GraphDataModel {
+public class AnalysisDataModel {
     //public class GraphDataModel extends Observable {
 
-    private static final Logger logger = LogManager.getLogger(GraphDataModel.class);
+    private static final Logger logger = LogManager.getLogger(AnalysisDataModel.class);
     public static final String CHARTS_ATTRIBUTE_NAME = "Charts";
     public static final String NUMBER_OF_CHARTS_PER_SCREEN_ATTRIBUTE_NAME = "Number of Charts per Screen";
     public static final String WORKDAY_BEGINNING_ATTRIBUTE_NAME = "Workday Beginning";
@@ -108,7 +108,7 @@ public class GraphDataModel {
     private Boolean temporary = false;
 
 
-    public GraphDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
+    public AnalysisDataModel(JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.graphPluginView = graphPluginView;
@@ -119,6 +119,7 @@ public class GraphDataModel {
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
+        updateListAnalyses();
         if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
         if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
         this.globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());
@@ -1036,6 +1037,8 @@ public class GraphDataModel {
                 && !globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM)
                 && !globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
             DateHelper dateHelper = new DateHelper();
+            if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
+            if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
             dateHelper.setMinMaxForDateHelper(chartDataModels);
             dateHelper.setType(TimeFrame.parseTransformType(globalAnalysisTimeFrame.getTimeFrame()));
             globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());

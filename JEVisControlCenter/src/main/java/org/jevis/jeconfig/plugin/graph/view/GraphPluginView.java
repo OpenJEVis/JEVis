@@ -75,7 +75,7 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChar
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
@@ -95,7 +95,7 @@ public class GraphPluginView implements Plugin {
     private final List<ChartView> charts = new ArrayList<>();
     private final DoubleProperty zoomDurationMillis = new SimpleDoubleProperty(750.0);
     private ToolBarView toolBarView;
-    private GraphDataModel dataModel;
+    private AnalysisDataModel dataModel;
     //private GraphController controller;
     private StringProperty name = new SimpleStringProperty("Graph");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
@@ -113,7 +113,7 @@ public class GraphPluginView implements Plugin {
     private BorderPane border = new BorderPane(sp);
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
-        this.dataModel = new GraphDataModel(ds, this);
+        this.dataModel = new AnalysisDataModel(ds, this);
 //        this.dataModel.addObserver(this);
 
         //this.controller = new GraphController(this, dataModel);

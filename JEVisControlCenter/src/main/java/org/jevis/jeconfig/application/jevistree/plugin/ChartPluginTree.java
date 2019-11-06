@@ -16,7 +16,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.*;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.jevistree.TreePlugin;
@@ -34,13 +34,13 @@ public class ChartPluginTree implements TreePlugin {
     private final ImageView image = new ImageView(img);
     private final String chartTitle = I18n.getInstance().getString("graph.title");
     private JEVisTree jeVisTree;
-    private GraphDataModel data;
+    private AnalysisDataModel data;
     private List<TreeTableColumn<JEVisTreeRow, Long>> allColumns;
     private JEVisDataSource dataSource;
     private SimpleBooleanProperty addedChart = new SimpleBooleanProperty(false);
     private ColorColumn colorColumn;
 
-    public ChartPluginTree(GraphDataModel data) {
+    public ChartPluginTree(AnalysisDataModel data) {
         this.data = data;
     }
 
@@ -185,7 +185,7 @@ public class ChartPluginTree implements TreePlugin {
         return max;
     }
 
-    public GraphDataModel getData() {
+    public AnalysisDataModel getData() {
         return data;
     }
 
