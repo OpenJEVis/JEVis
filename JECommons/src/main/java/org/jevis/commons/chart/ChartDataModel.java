@@ -9,7 +9,6 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.SampleGenerator;
-import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
@@ -136,7 +135,6 @@ public class ChartDataModel {
                                         samples = factorizeSamples(samples);
                                     }
 
-//                                    AddZerosForMissingValues(samples);
                                 } else {
                                     CalcJobFactory calcJobCreator = new CalcJobFactory();
 
@@ -189,38 +187,6 @@ public class ChartDataModel {
     public void setSamples(List<JEVisSample> samples) {
         this.samples = samples;
     }
-
-    private void AddZerosForMissingValues(List<JEVisSample> samples) throws JEVisException {
-        if (!fillZeroes) {
-            return;
-        }
-
-        if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE) && aggregationPeriod.equals(AggregationPeriod.NONE)) {
-            Period displaySampleRate = getAttribute().getDisplaySampleRate();
-            if (displaySampleRate != null && displaySampleRate != Period.ZERO && displaySampleRate.toStandardDuration().getMillis() > 0) {
-                DateTime startTS = samples.get(0).getTimestamp();
-                while (startTS.isAfter(selectedStart)) {
-                    startTS = startTS.minus(getAttribute().getDisplaySampleRate());
-                    if (startTS.isAfter(selectedStart)) {
-                        JEVisSample smp = new VirtualSample(startTS, 0.0);
-                        smp.setNote("Zeros");
-                        samples.add(0, smp);
-                    }
-                }
-
-                DateTime endTS = samples.get(samples.size() - 1).getTimestamp();
-                while (endTS.isBefore(selectedEnd)) {
-                    endTS = endTS.plus(getAttribute().getDisplaySampleRate());
-                    if (endTS.isBefore(selectedEnd)) {
-                        JEVisSample smp = new VirtualSample(endTS, 0.0);
-                        smp.setNote("Zeros");
-                        samples.add(smp);
-                    }
-                }
-            }
-        }
-    }
-
 
     /**
      * Workaround from FS, Gerrit find the right solution.

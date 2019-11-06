@@ -6,7 +6,6 @@ import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Side;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
@@ -88,16 +87,6 @@ public class ChartWidget extends Widget {
         showProgressIndicator(true);
         showAlertOverview(false, "");
 
-        this.lineChart.setChartSettings(chart1 -> {
-            MultiAxisLineChart multiAxisLineChart = (MultiAxisLineChart) chart1;
-//                multiAxisLineChart.setAnimated(true);
-            this.lineChart.getChart().setAnimated(false);
-
-            multiAxisLineChart.setLegendSide(Side.BOTTOM);
-            multiAxisLineChart.setLegendVisible(true);
-
-        });
-
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
 
@@ -126,7 +115,6 @@ public class ChartWidget extends Widget {
                         false, null, -1,
                         ManipulationMode.NONE, 0, "");
 
-                this.lineChart.getChart().layout();
                 this.borderPane.setCenter(this.lineChart.getChart());
                 updateConfig();/** workaround because we make a new chart everytime**/
             } catch (Exception ex) {
@@ -157,8 +145,7 @@ public class ChartWidget extends Widget {
                 this.borderPane.setBackground(bgColor);
                 this.lineChart.applyColors();
                 MultiAxisLineChart chart = (MultiAxisLineChart) this.lineChart.getChart();
-                chart.getY2Axis().setDisable(true);
-                this.layout();
+                chart.getY2Axis().setVisible(false);
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -215,16 +202,12 @@ public class ChartWidget extends Widget {
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(true);
 
-        this.lineChart = new LineChart(this.sampleHandler.getDataModel(), false, false, false, false, false, null, -1, ManipulationMode.NONE, 0, "");
-
-
         this.legend.setAlignment(Pos.CENTER);
 
         BorderPane bottomBorderPane = new BorderPane();
         bottomBorderPane.setCenter(this.legend);
         bottomBorderPane.setRight(this.openAnalysisButton);
 
-        this.borderPane.setCenter(this.lineChart.getChart());
         this.borderPane.setBottom(bottomBorderPane);
         setGraphic(this.borderPane);
 
