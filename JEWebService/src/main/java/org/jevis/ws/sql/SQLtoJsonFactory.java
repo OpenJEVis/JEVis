@@ -25,7 +25,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisConstants;
-import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.*;
 import org.jevis.ws.sql.tables.AttributeTable;
 import org.jevis.ws.sql.tables.ObjectTable;
@@ -87,23 +86,8 @@ public class SQLtoJsonFactory {
         jatt.setType(name);
         jatt.setObjectID(objectID);
 
-        if (inputUnit != null) {
-            try {
-                JEVisUnitImp jeVisInputUnitImp = new JEVisUnitImp(objectMapper.readValue(inputUnit, JsonUnit.class));
-                jatt.setInputUnit(JsonFactory.buildUnit(jeVisInputUnitImp));
-            } catch (Exception ex) {
-//                logger.error("Could not parse input unit {} from attribute {} of object {}", inputUnit, jatt.getType(), objectID, ex);
-            }
-        }
-
-        if (displayUnit != null) {
-            try {
-                JEVisUnitImp jeVisDisplayUnitImp = new JEVisUnitImp(objectMapper.readValue(displayUnit, JsonUnit.class));
-                jatt.setDisplayUnit(JsonFactory.buildUnit(jeVisDisplayUnitImp));
-            } catch (Exception ex) {
-//                logger.error("Could not parse display unit {} from attribute {} of object {}", displayUnit, jatt.getType(), objectID, ex);
-            }
-        }
+        jatt.setInputUnit(getUnitFromString(inputUnit));
+        jatt.setDisplayUnit(getUnitFromString(displayUnit));
 
         try {
             jatt.setPrimitiveType(type.getPrimitiveType());
@@ -129,6 +113,27 @@ public class SQLtoJsonFactory {
         }
 
         return jatt;
+    }
+
+    private static JsonUnit getUnitFromString(String unitString) {
+        JsonUnit unit = new JsonUnit();
+        unit.setFormula("");
+        unit.setLabel("");
+        unit.setPrefix("");
+
+        if (unitString != null) {
+            //check if its a broken unit
+            long count = unitString.chars().filter(ch -> ch == ',').count();
+            if (count == 2) {
+                try {
+                    unit = objectMapper.readValue(unitString, JsonUnit.class);
+                } catch (Exception ex) {
+                    logger.error("Could not parse input unit {}", unitString, ex);
+                }
+            }
+        }
+
+        return unit;
     }
 
 

@@ -23,13 +23,11 @@ package org.jevis.commons.ws.json;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.commons.unit.UnitManager;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * This Factory can convert JEAPI interfaces into a JSON representation
@@ -67,12 +65,12 @@ public class JsonFactory {
     public static JsonUnit buildUnit(JEVisUnit unit) {
         JsonUnit json = new JsonUnit();
         try {
-            json.setPrefix(UnitManager.getInstance().getPrefixName(unit.getPrefix(), Locale.getDefault()));
+            json.setPrefix(unit.getPrefix().toString());
             json.setFormula(unit.getFormula());
             json.setLabel(unit.getLabel());
         } catch (Exception ex) {
             logger.error("Error while building JSON for unit: " + ex);
-            json.setPrefix(UnitManager.PrefixName.NONE);
+            json.setPrefix("");
             json.setFormula(javax.measure.unit.Unit.ONE.toString());
             json.setLabel("Unknown");
         }

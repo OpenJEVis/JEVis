@@ -25,11 +25,14 @@ import org.jevis.api.JEVisUnit;
 import org.jscience.economics.money.Currency;
 import org.jscience.economics.money.Money;
 
+import javax.measure.MetricPrefix;
 import javax.measure.quantity.*;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import java.util.*;
+
+import static javax.measure.MetricPrefix.*;
 
 /**
  * This Class helps with the handling of JScince Lib. This class in not final an
@@ -143,240 +146,54 @@ public class UnitManager {
     }
 
     /**
-     * returns an new unit with the given Prefix
-     *
-     * @param pre
-     * @param unit
-     * @return
-     */
-    public Unit getWithPrefix(String pre, Unit unit) {
-        if (pre.equals(PrefixName.ATTO)) {
-            return SI.ATTO(unit);
-        } else if (pre.equals(PrefixName.CENTI)) {
-            return SI.CENTI(unit);
-        } else if (pre.equals(PrefixName.DECI)) {
-            return SI.DECI(unit);
-        } else if (pre.equals(PrefixName.DEKA)) {
-            return SI.DEKA(unit);
-        } else if (pre.equals(PrefixName.EXA)) {
-            return SI.EXA(unit);
-        } else if (pre.equals(PrefixName.FEMTO)) {
-            return SI.FEMTO(unit);
-        } else if (pre.equals(PrefixName.GIGA)) {
-            return SI.GIGA(unit);
-        } else if (pre.equals(PrefixName.HECTO)) {
-            return SI.HECTO(unit);
-        } else if (pre.equals(PrefixName.KILO)) {
-            return SI.KILO(unit);
-        } else if (pre.equals(PrefixName.MEGA)) {
-            return SI.MEGA(unit);
-        } else if (pre.equals(PrefixName.MICRO)) {
-            return SI.MICRO(unit);
-        } else if (pre.equals(PrefixName.MILLI)) {
-            return SI.MILLI(unit);
-        } else if (pre.equals(PrefixName.NANO)) {
-            return SI.NANO(unit);
-        } else if (pre.equals(PrefixName.PETA)) {
-            return SI.PETA(unit);
-        } else if (pre.equals(PrefixName.PICO)) {
-            return SI.PICO(unit);
-        } else if (pre.equals(PrefixName.YOCTO)) {
-            return SI.YOCTO(unit);
-        } else if (pre.equals(PrefixName.ZEPTO)) {
-            return SI.ZEPTO(unit);
-        } else if (pre.equals(PrefixName.ZETTA)) {
-            return SI.ZETTA(unit);
-        } else {
-            return unit;
-        }
-    }
-
-    /**
-     * This funktion will change in the future
-     *
-     * @return
-     */
-    public List<String> getPrefixes() {
-        if (prefixes2 != null) {
-            return prefixes2;
-        }
-        prefixes2 = new ArrayList<>();
-
-        prefixes2.add("");
-        prefixes2.add(PrefixName.ZETTA);
-        prefixes2.add(PrefixName.EXA);
-        prefixes2.add(PrefixName.PETA);
-        prefixes2.add(PrefixName.TERA);
-        prefixes2.add(PrefixName.GIGA);
-        prefixes2.add(PrefixName.MEGA);
-        prefixes2.add(PrefixName.KILO);
-        prefixes2.add(PrefixName.HECTO);
-        prefixes2.add(PrefixName.DEKA);
-        prefixes2.add(PrefixName.DECI);
-        prefixes2.add(PrefixName.CENTI);
-        prefixes2.add(PrefixName.MILLI);
-        prefixes2.add(PrefixName.MICRO);
-        prefixes2.add(PrefixName.NANO);
-        prefixes2.add(PrefixName.PICO);
-        prefixes2.add(PrefixName.FEMTO);
-        prefixes2.add(PrefixName.ATTO);
-        prefixes2.add(PrefixName.ZEPTO);
-        prefixes2.add(PrefixName.YOCTO);
-        return prefixes2;
-    }
-
-    /**
-     * Returns an String representaion of the Prefix
+     * Returns the long name of the prefix for the given locale
      *
      * @param prefix
      * @return
      */
-    public String getPrefixChar(JEVisUnit.Prefix prefix) {
-
+    public MetricPrefix getPrefix(JEVisUnit.Prefix prefix) {
         switch (prefix) {
             case ATTO:
-                return "a";
+                return ATTO;
             case CENTI:
-                return "c";
+                return CENTI;
             case DECI:
-                return "d";
+                return DECI;
             case DEKA:
-                return "da";
+                return DEKA;
             case EXA:
-                return "E";
+                return EXA;
             case FEMTO:
-                return "f";
+                return FEMTO;
             case GIGA:
-                return "G";
+                return GIGA;
             case HECTO:
-                return "h";
+                return HECTO;
             case KILO:
-                return "k";
+                return KILO;
             case MEGA:
-                return "M";
+                return MEGA;
             case MICRO:
-                return "µ";
+                return MICRO;
             case MILLI:
-                return "m";
+                return MILLI;
             case NANO:
-                return "n";
+                return NANO;
             case PETA:
-                return "P";
+                return PETA;
             case PICO:
-                return "P";
+                return PICO;
             case TERA:
-                return "T";
+                return TERA;
             case YOCTO:
-                return "y";
+                return YOCTO;
             case ZEPTO:
-                return "Z";
+                return ZEPTO;
             case ZETTA:
-                return "Z";
+                return ZETTA;
             case NONE:
-                return "";
             default:
-                throw new AssertionError();
-        }
-    }
-
-    //TODO is this still in use?
-    public String getPrefixChar(String prefix) {
-
-        switch (prefix) {
-            case PrefixName.ATTO:
-                return "a";
-            case PrefixName.CENTI:
-                return "c";
-            case PrefixName.DECI:
-                return "d";
-            case PrefixName.DEKA:
-                return "da";
-            case PrefixName.EXA:
-                return "E";
-            case PrefixName.FEMTO:
-                return "f";
-            case PrefixName.GIGA:
-                return "G";
-            case PrefixName.HECTO:
-                return "h";
-            case PrefixName.KILO:
-                return "k";
-            case PrefixName.MEGA:
-                return "m";
-            case PrefixName.MICRO:
-                return "µ";
-            case PrefixName.MILLI:
-                return "m";
-            case PrefixName.NANO:
-                return "n";
-            case PrefixName.PETA:
-                return "P";
-            case PrefixName.PICO:
-                return "P";
-            case PrefixName.TERA:
-                return "T";
-            case PrefixName.YOCTO:
-                return "y";
-            case PrefixName.ZEPTO:
-                return "Z";
-            case PrefixName.ZETTA:
-                return "Z";
-            default:
-                throw new AssertionError();
-        }
-    }
-
-    public JEVisUnit.Prefix getPrefix(String name, Locale locale) {
-//        logger.info("getPrefix: " + name);
-        if (name == null || name.isEmpty()) {
-            logger.info("emty Prefix = none");
-            return JEVisUnit.Prefix.NONE;
-        }
-
-        switch (name) {
-            case PrefixName.ATTO:
-                return JEVisUnit.Prefix.ATTO;
-            case PrefixName.CENTI:
-                return JEVisUnit.Prefix.CENTI;
-            case PrefixName.DECI:
-                return JEVisUnit.Prefix.DECI;
-            case PrefixName.DEKA:
-                return JEVisUnit.Prefix.DEKA;
-            case PrefixName.EXA:
-                return JEVisUnit.Prefix.EXA;
-            case PrefixName.FEMTO:
-                return JEVisUnit.Prefix.FEMTO;
-            case PrefixName.GIGA:
-                return JEVisUnit.Prefix.GIGA;
-            case PrefixName.HECTO:
-                return JEVisUnit.Prefix.HECTO;
-            case PrefixName.KILO:
-                return JEVisUnit.Prefix.KILO;
-            case PrefixName.MEGA:
-                return JEVisUnit.Prefix.MEGA;
-            case PrefixName.MICRO:
-                return JEVisUnit.Prefix.MICRO;
-            case PrefixName.MILLI:
-                return JEVisUnit.Prefix.MILLI;
-            case PrefixName.NANO:
-                return JEVisUnit.Prefix.NANO;
-            case PrefixName.PETA:
-                return JEVisUnit.Prefix.PETA;
-            case PrefixName.PICO:
-                return JEVisUnit.Prefix.PICO;
-            case PrefixName.TERA:
-                return JEVisUnit.Prefix.TERA;
-            case PrefixName.YOCTO:
-                return JEVisUnit.Prefix.YOCTO;
-            case PrefixName.ZEPTO:
-                return JEVisUnit.Prefix.ZEPTO;
-            case PrefixName.ZETTA:
-                return JEVisUnit.Prefix.ZETTA;
-            case PrefixName.NONE:
-                return JEVisUnit.Prefix.NONE;
-            default:
-                logger.info("unkown Prefix: " + name);
-                return JEVisUnit.Prefix.NONE;
+                return null;
         }
     }
 
@@ -384,55 +201,153 @@ public class UnitManager {
      * Returns the long name of the prefix for the given locale
      *
      * @param prefix
-     * @param locale
      * @return
      */
-    public String getPrefixName(JEVisUnit.Prefix prefix, Locale locale) {
+    public MetricPrefix getPrefix(String prefix) {
+        prefix = prefix.toUpperCase();
         switch (prefix) {
-            case ATTO:
-                return PrefixName.ATTO;
-            case CENTI:
-                return PrefixName.CENTI;
-            case DECI:
-                return PrefixName.DECI;
-            case DEKA:
-                return PrefixName.DEKA;
-            case EXA:
-                return PrefixName.EXA;
-            case FEMTO:
-                return PrefixName.FEMTO;
-            case GIGA:
-                return PrefixName.GIGA;
-            case HECTO:
-                return PrefixName.HECTO;
-            case KILO:
-                return PrefixName.KILO;
-            case MEGA:
-                return PrefixName.MEGA;
-            case MICRO:
-                return PrefixName.MICRO;
-            case MILLI:
-                return PrefixName.MILLI;
-            case NANO:
-                return PrefixName.NANO;
-            case PETA:
-                return PrefixName.PETA;
-            case PICO:
-                return PrefixName.PICO;
-            case TERA:
-                return PrefixName.TERA;
-            case YOCTO:
-                return PrefixName.YOCTO;
-            case ZEPTO:
-                return PrefixName.ZEPTO;
-            case ZETTA:
-                return PrefixName.ZETTA;
-            case NONE:
-                return PrefixName.NONE;
-
+            case "ATTO":
+                return ATTO;
+            case "CENTI":
+                return CENTI;
+            case "DECI":
+                return DECI;
+            case "DEKA":
+                return DEKA;
+            case "EXA":
+                return EXA;
+            case "FEMTO":
+                return FEMTO;
+            case "GIGA":
+                return GIGA;
+            case "HECTO":
+                return HECTO;
+            case "KILO":
+                return KILO;
+            case "MEGA":
+                return MEGA;
+            case "MICRO":
+                return MICRO;
+            case "MILLI":
+                return MILLI;
+            case "NANO":
+                return NANO;
+            case "PETA":
+                return PETA;
+            case "PICO":
+                return PICO;
+            case "TERA":
+                return TERA;
+            case "YOCTO":
+                return YOCTO;
+            case "ZEPTO":
+                return ZEPTO;
+            case "ZETTA":
+                return ZETTA;
             default:
-                logger.info("Warning no prefix name found for: " + prefix);
-                return PrefixName.NONE;
+                return null;
+        }
+    }
+
+    public JEVisUnit.Prefix getPrefix(MetricPrefix prefix) {
+        if (prefix != null) {
+            switch (prefix) {
+                case ATTO:
+                    return JEVisUnit.Prefix.ATTO;
+                case CENTI:
+                    return JEVisUnit.Prefix.CENTI;
+                case DECI:
+                    return JEVisUnit.Prefix.DECI;
+                case DEKA:
+                    return JEVisUnit.Prefix.DEKA;
+                case EXA:
+                    return JEVisUnit.Prefix.EXA;
+                case FEMTO:
+                    return JEVisUnit.Prefix.FEMTO;
+                case GIGA:
+                    return JEVisUnit.Prefix.GIGA;
+                case HECTO:
+                    return JEVisUnit.Prefix.HECTO;
+                case KILO:
+                    return JEVisUnit.Prefix.KILO;
+                case MEGA:
+                    return JEVisUnit.Prefix.MEGA;
+                case MICRO:
+                    return JEVisUnit.Prefix.MICRO;
+                case MILLI:
+                    return JEVisUnit.Prefix.MILLI;
+                case NANO:
+                    return JEVisUnit.Prefix.NANO;
+                case PETA:
+                    return JEVisUnit.Prefix.PETA;
+                case PICO:
+                    return JEVisUnit.Prefix.PICO;
+                case TERA:
+                    return JEVisUnit.Prefix.TERA;
+                case YOCTO:
+                    return JEVisUnit.Prefix.YOCTO;
+                case ZEPTO:
+                    return JEVisUnit.Prefix.ZEPTO;
+                case ZETTA:
+                    return JEVisUnit.Prefix.ZETTA;
+                case YOTTA:
+                    return JEVisUnit.Prefix.YOTTA;
+                default:
+                    return JEVisUnit.Prefix.NONE;
+            }
+        } else {
+            return JEVisUnit.Prefix.NONE;
+        }
+    }
+
+    public JEVisUnit.Prefix getJEVisUnitPrefix(String prefix) {
+        if (prefix != null) {
+            switch (prefix) {
+                case "ATTO":
+                    return JEVisUnit.Prefix.ATTO;
+                case "CENTI":
+                    return JEVisUnit.Prefix.CENTI;
+                case "DECI":
+                    return JEVisUnit.Prefix.DECI;
+                case "DEKA":
+                    return JEVisUnit.Prefix.DEKA;
+                case "EXA":
+                    return JEVisUnit.Prefix.EXA;
+                case "FEMTO":
+                    return JEVisUnit.Prefix.FEMTO;
+                case "GIGA":
+                    return JEVisUnit.Prefix.GIGA;
+                case "HECTO":
+                    return JEVisUnit.Prefix.HECTO;
+                case "KILO":
+                    return JEVisUnit.Prefix.KILO;
+                case "MEGA":
+                    return JEVisUnit.Prefix.MEGA;
+                case "MICRO":
+                    return JEVisUnit.Prefix.MICRO;
+                case "MILLI":
+                    return JEVisUnit.Prefix.MILLI;
+                case "NANO":
+                    return JEVisUnit.Prefix.NANO;
+                case "PETA":
+                    return JEVisUnit.Prefix.PETA;
+                case "PICO":
+                    return JEVisUnit.Prefix.PICO;
+                case "TERA":
+                    return JEVisUnit.Prefix.TERA;
+                case "YOCTO":
+                    return JEVisUnit.Prefix.YOCTO;
+                case "ZEPTO":
+                    return JEVisUnit.Prefix.ZEPTO;
+                case "ZETTA":
+                    return JEVisUnit.Prefix.ZETTA;
+                case "YOTTA":
+                    return JEVisUnit.Prefix.YOTTA;
+                default:
+                    return JEVisUnit.Prefix.NONE;
+            }
+        } else {
+            return JEVisUnit.Prefix.NONE;
         }
     }
 
@@ -443,52 +358,51 @@ public class UnitManager {
      * @param prefix
      * @return
      */
-    public Unit getUnitWithPrefix(Unit unit, JEVisUnit.Prefix prefix) {
-//        logger.info("getUnitWithPrefix: " + prefix);
-        switch (prefix) {
-            case ATTO:
-                return SI.ATTO(unit);
-            case CENTI:
-                return SI.CENTI(unit);
-            case DECI:
-                return SI.DECI(unit);
-            case DEKA:
-                return SI.DEKA(unit);
-            case EXA:
-                return SI.EXA(unit);
-            case FEMTO:
-                return SI.FEMTO(unit);
-            case GIGA:
-                return SI.GIGA(unit);
-            case HECTO:
-                return SI.HECTO(unit);
-            case KILO:
-                return SI.KILO(unit);
-            case MEGA:
-                return SI.MEGA(unit);
-            case MICRO:
-                return SI.MICRO(unit);
-            case MILLI:
-                return SI.MILLI(unit);
-            case NANO:
-                return SI.NANO(unit);
-            case PETA:
-                return SI.PETA(unit);
-            case PICO:
-                return SI.PICO(unit);
-            case TERA:
-                return SI.TERA(unit);
-            case YOCTO:
-                return SI.YOCTO(unit);
-            case ZEPTO:
-                return SI.ZEPTO(unit);
-            case ZETTA:
-                return SI.ZETTA(unit);
-            case NONE:
-                return unit;
-            default:
-                throw new AssertionError();
-        }
+    public Unit getUnitWithPrefix(Unit unit, MetricPrefix prefix) {
+        if (prefix != null) {
+            switch (prefix) {
+                case ATTO:
+                    return SI.ATTO(unit);
+                case CENTI:
+                    return SI.CENTI(unit);
+                case DECI:
+                    return SI.DECI(unit);
+                case DEKA:
+                    return SI.DEKA(unit);
+                case EXA:
+                    return SI.EXA(unit);
+                case FEMTO:
+                    return SI.FEMTO(unit);
+                case GIGA:
+                    return SI.GIGA(unit);
+                case HECTO:
+                    return SI.HECTO(unit);
+                case KILO:
+                    return SI.KILO(unit);
+                case MEGA:
+                    return SI.MEGA(unit);
+                case MICRO:
+                    return SI.MICRO(unit);
+                case MILLI:
+                    return SI.MILLI(unit);
+                case NANO:
+                    return SI.NANO(unit);
+                case PETA:
+                    return SI.PETA(unit);
+                case PICO:
+                    return SI.PICO(unit);
+                case TERA:
+                    return SI.TERA(unit);
+                case YOCTO:
+                    return SI.YOCTO(unit);
+                case ZEPTO:
+                    return SI.ZEPTO(unit);
+                case ZETTA:
+                    return SI.ZETTA(unit);
+                default:
+                    return unit;
+            }
+        } else return unit;
     }
 
     public List<JEVisUnit> getNonSIJEVisUnits() {
@@ -617,7 +531,6 @@ public class UnitManager {
             logger.warn("No unit for format");
             return "";
         }
-
     }
 
     public String format(Unit unit) {
@@ -1235,30 +1148,51 @@ public class UnitManager {
         return list;
     }
 
-    public interface PrefixName {
 
-        //TODO: remove this
-        String ZETTA = "Zetta";
-        String EXA = "Exa";
-        String PETA = "Peta";
-        String TERA = "Tera";
-        String GIGA = "Giga";
-        String MEGA = "Mega";
-        String KILO = "Kilo";
-        String HECTO = "Hecto";
-        String DEKA = "Deka";
-        String DECI = "Deci";
-        String CENTI = "Centi";
-        String MILLI = "Milli";
-        String MICRO = "Micro";
-        String NANO = "Nano";
-        String PICO = "Pico";
-        String FEMTO = "Femto";
-        String ATTO = "Atto";
-        String ZEPTO = "Zepto";
-        String YOCTO = "Yocto";
-        String NONE = "None";
-
+    public MetricPrefix getPrefixFromShort(String sub) {
+        switch (sub) {
+            case "Y":
+                return YOTTA;
+            case "a":
+                return ATTO;
+            case "c":
+                return CENTI;
+            case "d":
+                return DECI;
+            case "da":
+                return DEKA;
+            case "E":
+                return EXA;
+            case "f":
+                return FEMTO;
+            case "G":
+                return GIGA;
+            case "h":
+                return HECTO;
+            case "k":
+                return KILO;
+            case "M":
+                return MEGA;
+            case "µ":
+                return MICRO;
+            case "m":
+                return MILLI;
+            case "n":
+                return NANO;
+            case "P":
+                return PETA;
+            case "p":
+                return PICO;
+            case "T":
+                return TERA;
+            case "y":
+                return YOCTO;
+            case "z":
+                return ZEPTO;
+            case "Z":
+                return ZETTA;
+            default:
+                return null;
+        }
     }
-
 }

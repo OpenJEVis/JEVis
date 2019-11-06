@@ -24,7 +24,6 @@ import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTimeZone;
 
 import java.util.List;
-import java.util.Locale;
 
 /**
  * @author fs
@@ -34,6 +33,8 @@ public class AttributeUnitExtension implements SampleEditorExtension {
     private final static String TITLE = I18n.getInstance().getString("attribute.editor.unit.title");
     private final BorderPane _view = new BorderPane();
     private JEVisAttribute att;
+    private UnitSelectUI iuUnit;
+    private UnitSelectUI ouUnit;
 
     public AttributeUnitExtension(JEVisAttribute att) {
         this.att = att;
@@ -83,8 +84,9 @@ public class AttributeUnitExtension implements SampleEditorExtension {
             final Label l_dbUnit = new Label(I18n.getInstance().getString("attribute.editor.unit.meteringunit"));
             final Label l_displayUnit = new Label(I18n.getInstance().getString("attribute.editor.unit.diplayunit"));
 
-            UnitSelectUI iuUnit = new UnitSelectUI(att.getDataSource(), att.getInputUnit());
-            UnitSelectUI ouUnit = new UnitSelectUI(att.getDataSource(), att.getDisplayUnit());
+
+            iuUnit = new UnitSelectUI(att.getDataSource(), att.getInputUnit());
+            ouUnit = new UnitSelectUI(att.getDataSource(), att.getDisplayUnit());
             SamplingRateUI iuRate = new SamplingRateUI(att.getInputSampleRate());
             SamplingRateUI ouRate = new SamplingRateUI(att.getDisplaySampleRate());
 
@@ -96,11 +98,11 @@ public class AttributeUnitExtension implements SampleEditorExtension {
                     att.setDisplayUnit(att.getInputUnit());
                     att.setDisplaySampleRate(att.getInputSampleRate());
 
-                    ouUnit.unitProperty().setValue(att.getInputUnit());
+                    ouUnit.setUnit(att.getInputUnit());
                     ouUnit.getUnitButton().setText(att.getInputUnit().getFormula());
                     ouUnit.getPrefixBox().getSelectionModel().select(
-                            UnitManager.getInstance().getPrefixName(att.getInputUnit().getPrefix(), Locale.getDefault()));
-                    ouUnit.getLabelField().setText(iuUnit.getLabelField().getText());
+                            UnitManager.getInstance().getPrefix(att.getInputUnit().getPrefix()));
+                    ouUnit.getSymbolField().setText(iuUnit.getSymbolField().getText());
 
                     ouRate.samplingRateProperty().setValue(att.getInputSampleRate());
                     ouRate.getSelectionModel().select(att.getInputSampleRate());
@@ -116,11 +118,11 @@ public class AttributeUnitExtension implements SampleEditorExtension {
                     att.setInputUnit(att.getDisplayUnit());
                     att.setInputSampleRate(att.getDisplaySampleRate());
 
-                    iuUnit.unitProperty().setValue(att.getDisplayUnit());
+                    iuUnit.setUnit(att.getDisplayUnit());
                     iuUnit.getUnitButton().setText(att.getDisplayUnit().getFormula());
                     iuUnit.getPrefixBox().getSelectionModel().select(
-                            UnitManager.getInstance().getPrefixName(att.getDisplayUnit().getPrefix(), Locale.getDefault()));
-                    iuUnit.getLabelField().setText(ouUnit.getLabelField().getText());
+                            UnitManager.getInstance().getPrefix(att.getDisplayUnit().getPrefix()));
+                    iuUnit.getSymbolField().setText(ouUnit.getSymbolField().getText());
 
                     iuRate.samplingRateProperty().setValue(att.getDisplaySampleRate());
                     iuRate.getSelectionModel().select(att.getDisplaySampleRate());
@@ -129,23 +131,6 @@ public class AttributeUnitExtension implements SampleEditorExtension {
                     e.printStackTrace();
                 }
             });
-
-            iuUnit.unitProperty().addListener((observable, oldValue, newValue) -> {
-                try {
-                    att.setInputUnit(iuUnit.unitProperty().getValue());
-                } catch (JEVisException jex) {
-                    jex.printStackTrace();
-                }
-            });
-
-            ouUnit.unitProperty().addListener((observable, oldValue, newValue) -> {
-                try {
-                    att.setDisplayUnit(ouUnit.unitProperty().getValue());
-                } catch (JEVisException jex) {
-                    jex.printStackTrace();
-                }
-            });
-
 
             iuRate.samplingRateProperty().addListener((observable, oldValue, newValue) -> {
                 try {
@@ -199,9 +184,9 @@ public class AttributeUnitExtension implements SampleEditorExtension {
 
             row++;
             gp.add(l_example, 0, row, 1, 1);
-            gp.add(iuUnit.getLabelField(), 1, row, 1, 1);
+            gp.add(iuUnit.getSymbolField(), 1, row, 1, 1);
             gp.add(applyToLeft, 3, row, 1, 1);
-            gp.add(ouUnit.getLabelField(), 5, row, 1, 1);
+            gp.add(ouUnit.getSymbolField(), 5, row, 1, 1);
 
             row++;
             gp.add(l_SampleRate, 0, row, 1, 1);
@@ -212,8 +197,8 @@ public class AttributeUnitExtension implements SampleEditorExtension {
             ouUnit.getPrefixBox().setPrefWidth(95);
             iuUnit.getUnitButton().setPrefWidth(95);
             ouUnit.getUnitButton().setPrefWidth(95);
-            iuUnit.getLabelField().setPrefWidth(95);
-            ouUnit.getLabelField().setPrefWidth(95);
+            iuUnit.getSymbolField().setPrefWidth(95);
+            ouUnit.getSymbolField().setPrefWidth(95);
 
             GridPane.setVgrow(hSep, Priority.ALWAYS);
             _view.setCenter(gp);
@@ -225,6 +210,8 @@ public class AttributeUnitExtension implements SampleEditorExtension {
     @Override
     public boolean sendOKAction() {
         try {
+            att.setInputUnit(iuUnit.getUnit());
+            att.setDisplayUnit(ouUnit.getUnit());
             att.commit();
             return true;
         } catch (Exception ex) {

@@ -156,6 +156,8 @@ public class ChartWidget extends Widget {
 //            lineChart.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Inset
                 this.borderPane.setBackground(bgColor);
                 this.lineChart.applyColors();
+                MultiAxisLineChart chart = (MultiAxisLineChart) this.lineChart.getChart();
+                chart.getY2Axis().setDisable(true);
                 this.layout();
             } catch (Exception ex) {
                 logger.error(ex);

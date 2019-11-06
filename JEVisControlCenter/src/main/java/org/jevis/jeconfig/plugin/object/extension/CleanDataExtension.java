@@ -32,6 +32,7 @@ import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
@@ -369,9 +370,9 @@ public class CleanDataExtension implements ObjectEditorExtension {
             value.setText(valueLastSample.getValueAsDouble().toString());
         }
         if (valueAttribute.getDisplayUnit() != null && !valueAttribute.getInputUnit().getLabel().isEmpty()) {
-            unitValue.setText(valueAttribute.getDisplayUnit().getLabel());
+            unitValue.setText(UnitManager.getInstance().format(valueAttribute.getDisplayUnit().getLabel()));
         } else {
-            unitValue.setText(valueAttribute.getInputUnit().getLabel());
+            unitValue.setText(UnitManager.getInstance().format(valueAttribute.getInputUnit().getLabel()));
         }
         unitValue.setDisable(true);
 

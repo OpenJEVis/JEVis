@@ -24,6 +24,7 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
@@ -67,7 +68,7 @@ public abstract class BasicEditor implements AttributeEditor {
     public void update() {
         logger.trace("Update()");
         Platform.runLater(() -> {
-            this.editorNode.getChildren().removeAll(this.editorNode.getChildren());
+            this.editorNode.getChildren().clear();
             this.editorNode.getChildren().add(buildGui(this.attribute));
         });
     }
@@ -128,9 +129,9 @@ public abstract class BasicEditor implements AttributeEditor {
                 ubutton.setPrefWidth(40);
                 ubutton.setEditable(false);
                 if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
-                    ubutton.setText(this.attribute.getDisplayUnit().getLabel());
+                    ubutton.setText(UnitManager.getInstance().format(this.attribute.getDisplayUnit().getLabel()));
                 } else {
-                    ubutton.setText(this.attribute.getInputUnit().getLabel());
+                    ubutton.setText(UnitManager.getInstance().format(this.attribute.getInputUnit().getLabel()));
                 }
 
                 hbox.getChildren().add(ubutton);
