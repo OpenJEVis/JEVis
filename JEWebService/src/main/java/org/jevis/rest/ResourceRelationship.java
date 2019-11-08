@@ -96,6 +96,8 @@ public class ResourceRelationship {
             ds.getUserManager().canWrite(toObj);
 
             JsonRelationship newJSON = ds.setRelationships(json);
+
+            ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_RELATIONSHIP,String.format("%s",newJSON));
             return Response.ok(newJSON).build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
@@ -137,6 +139,7 @@ public class ResourceRelationship {
 
             boolean delete = ds.deleteRelationship(from, to, type);
             if (delete) {
+                ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_RELATIONSHIP,String.format("%s-%s-%s",from,to,type));
                 return Response.ok().build();
             } else {
                 return Response.notModified().build();

@@ -27,6 +27,7 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisFile;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.utils.Benchmark;
 import org.jevis.commons.ws.json.JsonFactory;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.ws.sql.PasswordHash;
@@ -66,6 +67,7 @@ public class SampleTable {
     }
 
     public int insertSamples(long object, String attribute, int priType, List<JsonSample> samples) throws JEVisException {
+        Benchmark benchmark = new Benchmark();
         int perChunk = 100000;// careful, if value is bigger sql has a limit per transaction. 1mio is test only with small ints
         int count = 0;
         for (int i = 0; i < samples.size(); i += perChunk) {
@@ -78,6 +80,7 @@ public class SampleTable {
                 break;
             }
         }
+        benchmark.printBechmark("Imported: "+count+" samples");
 //        samples.clear();
         return count;
     }

@@ -29,10 +29,8 @@ import org.jevis.ws.sql.SQLDataSource;
 import org.jevis.ws.sql.SQLtoJsonFactory;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Florian Simon<florian.simon@envidatec.com>
@@ -229,6 +227,31 @@ public class ObjectTable {
                     objects.add(SQLtoJsonFactory.buildObject(rs));
                 } catch (Exception ex) {
                     logger.error("Could not load Object: " + ex.getMessage());
+                }
+            }
+        } catch (SQLException ex) {
+            logger.error(ex);
+        }
+
+        return objects;
+    }
+
+    public Map<Long,JsonObject> getGroupObjects() throws JEVisException {
+
+        String sql = String.format("select * from %s where %s is null and %s=?", TABLE, COLUMN_DELETE,COLUMN_CLASS);
+
+        Map<Long,JsonObject> objects = new ConcurrentHashMap<>();
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            ps.setString(1,"Group");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                try {
+                    JsonObject object = SQLtoJsonFactory.buildObject(rs);
+                    objects.put(object.getId(),object);
+                } catch (Exception ex) {
+                    logger.error("Could not load UserGroup: {}" ,ex.getMessage());
                 }
             }
         } catch (SQLException ex) {
