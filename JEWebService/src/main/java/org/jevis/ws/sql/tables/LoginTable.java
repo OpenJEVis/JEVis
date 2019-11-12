@@ -30,6 +30,9 @@ import org.jevis.ws.sql.SQLDataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Florian Simon<florian.simon@envidatec.com>
@@ -80,8 +83,31 @@ public class LoginTable {
             logger.error(ex);
             throw new JEVisException("User does not exist or password was wrong", JEVisExceptionCodes.UNAUTHORIZED);
         }
+    }
 
 
+    public Map<String, JEVisUserNew> getAccounts()throws JEVisException,SQLException{
+        logger.debug("getAccounts ");
+        Map<String, JEVisUserNew> acounts = new ConcurrentHashMap<>();
+        String sqlUser = String.format("select * from %s ", TABLE);
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sqlUser)) {
+            logger.debug("SQL: {}", ps.toString());
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                try {
+                    acounts.put(rs.getString(COLUMN_LOGIN).toLowerCase(),
+                            new JEVisUserNew(_connection, rs.getString(COLUMN_LOGIN),
+                                    rs.getLong(COLUMN_OBJECT), rs.getBoolean(COLUMN_SYS_ADMIN),
+                                    rs.getBoolean(COLUMN_ENABLED),rs.getString(COLUMN_PASSWORD)));
+
+                } catch (Exception ex) {
+                    logger.error("Login NOK");
+                }
+            }
+        }
+        return acounts;
     }
 
 }

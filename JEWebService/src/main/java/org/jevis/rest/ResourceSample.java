@@ -362,6 +362,15 @@ public class ResourceSample {
                         List<JsonSample> samples = new ArrayList<>(Arrays.asList(objectMapper.readValue(input, JsonSample[].class)));
                         JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
                         int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
+
+                        String lastSample = "";
+                        if(!samples.isEmpty()){
+                            try {
+                                lastSample = samples.get(samples.size() - 1).getTs();
+                            }catch (Exception ex){}
+                        }
+
+                        ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_SAMPLE,String.format("%s:%s|[%s] %s",id,attribute,samples.size(),lastSample));
                         samples.clear();
 //                    samples = null;
 
@@ -440,6 +449,7 @@ public class ResourceSample {
                 ds.deleteSamplesBetween(object.getId(), attribute, startDate, endDate);
             }
 
+            ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_SAMPLE,String.format("%s:%s|%s -> %s",id,attribute,startDate,endDate));
             return Response.status(Status.OK).build();
 
         } catch (AuthenticationException ex) {

@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class JEVisAttributeWS implements JEVisAttribute {
 
-    private static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
+    public static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
     private static final Logger logger = LogManager.getLogger(JEVisAttributeWS.class);
     private JEVisDataSourceWS ds;
     private JsonAttribute json;

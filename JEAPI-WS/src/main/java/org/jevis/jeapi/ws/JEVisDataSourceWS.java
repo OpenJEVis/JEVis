@@ -22,12 +22,14 @@ package org.jevis.jeapi.ws;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.utils.Benchmark;
 import org.jevis.commons.utils.Optimization;
+import org.jevis.commons.utils.PrettyError;
 import org.jevis.commons.ws.json.*;
 import org.joda.time.DateTime;
 
@@ -85,9 +87,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     public JEVisDataSourceWS(String host) {
         this.host = host;
 
+        objectMapper.registerModule(new AfterburnerModule());
     }
 
     public JEVisDataSourceWS() {
+        objectMapper.registerModule(new AfterburnerModule());
     }
 
     @Override
@@ -1354,11 +1358,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
             return responseCode == HttpURLConnection.HTTP_OK;
         } catch (ProtocolException e) {
-            e.printStackTrace();
+            logger.error(PrettyError.getJEVisLineFilter(e));
+//            e.printStackTrace();
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            logger.error(PrettyError.getJEVisLineFilter(e));
+//            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(PrettyError.getJEVisLineFilter(e));
+//            e.printStackTrace();
         }
         return false;
     }

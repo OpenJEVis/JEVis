@@ -22,6 +22,12 @@ public class JEVisUserNew {
     private JsonObject userObj;
     private final String accountName;
     private final SQLDataSource ds;
+    private String password;
+
+    public JEVisUserNew(SQLDataSource ds, String account, Long objID, boolean isSysAdmin, boolean enabled, String password) {
+        this( ds,  account,  objID,  isSysAdmin,  enabled);
+        this.password=password;
+    }
 
     public JEVisUserNew(SQLDataSource ds, JsonObject obj, boolean isSysAdmin, boolean enabled, String firstName, String lastName) {
         this.isSysAdmin = isSysAdmin;
@@ -68,6 +74,10 @@ public class JEVisUserNew {
 
     public long getUserID() {
         return uID;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     public JsonObject getUserObject() {

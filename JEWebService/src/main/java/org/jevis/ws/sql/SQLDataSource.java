@@ -60,6 +60,14 @@ public class SQLDataSource {
     private UserRightManagerForWS um;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    public enum LOG_EVENT{
+        USER_LOGIN,
+        DELETE_OBJECT, DELETE_SAMPLE, DELETE_RELATIONSHIP,
+        CREATE_OBJECT, CREATE_SAMPLE, CREATE_RELATIONSHIP,
+        UPDATE_OBJECT, UPDATE_ATTRIBUTE
+
+    }
+
     public SQLDataSource(HttpHeaders httpHeaders, Request request, UriInfo url) throws AuthenticationException, JEVisException {
 
         try {
@@ -83,8 +91,45 @@ public class SQLDataSource {
         }
     }
 
+    public SQLDataSource(Connection dbConn) throws AuthenticationException, JEVisException {
+        this.dbConn = dbConn;
+        this.lTable = new LoginTable(this);
+        this.oTable = new ObjectTable(this);
+        this.aTable = new AttributeTable(this);
+        this.sTable = new SampleTable(this);
+        this.rTable = new RelationshipTable(this);
+    }
+
     public Connection getConnection() throws SQLException {
         return this.dbConn;
+    }
+
+
+    public void logUserAction(LOG_EVENT event,String msg){
+        if(user.isSysAdmin()){
+            /** we do not log SysAdmin because of the huge event amount for the services. The Logging is for user events. **/
+           return;
+        }
+        try{
+            logger.error("Event '{}'| {}: {} ",getCurrentUser().getAccountName(),event,msg);
+            JsonSample newSample = new JsonSample();
+            newSample.setTs(JsonFactory.sampleDTF.print(DateTime.now()));
+            newSample.setValue(String.format("%s|%s|%s",user.getAccountName(),event,msg));
+            getSampleTable().insertSamples(user.getUserID(),"Activities",JEVisConstants.PrimitiveType.STRING,Arrays.asList(newSample));
+        }catch (Exception ex){
+            logger.error("Error while logging Event: {}:{}:{}",event,msg,ex);
+        }
+
+    }
+
+
+    /**
+     * Clean up User Event for "General Data Protection Regulations"
+     * TODO: make it configurable
+     */
+    public void gdprCleanUp() throws SQLException, AuthenticationException, JEVisException {
+        logger.error("Starting user log cleanup for Data Protection");
+        getSampleTable().deleteOldLogging();
     }
 
 
@@ -181,6 +226,10 @@ public class SQLDataSource {
     public ObjectTable getObjectTable() {
         return this.oTable;
     }
+    public LoginTable getLoginTable(){
+        return this.lTable;
+    }
+
 
     public SampleTable getSampleTable() {
         return this.sTable;
