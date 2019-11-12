@@ -42,7 +42,6 @@ public class ToolBarIntervalSelector extends HBox {
         ObservableList<TimeFrameFactory> timeFrames = FXCollections.observableArrayList(controller.getAllTimeFrames().getAll());
         timeFactoryBox.getItems().addAll(timeFrames);
 
-
         dateButton.setText(controller.getActiveTimeFrame().format(controller.getInterval()));
         dateButton.setTooltip(new Tooltip(controller.getInterval().toString()));
 
@@ -70,10 +69,15 @@ public class ToolBarIntervalSelector extends HBox {
 
         prevButton.setOnAction(event -> {
             controller.setPrevInteval();
+
         });
 
         nextButton.setOnAction(event -> {
             controller.setNextInterval();
+        });
+
+        controller.getActiveIntervalProperty().addListener((observable, oldValue, newValue) -> {
+            dateButton.setText(controller.getActiveTimeFrame().format(controller.getInterval()));
         });
 
         Region spacer = new Region();

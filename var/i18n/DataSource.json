@@ -36,6 +36,58 @@
         "ru": "Timezone",
         "en": "Timezone"
       }
+    },
+    {
+      "type": "Last Run",
+      "descriptions": {
+        "de": "Der letzte Zeitpunkt an dem die Datenquelle abgerufen wurde.",
+        "ru": "Timezone description",
+        "en": "The data source has been read last at this time."
+      },
+      "names": {
+        "de": "Letzte Auslesung",
+        "ru": "Last Run",
+        "en": "Last Run"
+      }
+    },
+    {
+      "type": "Cycle Time",
+      "descriptions": {
+        "de": "Bestimmt das Intervall in dem sich die Auslesung des Datenservers wiederholt.",
+        "ru": "Timezone description",
+        "en": "Defines the interval in which the readout of the Data Server is repeated"
+      },
+      "names": {
+        "de": "Taktdauer",
+        "ru": "Cycle Time",
+        "en": "Cycle Time"
+      }
+    },
+    {
+      "type": "Furthest reported",
+      "descriptions": {
+        "de": "Dieses Feld definiert ab wann ein Datenpunkt nicht mehr gelistet wird. Angegeben in Stunden.",
+        "ru": "Это поле определяет, когда точка данных больше не отображается в списке. Указано в часах.",
+        "en": "This field defines when a data point is no longer listed. Specified in hours."
+      },
+      "names": {
+        "de": "Am weitesten zurückliegend berichtet",
+        "ru": "Самый дальний из тех, кто сообщал.",
+        "en": "Furthest back reported"
+      }
+    },
+    {
+      "type": "Latest reported",
+      "descriptions": {
+        "de": "Dieses Feld definiert ab wann ein Datepunkt gelistet wird. Angegeben in Stunden.",
+        "ru": "Это поле определяет, с какого момента отображается точка привязки. Указано в часах.",
+        "en": "This field defines from when a datepoint is listed. Specified in hours."
+      },
+      "names": {
+        "de": "Kürzest berichtet",
+        "ru": "Последний раз сообщалось.",
+        "en": "Latest back reported"
+      }
     }
   ]
 }

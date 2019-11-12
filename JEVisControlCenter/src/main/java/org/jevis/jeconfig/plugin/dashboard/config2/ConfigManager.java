@@ -31,7 +31,6 @@ import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetIDs;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
-import org.jevis.jeconfig.plugin.dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widgets;
 import org.jevis.jeconfig.tool.I18n;
@@ -109,7 +108,7 @@ public class ConfigManager {
         }
 
 
-        System.out.println("---------\n" + this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode) + "\n-----------------");
+        logger.debug("---------\n {} \n-----------------", this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode));
         if (this.dashboardObject != null) {
             JEVisAttribute dataModel = dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE);
             JEVisFileImp jsonFile = new JEVisFileImp(
@@ -289,18 +288,23 @@ public class ConfigManager {
     public List<Widget> createWidgets(DashboardControl control, List<WidgetPojo> widgetConfigList) {
         List<Widget> widgetList = new ArrayList<>();
         widgetConfigList.forEach(widgetPojo -> {
-            Widget newWidget = createWidget(control, widgetPojo);
-            if (newWidget != null) {
-                /** workaround for old dashboard where the uuid did not exist **/
-                if (newWidget.getConfig().getUuid() <= 0) {
-                    newWidget.getConfig().setUuid(WidgetIDs.getNetxFreeeID(widgetList));
+            try {
+                Widget newWidget = createWidget(control, widgetPojo);
+                if (newWidget != null) {
+                    /** workaround for old dashboard where the uuid did not exist **/
+                    if (newWidget.getConfig().getUuid() <= 0) {
+                        newWidget.getConfig().setUuid(WidgetIDs.getNetxFreeeID(widgetList));
+                    }
+                    newWidget.init();
+//                newWidget.updateConfig();
+                    widgetList.add(newWidget);
                 }
-                newWidget.init();
-                newWidget.updateConfig();
-                widgetList.add(newWidget);
+            } catch (Exception ex) {
+                logger.error(ex);
             }
 
         });
+
         return widgetList;
     }
 

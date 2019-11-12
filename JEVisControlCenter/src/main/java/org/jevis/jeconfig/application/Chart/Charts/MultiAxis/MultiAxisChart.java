@@ -10,7 +10,6 @@ import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import com.vividsolutions.jts.simplify.DouglasPeuckerSimplifier;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -1873,21 +1872,22 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         private ObjectProperty<Node> node = new SimpleObjectProperty<Node>(this, "node") {
             @Override
             protected void invalidated() {
-                Node node = get();
-                if (node != null) {
-                    node.accessibleTextProperty().unbind();
-                    node.accessibleTextProperty().bind(new StringBinding() {
-                        {
-                            bind(currentXProperty(), currentYProperty());
-                        }
-
-                        @Override
-                        protected String computeValue() {
-                            String seriesName = series != null ? series.getName() : "";
-                            return seriesName + " X Axis is " + getCurrentX() + " Y Axis is " + getCurrentY();
-                        }
-                    });
-                }
+                /** Disabled by FS, performance FIX **/
+//                Node node = get();
+//                if (node != null) {
+//                    node.accessibleTextProperty().unbind();
+//                    node.accessibleTextProperty().bind(new StringBinding() {
+//                        {
+//                            bind(currentXProperty(), currentYProperty());
+//                        }
+//
+//                        @Override
+//                        protected String computeValue() {
+//                            String seriesName = series != null ? series.getName() : "";
+//                            return seriesName + " X Axis is " + getCurrentX() + " Y Axis is " + getCurrentY();
+//                        }
+//                    });
+//                }
             }
         };
         /**

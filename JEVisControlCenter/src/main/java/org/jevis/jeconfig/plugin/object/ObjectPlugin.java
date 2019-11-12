@@ -38,7 +38,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.Constants;
@@ -68,7 +71,7 @@ import java.util.List;
  */
 public class ObjectPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(ObjectPlugin.class);
-
+    public static String PLUGIN_NAME = "Configuration Plugin";
     private StringProperty name = new SimpleStringProperty("*NO_NAME*");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
@@ -100,7 +103,7 @@ public class ObjectPlugin implements Plugin {
             if (tree.getSelectionModel().getSelectedItem() == null) {
                 Platform.runLater(() -> {
                     try {
-                        /** disabled for now, nils dont like it if the analisis folder is open every time **/
+                        /** disabled for now, nils doesnt like it if the analysis folder is open every time **/
 //                        tree.getSelectionModel().getModelItem(0).expandedProperty().setValue(Boolean.TRUE);
                         tree.getSelectionModel().selectFirst();
                     } catch (Exception ex) {
@@ -121,7 +124,24 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public void openObject(Object object) {
+        try {
+//            tree.getSearchFilterBar().showObject((JEVisObject) object);
 
+
+            tree.getSelectionModel().clearSelection();
+            JEVisTreeItem item = tree.getItemForObject((JEVisObject) object);
+
+            Platform.runLater(() -> {
+                item.setExpanded(true);
+
+                tree.openPathToObject((JEVisObject) object);
+                tree.getSelectionModel().select(item);
+
+            });
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
@@ -544,25 +564,25 @@ public class ObjectPlugin implements Plugin {
 
                                 //get objekt mit ID from Tabelle
                                 if (table.getPairList().get(i).getValue().get(0).isEmpty() && table.getPairList().get(i).getValue().get(1).isEmpty()) {
-                                    attribute.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                    attribute.setDisplayUnit(new JEVisUnitImp("", "", null));
                                 } else {
                                     String displaySymbol = table.getPairList().get(i).getValue().get(1);
                                     if (table.getPairList().get(i).getValue().get(0).isEmpty() && !table.getPairList().get(i).getValue().get(1).isEmpty()) {
-                                        attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", JEVisUnit.Prefix.NONE));
+                                        attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", null));
                                     } else {
-                                        JEVisUnit.Prefix prefixDisplayUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(0));
+                                        String prefixDisplayUnit = table.getPairList().get(i).getValue().get(0);
                                         attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", prefixDisplayUnit));
                                     }
                                 }
 
                                 if (table.getPairList().get(i).getValue().get(3).isEmpty() && table.getPairList().get(i).getValue().get(4).isEmpty()) {
-                                    attribute.setInputUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                    attribute.setInputUnit(new JEVisUnitImp("", "", null));
                                 } else {
                                     String inputSymbol = table.getPairList().get(i).getValue().get(4);
                                     if (table.getPairList().get(i).getValue().get(3).isEmpty() && !table.getPairList().get(i).getValue().get(4).isEmpty()) {
-                                        attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", JEVisUnit.Prefix.NONE));
+                                        attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", null));
                                     } else {
-                                        JEVisUnit.Prefix prefixInputUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(3));
+                                        String prefixInputUnit = table.getPairList().get(i).getValue().get(3);
                                         attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", prefixInputUnit));
                                     }
                                 }
@@ -648,25 +668,25 @@ public class ObjectPlugin implements Plugin {
                                 if (attribute.getName().equals("Value")) {
 
                                     if (table.getPairList().get(i).getValue().get(0).isEmpty() && table.getPairList().get(i).getValue().get(1).isEmpty()) {
-                                        attribute.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                        attribute.setDisplayUnit(new JEVisUnitImp("", "", null));
                                     } else {
                                         String displaySymbol = table.getPairList().get(i).getValue().get(1);
                                         if (table.getPairList().get(i).getValue().get(0).isEmpty() && !table.getPairList().get(i).getValue().get(1).isEmpty()) {
-                                            attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", JEVisUnit.Prefix.NONE));
+                                            attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", null));
                                         } else {
-                                            JEVisUnit.Prefix prefixDisplayUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(0));
+                                            String prefixDisplayUnit = table.getPairList().get(i).getValue().get(0);
                                             attribute.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", prefixDisplayUnit));
                                         }
                                     }
 
                                     if (table.getPairList().get(i).getValue().get(3).isEmpty() && table.getPairList().get(i).getValue().get(4).isEmpty()) {
-                                        attribute.setInputUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                        attribute.setInputUnit(new JEVisUnitImp("", "", null));
                                     } else {
                                         String inputSymbol = table.getPairList().get(i).getValue().get(4);
                                         if (table.getPairList().get(i).getValue().get(3).isEmpty() && !table.getPairList().get(i).getValue().get(4).isEmpty()) {
-                                            attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", JEVisUnit.Prefix.NONE));
+                                            attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", null));
                                         } else {
-                                            JEVisUnit.Prefix prefixInputUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(3));
+                                            String prefixInputUnit = table.getPairList().get(i).getValue().get(3);
                                             attribute.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", prefixInputUnit));
                                         }
                                     }
@@ -740,7 +760,8 @@ public class ObjectPlugin implements Plugin {
             //new
             if (_editor.needSave()) {
                 ConfirmDialog dia = new ConfirmDialog();
-                ConfirmDialog.Response re = dia.show("Save", "Save Attribute Changes", "Changes will be lost if not saved, do you want to save now?");
+                ConfirmDialog.Response re = dia.show(I18n.getInstance().getString("plugin.object.attributes.save"),
+                        I18n.getInstance().getString("plugin.object.attributes.changes"), "plugin.object.attributes.message");
                 if (re == ConfirmDialog.Response.YES) {
                     _editor.commitAll();
                 } else {
@@ -751,7 +772,7 @@ public class ObjectPlugin implements Plugin {
             try {
                 _editor.setTree(tree);
                 if (obj.getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
-                    logger.info("changed: oh object is a link so im loading the linked object");
+                    logger.debug("changed: object is a link so im loading the linked object");
                     _editor.setObject(obj.getLinkedObject());
                 } else {
                     _editor.setObject(obj);

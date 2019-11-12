@@ -10,7 +10,6 @@ import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.I18n;
 
@@ -72,13 +71,15 @@ public class NewWidgetSelector extends GridPane {
         Widget selectedWidget = widgetComboBox.getSelectionModel().getSelectedItem();
         Size size = getSize(sizeComboBox.getSelectionModel().getSelectedItem());
 
-        Widget newWidget = selectedWidget.clone();
-        WidgetPojo widgetPojo = newWidget.getConfig();
-        widgetPojo.setSize(size);
+        Widget newWidget = selectedWidget.getControl().createNewWidget(selectedWidget.createDefaultConfig());
+        newWidget.getConfig().setSize(size);
+//        newWidget.getConfig().setTitle(I18n.getInstance().getString("plugin.dashboard.toolbar.new.title"));
 
-//        newWidget.setNodeSize(size.getWidth(), size.getHeight());
-//        newWidget.getConfig().setTitle("New Widget");
-        newWidget.updateConfig(widgetPojo);
+//        Widget newWidget = selectedWidget.clone();
+//        WidgetPojo widgetPojo = newWidget.getConfig();
+//        widgetPojo.setSize(size);
+
+//        newWidget.updateConfig(widgetPojo);
 
         return newWidget;
     }

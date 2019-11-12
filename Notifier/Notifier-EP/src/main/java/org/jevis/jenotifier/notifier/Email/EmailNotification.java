@@ -39,7 +39,7 @@ public class EmailNotification implements Notification {
     private List<String> _attachments;
     private List<File> _attachmentsAsFile;
     private boolean _isHTML;
-    private final String _type = "E-Mail Notification";
+    public static final String _type = "E-Mail Notification";
     private boolean _sendSuccessful = false;
     private List<DateTime> _sendTime;
     private boolean _enabled;
@@ -87,6 +87,7 @@ public class EmailNotification implements Notification {
      *
      * @return
      */
+    @Override
     public JEVisObject getJEVisObjectNoti() {
         return _jenoti;
     }
@@ -170,6 +171,7 @@ public class EmailNotification implements Notification {
      *
      * @return
      */
+    @Override
     public String getType() {
         return _type;
     }
@@ -181,6 +183,7 @@ public class EmailNotification implements Notification {
      *
      * @return
      */
+    @Override
     public List<DateTime> getSendTime() {
         return _sendTime;
     }
@@ -190,6 +193,7 @@ public class EmailNotification implements Notification {
      *
      * @return
      */
+    @Override
     public boolean isSendSuccessfully() {
         return _sendSuccessful;
     }
@@ -199,6 +203,7 @@ public class EmailNotification implements Notification {
      *
      * @return
      */
+    @Override
     public boolean isSendEnabled() {
         return _enabled;
     }
@@ -614,6 +619,7 @@ public class EmailNotification implements Notification {
      * @param sendSuccessful
      * @param date
      */
+    @Override
     public void setSuccessfulSend(boolean sendSuccessful, DateTime date) {
         _sendSuccessful = sendSuccessful;
         if (_sendTime == null) { //If the notification is sent many times, all time will be recored.
@@ -733,6 +739,7 @@ public class EmailNotification implements Notification {
      * @param notiObj
      * @throws JEVisException
      */
+    @Override
     public synchronized void setNotificationObject(JEVisObject notiObj, JEVisFile file) throws JEVisException {
         if (notiObj.getJEVisClass().getName().equals(_type)) {
             _jenoti = notiObj;
@@ -796,6 +803,7 @@ public class EmailNotification implements Notification {
      *
      * @return
      */
+    @Override
     public boolean isNotiConfigured() {
         boolean configured = false;
         if (_receivers != null) {
@@ -811,6 +819,7 @@ public class EmailNotification implements Notification {
         return "EmailNotification{" + "_jenoti=" + _jenoti + ", _receivers=" + _receivers + ", _carbonCopys=" + _carbonCopys + ", _blindCarbonCopys=" + _blindCarbonCopys + ", _subject=" + _subject + ", _message=" + _message + ", _attachments=" + _attachments + ", _attachmentsAsFile=" + _attachmentsAsFile + ", _isHTML=" + _isHTML + ", _type=" + _type + ", _sendSucessful=" + _sendSuccessful + ", _sendTime=" + _sendTime + ", _enabled" + _enabled + '}';
     }
 
+    @Override
     public void setNotification(List<String> str) {
         setReceivers(str.get(0));
         setCarbonCopys(str.get(1));
@@ -828,6 +837,7 @@ public class EmailNotification implements Notification {
      * @param notiObj
      * @return
      */
+    @Override
     public boolean isConfigurationObject(JEVisObject notiObj) {
         try {
 //            logger.info(notiObj.getJEVisClass().getName().equals(_type));
@@ -838,6 +848,7 @@ public class EmailNotification implements Notification {
         return false;
     }
 
+    @Override
     public List<DateTime> getSendDate() {
         List<DateTime> sendDate = new ArrayList<DateTime>();
         try {
@@ -856,6 +867,7 @@ public class EmailNotification implements Notification {
         return sendDate;
     }
 
+    @Override
     public List<DateTime> getSendSchedule() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

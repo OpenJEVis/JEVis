@@ -1,6 +1,5 @@
 package org.jevis.commons.chart;
 
-import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -10,7 +9,6 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.SampleGenerator;
-import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
@@ -20,6 +18,10 @@ import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 public class ChartDataModel {
     private static final Logger logger = LogManager.getLogger(ChartDataModel.class);
@@ -30,7 +32,7 @@ public class ChartDataModel {
     private DateTime selectedEnd;
     private JEVisObject object;
     private JEVisAttribute attribute;
-    private Color color = Color.LIGHTBLUE;
+    private String color = "#1FBED6";
     private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
     private JEVisObject dataProcessorObject = null;
@@ -49,6 +51,15 @@ public class ChartDataModel {
     private double timeFactor = 1.0;
     private Double scaleFactor = 1d;
     private boolean fillZeroes = true;
+    private double min;
+    private double max;
+    private double avg;
+    private Double sum;
+
+    /**
+     * Maximum number of parallel running getSamples(), not the Dashboard need multiple
+     */
+    private static ExecutorService executor = Executors.newFixedThreadPool(10);
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -96,99 +107,86 @@ public class ChartDataModel {
 
     public List<JEVisSample> getSamples() {
         if (this.somethingChanged) {
-            getAttribute();
-            /** i thing we will not need to reload the attribute, because we dont use getMin/Max-TS **/
-            //dataSource.reloadAttribute(attribute);
+//            ExecutorService executor = Executors.newFixedThreadPool(1);
 
-            somethingChanged = false;
+            FutureTask<List<JEVisSample>> datatask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
+                @Override
+                public List<JEVisSample> call() {
 
-            setSamples(new ArrayList<>());
-            if (getSelectedStart() == null || getSelectedEnd() == null) {
-                return samples;
-            }
-            if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
-                try {
-                    if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
-                        SampleGenerator sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
+                    try {
+                        logger.debug("CDM.getSample.thread: {}{}", Thread.currentThread().getId(), Thread.currentThread().getName());
+                        List<JEVisSample> samples = new ArrayList<>();
+                        getAttribute();
 
-                        samples = sg.generateSamples();
-                        samples = sg.getAggregatedSamples(samples);
+                        somethingChanged = false;
 
-                        if (!isStringData) {
-                            samples = factorizeSamples(samples);
+                        if (getSelectedStart() == null || getSelectedEnd() == null) {
+                            return samples;
                         }
+                        if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
+                            try {
+                                if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
+                                    SampleGenerator sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
 
+                                    samples = sg.generateSamples();
+                                    samples = sg.getAggregatedSamples(samples);
 
-                        AddZerosForMissingValues();
-                    } else {
-                        CalcJobFactory calcJobCreator = new CalcJobFactory();
+                                    if (!isStringData) {
+                                        samples = factorizeSamples(samples);
+                                    }
 
-                        CalcJob calcJob;
+                                } else {
+                                    CalcJobFactory calcJobCreator = new CalcJobFactory();
 
-                        if (!getAbsolute()) {
-                            calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
-                                    selectedStart, selectedEnd, aggregationPeriod);
+                                    CalcJob calcJob;
+
+                                    if (!getAbsolute()) {
+                                        calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                                selectedStart, selectedEnd, aggregationPeriod);
+                                    } else {
+                                        calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                                selectedStart, selectedEnd, true);
+                                    }
+
+                                    samples = calcJob.getResults();
+                                }
+
+                            } catch (Exception ex) {
+                                logger.error(ex);
+                            }
                         } else {
-                            calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
-                                    selectedStart, selectedEnd, true);
+                            if (getDataProcessor() != null) {
+                                logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                                        getDataProcessor().getName(), getDataProcessor().getID());
+                            } else {
+                                logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                                        getObject().getName(), getObject().getID());
+                            }
                         }
+                        return samples;
 
-                        samples = calcJob.getResults();
+                    } catch (Exception ex) {
+                        logger.error(ex);
                     }
 
-                } catch (Exception ex) {
-                    logger.error(ex);
+                    return new ArrayList<JEVisSample>();
                 }
-            } else {
-                if (getDataProcessor() != null) {
-                    logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
-                            getDataProcessor().getName(), getDataProcessor().getID());
-                } else {
-                    logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
-                            getObject().getName(), getObject().getID());
-                }
-            }
-        }
-//        logger.debug("ChartDataModel: sample.size: {} Aggregation:  {} EnPI: {} absolute: {} {}/{}  {}-{} ", samples.size(), aggregationPeriod, isEnPI, absolute, getAttribute().getObjectID(), getAttribute().getName(), selectedStart, selectedEnd);
+            });
 
+            executor.execute(datatask);
+            try {
+                samples = datatask.get();
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+//            executor.shutdown();
+        }
         return samples;
     }
 
     public void setSamples(List<JEVisSample> samples) {
         this.samples = samples;
     }
-
-    private void AddZerosForMissingValues() throws JEVisException {
-        if (!fillZeroes) {
-            return;
-        }
-
-        if (samples.size() > 0 && manipulationMode.equals(ManipulationMode.NONE) && aggregationPeriod.equals(AggregationPeriod.NONE)) {
-            Period displaySampleRate = getAttribute().getDisplaySampleRate();
-            if (displaySampleRate != null && displaySampleRate != Period.ZERO && displaySampleRate.toStandardDuration().getMillis() > 0) {
-                DateTime startTS = samples.get(0).getTimestamp();
-                while (startTS.isAfter(selectedStart)) {
-                    startTS = startTS.minus(getAttribute().getDisplaySampleRate());
-                    if (startTS.isAfter(selectedStart)) {
-                        JEVisSample smp = new VirtualSample(startTS, 0.0);
-                        smp.setNote("Empty");
-                        samples.add(0, smp);
-                    }
-                }
-
-                DateTime endTS = samples.get(samples.size() - 1).getTimestamp();
-                while (endTS.isBefore(selectedEnd)) {
-                    endTS = endTS.plus(getAttribute().getDisplaySampleRate());
-                    if (endTS.isBefore(selectedEnd)) {
-                        JEVisSample smp = new VirtualSample(endTS, 0.0);
-                        smp.setNote("Empty");
-                        samples.add(smp);
-                    }
-                }
-            }
-        }
-    }
-
 
     /**
      * Workaround from FS, Gerrit find the right solution.
@@ -314,8 +312,8 @@ public class ChartDataModel {
         return title;
     }
 
-    public void setTitle(String _title) {
-        this.title = _title;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public DateTime getSelectedStart() {
@@ -381,13 +379,12 @@ public class ChartDataModel {
     public JEVisAttribute getAttribute() {
         if (attribute == null || somethingChanged) {
             try {
-                JEVisAttribute attribute = null;
+
                 String jevisClassName = getObject().getJEVisClassName();
                 if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data")) {
-                    if (dataProcessorObject == null) attribute = getObject().getAttribute("Value");
-                    else attribute = getDataProcessor().getAttribute("Value");
+                    if (dataProcessorObject == null) this.attribute = getObject().getAttribute("Value");
+                    else this.attribute = getDataProcessor().getAttribute("Value");
 
-                    this.attribute = attribute;
 
                     if (jevisClassName.equals("String Data")) {
                         this.isStringData = true;
@@ -405,12 +402,15 @@ public class ChartDataModel {
         this.attribute = _attribute;
     }
 
-    public Color getColor() {
+    public String getColor() {
+        if (color.contains("0x")) {
+            color = color.replace("0x", "#");
+        }
         return color;
     }
 
-    public void setColor(Color _color) {
-        this.color = _color;
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public boolean isSelectable() {
@@ -551,5 +551,42 @@ public class ChartDataModel {
 
     public Double getScaleFactor() {
         return scaleFactor;
+    }
+
+    public double getMin() {
+        return min;
+    }
+
+    public void setMin(double min) {
+        this.min = min;
+    }
+
+    public double getMax() {
+        return max;
+    }
+
+    public void setMax(double max) {
+        this.max = max;
+    }
+
+    public double getAvg() {
+        return avg;
+    }
+
+    public void setAvg(double avg) {
+        this.avg = avg;
+    }
+
+    public Double getSum() {
+        return sum;
+    }
+
+    public void setSum(Double sum) {
+        this.sum = sum;
+    }
+
+    public boolean equals(ChartDataModel obj) {
+        return this.getObject().getID().equals(obj.getObject().getID())
+                && this.getDataProcessor().getID().equals(obj.getDataProcessor().getID());
     }
 }

@@ -3,31 +3,27 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.tools.ColorHelper;
+import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.text.NumberFormat;
+import java.util.List;
 
 public class BarChartSerie {
     private static final Logger logger = LogManager.getLogger(BarChartSerie.class);
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-    private ObservableList<XYChart.Data<Number, String>> seriesData = FXCollections.observableArrayList();
-    private XYChart.Series<Number, String> serie = new XYChart.Series<>(seriesData);
+    private XYChart.Series<Number, String> serie = new XYChart.Series<>();
     private TableEntry tableEntry;
     private DateTime timeStampFromFirstSample = DateTime.now();
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
@@ -38,43 +34,47 @@ public class BarChartSerie {
 
         String tableEntryName = singleRow.getObject().getName();
         serie.setName(tableEntryName);
+        serie.getData().clear();
         tableEntry = new TableEntry(tableEntryName);
-        tableEntry.setColor(singleRow.getColor());
+        tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
         tableData.add(tableEntry);
 
-        JEVisAttribute att = singleRow.getAttribute();
-        JEVisSample latestSample = null;
-        if (att != null && att.hasSample()) {
-            latestSample = att.getLatestSample();
+//        JEVisAttribute att = singleRow.getAttribute();
+        List<JEVisSample> samples = singleRow.getSamples();
 
+        double result = 0;
+        long count = 0;
+        for (JEVisSample sample : samples) {
+            Double value = sample.getValueAsDouble();
+            result += value;
+            count++;
         }
 
-        if (latestSample != null) {
-            DateTime dateTime = latestSample.getTimestamp();
-            Double value = latestSample.getValueAsDouble();
-
-            NumberFormat nf_out = NumberFormat.getNumberInstance();
-            nf_out.setMaximumFractionDigits(2);
-            nf_out.setMinimumFractionDigits(2);
-            String text = nf_out.format(value) + " " + unit;
-            tableEntry.setValue(text);
-
-            DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
-            String s = dateTime.toString(dtf);
-            XYChart.Data<Number, String> data = new XYChart.Data<>(value, s);
-
-            StackPane node = new StackPane();
-            Label label = new Label(text);
-            Group group = new Group(label);
-            StackPane.setAlignment(group, Pos.CENTER_RIGHT);
-            StackPane.setMargin(group, new Insets(0, 0, 5, 0));
-            node.getChildren().add(group);
-            data.setNode(node);
-
-            seriesData.clear();
-            seriesData.add(data);
-
+        QuantityUnits qu = new QuantityUnits();
+        boolean quantityUnit = qu.isQuantityUnit(singleRow.getUnit());
+        if (!quantityUnit) {
+            result = result / count;
         }
+
+        NumberFormat nf_out = NumberFormat.getNumberInstance();
+        nf_out.setMaximumFractionDigits(2);
+        nf_out.setMinimumFractionDigits(2);
+        String text = nf_out.format(result) + " " + unit;
+        tableEntry.setValue(text);
+
+//        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
+//        String s = dateTime.toString(dtf);
+        String dataName = singleRow.getTitle();
+
+        if (dataName == null) {
+            dataName = singleRow.getObject().getName();
+        }
+
+        XYChart.Data<Number, String> data = new XYChart.Data<>(result, dataName);
+
+        serie.getData().setAll(data);
+
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
 
     }
 

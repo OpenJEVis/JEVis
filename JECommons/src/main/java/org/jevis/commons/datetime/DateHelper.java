@@ -242,6 +242,11 @@ public class DateHelper {
                     }
                 }
                 break;
+            case PREVIEW:
+                startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
+                        now.getHourOfDay(), startTime.getMinute(), startTime.getSecond())
+                        .minusDays(1);
+                break;
             default:
                 break;
         }
@@ -335,6 +340,7 @@ public class DateHelper {
         //if (startTime.isAfter(endTime)) now = now.minusDays(1);
 
         switch (type) {
+            case PREVIEW:
             case TODAY:
             case THISMONTH:
             case THISYEAR:
@@ -424,7 +430,7 @@ public class DateHelper {
                             case "CURRENT_DAY":
                                 now = DateTime.now();
                                 endDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
-                                        endTime.getHour(), endTime.getMinute(), endTime.getSecond());
+                                        startTime.getHour(), startTime.getMinute(), startTime.getSecond());
                                 break;
                             case "SPECIFIED_DATE":
                                 try {
@@ -504,7 +510,7 @@ public class DateHelper {
         this.endTime = endTime;
     }
 
-    public enum TransformType {CUSTOM, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, THISWEEK, LASTWEEK, THISMONTH, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR}
+    public enum TransformType {CUSTOM, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, THISWEEK, LASTWEEK, THISMONTH, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR, PREVIEW}
 
     public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
 

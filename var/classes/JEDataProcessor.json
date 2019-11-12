@@ -47,6 +47,14 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "JEDataProcessor"
+    },
+    {
+      "name": "Processing Size",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "JEDataProcessor"
     }
   ]
 }

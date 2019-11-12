@@ -47,7 +47,7 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextFie
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.TreePlugin;
@@ -70,7 +70,7 @@ public class ChartSelectionDialog {
     private static final Logger logger = LogManager.getLogger(ChartSelectionDialog.class);
     private final JEVisDataSource _ds;
     private Response _response = Response.CANCEL;
-    private GraphDataModel data;
+    private AnalysisDataModel data;
     private Stage stage;
     private boolean init = true;
     private JEVisTree tree;
@@ -83,7 +83,7 @@ public class ChartSelectionDialog {
      * @param ds
      * @param data
      */
-    public ChartSelectionDialog(JEVisDataSource ds, GraphDataModel data) {
+    public ChartSelectionDialog(JEVisDataSource ds, AnalysisDataModel data) {
         this._ds = ds;
         this.data = data;
 
@@ -237,7 +237,22 @@ public class ChartSelectionDialog {
 
         stage.showAndWait();
 
+        removeEmptyCharts();
+
         return _response;
+    }
+
+    private void removeEmptyCharts() {
+        List<ChartSettings> toBeRemoved = new ArrayList<>();
+
+        data.getCharts().forEach(chartSettings -> {
+            boolean hasData = data.getSelectedData().stream().anyMatch(model -> model.getSelectedcharts().contains(chartSettings.getId()));
+            if (!hasData) {
+                toBeRemoved.add(chartSettings);
+            }
+        });
+
+        data.getCharts().removeAll(toBeRemoved);
     }
 
     private Tab getCommonTab() {
@@ -415,11 +430,11 @@ public class ChartSelectionDialog {
     }
 
 
-    public GraphDataModel getSelectedData() {
+    public AnalysisDataModel getSelectedData() {
         return data;
     }
 
-    public void setData(GraphDataModel data) {
+    public void setData(AnalysisDataModel data) {
         this.data = data;
     }
 

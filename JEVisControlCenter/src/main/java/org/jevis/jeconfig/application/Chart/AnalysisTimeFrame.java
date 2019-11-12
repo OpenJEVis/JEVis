@@ -7,8 +7,8 @@ public class AnalysisTimeFrame {
     private TimeFrame timeFrame = TimeFrame.TODAY;
 
     private long id = 0l;
-    private DateTime start;
-    private DateTime end;
+    private DateTime start = DateTime.now();
+    private DateTime end = DateTime.now();
 
     public AnalysisTimeFrame() {
     }

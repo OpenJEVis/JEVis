@@ -5,13 +5,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
-import javafx.scene.control.ButtonType;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -19,25 +15,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.jeconfig.application.Chart.ChartElements.*;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
+import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
-import org.jevis.jeconfig.application.Chart.data.RowNote;
-import org.jevis.jeconfig.dialog.NoteDialog;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.PeriodFormat;
 
-import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -52,9 +43,8 @@ public class BarChart implements Chart {
     private String unit;
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
-    private List<XYChartSerie> xyChartSerieList = new ArrayList<>();
+    private List<BarChartSerie> barChartSerieList = new ArrayList<>();
     private javafx.scene.chart.BarChart barChart;
-    private ObservableList<XYChart.Series<Number, String>> series = FXCollections.observableArrayList();
     private List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -81,11 +71,8 @@ public class BarChart implements Chart {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
                     BarChartSerie serie = new BarChartSerie(singleRow, hideShowIcons);
-
-
-                    hexColors.add(singleRow.getColor());
-                    series.add(serie.getSerie());
-                    tableData.add(serie.getTableEntry());
+                    barChartSerieList.add(serie);
+                    hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 
                 } catch (JEVisException e) {
                     e.printStackTrace();
@@ -101,10 +88,7 @@ public class BarChart implements Chart {
         NumberAxis numberAxis = new NumberAxis();
         CategoryAxis catAxis = new CategoryAxis();
 
-        barChart = new javafx.scene.chart.BarChart(numberAxis, catAxis, series);
-        barChart.applyCss();
-
-        applyColors();
+        barChart = new javafx.scene.chart.BarChart(numberAxis, catAxis);
 
         barChart.setTitle(chartName);
         barChart.setLegendVisible(false);
@@ -114,7 +98,17 @@ public class BarChart implements Chart {
         barChart.getXAxis().setLabel(unit);
 
         //initializeZoom();
-        setTimer();
+//        setTimer();
+        addSeriesToChart();
+    }
+
+    public void addSeriesToChart() {
+        for (BarChartSerie barChartSerie : barChartSerieList) {
+            Platform.runLater(() -> {
+                barChart.getData().add(barChartSerie.getSerie());
+                tableData.add(barChartSerie.getTableEntry());
+            });
+        }
     }
 
     private void setTimer() {
@@ -161,36 +155,36 @@ public class BarChart implements Chart {
 
     @Override
     public void initializeZoom() {
-        panner = null;
-
-        getChart().setOnMouseMoved(mouseEvent -> {
-            updateTable(mouseEvent, null);
-        });
-
-        panner = new ChartPanManager((MultiAxisChart<?, ?>) getChart());
-
-        panner.setMouseFilter(mouseEvent -> {
-            if (mouseEvent.getButton() != MouseButton.SECONDARY
-                    && (mouseEvent.getButton() != MouseButton.PRIMARY
-                    || !mouseEvent.isShortcutDown())) {
-                mouseEvent.consume();
-            }
-        });
-        panner.start();
-
-        JFXChartUtil jfxChartUtil = new JFXChartUtil();
-        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
-
-            if (mouseEvent.getButton() != MouseButton.PRIMARY
-                    || mouseEvent.isShortcutDown()) {
-                mouseEvent.consume();
-                if (mouseEvent.isControlDown()) {
-                    showNote(mouseEvent);
-                }
-            }
-        });
-
-        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
+//        panner = null;
+//
+//        getChart().setOnMouseMoved(mouseEvent -> {
+//            updateTable(mouseEvent, null);
+//        });
+//
+//        panner = new ChartPanManager((MultiAxisChart<?, ?>) getChart());
+//
+//        panner.setMouseFilter(mouseEvent -> {
+//            if (mouseEvent.getButton() != MouseButton.SECONDARY
+//                    && (mouseEvent.getButton() != MouseButton.PRIMARY
+//                    || !mouseEvent.isShortcutDown())) {
+//                mouseEvent.consume();
+//            }
+//        });
+//        panner.start();
+//
+//        JFXChartUtil jfxChartUtil = new JFXChartUtil();
+//        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
+//
+//            if (mouseEvent.getButton() != MouseButton.PRIMARY
+//                    || mouseEvent.isShortcutDown()) {
+//                mouseEvent.consume();
+//                if (mouseEvent.isControlDown()) {
+//                    showNote(mouseEvent);
+//                }
+//            }
+//        });
+//
+//        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
 
     }
 
@@ -220,7 +214,7 @@ public class BarChart implements Chart {
 
         manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
-        series.clear();
+        barChart.getData().clear();
         hexColors.clear();
         tableData.clear();
 
@@ -230,8 +224,8 @@ public class BarChart implements Chart {
                     BarChartSerie serie = new BarChartSerie(singleRow, hideShowIcons);
 
 
-                    hexColors.add(singleRow.getColor());
-                    series.add(serie.getSerie());
+                    hexColors.add(ColorHelper.toColor(singleRow.getColor()));
+                    barChart.getData().add(serie.getSerie());
                     tableData.add(serie.getTableEntry());
 
                 } catch (JEVisException e) {
@@ -251,7 +245,7 @@ public class BarChart implements Chart {
 
         barChart.setTitle(chartName);
         barChart.getXAxis().setLabel(unit);
-        setTimer();
+//        setTimer();
     }
 
     @Override
@@ -280,6 +274,16 @@ public class BarChart implements Chart {
     }
 
     @Override
+    public void checkForY2Axis() {
+
+    }
+
+    @Override
+    public void applyBounds() {
+
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
     }
@@ -296,51 +300,7 @@ public class BarChart implements Chart {
 
     @Override
     public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
-        Point2D mouseCoordinates = null;
-        if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-        Double x = null;
-        String stringForDisplay = null;
-        if (valueForDisplay == null) {
 
-            x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
-
-            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
-
-        }
-        if (valueForDisplay != null) {
-            setValueForDisplay(valueForDisplay);
-            DateTime finalValueForDisplay = valueForDisplay;
-            xyChartSerieList.parallelStream().forEach(serie -> {
-                try {
-                    TableEntry tableEntry = serie.getTableEntry();
-                    TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
-
-                    nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
-
-                    NumberFormat nf = NumberFormat.getInstance();
-                    nf.setMinimumFractionDigits(2);
-                    nf.setMaximumFractionDigits(2);
-                    Double valueAsDouble = sampleTreeMap.get(nearest).getValueAsDouble();
-                    JEVisSample sample = sampleTreeMap.get(nearest);
-                    Note formattedNote = new Note(sample);
-                    String formattedDouble = nf.format(valueAsDouble);
-
-                    if (!asDuration) {
-                        tableEntry.setDate(nearest
-                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
-                    } else {
-                        tableEntry.setDate((nearest.getMillis() -
-                                timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h");
-                    }
-                    tableEntry.setNote(formattedNote.getNoteAsString());
-                    String unit = serie.getUnit();
-                    tableEntry.setValue(formattedDouble + " " + unit);
-                    tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale())));
-                } catch (Exception ex) {
-                }
-
-            });
-        }
     }
 
     @Override
@@ -350,58 +310,14 @@ public class BarChart implements Chart {
 
     @Override
     public void showNote(MouseEvent mouseEvent) {
-        if (manipulationMode.get().equals(ManipulationMode.NONE)) {
 
-            Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-            double x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(mouseCoordinates).getX();
-
-            Map<String, RowNote> map = new HashMap<>();
-            DateTime valueForDisplay = null;
-            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
-
-            for (XYChartSerie serie : xyChartSerieList) {
-                try {
-
-                    DateTime nearest = serie.getSampleMap().lowerKey(valueForDisplay);
-
-                    if (nearest != null) {
-
-                        JEVisSample nearestSample = serie.getSampleMap().get(nearest);
-
-                        String title = "";
-                        title += serie.getSingleRow().getObject().getName();
-
-                        JEVisObject dataObject;
-                        if (serie.getSingleRow().getDataProcessor() != null)
-                            dataObject = serie.getSingleRow().getDataProcessor();
-                        else dataObject = serie.getSingleRow().getObject();
-
-                        String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
-
-                        RowNote rowNote = new RowNote(dataObject, nearestSample, title, userNote);
-
-                        map.put(title, rowNote);
-                    }
-                } catch (Exception ex) {
-                    logger.error("Error: could not get note", ex);
-                }
-            }
-
-            NoteDialog nd = new NoteDialog(map);
-
-            nd.showAndWait().ifPresent(response -> {
-                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                    saveUserNotes(nd.getNoteMap());
-                }
-            });
-        }
     }
 
     @Override
     public void applyColors() {
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
-            String hexColor = toRGBCode(currentColor);
+            String hexColor = ColorHelper.toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = barChart.lookup(preIdent + ".chart-bar");
             if (node != null) {

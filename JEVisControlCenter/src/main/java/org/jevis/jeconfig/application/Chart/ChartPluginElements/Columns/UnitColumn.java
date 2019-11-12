@@ -19,7 +19,7 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.unit.ChartUnits.*;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 
@@ -34,7 +34,7 @@ import java.util.List;
 public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> implements ChartPluginColumn {
     public static String COLUMN_ID = "UnitColumn";
     private TreeTableColumn<JEVisTreeRow, JEVisUnit> unitColumn;
-    private GraphDataModel data;
+    private AnalysisDataModel data;
     private JEVisTree tree;
     private String columnName;
     private final JEVisDataSource dataSource;
@@ -56,11 +56,12 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
 
                 List<String> proNames = new ArrayList<>();
 
-                Boolean isEnergyUnit = false;
-                Boolean isVolumeUnit = false;
-                Boolean isMassUnit = false;
-                Boolean isPressureUnit = false;
-                Boolean isVolumeFlowUnit = false;
+                boolean isEnergyUnit = false;
+                boolean isVolumeUnit = false;
+                boolean isMassUnit = false;
+                boolean isPressureUnit = false;
+                boolean isVolumeFlowUnit = false;
+                Boolean isMoneyUnit = false;
 
                 JEVisUnit currentUnit = singleRow.getUnit();
 
@@ -126,6 +127,17 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                         proNames.add(singleRow.getUnit().getLabel());
                 }
 
+                for (MoneyUnit mu : MoneyUnit.values()) {
+                    if (mu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isMoneyUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(mu.toString())) {
+                        isMoneyUnit = true;
+                    }
+                }
+                if (isMoneyUnit) for (MoneyUnit mu : MoneyUnit.values()) {
+                    proNames.add(mu.toString());
+                }
+
 
                 processorBox.setItems(FXCollections.observableArrayList(proNames));
 
@@ -150,8 +162,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
     }
 
     @Override
-    public void setGraphDataModel(GraphDataModel graphDataModel) {
-        this.data = graphDataModel;
+    public void setGraphDataModel(AnalysisDataModel analysisDataModel) {
+        this.data = analysisDataModel;
         update();
     }
 
@@ -202,8 +214,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                                     ComboBox box = buildUnitBox(data);
 
                                     box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {
-                                        if (oldValue == null || newValue != oldValue) {
-                                            JEVisUnit jeVisUnit = ChartUnits.parseUnit(String.valueOf(newValue));
+                                        if (!newValue.equals(oldValue)) {
+                                            JEVisUnit jeVisUnit = ChartUnits.parseUnit(newValue);
                                             commitEdit(jeVisUnit);
                                         }
                                     });
@@ -275,7 +287,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
     }
 
     @Override
-    public GraphDataModel getData() {
+    public AnalysisDataModel getData() {
         return this.data;
     }
 

@@ -38,68 +38,68 @@
       }
     },
     {
-      "type": "Start Minus Years",
+      "type": "Start Years",
       "descriptions": {
         "de": "",
         "ru": "",
         "en": ""
       },
       "names": {
-        "de": "Anfang minus Jahre",
-        "ru": "Start Minus Years",
-        "en": "Start Minus Years"
+        "de": "Anfang +/- Jahre",
+        "ru": "Start +/- Years",
+        "en": "Start +/- Years"
       }
     },
     {
-      "type": "Start Minus Months",
+      "type": "Start Months",
       "descriptions": {
         "de": "",
         "ru": "",
         "en": ""
       },
       "names": {
-        "de": "Anfang minus Monate",
-        "ru": "Start Minus Months",
-        "en": "Start Minus Months"
+        "de": "Anfang +/- Monate",
+        "ru": "Start +/- Months",
+        "en": "Start +/- Months"
       }
     },
     {
-      "type": "Start Minus Days",
+      "type": "Start Days",
       "descriptions": {
         "de": "",
         "ru": "",
         "en": ""
       },
       "names": {
-        "de": "Anfang minus Tage",
-        "ru": "Start Minus Days",
-        "en": "Start Minus Days"
+        "de": "Anfang +/- Tage",
+        "ru": "Start +/- Days",
+        "en": "Start +/- Days"
       }
     },
     {
-      "type": "Start Minus Hours",
+      "type": "Start Hours",
       "descriptions": {
         "de": "",
         "ru": "",
         "en": ""
       },
       "names": {
-        "de": "Anfang minus Stunden",
-        "ru": "Start Minus Hours",
-        "en": "Start Minus Hours"
+        "de": "Anfang +/- Stunden",
+        "ru": "Start +/- Hours",
+        "en": "Start +/- Hours"
       }
     },
     {
-      "type": "Start Minus Minutes",
+      "type": "Start Minutes",
       "descriptions": {
         "de": "",
         "ru": "",
         "en": ""
       },
       "names": {
-        "de": "Anfang minus Minuten",
-        "ru": "Start Minus Minutes",
-        "en": "Start Minus Minutes"
+        "de": "Anfang +/- Minuten",
+        "ru": "Start +/- Minutes",
+        "en": "Start +/- Minutes"
       }
     },
     {
@@ -116,6 +116,19 @@
       }
     },
     {
+      "type": "Start Interval",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Anfangsintervall +/-",
+        "ru": "Start Interval +/-",
+        "en": "Start Interval +/-"
+      }
+    },
+    {
       "type": "End Reference Point",
       "descriptions": {
         "de": "",
@@ -129,68 +142,68 @@
       }
     },
     {
-      "type": "End Minus Years",
+      "type": "End Years",
       "descriptions": {
         "de": "",
         "ru": "",
         "en": ""
       },
       "names": {
-        "de": "Ende minus Jahre",
-        "ru": "End Minus Years",
-        "en": "End Minus Years"
+        "de": "Ende +/- Jahre",
+        "ru": "End +/- Years",
+        "en": "End +/- Years"
       }
     },
     {
-      "type": "End Minus Months",
+      "type": "End Months",
       "descriptions": {
         "de": "",
         "ru": "",
         "en": ""
       },
       "names": {
-        "de": "Ende minus Monate",
-        "ru": "End Minus Months",
-        "en": "End Minus Months"
+        "de": "Ende +/- Monate",
+        "ru": "End +/- Months",
+        "en": "End +/- Months"
       }
     },
     {
-      "type": "End Minus Days",
+      "type": "End Days",
       "descriptions": {
         "de": "",
         "ru": "",
         "en": ""
       },
       "names": {
-        "de": "Ende minus Tage",
-        "ru": "End Minus Days",
-        "en": "End Minus Days"
+        "de": "Ende +/- Tage",
+        "ru": "End +/- Days",
+        "en": "End +/- Days"
       }
     },
     {
-      "type": "End Minus Hours",
+      "type": "End Hours",
       "descriptions": {
         "de": "",
         "ru": "",
         "en": ""
       },
       "names": {
-        "de": "Ende minus Stunden",
-        "ru": "End Minus Hours",
-        "en": "End Minus Hours"
+        "de": "Ende +/- Stunden",
+        "ru": "End +/- Hours",
+        "en": "End +/- Hours"
       }
     },
     {
-      "type": "End Minus Minutes",
+      "type": "End Minutes",
       "descriptions": {
         "de": "",
         "ru": "",
         "en": ""
       },
       "names": {
-        "de": "Ende minus Minuten",
-        "ru": "End Minus Minutes",
-        "en": "End Minus Minutes"
+        "de": "Ende +/- Minuten",
+        "ru": "End +/- Minutes",
+        "en": "End +/- Minutes"
       }
     },
     {
@@ -204,6 +217,19 @@
         "de": "Endbezugsobjekt",
         "ru": "End Reference Object",
         "en": "End Reference Object"
+      }
+    },
+    {
+      "type": "End Interval",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Schlussintervall +/-",
+        "ru": "End Interval +/-",
+        "en": "End Interval +/-"
       }
     }
   ]

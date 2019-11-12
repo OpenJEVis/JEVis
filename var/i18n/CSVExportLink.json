@@ -1,0 +1,76 @@
+{
+  "jevisclass": "CSV Export Link",
+  "names": {
+    "de": "CSV Datenverknüpfung",
+    "ru": "CSV Export Link",
+    "en": "CSV Expor Link"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Column ID",
+      "descriptions": {
+        "de": "Spaltennummer",
+        "ru": "Column ID",
+        "en": "Column ID"
+      },
+      "names": {
+        "de": "Spaltennummer",
+        "ru": "Column ID",
+        "en": "Column ID"
+      }
+    },
+    {
+      "type": "Value Format",
+      "descriptions": {
+        "de": "Dezimaltrennzeichen",
+        "ru": "Decimal Separator",
+        "en": "Decimal Separator"
+      },
+      "names": {
+        "de": "Dezimaltrennzeichen",
+        "ru": "Decimal Separator",
+        "en": "Decimal Separator"
+      }
+    },
+    {
+      "type": "JEVis ID",
+      "descriptions": {
+        "de": "Datenquelle",
+        "ru": "Data Source",
+        "en": "Data Source"
+      },
+      "names": {
+        "de": "Datenquelle",
+        "ru": "Data Source",
+        "en": "Data Source"
+      }
+    },
+    {
+      "type": "Opional",
+      "descriptions": {
+        "de": "Opional",
+        "ru": "Opional",
+        "en": "Opional"
+      },
+      "names": {
+        "de": "Opional",
+        "ru": "Opional",
+        "en": "Opional"
+      }
+    },
+    {
+      "type": "Template Variable Name",
+      "descriptions": {
+        "de": "Spaltenname",
+        "ru": "Column Name",
+        "en": "Column Name"
+      },
+      "names": {
+        "de": "Spaltenname",
+        "ru": "Column Name",
+        "en": "Column Name"
+      }
+    }
+  ]
+}

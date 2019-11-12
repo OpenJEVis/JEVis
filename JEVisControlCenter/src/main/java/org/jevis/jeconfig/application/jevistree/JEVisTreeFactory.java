@@ -40,7 +40,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.*;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.filter.BasicCellFilter;
 import org.jevis.jeconfig.application.jevistree.filter.FilterFactory;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
@@ -77,6 +77,7 @@ public class JEVisTreeFactory {
         final KeyCombination rename = new KeyCodeCombination(KeyCode.F2);
         final KeyCombination delete = new KeyCodeCombination(KeyCode.DELETE);
         final KeyCombination deleteAllCleanAndRaw = new KeyCodeCombination(KeyCode.DELETE, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+        final KeyCombination deleteAllCalculations = new KeyCodeCombination(KeyCode.J, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 //        final KeyCombination deleteBrokenTS = new KeyCodeCombination(KeyCode.T, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination createMultiplierAndDifferential = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination enableAll = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
@@ -108,6 +109,8 @@ public class JEVisTreeFactory {
                     TreeHelper.EventDelete(tree);
                 } else if (deleteAllCleanAndRaw.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventDeleteAllCleanAndRaw(tree);
+                } else if (deleteAllCalculations.match(t) && JEConfig.getExpert()) {
+                    TreeHelper.EventDeleteAllCalculations(tree);
 //                } else if (deleteBrokenTS.match(t) && JEConfig.getExpert()) {
 //                    TreeHelper.EventDeleteBrokenTS(tree);
                 } else if (createMultiplierAndDifferential.match(t) && JEConfig.getExpert()) {
@@ -282,7 +285,7 @@ public class JEVisTreeFactory {
     }
 
 
-    public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds, GraphDataModel graphDataModel) {
+    public static JEVisTree buildDefaultGraphTree(JEVisDataSource ds, AnalysisDataModel analysisDataModel) {
 
         TreeTableColumn<JEVisTreeRow, JEVisTreeRow> nameCol = ColumnFactory.buildName();
         nameCol.setPrefWidth(500);
@@ -303,6 +306,7 @@ public class JEVisTreeFactory {
         dataBasicFilter.addItemFilter(stringDataObjectFilter);
 
         dataBasicFilter.addFilter(SelectionColumn.COLUMN_ID, dataObjectFilter);
+        dataBasicFilter.addFilter(NameColumn.COLUMN_ID, dataObjectFilter);
         dataBasicFilter.addFilter(UnitColumn.COLUMN_ID, dataObjectFilter);
         dataBasicFilter.addFilter(DateColumn.COLUMN_ID, dataObjectFilter);
         dataBasicFilter.addFilter(ColorColumn.COLUMN_ID, dataObjectFilter);
@@ -311,6 +315,7 @@ public class JEVisTreeFactory {
         dataBasicFilter.addFilter(AxisColumn.COLUMN_ID, dataObjectFilter);
 
         dataBasicFilter.addFilter(SelectionColumn.COLUMN_ID, stringDataObjectFilter);
+        dataBasicFilter.addFilter(NameColumn.COLUMN_ID, stringDataObjectFilter);
         dataBasicFilter.addFilter(UnitColumn.COLUMN_ID, stringDataObjectFilter);
         dataBasicFilter.addFilter(DateColumn.COLUMN_ID, stringDataObjectFilter);
         dataBasicFilter.addFilter(ColorColumn.COLUMN_ID, stringDataObjectFilter);
@@ -327,7 +332,7 @@ public class JEVisTreeFactory {
         SearchFilterBar searchBar = new SearchFilterBar(tree, allFilter, finder);
         tree.setSearchFilterBar(searchBar);
 
-        TreePlugin bp = new ChartPluginTree(graphDataModel);
+        TreePlugin bp = new ChartPluginTree(analysisDataModel);
         //((ChartPluginTree) bp).setData(graphDataModel);
         tree.getColumns().addAll(nameCol);
         tree.getSortOrder().addAll(nameCol);

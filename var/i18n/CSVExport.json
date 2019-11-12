@@ -1,0 +1,141 @@
+{
+  "jevisclass": "CSV Export",
+  "names": {
+    "de": "CSV Export",
+    "ru": "CSV Export",
+    "en": "CSV Export"
+  },
+  "descriptions": {},
+  "types": [
+    {
+      "type": "Seperator",
+      "descriptions": {
+        "de": "Trennzeichen",
+        "ru": "Seperator",
+        "en": "Seperator"
+      },
+      "names": {
+        "de": "Trennzeichen",
+        "ru": "Seperator",
+        "en": "Seperator"
+      }
+    },
+    {
+      "type": "Enclosed",
+      "descriptions": {
+        "de": "Textbegrenzer",
+        "ru": "Description",
+        "en": "Description"
+      },
+      "names": {
+        "de": "Textbegrenzer",
+        "ru": "Enclosed by",
+        "en": "Enclosed by"
+      }
+    },
+    {
+      "type": "File Name",
+      "descriptions": {
+        "de": "Dataname",
+        "ru": "File Name",
+        "en": "File Name"
+      },
+      "names": {
+        "de": "Dataname",
+        "ru": "File Name",
+        "en": "File Name"
+      }
+    },
+    {
+      "type": "Date in Element",
+      "descriptions": {
+        "de": "Date in Element description",
+        "ru": "Date in Element description",
+        "en": "Date in Element description"
+      },
+      "names": {
+        "de": "Daum im Element",
+        "ru": "Date in Element",
+        "en": "Date in Element"
+      }
+    },
+    {
+      "type": "Header",
+      "descriptions": {
+        "de": "Kopfzeile",
+        "ru": "Header line",
+        "en": "Header line"
+      },
+      "names": {
+        "de": "Kopfzeile",
+        "ru": "Header Line",
+        "en": "Header Line"
+      }
+    },
+    {
+      "type": "Timestamp Format",
+      "descriptions": {
+        "de": "Datumsformat",
+        "ru": "Date Format",
+        "en": "Date Format"
+      },
+      "names": {
+        "de": "Datumsformat",
+        "ru": "Date Format",
+        "en": "Date Format"
+      }
+    },
+    {
+      "type": "Export Date",
+      "descriptions": {
+        "de": "Export Datum",
+        "ru": "Export Date",
+        "en": "Export Date"
+      },
+      "names": {
+        "de": "Export Datum",
+        "ru": "Export Date",
+        "en": "Export Date"
+      }
+    },
+    {
+      "type": "Export Status",
+      "descriptions": {
+        "de": "Export Status",
+        "ru": "Export Status",
+        "en": "Export Status"
+      },
+      "names": {
+        "de": "Export Status",
+        "ru": "Export Status",
+        "en": "Export Status"
+      }
+    },
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Aktiviert",
+        "ru": "Enabled",
+        "en": "Enabled"
+      },
+      "names": {
+        "de": "Aktiviert",
+        "ru": "Enabled",
+        "en": "Enabled"
+      }
+    },
+    {
+      "type": "Time Zone",
+      "descriptions": {
+        "de": "Zeitzone",
+        "ru": "Time Zone",
+        "en": "Time Zone"
+      },
+      "names": {
+        "de": "Zeitzone",
+        "ru": "Time Zone",
+        "en": "Time Zone"
+      }
+    }
+  ]
+}

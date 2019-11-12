@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.UnitManager;
 
+import javax.measure.MetricPrefix;
 import javax.measure.unit.Unit;
 import java.text.Normalizer;
 import java.util.Iterator;
@@ -37,7 +38,7 @@ public class UnitChooserPanel {
     private TextField altSymbolField = new TextField("");
     private String _altSymbol = "";
     private ComboBox<?> boxMeaning = new ComboBox<Object>();
-    private ComboBox<String> boxPrefix = new ComboBox<String>();
+    private ComboBox<MetricPrefix> boxPrefix = new ComboBox<MetricPrefix>();
     private ComboBox<JEVisUnit> boxQuantity = new ComboBox<JEVisUnit>();
     private ComboBox<JEVisUnit> boxUnit = new ComboBox<JEVisUnit>();
     private Label example = new Label("1234.56");
@@ -129,10 +130,10 @@ public class UnitChooserPanel {
             }
         });
 
-        boxPrefix.valueProperty().addListener(new ChangeListener<String>() {
+        boxPrefix.valueProperty().addListener(new ChangeListener<MetricPrefix>() {
 
             @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+            public void changed(ObservableValue<? extends MetricPrefix> observable, MetricPrefix oldValue, MetricPrefix newValue) {
                 printExample();
             }
         });
@@ -221,11 +222,11 @@ public class UnitChooserPanel {
 
     private void fillPrifix() {
         logger.info("fill prefix");
-        ObservableList<String> list = FXCollections.observableList(um.getPrefixes());
+        ObservableList<MetricPrefix> list = FXCollections.observableArrayList(MetricPrefix.values());
 
         boxPrefix.getItems().clear();
         boxPrefix.getSelectionModel().clearSelection();
-        boxPrefix.getItems().addAll(list);
+        boxPrefix.setItems(list);
         boxPrefix.getSelectionModel().selectFirst();//noUnit
     }
 

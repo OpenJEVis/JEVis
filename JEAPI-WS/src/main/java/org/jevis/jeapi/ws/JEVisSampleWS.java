@@ -23,14 +23,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
-import org.jevis.commons.utils.Optimization;
+import org.jevis.commons.utils.PrettyError;
 import org.jevis.commons.ws.json.JsonSample;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -41,18 +40,21 @@ import java.util.Locale;
 public class JEVisSampleWS implements JEVisSample {
 
     public static final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
+    public static final NumberFormat nf = NumberFormat.getInstance(Locale.US);
     private static final Logger logger = LogManager.getLogger(JEVisSampleWS.class);
     private JEVisAttribute attribute;
     private JsonSample json;
     private JEVisDataSourceWS ds;
     private JEVisFile file = null;
+    private Object valueObj = null;
+    private DateTime tsObj = null;
 
     public JEVisSampleWS(JEVisDataSourceWS ds, JsonSample json, JEVisAttribute att) {
         this.attribute = att;
         this.ds = ds;
         this.json = json;
-        Optimization.getInstance().addSample(this);
-
+        objectifyValue();
+        objectifyTimeStamp();
     }
 
     public JEVisSampleWS(JEVisDataSourceWS ds, JsonSample json, JEVisAttribute att, JEVisFile file) {
@@ -66,32 +68,79 @@ public class JEVisSampleWS implements JEVisSample {
             logger.catching(ex);
         }
 
-        Optimization.getInstance().addSample(this);
+    }
+
+    private void objectifyTimeStamp() {
+        tsObj = sampleDTF.parseDateTime(json.getTs());
+    }
+
+    private void objectifyValue() {
+        try {
+            valueObj = null;
+            if (json.getValue() != null) {
+                if (attribute.getType().getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE) {
+                    valueObj = new Double(json.getValue());
+                    return;
+                } else if (attribute.getType().getPrimitiveType() == JEVisConstants.PrimitiveType.LONG) {
+                    valueObj = new Long(json.getValue());
+                    return;
+                } else if (attribute.getType().getPrimitiveType() == JEVisConstants.PrimitiveType.BOOLEAN) {
+                    valueObj = getValueAsBoolean();
+                    return;
+                }
+            } else {
+                valueObj = null;
+            }
+
+        } catch (Exception ex) {
+            logger.error("Error while casting Attribute Type: '{}' in {}", PrettyError.getJEVisLineFilter(ex), json);
+            valueObj = null;
+        }
+        valueObj = json.getValue();
 
     }
 
     @Override
     public DateTime getTimestamp() {
-        return sampleDTF.parseDateTime(json.getTs());
+        return tsObj;
     }
 
     @Override
     public Object getValue() {
+        if (valueObj != null) {
+            return valueObj;
+        }
 
-        return json.getValue();//TODO cast to type?!
+        //fallback to String
+        return json.getValue();
     }
 
-    @Override
-    public void setValue(Object value) throws ClassCastException {
-        //logger.debug("setValue: {} Value: {}", getAttribute().getName(), value);
+    private boolean validateValue(Object value) throws ClassCastException {
         try {
             if (getAttribute().getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE) {
                 Double.valueOf(value.toString());
             } else if (getAttribute().getPrimitiveType() == JEVisConstants.PrimitiveType.LONG) {
                 Long.valueOf(value.toString());
             }
+        } catch (Exception ex) {
+//            throw new ClassCastException("Value object does not match the PrimitiveType of the Attribute: " + this.toString());
+            return false;
+        }
+        return true;
+    }
 
-            json.setValue(value.toString());
+    @Override
+    public void setValue(Object value) throws ClassCastException {
+        //logger.debug("setValue: {} Value: {}", getAttribute().getName(), value);
+        try {
+            //TODO validateValue(value)
+            valueObj = value;
+            if (value == null) {
+                json.setValue("");
+            } else {
+                json.setValue(value.toString());
+            }
+
 
         } catch (Exception ex) {
             throw new ClassCastException("Value object does not match the PrimitiveType of the Attribute: " + this.toString());
@@ -100,18 +149,11 @@ public class JEVisSampleWS implements JEVisSample {
 
     @Override
     public Long getValueAsLong() {
-        /**
-         * LongValidator validator = LongValidator.getInstance();
-         * changed for number format for memory persistence
-         */
-        NumberFormat nf = NumberFormat.getInstance(Locale.US);
-        Long result = null;
         try {
-            result = nf.parse(getValueAsString()).longValue();
-        } catch (ParseException e) {
-            logger.error("Couldn't parse value to long");
+            return valueObj instanceof Long ? (Long) valueObj : nf.parse(getValueAsString()).longValue();
+        } catch (Exception ex) {
+            return 0l;
         }
-        return result;
     }
 
     @Override
@@ -119,29 +161,31 @@ public class JEVisSampleWS implements JEVisSample {
         double lValue = getValueAsLong().doubleValue();
         Double dValue = getUnit().convertTo(unit, lValue);
         return dValue.longValue();
-
     }
 
     @Override
     public Double getValueAsDouble() {
-        return Double.parseDouble(getValueAsString());
+        return valueObj instanceof Double ? (Double) valueObj : Double.parseDouble(getValueAsString());
     }
 
     @Override
     public Double getValueAsDouble(JEVisUnit unit) throws JEVisException {
-        double dValue = Double.parseDouble(getValueAsString());
-        return getUnit().convertTo(unit, dValue);
+        return getUnit().convertTo(unit, getValueAsDouble());
     }
 
     @Override
     public Boolean getValueAsBoolean() {
-        if (json.getValue().equals("1")) {
-            return true;
-        } else if (json.getValue().equals("0")) {
-            return false;
-        }
+        if (valueObj instanceof Boolean) {
+            return (Boolean) valueObj;
+        } else {
+            if (json.getValue().equals("1")) {
+                return true;
+            } else if (json.getValue().equals("0")) {
+                return false;
+            }
 
-        return Boolean.parseBoolean(getValueAsString());
+            return Boolean.parseBoolean(getValueAsString());
+        }
     }
 
     @Override

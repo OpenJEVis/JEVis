@@ -37,7 +37,9 @@ import org.jevis.api.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -56,7 +58,7 @@ import java.util.function.UnaryOperator;
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SampleTable extends TableView<SampleTable.TableSample> {
-    private final static DateTimeFormatter dateViewFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+    private final DateTimeFormatter dateViewFormat;
     private final static NumberFormat numberFormat = NumberFormat.getInstance(Locale.getDefault());
     private final static Logger logger = LogManager.getLogger(SampleTable.class);
     private final static Color COLOR_ERROR = Color.INDIANRED;
@@ -66,6 +68,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
     private final BooleanProperty deleteSelected = new SimpleBooleanProperty(false);
     private final BooleanProperty needSave = new SimpleBooleanProperty(false);
     private final ObservableList<SampleTable.TableSample> data = FXCollections.observableArrayList();
+    private final DateTimeZone dateTimeZone;
     private DateTime minDate = null;
     private DateTime maxDate = null;
     boolean canDelete = false;
@@ -76,10 +79,11 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
      * @param attribute
      * @param samples
      */
-    public SampleTable(JEVisAttribute attribute, List<JEVisSample> samples) {
+    public SampleTable(JEVisAttribute attribute, DateTimeZone dateTimeZone, List<JEVisSample> samples) {
         super();
         this.attribute = attribute;
-
+        this.dateTimeZone = dateTimeZone;
+        this.dateViewFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ssZ").withZone(dateTimeZone);
 
         try {
             if (attribute.getObject().getDataSource().getCurrentUser().canWrite(attribute.getObject().getID())) {
@@ -196,6 +200,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         findMinMaxDate();
         return minDate;
     }
+
 
     /**
      * Return the newest date loaded after change
@@ -405,7 +410,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         try {
             JEVisSample lastSample = attribute.getLatestSample();
             if (lastSample != null) {
-                columnName += " (" + DateTimeFormat.forPattern("z").print(lastSample.getTimestamp()) + ")";
+                columnName += " (" + DateTimeZone.getNameProvider().getShortName(I18n.getInstance().getLocale(), dateTimeZone.getID(), dateTimeZone.getNameKey(0)) + ")";
             }
         } catch (Exception ex) {
         }
@@ -728,6 +733,48 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         };
     }
 
+    private Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>> valueCellBoolean() {
+        return new Callback<TableColumn<TableSample, Object>, TableCell<TableSample, Object>>() {
+            @Override
+            public TableCell<TableSample, Object> call(TableColumn<TableSample, Object> param) {
+                return new TableCell<TableSample, Object>() {
+
+                    @Override
+                    protected void updateItem(Object item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            TableSample tableSample = (TableSample) getTableRow().getItem();
+                            JEVisSample sample = tableSample.getJevisSample();
+
+                            ToggleSwitchPlus toggleSwitchPlus = new ToggleSwitchPlus();
+                            try {
+                                toggleSwitchPlus.setSelected(sample.getValueAsBoolean());
+                            } catch (JEVisException e) {
+                                e.printStackTrace();
+                            }
+                            toggleSwitchPlus.selectedProperty().addListener((ov, t, t1) -> {
+                                try {
+                                    sample.setValue(t1);
+                                    sample.commit();
+                                } catch (Exception ex) {
+                                    logger.fatal(ex);
+                                }
+                            });
+
+                            setGraphic(toggleSwitchPlus);
+
+                        }
+
+                    }
+                };
+            }
+
+        };
+    }
+
     /**
      * Create an Callback cell for String based values
      *
@@ -925,7 +972,6 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         column.setCellValueFactory(param -> new ReadOnlyObjectWrapper(param.getValue().getValue()));
 
         try {
-
             switch (attribute.getPrimitiveType()) {
                 case JEVisConstants.PrimitiveType.LONG:
                     column.setCellFactory(valueCellInteger());
@@ -935,6 +981,9 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                     break;
                 case JEVisConstants.PrimitiveType.FILE:
                     column.setCellFactory(valueCellFile());
+                    break;
+                case JEVisConstants.PrimitiveType.BOOLEAN:
+                    column.setCellFactory(valueCellBoolean());
                     break;
                 default:
                     if (attribute.getName().equalsIgnoreCase("Password") || attribute.getPrimitiveType() == JEVisConstants.PrimitiveType.PASSWORD_PBKDF2) {

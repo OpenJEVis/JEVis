@@ -22,6 +22,7 @@ package org.jevis.jeconfig.sample;
 import javafx.scene.Node;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisSample;
+import org.joda.time.DateTimeZone;
 
 import java.util.List;
 
@@ -59,6 +60,13 @@ public interface SampleEditorExtension {
      * @param samples
      */
     void setSamples(JEVisAttribute att, List<JEVisSample> samples);
+
+    /**
+     * Set the timezone.
+     *
+     * @param dateTimeZone
+     */
+    void setDateTimeZone(DateTimeZone dateTimeZone);
 
     /**
      * updateData the gui of this extension. This should be called if the sample

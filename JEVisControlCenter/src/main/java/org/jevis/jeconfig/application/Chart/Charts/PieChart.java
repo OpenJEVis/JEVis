@@ -18,6 +18,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
@@ -25,6 +27,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -83,26 +86,31 @@ public class PieChart implements Chart {
         if (chartDataModels != null) {
             for (ChartDataModel singleRow : chartDataModels) {
                 if (!singleRow.getSelectedcharts().isEmpty()) {
+                    ChartDataModel clonedModel = singleRow.clone();
+                    clonedModel.setAggregationPeriod(AggregationPeriod.NONE);
                     Double sumPiePiece = 0d;
                     QuantityUnits qu = new QuantityUnits();
-                    boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
-                    boolean isSummable = qu.isSumCalculable(singleRow.getUnit());
+                    boolean isQuantity = qu.isQuantityUnit(clonedModel.getUnit());
+                    boolean isSummable = qu.isSumCalculable(clonedModel.getUnit());
 
-                    List<JEVisSample> samples = singleRow.getSamples();
+                    List<JEVisSample> samples = clonedModel.getSamples();
                     if (!isQuantity && isSummable) {
+                        List<JEVisSample> scaledSamples = new ArrayList<>();
 
-                        JEVisUnit sumUnit = qu.getSumUnit(singleRow.getUnit());
+                        JEVisUnit sumUnit = qu.getSumUnit(clonedModel.getUnit());
                         String outputUnit = UnitManager.getInstance().format(sumUnit).replace("·", "");
                         if (outputUnit.equals("")) outputUnit = sumUnit.getLabel();
 
-                        String inputUnit = UnitManager.getInstance().format(singleRow.getUnit()).replace("·", "");
-                        if (inputUnit.equals("")) inputUnit = singleRow.getUnit().getLabel();
+                        String inputUnit = UnitManager.getInstance().format(clonedModel.getUnit()).replace("·", "");
+                        if (inputUnit.equals("")) inputUnit = clonedModel.getUnit().getLabel();
 
                         ChartUnits cu = new ChartUnits();
                         Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
                         samples.forEach(sample -> {
                             try {
-                                sample.setValue(sample.getValueAsDouble() * finalFactor);
+                                JEVisSample smp = new VirtualSample(sample.getTimestamp(), sample.getValueAsDouble() * finalFactor);
+                                smp.setNote(sample.getNote());
+                                scaledSamples.add(smp);
                             } catch (Exception e) {
                                 try {
                                     logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue());
@@ -111,6 +119,8 @@ public class PieChart implements Chart {
                                 }
                             }
                         });
+
+                        samples = scaledSamples;
                     }
 
                     int samplecount = samples.size();
@@ -127,12 +137,12 @@ public class PieChart implements Chart {
                     }
 
                     listSumsPiePieces.add(sumPiePiece);
-                    if (!listTableEntryNames.contains(singleRow.getObject().getName())) {
-                        listTableEntryNames.add(singleRow.getObject().getName());
+                    if (!listTableEntryNames.contains(clonedModel.getObject().getName())) {
+                        listTableEntryNames.add(clonedModel.getObject().getName());
                     } else {
-                        listTableEntryNames.add(singleRow.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
+                        listTableEntryNames.add(clonedModel.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
                     }
-                    hexColors.add(singleRow.getColor());
+                    hexColors.add(ColorHelper.toColor(clonedModel.getColor()));
                 }
             }
         }
@@ -143,7 +153,13 @@ public class PieChart implements Chart {
         nf.setMinimumFractionDigits(2);
         nf.setMaximumFractionDigits(2);
         for (Double d : listSumsPiePieces) whole += d;
-        for (Double d : listSumsPiePieces) listPercentages.add(d / whole);
+        for (Double d : listSumsPiePieces) {
+            if (d > 0) {
+                listPercentages.add(d / whole);
+            } else {
+                listPercentages.add(0d);
+            }
+        }
 
         series = new ArrayList<>();
         seriesNames.clear();
@@ -247,6 +263,16 @@ public class PieChart implements Chart {
     }
 
     @Override
+    public void checkForY2Axis() {
+
+    }
+
+    @Override
+    public void applyBounds() {
+
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
     }
@@ -268,100 +294,101 @@ public class PieChart implements Chart {
 
     @Override
     public void updateTableZoom(Long lowerBound, Long upperBound) {
-        Platform.runLater(() -> {
-            if (lowerBound != null && upperBound != null) {
-                DateTime start = new DateTime(lowerBound);
-                DateTime end = new DateTime(upperBound);
-                if (chartDataModels != null) {
-                    List<Double> listSumsPiePieces = new ArrayList<>();
-                    List<String> listTableEntryNames = new ArrayList<>();
+        if (lowerBound != null && upperBound != null) {
+            DateTime start = new DateTime(lowerBound);
+            DateTime end = new DateTime(upperBound);
+            if (chartDataModels != null) {
+                List<Double> listSumsPiePieces = new ArrayList<>();
+                List<String> listTableEntryNames = new ArrayList<>();
 
-                    for (ChartDataModel singleRow : chartDataModels) {
-                        if (!singleRow.getSelectedcharts().isEmpty()) {
-                            singleRow.setSelectedStart(start);
-                            singleRow.setSelectedEnd(end);
-                            singleRow.setSomethingChanged(true);
+                for (ChartDataModel singleRow : chartDataModels) {
+                    if (!singleRow.getSelectedcharts().isEmpty()) {
+                        singleRow.setSelectedStart(start);
+                        singleRow.setSelectedEnd(end);
+                        singleRow.setSomethingChanged(true);
 
-                            Double sumPiePiece = 0d;
-                            QuantityUnits qu = new QuantityUnits();
-                            boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
-                            boolean isSummable = qu.isSumCalculable(singleRow.getUnit());
+                        Double sumPiePiece = 0d;
+                        QuantityUnits qu = new QuantityUnits();
+                        boolean isQuantity = qu.isQuantityUnit(singleRow.getUnit());
+                        boolean isSummable = qu.isSumCalculable(singleRow.getUnit());
 
-                            List<JEVisSample> samples = singleRow.getSamples();
-                            if (!isQuantity && isSummable) {
+                        List<JEVisSample> samples = singleRow.getSamples();
+                        if (!isQuantity && isSummable) {
 
-                                JEVisUnit sumUnit = qu.getSumUnit(singleRow.getUnit());
-                                String outputUnit = UnitManager.getInstance().format(sumUnit).replace("·", "");
-                                if (outputUnit.equals("")) outputUnit = sumUnit.getLabel();
+                            JEVisUnit sumUnit = qu.getSumUnit(singleRow.getUnit());
+                            String outputUnit = UnitManager.getInstance().format(sumUnit).replace("·", "");
+                            if (outputUnit.equals("")) outputUnit = sumUnit.getLabel();
 
-                                String inputUnit = UnitManager.getInstance().format(singleRow.getUnit()).replace("·", "");
-                                if (inputUnit.equals("")) inputUnit = singleRow.getUnit().getLabel();
+                            String inputUnit = UnitManager.getInstance().format(singleRow.getUnit()).replace("·", "");
+                            if (inputUnit.equals("")) inputUnit = singleRow.getUnit().getLabel();
 
-                                ChartUnits cu = new ChartUnits();
-                                Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
-                                samples.forEach(sample -> {
-                                    try {
-                                        sample.setValue(sample.getValueAsDouble() * finalFactor);
-                                    } catch (Exception e) {
-                                        try {
-                                            logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue());
-                                        } catch (Exception e1) {
-                                            logger.fatal(e1);
-                                        }
-                                    }
-                                });
-                            }
-
-                            int samplecount = samples.size();
-                            for (JEVisSample sample : samples) {
+                            ChartUnits cu = new ChartUnits();
+                            Double finalFactor = cu.scaleValue(inputUnit, outputUnit);
+                            samples.forEach(sample -> {
                                 try {
-                                    sumPiePiece += sample.getValueAsDouble();
-                                } catch (JEVisException e) {
-                                    logger.error(e);
+                                    sample.setValue(sample.getValueAsDouble() * finalFactor);
+                                } catch (Exception e) {
+                                    try {
+                                        logger.error("Error in sample: " + sample.getTimestamp() + " : " + sample.getValue());
+                                    } catch (Exception e1) {
+                                        logger.fatal(e1);
+                                    }
                                 }
-                            }
+                            });
+                        }
 
-                            if (!isQuantity && !isSummable) {
-                                sumPiePiece = sumPiePiece / samplecount;
-                            }
-
-                            listSumsPiePieces.add(sumPiePiece);
-                            if (!listTableEntryNames.contains(singleRow.getObject().getName())) {
-                                listTableEntryNames.add(singleRow.getObject().getName());
-                            } else {
-                                listTableEntryNames.add(singleRow.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
+                        int samplecount = samples.size();
+                        for (JEVisSample sample : samples) {
+                            try {
+                                sumPiePiece += sample.getValueAsDouble();
+                            } catch (JEVisException e) {
+                                logger.error(e);
                             }
                         }
 
-                        Double whole = 0d;
-                        List<Double> listPercentages = new ArrayList<>();
-                        NumberFormat nf = NumberFormat.getInstance();
-                        nf.setMinimumFractionDigits(2);
-                        nf.setMaximumFractionDigits(2);
-                        for (Double d : listSumsPiePieces) whole += d;
-                        for (Double d : listSumsPiePieces) listPercentages.add(d / whole);
+                        if (!isQuantity && !isSummable) {
+                            sumPiePiece = sumPiePiece / samplecount;
+                        }
 
-                        for (String name : listTableEntryNames) {
-                            QuantityUnits qu = new QuantityUnits();
-                            JEVisUnit currentUnit = chartDataModels.get(listTableEntryNames.indexOf(name)).getUnit();
-                            String currentUnitString = "";
-                            if (qu.isQuantityUnit(currentUnit)) currentUnitString = getUnit(currentUnit);
-                            else currentUnitString = getUnit(qu.getSumUnit(currentUnit));
-
-                            String seriesName = nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
-                                    + " " + currentUnitString
-                                    + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + " %)";
-
-                            pieChart.getData().get(listTableEntryNames.indexOf(name)).setName(seriesName);
-                            pieChart.getData().get(listTableEntryNames.indexOf(name)).setPieValue(listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
+                        listSumsPiePieces.add(sumPiePiece);
+                        if (!listTableEntryNames.contains(singleRow.getObject().getName())) {
+                            listTableEntryNames.add(singleRow.getObject().getName());
+                        } else {
+                            listTableEntryNames.add(singleRow.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
                         }
                     }
 
-                    makeCustomLegend();
-                }
+                    Double whole = 0d;
+                    List<Double> listPercentages = new ArrayList<>();
+                    NumberFormat nf = NumberFormat.getInstance();
+                    nf.setMinimumFractionDigits(2);
+                    nf.setMaximumFractionDigits(2);
+                    for (Double d : listSumsPiePieces) whole += d;
+                    for (Double d : listSumsPiePieces) listPercentages.add(d / whole);
 
+                    for (String name : listTableEntryNames) {
+                        QuantityUnits qu = new QuantityUnits();
+                        JEVisUnit currentUnit = chartDataModels.get(listTableEntryNames.indexOf(name)).getUnit();
+                        String currentUnitString = "";
+                        if (qu.isQuantityUnit(currentUnit)) currentUnitString = getUnit(currentUnit);
+                        else currentUnitString = getUnit(qu.getSumUnit(currentUnit));
+
+                        String seriesName = nf.format(listSumsPiePieces.get(listTableEntryNames.indexOf(name)))
+                                + " " + currentUnitString
+                                + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + " %)";
+
+                        Platform.runLater(() -> {
+                            pieChart.getData().get(listTableEntryNames.indexOf(name)).setName(seriesName);
+                            if (listTableEntryNames.indexOf(name) == listTableEntryNames.size() - 1) {
+                                makeCustomLegend();
+                            }
+                        });
+                        Platform.runLater(() -> pieChart.getData().get(listTableEntryNames.indexOf(name)).setPieValue(listSumsPiePieces.get(listTableEntryNames.indexOf(name))));
+                    }
+                }
             }
-        });
+
+        }
     }
 
     @Override
@@ -375,7 +402,7 @@ public class PieChart implements Chart {
         for (int i = 0; i < hexColors.size(); i++) {
 
             Color currentColor = hexColors.get(i);
-            String hexColor = toRGBCode(currentColor);
+            String hexColor = ColorHelper.toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = pieChart.lookup(preIdent + ".chart-pie");
 

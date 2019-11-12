@@ -1,7 +1,9 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
+import com.sun.javafx.scene.control.skin.ColorPickerSkin;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
@@ -10,9 +12,10 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +51,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     public static String COLUMN_ID = "ColorColumn";
     private final JEVisDataSource dataSource;
     private TreeTableColumn<JEVisTreeRow, Color> colorColumn;
-    private GraphDataModel data;
+    private AnalysisDataModel data;
     private List<Color> usedColors = new ArrayList<>();
     private JEVisTree tree;
     private String columnName;
@@ -74,10 +77,10 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     }
 
     @Override
-    public void setGraphDataModel(GraphDataModel graphDataModel) {
-        this.data = graphDataModel;
+    public void setGraphDataModel(AnalysisDataModel analysisDataModel) {
+        this.data = analysisDataModel;
         for (ChartDataModel model : data.getSelectedData()) {
-            if (!this.usedColors.contains(model.getColor())) this.usedColors.add(model.getColor());
+            if (!this.usedColors.contains(model.getColor())) this.usedColors.add(ColorHelper.toColor(model.getColor()));
         }
         update();
     }
@@ -89,7 +92,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
         column.setId(COLUMN_ID);
         column.setCellValueFactory(param -> {
             ChartDataModel data = getData(param.getValue().getValue());
-            return new ReadOnlyObjectWrapper<>(data.getColor());
+            return new ReadOnlyObjectWrapper<>(ColorHelper.toColor(data.getColor()));
         });
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, Color>, TreeTableCell<JEVisTreeRow, Color>>() {
@@ -103,7 +106,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
                     public void commitEdit(Color newValue) {
                         super.commitEdit(newValue);
                         ChartDataModel data1 = getData(getTreeTableRow().getItem());
-                        data1.setColor(newValue);
+                        data1.setColor(ColorHelper.toRGBCode(newValue));
                         if (!usedColors.contains(newValue)) usedColors.add(newValue);
                     }
 
@@ -121,7 +124,8 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel data1 = getData(getTreeTableRow().getItem());
+                                    ChartDataModel currentDataModel = getData(getTreeTableRow().getItem());
+
                                     ColorPicker colorPicker = new ColorPicker();
 
                                     StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
@@ -131,9 +135,10 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
 
                                     colorPicker.setOnAction(event -> commitEdit(colorPicker.getValue()));
 
-                                    colorPicker.setDisable(!data1.isSelectable());
+                                    colorPicker.setDisable(!currentDataModel.isSelectable());
                                     stackPane.getChildren().setAll(colorPicker);
                                     setGraphic(stackPane);
+
                                 }
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -146,6 +151,18 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
         });
 
         this.colorColumn = column;
+    }
+
+    public class CustomColorPickerSkin extends ColorPickerSkin {
+
+        public CustomColorPickerSkin(ColorPicker colorPicker) {
+            super(colorPicker);
+        }
+
+        @Override
+        public Node getPopupContent() {
+            return super.getPopupContent();
+        }
     }
 
     public Color getNextColor() {
@@ -163,7 +180,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     }
 
     @Override
-    public GraphDataModel getData() {
+    public AnalysisDataModel getData() {
         return this.data;
     }
 

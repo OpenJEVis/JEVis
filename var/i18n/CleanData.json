@@ -237,6 +237,17 @@
       }
     },
     {
+      "type": "Alarm Enabled",
+      "descriptions": {
+        "de": "Aktivieren der Alarm Überwachung",
+        "en": "Enables the alarm monitoring"
+      },
+      "names": {
+        "de": "Alarm aktiviert",
+        "en": "Alarm enabled"
+      }
+    },
+    {
       "type": "Alarm Config",
       "descriptions": {
         "de": "Ermöglicht die Konfiguration eines Alarms, bezogen auf eine Reihe von Soll-Werten (dynamisch) oder eine statische Grenze (statisch)",

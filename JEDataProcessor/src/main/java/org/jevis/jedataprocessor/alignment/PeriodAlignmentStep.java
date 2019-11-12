@@ -44,13 +44,13 @@ public class PeriodAlignmentStep implements ProcessStep {
 
         List<JEVisSample> rawSamples = resourceManager.getRawSamplesDown();
         int currentSamplePointer = 0;
-        for (CleanInterval cleanInterval : rawIntervals) {
+        for (CleanInterval rawInterval : rawIntervals) {
             boolean samplesInInterval = true;
             DateTime snapToGridStart = null;
             DateTime snapToGridEnd = null;
-            DateTime date = cleanInterval.getDate();
-            long start = cleanInterval.getInterval().getStartMillis();
-            long end = cleanInterval.getInterval().getEndMillis();
+            DateTime date = rawInterval.getDate();
+            long start = rawInterval.getInterval().getStartMillis();
+            long end = rawInterval.getInterval().getEndMillis();
             long halfDiff = (end - start) / 2;
             snapToGridStart = date.minus(halfDiff);
             snapToGridEnd = date.plus(halfDiff);
@@ -70,16 +70,16 @@ public class PeriodAlignmentStep implements ProcessStep {
                     if (compare == 0 && timestamp.equals(snapToGridStart)
                             || (timestamp.isAfter(snapToGridStart) && timestamp.isBefore(snapToGridEnd))
                             || timestamp.equals(snapToGridEnd)) { //sample is in interval
-                        cleanInterval.addRawSample(rawSample);
+                        rawInterval.addRawSample(rawSample);
                         currentSamplePointer++;
-                    } else if (compare != 0 && timestamp.equals(cleanInterval.getInterval().getStart())
-                            || (timestamp.isAfter(cleanInterval.getInterval().getStart()) && timestamp.isBefore(cleanInterval.getInterval().getEnd()))
-                            || timestamp.equals(cleanInterval.getInterval().getEnd())) { //sample is in interval
-                        cleanInterval.addRawSample(rawSample);
+                    } else if (compare != 0 && timestamp.equals(rawInterval.getInterval().getStart())
+                            || (timestamp.isAfter(rawInterval.getInterval().getStart()) && timestamp.isBefore(rawInterval.getInterval().getEnd()))
+                            || timestamp.equals(rawInterval.getInterval().getEnd())) { //sample is in interval
+                        rawInterval.addRawSample(rawSample);
                         currentSamplePointer++;
                     } else if (compare == 0 && timestamp.isBefore(snapToGridStart)) { //sample is before interval start --just find the start
                         currentSamplePointer++;
-                    } else if (compare != 0 && timestamp.isBefore(cleanInterval.getInterval().getStart())) { //sample is before interval start --just find the start
+                    } else if (compare != 0 && timestamp.isBefore(rawInterval.getInterval().getStart())) { //sample is before interval start --just find the start
                         currentSamplePointer++;
                     } else {
                         samplesInInterval = false;

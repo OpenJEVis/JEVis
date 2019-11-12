@@ -68,6 +68,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "EMail Plugin"
+    },
+    {
+      "name": "Default",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "EMail Plugin"
     }
   ]
 }

@@ -6,7 +6,6 @@ import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Side;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
@@ -21,7 +20,9 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
@@ -79,20 +80,12 @@ public class ChartWidget extends Widget {
         if (sampleHandler == null) {
             showProgressIndicator(false);
             return;
+        } else {
+            showProgressIndicator(true);
         }
 
         showProgressIndicator(true);
         showAlertOverview(false, "");
-
-        this.lineChart.setChartSettings(chart1 -> {
-            MultiAxisLineChart multiAxisLineChart = (MultiAxisLineChart) chart1;
-//                multiAxisLineChart.setAnimated(true);
-            this.lineChart.getChart().setAnimated(false);
-
-            multiAxisLineChart.setLegendSide(Side.BOTTOM);
-            multiAxisLineChart.setLegendVisible(true);
-
-        });
 
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
@@ -104,8 +97,8 @@ public class ChartWidget extends Widget {
                     try {
                         String dataName = chartDataModel.getObject().getName();
                         this.legend.getItems().add(
-                                this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), chartDataModel.getColor(),
-                                        this.config.getFontColor(), this.config.getFontSize()));
+                                this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), ColorHelper.toColor(chartDataModel.getColor()),
+                                        this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject()));
                         if (chartDataModel.getSamples().isEmpty()) {
                             showAlertOverview(true, "");
                         }
@@ -122,7 +115,6 @@ public class ChartWidget extends Widget {
                         false, null, -1,
                         ManipulationMode.NONE, 0, "");
 
-                this.lineChart.getChart().layout();
                 this.borderPane.setCenter(this.lineChart.getChart());
                 updateConfig();/** workaround because we make a new chart everytime**/
             } catch (Exception ex) {
@@ -151,8 +143,9 @@ public class ChartWidget extends Widget {
                 //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
 //            lineChart.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Inset
                 this.borderPane.setBackground(bgColor);
-
-                this.layout();
+                this.lineChart.applyColors();
+                MultiAxisLineChart chart = (MultiAxisLineChart) this.lineChart.getChart();
+                chart.getY2Axis().setVisible(false);
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -178,11 +171,21 @@ public class ChartWidget extends Widget {
     public void openConfig() {
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
         widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
+
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            widgetConfigDialog.commitSettings();
-            updateConfig(getConfig());
-            updateData(lastInterval);
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                Runnable task = () -> {
+                    widgetConfigDialog.commitSettings();
+                    updateConfig(getConfig());
+                    updateData(lastInterval);
+                };
+                control.getExecutor().submit(task);
+
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         }
     }
 
@@ -199,16 +202,12 @@ public class ChartWidget extends Widget {
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(true);
 
-        this.lineChart = new LineChart(this.sampleHandler.getDataModel(), false, false, false, false, false, null, -1, ManipulationMode.NONE, 0, "");
-
-
         this.legend.setAlignment(Pos.CENTER);
 
         BorderPane bottomBorderPane = new BorderPane();
         bottomBorderPane.setCenter(this.legend);
         bottomBorderPane.setRight(this.openAnalysisButton);
 
-        this.borderPane.setCenter(this.lineChart.getChart());
         this.borderPane.setBottom(bottomBorderPane);
         setGraphic(this.borderPane);
 

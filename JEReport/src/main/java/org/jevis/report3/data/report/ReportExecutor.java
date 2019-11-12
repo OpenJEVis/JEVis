@@ -144,11 +144,13 @@ public class ReportExecutor {
             }
 
             JEVisObject notificationObject = property.getNotificationObject();
-            JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
-            attachmentAttribute.buildSample(new DateTime(), fileForNotification).commit();
-            logger.info("Uploaded pdf file to notification in JEVis System");
+            if (notificationObject != null) {
+                JEVisAttribute attachmentAttribute = notificationObject.getAttribute(ReportNotification.ATTACHMENTS);
+                attachmentAttribute.buildSample(new DateTime(), fileForNotification).commit();
+                logger.info("Uploaded pdf file to notification in JEVis System");
 
-            sendNotification(notificationObject, fileForNotification);
+                sendNotification(notificationObject, fileForNotification);
+            }
 
             finisher.finishReport(report, property);
         } catch (JEVisException ex) {

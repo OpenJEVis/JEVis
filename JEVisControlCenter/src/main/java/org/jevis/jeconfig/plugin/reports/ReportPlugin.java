@@ -3,7 +3,8 @@ package org.jevis.jeconfig.plugin.reports;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Worker;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -11,8 +12,8 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
@@ -21,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
+import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -42,49 +44,97 @@ import java.util.*;
 public class ReportPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(ReportPlugin.class);
     public static String PLUGIN_NAME = "Report Plugin";
-    public static String REPORT_CLASS = "Periodic Report";
+    public static String REPORT_CLASS = "Report";
     private final JEVisDataSource ds;
     private final String title;
-    private final BorderPane borderPane;
+    private final BorderPane borderPane = new BorderPane();
     private final ObjectRelations objectRelations;
-    private final ToolBar toolBar;
+    private final ToolBar toolBar = new ToolBar();
     private boolean initialized = false;
-    private ListView<JEVisObject> listView;
+    private ListView<JEVisObject> listView = new ListView<>();
     private WebView web = new WebView();
     private ComboBox<DateTime> dateTimeComboBox;
+    private List<JEVisObject> disabledItemList;
+    private WebEngine engine = web.getEngine();
+    private HBox hBox = new HBox();
+    private final int iconSize = 24;
 
     public ReportPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
-        this.borderPane = new BorderPane();
-        this.toolBar = new ToolBar();
+
+        this.hBox.setPadding(new Insets(4, 4, 4, 4));
+        this.hBox.setSpacing(4);
+
+        BorderPane view = new BorderPane();
+        view.setTop(hBox);
+        view.setCenter(web);
+
+        SplitPane sp = new SplitPane();
+        sp.setOrientation(Orientation.HORIZONTAL);
+        sp.setId("mainsplitpane");
+        sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+
+        sp.getItems().setAll(listView, view);
+        this.borderPane.setCenter(sp);
+
+        sp.setDividerPositions(0.3);
 
         initToolBar();
 
         this.objectRelations = new ObjectRelations(ds);
+
+        String url = JEConfig.class.getResource("/web/viewer.html").toExternalForm();
+
+        // connect CSS styles to customize pdf.js appearance
+        this.engine.setUserStyleSheetLocation(JEConfig.class.getResource("/web/web.css").toExternalForm());
+
+        this.engine.setJavaScriptEnabled(true);
+        this.engine.load(url);
     }
 
     private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", 20, 20));
-        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
+        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
         reload.setOnAction(event -> {
             initialized = false;
-            ds.clearCache();
-            try {
-                ds.preload();
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
 
-            getContentNode();
+            final String loading = I18n.getInstance().getString("plugin.reports.reload.progress.message");
+            Service<Void> service = new Service<Void>() {
+                @Override
+                protected Task<Void> createTask() {
+                    return new Task<Void>() {
+                        @Override
+                        protected Void call() {
+                            updateMessage(loading);
+                            try {
+                                ds.clearCache();
+                                ds.preload();
+
+                                getContentNode();
+                            } catch (JEVisException e) {
+                                e.printStackTrace();
+                            }
+                            return null;
+                        }
+                    };
+                }
+            };
+            ProgressDialog pd = new ProgressDialog(service);
+            pd.setHeaderText(I18n.getInstance().getString("plugin.reports.reload.progress.header"));
+            pd.setTitle(I18n.getInstance().getString("plugin.reports.reload.progress.title"));
+            pd.getDialogPane().setContent(null);
+
+            service.start();
+
         });
 
         Separator sep1 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton pdfButton = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", 20, 20));
+        ToggleButton pdfButton = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", iconSize, iconSize));
         Tooltip pdfTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"));
         pdfButton.setTooltip(pdfTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(pdfButton);
@@ -113,7 +163,7 @@ public class ReportPlugin implements Plugin {
             }
         });
 
-        ToggleButton xlsxButton = new ToggleButton("", JEConfig.getImage("xlsx_315594.png", 20, 20));
+        ToggleButton xlsxButton = new ToggleButton("", JEConfig.getImage("xlsx_315594.png", iconSize, iconSize));
         Tooltip xlsxTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.xlsx"));
         xlsxButton.setTooltip(xlsxTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(xlsxButton);
@@ -144,7 +194,7 @@ public class ReportPlugin implements Plugin {
 
         Separator sep2 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", 20, 20));
+        ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", iconSize, iconSize));
         Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
         printButton.setTooltip(printTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
@@ -200,7 +250,7 @@ public class ReportPlugin implements Plugin {
 
     @Override
     public String getToolTip() {
-        return null;
+        return I18n.getInstance().getString("plugin.reports.tooltip");
     }
 
     @Override
@@ -252,11 +302,6 @@ public class ReportPlugin implements Plugin {
     }
 
     private void init() {
-        SplitPane sp = new SplitPane();
-        sp.setDividerPositions(.3d);
-        sp.setOrientation(Orientation.HORIZONTAL);
-        sp.setId("mainsplitpane");
-        sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
         ObservableList<JEVisObject> reports = FXCollections.observableArrayList(getAllReports());
         AlphanumComparator ac = new AlphanumComparator();
@@ -266,29 +311,41 @@ public class ReportPlugin implements Plugin {
             return ac.compare(name1, name2);
         });
 
-        listView = new ListView<>(reports);
+        listView.setItems(reports);
         listView.setPrefWidth(250);
+        disabledItemList = getDisabledItems(reports);
         setupCellFactory(listView);
 
-        BorderPane view = new BorderPane();
         listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
-                loadReport(view, newValue);
+                loadReport(newValue);
             }
         });
-
-        sp.getItems().setAll(listView, view);
-
-        GridPane.setFillWidth(view, true);
-        GridPane.setFillHeight(listView, true);
-        GridPane.setFillHeight(view, true);
-
-        borderPane.setCenter(sp);
 
         initialized = true;
     }
 
-    private void loadReport(BorderPane view, JEVisObject reportObject) {
+    private List<JEVisObject> getDisabledItems(ObservableList<JEVisObject> reports) {
+        List<JEVisObject> list = new ArrayList<>();
+        for (JEVisObject reportObject : reports) {
+            JEVisAttribute lastReportPDFAttribute = null;
+            try {
+                lastReportPDFAttribute = reportObject.getAttribute("Last Report PDF");
+            } catch (JEVisException e) {
+                logger.error("Could not get 'Last Report' Attribute from object {}:{}", reportObject.getName(), reportObject.getID(), e);
+            }
+
+            if (lastReportPDFAttribute != null) {
+                if (!lastReportPDFAttribute.hasSample()) {
+                    list.add(reportObject);
+                }
+            }
+        }
+
+        return list;
+    }
+
+    private void loadReport(JEVisObject reportObject) {
         JEVisAttribute lastReportPDFAttribute = null;
         try {
             lastReportPDFAttribute = reportObject.getAttribute("Last Report PDF");
@@ -339,9 +396,6 @@ public class ReportPlugin implements Plugin {
                     dateTimeComboBox.getSelectionModel().select(dateTimeList.size() - 1);
                 }
 
-                HBox hBox = new HBox();
-                hBox.setPadding(new Insets(4, 4, 4, 4));
-                hBox.setSpacing(4);
                 ImageView leftImage = JEConfig.getImage("left.png", 20, 20);
                 ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
 
@@ -365,26 +419,12 @@ public class ReportPlugin implements Plugin {
                 Label labelDateTimeComboBox = new Label(I18n.getInstance().getString("plugin.reports.selectionbox.label"));
                 labelDateTimeComboBox.setAlignment(Pos.CENTER_LEFT);
 
-                hBox.getChildren().addAll(labelDateTimeComboBox, leftImage, sep1, dateTimeComboBox, sep2, rightImage);
-
-                view.setTop(hBox);
-
-                WebEngine engine = web.getEngine();
-                String url = JEConfig.class.getResource("/web/viewer.html").toExternalForm();
-
-                // connect CSS styles to customize pdf.js appearance
-                engine.setUserStyleSheetLocation(JEConfig.class.getResource("/web/web.css").toExternalForm());
-
-                engine.setJavaScriptEnabled(true);
-                engine.load(url);
-
-                view.setCenter(web);
+                hBox.getChildren().setAll(labelDateTimeComboBox, leftImage, sep1, dateTimeComboBox, sep2, rightImage);
+                hBox.setAlignment(Pos.CENTER);
 
                 dateTimeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                     if (!newValue.equals(oldValue)) {
                         try {
-//                            byte[] data = FileUtils.readFileToByteArray(new File("/path/to/another/file"));
-
                             byte[] bytes = sampleMap.get(newValue).getValueAsFile().getBytes();
                             String base64 = Base64.getEncoder().encodeToString(bytes);
                             engine.executeScript("openFileFromBase64('" + base64 + "')");
@@ -394,10 +434,10 @@ public class ReportPlugin implements Plugin {
                     }
                 });
 
-                engine.getLoadWorker()
-                        .stateProperty()
-                        .addListener((observable, oldValue, newValue) -> {
-                            if (newValue == Worker.State.SUCCEEDED) {
+//                engine.getLoadWorker()
+//                        .stateProperty()
+//                        .addListener((observable, oldValue, newValue) -> {
+//                            if (newValue == Worker.State.SUCCEEDED) {
                                 try {
 
                                     byte[] bytes = sampleMap.get(lastSample.getTimestamp()).getValueAsFile().getBytes();
@@ -407,12 +447,9 @@ public class ReportPlugin implements Plugin {
                                 } catch (Exception e) {
                                     logger.error("Could not load latest report for {}:{}", reportObject.getName(), reportObject.getID(), e);
                                 }
-                            }
-                        });
+//                            }
+//                        });
             }
-        } else {
-            view.setTop(null);
-            view.setCenter(null);
         }
     }
 
@@ -428,6 +465,14 @@ public class ReportPlugin implements Plugin {
                             setGraphic(null);
                             setText(null);
                         } else {
+                            if (disabledItemList.contains(obj)) {
+                                setTextFill(Color.LIGHTGRAY);
+                                setDisable(true);
+                            } else {
+                                setTextFill(Color.BLACK);
+                                setDisable(false);
+                            }
+
                             String prefix = objectRelations.getObjectPath(obj);
 
                             setText(prefix + obj.getName());

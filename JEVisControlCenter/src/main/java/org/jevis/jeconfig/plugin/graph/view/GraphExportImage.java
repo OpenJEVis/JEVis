@@ -12,7 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -24,13 +24,13 @@ import java.io.IOException;
 
 public class GraphExportImage {
     private static final Logger logger = LogManager.getLogger(GraphExportImage.class);
-    private final GraphDataModel model;
+    private final AnalysisDataModel model;
     private File destinationFile;
     private DateTime minDate = null;
     private DateTime maxDate = null;
     private String formatName;
 
-    public GraphExportImage(GraphDataModel model) {
+    public GraphExportImage(AnalysisDataModel model) {
         this.model = model;
         this.setDates();
 

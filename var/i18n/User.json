@@ -155,7 +155,7 @@
       }
     },
     {
-      "type": "TimeZone",
+      "type": "Timezone",
       "descriptions": {
         "de": "Zeitzone des Benutzers",
         "ru": "User's time zone",

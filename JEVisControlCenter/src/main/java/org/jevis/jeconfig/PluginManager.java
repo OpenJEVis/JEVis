@@ -182,7 +182,7 @@ public class PluginManager {
                                                 }
                                             } else if (plugObj.getJEVisClassName().equals(ReportPlugin.PLUGIN_NAME)) {
                                                 JEVisClass reportClass = this._ds.getJEVisClass(ReportPlugin.REPORT_CLASS);
-                                                List<JEVisObject> allReports = this._ds.getObjects(reportClass, false);
+                                                List<JEVisObject> allReports = this._ds.getObjects(reportClass, true);
                                                 if (allReports.size() == 0) {
                                                     continue;
                                                 }

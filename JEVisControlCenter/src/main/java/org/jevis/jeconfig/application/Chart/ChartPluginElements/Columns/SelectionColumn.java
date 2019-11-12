@@ -18,13 +18,11 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
-import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
-import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -38,7 +36,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     private final List<TreeTableColumn<JEVisTreeRow, Boolean>> selectionColumns;
     private final TreeTableColumn<JEVisTreeRow, Long> allColumns;
     private TreeTableColumn<JEVisTreeRow, Boolean> selectionColumn;
-    private GraphDataModel data;
+    private AnalysisDataModel data;
     private JEVisTree tree;
     private ColorColumn colorColumn;
     private Integer chartId;
@@ -66,8 +64,8 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     }
 
     @Override
-    public void setGraphDataModel(GraphDataModel graphDataModel) {
-        this.data = graphDataModel;
+    public void setGraphDataModel(AnalysisDataModel analysisDataModel) {
+        this.data = analysisDataModel;
         update();
     }
 
@@ -167,33 +165,33 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                     checkBox.setSelected(item);
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel data1 = getData(getTreeTableRow().getItem());
+                                    ChartDataModel currentDataModel = getData(getTreeTableRow().getItem());
 
                                     stackPane.getChildren().setAll(checkBox);
                                     StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
 
-                                    checkBox.setOnAction(event -> {
+                                    checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
                                         try {
-                                            boolean isSelected = false;
-                                            Color currentColor = null;
-                                            for (ChartDataModel dataModel : data.getSelectedData()) {
-                                                if (data1.getObject().equals(dataModel.getObject()) && data1.getDataProcessor().equals(dataModel.getDataProcessor())) {
-                                                    isSelected = true;
-                                                    currentColor = dataModel.getColor();
+                                            boolean wasSelected = false;
+                                            Color oldColor = null;
+                                            for (ChartDataModel mdl : getData().getSelectedData()) {
+                                                if (currentDataModel.equals(mdl) && !mdl.getSelectedcharts().isEmpty()) {
+                                                    wasSelected = true;
+                                                    oldColor = ColorHelper.toColor(mdl.getColor());
                                                     break;
                                                 }
                                             }
 
                                             commitEdit(checkBox.isSelected());
 
-                                            if (checkBox.isSelected()) {
+                                            if (newValue) {
                                                 /**
                                                  * if the checkbox is selected, get a color for it
                                                  */
-                                                if (!isSelected) {
-                                                    data1.setColor(colorColumn.getNextColor());
-                                                } else if (currentColor != null) {
-                                                    data1.setColor(currentColor);
+                                                if (!wasSelected) {
+                                                    currentDataModel.setColor(ColorHelper.toRGBCode(colorColumn.getNextColor()));
+                                                } else if (oldColor != null) {
+                                                    currentDataModel.setColor(ColorHelper.toRGBCode(oldColor));
                                                 }
                                                 Platform.runLater(() -> {
                                                     JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
@@ -205,7 +203,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                  */
                                                 boolean foundOther = false;
                                                 for (ChartDataModel dataModel : data.getSelectedData()) {
-                                                    if (data1.getObject().equals(dataModel.getObject()) && data1.getDataProcessor().equals(dataModel.getDataProcessor())) {
+                                                    if (!dataModel.getSelectedcharts().isEmpty() && currentDataModel.equals(dataModel)) {
                                                         foundOther = true;
                                                         break;
                                                     }
@@ -215,83 +213,13 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                     /**
                                                      * if the box is unselected and no other selected, remove the color
                                                      */
-                                                    colorColumn.removeUsedColor(data1.getColor());
-                                                    data1.setColor(colorColumn.getStandardColor());
+                                                    colorColumn.removeUsedColor(ColorHelper.toColor(currentDataModel.getColor()));
+                                                    currentDataModel.setColor(ColorHelper.toRGBCode(colorColumn.getStandardColor()));
                                                     Platform.runLater(() -> {
                                                         JEVisTreeRow sobj = new JEVisTreeRow(getTreeTableRow().getTreeItem().getValue().getJEVisObject());
                                                         getTreeTableRow().getTreeItem().setValue(sobj);
                                                     });
 
-
-                                                    /**
-                                                     * remove the chart column from the tree and data model
-                                                     */
-
-                                                    if (getData().getCharts().size() > 1) {
-                                                        getTableColumn().setVisible(false);
-
-                                                        /**
-                                                         * remove the ChartSettings from the data model
-                                                         */
-                                                        ChartSettings toBeRemoved = null;
-                                                        Integer removeId = null;
-                                                        for (ChartSettings settings : getData().getCharts()) {
-                                                            if (settings.getId().equals(getChartId())) {
-                                                                toBeRemoved = settings;
-                                                                removeId = settings.getId();
-                                                                break;
-                                                            }
-                                                        }
-                                                        getData().getCharts().remove(toBeRemoved);
-
-                                                        /**
-                                                         *  for all remaining ChartSettings decrease the ids for chart indices greater than the removed chart
-                                                         */
-                                                        List<ChartSettings> charts = getData().getCharts();
-                                                        for (ChartSettings chartSettings : charts) {
-                                                            int oldId = chartSettings.getId();
-                                                            if (oldId > getChartId()) {
-                                                                chartSettings.setId(oldId - 1);
-                                                            }
-                                                        }
-
-                                                        /**
-                                                         * apply the changed chart ids to the data rows
-                                                         */
-                                                        for (ChartDataModel chartDataModel : getData().getSelectedData()) {
-                                                            List<Integer> selectedCharts = chartDataModel.getSelectedcharts();
-                                                            List<Integer> newList = new ArrayList<>();
-                                                            for (Integer integer : selectedCharts) {
-                                                                if (integer < getChartId()) {
-                                                                    newList.add(integer);
-                                                                } else {
-                                                                    newList.add(integer - 1);
-                                                                }
-                                                            }
-                                                            chartDataModel.setSelectedCharts(newList);
-                                                        }
-                                                        getTableColumn().getParentColumn().getColumns().remove(getTableColumn());
-
-                                                        List<TreeTableColumn<JEVisTreeRow, Boolean>> tobeRemovedColumn = new ArrayList<>();
-                                                        for (int i = 0; i < selectionColumns.size(); i++) {
-
-                                                            TreeTableColumn<JEVisTreeRow, Boolean> jeVisTreeRowLongTreeTableColumn = selectionColumns.get(i);
-                                                            if (i > getChartId()) {
-                                                                tobeRemovedColumn.add(jeVisTreeRowLongTreeTableColumn);
-                                                            }
-                                                        }
-                                                        selectionColumns.removeAll(tobeRemovedColumn);
-                                                        allColumns.getColumns().removeAll(tobeRemovedColumn);
-
-                                                        for (int i = removeId; i < getData().getCharts().size(); i++) {
-                                                            SelectionColumn selectColumn = new SelectionColumn(tree, dataSource, colorColumn, i, selectionColumns, allColumns);
-                                                            selectColumn.setGraphDataModel(getData());
-                                                            selectionColumns.add(selectColumn.getSelectionColumn());
-                                                            allColumns.getColumns().add(allColumns.getColumns().size() - ChartPluginTree.NO_OF_COLUMNS, selectColumn.getSelectionColumn());
-                                                        }
-
-                                                        tree.refresh();
-                                                    }
                                                 }
                                             }
                                         } catch (Exception ex) {
@@ -300,8 +228,6 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                     });
 
                                     setFieldsEditable(textFieldChartName, comboBoxChartType, checkBox.isSelected());
-
-//                                    checkBox.setDisable(!data.isSelectable());
 
                                     setText(null);
                                     setGraphic(stackPane);
@@ -312,28 +238,29 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                         }
                     }
 
-                    private void setFieldsEditable(TextField textFieldChartName1, DisabledItemsComboBox<String> comboBoxChartType1, Boolean item) {
+                    private void setFieldsEditable(TextField textFieldChartName, ChartTypeComboBox comboBoxChartType, Boolean item) {
                         if (item) {
-                            textFieldChartName1.setEditable(true);
-                            textFieldChartName1.setDisable(false);
-                            comboBoxChartType1.setDisable(false);
+                            textFieldChartName.setEditable(true);
+                            textFieldChartName.setDisable(false);
+                            comboBoxChartType.setDisable(false);
                         } else {
-                            AtomicReference<Boolean> foundSelected = new AtomicReference<>(false);
-                            getData().getSelectedData().forEach(mdl -> {
+                            boolean foundSelected = false;
+                            for (ChartDataModel mdl : getData().getSelectedData()) {
                                 for (Integer i : mdl.getSelectedcharts()) {
                                     if (i.equals(chartId)) {
-                                        foundSelected.set(true);
+                                        foundSelected = true;
+                                        break;
                                     }
                                 }
-                            });
-                            if (foundSelected.get()) {
-                                textFieldChartName1.setEditable(true);
-                                textFieldChartName1.setDisable(false);
-                                comboBoxChartType1.setDisable(false);
+                            }
+                            if (foundSelected) {
+                                textFieldChartName.setEditable(true);
+                                textFieldChartName.setDisable(false);
+                                comboBoxChartType.setDisable(false);
                             } else {
-                                textFieldChartName1.setEditable(false);
-                                textFieldChartName1.setDisable(true);
-                                comboBoxChartType1.setDisable(true);
+                                textFieldChartName.setEditable(false);
+                                textFieldChartName.setDisable(true);
+                                comboBoxChartType.setDisable(true);
                             }
                         }
                     }
@@ -345,7 +272,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     }
 
     @Override
-    public GraphDataModel getData() {
+    public AnalysisDataModel getData() {
         return this.data;
     }
 

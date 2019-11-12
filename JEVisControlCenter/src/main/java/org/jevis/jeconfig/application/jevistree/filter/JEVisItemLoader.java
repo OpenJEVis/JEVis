@@ -274,7 +274,7 @@ public class JEVisItemLoader {
                 if (rootChild.isFiltered() || rootChild.isParentForFilter()) {
                     rootItem.getChildren().add(rootChild);
                 } else {
-                    logger.warn("Root is filtered out: {}", rooObject);
+                    logger.debug("Root is filtered out: {}", rooObject);
                 }
 
             } else {

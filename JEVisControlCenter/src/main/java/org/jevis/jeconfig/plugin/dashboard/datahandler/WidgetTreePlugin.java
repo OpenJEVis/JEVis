@@ -33,13 +33,13 @@ import java.util.Map;
 public class WidgetTreePlugin implements TreePlugin {
 
     public static String COLUMN = "DataModel";
-    public static String COLUMN_COLOR = "Color";
-    public static String COLUMN_SELECTED = "Selection";
-    public static String COLUMN_ENPI = "ENPI";
-    public static String COLUMN_AGGREGATION = "Aggregation";
-    public static String COLUMN_MANIPULATION = "Manipulation";
+    public static String COLUMN_COLOR = I18n.getInstance().getString("plugin.dashboard.datatree.color");
+    public static String COLUMN_SELECTED = I18n.getInstance().getString("plugin.dashboard.datatree.selection");
+    public static String COLUMN_ENPI = I18n.getInstance().getString("plugin.dashboard.datatree.math");
+    public static String COLUMN_AGGREGATION = I18n.getInstance().getString("plugin.graph.interval.label");
+    public static String COLUMN_MANIPULATION = I18n.getInstance().getString("plugin.graph.manipulation.label");
     public static String DATA_MODEL_NODE = "DataModelNode";
-    public static String COLUMN_CLEANING = "datenbereinigung";
+    public static String COLUMN_CLEANING = I18n.getInstance().getString("graph.table.cleaning");
 
     final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
     final String keyTotal = I18n.getInstance().getString("plugin.graph.manipulation.total");
@@ -100,7 +100,6 @@ public class WidgetTreePlugin implements TreePlugin {
 
         userSelection.forEach(dataModelNode -> {
             try {
-                System.out.println("isselected: " + dataModelNode.getObjectID());
                 JEVisObject object = this.jeVisTree.getJEVisDataSource().getObject(dataModelNode.getObjectID());
                 if (object != null) {
                     JEVisTreeItem item = this.jeVisTree.getItemForObject(object);
@@ -271,9 +270,9 @@ public class WidgetTreePlugin implements TreePlugin {
 
                                 processorBox.setOnAction(event -> {
                                     if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
-                                        System.out.println("getDataPointNode(getTreeTableRow()): " + getDataPointNode(getTreeTableRow()));
-                                        System.out.println("processorBox.getSelectionModel().getSelectedItem(): " + processorBox.getSelectionModel().getSelectedItem());
-                                        System.out.println("+.getid: " + processorBox.getSelectionModel().getSelectedItem().getID());
+//                                        System.out.println("getDataPointNode(getTreeTableRow()): " + getDataPointNode(getTreeTableRow()));
+//                                        System.out.println("processorBox.getSelectionModel().getSelectedItem(): " + processorBox.getSelectionModel().getSelectedItem());
+//                                        System.out.println("+.getid: " + processorBox.getSelectionModel().getSelectedItem().getID());
                                         getDataPointNode(getTreeTableRow()).setCleanObjectID(processorBox.getSelectionModel().getSelectedItem().getID());
                                     }
                                 });
@@ -651,7 +650,7 @@ public class WidgetTreePlugin implements TreePlugin {
     }
 
     public TreeTableColumn<JEVisTreeRow, Boolean> buildENIPColumn() {
-        TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn("ENPI");
+        TreeTableColumn<JEVisTreeRow, Boolean> column = new TreeTableColumn(COLUMN_ENPI);
         column.setPrefWidth(80);
         column.setId(COLUMN_ENPI);
 
@@ -693,7 +692,7 @@ public class WidgetTreePlugin implements TreePlugin {
                                                 if (WidgetTreePlugin.this.targetCalcMap.containsKey(getDataPointNode(getTreeTableRow()).getObjectID())) {
                                                     getDataPointNode(getTreeTableRow()).setCleanObjectID(WidgetTreePlugin.this.targetCalcMap.get(getDataPointNode(getTreeTableRow()).getObjectID()));
                                                 } else {
-                                                    System.out.println("----> keine calc id gefunden");
+//                                                    System.out.println("----> keine calc id gefunden");
                                                 }
 
                                             } else {

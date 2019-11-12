@@ -113,6 +113,7 @@ public class WidgetNavigator {
         TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
         ObservableList<TimeFrameFactory> timeFrames = FXCollections.observableArrayList(control.getAllTimeFrames().getAll());
         timeFactoryBox.getItems().addAll(timeFrames);
+        timeFactoryBox.selectValue(control.getActiveTimeFrame());
 
         Button backgroundButton = new Button("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
 
@@ -120,7 +121,7 @@ public class WidgetNavigator {
         heightField.setPrefWidth(75d);
         HBox sizeBox = new HBox(8d);
         Label xLabel = new Label("x");
-        sizeBox.getChildren().setAll(new Label("y"), widthField, xLabel, heightField);
+        sizeBox.getChildren().setAll(widthField, heightField);
         HBox.setMargin(xLabel, new Insets(3));
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(8d));
@@ -156,6 +157,8 @@ public class WidgetNavigator {
             this.control.setDashboardSize(Double.parseDouble(newValue), Double.parseDouble(heightField.getText()));
         });
 //
+
+
 //        widthField.setOnAction(event -> {
 //            this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(heightField.getText()));
 //        });
@@ -210,10 +213,10 @@ public class WidgetNavigator {
 
 
         NewWidgetSelector widgetSelector = new NewWidgetSelector(Widgets.getAvabableWidgets(control, new WidgetPojo()));
-        widgetSelector.selectedWidgetProperty.addListener((observable, oldValue, newValue) -> {
+        widgetSelector.getSelectedWidgetProperty().addListener((observable, oldValue, newValue) -> {
             Widget newWidget = widgetSelector.getSelectedWidget();
             control.addWidget(newWidget);
-            newWidget.updateConfig();
+//            newWidget.updateConfig();
             table.getSelectionModel().select(newWidget);
             table.scrollTo(newWidget);
             this.control.requestViewUpdate(newWidget);

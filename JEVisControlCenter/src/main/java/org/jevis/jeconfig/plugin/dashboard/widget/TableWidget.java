@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -41,7 +40,6 @@ public class TableWidget extends Widget {
 
     private static final Logger logger = LogManager.getLogger(TableWidget.class);
     public static String WIDGET_ID = "Table";
-    private static Button testB = new Button();
     private NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
     private TableView<TableData> table;
@@ -74,12 +72,14 @@ public class TableWidget extends Widget {
     @Override
     public void updateData(Interval interval) {
         logger.debug("Table.Update: {}", interval);
-        showProgressIndicator(true);
+
         this.lastInterval = interval;
         showAlertOverview(false, "");
 
-        if (this.sampleHandler == null) {
+        if (sampleHandler == null) {
             return;
+        } else {
+            showProgressIndicator(true);
         }
 
         this.sampleHandler.setInterval(interval);
@@ -124,7 +124,7 @@ public class TableWidget extends Widget {
                 }
             } catch (Exception ex) {
                 logger.error(ex);
-                ex.printStackTrace();
+//                ex.printStackTrace();
                 tableDatas.add(new TableData("", "", ""));
             }
 
@@ -237,14 +237,23 @@ public class TableWidget extends Widget {
 
     @Override
     public void openConfig() {
-
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
         widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
+
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
-        if (result.get() == ButtonType.OK) {
-            widgetConfigDialog.commitSettings();
-            updateConfig(getConfig());
-            updateData(lastInterval);
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                Runnable task = () -> {
+                    widgetConfigDialog.commitSettings();
+                    updateConfig(getConfig());
+                    updateData(lastInterval);
+                };
+                control.getExecutor().submit(task);
+
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         }
     }
 

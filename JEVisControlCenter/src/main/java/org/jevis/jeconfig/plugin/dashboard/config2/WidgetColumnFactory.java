@@ -14,11 +14,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.plugin.dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.I18n;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 
 public class WidgetColumnFactory {
@@ -100,6 +101,19 @@ public class WidgetColumnFactory {
         return this.table;
     }
 
+    private void moveWidget(Widget widget, int offset) {
+        int oldIndex = table.getItems().indexOf(widget);
+        int newIndex = oldIndex + offset;
+
+        if (newIndex < 0) {
+            newIndex = 0;
+        }
+        if (newIndex > table.getItems().size() - 1) {
+            newIndex = table.getItems().size() - 1;
+        }
+
+        Collections.swap(table.getItems(), oldIndex, newIndex);
+    }
 
     public TableColumn<Widget, Widget> buildOrderColoumn() {
 
@@ -119,13 +133,29 @@ public class WidgetColumnFactory {
                             Button upButton = new Button("", JEConfig.getImage("1395085229_arrow_return_right_up.png", 15, 15));
 
                             upButton.setOnAction(event -> {
-                                Collections.swap(getTableView().getItems(), getTableView().getItems().indexOf(item), getTableView().getItems().indexOf(item) - 1);
-                                control.getDashboardPane().requestLayout();
+                                if (table.getSelectionModel().getSelectedItems().contains(item)) {
+                                    List<Widget> toMove = new ArrayList<>(table.getSelectionModel().getSelectedItems());
+
+                                    for (Widget widgetM : toMove) {
+                                        moveWidget(widgetM, -1);
+                                    }
+                                } else {
+                                    moveWidget(item, -1);
+                                }
                             });
 
                             downButton.setOnAction(event -> {
-                                Collections.swap(getTableView().getItems(), getTableView().getItems().indexOf(item), getTableView().getItems().indexOf(item) + 1);
-                                control.getDashboardPane().requestLayout();
+                                if (table.getSelectionModel().getSelectedItems().contains(item)) {
+                                    List<Widget> toMove = new ArrayList<>(table.getSelectionModel().getSelectedItems());
+
+                                    for (int i = toMove.size() - 1; i >= 0; i--) {
+                                        Widget widgetM = toMove.get(i);
+                                        moveWidget(widgetM, +1);
+                                    }
+
+                                } else {
+                                    moveWidget(item, +1);
+                                }
                             });
 
                             HBox hBox = new HBox(downButton, upButton);
@@ -452,7 +482,6 @@ public class WidgetColumnFactory {
                             colorPicker.setStyle("-fx-color-label-visible: false ;");
 
                             colorPicker.setOnAction(event -> {
-                                System.out.println("Picker set color: " + colorPicker.getValue());
                                 setWidgetBGColor(colorPicker.getValue(), (Widget) getTableRow().getItem());
                             });
 

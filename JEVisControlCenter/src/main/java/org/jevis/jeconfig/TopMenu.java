@@ -19,11 +19,10 @@
  */
 package org.jevis.jeconfig;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -35,6 +34,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.drivermanagment.ClassImporter;
 import org.jevis.jeconfig.csv.CSVImportDialog;
 import org.jevis.jeconfig.dialog.AboutDialog;
+import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.PasswordDialog;
 import org.joda.time.DateTime;
@@ -59,16 +59,23 @@ public class TopMenu extends MenuBar {
     public TopMenu() {
         super();
 
+        updateLayout();
+
+    }
+
+    private void updateLayout() {
+
         Menu menuFile = new Menu(I18n.getInstance().getString("menu.file"));
         Menu subMenuImport = new Menu(I18n.getInstance().getString("menu.file.import"));
         MenuItem importCSV = new MenuItem(I18n.getInstance().getString("menu.file.import.csv"));
         MenuItem importXML = new MenuItem(I18n.getInstance().getString("menu.file.import.XML"));
         MenuItem importJSON = new MenuItem(I18n.getInstance().getString("menu.file.import.jevis"));
+        MenuItem manualData = new MenuItem(I18n.getInstance().getString("menu.file.import.manual"));
 
         subMenuImport.getItems().addAll(importCSV);//, importXML, importJSON);
 //        menuFile.getItems().add(new MenuItem("New"));
         menuFile.getItems().add(new SeparatorMenuItem());
-        menuFile.getItems().add(subMenuImport);
+        menuFile.getItems().addAll(subMenuImport, manualData);
         MenuItem exit = new MenuItem(I18n.getInstance().getString("menu.exit"));
 //        exit.setAccelerator(new KeyCodeCombination(KeyCode.Q, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
         menuFile.getItems().add(exit);
@@ -89,6 +96,11 @@ public class TopMenu extends MenuBar {
                 CSVImportDialog impDia = new CSVImportDialog();
                 impDia.show(JEConfig.getStage(), JEConfig.getDataSource());
             }
+        });
+
+        manualData.setOnAction(event -> {
+            EnterDataDialog enterDataDialog = new EnterDataDialog(activePlugin.getDataSource());
+            enterDataDialog.show();
         });
 
         // --- Menu Edit
@@ -166,6 +178,25 @@ public class TopMenu extends MenuBar {
 
         menuEdit.getItems().addAll(copy, cut, paste, delete, rename, findObject, findAgain);
 
+        if (JEConfig.getExpert()) {
+            MenuItem deleteAllCleanAndRaw = new MenuItem(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));
+            deleteAllCleanAndRaw.setAccelerator(new KeyCodeCombination(KeyCode.DELETE, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+
+            MenuItem createMultiplierAndDifferential = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setMultiplierAndDifferential.title"));
+            createMultiplierAndDifferential.setAccelerator(new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+
+            MenuItem enableAll = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.enable"));
+            enableAll.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+
+            MenuItem disableAll = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.disable"));
+            disableAll.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+
+            MenuItem resetCalculation = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.resetcalc"));
+            resetCalculation.setAccelerator(new KeyCodeCombination(KeyCode.J, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+
+            menuEdit.getItems().addAll(deleteAllCleanAndRaw, createMultiplierAndDifferential, enableAll, disableAll, resetCalculation);
+        }
+
 //        menuEdit.getItems().addAll(copie, delete, rename);
         // --- Menu View
         Menu menuView = new Menu(I18n.getInstance().getString("menu.view"));
@@ -212,6 +243,7 @@ public class TopMenu extends MenuBar {
             public void handle(ActionEvent e) {
                 prefExpert.putBoolean("show", !prefExpert.getBoolean("show", false));
                 activePlugin.updateToolbar();
+                Platform.runLater(() -> updateLayout());
             }
         });
 
@@ -255,14 +287,14 @@ public class TopMenu extends MenuBar {
                     ClassImporter ci = new ClassImporter(JEConfig.getDataSource());
                     files = ci.unZipIt(tmpdir, selectedFile);
 
-                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setTitle(I18n.getInstance().getString("menu.system.driver.confirm.title"));
                     alert.setHeaderText(I18n.getInstance().getString("menu.system.driver.confirm.header", selectedFile.getName()));
                     alert.setContentText(I18n.getInstance().getString("menu.system.driver.confirm.message"));
 
                     ButtonType updateButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.update"));
                     ButtonType overwriteButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.override"));
-                    ButtonType cancelButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.cancel"), ButtonData.CANCEL_CLOSE);
+                    ButtonType cancelButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
                     alert.getButtonTypes().setAll(updateButton, overwriteButton, cancelButton);
 
@@ -279,7 +311,7 @@ public class TopMenu extends MenuBar {
                     }
 
                     if (success) {
-                        Alert finish = new Alert(AlertType.INFORMATION);
+                        Alert finish = new Alert(Alert.AlertType.INFORMATION);
                         finish.setTitle(I18n.getInstance().getString("menu.system.driver.success.title"));
                         finish.setHeaderText(null);
                         finish.setContentText(I18n.getInstance().getString("menu.system.driver.success.message"));
@@ -298,7 +330,7 @@ public class TopMenu extends MenuBar {
             classImport.setDisable(true);
         }
 
-        getMenus().addAll(menuFile, menuEdit, options, system, help);
+        getMenus().setAll(menuFile, menuEdit, options, system, help);
     }
 
     public void setPlugin(Plugin plugin) {

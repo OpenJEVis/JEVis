@@ -17,13 +17,15 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
 import javafx.util.converter.DateTimeStringConverter;
-import javafx.util.converter.TimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.application.Chart.ReflectionUtils;
 import org.joda.time.DateTime;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /*
  * Created with IntelliJ IDEA.
@@ -136,7 +138,7 @@ public class DateValueAxis extends ValueAxis<Long> {
     /**
      * The value between each major tick mark in data units. This is automatically set if we are auto-ranging.
      */
-    private DoubleProperty tickUnit = new StyleableDoubleProperty(5) {
+    private DoubleProperty tickUnit = new StyleableDoubleProperty(60000) {
         @Override
         protected void invalidated() {
             if (!isAutoRanging()) {
@@ -194,183 +196,6 @@ public class DateValueAxis extends ValueAxis<Long> {
     public DateTime getDateTimeForDisplay(double displayPosition) {
         Number value = getValueForDisplay(displayPosition);
         return new DateTime(value.longValue());
-    }
-
-    public static void main(String[] args) {
-        // Date construction test
-        GregorianCalendar calendar = new GregorianCalendar(1900, 0, 1); // year, month, day
-        Date date = calendar.getTime();
-        TimeStringConverter timeConverter = new TimeStringConverter("MM/dd/yyyy");
-        logger.info("This is the date toString = " + timeConverter.toString(date));
-
-        // What is 1 day converted to long
-        calendar = new GregorianCalendar(1900, 0, 1);
-        date = calendar.getTime();
-        calendar.add(Calendar.DAY_OF_MONTH, 1);
-        Date secondDate = calendar.getTime();
-        long firstDateValue = date.getTime();
-        long secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (1 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 2 days converted to long
-        calendar = new GregorianCalendar(1900, 0, 1);
-        calendar.add(Calendar.DAY_OF_MONTH, 2);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (2 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 3 days converted to long
-        calendar = new GregorianCalendar(1900, 0, 1);
-        calendar.add(Calendar.DAY_OF_MONTH, 3);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (3 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 4 days converted to long
-        calendar = new GregorianCalendar(1900, 0, 1);
-        calendar.add(Calendar.DAY_OF_MONTH, 4);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (4 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 5 days converted to long
-        calendar = new GregorianCalendar(1900, 0, 1);
-        calendar.add(Calendar.DAY_OF_MONTH, 5);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (5 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 6 days converted to long
-        calendar = new GregorianCalendar(1900, 0, 1);
-        calendar.add(Calendar.DAY_OF_MONTH, 6);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (6 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 7 days converted to long
-        calendar = new GregorianCalendar(1900, 0, 1);
-        calendar.add(Calendar.DAY_OF_MONTH, 7);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (7 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 8 days converted to long
-        calendar = new GregorianCalendar(1900, 0, 1);
-        calendar.add(Calendar.DAY_OF_MONTH, 8);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (8 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 9 days converted to long
-        calendar = new GregorianCalendar(1900, 0, 1);
-        calendar.add(Calendar.DAY_OF_MONTH, 9);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (9 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 10 days converted to long
-        calendar = new GregorianCalendar(1900, 0, 1);
-        calendar.add(Calendar.DAY_OF_MONTH, 10);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (10 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 15 days? With a long type
-        calendar.add(Calendar.DAY_OF_MONTH, 15);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (15 days) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 20 days? With a long type
-        calendar.add(Calendar.DAY_OF_MONTH, 20);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (20 days) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 25 days? With a long type
-        calendar.add(Calendar.DAY_OF_MONTH, 25);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (25 days) - \t" + (secondDateValue - firstDateValue));
-
-
-        // What is 1 mont converted to long
-        calendar.add(Calendar.DAY_OF_MONTH, 31);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (31 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 41 days
-        calendar.add(Calendar.DAY_OF_MONTH, 41);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (41 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 51 days
-        calendar.add(Calendar.DAY_OF_MONTH, 51);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (51 day) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 62 days ( 2 monhts
-        calendar.add(Calendar.DAY_OF_MONTH, 62);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (62 days - 2 months) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 77 days ( 2 monhts and a half
-        calendar.add(Calendar.DAY_OF_MONTH, 77);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (77 days - 2.5 month) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 93 days ( 3 monhts
-        calendar.add(Calendar.DAY_OF_MONTH, 93);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (93 days - 3 month) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 108  ( 3 monhts and a half
-        calendar.add(Calendar.DAY_OF_MONTH, 108);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (108 days - 3.5 month) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 124  ( 4 monhts
-        calendar.add(Calendar.DAY_OF_MONTH, 124);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (124 days - 4 month) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 139  ( 4.5 monhts
-        calendar.add(Calendar.DAY_OF_MONTH, 139);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (139 days - 4.5 month) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 139  ( 5 monhts
-        calendar.add(Calendar.DAY_OF_MONTH, 155);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (155 days - 5 month) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 139  ( 5.5 monhts
-        calendar.add(Calendar.DAY_OF_MONTH, 170);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (170 days - 5.5 month) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 139  ( 6 monhts
-        calendar.add(Calendar.DAY_OF_MONTH, 186);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (186 days - 6 month) - \t" + (secondDateValue - firstDateValue));
-
-        // What is 366 ( 1 year)
-        calendar.add(Calendar.DAY_OF_MONTH, 366);
-        secondDate = calendar.getTime();
-        secondDateValue = secondDate.getTime();
-        logger.info("This is the difference of value between the first and second date (366 days - 1 year) - \t" + (secondDateValue - firstDateValue));
     }
 
     public final boolean isForceZeroInRange() {
@@ -593,25 +418,29 @@ public class DateValueAxis extends ValueAxis<Long> {
      * @return List of data values where to draw minor tick marks
      */
     protected List<Long> calculateMinorTickMarks() {
-        final List<Long> minorTickMarks = new ArrayList<Long>();
-        final double lowerBound = getLowerBound();
-        final double upperBound = getUpperBound();
-        final double tickUnit = getTickUnit();
-        final double minorUnit = tickUnit / getMinorTickCount();
-        if (getTickUnit() > 0) {
-            for (double major = lowerBound; major < upperBound; major += tickUnit) {
-                for (double minor = major + minorUnit; minor < (major + tickUnit); minor += minorUnit) {
-                    minorTickMarks.add((long) minor);
-                    if (minorTickMarks.size() > 10000) {
-                        // This is a ridiculous amount of major tick marks, something has probably gone wrong
-                        System.err.println("Warning we tried to create more than 10000 minor tick marks on a NumberAxis. " +
-                                "Lower Bound=" + getLowerBound() + ", Upper Bound=" + getUpperBound() + ", Tick Unit=" + tickUnit);
-                        break;
-                    }
-                }
-            }
-        }
-        return minorTickMarks;
+//        final List<Long> minorTickMarks = new ArrayList<Long>();
+//        final double lowerBound = getLowerBound();
+//        final double upperBound = getUpperBound();
+//        final double tickUnit = getTickUnit();
+//        final double minorUnit = tickUnit / getMinorTickCount();
+//        if (getTickUnit() > 0) {
+//            for (double major = lowerBound; major < upperBound; major += tickUnit) {
+//                for (double minor = major + minorUnit; minor < (major + tickUnit); minor += minorUnit) {
+//                    minorTickMarks.add((long) minor);
+//                    if (minorTickMarks.size() > 10000) {
+//                        // This is a ridiculous amount of major tick marks, something has probably gone wrong
+//                        System.err.println("Warning we tried to create more than 10000 minor tick marks on a NumberAxis. " +
+//                                "Lower Bound=" + new DateTime(getLowerBound()).toString("yyyy-MM-dd HH:mm:ss")
+//                                + ", Upper Bound=" + new DateTime(getUpperBound()).toString("yyyy-MM-dd HH:mm:ss") + ", Tick Unit=" + tickUnit);
+//                        break;
+//                    }
+//                }
+//                if (minorTickMarks.size() > 10000) {
+//                    break;
+//                }
+//            }
+//        }
+        return new ArrayList<>();
     }
 
     /**

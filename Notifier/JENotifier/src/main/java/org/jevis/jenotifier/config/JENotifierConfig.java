@@ -7,6 +7,7 @@ package org.jevis.jenotifier.config;
 import org.apache.logging.log4j.Level;
 import org.jevis.commons.cli.JEVisCommandLine;
 import org.jevis.jenotifier.JENotifierHelper;
+import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
 
 import java.util.List;
 
@@ -35,6 +36,8 @@ public class JENotifierConfig {
     private int _servicePort;
     private Level _debugLevel;
 
+    private EmailNotificationDriver defaultEmailNotificationDriver = null;
+
 //    /**
 //     *
 //     * @return the URL of
@@ -42,6 +45,15 @@ public class JENotifierConfig {
 //    public String getURL() {
 //        return _url;
 //    }
+
+
+    public EmailNotificationDriver getDefaultEmailNotificationDriver() {
+        return defaultEmailNotificationDriver;
+    }
+
+    public void setDefaultEmailNotificationDriver(EmailNotificationDriver defaultEmailNotificationDriver) {
+        this.defaultEmailNotificationDriver = defaultEmailNotificationDriver;
+    }
 
     /**
      * @return the host of the database

@@ -15,6 +15,8 @@ import javafx.scene.layout.Pane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisObject;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.tool.Layouts;
@@ -122,7 +124,37 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public boolean supportsRequest(int cmdType) {
-        return false;
+
+        switch (cmdType) {
+            case Constants.Plugin.Command.SAVE:
+                return true;
+            case Constants.Plugin.Command.DELETE:
+                return false;
+            case Constants.Plugin.Command.EXPAND:
+                return false;
+            case Constants.Plugin.Command.NEW:
+                return false;
+            case Constants.Plugin.Command.RELOAD:
+                return false;
+            case Constants.Plugin.Command.ADD_TABLE:
+                return false;
+            case Constants.Plugin.Command.EDIT_TABLE:
+                return false;
+            case Constants.Plugin.Command.CREATE_WIZARD:
+                return false;
+            case Constants.Plugin.Command.FIND_OBJECT:
+                return false;
+            case Constants.Plugin.Command.PASTE:
+                return false;
+            case Constants.Plugin.Command.COPY:
+                return false;
+            case Constants.Plugin.Command.CUT:
+                return false;
+            case Constants.Plugin.Command.FIND_AGAIN:
+                return false;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -147,7 +179,12 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public void handleRequest(int cmdType) {
-
+        switch (cmdType) {
+            case Constants.Plugin.Command.SAVE:
+                this.dashboardControl.save();
+                return;
+        }
+        System.out.println("event: " + cmdType);
     }
 
     @Override
@@ -162,7 +199,6 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public void fireCloseEvent() {
-
     }
 
 
@@ -183,6 +219,10 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public void openObject(Object object) {
+        if (object instanceof JEVisObject) {
+            JEVisObject dashboardObject = (JEVisObject) object;
+            dashboardControl.selectDashboard(dashboardObject);
+        }
 
     }
 

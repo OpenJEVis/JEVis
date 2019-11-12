@@ -28,7 +28,7 @@ import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.*;
-import org.jevis.jeconfig.application.Chart.data.GraphDataModel;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.TableViewUtils;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -42,7 +42,7 @@ import static javafx.scene.control.TableView.UNCONSTRAINED_RESIZE_POLICY;
  */
 public class ChartView implements Observer {
 
-    private final GraphDataModel dataModel;
+    private final AnalysisDataModel dataModel;
     private static final Logger logger = LogManager.getLogger(ChartView.class);
     private Boolean showTable = true;
     private Chart chart;
@@ -56,7 +56,7 @@ public class ChartView implements Observer {
     private ChartDataModel singleRow;
     private List<ChartDataModel> currentSelectedChartDataModels;
     private final double VALUE_COLUMNS_PREF_SIZE = 200;
-    private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 70;
+    private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 60;
     private TableColumn<TableEntry, String> nameCol;
     private TableColumn<TableEntry, Color> colorCol;
     private TableColumn<TableEntry, String> periodCol;
@@ -64,7 +64,7 @@ public class ChartView implements Observer {
     private TableColumn<TableEntry, String> noteCol;
     private TableViewContextMenuHelper contextMenuHelper;
 
-    public ChartView(GraphDataModel dataModel) {
+    public ChartView(AnalysisDataModel dataModel) {
         this.dataModel = dataModel;
     }
 
@@ -440,8 +440,6 @@ public class ChartView implements Observer {
         }
 
         generateChart(chartId, chartType, currentSelectedChartDataModels);
-
-        tableView.sort();
     }
 
     public void drawAreaChart(Integer chartId, ChartDataModel model, ChartType chartType) {
@@ -527,7 +525,7 @@ public class ChartView implements Observer {
                 tableView.getColumns().get(10).setVisible(false);
                 break;
             case HEAT_MAP:
-                chart = new HeatMapChart(chartDataModels);
+                chart = new HeatMapChart(chartDataModels, getChartName());
                 disableTable();
                 break;
             default:

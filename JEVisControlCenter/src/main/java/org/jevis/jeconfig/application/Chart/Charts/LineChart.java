@@ -8,6 +8,7 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class LineChart extends XYChart {
 
         for (int i = 0; i < getHexColors().size(); i++) {
             Color currentColor = getHexColors().get(i);
-            String hexColor = toRGBCode(currentColor);
+            String hexColor = ColorHelper.toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
 
             Node node = getChart().lookup(preIdent + ".chart-series-line");

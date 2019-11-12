@@ -3,6 +3,7 @@ package org.jevis.commons.unit.ChartUnits;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
+import org.jscience.economics.money.Currency;
 
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
@@ -66,6 +67,25 @@ public class QuantityUnits {
     private final Unit _kvar = Unit.ONE.alternate("kvar");
     private final JEVisUnit kvar = new JEVisUnitImp(_kvar);
 
+    private final Unit _eur = Currency.EUR;
+    private final Unit _usd = Currency.USD;
+    private final Unit _gbp = Currency.GBP;
+    private final Unit _jpy = Currency.JPY;
+    private final Unit _aud = Currency.AUD;
+    private final Unit _cad = Currency.CAD;
+    private final Unit _cny = Currency.CNY;
+    private final Unit _krw = Currency.KRW;
+    private final Unit _twd = Currency.TWD;
+    private final JEVisUnit eur = new JEVisUnitImp(_eur);
+    private final JEVisUnit usd = new JEVisUnitImp(_usd);
+    private final JEVisUnit gbp = new JEVisUnitImp(_gbp);
+    private final JEVisUnit jpy = new JEVisUnitImp(_jpy);
+    private final JEVisUnit aud = new JEVisUnitImp(_aud);
+    private final JEVisUnit cad = new JEVisUnitImp(_cad);
+    private final JEVisUnit cny = new JEVisUnitImp(_cny);
+    private final JEVisUnit krw = new JEVisUnitImp(_krw);
+    private final JEVisUnit twd = new JEVisUnitImp(_twd);
+
     private final ArrayList<JEVisUnit> jeVisUnitArrayList;
 
     private final ArrayList<Unit> unitArrayList;
@@ -112,7 +132,8 @@ public class QuantityUnits {
                 kg.getLabel(), kkg.getLabel(), t.getLabel(),
                 l.getLabel(), m3.getLabel(),
                 Wh.getLabel(), kWh.getLabel(), MWh.getLabel(), GWh.getLabel(),
-                vah.getLabel(), varh.getLabel(), kvah.getLabel(), kvarh.getLabel()
+                vah.getLabel(), varh.getLabel(), kvah.getLabel(), kvarh.getLabel(),
+                eur.getLabel(), usd.getLabel(), gbp.getLabel(), jpy.getLabel(), aud.getLabel(), cad.getLabel(), cny.getLabel(), krw.getLabel(), twd.getLabel()
         ));
 
         unitArrayList = new ArrayList<>(Arrays.asList(
@@ -120,7 +141,8 @@ public class QuantityUnits {
                 _kg, _kkg, _t,
                 _l, _m3,
                 _Wh, _kWh, _MWh, _GWh,
-                _vah, _varh, _kvah, _kvarh
+                _vah, _varh, _kvah, _kvarh,
+                _eur, _usd, _gbp, _jpy, _aud, _cad, _cny, _krw, _twd
         ));
 
         jeVisUnitArrayList = new ArrayList<>(Arrays.asList(
@@ -128,7 +150,8 @@ public class QuantityUnits {
                 kg, kkg, t,
                 l, m3,
                 Wh, kWh, MWh, GWh,
-                vah, varh, kvah, kvarh
+                vah, varh, kvah, kvarh,
+                eur, usd, gbp, jpy, aud, cad, cny, krw, twd
         ));
     }
 

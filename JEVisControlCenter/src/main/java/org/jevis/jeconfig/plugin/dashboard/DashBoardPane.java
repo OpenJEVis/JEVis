@@ -18,7 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
-import org.jevis.jeconfig.plugin.dashboard.widget.Size;
+import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 
 import java.util.*;
@@ -74,7 +74,7 @@ public class DashBoardPane extends Pane {
                     if (selectionRect.getBoundsInParent().intersects(shape.getBoundsInParent())) {
 //                        shape.setFill(Color.RED);
 //                        if(!this.selected.contains(shape))
-                        System.out.println("Selected: " + shape);
+//                        System.out.println("Selected: " + shape);
 //                            this.selected.add(shape);
                     } else {
 //                        shape.setFill(Color.BLACK);

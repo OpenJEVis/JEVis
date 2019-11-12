@@ -26,6 +26,11 @@
       "start": "E-Mail Notification",
       "end": "JEStatus",
       "type": 3
+    },
+    {
+      "start": "E-Mail Notification",
+      "end": "CSV Export",
+      "type": 3
     }
   ],
   "types": [

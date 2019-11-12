@@ -2,7 +2,9 @@ package org.jevis.jeconfig.plugin.dashboard;
 
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -21,12 +23,9 @@ import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.plugin.dashboard.common.DashboardExport;
-import org.jevis.jeconfig.plugin.dashboard.config2.ConfigManager;
-import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
-import org.jevis.jeconfig.plugin.dashboard.config2.DashboardSorter;
+import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
-import org.jevis.jeconfig.plugin.dashboard.widget.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -55,7 +54,9 @@ public class DashboardControl {
     private ExecutorService executor;
     private boolean isUpdateRunning = false;
     private java.io.File newBackgroundFile;
+
     private Interval activeInterval = new Interval(new DateTime(), new DateTime());
+    private ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
     private TimeFrameFactory activeTimeFrame;
     private TimeFrames timeFrames;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
@@ -77,6 +78,10 @@ public class DashboardControl {
 
         initTimeFrameFactory();
         resetDashboard();
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
     }
 
 
@@ -147,6 +152,23 @@ public class DashboardControl {
         this.dashboardPane.activateGrid(snapToGrid);
     }
 
+
+    public int getNextFreeUUID() {
+        final Comparator<Widget> comp = (p1, p2) -> Integer.compare(p1.getConfig().getUuid(), p2.getConfig().getUuid());
+
+        try {
+            Widget maxIDWidget = getWidgetList().stream().max(comp).get();
+            return maxIDWidget.getConfig().getUuid();
+        } catch (Exception ex) {
+            return 1;
+        }
+    }
+
+    public Widget createNewWidget(WidgetPojo widgetPojo) {
+        widgetPojo.setUuid(getNextFreeUUID());
+
+        return configManager.createWidget(this, widgetPojo);
+    }
 
     public void loadFirstDashboard() {
         try {
@@ -291,6 +313,15 @@ public class DashboardControl {
                 this.dashBordPlugIn.getDashBoardPane().addWidget(widget);
             });
 
+
+            this.widgetList.forEach(widget -> {
+                try {
+                    widget.updateConfig();
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            });
+
             /** sollten die Widgets autostarten? **/
 //            this.widgetList.forEach(widget -> {
 //                addWidgetUpdateTask(widget, this.getInterval());
@@ -413,6 +444,7 @@ public class DashboardControl {
         try {
             logger.error("SetInterval to: {}", interval);
             this.activeInterval = interval;
+            activeIntervalProperty.setValue(activeInterval);//workaround
             rundataUpdateTasks(false);
 
         } catch (Exception ex) {
@@ -420,9 +452,12 @@ public class DashboardControl {
         }
     }
 
+    public ObjectProperty<Interval> getActiveIntervalProperty() {
+        return activeIntervalProperty;
+    }
 
     public void requestViewUpdate(Widget widget) {
-        logger.error("requestViewUpdate: {}", widget.getConfig().getTitle());
+        logger.debug("requestViewUpdate: {}", widget.getConfig().getTitle());
 //        widget.updateData(getInterval());
         try {
             widget.updateConfig(widget.getConfig());
@@ -437,7 +472,6 @@ public class DashboardControl {
     }
 
     public void switchUpdating() {
-        System.out.println("switchUpdating: " + isUpdateRunning + " -> " + !this.isUpdateRunning);
         this.isUpdateRunning = !this.isUpdateRunning;
         if (this.isUpdateRunning) {
             rundataUpdateTasks(isUpdateRunning);
@@ -543,10 +577,9 @@ public class DashboardControl {
                     if (!widget.isStatic()) {
                         widget.updateData(interval);
 //                        finishUpdateJobs.setValue(finishUpdateJobs.getValue() + 1);
-
                     }
                 } catch (Exception ex) {
-                    logger.error(ex);
+                    logger.error("Widget update error: [{}]", widget.getConfig().getUuid(), ex);
                     ex.printStackTrace();
                 } finally {
                     JEConfig.getStatusBar().progressProgressJob("Dashboard", 1
@@ -572,6 +605,7 @@ public class DashboardControl {
     public void addWidget(Widget widget) {
         try {
             widget.init();
+            widget.updateConfig(widget.getConfig());
             this.widgetList.add(widget);
             this.dashboardPane.addWidget(widget);
             widget.updateData(this.activeInterval);
@@ -604,45 +638,12 @@ public class DashboardControl {
     }
 
     public void save() {
-
-        this.configManager.openSaveUnder(this.activeDashboard, this.widgetList, this.newBackgroundFile);
-
-//        if (this.activeDashboard.getNew()) {//new TODO
-//            NewAnalyseDialog newAnalyseDialog = new NewAnalyseDialog();
-//            try {
-//
-//                NewAnalyseDialog.Response response = newAnalyseDialog.show((Stage) this.dashBordPlugIn.getDashBoardPane().getScene().getWindow(), this.jevisDataSource);
-//                if (response == NewAnalyseDialog.Response.YES) {
-//                    JEVisClass analisisDirClass = this.jevisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS_DIR);
-//                    List<JEVisObject> analisisDir = this.jevisDataSource.getObjects(analisisDirClass, true);
-//                    JEVisClass analisisClass = this.jevisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
-//
-//
-//                    JEVisObject newObject = newAnalyseDialog.getParent().buildObject(newAnalyseDialog.getCreateName(), analisisClass);
-////                newObject.commit();//TODO
-//                    selectDashboard(newObject);
-//
-//                    if (this.newBackgroundFile != null) {
-//                        this.configManager.setBackgroundImage(this.activeDashboard.getDashboardObject(), this.newBackgroundFile);
-//                    }
-//
-//                }
-//            } catch (Exception ex) {
-//                logger.error(ex);
-//                ex.printStackTrace();
-//            }
-//
-//
-//        } else {//update
-//            try {
-//                this.configManager.saveDashboard(this.activeDashboard, this.widgetList);
-//            } catch (Exception ex) {
-//                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.copy.error.title"),
-//                        I18n.getInstance().getString("dashboard.save.error"), null, ex);
-//            }
-//
-//        }
-
+        try {
+            this.configManager.openSaveUnder(this.activeDashboard, this.widgetList, this.newBackgroundFile);
+            firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
 
     }
 

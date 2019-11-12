@@ -5,7 +5,6 @@ import javafx.scene.layout.BorderWidths;
 import javafx.scene.paint.Color;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
-import org.jevis.jeconfig.plugin.dashboard.widget.Size;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 

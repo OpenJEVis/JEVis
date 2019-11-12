@@ -1,0 +1,41 @@
+{
+  "name": "Export Link",
+  "description": "TheExport Link is needed for the data filling process. It links a JEVisObject in the tree of the JEConfig to a variable in the template file.\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Report Attribute",
+      "end": "Exp Link",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "JEVis ID",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Link"
+    },
+    {
+      "name": "Optional",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Link"
+    },
+    {
+      "name": "Template Variable Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Link"
+    }
+  ]
+}

@@ -25,7 +25,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisConstants;
-import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.*;
 import org.jevis.ws.sql.tables.AttributeTable;
 import org.jevis.ws.sql.tables.ObjectTable;
@@ -77,27 +76,18 @@ public class SQLtoJsonFactory {
 
         String name = rs.getString(AttributeTable.COLUMN_NAME);
         Long objectID = rs.getLong(AttributeTable.COLUMN_OBJECT);
-        String imputSRate = rs.getString(AttributeTable.COLUMN_INPUT_RATE);
+        String inputSRate = rs.getString(AttributeTable.COLUMN_INPUT_RATE);
+        String inputUnit = rs.getString(AttributeTable.COLUMN_INPUT_UNIT);
         String displayRate = rs.getString(AttributeTable.COLUMN_DISPLAY_RATE);
+        String displayUnit = rs.getString(AttributeTable.COLUMN_DISPLAY_UNIT);
 
-        jatt.setInputSampleRate(imputSRate);
+        jatt.setInputSampleRate(inputSRate);
         jatt.setDisplaySampleRate(displayRate);
         jatt.setType(name);
         jatt.setObjectID(objectID);
 
-        try {
-            JEVisUnitImp imputUnit = new JEVisUnitImp(objectMapper.readValue(rs.getString(AttributeTable.COLUMN_INPUT_UNIT), JsonUnit.class));
-            jatt.setInputUnit(JsonFactory.buildUnit(imputUnit));
-        } catch (Exception ex) {
-
-        }
-
-        try {
-            JEVisUnitImp displayUnit = new JEVisUnitImp(objectMapper.readValue(rs.getString(AttributeTable.COLUMN_DISPLAY_UNIT), JsonUnit.class));
-            jatt.setDisplayUnit(JsonFactory.buildUnit(displayUnit));
-        } catch (Exception ex) {
-
-        }
+        jatt.setInputUnit(getUnitFromString(inputUnit));
+        jatt.setDisplayUnit(getUnitFromString(displayUnit));
 
         try {
             jatt.setPrimitiveType(type.getPrimitiveType());
@@ -123,6 +113,27 @@ public class SQLtoJsonFactory {
         }
 
         return jatt;
+    }
+
+    private static JsonUnit getUnitFromString(String unitString) {
+        JsonUnit unit = new JsonUnit();
+        unit.setFormula("");
+        unit.setLabel("");
+        unit.setPrefix("");
+
+        if (unitString != null) {
+            //check if its a broken unit
+            long count = unitString.chars().filter(ch -> ch == ',').count();
+            if (count == 2) {
+                try {
+                    unit = objectMapper.readValue(unitString, JsonUnit.class);
+                } catch (Exception ex) {
+                    logger.error("Could not parse input unit {}", unitString, ex);
+                }
+            }
+        }
+
+        return unit;
     }
 
 

@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 import org.jevis.api.*;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
@@ -34,13 +33,6 @@ public interface Chart {
     void showNote(MouseEvent mouseEvent);
 
     void applyColors();
-
-    default String toRGBCode(Color color) {
-        return String.format("#%02X%02X%02X",
-                (int) (color.getRed() * 255),
-                (int) (color.getGreen() * 255),
-                (int) (color.getBlue() * 255));
-    }
 
     default String getUserNoteForTimeStamp(JEVisSample nearestSample, DateTime timeStamp) {
         String userNote = "";
@@ -218,4 +210,8 @@ public interface Chart {
     JFXChartUtil getJfxChartUtil();
 
     void setRegion(Region region);
+
+    void checkForY2Axis();
+
+    void applyBounds();
 }
