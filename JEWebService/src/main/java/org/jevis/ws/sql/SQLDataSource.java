@@ -107,7 +107,7 @@ public class SQLDataSource {
 
     public void logUserAction(LOG_EVENT event,String msg){
         if(user.isSysAdmin()){
-            /** we do not log SysAdmin because of the enormes event amount of the services. The Logging is for user events. **/
+            /** we do not log SysAdmin because of the huge event amount for the services. The Logging is for user events. **/
            return;
         }
         try{
@@ -120,9 +120,18 @@ public class SQLDataSource {
             logger.error("Error while logging Event: {}:{}:{}",event,msg,ex);
         }
 
-
-
     }
+
+
+    /**
+     * Clean up User Event for "General Data Protection Regulations"
+     * TODO: make it configurable
+     */
+    public void gdprCleanUp() throws SQLException, AuthenticationException, JEVisException {
+        logger.error("Starting user log cleanup for Data Protection");
+        getSampleTable().deleteOldLogging();
+    }
+
 
     public List<JsonClassRelationship> getClassRelationships() {
         List<JsonJEVisClass> list = new ArrayList<>(Config.getClassCache().values());

@@ -367,6 +367,25 @@ public class SampleTable {
 
     }
 
+    public boolean deleteOldLogging() {
+        String sql = String.format("delete from %s " +
+                "where attribute=\"%s\" and timestamp<=DATE(NOW()-INTERVAL 1 YEAR) " +
+                "and object in (select ID from object where object.type=\"%s\");"
+                , TABLE, "Activities", "User");
+
+
+        try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
+            logger.debug("SQL: {}", ps);
+            ps.execute();
+            //_connection.getAttributeTable().updateMinMaxTS(object, att);
+            return true;
+        } catch (SQLException ex) {
+            logger.error(ex);
+            return false;
+        }
+
+    }
+
     public List<JsonSample> getAll(long object, String att) throws SQLException {
         List<JsonSample> samples = new ArrayList<>();
 
