@@ -83,8 +83,7 @@ public class DataModelDataHandler {
 
         try {
             if (configNode != null) {
-                DataModelNode dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
-                this.dataModelNode = dataModelNode;
+                this.dataModelNode = this.mapper.treeToValue(configNode, DataModelNode.class);
             } else {
                 this.dataModelNode = new DataModelNode();
             }
@@ -148,7 +147,6 @@ public class DataModelDataHandler {
                         /** add fake start date so the model does not ty to load the last 7 days **/
                         chartDataModel.setSelectedStart(new DateTime(2001, 1, 1, 1, 1, 1));
                         chartDataModel.setSelectedEnd(new DateTime(2001, 1, 1, 1, 1, 2));
-                        chartDataModel.setFillZeroes(false);
                         chartDataModel.setAbsolute(dataPointNode.isAbsolute());
 
                         chartDataModel.setSelectedCharts(list);
@@ -162,7 +160,7 @@ public class DataModelDataHandler {
 
                         chartDataModel.setManipulationMode(dataPointNode.getManipulationMode());
                         chartDataModel.setAggregationPeriod(dataPointNode.getAggregationPeriod());
-
+                        chartDataModel.setAxis(0);
 
                         if (dataPointNode.getColor() != null) {
                             chartDataModel.setColor(ColorHelper.toRGBCode(dataPointNode.getColor()));
@@ -174,7 +172,7 @@ public class DataModelDataHandler {
                         this.chartDataModels.add(chartDataModel);
                         this.attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
 
-                        if (dataPointNode.getCalculationID() != null && !dataPointNode.getCalculationID().equals("0")) {
+                        if (dataPointNode.getCalculationID() != null && dataPointNode.getCalculationID() != 0L) {
                             chartDataModel.setEnPI(dataPointNode.isEnpi());
                             chartDataModel.setCalculationObject(dataPointNode.getCalculationID().toString());
                         }

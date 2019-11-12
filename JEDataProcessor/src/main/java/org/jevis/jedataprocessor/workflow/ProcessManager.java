@@ -30,7 +30,7 @@ public class ProcessManager {
 
     private static final Logger logger = LogManager.getLogger(ProcessManager.class);
     private final ResourceManager resourceManager;
-    private List<ProcessStep> processSteps = new ArrayList<>();
+    List<ProcessStep> processSteps = new ArrayList<>();
     private String name;
     private Long id;
     private boolean missingSamples = true;
@@ -48,7 +48,7 @@ public class ProcessManager {
         addDefaultSteps();
     }
 
-    private void addDefaultSteps() {
+    public void addDefaultSteps() {
 
         ProcessStep preparation = new PrepareStep();
         processSteps.add(preparation);
