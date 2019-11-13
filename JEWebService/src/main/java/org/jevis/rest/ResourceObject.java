@@ -179,7 +179,7 @@ public class ResourceObject {
 
             JsonObject obj = this.ds.getObject(id);
             if (this.ds.getUserManager().canDelete(obj)) {
-                ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_OBJECT, String.format("%s:%s|%s", id, obj.getName()));
+                ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_OBJECT, String.format("%s:%s", id, obj.getName()));
                 this.ds.deleteObject(obj);
             }
 
