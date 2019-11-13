@@ -94,7 +94,8 @@ public class ToolBarView {
 
                 alert.showAndWait().ifPresent(buttonType -> {
                     if (buttonType.equals(ButtonType.OK)) {
-                        getGraphPluginView().handleRequest(0);
+                        changed = false;
+                        getGraphPluginView().handleRequest(Constants.Plugin.Command.SAVE);
                     }
                 });
             }
@@ -207,7 +208,7 @@ public class ToolBarView {
 
         if (dialog.getResponse() == Response.NEW) {
 
-            getGraphPluginView().handleRequest(2);
+            getGraphPluginView().handleRequest(Constants.Plugin.Command.NEW);
         } else if (dialog.getResponse() == Response.LOAD) {
 
         }
@@ -472,7 +473,7 @@ public class ToolBarView {
             changeSettings();
         });
 
-        delete.setOnAction(event -> getGraphPluginView().handleRequest(1));
+        delete.setOnAction(event -> getGraphPluginView().handleRequest(Constants.Plugin.Command.DELETE));
 
         showRawData.setOnAction(event -> showRawDataInGraph());
 
