@@ -80,7 +80,7 @@ public class ResourceObject {
             @Context Request request,
             @Context UriInfo url,
             @Context WebServiceContext serviceContext,
-            @DefaultValue("false")@QueryParam("root") boolean root,
+            @DefaultValue("false") @QueryParam("root") boolean root,
             @DefaultValue("") @QueryParam("class") String jclass,
             @DefaultValue("true") @QueryParam("inherit") boolean inherit,
             @DefaultValue("") @QueryParam("name") String name,
@@ -179,7 +179,7 @@ public class ResourceObject {
 
             JsonObject obj = this.ds.getObject(id);
             if (this.ds.getUserManager().canDelete(obj)) {
-                ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_OBJECT,String.format("%s:%s|%s",id,obj.getName()));
+                ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_OBJECT, String.format("%s:%s|%s", id, obj.getName()));
                 this.ds.deleteObject(obj);
             }
 
@@ -242,7 +242,7 @@ public class ResourceObject {
                         }
                     } else {
                         JsonObject newObj = this.ds.buildObject(json, parentObj.getId());
-                        ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_OBJECT,String.format("%s:%s|%s",newObj.getId(),newObj.getName()));
+                        ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_OBJECT, String.format("%s:%s", newObj.getId(), newObj.getName()));
                         return Response.ok(newObj).build();
                     }
 
@@ -292,7 +292,7 @@ public class ResourceObject {
             JsonObject existingObj = this.ds.getObject(id);
             if (existingObj != null && this.ds.getUserManager().canWrite(json)) {
                 if (existingObj.getisPublic() != json.getisPublic()) {
-                    ds.logUserAction(SQLDataSource.LOG_EVENT.UPDATE_OBJECT,String.format("%s:%s",existingObj.getId(),existingObj.getName()));
+                    ds.logUserAction(SQLDataSource.LOG_EVENT.UPDATE_OBJECT, String.format("%s:%s", existingObj.getId(), existingObj.getName()));
                     if (this.ds.getUserManager().isSysAdmin()) {
                         return Response.ok(this.ds.updateObject(id, json.getName(), json.getisPublic())).build();
                     } else {

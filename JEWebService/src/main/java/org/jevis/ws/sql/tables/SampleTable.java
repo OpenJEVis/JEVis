@@ -80,7 +80,7 @@ public class SampleTable {
                 break;
             }
         }
-        benchmark.printBechmark("Imported: "+count+" samples");
+        benchmark.printBechmark("Imported: " + count + " samples");
 //        samples.clear();
         return count;
     }
@@ -369,13 +369,15 @@ public class SampleTable {
 
     public boolean deleteOldLogging() {
         String sql = String.format("delete from %s " +
-                "where attribute=\"%s\" and timestamp<=DATE(NOW()-INTERVAL 1 YEAR) " +
-                "and object in (select ID from object where object.type=\"%s\");"
+                        "where attribute=\"%s\" and timestamp<=DATE(NOW()-INTERVAL 1 YEAR) " +
+                        "and object in (select ID from object where object.type=\"%s\");"
                 , TABLE, "Activities", "User");
 
 
+        //from sample where attribute="Activities" and timestamp<=DATE(NOW()-INTERVAL 1 YEAR) and object in (select ID from object where object.type="User");
+
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
-            logger.debug("SQL: {}", ps);
+            logger.error("SQL: {}", ps);
             ps.execute();
             //_connection.getAttributeTable().updateMinMaxTS(object, att);
             return true;

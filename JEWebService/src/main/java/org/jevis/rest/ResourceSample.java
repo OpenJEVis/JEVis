@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
+import org.jevis.commons.utils.Samples;
 import org.jevis.commons.ws.json.*;
 import org.jevis.ws.sql.JEVisClassHelper;
 import org.jevis.ws.sql.SQLDataSource;
@@ -90,7 +91,7 @@ public class ResourceSample {
             JsonObject obj = ds.getObject(id);
             if (obj == null) {
                 return Response.status(Status.NOT_FOUND)
-                        .entity("Object is not accessable").build();
+                        .entity("Object is not accessible").build();
             }
 
             if (obj.getJevisClass().equals("User") && obj.getId() == ds.getCurrentUser().getUserID()) {
@@ -357,22 +358,13 @@ public class ResourceSample {
                 List<JsonAttribute> atts = ds.getAttributes(id);
                 for (JsonAttribute att : atts) {
                     if (att.getType().equals(attribute)) {
-//                    List<JsonSample> samples = new Gson().fromJson(input, new TypeToken<List<JsonSample>>() {
-//                    }.getType());
                         List<JsonSample> samples = new ArrayList<>(Arrays.asList(objectMapper.readValue(input, JsonSample[].class)));
                         JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
                         int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
 
-                        String lastSample = "";
-                        if(!samples.isEmpty()){
-                            try {
-                                lastSample = samples.get(samples.size() - 1).getTs();
-                            }catch (Exception ex){}
-                        }
-
-                        ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_SAMPLE,String.format("%s:%s|[%s] %s",id,attribute,samples.size(),lastSample));
+                        ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_SAMPLE, String.format("%s:%s|%s|%s", id, attribute, result, Samples.getDuration(samples)));
                         samples.clear();
-//                    samples = null;
+                        samples = null;
 
                         return Response.status(Status.CREATED).build();
                     }
@@ -449,7 +441,7 @@ public class ResourceSample {
                 ds.deleteSamplesBetween(object.getId(), attribute, startDate, endDate);
             }
 
-            ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_SAMPLE,String.format("%s:%s|%s -> %s",id,attribute,startDate,endDate));
+            ds.logUserAction(SQLDataSource.LOG_EVENT.DELETE_SAMPLE, String.format("%s:%s|%s -> %s", id, attribute, startDate, endDate));
             return Response.status(Status.OK).build();
 
         } catch (AuthenticationException ex) {
