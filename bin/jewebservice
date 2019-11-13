@@ -6,4 +6,4 @@ cd ${JEVIS_HOME}/JEWebService/target/
 java 	-Dname=JEWebService -Dlog4j.configurationFile=${JEVIS_HOME}/etc/log4j2_service.xml \
 	-DserviceLogFile=${JEVIS_HOME}/var/log/jewebservice.log \
 	-XX:MaxHeapFreeRatio=50 \
-	-jar ${JEVIS_HOME}/JEWebService/target/JEWebservice-1.8-jar-with-dependencies.jar ${JEVIS_HOME}/etc/webservice.xml 2>${JEVIS_HOME}/var/log/webservice_error.log &
+	-jar ${JEVIS_HOME}/JEWebService/target/JEWebservice-1.9.0-jar-with-dependencies.jar ${JEVIS_HOME}/etc/webservice.xml 2>${JEVIS_HOME}/var/log/webservice_error.log &

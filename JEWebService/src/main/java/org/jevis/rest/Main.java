@@ -9,8 +9,11 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.jevis.api.JEVisException;
 import org.jevis.ws.sql.ConnectionFactory;
+import org.jevis.ws.sql.SQLDataSource;
 
+import javax.security.sasl.AuthenticationException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -21,7 +24,7 @@ import java.sql.SQLException;
  * Main class.
  */
 public class Main {
-    public static final String VERSION = "JEWebService Version 1.8 2019-04-26";
+    public static final String VERSION = "JEWebService Version 1.9.0 2019-11-12";
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     /**
@@ -29,7 +32,7 @@ public class Main {
      *
      * @param args
      */
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws SQLException, AuthenticationException, JEVisException {
         logger.info("Start - {}", VERSION);
         //read Config
         File configfile;
@@ -50,25 +53,30 @@ public class Main {
         Config.readConfigurationFile(configfile);
 
         //Test Connection parameter
-        for (String para : args) {
-            logger.info("para: " + para);
-            if (para.equalsIgnoreCase("-test")) {
-                logger.info("DBHost: " + Config.getDBHost()
-                        + "\nDBPort: " + Config.getDBPort()
-                        + "\nDBSchema: " + Config.getSchema()
-                        + "\nDBUSer: " + Config.getDBUser()
-                        + "\nDBPW: " + Config.getDBPW());
-                ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
+//        for (String para : args) {
+//            logger.info("para: " + para);
+//            //if (para.equalsIgnoreCase("-test")) {
+//
+//            // }
+//        }
+        logger.info("DBHost: " + Config.getDBHost()
+                + "\nDBPort: " + Config.getDBPort()
+                + "\nDBSchema: " + Config.getSchema()
+                + "\nDBUSer: " + Config.getDBUser()
+                + "\nDBPW: " + Config.getDBPW());
+        ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
 
-                Connection dbConn = ConnectionFactory.getInstance().getConnection();
-                if (dbConn.isValid(2000)) {
-                    logger.info("Database Connection is working");
-                } else {
-                    logger.info("Database Connection is NOT working");
-                    System.exit(1);
-                }
-            }
+        Connection dbConn = ConnectionFactory.getInstance().getConnection();
+        if (dbConn.isValid(2000)) {
+            logger.info("Database Connection is working");
+            SQLDataSource sqlDataSource = new SQLDataSource(dbConn);
+            sqlDataSource.gdprCleanUp();
+            sqlDataSource=null;
+        } else {
+            logger.info("Database Connection is NOT working");
+            System.exit(1);
         }
+
 
         final ResourceConfig rc = new ResourceConfig().packages("org.jevis.rest", "org.jevis.iso.rest");
         rc.setApplicationName("JEWebservice");
