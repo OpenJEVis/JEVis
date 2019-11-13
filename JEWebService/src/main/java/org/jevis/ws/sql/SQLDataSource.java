@@ -60,7 +60,7 @@ public class SQLDataSource {
     private UserRightManagerForWS um;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public enum LOG_EVENT{
+    public enum LOG_EVENT {
         USER_LOGIN,
         DELETE_OBJECT, DELETE_SAMPLE, DELETE_RELATIONSHIP,
         CREATE_OBJECT, CREATE_SAMPLE, CREATE_RELATIONSHIP,
@@ -105,21 +105,20 @@ public class SQLDataSource {
     }
 
 
-    public void logUserAction(LOG_EVENT event,String msg){
-        if(user.isSysAdmin()){
-            /** we do not log SysAdmin because of the huge event amount for the services. The Logging is for user events. **/
-           return;
+    public void logUserAction(LOG_EVENT event, String msg) {
+        if (getCurrentUser().isSysAdmin()) {
+            /** we do not log SysAdmin because of the huge amount of event for the services. The Logging is for user events. **/
+            return;
         }
-        try{
-            logger.error("Event '{}'| {}: {} ",getCurrentUser().getAccountName(),event,msg);
+        try {
+            logger.error("Event '{}'| {}: {} ", getCurrentUser().getAccountName(), event, msg);
             JsonSample newSample = new JsonSample();
             newSample.setTs(JsonFactory.sampleDTF.print(DateTime.now()));
-            newSample.setValue(String.format("%s|%s|%s",user.getAccountName(),event,msg));
-            getSampleTable().insertSamples(user.getUserID(),"Activities",JEVisConstants.PrimitiveType.STRING,Arrays.asList(newSample));
-        }catch (Exception ex){
-            logger.error("Error while logging Event: {}:{}:{}",event,msg,ex);
+            newSample.setValue(String.format("%s|%s|%s", user.getAccountName(), event, msg));
+            getSampleTable().insertSamples(getCurrentUser().getUserID(), "Activities", JEVisConstants.PrimitiveType.STRING, Arrays.asList(newSample));
+        } catch (Exception ex) {
+            logger.error("Error while logging Event: {}:{}:{}", event, msg, ex);
         }
-
     }
 
 
@@ -226,7 +225,8 @@ public class SQLDataSource {
     public ObjectTable getObjectTable() {
         return this.oTable;
     }
-    public LoginTable getLoginTable(){
+
+    public LoginTable getLoginTable() {
         return this.lTable;
     }
 
