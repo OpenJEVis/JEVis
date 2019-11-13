@@ -167,13 +167,15 @@ public class SaveAnalysisDialog {
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
-                            saveDataModel(newAnalysisObject, model.getSelectedData(), model.getCharts());
+                            if (newAnalysisObject != null) {
+                                saveDataModel(newAnalysisObject, model.getSelectedData(), model.getCharts());
 
-                            model.setCurrentAnalysis(newAnalysisObject);
-                            pickerCombo.updateCellFactory();
-                            model.updateListAnalyses();
-                            model.isGlobalAnalysisTimeFrame(true);
-                            listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
+                                model.setCurrentAnalysis(newAnalysisObject);
+                                pickerCombo.updateCellFactory();
+                                model.updateListAnalyses();
+                                model.isGlobalAnalysisTimeFrame(true);
+                                listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
+                            }
                         } else {
 
                             Dialog<ButtonType> dialogOverwrite = new Dialog<>();
