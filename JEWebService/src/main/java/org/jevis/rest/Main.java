@@ -11,7 +11,6 @@ import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.jevis.api.JEVisException;
 import org.jevis.ws.sql.ConnectionFactory;
-import org.jevis.ws.sql.SQLDataSource;
 
 import javax.security.sasl.AuthenticationException;
 import java.io.File;
@@ -69,9 +68,6 @@ public class Main {
         Connection dbConn = ConnectionFactory.getInstance().getConnection();
         if (dbConn.isValid(2000)) {
             logger.info("Database Connection is working");
-            SQLDataSource sqlDataSource = new SQLDataSource(dbConn);
-            sqlDataSource.gdprCleanUp();
-            sqlDataSource=null;
         } else {
             logger.info("Database Connection is NOT working");
             System.exit(1);

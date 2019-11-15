@@ -99,34 +99,43 @@ public class JEVisTreeFactory {
                 if (findNode.match(t)) {
 //                    TreeHelper.EventOpenObject(tree, findNode);
                     tree.getSearchFilterBar().requestCursor();
+                    t.consume();
                 } else if (findAgain.match(t)) {
                     if (tree.getSearchFilterBar() != null) {
                         tree.getSearchFilterBar().goNext();
                     }
+                    t.consume();
                 } else if (add.match(t)) {
                     TreeHelper.EventNew(tree, selectedObj.getValue().getJEVisObject());
+                    t.consume();
                 } else if (delete.match(t)) {
                     TreeHelper.EventDelete(tree);
+                    t.consume();
                 } else if (deleteAllCleanAndRaw.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventDeleteAllCleanAndRaw(tree);
+                    t.consume();
                 } else if (deleteAllCalculations.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventDeleteAllCalculations(tree);
+                    t.consume();
 //                } else if (deleteBrokenTS.match(t) && JEConfig.getExpert()) {
 //                    TreeHelper.EventDeleteBrokenTS(tree);
                 } else if (createMultiplierAndDifferential.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventCreateMultiplierAndDifferential(tree);
+                    t.consume();
                 } else if ((enableAll.match(t) || disableAll.match(t)) && JEConfig.getExpert()) {
                     if (enableAll.match(t)) {
                         TreeHelper.EventSetEnableAll(tree, true);
                     } else {
                         TreeHelper.EventSetEnableAll(tree, false);
                     }
+                    t.consume();
                 } else if (copyObj.match(t)) {
                     tree.setCopyObject(selectedObj.getValue().getJEVisObject(), false);
                     final Clipboard clipboard = Clipboard.getSystemClipboard();
                     final ClipboardContent content = new ClipboardContent();
                     content.putString(selectedObj.getValue().getJEVisObject().getID() + " " + selectedObj.getValue().getJEVisObject().getName());
                     clipboard.setContent(content);
+                    t.consume();
                 } else if (cutObj.match(t)) {
                     tree.setCopyObject(selectedObj.getValue().getJEVisObject(), true);
                 } else if (pasteObj.match(t)) {
@@ -136,15 +145,20 @@ public class JEVisTreeFactory {
                         } else {
                             TreeHelper.EventDrop(tree, tree.getCopyObject(), selectedObj.getValue().getJEVisObject(), CopyObjectDialog.DefaultAction.COPY);
                         }
+                        t.consume();
                     }
                 } else if (rename.match(t)) {
                     TreeHelper.EventRename(tree, selectedObj.getValue().getJEVisObject());
+                    t.consume();
                 } else if (copyIDandValue.match(t)) {
                     final Clipboard clipboard = Clipboard.getSystemClipboard();
                     final ClipboardContent content = new ClipboardContent();
                     content.putString(selectedObj.getValue().getJEVisObject().getID() + ":Value");
                     clipboard.setContent(content);
+                    t.consume();
                 }
+
+
             }
         });
 

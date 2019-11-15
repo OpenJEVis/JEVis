@@ -166,7 +166,7 @@ public class ResourceAttribute {
 //                JsonAttribute json = (new Gson()).fromJson(payload, JsonAttribute.class);
                     JsonAttribute json = objectMapper.readValue(payload, JsonAttribute.class);
                     ds.setAttribute(id, json);
-                    ds.logUserAction(SQLDataSource.LOG_EVENT.UPDATE_ATTRIBUTE,String.format("%s:%s|%s",id,attribute,payload));
+                    ds.logUserAction(SQLDataSource.LOG_EVENT.UPDATE_ATTRIBUTE, String.format("%s:%s", id, attribute));
                     return Response.ok(json).build();
                 }
                 return Response.status(Response.Status.NOT_FOUND).build();
