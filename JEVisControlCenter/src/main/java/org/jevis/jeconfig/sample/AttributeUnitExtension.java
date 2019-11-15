@@ -210,8 +210,12 @@ public class AttributeUnitExtension implements SampleEditorExtension {
     @Override
     public boolean sendOKAction() {
         try {
-            att.setInputUnit(iuUnit.getUnit());
-            att.setDisplayUnit(ouUnit.getUnit());
+            if (iuUnit != null) {
+                att.setInputUnit(iuUnit.getUnit());
+            }
+            if (ouUnit != null) {
+                att.setDisplayUnit(ouUnit.getUnit());
+            }
             att.commit();
             return true;
         } catch (Exception ex) {
