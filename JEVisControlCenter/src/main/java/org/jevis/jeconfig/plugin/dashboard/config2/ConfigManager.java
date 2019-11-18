@@ -58,9 +58,11 @@ public class ConfigManager {
     private static final Logger logger = LogManager.getLogger(ConfigManager.class);
     private final TimeFrames timeFrames;
     private JEVisObject dashboardObject = null;
+    private ObjectRelations objectRelations;
 
     public ConfigManager(JEVisDataSource dataSource) {
         this.jeVisDataSource = dataSource;
+        this.objectRelations = new ObjectRelations(jeVisDataSource);
         this.timeFrames = new TimeFrames(this.jeVisDataSource);
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
@@ -390,11 +392,11 @@ public class ConfigManager {
 
         JEVisClass analysesDirectory = null;
         List<JEVisObject> listAnalysesDirectories = null;
-        AtomicBoolean hasMulitDirs = new AtomicBoolean(false);
+        AtomicBoolean hasMultitDirs = new AtomicBoolean(false);
         try {
             analysesDirectory = jeVisDataSource.getJEVisClass("Analyses Directory");
             listAnalysesDirectories = jeVisDataSource.getObjects(analysesDirectory, false);
-            hasMulitDirs.set(listAnalysesDirectories.size() > 1);
+            hasMultitDirs.set(listAnalysesDirectories.size() > 1);
 
         } catch (JEVisException e) {
             e.printStackTrace();
@@ -402,7 +404,7 @@ public class ConfigManager {
 
         ObjectProperty<JEVisObject> currentAnalysisDirectory = new SimpleObjectProperty<>(null);
         ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
-        ObjectRelations objectRelations = new ObjectRelations(jeVisDataSource);
+
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
@@ -413,7 +415,7 @@ public class ConfigManager {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
-                            if (hasMulitDirs.get())
+                            if (!hasMultitDirs.get())
                                 setText(obj.getName());
                             else {
                                 String prefix = objectRelations.getObjectPath(obj);
