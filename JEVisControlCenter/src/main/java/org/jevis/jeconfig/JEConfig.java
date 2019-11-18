@@ -391,14 +391,19 @@ public class JEConfig extends Application {
 //                    Platform.runLater(() -> pluginManager.getToolbar().requestFocus());//the most attribute will validate if the lose focus so we do
                     if (saveCombo.match(ke)) {
                         pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.SAVE);
+                        ke.consume();
                     } else if (reloadF5.match(ke)) {
                         pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.RELOAD);
+                        ke.consume();
                     } else if (deleteCombo.match(ke)) {
                         pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.DELETE);
+                        ke.consume();
                     } else if (newCombo.match(ke)) {
                         pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.NEW);
+                        ke.consume();
                     } else if (hiddenSettings.match(ke)) {
                         HiddenConfig.showHiddenConfig();
+                        ke.consume();
                     }
                 });
 
