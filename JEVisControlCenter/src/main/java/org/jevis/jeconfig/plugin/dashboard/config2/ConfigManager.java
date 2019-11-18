@@ -333,41 +333,41 @@ public class ConfigManager {
     }
 
     public ObjectProperty<Image> getBackgroundImage(JEVisObject analysisObject) {
+        ObjectProperty<Image> imageBoardBackground = new SimpleObjectProperty<>(Image.class, "Dash Board Color", JEConfig.getImage("transPixel.png"));
         if (analysisObject == null) {
 
-        }
+        } else {
 
 //        logger.debug("getBackgroundImage: {}", analysisObject.getID());
-        ObjectProperty<Image> imageBoardBackground = new SimpleObjectProperty<>(Image.class, "Dash Board Color", JEConfig.getImage("transPixel.png"));
 
-        Task<Image> imageLoadTask = new Task<Image>() {
-            @Override
-            public Image call() throws InterruptedException {
-                try {
+
+            Task<Image> imageLoadTask = new Task<Image>() {
+                @Override
+                public Image call() throws InterruptedException {
+                    try {
 //                    logger.error("getBackgroundImage: {}", analysisObject);
 //                    if (analysisObject == null) {
 //                        return JEConfig.getImage("transPixel.png");
 //                    }
-                    JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
-                    if (bgFile != null && bgFile.hasSample()) {
-                        JEVisSample backgroundImage = bgFile.getLatestSample();
-                        if (backgroundImage != null) {
-                            JEVisFile imageFile = backgroundImage.getValueAsFile();
-                            InputStream in = new ByteArrayInputStream(imageFile.getBytes());
-                            return new Image(in);
+                        JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
+                        if (bgFile != null && bgFile.hasSample()) {
+                            JEVisSample backgroundImage = bgFile.getLatestSample();
+                            if (backgroundImage != null) {
+                                JEVisFile imageFile = backgroundImage.getValueAsFile();
+                                InputStream in = new ByteArrayInputStream(imageFile.getBytes());
+                                return new Image(in);
+                            }
                         }
+                    } catch (Exception ex) {
+                        logger.error("Could not load background image: {}", ex, ex);
                     }
-
-
-                } catch (Exception ex) {
-                    logger.error("Could load background image: {}", ex);
+                    throw new InterruptedException("could not load background image");
                 }
-                throw new InterruptedException("could load background image");
-            }
-        };
+            };
 
-        imageLoadTask.setOnSucceeded(e -> imageBoardBackground.setValue(imageLoadTask.getValue()));
-        new Thread(imageLoadTask).start();
+            imageLoadTask.setOnSucceeded(e -> imageBoardBackground.setValue(imageLoadTask.getValue()));
+            new Thread(imageLoadTask).start();
+        }
 
         return imageBoardBackground;
     }
