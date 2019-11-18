@@ -148,14 +148,14 @@ public class WidgetNavigator {
 
         widthField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                this.control.setDashboardSize(Double.parseDouble(newValue), Double.parseDouble(widthField.getText()));
+                this.control.setDashboardSize(Double.parseDouble(newValue), Double.parseDouble(heightField.getText()));
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
         heightField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                this.control.setDashboardSize(Double.parseDouble(newValue), Double.parseDouble(heightField.getText()));
+                this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(newValue));
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

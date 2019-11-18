@@ -95,7 +95,7 @@ public class UnitSelectUI {
                     oldSymbol = symbolField.getText();
                 }
                 if (oldSymbol.length() > 1) {
-                    String sub = unit.toString().substring(0, 1);
+                    String sub = oldSymbol.substring(0, 1);
                     if (UnitManager.getInstance().getPrefixFromShort(sub) != null) {
                         oldSymbol = oldSymbol.replace(sub, "");
                     }
