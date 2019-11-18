@@ -127,54 +127,61 @@ public class TopMenu extends MenuBar {
         MenuItem findAgain = new MenuItem(I18n.getInstance().getString("menu.edit.findagain"));
         findAgain.setAccelerator(new KeyCodeCombination(KeyCode.F3));
 
-//        paste.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.PASTE);
-//            }
-//        });
-//
-//        copy.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.COPY);
-//            }
-//        });
-//
-//        cut.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.CUT);
-//            }
-//        });
-//
-//        delete.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.DELETE);
-//            }
-//        });
-//
-//        rename.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.RENAME);
-//            }
-//        });
-//
-//        findObject.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.FIND_OBJECT);
-//            }
-//        });
-//
-//        findAgain.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.FIND_AGAIN);
-//            }
-//        });
+        paste.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.PASTE);
+                event.consume();
+            }
+        });
+
+        copy.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.COPY);
+                event.consume();
+            }
+        });
+
+        cut.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.CUT);
+                event.consume();
+            }
+        });
+
+        delete.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.DELETE);
+                event.consume();
+            }
+        });
+
+        rename.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.RENAME);
+                event.consume();
+            }
+        });
+
+        findObject.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.FIND_OBJECT);
+                event.consume();
+            }
+        });
+
+        findAgain.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.FIND_AGAIN);
+                event.consume();
+            }
+        });
 
         menuEdit.getItems().addAll(copy, cut, paste, delete, rename, findObject, findAgain);
 
