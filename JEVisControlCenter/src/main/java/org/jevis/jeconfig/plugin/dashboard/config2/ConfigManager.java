@@ -331,7 +331,11 @@ public class ConfigManager {
     }
 
     public ObjectProperty<Image> getBackgroundImage(JEVisObject analysisObject) {
-        logger.debug("getBackgroundImage: {}", analysisObject.getID());
+        if (analysisObject == null) {
+
+        }
+
+//        logger.debug("getBackgroundImage: {}", analysisObject.getID());
         ObjectProperty<Image> imageBoardBackground = new SimpleObjectProperty<>(Image.class, "Dash Board Color", JEConfig.getImage("transPixel.png"));
 
         Task<Image> imageLoadTask = new Task<Image>() {

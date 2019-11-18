@@ -131,7 +131,10 @@ public class DashBoardPane extends Pane {
         this.analysis = analysis;
 
         setSize(analysis.getSize());
+
+
         createGrid(analysis.xGridInterval, analysis.yGridInterval);
+
 
 //        this.scale.setX(analysis.getZoomFactor());
 //        this.scale.setY(analysis.getZoomFactor());
@@ -296,6 +299,7 @@ public class DashBoardPane extends Pane {
 //            activateGrid(true);
 //            createGrid(this.analysis.xGridInterval, this.analysis.yGridInterval);
             Platform.runLater(() -> {
+
                 DashBoardPane.this.getChildren().addAll(this.visibleGrid);
 //                visibleGrid.forEach(line -> {
 //                    System.out.println("Add LIne: " + line.toString());
@@ -321,6 +325,19 @@ public class DashBoardPane extends Pane {
      * @param yGridInterval
      */
     public void createGrid(double xGridInterval, double yGridInterval) {
+//        System.out.println("getChildren()a: +" + getChildren().size() + "  visibleGrid: " + visibleGrid.size());
+//        getChildren().removeAll(visibleGrid);
+//        System.out.println("getChildren()e: +" + getChildren().size());
+
+        List<Node> oldGrid = new ArrayList<>();
+        getChildren().forEach(node -> {
+            if (node.getId().equals("grid")) {
+                oldGrid.add(node);
+            }
+        });
+        getChildren().removeAll(oldGrid);
+
+
         double totalHeight = analysis.getSize().getHeight();
         double totalWidth = analysis.getSize().getWidth();
         int maxColumns = Double.valueOf(totalWidth / xGridInterval).intValue() + 1;
@@ -337,6 +354,7 @@ public class DashBoardPane extends Pane {
             this.xGrids.add(xPos);
 
             Line line = new Line();
+            line.setId("grid");
             line.setStartX(xPos);
             line.setStartY(0.0f);
             line.setEndX(xPos);
@@ -353,6 +371,7 @@ public class DashBoardPane extends Pane {
             this.yGrids.add(yPos);
 
             Line line = new Line();
+            line.setId("grid");
             line.setStartX(0);
             line.setStartY(yPos);
             line.setEndX(totalWidth);
