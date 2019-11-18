@@ -207,9 +207,13 @@ public class DashboardControl {
         }
     }
 
-    public void setDashboardSize(double width, double hight) {
-        this.activeDashboard.setSize(new Size(hight, width));
+    public void setDashboardSize(double width, double height) {
+
+
+        this.activeDashboard.setSize(new Size(height, width));
         this.dashboardPane.loadSetting(activeDashboard);
+
+        this.dashboardPane.showGrid(this.showGridProperty.getValue());
     }
 
     public void zoomIn() {
@@ -289,6 +293,7 @@ public class DashboardControl {
             if (object == null) {
                 this.activeDashboard = new DashboardPojo();
                 this.activeDashboard.setName("Dashboard");
+                this.activeDashboard.setTimeFrame(timeFrames.day());
             } else {
                 this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
                 this.activeDashboard.setName(object.getName());
