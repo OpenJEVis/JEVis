@@ -220,7 +220,7 @@ public class DashboardControl {
         if (this.zoomFactor < 3) {
             this.zoomFactor = this.zoomFactor + 0.05d;
         }
-        this.zoomFactor = this.zoomFactor + 0.1d;
+        this.zoomFactor = this.zoomFactor + 0.05d;
         this.dashBordPlugIn.getDashBoardPane().setZoom(this.zoomFactor);
 
     }

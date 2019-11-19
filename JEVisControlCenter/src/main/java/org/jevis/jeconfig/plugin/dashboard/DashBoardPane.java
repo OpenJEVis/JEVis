@@ -20,6 +20,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
+import org.jevis.jeconfig.tool.ScrollPanes;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -116,6 +117,7 @@ public class DashBoardPane extends Pane {
         Platform.runLater(() -> {
             try {
                 loadSetting(this.control.getActiveDashboard());
+                ScrollPanes.resetParentScrollView(this);
             } catch (Exception ex) {
                 logger.error(ex);
             }
