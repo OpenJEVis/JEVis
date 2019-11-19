@@ -419,9 +419,6 @@ public class CSVImportDialog {
         gp.add(fileNameL, 2, x);
 
         //@TODO: implement format function
-//        gp.add(formatL, 0, ++x);
-//        gp.add(formats, 1, x);
-//        gp.add(automatic, 2, x);
 
         gp.add(customNoteLabel, 0, ++x);
         gp.add(customNoteField, 1, x);
