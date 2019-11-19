@@ -244,8 +244,8 @@ public class GapFillingEditor implements AttributeEditor {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setResizable(true);
-        dialog.setHeight(300);
-        dialog.setWidth(350);
+        dialog.setHeight(450);
+        dialog.setWidth(620);
         dialog.setTitle(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.title"));
         dialog.setHeaderText(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.header"));
         dialog.setGraphic(JEConfig.getImage("fill_gap.png", 48, 48));

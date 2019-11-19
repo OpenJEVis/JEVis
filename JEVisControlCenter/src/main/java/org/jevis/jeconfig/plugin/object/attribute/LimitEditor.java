@@ -238,7 +238,7 @@ public class LimitEditor implements AttributeEditor {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setResizable(true);
-        dialog.setHeight(300);
+        dialog.setHeight(450);
         dialog.setWidth(620);
 
 

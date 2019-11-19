@@ -58,9 +58,11 @@ public class ConfigManager {
     private static final Logger logger = LogManager.getLogger(ConfigManager.class);
     private final TimeFrames timeFrames;
     private JEVisObject dashboardObject = null;
+    private ObjectRelations objectRelations;
 
     public ConfigManager(JEVisDataSource dataSource) {
         this.jeVisDataSource = dataSource;
+        this.objectRelations = new ObjectRelations(jeVisDataSource);
         this.timeFrames = new TimeFrames(this.jeVisDataSource);
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
@@ -331,41 +333,41 @@ public class ConfigManager {
     }
 
     public ObjectProperty<Image> getBackgroundImage(JEVisObject analysisObject) {
+        ObjectProperty<Image> imageBoardBackground = new SimpleObjectProperty<>(Image.class, "Dash Board Color", JEConfig.getImage("transPixel.png"));
         if (analysisObject == null) {
 
-        }
+        } else {
 
 //        logger.debug("getBackgroundImage: {}", analysisObject.getID());
-        ObjectProperty<Image> imageBoardBackground = new SimpleObjectProperty<>(Image.class, "Dash Board Color", JEConfig.getImage("transPixel.png"));
 
-        Task<Image> imageLoadTask = new Task<Image>() {
-            @Override
-            public Image call() throws InterruptedException {
-                try {
+
+            Task<Image> imageLoadTask = new Task<Image>() {
+                @Override
+                public Image call() throws InterruptedException {
+                    try {
 //                    logger.error("getBackgroundImage: {}", analysisObject);
 //                    if (analysisObject == null) {
 //                        return JEConfig.getImage("transPixel.png");
 //                    }
-                    JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
-                    if (bgFile != null && bgFile.hasSample()) {
-                        JEVisSample backgroundImage = bgFile.getLatestSample();
-                        if (backgroundImage != null) {
-                            JEVisFile imageFile = backgroundImage.getValueAsFile();
-                            InputStream in = new ByteArrayInputStream(imageFile.getBytes());
-                            return new Image(in);
+                        JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
+                        if (bgFile != null && bgFile.hasSample()) {
+                            JEVisSample backgroundImage = bgFile.getLatestSample();
+                            if (backgroundImage != null) {
+                                JEVisFile imageFile = backgroundImage.getValueAsFile();
+                                InputStream in = new ByteArrayInputStream(imageFile.getBytes());
+                                return new Image(in);
+                            }
                         }
+                    } catch (Exception ex) {
+                        logger.error("Could not load background image: {}", ex, ex);
                     }
-
-
-                } catch (Exception ex) {
-                    logger.error("Could load background image: {}", ex);
+                    throw new InterruptedException("could not load background image");
                 }
-                throw new InterruptedException("could load background image");
-            }
-        };
+            };
 
-        imageLoadTask.setOnSucceeded(e -> imageBoardBackground.setValue(imageLoadTask.getValue()));
-        new Thread(imageLoadTask).start();
+            imageLoadTask.setOnSucceeded(e -> imageBoardBackground.setValue(imageLoadTask.getValue()));
+            new Thread(imageLoadTask).start();
+        }
 
         return imageBoardBackground;
     }
@@ -390,11 +392,11 @@ public class ConfigManager {
 
         JEVisClass analysesDirectory = null;
         List<JEVisObject> listAnalysesDirectories = null;
-        AtomicBoolean hasMulitDirs = new AtomicBoolean(false);
+        AtomicBoolean hasMultitDirs = new AtomicBoolean(false);
         try {
             analysesDirectory = jeVisDataSource.getJEVisClass("Analyses Directory");
             listAnalysesDirectories = jeVisDataSource.getObjects(analysesDirectory, false);
-            hasMulitDirs.set(listAnalysesDirectories.size() > 1);
+            hasMultitDirs.set(listAnalysesDirectories.size() > 1);
 
         } catch (JEVisException e) {
             e.printStackTrace();
@@ -402,7 +404,7 @@ public class ConfigManager {
 
         ObjectProperty<JEVisObject> currentAnalysisDirectory = new SimpleObjectProperty<>(null);
         ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
-        ObjectRelations objectRelations = new ObjectRelations(jeVisDataSource);
+
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
@@ -413,7 +415,7 @@ public class ConfigManager {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
-                            if (hasMulitDirs.get())
+                            if (!hasMultitDirs.get())
                                 setText(obj.getName());
                             else {
                                 String prefix = objectRelations.getObjectPath(obj);
