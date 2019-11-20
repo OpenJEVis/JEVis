@@ -116,11 +116,16 @@ public class AboutDialog {
         Label apiInfo = new Label("JEAPI Version:");
         Label apiVersion = new Label(info.getAPIVersion().getName() + " " + info.getAPIVersion().getVersion());
 
-        Label javaInfo = new Label("JAVA Version:");
+        Label javaInfo = new Label("JAVA Vendor:");
         Label javaVersion = new Label(System.getProperty("java.vendor") + " " + System.getProperty("java.version"));
 
-        Label systemInfo = new Label("System:");
+
+        Label systemInfo = new Label("OS System:");
         Label systemVersion = new Label(System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"));
+
+
+        Label vmNameLabel = new Label("JAVA Name:");
+        Label vmName = new Label(System.getProperty("java.vm.name") );
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -128,24 +133,30 @@ public class AboutDialog {
         grid.setPadding(new Insets(10, 10, 10, 10));
 
         //spalte , zeile bei 0 starten
-        grid.add(pInfo, 0, 0);
-        grid.add(pVersion, 1, 0);
 
-        grid.add(javaInfo, 0, 1);
-        grid.add(javaVersion, 1, 1);
-        grid.add(systemInfo, 0, 2);
-        grid.add(systemVersion, 1, 2);
-        grid.add(apiInfo, 0, 3);
-        grid.add(apiVersion, 1, 3);
+        grid.addColumn(0,pInfo,vmNameLabel,javaInfo,systemInfo,apiInfo);
+        grid.addColumn(1,pVersion,vmName,javaVersion,systemVersion,apiVersion);
+//        grid.add(pInfo, 0, 0);
+//        grid.add(pVersion, 1, 0);
+//
+//
+//
+//        grid.add(javaInfo, 0, 1);
+//        grid.add(javaVersion, 1, 1);
+//
+//        grid.add(systemInfo, 0, 2);
+//        grid.add(systemVersion, 1, 2);
+//        grid.add(apiInfo, 0, 3);
+//        grid.add(apiVersion, 1, 3);
 
-        int gy = 3;
-        for (LibraryInfo lib : info.getLibrarys()) {
-            Label libName = new Label(lib.getName() + ":");
-            Label libVersion = new Label(lib.getVersion());
-            ++gy;
-            grid.add(libName, 0, gy);
-            grid.add(libVersion, 1, gy);
-        }
+//        int gy = 3;
+//        for (LibraryInfo lib : info.getLibrarys()) {
+//            Label libName = new Label(lib.getName() + ":");
+//            Label libVersion = new Label(lib.getVersion());
+//            ++gy;
+//            grid.add(libName, 0, gy);
+//            grid.add(libVersion, 1, gy);
+//        }
 
         root.getChildren().addAll(
                 header, new Separator(Orientation.HORIZONTAL),
@@ -165,8 +176,10 @@ public class AboutDialog {
         });
 
         stage.setWidth(365);
+        stage.setHeight(500);
         //Workaround to set a dynamic size
-        stage.setHeight(460 + ((gy - 3) * 17));
+//        stage.setHeight(460 + ((gy - 3) * 17));
+
 
         stage.sizeToScene();
         stage.showAndWait();
