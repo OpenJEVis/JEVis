@@ -155,7 +155,6 @@ public class FileEditor implements AttributeEditor {
                     logger.debug("add new file: {}", selectedFile);
                     JEVisFile jfile = new JEVisFileImp(selectedFile.getName(), selectedFile);
                     JEVisSample sample = attribute.buildSample(new DateTime(), jfile);
-                    sample.commit();//Workaround, normally the user need to press save
 
                     //-----
                     final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
