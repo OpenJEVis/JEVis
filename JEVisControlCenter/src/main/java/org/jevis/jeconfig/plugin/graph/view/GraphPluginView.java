@@ -83,7 +83,10 @@ import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -912,16 +915,18 @@ public class GraphPluginView implements Plugin {
                     chartDataModel.setColor(ColorHelper.toRGBCode(Color.BLUE));
                     chartDataModel.setSomethingChanged(true);
 
-                    Set<ChartDataModel> chartDataModels = Collections.singleton(chartDataModel);
+                    Set<ChartDataModel> chartDataModels = new HashSet<>();
+                    chartDataModels.add(chartDataModel);
 
                     ChartSettings chartSettings = new ChartSettings(chartDataModel.getObject().getName());
                     chartSettings.setId(0);
                     chartSettings.setChartType(ChartType.AREA);
-                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.PREVIEW);
                     analysisTimeFrame.setStart(analysisRequest.getStartDate());
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
                     chartSettings.setAnalysisTimeFrame(analysisTimeFrame);
-                    List<ChartSettings> chartSettingsList = Collections.singletonList(chartSettings);
+                    List<ChartSettings> chartSettingsList = new ArrayList<>();
+                    chartSettingsList.add(chartSettings);
 
                     org.jevis.commons.ws.json.JsonObject newJsonObject = new JsonObject();
                     newJsonObject.setName("Temp");
