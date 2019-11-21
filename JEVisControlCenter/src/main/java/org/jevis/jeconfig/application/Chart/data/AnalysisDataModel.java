@@ -133,6 +133,8 @@ public class AnalysisDataModel {
                     selectedData = new HashSet<>();
                     charts = new ArrayList<>();
                     getSelectedData();
+                } else if (getTemporary()) {
+                    setGlobalAnalysisTimeFrame(getSelectedData());
                 }
 
                 update();
@@ -895,11 +897,13 @@ public class AnalysisDataModel {
                 logger.error(ex);
             }
 
-            if (observableListAnalyses == null || observableListAnalyses.isEmpty()) updateListAnalyses();
-//        if (listAnalysisModel == null) {
-            getAnalysisModel();
-            updateSelectedData();
-//        }
+            if (observableListAnalyses == null || observableListAnalyses.isEmpty()) {
+                updateListAnalyses();
+            }
+            if (!getTemporary()) {
+                getAnalysisModel();
+                updateSelectedData();
+            }
         }
     }
 
