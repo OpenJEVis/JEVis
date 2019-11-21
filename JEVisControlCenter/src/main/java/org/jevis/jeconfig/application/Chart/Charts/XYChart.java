@@ -99,7 +99,6 @@ public class XYChart implements Chart {
     private WorkDays workDays = new WorkDays(null);
     private ChartPanManager panner;
     private JFXChartUtil jfxChartUtil;
-    private DateTime nearest;
 
     public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean showL1L2, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -149,6 +148,17 @@ public class XYChart implements Chart {
                     }
 
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
+
+                    if (singleRow.hasPredictedData()) {
+                        try {
+                            XYChartSerie prediction = new XYChartSerie(singleRow, hideShowIcons, true);
+
+                            hexColors.add(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
+                            xyChartSerieList.add(prediction);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
 
                     if (calcRegression) {
                         chart.setRegressionColor(singleRow.getAxis(), ColorHelper.toColor(singleRow.getColor()));
@@ -307,7 +317,7 @@ public class XYChart implements Chart {
     }
 
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
-        XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
+        XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons, false);
 
         hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 
@@ -347,7 +357,7 @@ public class XYChart implements Chart {
         if (!addSeriesOfType.equals(ManipulationMode.NONE)) {
             ManipulationMode oldMode = singleRow.getManipulationMode();
             singleRow.setManipulationMode(addSeriesOfType);
-            XYChartSerie serie2 = new XYChartSerie(singleRow, hideShowIcons);
+            XYChartSerie serie2 = new XYChartSerie(singleRow, hideShowIcons, false);
 
             hexColors.add(ColorHelper.toColor(singleRow.getColor()).darker());
 
@@ -731,7 +741,7 @@ public class XYChart implements Chart {
                     TableEntry tableEntry = serie.getTableEntry();
                     TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
 
-                    nearest = null;
+                    DateTime nearest = null;
                     if (sampleTreeMap.get(finalValueForDisplay) != null) {
                         nearest = finalValueForDisplay;
                     } else {
@@ -744,14 +754,16 @@ public class XYChart implements Chart {
                     Note formattedNote = new Note(sample);
 
                     if (!asDuration) {
+                        DateTime finalNearest = nearest;
                         Platform.runLater(() -> {
-                            if (nearest != null) {
-                                tableEntry.setDate(nearest
+                            if (finalNearest != null) {
+                                tableEntry.setDate(finalNearest
                                         .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                             } else tableEntry.setValue("-");
                         });
                     } else {
-                        Platform.runLater(() -> tableEntry.setDate((nearest.getMillis() -
+                        DateTime finalNearest1 = nearest;
+                        Platform.runLater(() -> tableEntry.setDate((finalNearest1.getMillis() -
                                 timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h"));
                     }
                     Platform.runLater(() -> tableEntry.setNote(formattedNote.getNoteAsString()));
@@ -985,11 +997,6 @@ public class XYChart implements Chart {
 
     public void setMaxValue(Double maxValue) {
         this.maxValue = maxValue;
-    }
-
-    @Override
-    public DateTime getNearest() {
-        return nearest;
     }
 
     public List<Color> getHexColors() {

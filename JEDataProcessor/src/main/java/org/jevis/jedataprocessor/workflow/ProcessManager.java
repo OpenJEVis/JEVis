@@ -7,15 +7,20 @@ package org.jevis.jedataprocessor.workflow;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.PredictedDataObject;
 import org.jevis.jedataprocessor.aggregation.AggregationAlignmentStep;
 import org.jevis.jedataprocessor.alignment.PeriodAlignmentStep;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.differential.DifferentialStep;
 import org.jevis.jedataprocessor.gap.FillGapStep;
 import org.jevis.jedataprocessor.limits.LimitsStep;
+import org.jevis.jedataprocessor.prediction.PredictionStep;
+import org.jevis.jedataprocessor.prediction.PreparePrediction;
 import org.jevis.jedataprocessor.save.ImportStep;
 import org.jevis.jedataprocessor.scaling.ScalingStep;
 import org.joda.time.DateTime;
@@ -30,9 +35,10 @@ public class ProcessManager {
 
     private static final Logger logger = LogManager.getLogger(ProcessManager.class);
     private final ResourceManager resourceManager;
-    List<ProcessStep> processSteps = new ArrayList<>();
+    private List<ProcessStep> processSteps = new ArrayList<>();
     private String name;
     private Long id;
+    private boolean isClean = true;
     private boolean missingSamples = true;
     private boolean rerun = false;
     private DateTime lastFirstDate;
@@ -40,15 +46,39 @@ public class ProcessManager {
 
     public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler, int processingSize) {
         this.resourceManager = new ResourceManager();
-        this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
+
         this.name = cleanObject.getName();
         this.id = cleanObject.getID();
-        this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
 
-        addDefaultSteps();
+        JEVisClass cleanDataClass;
+        JEVisClass predictedDataClass;
+        try {
+            cleanDataClass = cleanObject.getDataSource().getJEVisClass(CleanDataObject.CLASS_NAME);
+            predictedDataClass = cleanObject.getDataSource().getJEVisClass(PredictedDataObject.CLASS_NAME);
+
+            if (cleanObject.getJEVisClass().equals(cleanDataClass)) {
+                this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
+                this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
+                addDefaultSteps();
+            } else if (cleanObject.getJEVisClass().equals(predictedDataClass)) {
+                this.resourceManager.setPredictedDataObject(new PredictedDataObject(cleanObject, objectHandler));
+                this.resourceManager.getPredictedDataObject().setProcessingSize(processingSize);
+                addPredictionSteps();
+                isClean = false;
+            } else {
+                this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
+                this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
+                addDefaultSteps();
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+            this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
+            this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
+            addDefaultSteps();
+        }
     }
 
-    public void addDefaultSteps() {
+    private void addDefaultSteps() {
 
         ProcessStep preparation = new PrepareStep();
         processSteps.add(preparation);
@@ -75,28 +105,48 @@ public class ProcessManager {
         processSteps.add(importStep);
     }
 
+    private void addPredictionSteps() {
+
+        ProcessStep preparation = new PreparePrediction();
+        processSteps.add(preparation);
+
+        ProcessStep prediction = new PredictionStep();
+        processSteps.add(prediction);
+
+        ProcessStep importStep = new ImportStep();
+        processSteps.add(importStep);
+    }
+
     public void setProcessSteps(List<ProcessStep> processSteps) {
         this.processSteps = processSteps;
     }
 
     public void start() throws Exception {
-        logger.info("[{}:{}] Starting Process", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
+        if (isClean) {
 
-        if (resourceManager.getCleanDataObject().checkConfig()) {
+            logger.info("[{}:{}] Starting Process", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
+
+            if (resourceManager.getCleanDataObject().checkConfig()) {
 
 //        while (missingSamples) {
-            reRun();
+                reRun();
 //        }
+            }
+
+            logger.info("[{}:{}] Finished", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
+
+            resourceManager.setIntervals(null);
+            resourceManager.setNotesMap(null);
+            resourceManager.setRawSamplesDown(null);
+            resourceManager.setSampleCache(null);
+            resourceManager.setRawIntervals(null);
+            resourceManager.getCleanDataObject().clearLists();
+        } else {
+            if (resourceManager.getPredictedDataObject().isReady(resourceManager.getPredictedDataObject().getPredictedDataObject())) {
+                reRun();
+                resourceManager.getPredictedDataObject().finishCurrentRun(resourceManager.getPredictedDataObject().getPredictedDataObject());
+            }
         }
-
-        logger.info("[{}:{}] Finished", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
-
-        resourceManager.setIntervals(null);
-        resourceManager.setNotesMap(null);
-        resourceManager.setRawSamplesDown(null);
-        resourceManager.setSampleCache(null);
-        resourceManager.setRawIntervals(null);
-        resourceManager.getCleanDataObject().clearLists();
     }
 
     private void reRun() throws Exception {

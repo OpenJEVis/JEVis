@@ -37,6 +37,7 @@ public class ChartDataModel {
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
     private JEVisObject dataProcessorObject = null;
     private List<JEVisSample> samples = new ArrayList<>();
+    private List<JEVisSample> predictedSamples = new ArrayList<>();
     private boolean somethingChanged = true;
     private JEVisUnit unit;
     private List<Integer> selectedCharts = new ArrayList<>();
@@ -48,9 +49,9 @@ public class ChartDataModel {
     private Boolean absolute = false;
     private BubbleType bubbleType = BubbleType.NONE;
     private boolean isStringData = false;
+    private boolean hasPredictedData = false;
     private double timeFactor = 1.0;
     private Double scaleFactor = 1d;
-    private boolean fillZeroes = true;
     private double min;
     private double max;
     private double avg;
@@ -60,6 +61,7 @@ public class ChartDataModel {
      * Maximum number of parallel running getSamples(), not the Dashboard need multiple
      */
     private static ExecutorService executor = Executors.newFixedThreadPool(10);
+    private JEVisAttribute predictedDataAttribute;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -96,20 +98,10 @@ public class ChartDataModel {
         this.unit = _unit;
     }
 
-    /**
-     * Workaround by FS, Nils says the we dont want filling with zeroes and it also
-     * makes problems with the avg in the Dashboard but we cannot remove this because
-     * the Graph will not work on the x axis with multiple charts.
-     **/
-    public void setFillZeroes(boolean fillZeroes) {
-        this.fillZeroes = fillZeroes;
-    }
-
     public List<JEVisSample> getSamples() {
         if (this.somethingChanged) {
-//            ExecutorService executor = Executors.newFixedThreadPool(1);
 
-            FutureTask<List<JEVisSample>> datatask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
+            FutureTask<List<JEVisSample>> futureTask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
                 @Override
                 public List<JEVisSample> call() {
 
@@ -173,15 +165,76 @@ public class ChartDataModel {
                 }
             });
 
-            executor.execute(datatask);
+            executor.execute(futureTask);
             try {
-                samples = datatask.get();
+                samples = futureTask.get();
             } catch (Exception ex) {
                 logger.error(ex);
             }
-//            executor.shutdown();
         }
         return samples;
+    }
+
+    public List<JEVisSample> getPredictedSamples() {
+
+        FutureTask<List<JEVisSample>> futureTask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
+            @Override
+            public List<JEVisSample> call() {
+
+                try {
+                    logger.debug("CDM.getSample.thread: {}{}", Thread.currentThread().getId(), Thread.currentThread().getName());
+                    List<JEVisSample> samples = new ArrayList<>();
+                    getAttribute();
+
+
+                    if (getSelectedStart() == null || getSelectedEnd() == null) {
+                        return samples;
+                    }
+                    if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
+                        try {
+
+                            SampleGenerator sg = new SampleGenerator(predictedDataAttribute.getDataSource(),
+                                    predictedDataAttribute.getObject(),
+                                    predictedDataAttribute,
+                                    selectedStart, selectedEnd,
+                                    manipulationMode, aggregationPeriod);
+
+                            samples = sg.generateSamples();
+                            samples = sg.getAggregatedSamples(samples);
+
+                            if (!isStringData) {
+                                samples = factorizeSamples(samples);
+                            }
+
+                        } catch (Exception ex) {
+                            logger.error(ex);
+                        }
+                    } else {
+                        if (getDataProcessor() != null) {
+                            logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                                    getDataProcessor().getName(), getDataProcessor().getID());
+                        } else {
+                            logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                                    getObject().getName(), getObject().getID());
+                        }
+                    }
+                    return samples;
+
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+
+                return new ArrayList<JEVisSample>();
+            }
+        });
+
+        executor.execute(futureTask);
+        try {
+            predictedSamples = futureTask.get();
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+        return predictedSamples;
     }
 
     public void setSamples(List<JEVisSample> samples) {
@@ -382,9 +435,18 @@ public class ChartDataModel {
 
                 String jevisClassName = getObject().getJEVisClassName();
                 if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data")) {
-                    if (dataProcessorObject == null) this.attribute = getObject().getAttribute("Value");
-                    else this.attribute = getDataProcessor().getAttribute("Value");
+                    if (dataProcessorObject == null) {
+                        this.attribute = getObject().getAttribute("Value");
+                    } else {
+                        this.attribute = getDataProcessor().getAttribute("Value");
+                    }
 
+                    JEVisClass predictedData = this.dataSource.getJEVisClass("Predicted Data");
+                    List<JEVisObject> children = this.attribute.getObject().getChildren(predictedData, false);
+                    if (!children.isEmpty()) {
+                        this.hasPredictedData = true;
+                        this.predictedDataAttribute = children.get(0).getAttribute("Value");
+                    }
 
                     if (jevisClassName.equals("String Data")) {
                         this.isStringData = true;
@@ -417,6 +479,9 @@ public class ChartDataModel {
         return getAttribute() != null && getAttribute().hasSample();
     }
 
+    public boolean hasPredictedData() {
+        return hasPredictedData;
+    }
 
     public List<Integer> getSelectedcharts() {
         return selectedCharts;
@@ -527,6 +592,10 @@ public class ChartDataModel {
 
     public Boolean getAbsolute() {
         return absolute;
+    }
+
+    public JEVisAttribute getPredictedDataAttribute() {
+        return predictedDataAttribute;
     }
 
     public void setAbsolute(Boolean absolute) {

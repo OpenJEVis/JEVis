@@ -1,0 +1,116 @@
+{
+  "name": "Predicted Data",
+  "description": "The class Predicted Data represents a container for a series of predicted numeric values, which are based on the parent.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Predicted Data",
+      "end": "Data",
+      "type": 0
+    },
+    {
+      "start": "Predicted Data",
+      "end": "Data",
+      "type": 3
+    },
+    {
+      "start": "Predicted Data",
+      "end": "Clean Data",
+      "type": 3
+    },
+    {
+      "start": "Predicted Data",
+      "end": "Predicted Data",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Predicted Data"
+    },
+    {
+      "name": "Type",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Predicted Data"
+    },
+    {
+      "name": "Reference Period",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Predicted Data"
+    },
+    {
+      "name": "Reference Period Count",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Predicted Data"
+    },
+    {
+      "name": "Bind To Specific",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Predicted Data"
+    },
+    {
+      "name": "Prediction Duration",
+      "primitiveType": 0,
+      "guiType": "String Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Predicted Data"
+    },
+    {
+      "name": "Prediction Duration Count",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Predicted Data"
+    },
+    {
+      "name": "Last Run",
+      "primitiveType": 0,
+      "guiType": "Date Time",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Source"
+    },
+    {
+      "name": "Cycle Time",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Source"
+    },
+    {
+      "name": "Timezone",
+      "primitiveType": 0,
+      "guiType": "Time Zone",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Data Source"
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.PredictedDataObject;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Interval;
@@ -29,6 +30,7 @@ public class ResourceManager {
     private static final Logger logger = LogManager.getLogger(ResourceManager.class);
     public List<CleanInterval> intervals = new ArrayList<>();
     private CleanDataObject cleanDataObject;
+    private PredictedDataObject predictedDataObject;
     private List<JEVisSample> rawSamplesDown;
     private Map<DateTime, JEVisSample> notesMap;
     private List<JEVisSample> sampleCache = new ArrayList<>();
@@ -48,6 +50,14 @@ public class ResourceManager {
 
     public void setCleanDataObject(CleanDataObject cleanDataObject) {
         this.cleanDataObject = cleanDataObject;
+    }
+
+    public PredictedDataObject getPredictedDataObject() {
+        return predictedDataObject;
+    }
+
+    public void setPredictedDataObject(PredictedDataObject predictedDataObject) {
+        this.predictedDataObject = predictedDataObject;
     }
 
     public List<JEVisSample> getRawSamplesDown() {
