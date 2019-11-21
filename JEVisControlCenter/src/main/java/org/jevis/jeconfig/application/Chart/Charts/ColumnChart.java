@@ -416,11 +416,6 @@ public class ColumnChart implements Chart {
     }
 
     @Override
-    public DateTime getNearest() {
-        return nearest;
-    }
-
-    @Override
     public void setValueForDisplay(DateTime valueForDisplay) {
         this.valueForDisplay = valueForDisplay;
     }

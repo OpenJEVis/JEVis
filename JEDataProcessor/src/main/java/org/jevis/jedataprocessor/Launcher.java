@@ -14,6 +14,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.PredictedDataObject;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
@@ -192,13 +193,19 @@ public class Launcher extends AbstractCliApp {
 
     private List<JEVisObject> getAllCleaningObjects() throws Exception {
         JEVisClass cleanDataClass;
+        JEVisClass predictedDataClass;
         List<JEVisObject> cleanDataObjects;
+        List<JEVisObject> predictedDataObjects;
         List<JEVisObject> filteredObjects = new ArrayList<>();
 
         try {
             cleanDataClass = ds.getJEVisClass(CleanDataObject.CLASS_NAME);
             cleanDataObjects = ds.getObjects(cleanDataClass, false);
             logger.info("Total amount of Clean Data Objects: " + cleanDataObjects.size());
+            predictedDataClass = ds.getJEVisClass(PredictedDataObject.CLASS_NAME);
+            predictedDataObjects = ds.getObjects(predictedDataClass, false);
+            logger.info("Total amount of Predicted Data Objects: " + predictedDataObjects.size());
+
             cleanDataObjects.forEach(jeVisObject -> {
                 if (isEnabled(jeVisObject)) {
                     filteredObjects.add(jeVisObject);
@@ -207,6 +214,15 @@ public class Launcher extends AbstractCliApp {
                     }
                 }
             });
+            predictedDataObjects.forEach(object -> {
+                if (isEnabled(object)) {
+                    filteredObjects.add(object);
+                    if (!plannedJobs.containsKey(object.getID())) {
+                        plannedJobs.put(object.getID(), "true");
+                    }
+                }
+            });
+
             logger.info("Amount of enabled Clean Data Objects: " + cleanDataObjects.size());
         } catch (JEVisException ex) {
             throw new Exception("Process classes missing", ex);
@@ -215,9 +231,16 @@ public class Launcher extends AbstractCliApp {
         return filteredObjects;
     }
 
-    private boolean isEnabled(JEVisObject cleanObject) {
-        ObjectHandler objectHandler = new ObjectHandler(ds);
-        CleanDataObject cleanDataObject = new CleanDataObject(cleanObject, objectHandler);
-        return cleanDataObject.getEnabled();
+    private boolean isEnabled(JEVisObject jeVisObject) {
+        JEVisAttribute enabledAtt = null;
+        try {
+            enabledAtt = jeVisObject.getAttribute("Enabled");
+            if (enabledAtt != null && enabledAtt.hasSample()) {
+                return enabledAtt.getLatestSample().getValueAsBoolean();
+            }
+        } catch (Exception e) {
+            logger.error("Could not get enabled status of {} with id {}", jeVisObject.getName(), jeVisObject.getID(), e);
+        }
+        return false;
     }
 }

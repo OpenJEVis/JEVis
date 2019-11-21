@@ -230,6 +230,24 @@ public class RowNote {
             formattedNote.append(System.getProperty("line.separator"));
         }
 
+        if (note.contains(NoteConstants.Prediction.PREDICTION) && note.contains(NoteConstants.Prediction.PREDICTION_AVERAGE)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.prediction.average"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+        if (note.contains(NoteConstants.Prediction.PREDICTION) && note.contains(NoteConstants.Prediction.PREDICTION_MEDIAN)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.prediction.median"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+
+        if (note.contains(NoteConstants.Prediction.PREDICTION) && note.contains(NoteConstants.Prediction.PREDICTION_MIN)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.prediction.min"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+        if (note.contains(NoteConstants.Prediction.PREDICTION) && note.contains(NoteConstants.Prediction.PREDICTION_MAX)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.prediction.max"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+
         try {
             JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
             JEVisObject object = sample.getAttribute().getObject();

@@ -299,12 +299,20 @@ public class PickerCombo {
                 if (!mdl.getSelectedcharts().isEmpty()) {
                     JEVisAttribute att = mdl.getAttribute();
                     setMinMax(att);
+                    if (mdl.hasPredictedData()) {
+                        JEVisAttribute predictedAtt = mdl.getPredictedDataAttribute();
+                        setMinMax(predictedAtt);
+                    }
                 }
             }
         } else {
             for (ChartDataModel model : chartDataModels) {
                 JEVisAttribute att = model.getAttribute();
                 setMinMax(att);
+                if (model.hasPredictedData()) {
+                    JEVisAttribute predictedAtt = model.getPredictedDataAttribute();
+                    setMinMax(predictedAtt);
+                }
             }
         }
     }
