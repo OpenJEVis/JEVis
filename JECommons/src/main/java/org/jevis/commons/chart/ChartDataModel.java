@@ -37,7 +37,7 @@ public class ChartDataModel {
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
     private JEVisObject dataProcessorObject = null;
     private List<JEVisSample> samples = new ArrayList<>();
-    private List<JEVisSample> predictedSamples = new ArrayList<>();
+    private List<JEVisSample> forecastSamples = new ArrayList<>();
     private boolean somethingChanged = true;
     private JEVisUnit unit;
     private List<Integer> selectedCharts = new ArrayList<>();
@@ -49,7 +49,7 @@ public class ChartDataModel {
     private Boolean absolute = false;
     private BubbleType bubbleType = BubbleType.NONE;
     private boolean isStringData = false;
-    private boolean hasPredictedData = false;
+    private boolean hasForecastData = false;
     private double timeFactor = 1.0;
     private Double scaleFactor = 1d;
     private double min;
@@ -61,7 +61,7 @@ public class ChartDataModel {
      * Maximum number of parallel running getSamples(), not the Dashboard need multiple
      */
     private static ExecutorService executor = Executors.newFixedThreadPool(10);
-    private JEVisAttribute predictedDataAttribute;
+    private JEVisAttribute forecastDataAttribute;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -175,7 +175,7 @@ public class ChartDataModel {
         return samples;
     }
 
-    public List<JEVisSample> getPredictedSamples() {
+    public List<JEVisSample> getForecastSamples() {
 
         FutureTask<List<JEVisSample>> futureTask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
             @Override
@@ -193,9 +193,9 @@ public class ChartDataModel {
                     if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                         try {
 
-                            SampleGenerator sg = new SampleGenerator(predictedDataAttribute.getDataSource(),
-                                    predictedDataAttribute.getObject(),
-                                    predictedDataAttribute,
+                            SampleGenerator sg = new SampleGenerator(forecastDataAttribute.getDataSource(),
+                                    forecastDataAttribute.getObject(),
+                                    forecastDataAttribute,
                                     selectedStart, selectedEnd,
                                     manipulationMode, aggregationPeriod);
 
@@ -230,11 +230,11 @@ public class ChartDataModel {
 
         executor.execute(futureTask);
         try {
-            predictedSamples = futureTask.get();
+            forecastSamples = futureTask.get();
         } catch (Exception ex) {
             logger.error(ex);
         }
-        return predictedSamples;
+        return forecastSamples;
     }
 
     public void setSamples(List<JEVisSample> samples) {
@@ -441,11 +441,11 @@ public class ChartDataModel {
                         this.attribute = getDataProcessor().getAttribute("Value");
                     }
 
-                    JEVisClass predictedData = this.dataSource.getJEVisClass("Predicted Data");
-                    List<JEVisObject> children = this.attribute.getObject().getChildren(predictedData, false);
+                    JEVisClass forecastData = this.dataSource.getJEVisClass("Forecast Data");
+                    List<JEVisObject> children = this.attribute.getObject().getChildren(forecastData, false);
                     if (!children.isEmpty()) {
-                        this.hasPredictedData = true;
-                        this.predictedDataAttribute = children.get(0).getAttribute("Value");
+                        this.hasForecastData = true;
+                        this.forecastDataAttribute = children.get(0).getAttribute("Value");
                     }
 
                     if (jevisClassName.equals("String Data")) {
@@ -479,8 +479,8 @@ public class ChartDataModel {
         return getAttribute() != null && getAttribute().hasSample();
     }
 
-    public boolean hasPredictedData() {
-        return hasPredictedData;
+    public boolean hasForecastData() {
+        return hasForecastData;
     }
 
     public List<Integer> getSelectedcharts() {
@@ -594,8 +594,8 @@ public class ChartDataModel {
         return absolute;
     }
 
-    public JEVisAttribute getPredictedDataAttribute() {
-        return predictedDataAttribute;
+    public JEVisAttribute getForecastDataAttribute() {
+        return forecastDataAttribute;
     }
 
     public void setAbsolute(Boolean absolute) {

@@ -32,7 +32,7 @@ import java.util.TreeMap;
 
 public class XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
-    private final boolean predict;
+    private final boolean forecast;
     Integer yAxis;
     MultiAxisChart.Series<Number, Number> serie;
     TableEntry tableEntry;
@@ -44,12 +44,12 @@ public class XYChartSerie {
     Double minValue = Double.MAX_VALUE;
     Double maxValue = -Double.MAX_VALUE;
 
-    public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons, boolean predict) throws JEVisException {
+    public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons, boolean forecast) throws JEVisException {
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
         this.hideShowIcons = hideShowIcons;
         this.serie = new MultiAxisChart.Series<>();
-        this.predict = predict;
+        this.forecast = forecast;
 
         generateSeriesFromSamples();
     }
@@ -59,18 +59,18 @@ public class XYChartSerie {
         timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
 
         List<JEVisSample> samples = new ArrayList<>();
-        if (!predict) {
+        if (!forecast) {
             this.tableEntry = new TableEntry(getTableEntryName());
             this.serie.setName(getTableEntryName());
             this.tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
 
             samples = singleRow.getSamples();
         } else {
-            this.tableEntry = new TableEntry(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.prediction.title"));
-            this.serie.setName(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.prediction.title"));
+            this.tableEntry = new TableEntry(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
+            this.serie.setName(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
             this.tableEntry.setColor(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
 
-            samples = singleRow.getPredictedSamples();
+            samples = singleRow.getForecastSamples();
         }
 
         JEVisUnit unit = singleRow.getUnit();

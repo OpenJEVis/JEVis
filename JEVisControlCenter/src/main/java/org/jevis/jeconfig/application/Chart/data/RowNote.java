@@ -230,21 +230,21 @@ public class RowNote {
             formattedNote.append(System.getProperty("line.separator"));
         }
 
-        if (note.contains(NoteConstants.Prediction.PREDICTION) && note.contains(NoteConstants.Prediction.PREDICTION_AVERAGE)) {
-            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.prediction.average"));
+        if (note.contains(NoteConstants.Forecast.FORECAST) && note.contains(NoteConstants.Forecast.FORECAST_AVERAGE)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.forecast.average"));
             formattedNote.append(System.getProperty("line.separator"));
         }
-        if (note.contains(NoteConstants.Prediction.PREDICTION) && note.contains(NoteConstants.Prediction.PREDICTION_MEDIAN)) {
-            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.prediction.median"));
+        if (note.contains(NoteConstants.Forecast.FORECAST) && note.contains(NoteConstants.Forecast.FORECAST_MEDIAN)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.forecast.median"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 
-        if (note.contains(NoteConstants.Prediction.PREDICTION) && note.contains(NoteConstants.Prediction.PREDICTION_MIN)) {
-            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.prediction.min"));
+        if (note.contains(NoteConstants.Forecast.FORECAST) && note.contains(NoteConstants.Forecast.FORECAST_MIN)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.forecast.min"));
             formattedNote.append(System.getProperty("line.separator"));
         }
-        if (note.contains(NoteConstants.Prediction.PREDICTION) && note.contains(NoteConstants.Prediction.PREDICTION_MAX)) {
-            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.prediction.max"));
+        if (note.contains(NoteConstants.Forecast.FORECAST) && note.contains(NoteConstants.Forecast.FORECAST_MAX)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.forecast.max"));
             formattedNote.append(System.getProperty("line.separator"));
         }
 

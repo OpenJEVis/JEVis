@@ -1,6 +1,6 @@
-package org.jevis.jedataprocessor.prediction;
+package org.jevis.jedataprocessor.forecast;
 
-import org.jevis.commons.dataprocessing.PredictedDataObject;
+import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.workflow.ProcessStep;
@@ -11,18 +11,18 @@ import org.joda.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PreparePrediction implements ProcessStep {
+public class PrepareForecast implements ProcessStep {
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
-        PredictedDataObject predictedDataObject = resourceManager.getPredictedDataObject();
+        ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
 
-        Period inputPeriod = predictedDataObject.getInputDataPeriod();
+        Period inputPeriod = forecastDataObject.getInputDataPeriod();
         List<CleanInterval> intervals = new ArrayList<>();
 
         //TODO bigger than months
         if (inputPeriod.toStandardDuration().getMillis() > 0) {
-            DateTime start = predictedDataObject.getStartDate();
-            DateTime end = predictedDataObject.getEndDate();
+            DateTime start = forecastDataObject.getStartDate();
+            DateTime end = forecastDataObject.getEndDate();
 
             if (start != null && end != null) {
                 while (start.isBefore(end)) {

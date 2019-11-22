@@ -17,6 +17,7 @@ public class JEDataProcessorConstants {
         String WEEK = "week";
         String MONTH = "month";
         String YEAR = "year";
+        String ALL = "all";
         String NONE = "";
     }
 

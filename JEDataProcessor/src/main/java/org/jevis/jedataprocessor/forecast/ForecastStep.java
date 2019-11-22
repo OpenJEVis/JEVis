@@ -1,8 +1,8 @@
-package org.jevis.jedataprocessor.prediction;
+package org.jevis.jedataprocessor.forecast;
 
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.JEDataProcessorConstants;
-import org.jevis.commons.dataprocessing.PredictedDataObject;
+import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
@@ -12,19 +12,19 @@ import org.jevis.jedataprocessor.workflow.ProcessStep;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PredictionStep implements ProcessStep {
+public class ForecastStep implements ProcessStep {
     @Override
     public void run(ResourceManager resourceManager) throws Exception {
 
-        PredictedDataObject predictedDataObject = resourceManager.getPredictedDataObject();
+        ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
         List<CleanInterval> intervals = resourceManager.getIntervals();
-        List<JEVisSample> sampleCache = predictedDataObject.getInputAttribute().getAllSamples();
+        List<JEVisSample> sampleCache = forecastDataObject.getSampleCache();
 
-        if (predictedDataObject.getTypeAttribute().hasSample()) {
-            String type = predictedDataObject.getTypeAttribute().getLatestSample().getValueAsString();
-            JsonGapFillingConfig c = predictedDataObject.getJsonGapFillingConfig();
+        if (forecastDataObject.getTypeAttribute().hasSample()) {
+            String type = forecastDataObject.getTypeAttribute().getLatestSample().getValueAsString();
+            JsonGapFillingConfig c = forecastDataObject.getJsonGapFillingConfig();
 
-            GapsAndLimits gal = new GapsAndLimits(intervals, GapsAndLimits.GapsAndLimitsType.PREDICTION_TYPE,
+            GapsAndLimits gal = new GapsAndLimits(intervals, GapsAndLimits.GapsAndLimitsType.FORECAST_TYPE,
                     c, new ArrayList<>(), new ArrayList<>(), sampleCache);
 
             switch (type.toLowerCase()) {

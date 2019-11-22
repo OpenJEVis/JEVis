@@ -149,12 +149,12 @@ public class XYChart implements Chart {
 
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
 
-                    if (singleRow.hasPredictedData()) {
+                    if (singleRow.hasForecastData()) {
                         try {
-                            XYChartSerie prediction = new XYChartSerie(singleRow, hideShowIcons, true);
+                            XYChartSerie forecast = new XYChartSerie(singleRow, hideShowIcons, true);
 
                             hexColors.add(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
-                            xyChartSerieList.add(prediction);
+                            xyChartSerieList.add(forecast);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
