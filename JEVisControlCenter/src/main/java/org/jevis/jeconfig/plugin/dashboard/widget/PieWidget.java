@@ -278,10 +278,9 @@ public class PieWidget extends Widget {
 
     @Override
     public void openConfig() {
-
+        System.out.println("Pie.openConfig ");
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
         widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
-
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {

@@ -44,6 +44,7 @@ public class LinkerWidget extends Widget {
     private GraphAnalysisLinkerNode dataModelNode;
     private Interval lastInterval = null;
     public static ObjectMapper objectMapper = new ObjectMapper();
+    private boolean hasInit = false;
 
     public LinkerWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -98,6 +99,10 @@ public class LinkerWidget extends Widget {
 
     @Override
     public void updateConfig() {
+        if(!hasInit){
+            System.out.println("canceled updateConfig because its not init");
+            return;
+        }
         Platform.runLater(() -> {
             try {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
@@ -228,7 +233,7 @@ public class LinkerWidget extends Widget {
 
     @Override
     public void init() {
-        logger.debug("Linker.Widget.init");
+        logger.error("Linker.Widget.init");
 
         try {
 //            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
@@ -247,6 +252,7 @@ public class LinkerWidget extends Widget {
         }
         Layouts.setAnchor(anchorPane, 5);
         setGraphic(this.anchorPane);
+        hasInit = true;
     }
 
 

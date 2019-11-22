@@ -295,8 +295,10 @@ public abstract class Widget extends Region {
         contextMenu.getItems().addAll(infoMenuItem, separatorMenuItem, configItem, delete);
 
         this.editPane.setOnMouseClicked(event -> {
+            System.out.println("Edit Pane mouse Event");
             if (event.getClickCount() == 2) {
                 try {
+                    System.out.println("Open Widget Config");
                     Widget.this.openConfig();
                 } catch (Exception ex) {
                     logger.error(ex);
@@ -442,8 +444,7 @@ public abstract class Widget extends Region {
     public abstract String typeID();
 
     public void openConfig() {
-//        WidgetConfigEditor widgetConfigEditor = new WidgetConfigEditor(this.config);
-//        widgetConfigEditor.show();
+        System.out.println("Widget.openConfig");
     }
 
 

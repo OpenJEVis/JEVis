@@ -29,6 +29,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetIDs;
+import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
@@ -68,25 +69,25 @@ public class ConfigManager {
 
     }
 
-    public JsonNode readDashboardFile(JEVisObject dashboardObject) {
-        try {
+    public JsonNode readDashboardFile(JEVisObject dashboardObject) throws Exception{
+//        try {
             this.dashboardObject = dashboardObject;
             JEVisSample lastConfigSample = dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
             JEVisFile file = lastConfigSample.getValueAsFile();
             JsonNode jsonNode = this.mapper.readTree(file.getBytes());
             return jsonNode;
 
-        } catch (Exception ex) {
-            logger.error(ex);
-            logger.error("Missing Json File configuration");
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(I18n.getInstance().getString("plugin.dashboard.load.error.file.header"));
-            alert.setContentText(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
-
-            alert.showAndWait();
-            return null;
-        }
+//        } catch (Exception ex) {
+//            logger.error(ex);
+//            logger.error("Missing Json File configuration");
+//            JEConfig.showMessage(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
+////            Alert alert = new Alert(Alert.AlertType.ERROR);
+////            alert.setTitle("Error");
+////            alert.setHeaderText(I18n.getInstance().getString("plugin.dashboard.load.error.file.header"));
+////            alert.setContentText(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
+////            alert.showAndWait();
+//            return null;
+//        }
     }
 
     public ObjectMapper getMapper() {
@@ -105,6 +106,10 @@ public class ConfigManager {
         } else {
             dashboardObject = parent.buildObject(filename, dashboardClass);
             dashboardObject.commit();
+//            long newID=dashboardObject.getID();
+            parent.getDataSource().reloadAttribute(dashboardObject);
+//            dashboardObject= parent.getDataSource().getObject(newID);
+            dashboardPojo.setJevisObject(dashboardObject);
         }
 
 
@@ -133,6 +138,7 @@ public class ConfigManager {
             dashBoardNode
                     .put(JSON_VERSION, "1.1")
                     .put(BACKGROUND_COLOR, dashboardPojo.getBackgroundColor().toString())
+                    .put(BACKGROUND_MODE, dashboardPojo.getBackgroundColor().toString())
 //                    .put(SHOW_GRID, dashboardPojo.getShowGrid())
                     .put(SNAP_TO_GRID, false)//dashboardPojo.getSnapToGrid()
                     .put("Show Grid", false)//old Version Fallback
@@ -228,6 +234,12 @@ public class ConfigManager {
                 dashboardPojo.setBackgroundColor(Color.valueOf(jsonNode.get(BACKGROUND_COLOR).asText(Color.TRANSPARENT.toString())));
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", BACKGROUND_COLOR, ex);
+            }
+
+            try {
+                dashboardPojo.setBackgroundMode(jsonNode.get(BACKGROUND_MODE).asText(BackgroundMode.defaultMode));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", BACKGROUND_MODE, ex);
             }
 
             try {
@@ -332,7 +344,7 @@ public class ConfigManager {
 
     public ObjectProperty<Image> getBackgroundImage(JEVisObject analysisObject) {
         if (analysisObject == null) {
-
+            return null;
         }
 
 //        logger.debug("getBackgroundImage: {}", analysisObject.getID());
@@ -515,6 +527,7 @@ public class ConfigManager {
 
                         try {
                             dashboardPojo.setName(name.getText());
+                            dashboardPojo.setTitle(name.getText());
                             saveDashboard(dashboardPojo, widgetList, name.getText(), currentAnalysisDirectory.getValue(), wallpaper);
                         } catch (Exception ex) {
                             ex.printStackTrace();
