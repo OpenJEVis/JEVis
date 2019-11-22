@@ -204,7 +204,7 @@ public class GapsAndLimits {
 
     public void fillMaximum() throws Exception {
         switch (gapsAndLimitsType) {
-            case PREDICTION_TYPE:
+            case FORECAST_TYPE:
                 int lastIndex = intervals.size() - 1;
                 for (CleanInterval currentInterval : intervals) {
                     int index = intervals.indexOf(currentInterval);
@@ -214,11 +214,11 @@ public class GapsAndLimits {
                     note += getNote(currentInterval);
 
                     if (index == 0) {
-                        note += "," + NoteConstants.Prediction.PREDICTION1 + NoteConstants.Prediction.PREDICTION_MAX;
+                        note += "," + NoteConstants.Forecast.FORECAST_1 + NoteConstants.Forecast.FORECAST_MAX;
                     } else if (index == lastIndex) {
-                        note += "," + NoteConstants.Prediction.PREDICTION2 + NoteConstants.Prediction.PREDICTION_MAX;
+                        note += "," + NoteConstants.Forecast.FORECAST_2 + NoteConstants.Forecast.FORECAST_MAX;
                     } else {
-                        note += "," + NoteConstants.Prediction.PREDICTION + NoteConstants.Prediction.PREDICTION_MAX;
+                        note += "," + NoteConstants.Forecast.FORECAST + NoteConstants.Forecast.FORECAST_MAX;
                     }
 
                     sample.setNote(note);
@@ -264,7 +264,7 @@ public class GapsAndLimits {
 
     public void fillMedian() throws Exception {
         switch (gapsAndLimitsType) {
-            case PREDICTION_TYPE:
+            case FORECAST_TYPE:
                 int lastIndex = intervals.size() - 1;
                 for (CleanInterval currentInterval : intervals) {
                     int index = intervals.indexOf(currentInterval);
@@ -274,11 +274,11 @@ public class GapsAndLimits {
                     note += getNote(currentInterval);
 
                     if (index == 0) {
-                        note += "," + NoteConstants.Prediction.PREDICTION1 + NoteConstants.Prediction.PREDICTION_MEDIAN;
+                        note += "," + NoteConstants.Forecast.FORECAST_1 + NoteConstants.Forecast.FORECAST_MEDIAN;
                     } else if (index == lastIndex) {
-                        note += "," + NoteConstants.Prediction.PREDICTION2 + NoteConstants.Prediction.PREDICTION_MEDIAN;
+                        note += "," + NoteConstants.Forecast.FORECAST_2 + NoteConstants.Forecast.FORECAST_MEDIAN;
                     } else {
-                        note += "," + NoteConstants.Prediction.PREDICTION + NoteConstants.Prediction.PREDICTION_MEDIAN;
+                        note += "," + NoteConstants.Forecast.FORECAST + NoteConstants.Forecast.FORECAST_MEDIAN;
                     }
 
                     sample.setNote(note);
@@ -326,7 +326,7 @@ public class GapsAndLimits {
 
     public void fillAverage() throws Exception {
         switch (gapsAndLimitsType) {
-            case PREDICTION_TYPE:
+            case FORECAST_TYPE:
                 int lastIndex = intervals.size() - 1;
                 for (CleanInterval currentInterval : intervals) {
                     int index = intervals.indexOf(currentInterval);
@@ -336,11 +336,11 @@ public class GapsAndLimits {
                     note += getNote(currentInterval);
 
                     if (index == 0) {
-                        note += "," + NoteConstants.Prediction.PREDICTION1 + NoteConstants.Prediction.PREDICTION_AVERAGE;
+                        note += "," + NoteConstants.Forecast.FORECAST_1 + NoteConstants.Forecast.FORECAST_AVERAGE;
                     } else if (index == lastIndex) {
-                        note += "," + NoteConstants.Prediction.PREDICTION2 + NoteConstants.Prediction.PREDICTION_AVERAGE;
+                        note += "," + NoteConstants.Forecast.FORECAST_2 + NoteConstants.Forecast.FORECAST_AVERAGE;
                     } else {
-                        note += "," + NoteConstants.Prediction.PREDICTION + NoteConstants.Prediction.PREDICTION_AVERAGE;
+                        note += "," + NoteConstants.Forecast.FORECAST + NoteConstants.Forecast.FORECAST_AVERAGE;
                     }
 
                     sample.setNote(note);
@@ -468,7 +468,7 @@ public class GapsAndLimits {
 
     public void fillMinimum() throws Exception {
         switch (gapsAndLimitsType) {
-            case PREDICTION_TYPE:
+            case FORECAST_TYPE:
                 int lastIndex = intervals.size() - 1;
                 for (CleanInterval currentInterval : intervals) {
                     int index = intervals.indexOf(currentInterval);
@@ -478,11 +478,11 @@ public class GapsAndLimits {
                     note += getNote(currentInterval);
 
                     if (index == 0) {
-                        note += "," + NoteConstants.Prediction.PREDICTION1 + NoteConstants.Prediction.PREDICTION_MIN;
+                        note += "," + NoteConstants.Forecast.FORECAST_1 + NoteConstants.Forecast.FORECAST_MIN;
                     } else if (index == lastIndex) {
-                        note += "," + NoteConstants.Prediction.PREDICTION2 + NoteConstants.Prediction.PREDICTION_MIN;
+                        note += "," + NoteConstants.Forecast.FORECAST_2 + NoteConstants.Forecast.FORECAST_MIN;
                     } else {
-                        note += "," + NoteConstants.Prediction.PREDICTION + NoteConstants.Prediction.PREDICTION_MIN;
+                        note += "," + NoteConstants.Forecast.FORECAST + NoteConstants.Forecast.FORECAST_MIN;
                     }
 
                     sample.setNote(note);
@@ -561,6 +561,12 @@ public class GapsAndLimits {
                 return lastDate.minusMonths(referencePeriodCount);
             case (JEDataProcessorConstants.GapFillingReferencePeriod.YEAR):
                 return lastDate.minusYears(referencePeriodCount);
+            case (JEDataProcessorConstants.GapFillingReferencePeriod.ALL):
+                try {
+                    return sampleCache.get(0).getTimestamp();
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
             default:
                 return lastDate.minusMonths(referencePeriodCount);
         }
@@ -576,6 +582,6 @@ public class GapsAndLimits {
     }
 
     public enum GapsAndLimitsType {
-        LIMITS_TYPE, GAPS_TYPE, PREDICTION_TYPE
+        LIMITS_TYPE, GAPS_TYPE, FORECAST_TYPE
     }
 }

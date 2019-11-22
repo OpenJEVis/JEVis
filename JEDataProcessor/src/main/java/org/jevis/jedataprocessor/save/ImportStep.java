@@ -12,7 +12,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
-import org.jevis.commons.dataprocessing.PredictedDataObject;
+import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
@@ -46,10 +46,10 @@ public class ImportStep implements ProcessStep {
             cleanObject = cleanAttr.getCleanObject();
             periodOffset = cleanAttr.getPeriodOffset();
         } else {
-            PredictedDataObject predictedDataObject = resourceManager.getPredictedDataObject();
-            cleanObject = predictedDataObject.getPredictedDataObject();
+            ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
+            cleanObject = forecastDataObject.getForecastDataObject();
             JEVisAttribute attribute = cleanObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
-            attribute.deleteSamplesBetween(predictedDataObject.getStartDate(), predictedDataObject.getEndDate());
+            attribute.deleteSamplesBetween(forecastDataObject.getStartDate(), forecastDataObject.getEndDate());
         }
 
         JEVisAttribute attribute = null;

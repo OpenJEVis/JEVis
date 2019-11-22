@@ -1,26 +1,26 @@
 {
-  "name": "Predicted Data",
-  "description": "The class Predicted Data represents a container for a series of predicted numeric values, which are based on the parent.",
+  "name": "Forecast Data",
+  "description": "The class Forecast Data represents a container for a series of predicted numeric values, which are based on the parent.",
   "unique": false,
   "relationships": [
     {
-      "start": "Predicted Data",
+      "start": "Forecast Data",
       "end": "Data",
       "type": 0
     },
     {
-      "start": "Predicted Data",
+      "start": "Forecast Data",
       "end": "Data",
       "type": 3
     },
     {
-      "start": "Predicted Data",
+      "start": "Forecast Data",
       "end": "Clean Data",
       "type": 3
     },
     {
-      "start": "Predicted Data",
-      "end": "Predicted Data",
+      "start": "Forecast Data",
+      "end": "Forecast Data",
       "type": 3
     }
   ],
@@ -32,7 +32,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Predicted Data"
+      "jevisClass": "Forecast Data"
     },
     {
       "name": "Type",
@@ -41,7 +41,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Predicted Data"
+      "jevisClass": "Forecast Data"
     },
     {
       "name": "Reference Period",
@@ -50,7 +50,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Predicted Data"
+      "jevisClass": "Forecast Data"
     },
     {
       "name": "Reference Period Count",
@@ -58,7 +58,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Predicted Data"
+      "jevisClass": "Forecast Data"
     },
     {
       "name": "Bind To Specific",
@@ -67,24 +67,24 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Predicted Data"
+      "jevisClass": "Forecast Data"
     },
     {
-      "name": "Prediction Duration",
+      "name": "Forecast Duration",
       "primitiveType": 0,
       "guiType": "String Enum",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Predicted Data"
+      "jevisClass": "Forecast Data"
     },
     {
-      "name": "Prediction Duration Count",
+      "name": "Forecast Duration Count",
       "primitiveType": 2,
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Predicted Data"
+      "jevisClass": "Forecast Data"
     },
     {
       "name": "Last Run",
@@ -93,7 +93,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Data Source"
+      "jevisClass": "Forecast Data"
     },
     {
       "name": "Cycle Time",
@@ -101,7 +101,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Data Source"
+      "jevisClass": "Forecast Data"
     },
     {
       "name": "Timezone",
@@ -110,7 +110,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Data Source"
+      "jevisClass": "Forecast Data"
     }
   ]
 }

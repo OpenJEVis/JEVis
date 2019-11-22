@@ -47,14 +47,14 @@ public class NoteConstants {
                 GAP_INTERPOLATION, GAP_MEDIAN, GAP_MAX));
     }
 
-    public interface Prediction {
-        String PREDICTION = "prediction";
-        String PREDICTION1 = "prediction1";
-        String PREDICTION2 = "prediction2";
-        String PREDICTION_AVERAGE = "(Average)";
-        String PREDICTION_MEDIAN = "(Median)";
-        String PREDICTION_MIN = "(Minimum)";
-        String PREDICTION_MAX = "(Maximum)";
+    public interface Forecast {
+        String FORECAST = "forecast";
+        String FORECAST_1 = "forecast1";
+        String FORECAST_2 = "forecast2";
+        String FORECAST_AVERAGE = "(Average)";
+        String FORECAST_MEDIAN = "(Median)";
+        String FORECAST_MIN = "(Minimum)";
+        String FORECAST_MAX = "(Maximum)";
     }
 
     public interface Calc {

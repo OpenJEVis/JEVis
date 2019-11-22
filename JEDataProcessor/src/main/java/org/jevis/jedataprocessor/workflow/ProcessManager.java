@@ -12,15 +12,15 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
-import org.jevis.commons.dataprocessing.PredictedDataObject;
+import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.jedataprocessor.aggregation.AggregationAlignmentStep;
 import org.jevis.jedataprocessor.alignment.PeriodAlignmentStep;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.differential.DifferentialStep;
+import org.jevis.jedataprocessor.forecast.ForecastStep;
+import org.jevis.jedataprocessor.forecast.PrepareForecast;
 import org.jevis.jedataprocessor.gap.FillGapStep;
 import org.jevis.jedataprocessor.limits.LimitsStep;
-import org.jevis.jedataprocessor.prediction.PredictionStep;
-import org.jevis.jedataprocessor.prediction.PreparePrediction;
 import org.jevis.jedataprocessor.save.ImportStep;
 import org.jevis.jedataprocessor.scaling.ScalingStep;
 import org.joda.time.DateTime;
@@ -51,19 +51,19 @@ public class ProcessManager {
         this.id = cleanObject.getID();
 
         JEVisClass cleanDataClass;
-        JEVisClass predictedDataClass;
+        JEVisClass forecastDataClass;
         try {
             cleanDataClass = cleanObject.getDataSource().getJEVisClass(CleanDataObject.CLASS_NAME);
-            predictedDataClass = cleanObject.getDataSource().getJEVisClass(PredictedDataObject.CLASS_NAME);
+            forecastDataClass = cleanObject.getDataSource().getJEVisClass(ForecastDataObject.CLASS_NAME);
 
             if (cleanObject.getJEVisClass().equals(cleanDataClass)) {
                 this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
                 this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
                 addDefaultSteps();
-            } else if (cleanObject.getJEVisClass().equals(predictedDataClass)) {
-                this.resourceManager.setPredictedDataObject(new PredictedDataObject(cleanObject, objectHandler));
-                this.resourceManager.getPredictedDataObject().setProcessingSize(processingSize);
-                addPredictionSteps();
+            } else if (cleanObject.getJEVisClass().equals(forecastDataClass)) {
+                this.resourceManager.setForecastDataObject(new ForecastDataObject(cleanObject, objectHandler));
+                this.resourceManager.getForecastDataObject().setProcessingSize(processingSize);
+                addForecastSteps();
                 isClean = false;
             } else {
                 this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
@@ -105,13 +105,13 @@ public class ProcessManager {
         processSteps.add(importStep);
     }
 
-    private void addPredictionSteps() {
+    private void addForecastSteps() {
 
-        ProcessStep preparation = new PreparePrediction();
+        ProcessStep preparation = new PrepareForecast();
         processSteps.add(preparation);
 
-        ProcessStep prediction = new PredictionStep();
-        processSteps.add(prediction);
+        ProcessStep forecast = new ForecastStep();
+        processSteps.add(forecast);
 
         ProcessStep importStep = new ImportStep();
         processSteps.add(importStep);
@@ -142,9 +142,9 @@ public class ProcessManager {
             resourceManager.setRawIntervals(null);
             resourceManager.getCleanDataObject().clearLists();
         } else {
-            if (resourceManager.getPredictedDataObject().isReady(resourceManager.getPredictedDataObject().getPredictedDataObject())) {
+            if (resourceManager.getForecastDataObject().isReady(resourceManager.getForecastDataObject().getForecastDataObject())) {
                 reRun();
-                resourceManager.getPredictedDataObject().finishCurrentRun(resourceManager.getPredictedDataObject().getPredictedDataObject());
+                resourceManager.getForecastDataObject().finishCurrentRun(resourceManager.getForecastDataObject().getForecastDataObject());
             }
         }
     }
