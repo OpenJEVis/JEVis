@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.config2.ConfigTab;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
@@ -37,8 +38,8 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private CheckBox showShadowField = new CheckBox();
     private Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
     private Spinner<Integer> borderSizeSpinner = new Spinner<Integer>(0, 20, 0);
-    private ColorPicker bgColorPicker = new ColorPicker();
-    private ColorPicker fColorPicker = new ColorPicker();
+    private ColorPickerAdv bgColorPicker = new ColorPickerAdv();
+    private ColorPickerAdv fColorPicker = new ColorPickerAdv();
     private TimeFactoryBox timeFrameBox;
     private Widget widget;
     private DataModelDataHandler dataModelDataHandler;

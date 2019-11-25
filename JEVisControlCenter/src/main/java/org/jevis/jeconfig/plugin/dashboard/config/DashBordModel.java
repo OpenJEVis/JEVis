@@ -202,7 +202,7 @@ public class DashBordModel {
                 alert.setHeaderText(I18n.getInstance().getString("plugin.dashboard.load.error.file.header"));
                 alert.setContentText(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
 
-                alert.showAndWait();
+                alert.show();;
                 return;
             }
 

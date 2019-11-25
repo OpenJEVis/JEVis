@@ -42,6 +42,14 @@ public class TimeFrameEdior extends Popup {
     }
 
 
+    public void setTimeFrame(TimeFrameFactory timeFrame){
+        this.timeFrame=timeFrame;
+    }
+
+    public void setIntervalProperty(Interval interval){
+        intervalProperty.setValue(interval);
+    }
+
     private void setIntervalResult() {
         LocalDate localDate = this.datePicker.valueProperty().getValue();
         if (this.datePicker.valueProperty().getValue().isAfter(LocalDate.now())) {

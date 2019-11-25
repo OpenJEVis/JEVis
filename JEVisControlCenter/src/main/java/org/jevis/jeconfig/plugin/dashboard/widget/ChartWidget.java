@@ -69,7 +69,6 @@ public class ChartWidget extends Widget {
         widgetPojo.setTitle("new Chart Widget");
         widgetPojo.setType(typeID());
 
-
         return widgetPojo;
     }
 

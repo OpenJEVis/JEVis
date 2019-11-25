@@ -16,10 +16,12 @@ import javafx.scene.transform.Scale;
 import javafx.stage.Popup;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.NotificationPane;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
+import org.jevis.jeconfig.tool.Layouts;
 import org.jevis.jeconfig.tool.ScrollPanes;
 
 import java.util.*;
@@ -43,7 +45,7 @@ public class DashBoardPane extends Pane {
     public DashBoardPane(DashboardControl control) {
         super();
         this.defaultBackground = getBackground();
-
+        this.setStyle("-fx-focus-color: transparent;");
 //        setStyle("-fx-background-color: orange;");
         logger.debug("Start DashBoardPane: {}", control.getActiveDashboard());
         this.jeVisDataSource = control.getDataSource();
@@ -60,6 +62,7 @@ public class DashBoardPane extends Pane {
             }
         });
         addPopUpFunctions();
+
 
 //        addMouseSelectionGesture();
     }
@@ -100,10 +103,11 @@ public class DashBoardPane extends Pane {
     }
 
     public void clearView() {
-
         getChildren().clear();
         setBackground(this.defaultBackground);
-
+        Region filler = new Region();
+        Layouts.setAnchor(filler,0);
+        getChildren().add(filler);
         setZoom(1d);
         requestLayout();
 
@@ -133,8 +137,6 @@ public class DashBoardPane extends Pane {
         this.analysis = analysis;
 
         setSize(analysis.getSize());
-
-
         createGrid(analysis.xGridInterval, analysis.yGridInterval);
 
 
@@ -183,6 +185,11 @@ public class DashBoardPane extends Pane {
             this.scale.setY(scaleFactorHeight);
         }
 
+    }
+
+    public void setScale(double x,double y){
+        this.scale.setY(y);
+        this.scale.setX(x);
     }
 
     public void setZoom(double zoom) {

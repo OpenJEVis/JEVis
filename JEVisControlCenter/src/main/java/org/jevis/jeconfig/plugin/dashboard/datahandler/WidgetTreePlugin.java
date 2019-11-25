@@ -18,6 +18,7 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.Benchmark;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
+import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeItem;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
@@ -486,10 +487,10 @@ public class WidgetTreePlugin implements TreePlugin {
                             boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
 
                             if (show) {
-                                ColorPicker colorPicker = new ColorPicker();
-                                colorPicker.setStyle("-fx-color-label-visible: false ;");
+                                ColorPickerAdv colorPicker = new ColorPickerAdv();
+//                                colorPicker.setStyle("-fx-colr-label-visible: false ;");
                                 colorPicker.setValue(item);
-                                colorPicker.getCustomColors().addAll(ColorColumn.color_list);
+//                                colorPicker.getCustomColors().addAll(ColorColumn.color_list);
 
                                 colorPicker.setOnAction(event -> {
                                     try {

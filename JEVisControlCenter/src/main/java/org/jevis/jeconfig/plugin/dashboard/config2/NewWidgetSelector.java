@@ -73,13 +73,6 @@ public class NewWidgetSelector extends GridPane {
 
         Widget newWidget = selectedWidget.getControl().createNewWidget(selectedWidget.createDefaultConfig());
         newWidget.getConfig().setSize(size);
-//        newWidget.getConfig().setTitle(I18n.getInstance().getString("plugin.dashboard.toolbar.new.title"));
-
-//        Widget newWidget = selectedWidget.clone();
-//        WidgetPojo widgetPojo = newWidget.getConfig();
-//        widgetPojo.setSize(size);
-
-//        newWidget.updateConfig(widgetPojo);
 
         return newWidget;
     }

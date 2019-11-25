@@ -37,6 +37,7 @@ import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.NotificationPane;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -306,7 +307,6 @@ public class JEConfig extends Application {
                 // TODO
             }
         }
-
 
         final AnchorPane jeconfigRoot = new AnchorPane();
 

@@ -139,6 +139,7 @@ public class HTTPConnection {
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         conn.setRequestProperty("Accept-Charset", "UTF-8");
+        conn.setRequestProperty("Accept-Encoding", "gzip");
         conn.setReadTimeout(this.readTimeout);
         addAuth(conn, this.username, this.password);
 

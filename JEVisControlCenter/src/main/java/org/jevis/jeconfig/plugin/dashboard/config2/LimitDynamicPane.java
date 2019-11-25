@@ -3,8 +3,6 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
@@ -12,6 +10,7 @@ import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.widget.ValueWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.I18n;
@@ -24,8 +23,11 @@ public class LimitDynamicPane extends GridPane {
     private Label lowerColorlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.color.lower"));
     private CheckBox enableUpperBox = new CheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.upper"));
     private CheckBox enableLowerBox = new CheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.lower"));
-    private ColorPicker upperColorPicker = new ColorPicker();
-    private ColorPicker lowerColorPicker = new ColorPicker();
+//    private ColorPicker upperColorPicker = new ColorPicker();
+//    private ColorPicker lowerColorPicker = new ColorPicker();
+    private ColorPickerAdv upperColorPicker = new ColorPickerAdv();
+    private ColorPickerAdv lowerColorPicker = new ColorPickerAdv();
+
 
 
     private Label upperVOffsetlabel = new Label(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.valuelabel.upper"));
@@ -57,6 +59,7 @@ public class LimitDynamicPane extends GridPane {
         add(enableLowerBox, 0, 6, 2, 1);
         addRow(8, lowerVOffsetlabel, lowerValueField);
         addRow(9, lowerColorlabel, lowerColorPicker);
+
 
 
     }
@@ -126,12 +129,6 @@ public class LimitDynamicPane extends GridPane {
             limit.hasLowerLimit = newValue;
         });
 
-        upperColorPicker.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-
-            }
-        });
 
         upperColorPicker.setOnAction(event -> {
             limit.upperLimitColor = upperColorPicker.getValue();

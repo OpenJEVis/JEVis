@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.dashboard.config2;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -18,8 +19,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
@@ -30,7 +33,7 @@ import org.jevis.jeconfig.tool.ScreenSize;
 
 
 public class WidgetNavigator {
-    private double iconSize = 20;
+    private double iconSize = 16;
     final ImageView lockIcon = JEConfig.getImage("eye_visible.png", this.iconSize, this.iconSize);
     final ImageView unlockIcon = JEConfig.getImage("eye_hidden.png", this.iconSize, this.iconSize);
 
@@ -103,7 +106,8 @@ public class WidgetNavigator {
     private Node buildGeneralSetting() {
         Label nameLabel = new Label(I18n.getInstance().getString("dashboard.navigator.namelabel"));
         Label sizeLabel = new Label(I18n.getInstance().getString("dashboard.navigator.sizelabel"));
-        Label backgroundLabel = new Label(I18n.getInstance().getString("dashboard.navigator.background"));
+        Label backgroundIconLabel = new Label(I18n.getInstance().getString("dashboard.navigator.background"));
+        Label backgroundColorLabel = new Label(I18n.getInstance().getString("dashboard.navigator.backgroundColor"));
         Label timeLabel = new Label(I18n.getInstance().getString("dashboard.navigator.timeframe"));
 
 
@@ -116,6 +120,16 @@ public class WidgetNavigator {
         timeFactoryBox.selectValue(control.getActiveTimeFrame());
 
         Button backgroundButton = new Button("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
+        Button removeBGIcon = new Button("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));
+        ColorPickerAdv pickerAdv = new ColorPickerAdv();
+        pickerAdv.setValue(control.getActiveDashboard().getBackgroundColor());
+        pickerAdv.setMinHeight(backgroundButton.getHeight());
+
+        ComboBox<String> bhModeBox= buildBGMOdeBox();
+
+        HBox imageBox = new HBox();
+        imageBox.setSpacing(5);
+        imageBox.getChildren().addAll( backgroundButton, removeBGIcon,bhModeBox);
 
         widthField.setPrefWidth(75d);
         heightField.setPrefWidth(75d);
@@ -127,15 +141,11 @@ public class WidgetNavigator {
         gridPane.setPadding(new Insets(8d));
         gridPane.setHgap(8);
         gridPane.setVgap(8);
-        gridPane.add(nameLabel, 0, 0);
-        gridPane.add(sizeLabel, 0, 1);
-        gridPane.add(backgroundLabel, 0, 2);
-        gridPane.add(nameField, 1, 0);
-        gridPane.add(sizeBox, 1, 1);
-        gridPane.add(backgroundButton, 1, 2);
-
-        gridPane.add(timeLabel, 0, 3);
-        gridPane.add(timeFactoryBox, 1, 3);
+        gridPane.addRow(0,nameLabel,nameField);
+        gridPane.addRow(1,sizeLabel,sizeBox);
+        gridPane.addRow(2,backgroundColorLabel,pickerAdv);
+        gridPane.addRow(3,backgroundIconLabel,imageBox);
+        gridPane.addRow(4,timeLabel,timeFactoryBox);
 
 
         try {
@@ -160,8 +170,21 @@ public class WidgetNavigator {
                 ex.printStackTrace();
             }
         });
-//
 
+        bhModeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            control.getActiveDashboard().setBackgroundMode(newValue);
+            control.updateBackground();
+        });
+
+        pickerAdv.selectColorProperty().addListener((observable, oldValue, newValue) -> {
+            control.getActiveDashboard().setBackgroundColor(newValue);
+            control.updateBackground();
+        });
+
+//
+        backgroundButton.setOnAction(event -> {
+            control.startWallpaperSelection();
+        });
 
 //        widthField.setOnAction(event -> {
 //            this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(heightField.getText()));
@@ -187,6 +210,16 @@ public class WidgetNavigator {
         });
 
         return gridPane;
+    }
+
+
+    private ComboBox<String>buildBGMOdeBox(){
+        ObservableList<String> modeList = FXCollections.observableArrayList();
+        modeList.addAll(BackgroundMode.defaultMode,BackgroundMode.repeat,BackgroundMode.stretch);
+        ComboBox<String> comboBox = new ComboBox<>(modeList);
+        comboBox.setValue(control.getActiveDashboard().backgroundMode);
+        return comboBox;
+
     }
 
     private ToolBar buildToolbar() {
@@ -220,6 +253,7 @@ public class WidgetNavigator {
         widgetSelector.getSelectedWidgetProperty().addListener((observable, oldValue, newValue) -> {
             Widget newWidget = widgetSelector.getSelectedWidget();
             control.addWidget(newWidget);
+            newWidget.setEditable(true);
 //            newWidget.updateConfig();
             table.getSelectionModel().select(newWidget);
             table.scrollTo(newWidget);

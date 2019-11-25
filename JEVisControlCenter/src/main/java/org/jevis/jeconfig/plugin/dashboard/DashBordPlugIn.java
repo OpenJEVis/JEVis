@@ -3,23 +3,31 @@ package org.jevis.jeconfig.plugin.dashboard;
 //import com.itextpdf.text.Document;
 //import com.itextpdf.text.pdf.PdfWriter;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.NotificationPane;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.tool.Layouts;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class DashBordPlugIn implements Plugin {
@@ -30,6 +38,7 @@ public class DashBordPlugIn implements Plugin {
     private StringProperty nameProperty = new SimpleStringProperty("Dashboard");
     private StringProperty uuidProperty = new SimpleStringProperty("Dashboard");
     private boolean isInitialized = false;
+    private NotificationPane notificationPane;
     private AnchorPane rootPane = new AnchorPane();
 
 
@@ -42,6 +51,7 @@ public class DashBordPlugIn implements Plugin {
     public DashBordPlugIn(JEVisDataSource ds, String name) {
         logger.debug("init DashBordPlugIn");
         this.rootPane.setStyle("-fx-background-color: blue;");
+
         this.nameProperty.setValue(name);
         this.jeVisDataSource = ds;
 
@@ -54,7 +64,16 @@ public class DashBordPlugIn implements Plugin {
 
         Layouts.setAnchor(this.scrollPane, 0d);
         Layouts.setAnchor(this.rootPane, 0d);
+
+
+
         this.rootPane.getChildren().setAll(this.scrollPane);
+
+        notificationPane = new NotificationPane(rootPane);
+//        notificationPane.setStyle("-fx-background-color: red;");
+        notificationPane.setStyle("-fx-focus-color: transparent;");
+        rootPane.setStyle("-fx-focus-color: transparent;");
+        notificationPane.getStyleClass().add(NotificationPane.STYLE_CLASS_DARK);
 
 
         ChangeListener<Number> sizeListener = new ChangeListener<Number>() {
@@ -68,9 +87,27 @@ public class DashBordPlugIn implements Plugin {
 
     }
 
+    public void showMessage(String message){
+        ScheduledExecutorService executor =  Executors.newSingleThreadScheduledExecutor();
+        Platform.runLater(()->notificationPane.show(message));
+
+        executor.schedule(new Runnable() {
+            @Override
+            public void run() {
+                notificationPane.hide();
+            }
+        },5,TimeUnit.SECONDS);
+
+
+    }
+
     public void setContentSize(double width, double height) {
         logger.debug("DashBordPlugIn init.size: {}/{} {}/{} ", this.rootPane.getWidth(), this.rootPane.getHeight(), this.scrollPane.getWidth(), this.scrollPane.getHeight());
 
+    }
+
+    public Size getPluginSize(){
+        return new Size(rootPane.getHeight(), rootPane.getWidth());
     }
 
     public DashBoardToolbar getDashBoardToolbar() {
@@ -189,7 +226,8 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public Node getContentNode() {
-        return this.rootPane;
+        return notificationPane;
+//        return this.rootPane;
     }
 
     @Override
@@ -230,6 +268,7 @@ public class DashBordPlugIn implements Plugin {
     public int getPrefTapPos() {
         return 1;
     }
+
 
 
 }
