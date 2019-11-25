@@ -45,7 +45,7 @@ public class DashBoardPane extends Pane {
     public DashBoardPane(DashboardControl control) {
         super();
         this.defaultBackground = getBackground();
-
+        this.setStyle("-fx-focus-color: transparent;");
 //        setStyle("-fx-background-color: orange;");
         logger.debug("Start DashBoardPane: {}", control.getActiveDashboard());
         this.jeVisDataSource = control.getDataSource();

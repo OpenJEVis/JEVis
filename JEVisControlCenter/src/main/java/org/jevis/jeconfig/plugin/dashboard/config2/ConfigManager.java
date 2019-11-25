@@ -12,6 +12,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.*;
@@ -39,6 +40,8 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -70,29 +73,18 @@ public class ConfigManager {
     }
 
     public JsonNode readDashboardFile(JEVisObject dashboardObject) throws Exception{
-//        try {
             this.dashboardObject = dashboardObject;
             JEVisSample lastConfigSample = dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
             JEVisFile file = lastConfigSample.getValueAsFile();
             JsonNode jsonNode = this.mapper.readTree(file.getBytes());
             return jsonNode;
-
-//        } catch (Exception ex) {
-//            logger.error(ex);
-//            logger.error("Missing Json File configuration");
-//            JEConfig.showMessage(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
-////            Alert alert = new Alert(Alert.AlertType.ERROR);
-////            alert.setTitle("Error");
-////            alert.setHeaderText(I18n.getInstance().getString("plugin.dashboard.load.error.file.header"));
-////            alert.setContentText(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
-////            alert.showAndWait();
-//            return null;
-//        }
     }
 
     public ObjectMapper getMapper() {
         return mapper;
     }
+
+
 
     public void saveDashboard(DashboardPojo dashboardPojo, List<Widget> widgets, String filename, JEVisObject parent, java.io.File wallpaper) throws IOException, JEVisException {
 
@@ -136,9 +128,9 @@ public class ConfigManager {
             ObjectNode dashBoardNode = this.mapper.createObjectNode();
 //            this.mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             dashBoardNode
-                    .put(JSON_VERSION, "1.1")
+                    .put(JSON_VERSION, "1.2")
                     .put(BACKGROUND_COLOR, dashboardPojo.getBackgroundColor().toString())
-                    .put(BACKGROUND_MODE, dashboardPojo.getBackgroundColor().toString())
+                    .put(BACKGROUND_MODE, dashboardPojo.getBackgroundMode())
 //                    .put(SHOW_GRID, dashboardPojo.getShowGrid())
                     .put(SNAP_TO_GRID, false)//dashboardPojo.getSnapToGrid()
                     .put("Show Grid", false)//old Version Fallback

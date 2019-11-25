@@ -70,7 +70,9 @@ public class DashBordPlugIn implements Plugin {
         this.rootPane.getChildren().setAll(this.scrollPane);
 
         notificationPane = new NotificationPane(rootPane);
-        notificationPane.setStyle("-fx-background-color: red;");
+//        notificationPane.setStyle("-fx-background-color: red;");
+        notificationPane.setStyle("-fx-focus-color: transparent;");
+        rootPane.setStyle("-fx-focus-color: transparent;");
         notificationPane.getStyleClass().add(NotificationPane.STYLE_CLASS_DARK);
 
 
