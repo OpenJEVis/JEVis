@@ -100,7 +100,6 @@ public class LinkerWidget extends Widget {
     @Override
     public void updateConfig() {
         if(!hasInit){
-            System.out.println("canceled updateConfig because its not init");
             return;
         }
         Platform.runLater(() -> {

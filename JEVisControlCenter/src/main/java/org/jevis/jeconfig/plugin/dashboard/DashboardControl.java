@@ -327,6 +327,8 @@ public class DashboardControl {
             firstLoadedConfigHash = null;
             this.editableProperty.setValue(false);
             this.enableSnapToGridProperty.setValue(false);
+            this.backgroundImage=null;
+            this.newBackgroundFile=null;
 
             resetDashboard();
             restartExecutor();
