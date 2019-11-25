@@ -9,6 +9,8 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -28,6 +30,7 @@ import org.jevis.commons.report.*;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ReportAggregationBox;
@@ -46,6 +49,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ReportWizardDialog extends Dialog<ButtonType> {
     private static final Logger logger = LogManager.getLogger(ReportWizardDialog.class);
+    Image imgMarkAll = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
+
+    Tooltip tooltipMarkAll = new Tooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
     public static String ICON = "Startup Wizard_18228.png";
     private JEVisDataSource ds;
     private JEVisObject reportLinkDirectory;
@@ -53,7 +59,7 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
     private List<UserSelection> selections;
     private List<ReportLink> reportLinkList = new ArrayList<>();
     private int row = 0;
-    private Button addButton;
+    //    private Button addButton;
     private Button addMultiple;
     private GridPane gridPane;
 
@@ -90,8 +96,8 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         VBox vBox = new VBox();
         HBox hbox = new HBox();
-        addButton = new Button("", JEConfig.getImage("list-add.png", 16, 16));
-        addMultiple = new Button("", JEConfig.getImage("list-add_3671791.png", 16, 16));
+//        addButton = new Button("", JEConfig.getImage("list-add_3671791.png", 16, 16));
+        addMultiple = new Button("", JEConfig.getImage("list-add.png", 16, 16));
 
         this.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.title"));
 
@@ -104,11 +110,11 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
             reportLinkList.add(new ReportLink("", null, false, "", new ReportAttribute("Value", new ReportPeriodConfiguration("NONE", PeriodMode.CURRENT))));
         }
 
-        updateGridpane();
+        updateGridPane();
 
-        addButton.setOnAction(event -> {
-            createNewReportLink(false, null);
-        });
+//        addButton.setOnAction(event -> {
+//            createNewReportLink(false, null);
+//        });
 
         addMultiple.setOnAction(event -> {
             openMultiSelect();
@@ -123,7 +129,7 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         this.getDialogPane().getButtonTypes().addAll(ok, cancel);
         vBox.getChildren().add(header);
         vBox.getChildren().add(hbox);
-        vBox.getChildren().add(addButton);
+//        vBox.getChildren().add(addButton);
         vBox.getChildren().add(addMultiple);
         scrollPane.setContent(vBox);
         this.getDialogPane().setContent(scrollPane);
@@ -167,7 +173,7 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         }
     }
 
-    private void updateGridpane() {
+    private void updateGridPane() {
         gridPane.getChildren().clear();
         Label reportVariableLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.reportlink"));
         Label aggregationLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.aggregation"));
@@ -205,10 +211,44 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
             aggregationPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
         }
 
+        ImageView imageMarkAllAggregation = new ImageView(imgMarkAll);
+        imageMarkAllAggregation.fitHeightProperty().set(13);
+        imageMarkAllAggregation.fitWidthProperty().set(13);
+
+        Button tbAggregation = new Button("", imageMarkAllAggregation);
+        tbAggregation.setTooltip(tooltipMarkAll);
+        tbAggregation.setOnAction(event -> {
+            gridPane.getChildren().forEach(node -> {
+                if (GridPane.getColumnIndex(node) == 1) {
+                    if (node instanceof ReportAggregationBox) {
+                        ReportAggregationBox reportAggregationBox = (ReportAggregationBox) node;
+                        Platform.runLater(() -> reportAggregationBox.getSelectionModel().select(aggregationPeriodComboBox.getSelectionModel().getSelectedItem()));
+                    }
+                }
+            });
+        });
+
         ReportPeriodBox periodModeComboBox = new ReportPeriodBox(FXCollections.observableArrayList(PeriodMode.values()));
         if (reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode() != null) {
             periodModeComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
         }
+
+        ImageView imageMarkAllPeriod = new ImageView(imgMarkAll);
+        imageMarkAllPeriod.fitHeightProperty().set(13);
+        imageMarkAllPeriod.fitWidthProperty().set(13);
+
+        Button tbPeriod = new Button("", imageMarkAllPeriod);
+        tbPeriod.setTooltip(tooltipMarkAll);
+        tbPeriod.setOnAction(event -> {
+            gridPane.getChildren().forEach(node -> {
+                if (GridPane.getColumnIndex(node) == 3) {
+                    if (node instanceof ReportPeriodBox) {
+                        ReportPeriodBox reportPeriodBox = (ReportPeriodBox) node;
+                        Platform.runLater(() -> reportPeriodBox.getSelectionModel().select(periodModeComboBox.getSelectionModel().getSelectedItem()));
+                    }
+                }
+            });
+        });
 
         ToggleSwitchPlus toggleSwitchPlus = new ToggleSwitchPlus();
         toggleSwitchPlus.setSelected(reportLink.isOptional());
@@ -224,7 +264,7 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         removeButton.setOnAction(event -> {
             if (row > 1) {
                 reportLinkList.remove(reportLink);
-                Platform.runLater(this::updateGridpane);
+                Platform.runLater(this::updateGridPane);
             }
         });
 
@@ -327,10 +367,12 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
 
         gridPane.add(targetsButton, 0, row);
         gridPane.add(aggregationPeriodComboBox, 1, row);
-        gridPane.add(periodModeComboBox, 2, row);
-        gridPane.add(toggleSwitchPlus, 3, row);
-        gridPane.add(copyButton, 4, row);
-        gridPane.add(removeButton, 5, row);
+        gridPane.add(tbAggregation, 2, row);
+        gridPane.add(periodModeComboBox, 3, row);
+        gridPane.add(tbPeriod, 4, row);
+        gridPane.add(toggleSwitchPlus, 5, row);
+        gridPane.add(copyButton, 6, row);
+        gridPane.add(removeButton, 7, row);
     }
 
     private void updateName(ReportLink reportLink) {

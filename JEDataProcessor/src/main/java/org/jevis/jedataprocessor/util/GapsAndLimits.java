@@ -58,7 +58,7 @@ public class GapsAndLimits {
 
         firstDate = getFirstDate(lastDate);
         List<JEVisSample> listSamplesNew = new ArrayList<>();
-        switch (bindToSpecificValue) {
+        switch (bindToSpecificValue.toLowerCase()) {
             case (JEDataProcessorConstants.GapFillingBoundToSpecific.WEEKDAY):
                 if (sampleCache != null && !sampleCache.isEmpty()) {
                     for (JEVisSample sample : sampleCache) {
@@ -148,7 +148,7 @@ public class GapsAndLimits {
 
     private Double calcValueWithType(List<JEVisSample> listSamples) throws
             JEVisException {
-        final String gapFillingType = c.getType();
+        final String gapFillingType = c.getType().toLowerCase();
 
         if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
             switch (gapFillingType) {
@@ -204,6 +204,27 @@ public class GapsAndLimits {
 
     public void fillMaximum() throws Exception {
         switch (gapsAndLimitsType) {
+            case FORECAST_TYPE:
+                int lastIndex = intervals.size() - 1;
+                for (CleanInterval currentInterval : intervals) {
+                    int index = intervals.indexOf(currentInterval);
+                    Double value = getSpecificValue(currentInterval.getDate());
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+
+                    if (index == 0) {
+                        note += "," + NoteConstants.Forecast.FORECAST_1 + NoteConstants.Forecast.FORECAST_MAX;
+                    } else if (index == lastIndex) {
+                        note += "," + NoteConstants.Forecast.FORECAST_2 + NoteConstants.Forecast.FORECAST_MAX;
+                    } else {
+                        note += "," + NoteConstants.Forecast.FORECAST + NoteConstants.Forecast.FORECAST_MAX;
+                    }
+
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
+                }
+                break;
             case GAPS_TYPE:
                 for (Gap currentGap : gapList) {
                     for (CleanInterval currentInterval : currentGap.getIntervals()) {
@@ -243,6 +264,27 @@ public class GapsAndLimits {
 
     public void fillMedian() throws Exception {
         switch (gapsAndLimitsType) {
+            case FORECAST_TYPE:
+                int lastIndex = intervals.size() - 1;
+                for (CleanInterval currentInterval : intervals) {
+                    int index = intervals.indexOf(currentInterval);
+                    Double value = getSpecificValue(currentInterval.getDate());
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+
+                    if (index == 0) {
+                        note += "," + NoteConstants.Forecast.FORECAST_1 + NoteConstants.Forecast.FORECAST_MEDIAN;
+                    } else if (index == lastIndex) {
+                        note += "," + NoteConstants.Forecast.FORECAST_2 + NoteConstants.Forecast.FORECAST_MEDIAN;
+                    } else {
+                        note += "," + NoteConstants.Forecast.FORECAST + NoteConstants.Forecast.FORECAST_MEDIAN;
+                    }
+
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
+                }
+                break;
             case GAPS_TYPE:
                 for (Gap currentGap : gapList) {
                     for (CleanInterval currentInterval : currentGap.getIntervals()) {
@@ -284,6 +326,27 @@ public class GapsAndLimits {
 
     public void fillAverage() throws Exception {
         switch (gapsAndLimitsType) {
+            case FORECAST_TYPE:
+                int lastIndex = intervals.size() - 1;
+                for (CleanInterval currentInterval : intervals) {
+                    int index = intervals.indexOf(currentInterval);
+                    Double value = getSpecificValue(currentInterval.getDate());
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+
+                    if (index == 0) {
+                        note += "," + NoteConstants.Forecast.FORECAST_1 + NoteConstants.Forecast.FORECAST_AVERAGE;
+                    } else if (index == lastIndex) {
+                        note += "," + NoteConstants.Forecast.FORECAST_2 + NoteConstants.Forecast.FORECAST_AVERAGE;
+                    } else {
+                        note += "," + NoteConstants.Forecast.FORECAST + NoteConstants.Forecast.FORECAST_AVERAGE;
+                    }
+
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
+                }
+                break;
             case GAPS_TYPE:
                 for (Gap currentGap : gapList) {
                     for (CleanInterval currentInterval : currentGap.getIntervals()) {
@@ -405,6 +468,27 @@ public class GapsAndLimits {
 
     public void fillMinimum() throws Exception {
         switch (gapsAndLimitsType) {
+            case FORECAST_TYPE:
+                int lastIndex = intervals.size() - 1;
+                for (CleanInterval currentInterval : intervals) {
+                    int index = intervals.indexOf(currentInterval);
+                    Double value = getSpecificValue(currentInterval.getDate());
+                    JEVisSample sample = new VirtualSample(currentInterval.getDate(), value);
+                    String note = "";
+                    note += getNote(currentInterval);
+
+                    if (index == 0) {
+                        note += "," + NoteConstants.Forecast.FORECAST_1 + NoteConstants.Forecast.FORECAST_MIN;
+                    } else if (index == lastIndex) {
+                        note += "," + NoteConstants.Forecast.FORECAST_2 + NoteConstants.Forecast.FORECAST_MIN;
+                    } else {
+                        note += "," + NoteConstants.Forecast.FORECAST + NoteConstants.Forecast.FORECAST_MIN;
+                    }
+
+                    sample.setNote(note);
+                    currentInterval.addTmpSample(sample);
+                }
+                break;
             case GAPS_TYPE:
                 for (Gap currentGap : gapList) {
                     for (CleanInterval currentInterval : currentGap.getIntervals()) {
@@ -477,6 +561,12 @@ public class GapsAndLimits {
                 return lastDate.minusMonths(referencePeriodCount);
             case (JEDataProcessorConstants.GapFillingReferencePeriod.YEAR):
                 return lastDate.minusYears(referencePeriodCount);
+            case (JEDataProcessorConstants.GapFillingReferencePeriod.ALL):
+                try {
+                    return sampleCache.get(0).getTimestamp();
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
             default:
                 return lastDate.minusMonths(referencePeriodCount);
         }
@@ -492,6 +582,6 @@ public class GapsAndLimits {
     }
 
     public enum GapsAndLimitsType {
-        LIMITS_TYPE, GAPS_TYPE
+        LIMITS_TYPE, GAPS_TYPE, FORECAST_TYPE
     }
 }

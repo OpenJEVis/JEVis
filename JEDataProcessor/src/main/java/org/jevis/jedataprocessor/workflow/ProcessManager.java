@@ -7,13 +7,18 @@ package org.jevis.jedataprocessor.workflow;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.jedataprocessor.aggregation.AggregationAlignmentStep;
 import org.jevis.jedataprocessor.alignment.PeriodAlignmentStep;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.differential.DifferentialStep;
+import org.jevis.jedataprocessor.forecast.ForecastStep;
+import org.jevis.jedataprocessor.forecast.PrepareForecast;
 import org.jevis.jedataprocessor.gap.FillGapStep;
 import org.jevis.jedataprocessor.limits.LimitsStep;
 import org.jevis.jedataprocessor.save.ImportStep;
@@ -30,9 +35,10 @@ public class ProcessManager {
 
     private static final Logger logger = LogManager.getLogger(ProcessManager.class);
     private final ResourceManager resourceManager;
-    List<ProcessStep> processSteps = new ArrayList<>();
+    private List<ProcessStep> processSteps = new ArrayList<>();
     private String name;
     private Long id;
+    private boolean isClean = true;
     private boolean missingSamples = true;
     private boolean rerun = false;
     private DateTime lastFirstDate;
@@ -40,15 +46,39 @@ public class ProcessManager {
 
     public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler, int processingSize) {
         this.resourceManager = new ResourceManager();
-        this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
+
         this.name = cleanObject.getName();
         this.id = cleanObject.getID();
-        this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
 
-        addDefaultSteps();
+        JEVisClass cleanDataClass;
+        JEVisClass forecastDataClass;
+        try {
+            cleanDataClass = cleanObject.getDataSource().getJEVisClass(CleanDataObject.CLASS_NAME);
+            forecastDataClass = cleanObject.getDataSource().getJEVisClass(ForecastDataObject.CLASS_NAME);
+
+            if (cleanObject.getJEVisClass().equals(cleanDataClass)) {
+                this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
+                this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
+                addDefaultSteps();
+            } else if (cleanObject.getJEVisClass().equals(forecastDataClass)) {
+                this.resourceManager.setForecastDataObject(new ForecastDataObject(cleanObject, objectHandler));
+                this.resourceManager.getForecastDataObject().setProcessingSize(processingSize);
+                addForecastSteps();
+                isClean = false;
+            } else {
+                this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
+                this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
+                addDefaultSteps();
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+            this.resourceManager.setCleanDataObject(new CleanDataObject(cleanObject, objectHandler));
+            this.resourceManager.getCleanDataObject().setProcessingSize(processingSize);
+            addDefaultSteps();
+        }
     }
 
-    public void addDefaultSteps() {
+    private void addDefaultSteps() {
 
         ProcessStep preparation = new PrepareStep();
         processSteps.add(preparation);
@@ -75,28 +105,48 @@ public class ProcessManager {
         processSteps.add(importStep);
     }
 
+    private void addForecastSteps() {
+
+        ProcessStep preparation = new PrepareForecast();
+        processSteps.add(preparation);
+
+        ProcessStep forecast = new ForecastStep();
+        processSteps.add(forecast);
+
+        ProcessStep importStep = new ImportStep();
+        processSteps.add(importStep);
+    }
+
     public void setProcessSteps(List<ProcessStep> processSteps) {
         this.processSteps = processSteps;
     }
 
     public void start() throws Exception {
-        logger.info("[{}:{}] Starting Process", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
+        if (isClean) {
 
-        if (resourceManager.getCleanDataObject().checkConfig()) {
+            logger.info("[{}:{}] Starting Process", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
+
+            if (resourceManager.getCleanDataObject().checkConfig()) {
 
 //        while (missingSamples) {
-            reRun();
+                reRun();
 //        }
+            }
+
+            logger.info("[{}:{}] Finished", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
+
+            resourceManager.setIntervals(null);
+            resourceManager.setNotesMap(null);
+            resourceManager.setRawSamplesDown(null);
+            resourceManager.setSampleCache(null);
+            resourceManager.setRawIntervals(null);
+            resourceManager.getCleanDataObject().clearLists();
+        } else {
+            if (resourceManager.getForecastDataObject().isReady(resourceManager.getForecastDataObject().getForecastDataObject())) {
+                reRun();
+                resourceManager.getForecastDataObject().finishCurrentRun(resourceManager.getForecastDataObject().getForecastDataObject());
+            }
         }
-
-        logger.info("[{}:{}] Finished", resourceManager.getCleanDataObject().getCleanObject().getName(), resourceManager.getID());
-
-        resourceManager.setIntervals(null);
-        resourceManager.setNotesMap(null);
-        resourceManager.setRawSamplesDown(null);
-        resourceManager.setSampleCache(null);
-        resourceManager.setRawIntervals(null);
-        resourceManager.getCleanDataObject().clearLists();
     }
 
     private void reRun() throws Exception {

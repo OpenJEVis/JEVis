@@ -21,7 +21,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYLogicalChartSerie.class);
 
     public XYLogicalChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
-        super(singleRow, hideShowIcons);
+        super(singleRow, hideShowIcons, false);
     }
 
     @Override

@@ -16,6 +16,8 @@ import org.jevis.jeconfig.tool.I18n;
 
 import static org.jevis.commons.constants.NoteConstants.Calc.CALC_INFINITE;
 import static org.jevis.commons.constants.NoteConstants.Differential.COUNTER_OVERFLOW;
+import static org.jevis.commons.constants.NoteConstants.Forecast.FORECAST_1;
+import static org.jevis.commons.constants.NoteConstants.Forecast.FORECAST_2;
 import static org.jevis.commons.constants.NoteConstants.Gap.GAP;
 import static org.jevis.commons.constants.NoteConstants.Limits.*;
 import static org.jevis.commons.constants.NoteConstants.User.USER_NOTES;
@@ -85,6 +87,28 @@ public class Note {
                 try {
                     if (noOfNotes > 0) sb.append(", ");
                     sb.append(I18n.getInstance().getString("plugin.graph.chart.note.gap"));
+                    noOfNotes++;
+
+                    changed = true;
+                } catch (Exception e) {
+                }
+            }
+
+            if (note.contains(FORECAST_1)) {
+                try {
+                    if (noOfNotes > 0) sb.append(", ");
+                    sb.append(I18n.getInstance().getString("plugin.graph.chart.note.forecast1"));
+                    noOfNotes++;
+
+                    changed = true;
+                } catch (Exception e) {
+                }
+            }
+
+            if (note.contains(FORECAST_2)) {
+                try {
+                    if (noOfNotes > 0) sb.append(", ");
+                    sb.append(I18n.getInstance().getString("plugin.graph.chart.note.forecast2"));
                     noOfNotes++;
 
                     changed = true;
