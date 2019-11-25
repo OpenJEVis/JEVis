@@ -158,13 +158,17 @@ public class HTTPDataSource {
 //        List<InputHandler> answerList = new ArrayList<InputHandler>();
 //        answerList.add(InputHandlerFactory.getInputConverter(answer));
         } catch (MalformedURLException ex) {
-            logger.error("MalformedURLException. For channel {}:{}", getId(), getName(), ex);
+            logger.error("MalformedURLException. For channel {}:{}. {}", getId(), getName(), ex.getMessage());
+            logger.debug("MalformedURLException. For channel {}:{}", getId(), getName(), ex);
         } catch (ClientProtocolException ex) {
-            logger.error("Exception. For channel {}:{}", getId(), getName(), ex);
+            logger.error("Exception. For channel {}:{}. {}", getId(), getName(), ex.getMessage());
+            logger.debug("Exception. For channel {}:{}", getId(), getName(), ex);
         } catch (IOException ex) {
-            logger.error("IO Exception. For channel {}:{}", getId(), getName(), ex);
+            logger.error("IO Exception. For channel {}:{}. {}", getId(), getName(), ex.getMessage());
+            logger.debug("IO Exception. For channel {}:{}.", getId(), getName(), ex);
         } catch (ParseException ex) {
-            logger.error("Parse Exception. For channel {}:{}", getId(), getName(), ex);
+            logger.error("Parse Exception. For channel {}:{}. {}", getId(), getName(), ex.getMessage());
+            logger.debug("Parse Exception. For channel {}:{}", getId(), getName(), ex);
         } catch (Exception ex) {
             logger.error("Exception. For channel {}:{}", getId(), getName(), ex);
         }
