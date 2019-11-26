@@ -63,8 +63,10 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         JEVisClass rawDataClass = ds.getJEVisClass("Data");
 
         boolean odd = false;
+        boolean empty = true;
         for (Alarm currentAlarm : alarms) {
             if (currentAlarm.getAlarmType().equals(AlarmType.L1) || currentAlarm.getAlarmType().equals(AlarmType.L2)) {
+                empty = false;
                 String name = currentAlarm.getObject().getName() + ":" + currentAlarm.getObject().getID().toString();
                 String nameRaw = "";
 
@@ -224,7 +226,11 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("</table>");
         sb.append("<br>");
 
-        setTableString(sb.toString());
+        if (empty) {
+            setTableString("");
+        } else {
+            setTableString(sb.toString());
+        }
     }
 
     private JEVisSample getCurrentSample(Alarm currentAlarm) throws JEVisException {
@@ -308,9 +314,11 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         nf.setMaximumFractionDigits(2);
 
         boolean odd = false;
+        boolean empty = true;
         for (Alarm currentAlarm : alarms) {
             if (currentAlarm.getAlarmType().equals(AlarmType.DYNAMIC) || currentAlarm.getAlarmType().equals(AlarmType.STATIC)
                     && currentAlarm.getLogValue() == 1) {
+                empty = false;
                 String name = currentAlarm.getObject().getName() + ":" + currentAlarm.getObject().getID().toString();
                 String nameRaw = "";
 
@@ -426,6 +434,10 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("</table>");
         sb.append("<br>");
 
-        return sb.toString();
+        if (empty) {
+            return "";
+        } else {
+            return sb.toString();
+        }
     }
 }
