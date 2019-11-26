@@ -109,10 +109,16 @@ public class AlarmFunction implements ReportData {
 
             for (JEVisSample smp : listLogs) {
                 if (smp.getValueAsLong() < 4L) {
-                    Alarm alarm = new Alarm(alarmObj, null, smp, smp.getTimestamp(), isValues.get(smp.getTimestamp()).getValueAsDouble(),
-                            shouldBeValues.get(smp.getTimestamp()).getValueAsDouble(), alarmType, smp.getValueAsLong().intValue());
-                    alarm.setTolerance(cleanDataAlarm.getTolerance());
-                    alarmList.add(alarm);
+                    try {
+                        Double isValue = isValues.get(smp.getTimestamp()).getValueAsDouble();
+                        Double shouldBeValue = shouldBeValues.get(smp.getTimestamp()).getValueAsDouble();
+                        int logValue = smp.getValueAsLong().intValue();
+                        Alarm alarm = new Alarm(alarmObj, null, smp, smp.getTimestamp(), isValue, shouldBeValue, alarmType, logValue);
+                        alarm.setTolerance(cleanDataAlarm.getTolerance());
+                        alarmList.add(alarm);
+                    } catch (Exception e) {
+                        logger.error("Could get all values for alarm {}:{}.", alarmObj.getName(), alarmObj.getID(), e);
+                    }
                 }
             }
 
