@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jeconfig.plugin.graph.view;
+package org.jevis.jeconfig.plugin.charts;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;

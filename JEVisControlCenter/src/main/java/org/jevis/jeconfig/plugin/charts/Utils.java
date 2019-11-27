@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.graph.view;
+package org.jevis.jeconfig.plugin.charts;
 
 import com.sun.javafx.scene.text.TextLayout;
 import com.sun.javafx.tk.Toolkit;

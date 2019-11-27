@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.graph.view;
+package org.jevis.jeconfig.plugin.charts;
 
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXComboBox;

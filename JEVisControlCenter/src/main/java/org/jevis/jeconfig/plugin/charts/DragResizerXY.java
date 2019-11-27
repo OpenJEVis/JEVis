@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.graph.view;
+package org.jevis.jeconfig.plugin.charts;
 
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseEvent;

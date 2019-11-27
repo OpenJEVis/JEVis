@@ -53,22 +53,36 @@ public class AlarmConfiguration {
         return enabled;
     }
 
-    public Boolean isChecked() {
-        if (checked == null) {
-            checked = sampleHandler.getLastSample(getObject(), ALARM_CHECKED, false);
+    public JEVisAttribute getCheckedAttribute() {
+        try {
+            return getObject().getAttribute(ALARM_CHECKED);
+        } catch (JEVisException e) {
+            logger.error("Could not get checked attribute for object {}:{}", getObject().getName(), getObject().getID(), e);
         }
-        return checked;
+        return null;
+    }
+
+    public Boolean isChecked() {
+        try {
+            JEVisSample latestSample = getCheckedAttribute().getLatestSample();
+            if (latestSample != null) {
+                return latestSample.getValueAsBoolean();
+            } else return false;
+        } catch (JEVisException e) {
+            logger.error("Could not get checked status for object {}:{}", getObject().getName(), getObject().getID(), e);
+        }
+        return false;
     }
 
     public void setChecked(Boolean checked) {
         try {
-            JEVisAttribute checkedAttribute = object.getAttribute(ALARM_CHECKED);
+            JEVisAttribute checkedAttribute = getObject().getAttribute(ALARM_CHECKED);
             if (checkedAttribute != null) {
                 JEVisSample sample = checkedAttribute.buildSample(new DateTime(), checked);
                 sample.commit();
             }
         } catch (Exception e) {
-            logger.error("Could not set checked attribute for object {}:{}", object.getName(), object.getID(), e);
+            logger.error("Could not set checked attribute for object {}:{}", getObject().getName(), getObject().getID(), e);
         }
     }
 
@@ -83,8 +97,9 @@ public class AlarmConfiguration {
     }
 
     public String getName() {
-        if (name == null)
+        if (name == null) {
             name = getObject().getName();
+        }
         return name;
     }
 
@@ -138,13 +153,20 @@ public class AlarmConfiguration {
             try {
                 timeStampAttribute = getObject().getAttribute(TIME_STAMP);
             } catch (JEVisException e) {
-                logger.error("Could not get time stamp attribute: " + e);
+                logger.error("Could not get time stamp attribute: ", e);
             }
         }
         return timeStampAttribute;
     }
 
     public JEVisAttribute getLogAttribute() {
+        if (logAttribute == null) {
+            try {
+                logAttribute = getObject().getAttribute(LOG);
+            } catch (JEVisException e) {
+                logger.error("Could not get log attribute: ", e);
+            }
+        }
         return logAttribute;
     }
 

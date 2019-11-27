@@ -226,7 +226,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     AttributeEditor editor = new ErrorEditor();
                     Label name = new Label(I18nWS.getInstance().getAttributeName(att));
                     name.setWrapText(true);
-//                    name.setMinWidth(100);
+                    name.setMinWidth(100);
 
                     try {
                         String guiDisplayType = type.getGUIDisplayType();

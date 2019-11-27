@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.graph.view;
+package org.jevis.jeconfig.plugin.charts;
 
 import com.sun.javafx.scene.control.skin.TableHeaderRow;
 import com.sun.javafx.scene.control.skin.TableViewSkin;

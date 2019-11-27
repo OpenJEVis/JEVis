@@ -38,7 +38,7 @@ import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
-import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
 import org.jevis.jeconfig.tool.I18n;
