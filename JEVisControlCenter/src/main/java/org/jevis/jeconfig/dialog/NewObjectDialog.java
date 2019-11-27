@@ -181,9 +181,9 @@ public class NewObjectDialog {
                     fName.setText(I18nWS.getInstance().getClassName(newValue.getName()));
                 }
                 if (newValue.equals(finalDataClass)) {
-                    Platform.runLater(() -> createCleanData.setVisible(false));
-                } else {
                     Platform.runLater(() -> createCleanData.setVisible(true));
+                } else {
+                    Platform.runLater(() -> createCleanData.setVisible(false));
                 }
             } catch (Exception ex) {
                 logger.fatal(ex);
