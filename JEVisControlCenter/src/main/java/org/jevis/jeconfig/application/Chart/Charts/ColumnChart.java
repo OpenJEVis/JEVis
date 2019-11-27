@@ -84,9 +84,20 @@ public class ColumnChart implements Chart {
         for (ChartDataModel singleRow : chartDataModels) {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
-                    ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons);
+                    ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons, false);
                     columnChartSerieList.add(serie);
                     hexColors.add(ColorHelper.toColor(singleRow.getColor()));
+
+                    if (singleRow.hasForecastData()) {
+                        try {
+                            ColumnChartSerie forecast = new ColumnChartSerie(singleRow, hideShowIcons, true);
+
+                            hexColors.add(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
+                            columnChartSerieList.add(forecast);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
 
                 } catch (JEVisException e) {
                     e.printStackTrace();
@@ -206,7 +217,7 @@ public class ColumnChart implements Chart {
         for (ChartDataModel singleRow : chartDataModels) {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
-                    ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons);
+                    ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons, false);
 
                     hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 //                    series.add(serie.getSerie());

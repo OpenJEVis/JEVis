@@ -38,7 +38,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("<br>");
         sb.append("<br>");
 
-        sb.append("<h2>Limit Alarms</h2>");
+        sb.append("<h2>Limits</h2>");
 
         /**
          * Start of Table
@@ -291,7 +291,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         JEVisClass buildingClass = ds.getJEVisClass("Monitored Object");
         JEVisClass rawDataClass = ds.getJEVisClass("Data");
 
-        sb.append("<h2>Alarm Alarms</h2>");
+        sb.append("<h2>Alarms</h2>");
 
         sb.append("<table style=\"");
         sb.append(tableCSS);

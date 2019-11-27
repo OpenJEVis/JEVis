@@ -2,7 +2,7 @@ package org.jevis.jeconfig.dialog;
 
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 
 public class NewAnalysisDialog {
     private JEVisDataSource ds;

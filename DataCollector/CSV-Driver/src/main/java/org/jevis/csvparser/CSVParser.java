@@ -92,7 +92,11 @@ public class CSVParser {
         for (DataPoint dp : _dataPoints) {
             String mappingIdentifier = dp.getMappingIdentifier();
             //VERY VERY VERY DIRTY CODE, PLEASE DONT USE IT
-            Integer column = getColumnByIdentifier(mappingIdentifier, columnMap);
+            Integer column = null;
+            if (mappingIdentifier != null) {
+                column = getColumnByIdentifier(mappingIdentifier, columnMap);
+            }
+
             dp.setValueIndex(column);
         }
     }
@@ -147,8 +151,8 @@ public class CSVParser {
                         continue;
                     }
                 } catch (Exception ex) {
-                    _report.addError(new LineError(_currLineIndex, valueIndex, ex, "Mapping Exeption"));
-//                    Logger.getLogger(this.getClass().getName()).log(Level.WARN, "This line in the file is not valid: " + _currLineIndex);
+                    _report.addError(new LineError(_currLineIndex, valueIndex, ex, "Mapping Exception"));
+                    logger.warn("This line in the file is not valid: " + _currLineIndex);
                 }
 
                 Boolean valueValid = false;
@@ -269,12 +273,8 @@ public class CSVParser {
                 pattern += " " + _timeFormat;
                 input += " " + time;
             }
-//            Logger.getLogger(this.getClass().getName()).log(Level.ALL, "complete time " + format);
-//            Logger.getLogger(this.getClass().getName()).log(Level.ALL, "complete pattern " + pattern);
 
-//            DateTimeFormatter fmt = DateTimeFormat.forPattern(pattern);
-            DateTime parsedDateTime = TimeConverter.parserDateTime(input, pattern, timeZone);
-            return parsedDateTime;
+            return TimeConverter.parserDateTime(input, pattern, timeZone);
         } catch (Exception ex) {
             logger.warn("Date not parsable: " + input);
             logger.warn("LINE not parsable: " + Arrays.toString(line));
