@@ -12,6 +12,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
@@ -38,8 +39,19 @@ public class ImportStep implements ProcessStep {
     }
 
     private void importIntoJEVis(ResourceManager resourceManager) throws Exception {
-        CleanDataObject cleanAttr = resourceManager.getCleanDataObject();
-        JEVisObject cleanObject = cleanAttr.getCleanObject();
+        JEVisObject cleanObject = null;
+        Integer periodOffset = 0;
+        if (resourceManager.getCleanDataObject() != null) {
+            CleanDataObject cleanAttr = resourceManager.getCleanDataObject();
+            cleanObject = cleanAttr.getCleanObject();
+            periodOffset = cleanAttr.getPeriodOffset();
+        } else {
+            ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
+            cleanObject = forecastDataObject.getForecastDataObject();
+            JEVisAttribute attribute = cleanObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
+            attribute.deleteSamplesBetween(forecastDataObject.getStartDate(), forecastDataObject.getEndDate());
+        }
+
         JEVisAttribute attribute = null;
 
         attribute = cleanObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
@@ -62,7 +74,6 @@ public class ImportStep implements ProcessStep {
         }
 
         List<JEVisSample> cleanSamples = new ArrayList<>();
-        CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
         for (CleanInterval curInterval : resourceManager.getIntervals()) {
             if (curInterval.getTmpSamples().size() > 0) {
                 int lastTmpSampleIndex = curInterval.getTmpSamples().size() - 1;
@@ -74,12 +85,12 @@ public class ImportStep implements ProcessStep {
                 }
                 DateTime date = sample.getTimestamp();
                 if (date != null) {
-                    DateTime timestamp = sample.getTimestamp().plusSeconds(cleanDataObject.getPeriodOffset());
+                    DateTime timestamp = sample.getTimestamp().plusSeconds(periodOffset);
 
                     if (hasSamples) {
                         JEVisSample smp = listOldSamples.get(timestamp);
                         if (smp != null) {
-                            attribute.deleteSamplesBetween(timestamp.minusMillis(1), timestamp.plusMillis(1));
+                            attribute.deleteSamplesBetween(timestamp, timestamp);
                         }
                     }
                     JEVisSample sampleSql = attribute.buildSample(timestamp, rawValue, sample.getNote());

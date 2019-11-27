@@ -128,9 +128,9 @@ public class CSVImportDialog {
 
         Label topTitle = new Label(I18n.getInstance().getString("csv.top_title"));
         topTitle.setTextFill(Color.web("#0076a3"));
-        topTitle.setFont(Font.font("Cambria", 25));
+        topTitle.setFont(Font.font("Cambria", 18));
 
-        ImageView imageView = ResourceLoader.getImage(ICON, 64, 64);
+        ImageView imageView = ResourceLoader.getImage(ICON, 32, 32);
 
         stage.getIcons().add(imageView.getImage());
 
@@ -159,33 +159,22 @@ public class CSVImportDialog {
         buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
         buttonPanel.setPadding(new Insets(5));
 
-        GridPane gp = new GridPane();
+
 
         Node filePane = buildFileOptions();
         Node separatorPane = buildSeparatorPane();
         Node tablePane = buildTablePane();
 
-        gp.add(filePane, 0, 0);
-        gp.add(separatorPane, 0, 1);
-        gp.add(tablePane, 0, 2);
-
-        GridPane.setVgrow(filePane, Priority.NEVER);
-        GridPane.setVgrow(separatorPane, Priority.NEVER);
-        GridPane.setVgrow(tablePane, Priority.ALWAYS);
-
-        VBox content = new VBox(10);
+        VBox content = new VBox();
 
         content.getChildren().setAll(
                 buildTitle(I18n.getInstance().getString("csv.tab.title.file_options")), filePane,
                 buildTitle(I18n.getInstance().getString("csv.tab.title.seperator_options")), separatorPane,
                 buildTitle(I18n.getInstance().getString("csv.tab.title.field_options")), tablePane);
 
-        Separator sep = new Separator(Orientation.HORIZONTAL);
-        sep.setMinHeight(10);
         Region spacer = new Region();
 
         root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL), content, spacer, buttonPanel);
-        VBox.setVgrow(gp, Priority.ALWAYS);
         VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(spacer, Priority.ALWAYS);
         VBox.setVgrow(header, Priority.NEVER);
@@ -256,7 +245,7 @@ public class CSVImportDialog {
 
     private Node buildTablePane() {
 
-        tableRootPane.setPadding(new Insets(10, 10, 5, LEFT_PADDING));
+        tableRootPane.setPadding(new Insets(0, 10, 0, LEFT_PADDING));
 
         TableView placeholderTree = new TableView();
         TableColumn firstNameCol = new TableColumn(I18n.getInstance().getString("csv.table.first_col"));
@@ -276,10 +265,10 @@ public class CSVImportDialog {
 
     private Node buildFileOptions() {
         GridPane gp = new GridPane();
-        gp.setPadding(new Insets(0, 10, 10, LEFT_PADDING));
+        gp.setPadding(new Insets(0, 10, 0, LEFT_PADDING));
 //        gp.setPadding(new Insets(10));
-        gp.setHgap(10);
-        gp.setVgap(5);
+        gp.setHgap(4);
+        gp.setVgap(4);
 
 //        gp.setStyle("-fx-background-color: #EBED50;");
         Label fileL = new Label(I18n.getInstance().getString("csv.file"));
@@ -296,15 +285,12 @@ public class CSVImportDialog {
             }
         });
 
-        ObservableList<Charset> options = FXCollections.observableArrayList();
-        for (Charset set : Charset.availableCharsets().values()) {
-            options.add(set);
-        }
+        ObservableList<Charset> options = FXCollections.observableArrayList(Charset.availableCharsets().values());
 
         Callback<ListView<Charset>, ListCell<Charset>> cellFactory = new Callback<ListView<Charset>, ListCell<Charset>>() {
             @Override
             public ListCell<Charset> call(ListView<Charset> param) {
-                final ListCell<Charset> cell = new ListCell<Charset>() {
+                return new ListCell<Charset>() {
                     {
                         super.setPrefWidth(260);
                     }
@@ -319,7 +305,6 @@ public class CSVImportDialog {
                         }
                     }
                 };
-                return cell;
             }
         };
 
@@ -364,16 +349,16 @@ public class CSVImportDialog {
         automatic.setOnAction(t -> {
             if (_csvFile != null) {
                 try {
-                    CSVAnalyser analys = new CSVAnalyser(_csvFile);
-                    setEncloser(analys.getEnclosed());
-                    setSeperator(analys.getSeparator());
+                    CSVAnalyser csvAnalyser = new CSVAnalyser(_csvFile);
+                    setEncloser(csvAnalyser.getEnclosed());
+                    setSeperator(csvAnalyser.getSeparator());
                     formats.getSelectionModel().select(Format.Custom.name());
-                    table.getParser().setEnclosed(analys.getEnclosed());
-                    table.getParser().setSeparator(analys.getSeparator());
+                    table.getParser().setEnclosed(csvAnalyser.getEnclosed());
+                    table.getParser().setSeparator(csvAnalyser.getSeparator());
                     updateTree(true);
 
                 } catch (Exception ex) {
-                    logger.info("Error while anylysing csv: " + ex);
+                    logger.info("Error while analysing csv: " + ex);
                 }
             }
 
@@ -454,9 +439,9 @@ public class CSVImportDialog {
 
     private Node buildSeparatorPane() {
         GridPane gp = new GridPane();
-        gp.setPadding(new Insets(5, 10, 5, LEFT_PADDING));
+        gp.setPadding(new Insets(0, 10, 0, LEFT_PADDING));
 
-        gp.setHgap(10);
+        gp.setHgap(4);
         gp.setVgap(5);
 
 //        gp.setStyle("-fx-background-color: #86D64D;");

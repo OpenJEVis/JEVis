@@ -363,7 +363,9 @@ public class LoadAnalysisDialog {
         loadButton.setOnAction(event -> {
             response = Response.LOAD;
 
-            analysisDataModel.setCurrentAnalysis(analysisListView.getSelectedItem());
+            if (analysisListView.getSelectedItem() != null) {
+                analysisDataModel.setCurrentAnalysis(analysisListView.getSelectedItem());
+            }
             analysisDataModel.setAggregationPeriod(aggregationBox.getSelectionModel().getSelectedItem());
             analysisDataModel.setManipulationMode(mathBox.getSelectionModel().getSelectedItem());
             AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(presetDateBox.getSelectionModel().getSelectedItem());

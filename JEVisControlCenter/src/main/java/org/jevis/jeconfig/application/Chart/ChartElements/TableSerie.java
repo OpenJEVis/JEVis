@@ -21,7 +21,7 @@ public class TableSerie extends XYChartSerie {
     private static final Logger logger = LogManager.getLogger(TableSerie.class);
 
     public TableSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
-        super(singleRow, hideShowIcons);
+        super(singleRow, hideShowIcons, false);
     }
 
     public void generateSeriesFromSamples() throws JEVisException {

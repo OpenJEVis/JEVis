@@ -110,7 +110,7 @@ public class JEVisItemLoader {
      */
     private void buildItems(List<JEVisObject> objects) {
 
-        objects.parallelStream().forEach(object -> {
+        for (JEVisObject object : objects) {
             try {
 //                logger.debug("Create item for object: {}", object.getName());
                 JEVisTreeItem item = new JEVisTreeItem(object);
@@ -127,7 +127,7 @@ public class JEVisItemLoader {
             } catch (Exception ex) {
                 logger.error("Error while loading object {}", object.getID(), ex);
             }
-        });
+        }
     }
 
     private String attributeKey(JEVisAttribute attribute) {
@@ -352,30 +352,29 @@ public class JEVisItemLoader {
                 case OBJECT_NEW_CHILD:
                     JEVisObject newObject = (JEVisObject) event.getObject();
 
-                    if (newObject != null & !this.itemObjectLinker.containsKey(newObject)) {
+                    if (newObject != null && !this.itemObjectLinker.containsKey(newObject)) {
                         buildItems(newObject);
-                    }
-
-
-                    if (newObject != null && this.itemObjectLinker.containsKey(newObject)) {
+                    } else if (newObject != null && this.itemObjectLinker.containsKey(newObject)) {
                         logger.error("Remove item from cache: {}", newObject);
                         this.itemObjectLinker.remove(newObject);
                         buildItems(newObject);
-                        if (newObject != null && this.itemObjectLinker.containsKey(newObject)) {
+//                        if (this.itemObjectLinker.containsKey(newObject)) {
 //                        logger.error("Remove item from jevis tree cache: {}", newObject);
 //                        itemObjectLinker.remove(newObject);
 //                        buildItems(newObject);
+//                        }
+                    }
 
+                    if (newObject != null) {
+                        Platform.runLater(() -> {
+                            update(object);
+                            update(newObject);
+                            this.itemObjectLinker.get(object).setExpanded(true);
+                            this.itemObjectLinker.get(newObject).setExpanded(false);
 
-                            Platform.runLater(() -> {
-                                update(object);
-                                this.itemObjectLinker.get(object).setExpanded(true);
-                                this.itemObjectLinker.get(object).setExpanded(true);
-
-                                /** We do not want to select the new object for now, but maybe later in some cases **/
-                                //jeVisTree.getSelectionModel().select(itemObjectLinker.get(newObject));
-                            });
-                        }
+                            /** We do not want to select the new object for now, but maybe later in some cases **/
+                            //jeVisTree.getSelectionModel().select(itemObjectLinker.get(newObject));
+                        });
                     }
                     break;
                 case OBJECT_CHILD_DELETED:

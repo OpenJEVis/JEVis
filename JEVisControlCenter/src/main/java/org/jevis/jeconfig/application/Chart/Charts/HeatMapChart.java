@@ -312,11 +312,6 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public DateTime getNearest() {
-        return null;
-    }
-
-    @Override
     public javafx.scene.chart.Chart getChart() {
         return null;
     }

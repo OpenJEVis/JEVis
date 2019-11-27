@@ -9,7 +9,7 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 
 public class XYScatterChartSerie extends XYChartSerie {
     public XYScatterChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
-        super(singleRow, hideShowIcons);
+        super(singleRow, hideShowIcons, false);
     }
 
     @Override

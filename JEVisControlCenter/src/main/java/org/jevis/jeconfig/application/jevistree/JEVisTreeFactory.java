@@ -35,7 +35,6 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
@@ -52,7 +51,6 @@ import org.jevis.jeconfig.plugin.dashboard.datahandler.WidgetTreePlugin;
 import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -203,55 +201,55 @@ public class JEVisTreeFactory {
         tree.setSortMode(TreeSortMode.ALL_DESCENDANTS);
 
 
-        if (JEConfig.getExpert()) {
-
-            try {
-                List<JEVisClass> prioClasses = new ArrayList<>();
-                List<JEVisClass> allClasses = ds.getJEVisClasses();
-                List<String> allAttributes = new ArrayList<>();
-                List<String> prioAttribute = new ArrayList<>();
-                /** first we high prio Classes **/
-                prioClasses.add(ds.getJEVisClass("Clean Data"));
-                prioClasses.forEach(jeVisClass -> {
-                    try {
-                        jeVisClass.getTypes().forEach(jeVisType -> {
-                            try {
-                                addAttributeSave(prioAttribute, jeVisType.getName());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-
-                allClasses.forEach(jeVisClass -> {
-                    try {
-                        jeVisClass.getTypes().forEach(jeVisType -> {
-                            try {
-                                addAttributeSave(allAttributes, jeVisType.getName());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-                Collections.sort(allAttributes);
-
-                List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = createAttributeColumns(prioAttribute);
-                attributeColumns.addAll(createAttributeColumns(allAttributes));
-//                List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = xAttributeColumn(allAttributes);
-                tree.getColumns().addAll(attributeColumns);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-        }
+//        if (JEConfig.getExpert()) {
+//
+//            try {
+//                List<JEVisClass> prioClasses = new ArrayList<>();
+//                List<JEVisClass> allClasses = ds.getJEVisClasses();
+//                List<String> allAttributes = new ArrayList<>();
+//                List<String> prioAttribute = new ArrayList<>();
+//                /** first we high prio Classes **/
+//                prioClasses.add(ds.getJEVisClass("Clean Data"));
+//                prioClasses.forEach(jeVisClass -> {
+//                    try {
+//                        jeVisClass.getTypes().forEach(jeVisType -> {
+//                            try {
+//                                addAttributeSave(prioAttribute, jeVisType.getName());
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                        });
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                });
+//
+//                allClasses.forEach(jeVisClass -> {
+//                    try {
+//                        jeVisClass.getTypes().forEach(jeVisType -> {
+//                            try {
+//                                addAttributeSave(allAttributes, jeVisType.getName());
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                        });
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                });
+//                Collections.sort(allAttributes);
+//
+//                List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = createAttributeColumns(prioAttribute);
+//                attributeColumns.addAll(createAttributeColumns(allAttributes));
+////                List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = xAttributeColumn(allAttributes);
+//                tree.getColumns().addAll(attributeColumns);
+//
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//
+//        }
 
 
         if (withMinMaxTSColumn) {
