@@ -13,6 +13,7 @@ import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -126,7 +127,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
 
                                     ChartDataModel currentDataModel = getData(getTreeTableRow().getItem());
 
-                                    ColorPicker colorPicker = new ColorPicker();
+                                    ColorPickerAdv colorPicker = new ColorPickerAdv();
 
                                     StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
                                     colorPicker.setValue(item);

@@ -21,12 +21,14 @@ package org.jevis.jeconfig.csv;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.scene.control.Alert;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
@@ -40,6 +42,7 @@ import org.joda.time.DateTime;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -58,29 +61,38 @@ public class CSVTable extends TableView<CSVLine> {
         this.ds = ds;
         setItems(FXCollections.observableArrayList(parser.getRows()));
         setMaxHeight(1024);
-        build();
+        updateColumns();
 
     }
 
-    private void build() {
-        //Simple column guessing base in the secound last line
+    private void updateColumns() {
+        getColumns().clear();
         header = new ArrayList<>();
+
+        TableColumn<CSVLine, String> lineColumn = new TableColumn("Nr.");
+        lineColumn.setCellFactory(new Callback<TableColumn<CSVLine, String>, TableCell<CSVLine, String>>() {
+            @Override
+            public TableCell<CSVLine, String> call(TableColumn<CSVLine, String> param) {
+                TableCell<CSVLine, String> cell = new TableCell<CSVLine, String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        setText("" + (getTableRow().getIndex() + 1 + +parser.getHeader()));
+                    }
+                };
+                return cell;
+            }
+        });
+        lineColumn.setMaxWidth(30);
+        getColumns().add(lineColumn);
 
         for (int i = 0; i < parser.getColumnCount(); i++) {
             String columnName = "Column " + i;
-
-            columnName = "";
-
             TableColumn<CSVLine, String> column = new TableColumn(columnName);
             final CSVColumnHeader header = new CSVColumnHeader(this, i);
             this.header.add(header);
             column.setSortable(false);//layout problem
             column.setPrefWidth(310);
-
-//            column.prefWidthProperty().bind(widthProperty().divide(parser.getColumnCount()));
-//            column.setPrefWidth(widthProperty().doubleValue() / parser.getColumnCount());
-            final int rowID = i;
-
             column.setCellValueFactory(p -> {
                 if (p != null) {
                     try {
@@ -102,30 +114,33 @@ public class CSVTable extends TableView<CSVLine> {
 
     public boolean doImport() {
 
+        AtomicBoolean result = new AtomicBoolean(false);
         Service<Void> service = new Service<Void>() {
             @Override
             protected Task<Void> createTask() {
                 return new Task<Void>() {
                     @Override
                     protected void succeeded() {
-                        Platform.runLater(() -> {
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle(I18n.getInstance().getString("csv.import.dialog.success.header"));
-                            alert.setHeaderText(null);
-                            alert.setContentText(I18n.getInstance().getString("csv.import.dialog.success.message"));
-                            alert.showAndWait();
-                        });
+                        result.set(true);
+//                        Platform.runLater(() -> {
+//                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//                            alert.setTitle(I18n.getInstance().getString("csv.import.dialog.success.header"));
+//                            alert.setHeaderText(null);
+//                            alert.setContentText(I18n.getInstance().getString("csv.import.dialog.success.message"));
+//                            alert.showAndWait();
+//                        });
                     }
 
                     @Override
                     protected void failed() {
-                        Platform.runLater(() -> {
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle(I18n.getInstance().getString("csv.import.dialog.failed.title"));
-                            alert.setHeaderText(null);
-                            alert.setContentText(I18n.getInstance().getString("csv.import.dialog.failed.message"));
-                            alert.showAndWait();
-                        });
+                        result.set(false);
+//                        Platform.runLater(() -> {
+//                            Alert alert = new Alert(Alert.AlertType.ERROR);
+//                            alert.setTitle(I18n.getInstance().getString("csv.import.dialog.failed.title"));
+//                            alert.setHeaderText(null);
+//                            alert.setContentText(I18n.getInstance().getString("csv.import.dialog.failed.message"));
+//                            alert.showAndWait();
+//                        });
                     }
 
                     @Override
@@ -235,9 +250,9 @@ public class CSVTable extends TableView<CSVLine> {
         ProgressDialog pd = new ProgressDialog(service);
         pd.setHeaderText(I18n.getInstance().getString("csv.progress.header"));
         pd.setTitle(I18n.getInstance().getString("csv.progress.title"));
-
+        pd.initOwner(this.getScene().getWindow());
         service.start();
-        return true;
+        return result.get();
     }
 
     public JEVisDataSource getDataSource() {
@@ -253,7 +268,18 @@ public class CSVTable extends TableView<CSVLine> {
 
 
     public void refreshTable() {
-        setItems(FXCollections.observableArrayList(parser.parse()));
+//        getItems().clear();
+        ObservableList observableList = FXCollections.observableArrayList(parser.parse());
+        Platform.runLater(() -> {
+            updateColumns();
+            setItems(observableList);
+        });
+
+    }
+
+
+    public void setCSVParser(CSVParser parser) {
+        this.parser = parser;
     }
 
     public CSVParser getParser() {

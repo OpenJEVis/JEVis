@@ -35,7 +35,7 @@ public class CSVParser {
     private static final Logger logger = LogManager.getLogger(CSVParser.class);
     private File file;
     private int _maxColumnCount = 0;
-    private boolean _isAlwaysSameColumnCount = true;
+//    private boolean _isAlwaysSameColumnCount = true;
     private List<CSVLine> rows;
     private Charset charset;
     private String enclosed;
@@ -63,9 +63,8 @@ public class CSVParser {
     }
 
     private List<CSVLine> parseLines(List<String> list, String enclosed, String seperator, int header) {
-        List<CSVLine> cslines = new ArrayList<>();
+        List<CSVLine> csvLines = new ArrayList<>();
         int count = -1;
-//        logger.info("Split column by: " + separator + " text by: " + enclosed);
         for (String line : list) {
             count++;
             if (count < header) {
@@ -77,39 +76,27 @@ public class CSVParser {
             }
 
             CSVLine csvline = new CSVLine(line, enclosed, seperator, count);
-            cslines.add(csvline);
+            csvLines.add(csvline);
 
-            if (_maxColumnCount != 0 && csvline.getColoumCount() != 0) {
-                if (_maxColumnCount != csvline.getColoumCount()) {
-                    _isAlwaysSameColumnCount = false;
-                }
-            }
-            if (_maxColumnCount < csvline.getColoumCount()) {
-                _maxColumnCount = csvline.getColoumCount();
+            if (_maxColumnCount < csvline.getColumnCount()) {
+                _maxColumnCount = csvline.getColumnCount();
             }
         }
-        return cslines;
+        return csvLines;
     }
 
-    public boolean isColoumCountAllwaysSame() {
-        return _isAlwaysSameColumnCount;
-    }
 
     public int getColumnCount() {
         return _maxColumnCount;
     }
 
     private List<String> readFile(File csvFile, Charset charset) {
-
         logger.debug("File: " + csvFile);
         BufferedReader br = null;
         List<String> lines = new ArrayList<>();
         try {
 
             String line = "";
-//            br = new BufferedReader(new FileReader(csvFile));
-            logger.debug("1: " + new FileInputStream(csvFile));
-            logger.debug("2: " + new InputStreamReader(new FileInputStream(csvFile)));
             br = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile), charset));
             while ((line = br.readLine()) != null) {
                 lines.add(line);

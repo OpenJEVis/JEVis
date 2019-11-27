@@ -221,16 +221,11 @@ public class CSVColumnHeader {
 
             switch (currentMeaning) {
                 case Date:
-                    Date date = getDateFormater().parse(value);
-                    return getDateFormater().format(date);
                 case DateTime:
-                    Date datetime = getDateFormater().parse(value);
-                    return getDateFormater().format(datetime);
                 case Time:
                     Date time = getDateFormater().parse(value);
                     return getDateFormater().format(time);
                 case Value:
-                    //hmm lokks some kinde if strage i bet there is a better ways
                     DecimalFormat df = new DecimalFormat("###,###,###,###,###,###,###,###,###,##0.00###################################");
 //                    String unit = "";
 //
@@ -302,13 +297,7 @@ public class CSVColumnHeader {
 
             switch (currentMeaning) {
                 case Date:
-                    Date date = getDateFormater().parse(value);
-                    date.getTime();
-                    return true;
                 case DateTime:
-                    Date datetime = getDateFormater().parse(value);
-                    datetime.getTime();
-                    return true;
                 case Time:
                     Date time = getDateFormater().parse(value);
                     time.getTime();
@@ -318,22 +307,6 @@ public class CSVColumnHeader {
                     getValueAsDouble(value);
                     return true;
 
-//                    symbols.setDecimalSeparator(getDecimalSeparator());
-//                    DecimalFormat df = new DecimalFormat("#,#", symbols);
-//                    String tmpValue = value;
-//
-//                    if (getDecimalSeparator() == ',') {
-//                        tmpValue = tmpValue.replace('.', ' ');//removeall grouping chars
-//                    } else {
-//                        tmpValue = tmpValue.replace(',', ' ');//removeall grouping chars
-//                    }
-//                    tmpValue = tmpValue.trim();//some locales use the spaceas grouping
-//
-//                    Number number = df.parse(tmpValue);
-//                    Double dValue = number.doubleValue();
-//
-//                    logger.info("Value is valid: " + dValue);
-//                    return true;
                 case Text:
                     //TODO maybe check for .... if the attriute is from type string
                     return true;
@@ -731,8 +704,8 @@ public class CSVColumnHeader {
 
 
                 SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE);
-
                 selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
+                selectionDialog.setInitOwner(button.getScene().getWindow());
                 if (selectionDialog.show(
                         _table.getDataSource(),
                         I18n.getInstance().getString("csv.target.title"),

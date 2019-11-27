@@ -182,6 +182,7 @@ public class TargetEditor implements AttributeEditor {
 
                     selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE);
                 }
+                selectTargetDialog.setInitOwner(_treeButton.getScene().getWindow());
 
                 List<UserSelection> openList = new ArrayList<>();
                 if (th != null && !th.getAttribute().isEmpty()) {
