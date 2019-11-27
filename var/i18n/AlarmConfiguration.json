@@ -133,6 +133,23 @@
         "uk": "історія",
         "en": "History"
       }
+    },
+    {
+      "type": "Alarm Checked",
+      "descriptions": {
+        "de": "Das Attribut zeigt ob der der letzte generierte Alarm überprüft wurde.",
+        "ru": "Атрибут показывает, был ли проверен последний сгенерированный сигнал тревоги.",
+        "uk": "Атрибут показує, чи перевірено останній створений сигнал тривоги.",
+        "th": "แอททริบิวจะแสดงว่ามีการตรวจสอบสัญญาณเตือนที่สร้างล่าสุดหรือไม่",
+        "en": "The attribute shows if the last generated alarm has been checked."
+      },
+      "names": {
+        "de": "Geprüft",
+        "ru": "проверенный",
+        "th": "การทดสอบ",
+        "uk": "перевірений",
+        "en": "Checked"
+      }
     }
   ]
 }

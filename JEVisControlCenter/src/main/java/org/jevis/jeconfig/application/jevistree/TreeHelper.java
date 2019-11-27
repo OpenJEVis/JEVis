@@ -1347,7 +1347,7 @@ public class TreeHelper {
 
                                                             if (completed.size() == rwd.getReportLinkList().size()) {
                                                                 try {
-                                                                    JEVisFile template = rwd.createTemplate(newObject.getName());
+                                                                    JEVisFile template = rwd.createStandardTemplate(newObject.getName());
                                                                     JEVisAttribute templateAttribute = newObject.getAttribute("Template");
                                                                     JEVisSample templateSample = templateAttribute.buildSample(new DateTime(), template);
                                                                     templateSample.commit();

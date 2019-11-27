@@ -119,6 +119,8 @@ public class AlarmProcess {
 
                             JEVisSample logSample = alarmConfiguration.getLogAttribute().buildSample(DateTime.now(), sb.toString());
                             logSample.commit();
+
+                            alarmConfiguration.setChecked(false);
                         } catch (JEVisException e) {
                             logger.error("Could not build sample with new time stamp.");
                         }

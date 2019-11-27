@@ -2,10 +2,7 @@ package org.jevis.commons.alarm;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.object.plugin.TargetHelper;
@@ -28,9 +25,11 @@ public class AlarmConfiguration {
     private final String ALARM_SCOPE = "Alarm Scope";
     private final String ALARM_PERIOD = "Alarm Period";
     private final String ALARM_OBJECTS = "Alarm Objects";
+    public final static String ALARM_CHECKED = "Alarm Checked";
     private final JEVisObject object;
     private final JEVisDataSource ds;
     private Boolean enabled;
+    private Boolean checked;
     private SampleHandler sampleHandler;
     private Long id;
     private String name;
@@ -52,6 +51,25 @@ public class AlarmConfiguration {
             enabled = sampleHandler.getLastSample(getObject(), ENABLED_NAME, false);
         }
         return enabled;
+    }
+
+    public Boolean isChecked() {
+        if (checked == null) {
+            checked = sampleHandler.getLastSample(getObject(), ALARM_CHECKED, false);
+        }
+        return checked;
+    }
+
+    public void setChecked(Boolean checked) {
+        try {
+            JEVisAttribute checkedAttribute = object.getAttribute(ALARM_CHECKED);
+            if (checkedAttribute != null) {
+                JEVisSample sample = checkedAttribute.buildSample(new DateTime(), checked);
+                sample.commit();
+            }
+        } catch (Exception e) {
+            logger.error("Could not set checked attribute for object {}:{}", object.getName(), object.getID(), e);
+        }
     }
 
     public JEVisObject getObject() {

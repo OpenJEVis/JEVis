@@ -470,7 +470,7 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         return reportLinkList;
     }
 
-    public JEVisFile createTemplate(String templateName) throws IOException {
+    public JEVisFile createStandardTemplate(String templateName) throws IOException {
         if (templateName == null || templateName.equals("")) {
             templateName = "template";
         }
@@ -572,7 +572,6 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         workbook.write(new FileOutputStream(templateFile));
         workbook.close();
         return new JEVisFileImp(templateName + ".xlsx", templateFile);
-
     }
 
     private Cell getOrCreateCell(Sheet sheet, int rowIdx, int colIdx) {
