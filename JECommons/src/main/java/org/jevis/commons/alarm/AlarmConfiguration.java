@@ -132,7 +132,9 @@ public class AlarmConfiguration {
     public Period getAlarmPeriod() {
         if (alarmPeriod == null) {
             String alarmPeriodString = sampleHandler.getLastSample(getObject(), ALARM_PERIOD, "");
-            if (alarmPeriodString.equals(Period.HOURLY.toString())) alarmPeriod = Period.HOURLY;
+            if (alarmPeriodString.equals(Period.MINUTELY.toString())) alarmPeriod = Period.MINUTELY;
+            else if (alarmPeriodString.equals(Period.QUARTER_HOURLY.toString())) alarmPeriod = Period.QUARTER_HOURLY;
+            else if (alarmPeriodString.equals(Period.HOURLY.toString())) alarmPeriod = Period.HOURLY;
             else if (alarmPeriodString.equals(Period.DAILY.toString())) alarmPeriod = Period.DAILY;
             else if (alarmPeriodString.equals(Period.WEEKLY.toString())) alarmPeriod = Period.WEEKLY;
             else if (alarmPeriodString.equals(Period.MONTHLY.toString())) alarmPeriod = Period.MONTHLY;
