@@ -586,6 +586,9 @@ public class ChartDataModel {
         newModel.setSamples(this.getSamples());
         newModel.setUnit(this.getUnit());
         newModel.setBubbleType(this.getBubbleType());
+        newModel.setAbsolute(this.getAbsolute());
+        newModel.setTimeFactor(this.getTimeFactor());
+        newModel.setScaleFactor(this.getScaleFactor());
 
         return newModel;
     }
@@ -652,6 +655,14 @@ public class ChartDataModel {
 
     public void setSum(Double sum) {
         this.sum = sum;
+    }
+
+    public void setTimeFactor(double timeFactor) {
+        this.timeFactor = timeFactor;
+    }
+
+    public void setScaleFactor(Double scaleFactor) {
+        this.scaleFactor = scaleFactor;
     }
 
     public boolean equals(ChartDataModel obj) {
