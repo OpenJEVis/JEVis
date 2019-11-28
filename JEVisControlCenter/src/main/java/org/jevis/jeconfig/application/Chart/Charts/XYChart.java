@@ -130,7 +130,8 @@ public class XYChart implements Chart {
         addManipulationToTitle = new AtomicBoolean(false);
         manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
-        ChartDataModel sumModel = null;
+        ChartDataModel sumModelY1 = null;
+        ChartDataModel sumModelY2 = null;
         for (ChartDataModel singleRow : chartDataModels) {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
@@ -200,8 +201,12 @@ public class XYChart implements Chart {
                         }
                     }
 
-                    if (showSum && sumModel == null) {
-                        sumModel = singleRow.clone();
+                    if (showSum && sumModelY1 == null) {
+                        sumModelY1 = singleRow.clone();
+                    }
+
+                    if (showSum && sumModelY2 == null) {
+                        sumModelY2 = singleRow.clone();
                     }
 
                 } catch (JEVisException e) {
@@ -210,62 +215,84 @@ public class XYChart implements Chart {
             }
         }
 
-        if (showSum && chartDataModels.size() > 1 && sumModel != null) {
+        List<ChartDataModel> sumModels = new ArrayList<>();
+        sumModels.add(sumModelY1);
+        sumModels.add(sumModelY2);
+
+        if (showSum && chartDataModels.size() > 1 && sumModelY1 != null) {
             try {
-                JsonObject json = new JsonObject();
-                json.setId(9999999999L);
-                json.setName("~" + I18n.getInstance().getString("plugin.graph.table.sum"));
-                JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) chartDataModels.get(0).getObject().getDataSource(), json);
+                for (ChartDataModel sumModel : sumModels) {
+                    int index = sumModels.indexOf(sumModel);
+                    JsonObject json = new JsonObject();
+                    json.setId(9999999999L);
+                    json.setName("~" + I18n.getInstance().getString("plugin.graph.table.sum"));
+                    if (index == 0) {
+                        json.setName(json.getName() + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1"));
+                    } else {
+                        json.setName(json.getName() + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y2"));
+                    }
+                    JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) chartDataModels.get(0).getObject().getDataSource(), json);
 
-                sumModel.setObject(test);
-                sumModel.setAxis(1);
-                sumModel.setColor(ColorHelper.toRGBCode(Color.BLACK));
-                Map<DateTime, JEVisSample> sumSamples = new HashMap<>();
-                for (ChartDataModel model : chartDataModels) {
-                    for (JEVisSample jeVisSample : model.getSamples()) {
+                    sumModel.setObject(test);
+                    sumModel.setAxis(index);
+                    if (index == 0) {
+                        sumModel.setColor(ColorHelper.toRGBCode(Color.BLACK));
+                    } else {
+                        sumModel.setColor(ColorHelper.toRGBCode(Color.SADDLEBROWN));
+                    }
+                    Map<DateTime, JEVisSample> sumSamples = new HashMap<>();
+                    boolean hasData = false;
+                    for (ChartDataModel model : chartDataModels) {
+                        if (model.getAxis() == index) {
+                            hasData = true;
+                            for (JEVisSample jeVisSample : model.getSamples()) {
+                                try {
+                                    DateTime ts = jeVisSample.getTimestamp();
+                                    Double value = jeVisSample.getValueAsDouble();
+                                    if (!sumSamples.containsKey(ts)) {
+                                        JEVisSample smp = new VirtualSample(ts, value);
+                                        smp.setNote("sum");
+                                        sumSamples.put(ts, smp);
+                                    } else {
+                                        JEVisSample smp = sumSamples.get(ts);
+
+                                        smp.setValue(smp.getValueAsDouble() + value);
+                                    }
+                                } catch (JEVisException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                    ArrayList<JEVisSample> arrayList = new ArrayList<>(sumSamples.values());
+                    arrayList.sort((o1, o2) -> {
                         try {
-                            DateTime ts = jeVisSample.getTimestamp();
-                            Double value = jeVisSample.getValueAsDouble();
-                            if (!sumSamples.containsKey(ts)) {
-                                JEVisSample smp = new VirtualSample(ts, value);
-                                smp.setNote("sum");
-                                sumSamples.put(ts, smp);
+                            if (o1.getTimestamp().isBefore(o2.getTimestamp())) {
+                                return -1;
+                            } else if (o1.getTimestamp().equals(o2.getTimestamp())) {
+                                return 0;
                             } else {
-                                JEVisSample smp = sumSamples.get(ts);
-
-                                smp.setValue(smp.getValueAsDouble() + value);
+                                return 1;
                             }
                         } catch (JEVisException e) {
                             e.printStackTrace();
                         }
-                    }
+                        return -1;
+                    });
 
-                }
-                ArrayList<JEVisSample> arrayList = new ArrayList<>(sumSamples.values());
-                arrayList.sort((o1, o2) -> {
+                    sumModel.setSamples(arrayList);
+                    sumModel.setSomethingChanged(false);
+
                     try {
-                        if (o1.getTimestamp().isBefore(o2.getTimestamp())) {
-                            return -1;
-                        } else if (o1.getTimestamp().equals(o2.getTimestamp())) {
-                            return 0;
-                        } else {
-                            return 1;
+                        if (hasData) {
+                            xyChartSerieList.add(generateSerie(changedBoth, sumModel));
                         }
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }
-                    return -1;
-                });
-
-                sumModel.setSamples(arrayList);
-                sumModel.setSomethingChanged(false);
+                }
             } catch (JEVisException e) {
                 logger.error("Could not generate sum of data rows: ", e);
-            }
-            try {
-                xyChartSerieList.add(generateSerie(changedBoth, sumModel));
-            } catch (JEVisException e) {
-                e.printStackTrace();
             }
         }
 

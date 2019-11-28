@@ -86,7 +86,8 @@
     -fx-padding: 5px;
 }
 .chart-plot-background {
-    -fx-background-color: -fx-background;
+    /**-fx-background-color: -fx-background; **/
+    -fx-background-color: #ffffff;
 }
 .chart-content {
     -fx-padding: 10px;
