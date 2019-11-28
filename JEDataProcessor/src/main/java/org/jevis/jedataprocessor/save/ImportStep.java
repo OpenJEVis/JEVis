@@ -49,7 +49,7 @@ public class ImportStep implements ProcessStep {
             ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
             cleanObject = forecastDataObject.getForecastDataObject();
             JEVisAttribute attribute = cleanObject.getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
-            attribute.deleteSamplesBetween(forecastDataObject.getStartDate(), forecastDataObject.getEndDate());
+            attribute.deleteAllSample();
         }
 
         JEVisAttribute attribute = null;
