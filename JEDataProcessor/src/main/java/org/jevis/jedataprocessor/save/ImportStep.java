@@ -7,10 +7,7 @@ package org.jevis.jedataprocessor.save;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.task.LogTaskManager;
@@ -45,6 +42,11 @@ public class ImportStep implements ProcessStep {
             CleanDataObject cleanAttr = resourceManager.getCleanDataObject();
             cleanObject = cleanAttr.getCleanObject();
             periodOffset = cleanAttr.getPeriodOffset();
+
+            if (!resourceManager.getIntervals().isEmpty()) {
+                DateTime lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
+                removeOldForecastSamples(cleanObject, lastDateTimeOfResults);
+            }
         } else {
             ForecastDataObject forecastDataObject = resourceManager.getForecastDataObject();
             cleanObject = forecastDataObject.getForecastDataObject();
@@ -106,6 +108,23 @@ public class ImportStep implements ProcessStep {
         } else {
             logger.info("[{}] No new Samples.", resourceManager.getID());
             LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
+        }
+    }
+
+    private void removeOldForecastSamples(JEVisObject cleanObject, DateTime lastDateTimeOfResults) {
+        try {
+            JEVisClass foreCastClass = cleanObject.getDataSource().getJEVisClass(ForecastDataObject.CLASS_NAME);
+            List<JEVisObject> children = cleanObject.getChildren(foreCastClass, false);
+            if (!children.isEmpty()) {
+                for (JEVisObject object : children) {
+                    JEVisAttribute attribute = object.getAttribute(ForecastDataObject.VALUE_ATTRIBUTE_NAME);
+                    if (attribute != null) {
+                        attribute.deleteSamplesBetween(new DateTime(2001, 1, 1, 0, 0, 0), lastDateTimeOfResults);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e);
         }
     }
 
