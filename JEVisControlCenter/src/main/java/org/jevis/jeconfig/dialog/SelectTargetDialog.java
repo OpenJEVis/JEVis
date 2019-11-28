@@ -36,6 +36,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.Window;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
@@ -68,6 +69,7 @@ public class SelectTargetDialog {
     private ObservableList<JEVisTreeFilter> filterTypes = FXCollections.observableArrayList();
     private JEVisTreeFilter selectedFilter = null;
 
+    private Window dialogOwner = null;
 
     /**
      * @param filters
@@ -78,6 +80,10 @@ public class SelectTargetDialog {
         this.basicFilter = basicFilter;
         this.selectedFilter = selected;
         this.selectionMode = selectionMode;
+    }
+
+    public void setInitOwner(Window dialogOwner){
+        this.dialogOwner=dialogOwner;
     }
 
     public static JEVisTreeFilter buildCalendarFilter() {
@@ -261,6 +267,10 @@ public class SelectTargetDialog {
         stage.setAlwaysOnTop(true);
 //        stage.sizeToScene();
         stage.toFront();
+        if(dialogOwner!=null){
+            stage.initOwner(dialogOwner);
+        }
+
         stage.showAndWait();
 
         return _response;

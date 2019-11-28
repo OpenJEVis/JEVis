@@ -22,6 +22,8 @@ package org.jevis.jeconfig.csv;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
+
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -40,6 +42,16 @@ public class CSVLine {
     private String[] splitLine;
 
     private int _rowNumber;
+    private boolean isEmpty =false;
+
+    public CSVLine(int rowNumber){
+        _rowNumber=rowNumber;
+        isEmpty=true;
+    }
+
+    public boolean isEmpty(){
+        return isEmpty;
+    }
 
     /**
      *
@@ -94,18 +106,14 @@ public class CSVLine {
             default:
                 return text;
         }
-//        if (_seperator.equals(".")) {
-//            logger.info("is dot");
-//            _seperator = ;
-//        }
     }
 
     private void parseLine() {
         try {
-//            logger.info("split: " + data);
 
             splitLine = data.split(_regex);
 
+//            logger.error("-- "+ Arrays.toString(splitLine));
 //            logger.info("----> " + Arrays.toString(splitLine));
             for (int i = 0; i < splitLine.length; i++) {
                 splitLine[i] = splitLine[i].replaceAll(_enclosed, "");
@@ -130,11 +138,17 @@ public class CSVLine {
 
     }
 
-    public int getColoumCount() {
+    public int getColumnCount() {
         if (splitLine != null) {
             return splitLine.length;
         }
         return 0;
     }
 
+    @Override
+    public String toString() {
+        return "CSVLine{" +
+                "splitLine=" + Arrays.toString(splitLine) +
+                '}';
+    }
 }

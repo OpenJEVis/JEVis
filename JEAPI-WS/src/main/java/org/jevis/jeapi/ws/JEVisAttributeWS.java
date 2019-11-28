@@ -107,6 +107,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public int addSamples(List<JEVisSample> samples) throws JEVisException {
         List<JsonSample> jsonSamples = new ArrayList<>();
+        int imported = 0;
 
         int primType = getPrimitiveType();
         if (primType != JEVisConstants.PrimitiveType.FILE) {
@@ -132,9 +133,10 @@ public class JEVisAttributeWS implements JEVisAttribute {
                 String json = this.ds.getObjectMapper().writeValueAsString(jsonSamples);
 
 //                logger.debug("Payload. {}", requestjson);
+                /** TODO: implement this function into ws **/
                 StringBuffer response = ds.getHTTPConnection().postRequest(resource, json);
 
-                logger.trace("Response.payload: {}", response);
+                logger.debug("Response.payload: {}", response);
 
             } catch (Exception ex) {
                 logger.catching(ex);
@@ -163,7 +165,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
                         os.close();
                     }
                     int responseCode = connection.getResponseCode();
-
+                    imported = 1;/** TODO: fix server side, missing response **/
                 } catch (Exception ex) {
                     logger.catching(ex);
                 }
@@ -179,7 +181,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
         obj.notifyListeners(new JEVisEvent(this, JEVisEvent.TYPE.ATTRIBUTE_UPDATE, this));
 
 
-        return 1;
+        return imported;
     }
 
     @Override
