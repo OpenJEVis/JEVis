@@ -42,6 +42,16 @@ public class CSVLine {
     private String[] splitLine;
 
     private int _rowNumber;
+    private boolean isEmpty =false;
+
+    public CSVLine(int rowNumber){
+        _rowNumber=rowNumber;
+        isEmpty=true;
+    }
+
+    public boolean isEmpty(){
+        return isEmpty;
+    }
 
     /**
      *

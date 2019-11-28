@@ -24,8 +24,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -47,12 +49,17 @@ import org.controlsfx.control.NotificationPane;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
+import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.Layouts;
 import org.jevis.jeconfig.tool.NumberSpinner;
+import org.jevis.jeconfig.tool.ScreenSize;
 
 import java.io.File;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -73,27 +80,26 @@ public class CSVImportDialog {
     final Button saveFormat = new Button(I18n.getInstance().getString("csv.save_formate"));
     final NumberSpinner headerRowCount = new NumberSpinner(BigDecimal.valueOf(0), BigDecimal.valueOf(1));
 
-    private RadioButton tab = new RadioButton(I18n.getInstance().getString("csv.seperators.tab"));
-    private RadioButton semicolon = new RadioButton(I18n.getInstance().getString("csv.seperators.semi"));
-    private RadioButton comma = new RadioButton(I18n.getInstance().getString("csv.seperators.comma"));
-    private RadioButton space = new RadioButton(I18n.getInstance().getString("csv.seperators.space"));
-    private RadioButton otherLineSep = new RadioButton(I18n.getInstance().getString("csv.seperators.other"));
-    private final ToggleGroup sepGroup = new ToggleGroup();
+    enum Seperator {
+        Semicolon, Comma, Space, Tab, OTHER
+    }
 
-    private RadioButton apostrop = new RadioButton(I18n.getInstance().getString("csv.enclosed.apostrophe"));
-    private RadioButton ditto = new RadioButton(I18n.getInstance().getString("csv.enclosed.ditto"));
-    private RadioButton enc2 = new RadioButton(I18n.getInstance().getString("csv.enclosed.gravis"));
-    private RadioButton none = new RadioButton(I18n.getInstance().getString("csv.enclosed.none"));
-    private RadioButton otherTextSep = new RadioButton(I18n.getInstance().getString("csv.enclosed.other"));
+    enum Enclosed {
+        NONE, Apostrophe, Ditto, Gravis,  OTHER
+    }
+
+    private ComboBox<Seperator> seperatorComboBox = new ComboBox<>(FXCollections.observableArrayList(Seperator.values()));
+    private ComboBox<Enclosed> enclosedComboBox = new ComboBox<>(FXCollections.observableArrayList(Enclosed.values()));
 
     final ToggleGroup textDiGroup = new ToggleGroup();
     ObservableList<String> formatOptions;
 
     private NotificationPane notificationPane = new NotificationPane();
-    final VBox tableRootPane = new VBox(10);
+    final AnchorPane tableRootPane = new AnchorPane();
 
-    private TextField otherColumnF = new TextField();
-    private TextField otherTextF = new TextField();
+    private TextField otherSeperatorField = new TextField();
+    private TextField otherEnclosedField = new TextField();
+    private TextField customNoteField = new TextField();
     private File _csvFile;
     private JEVisDataSource _ds;
     private CSVTable table;
@@ -101,30 +107,28 @@ public class CSVImportDialog {
     private Charset charset = Charset.defaultCharset();
     private String customNoteString = "";
 
+
+
+
     public Response show(Stage owner, JEVisDataSource ds) {
         stage = new Stage();
         _ds = ds;
+        BorderPane root = new BorderPane();
+        notificationPane.setContent(root);
+        Layouts.setAnchor(notificationPane, 0);
+        Scene scene = new Scene(notificationPane);
 
         stage.setTitle(I18n.getInstance().getString("csv.title"));
         stage.initModality(Modality.NONE);
         stage.initOwner(owner);
-
-//        BorderPane root = new BorderPane();
-        VBox root = new VBox();
-
-        notificationPane.setContent(root);
-        Scene scene = new Scene(notificationPane);
         stage.setScene(scene);
-        stage.setMaximized(true);
-//        stage.setWidth(1024);
-//        stage.setHeight(768);
-        stage.initStyle(StageStyle.UTILITY);
+//        stage.setMaximized(true);
+        stage.initStyle(StageStyle.DECORATED);
         stage.setResizable(true);
-//        scene.setCursor(Cursor.DEFAULT);
 
         BorderPane header = new BorderPane();
         header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
-        header.setPadding(new Insets(10, 10, 10, 10));
+//        header.setPadding(new Insets(10, 10, 10, 10));
 
         Label topTitle = new Label(I18n.getInstance().getString("csv.top_title"));
         topTitle.setTextFill(Color.web("#0076a3"));
@@ -136,20 +140,20 @@ public class CSVImportDialog {
 
         VBox vboxLeft = new VBox();
         VBox vboxRight = new VBox();
+        vboxLeft.setPadding(new Insets(10));
+        vboxRight.setPadding(new Insets(10));
         vboxLeft.getChildren().add(topTitle);
         vboxLeft.setAlignment(Pos.CENTER_LEFT);
         vboxRight.setAlignment(Pos.CENTER_LEFT);
         vboxRight.getChildren().add(imageView);
 
         header.setLeft(vboxLeft);
-
         header.setRight(vboxRight);
+        header.setBottom(new Separator(Orientation.HORIZONTAL));
 
         HBox buttonPanel = new HBox(8);
 
         ok.setDefaultButton(true);
-//        ok.setDisable(true);
-
         saveFormat.setDisable(true);//Disabled as long its not working
 
         Button cancel = new Button(I18n.getInstance().getString("csv.cancel"));
@@ -160,62 +164,76 @@ public class CSVImportDialog {
         buttonPanel.setPadding(new Insets(5));
 
 
-
         Node filePane = buildFileOptions();
         Node separatorPane = buildSeparatorPane();
         Node tablePane = buildTablePane();
-
-        VBox content = new VBox();
-
-        content.getChildren().setAll(
-                buildTitle(I18n.getInstance().getString("csv.tab.title.file_options")), filePane,
-                buildTitle(I18n.getInstance().getString("csv.tab.title.seperator_options")), separatorPane,
-                buildTitle(I18n.getInstance().getString("csv.tab.title.field_options")), tablePane);
-
         Region spacer = new Region();
+        GridPane content = new GridPane();
 
-        root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL), content, spacer, buttonPanel);
-        VBox.setVgrow(buttonPanel, Priority.NEVER);
-        VBox.setVgrow(spacer, Priority.ALWAYS);
-        VBox.setVgrow(header, Priority.NEVER);
+        content.addRow(0, buildTitle(I18n.getInstance().getString("csv.tab.title.file_options")));
+        content.addRow(1, filePane);
+        content.addRow(2, buildTitle(I18n.getInstance().getString("csv.tab.title.seperator_options")));
+        content.addRow(3, separatorPane);
+        content.addRow(4, buildTitle(I18n.getInstance().getString("csv.tab.title.field_options")));
+        content.addRow(5, tablePane);
 
+        GridPane.setVgrow(tablePane, Priority.ALWAYS);
+        content.getColumnConstraints().add(0, new ColumnConstraints(100, 1000, Double.MAX_VALUE, Priority.ALWAYS, HPos.LEFT, true));
+
+        GridPane.setFillHeight(tablePane, true);
+
+
+        root.setTop(header);
+        root.setCenter(content);
+        root.setBottom(buttonPanel);
         cancel.setOnAction(t -> {
             stage.close();
             response = Response.CANCEL;
         });
 
         ok.setOnAction(t -> {
-            root.setDisable(true);
+//            root.setDisable(true);
             table.setCustomNote(customNoteString);
-            if(table.doImport()){
+            final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("csv.progress.title"));
+            Task<Integer> importTask = table.doImport();
+            pForm.activateProgressBar(importTask);
+            importTask.setOnSucceeded(event -> {
+                pForm.getDialogStage().close();
+                showNotification(importTask.getValue() + " " + I18n.getInstance().getString("csv.import.dialog.success.message"), JEConfig.getImage("1404237035_Valid.png", 24, 24));
+            });
+            importTask.setOnFailed(event -> {
+                showNotification(importTask.getValue() + " " + I18n.getInstance().getString("csv.import.dialog.failed.message") + " " + importTask.getMessage()
+                        , JEConfig.getImage("1401136217_exclamation-diamond_red.png", 24, 24));
+            });
+            importTask.setOnRunning(event -> {
+                root.setDisable(true);
+                pForm.getDialogStage().show();
                 root.setDisable(false);
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                showNotification(I18n.getInstance().getString("csv.import.dialog.success.message"),JEConfig.getImage("1401136217_exclamation-diamond_red.png",24,24));
-            }else{
-                root.setDisable(false);
-                showNotification(I18n.getInstance().getString("csv.import.dialog.failed.message"),JEConfig.getImage("1401136217_exclamation-diamond_red.png",24,24));
-            }
+            });
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.submit(importTask);
 
         });
 
-        stage.sizeToScene();
+//        stage.sizeToScene();
+        stage.setHeight(ScreenSize.fitScreenHeight(900));
+        stage.setWidth(ScreenSize.fitScreenWidth(900));
         stage.showAndWait();
 
         return response;
     }
 
-    public void showNotification(String text, Node graphic){
+    public void showNotification(String text, Node graphic) {
 //        notificationPane.setShowFromTop(false);
-        notificationPane.show(text,graphic);
+        notificationPane.show(text, graphic);
     }
 
-    public void showNotification(String text){
+    public void showNotification(String text) {
 //        notificationPane.setShowFromTop(false);
         notificationPane.show(text);
     }
 
     private void updateTree(boolean rebuildColumns) {
-//        logger.info("UpdateTree");
         if (_csvFile != null) {
             Platform.runLater(() -> {
 
@@ -223,30 +241,19 @@ public class CSVImportDialog {
                     final CSVParser parser = parseCSV();
                     table = new CSVTable(_ds, parser);
                     tableRootPane.getChildren().setAll(table);
-                    tableRootPane.heightProperty().addListener((ov, t, t1) -> {
-                        if (table != null) {
-                            table.setPrefHeight(t1.doubleValue());
-                        }
-                    });
-                }else{
+                    Layouts.setAnchor(table, 0);
+                } else {
                     Platform.runLater(() -> {
                         table.refreshTable();
                     });
                 }
-
-                VBox.setVgrow(table, Priority.ALWAYS);
             });
-
         }
-
     }
 
     private Response response = Response.CANCEL;
 
     private Node buildTablePane() {
-
-        tableRootPane.setPadding(new Insets(0, 10, 0, LEFT_PADDING));
-
         TableView placeholderTree = new TableView();
         TableColumn firstNameCol = new TableColumn(I18n.getInstance().getString("csv.table.first_col"));
         TableColumn lastNameCol = new TableColumn(I18n.getInstance().getString("csv.table.second_col"));
@@ -254,6 +261,7 @@ public class CSVImportDialog {
         lastNameCol.prefWidthProperty().bind(placeholderTree.widthProperty().multiply(0.5));
         placeholderTree.getColumns().addAll(firstNameCol, lastNameCol);
 
+        Layouts.setAnchor(placeholderTree, 0);
         tableRootPane.getChildren().setAll(placeholderTree);
 
         return tableRootPane;
@@ -266,11 +274,9 @@ public class CSVImportDialog {
     private Node buildFileOptions() {
         GridPane gp = new GridPane();
         gp.setPadding(new Insets(0, 10, 0, LEFT_PADDING));
-//        gp.setPadding(new Insets(10));
         gp.setHgap(4);
         gp.setVgap(4);
 
-//        gp.setStyle("-fx-background-color: #EBED50;");
         Label fileL = new Label(I18n.getInstance().getString("csv.file"));
         Label formatL = new Label(I18n.getInstance().getString("csv.format"));
         Label charSetL = new Label(I18n.getInstance().getString("csv.charset"));
@@ -278,7 +284,7 @@ public class CSVImportDialog {
         Label customNoteLabel = new Label(I18n.getInstance().getString("csv.customnote"));
         final Label fileNameL = new Label();
 
-        TextField customNoteField = new TextField();
+
         customNoteField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 customNoteString = newValue;
@@ -331,15 +337,16 @@ public class CSVImportDialog {
 
         Node title = buildTitle(I18n.getInstance().getString("csv.tab.title.field_options"));
 
-        fileButton.setPrefWidth(100);
-        charsetBox.setPrefWidth(100);
-        formats.setPrefWidth(100);
+        fileButton.setPrefWidth(200);
+        customNoteField.setPrefWidth(200);
+        charsetBox.setPrefWidth(200);
+        formats.setPrefWidth(200);
         charsetBox.setMaxWidth(1000);
         formats.setMaxWidth(1000);
 
         headerRowCount.setMinHeight(22);
         headerRowCount.numberProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
+            if (newValue.intValue() != table.getParser().getHeader()) {
                 table.getParser().setHeader(newValue.intValue());
                 updateTree(false);
             }
@@ -444,77 +451,129 @@ public class CSVImportDialog {
         gp.setHgap(4);
         gp.setVgap(5);
 
-//        gp.setStyle("-fx-background-color: #86D64D;");
         Label sepL = new Label(I18n.getInstance().getString("csv.separator.column"));
         Label sepTextL = new Label(I18n.getInstance().getString("csv.separator.text"));
 
-        tab.setToggleGroup(sepGroup);
-        semicolon.setToggleGroup(sepGroup);
-        comma.setToggleGroup(sepGroup);
-        space.setToggleGroup(sepGroup);
-        otherLineSep.setToggleGroup(sepGroup);
-//        sepGroup.selectToggle(semicolon);
 
-        otherColumnF.setMinHeight(22);
-
-        none.setToggleGroup(textDiGroup);
-        ditto.setToggleGroup(textDiGroup);
-        apostrop.setToggleGroup(textDiGroup);
-        enc2.setToggleGroup(textDiGroup);
-        otherTextSep.setToggleGroup(textDiGroup);
-//        textDiGroup.selectToggle(none);
-
-        setEncloser("");
-        setSeperator(";");
-
-        textDiGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-
+        Callback<ListView<Seperator>, ListCell<Seperator>> seperatorCellFactory = new Callback<ListView<Seperator>, ListCell<Seperator>>() {
             @Override
-            public void changed(ObservableValue<? extends Toggle> ov, Toggle t, Toggle t1) {
-                updateEnclosed();
+            public ListCell<Seperator> call(ListView<Seperator> param) {
+                return new ListCell<Seperator>() {
+                    @Override
+                    protected void updateItem(Seperator item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null) {
+                            String localText = "";
+                            switch (item) {
+                                case Tab:
+                                    localText = I18n.getInstance().getString("csv.seperators.tab");
+                                    break;
+                                case Comma:
+                                    localText = I18n.getInstance().getString("csv.seperators.comma");
+                                    break;
+                                case OTHER:
+                                    localText = I18n.getInstance().getString("csv.seperators.other");
+                                    break;
+                                case Semicolon:
+                                    localText = I18n.getInstance().getString("csv.seperators.semi");
+                                    break;
+                                case Space:
+                                    localText = I18n.getInstance().getString("csv.seperators.space");
+                                    break;
+                                default:
+                                    break;
+                            }
+                            setText(localText);
+                        }
+
+
+                    }
+                };
             }
-        });
-
-        sepGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-
-            @Override
-            public void changed(ObservableValue<? extends Toggle> ov, Toggle t, Toggle t1) {
+        };
+        seperatorComboBox.setCellFactory(seperatorCellFactory);
+        seperatorComboBox.setButtonCell(seperatorCellFactory.call(null));
+        otherEnclosedField.setDisable(true);
+        otherSeperatorField.setDisable(true);
+        seperatorComboBox.getSelectionModel().select(Seperator.Semicolon);
+        seperatorComboBox.setOnAction(event -> {
+            if (seperatorComboBox.getValue() == Seperator.OTHER) {
+                otherSeperatorField.setDisable(false);
+                otherSeperatorField.requestFocus();
+            } else {
+                otherSeperatorField.setDisable(true);
                 updateSeperator();
             }
         });
 
-        otherTextF.textProperty().addListener(new ChangeListener<String>() {
-
+        Callback<ListView<Enclosed>, ListCell<Enclosed>> enclosedCellfactory = new Callback<ListView<Enclosed>, ListCell<Enclosed>>() {
             @Override
-            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-//                sepGroup.selectToggle(otherLineSep);
-                setEncloser(otherColumnF.getText());
-//                separator = ;
-//                reloadTree();
-            }
-        });
+            public ListCell<Enclosed> call(ListView<Enclosed> param) {
+                return new ListCell<Enclosed>() {
+                    @Override
+                    protected void updateItem(Enclosed item, boolean empty) {
+                        super.updateItem(item, empty);
 
-        otherColumnF.textProperty().addListener(new ChangeListener<String>() {
+                        if (item != null) {
+                            String localText = "";
+                            switch (item) {
+                                case Apostrophe:
+                                    localText = I18n.getInstance().getString("csv.enclosed.apostrophe");
+                                    break;
+                                case Ditto:
+                                    localText = I18n.getInstance().getString("csv.enclosed.ditto");
+                                    break;
+                                case OTHER:
+                                    localText = I18n.getInstance().getString("csv.enclosed.other");
+                                    break;
+                                case NONE:
+                                    localText = I18n.getInstance().getString("csv.enclosed.none");
+                                    break;
+                                case Gravis:
+                                    localText = I18n.getInstance().getString("csv.enclosed.gravis");
+                                    break;
+                                default:
+                            }
+                            setText(localText);
+                        }
 
-            @Override
-            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-//                sepGroup.selectToggle(otherLineSep);
-//                separator = otherColumnF.getText();
-                if (!otherColumnF.getText().isEmpty()) {
-                    setSeperator(otherColumnF.getText());
+                    }
+                };
+            }};
+        enclosedComboBox.setCellFactory(enclosedCellfactory);
+        enclosedComboBox.setButtonCell(enclosedCellfactory.call(null));
+        enclosedComboBox.getSelectionModel().select(Enclosed.NONE);
+        enclosedComboBox.setOnAction(event -> {
+            Platform.runLater(() -> {
+                if (enclosedComboBox.getValue() == Enclosed.OTHER) {
+                    otherEnclosedField.setDisable(false);
+                    otherEnclosedField.requestFocus();
+                } else {
+                    otherEnclosedField.setDisable(true);
+                    updateEnclosed();
                 }
-//                reloadTree();
-            }
+            });
         });
 
+        otherSeperatorField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateSeperator();
+        });
+        otherEnclosedField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateEnclosed();
+        });
+
+        enclosedComboBox.setMinWidth(200);
+        seperatorComboBox.setMinWidth(200);
+        otherSeperatorField.setMinWidth(200);
+        otherEnclosedField.setMinWidth(200);
 
         HBox otherBox = new HBox(5);
         otherBox.setAlignment(Pos.CENTER_LEFT);
-        otherBox.getChildren().setAll(otherLineSep, otherColumnF);
+        otherBox.getChildren().setAll( otherSeperatorField);
 
         HBox otherTextBox = new HBox(5);
         otherTextBox.setAlignment(Pos.CENTER_LEFT);
-        otherTextBox.getChildren().setAll(otherTextSep, otherTextF);
+        otherTextBox.getChildren().setAll( otherEnclosedField);
 
         HBox root = new HBox();
 
@@ -527,18 +586,16 @@ public class CSVImportDialog {
         cSep.setPadding(new Insets(0, 0, 0, 20));
         tSep.setPadding(new Insets(0, 0, 0, 20));
 
-        cSep.getChildren().setAll(semicolon, tab, comma, space, otherBox);
-        tSep.getChildren().setAll(none, apostrop, ditto, enc2, otherTextBox);
+        cSep.getChildren().setAll(seperatorComboBox, otherBox);
+        tSep.getChildren().setAll(enclosedComboBox, otherTextBox);
 
         columnB.getChildren().setAll(sepL, cSep);
         textB.getChildren().setAll(sepTextL, tSep);
 
         Region spacer = new Region();
-//        spacer.setStyle("-fx-background-color: red;");
 
         root.getChildren().setAll(columnB, textB, spacer);
         root.setAlignment(Pos.TOP_LEFT);
-//        root.setPadding(new Insets(0, 0, 0, 10));
         HBox.setHgrow(columnB, Priority.NEVER);
         HBox.setHgrow(textB, Priority.NEVER);
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -546,6 +603,7 @@ public class CSVImportDialog {
         return root;
 
     }
+
 
     private Node buildTitle(String name) {
         HBox titelBox = new HBox(2);
@@ -576,49 +634,46 @@ public class CSVImportDialog {
     }
 
     private void updateEnclosed() {
-        RadioButton selecedt = (RadioButton) textDiGroup.getSelectedToggle();
-        if (selecedt.equals(none)) {
-            _encloser = "";
-        } else if (selecedt.equals(ditto)) {
-            _encloser = "\"";
-        } else if (selecedt.equals(apostrop)) {
-            _encloser = "'";
-        } else if (selecedt.equals(enc2)) {
-            _encloser = "`";
-        } else if (selecedt.equals(ditto)) {
-            _encloser = "\"";
-        } else if (selecedt.equals(otherTextSep)) {
-            _encloser = otherTextF.getText();
+
+        switch (enclosedComboBox.getValue()) {
+            case OTHER:
+                _encloser = otherEnclosedField.getText();
+                break;
+            case NONE:
+                _encloser = "";
+                break;
+            case Ditto:
+                _encloser = "\"";
+                break;
+            case Gravis:
+                _encloser = "`";
+                break;
         }
+
+
         updateTree(true);
 
     }
 
     private void setEncloser(String endclosed) {
         _encloser = endclosed;
-        RadioButton toSelect = none;
-
         switch (endclosed) {
             case "\"":
-                toSelect = ditto;
+                enclosedComboBox.getSelectionModel().select(Enclosed.Ditto);
                 break;
             case "'":
-                toSelect = apostrop;
+                enclosedComboBox.getSelectionModel().select(Enclosed.Apostrophe);
                 break;
             case "`":
-                toSelect = enc2;
+                enclosedComboBox.getSelectionModel().select(Enclosed.Gravis);
                 break;
             case "":
-                toSelect = none;
+                enclosedComboBox.getSelectionModel().select(Enclosed.NONE);
                 break;
             default:
-                toSelect = otherTextSep;
-                otherTextSep.setText(endclosed);
+                enclosedComboBox.getSelectionModel().select(Enclosed.OTHER);
+                otherEnclosedField.setText(_encloser);
                 break;
-        }
-
-        if (textDiGroup.getSelectedToggle() != toSelect) {
-            textDiGroup.selectToggle(toSelect);
         }
     }
 
@@ -628,61 +683,75 @@ public class CSVImportDialog {
 
     private void setSeperator(String sep) {
         separator = sep;
-        RadioButton toSelect = semicolon;
 
         switch (sep) {
             case ";":
-                toSelect = semicolon;
+                seperatorComboBox.getSelectionModel().select(Seperator.Semicolon);
                 break;
             case ",":
-                toSelect = comma;
+                seperatorComboBox.getSelectionModel().select(Seperator.Comma);
                 break;
             case " ":
-                toSelect = space;
+                seperatorComboBox.getSelectionModel().select(Seperator.Space);
                 break;
             case "\t":
-                toSelect = tab;
+                seperatorComboBox.getSelectionModel().select(Seperator.Tab);
                 break;
             default:
-                toSelect = otherLineSep;
-                otherColumnF.setText(sep);
+                seperatorComboBox.getSelectionModel().select(Seperator.OTHER);
+                otherSeperatorField.setText(sep);
                 break;
         }
-
-        if (sepGroup.getSelectedToggle() != toSelect) {
-            sepGroup.selectToggle(toSelect);
-        }
-
     }
 
     private void updateSeperator() {
-        if (sepGroup.getSelectedToggle() != null) {
-            RadioButton selecedt = (RadioButton) sepGroup.getSelectedToggle();
-            if (selecedt.equals(semicolon)) {
-                separator = ";";
-            } else if (selecedt.equals(comma)) {
-                separator = ",";
-            } else if (selecedt.equals(space)) {
+        switch (seperatorComboBox.getValue()) {
+            case OTHER:
+                separator = otherSeperatorField.getText();
+                break;
+            case Space:
                 separator = " ";
-            } else if (selecedt.equals(tab)) {
+                break;
+            case Semicolon:
+                separator = ";";
+                break;
+            case Comma:
+                separator = ",";
+                break;
+            case Tab:
                 separator = "\t";
-            } else if (selecedt.equals(otherLineSep)) {
-
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        otherColumnF.requestFocus();
-                    }
-                });
-                if (!otherColumnF.getText().isEmpty()) {
-                    separator = otherColumnF.getText();
-                } else {
-                    return;
-                }
-
-            }
-            updateTree(true);
+                break;
         }
+
+        updateTree(true);
+
+//        if (sepGroup.getSelectedToggle() != null) {
+//            RadioButton selecedt = (RadioButton) sepGroup.getSelectedToggle();
+//            if (selecedt.equals(semicolon)) {
+//                separator = ";";
+//            } else if (selecedt.equals(comma)) {
+//                separator = ",";
+//            } else if (selecedt.equals(space)) {
+//                separator = " ";
+//            } else if (selecedt.equals(tab)) {
+//                separator = "\t";
+//            } else if (selecedt.equals(otherLineSep)) {
+//
+//                Platform.runLater(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        otherColumnF.requestFocus();
+//                    }
+//                });
+//                if (!otherColumnF.getText().isEmpty()) {
+//                    separator = otherColumnF.getText();
+//                } else {
+//                    return;
+//                }
+//
+//            }
+//            updateTree(true);
+//        }
 
     }
 

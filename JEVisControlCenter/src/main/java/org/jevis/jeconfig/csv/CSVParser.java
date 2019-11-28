@@ -72,6 +72,8 @@ public class CSVParser {
             }
 
             if (line.isEmpty()) {
+                CSVLine csvline = new CSVLine(count);
+                csvLines.add(csvline);
                 continue;
             }
 
@@ -91,40 +93,13 @@ public class CSVParser {
     }
 
     private List<String> readFile(File csvFile, Charset charset) {
-        logger.debug("File: " + csvFile);
+        logger.error("File: " + csvFile);
         BufferedReader br = null;
         List<String> lines = new ArrayList<>();
         try {
 
             String line = "";
             br = new BufferedReader(new InputStreamReader(new FileInputStream(csvFile), charset));
-            while ((line = br.readLine()) != null) {
-                lines.add(line);
-            }
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return lines;
-    }
-
-    private List<String> readfile2(File csvFile) {
-        BufferedReader br = null;
-        List<String> lines = new ArrayList<>();
-        try {
-
-            String line = "";
-            br = new BufferedReader(new FileReader(csvFile));
             while ((line = br.readLine()) != null) {
                 lines.add(line);
             }
