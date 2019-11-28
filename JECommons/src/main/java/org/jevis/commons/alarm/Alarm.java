@@ -18,10 +18,10 @@ public class Alarm {
     private final Double shouldBeValue;
     private final JEVisObject object;
     private final AlarmType alarmType;
-    private final int logValue;
+    private final Integer logValue;
     private Double tolerance;
 
-    public Alarm(JEVisObject object, JEVisAttribute attribute, JEVisSample alarmSample, DateTime timeStamp, Double isValue, Double shouldBeValue, AlarmType alarmType, int logValue) {
+    public Alarm(JEVisObject object, JEVisAttribute attribute, JEVisSample alarmSample, DateTime timeStamp, Double isValue, Double shouldBeValue, AlarmType alarmType, Integer logValue) {
         this.object = object;
         this.attribute = attribute;
         this.alarmSample = alarmSample;
@@ -48,7 +48,7 @@ public class Alarm {
         return alarmType;
     }
 
-    public int getLogValue() {
+    public Integer getLogValue() {
         return logValue;
     }
 
