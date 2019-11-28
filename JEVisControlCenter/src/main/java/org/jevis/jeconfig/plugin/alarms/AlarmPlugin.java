@@ -1,35 +1,35 @@
 package org.jevis.jeconfig.plugin.alarms;
 
+import com.jfoenix.controls.JFXDatePicker;
+import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
+import javafx.collections.*;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
-import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
+import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmConfiguration;
+import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.datetime.DateHelper;
-import org.jevis.jeconfig.Constants;
+import org.jevis.commons.json.JsonAlarm;
+import org.jevis.commons.json.JsonTools;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -37,6 +37,11 @@ import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -53,43 +58,40 @@ public class AlarmPlugin implements Plugin {
     private final ToolBar toolBar = new ToolBar();
     private final int iconSize = 24;
     private boolean initialized = false;
-    private ListView<AlarmRow> listView = new ListView<>();
-    private WebView web = new WebView();
-    private WebEngine engine = web.getEngine();
-    private GridPane gp = new GridPane();
+    private static Method columnToFitMethod;
     private DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
     private ComboBox<TimeFrame> timeFrameComboBox;
     private SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
     private ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
     private ExecutorService executor = Executors.newFixedThreadPool(1);
 
+    static {
+        try {
+            columnToFitMethod = TableViewSkin.class.getDeclaredMethod("resizeColumnToFitContent", TableColumn.class, int.class);
+            columnToFitMethod.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private TableView<AlarmRow> tableView = new TableView<>();
+    private NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
+    private DateTime start;
+    private DateTime end;
+    private TimeFrame timeFrame;
+
     public AlarmPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
 
-        this.gp.setPadding(new Insets(4, 4, 4, 4));
-        this.gp.setHgap(4);
-        this.gp.setVgap(4);
+        this.borderPane.setCenter(tableView);
 
-        BorderPane view = new BorderPane();
-        view.setTop(gp);
-        view.setCenter(web);
+        this.numberFormat.setMinimumFractionDigits(2);
+        this.numberFormat.setMaximumFractionDigits(2);
 
-        SplitPane sp = new SplitPane();
-        sp.setOrientation(Orientation.HORIZONTAL);
-        sp.setId("mainsplitpane");
-        sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-
-        sp.getItems().setAll(listView, view);
-        this.borderPane.setCenter(sp);
-
-        sp.setDividerPositions(0.3);
+        createColumns();
 
         initToolBar();
-
-        this.engine.setUserStyleSheetLocation(JEConfig.class.getResource("/web/web.css").toExternalForm());
-
-        this.engine.setJavaScriptEnabled(true);
 
         this.activeAlarms.addListener((MapChangeListener<? super DateTime, ? super Boolean>) change -> {
             if (activeAlarms.isEmpty()) {
@@ -99,6 +101,327 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
+    }
+
+    public static void autoFitTable(TableView tableView) {
+        tableView.getItems().addListener(new ListChangeListener<Object>() {
+            @Override
+            public void onChanged(Change<?> c) {
+                for (Object column : tableView.getColumns()) {
+                    try {
+                        columnToFitMethod.invoke(tableView.getSkin(), column, -1);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    private void createColumns() {
+        TableColumn<AlarmRow, DateTime> dateColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.date"));
+        dateColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, DateTime>("date"));
+        dateColumn.setStyle("-fx-alignment: CENTER;");
+        dateColumn.setSortable(true);
+//        dateColumn.setPrefWidth(160);
+        dateColumn.setMinWidth(100);
+
+        dateColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getTimeStamp() != null)
+                return new SimpleObjectProperty<>(param.getValue().getTimeStamp());
+            else return new SimpleObjectProperty<>();
+        });
+
+        dateColumn.setCellFactory(new Callback<TableColumn<AlarmRow, DateTime>, TableCell<AlarmRow, DateTime>>() {
+            @Override
+            public TableCell<AlarmRow, DateTime> call(TableColumn<AlarmRow, DateTime> param) {
+                return new TableCell<AlarmRow, DateTime>() {
+                    @Override
+                    protected void updateItem(DateTime item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(item.toString("yyyy-MM-dd HH:mm:ss"));
+
+                            if (getTableRow() != null && getTableRow().getItem() != null) {
+                                AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
+                                if (!alarmRow.getAlarmConfiguration().isChecked()) {
+                                    setTextFill(Color.RED);
+                                    activeAlarms.put(alarmRow.getTimeStamp(), true);
+                                } else {
+                                    setTextFill(Color.BLACK);
+                                    activeAlarms.remove(alarmRow.getTimeStamp());
+                                }
+                            }
+                        }
+                    }
+                };
+            }
+        });
+
+
+        TableColumn<AlarmRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.name"));
+        nameColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, String>("name"));
+        nameColumn.setStyle("-fx-alignment: CENTER;");
+        nameColumn.setSortable(true);
+//        nameColumn.setPrefWidth(500);
+        nameColumn.setMinWidth(100);
+
+        nameColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getTimeStamp() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarmConfiguration().getName());
+            else return new SimpleObjectProperty<>();
+        });
+
+        nameColumn.setCellFactory(new Callback<TableColumn<AlarmRow, String>, TableCell<AlarmRow, String>>() {
+            @Override
+            public TableCell<AlarmRow, String> call(TableColumn<AlarmRow, String> param) {
+                return new TableCell<AlarmRow, String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(item);
+                        }
+                    }
+                };
+            }
+        });
+
+        TableColumn<AlarmRow, Double> isValueColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.isValue"));
+        isValueColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Double>("isValue"));
+        isValueColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
+        isValueColumn.setSortable(false);
+//        isValueColumn.setPrefWidth(500);
+        isValueColumn.setMinWidth(100);
+
+        isValueColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getIsValue() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarm().getIsValue());
+            else return new SimpleObjectProperty<>();
+        });
+
+        isValueColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Double>, TableCell<AlarmRow, Double>>() {
+            @Override
+            public TableCell<AlarmRow, Double> call(TableColumn<AlarmRow, Double> param) {
+                return new TableCell<AlarmRow, Double>() {
+                    @Override
+                    protected void updateItem(Double item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            String text = "";
+                            text += numberFormat.format(item);
+                            if (getTableRow() != null && getTableRow().getItem() != null) {
+                                AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
+                                try {
+                                    text += " " + UnitManager.getInstance().format(alarmRow.getAlarm().getAttribute().getDisplayUnit());
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            setText(text);
+                        }
+                    }
+                };
+            }
+        });
+
+        TableColumn<AlarmRow, Double> shouldBeValueColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.shouldBeValue"));
+        shouldBeValueColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Double>("shouldBeValue"));
+        shouldBeValueColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
+        shouldBeValueColumn.setSortable(false);
+//        shouldBeValueColumn.setPrefWidth(500);
+        shouldBeValueColumn.setMinWidth(100);
+
+        shouldBeValueColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getShouldBeValue() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarm().getShouldBeValue());
+            else return new SimpleObjectProperty<>();
+        });
+
+        shouldBeValueColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Double>, TableCell<AlarmRow, Double>>() {
+            @Override
+            public TableCell<AlarmRow, Double> call(TableColumn<AlarmRow, Double> param) {
+                return new TableCell<AlarmRow, Double>() {
+                    @Override
+                    protected void updateItem(Double item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            String text = "";
+                            text += numberFormat.format(item);
+                            if (getTableRow() != null && getTableRow().getItem() != null) {
+                                AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
+                                try {
+                                    text += " " + UnitManager.getInstance().format(alarmRow.getAlarm().getAttribute().getDisplayUnit());
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            setText(text);
+                        }
+                    }
+                };
+            }
+        });
+
+        TableColumn<AlarmRow, Double> toleranceColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.tolerance"));
+        toleranceColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Double>("tolerance"));
+        toleranceColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
+        toleranceColumn.setSortable(false);
+//        toleranceColumn.setPrefWidth(500);
+        toleranceColumn.setMinWidth(100);
+
+        toleranceColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getTolerance() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarm().getTolerance());
+            else return new SimpleObjectProperty<>();
+        });
+
+        toleranceColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Double>, TableCell<AlarmRow, Double>>() {
+            @Override
+            public TableCell<AlarmRow, Double> call(TableColumn<AlarmRow, Double> param) {
+                return new TableCell<AlarmRow, Double>() {
+                    @Override
+                    protected void updateItem(Double item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(numberFormat.format(item) + "%");
+                        }
+                    }
+                };
+            }
+        });
+
+        TableColumn<AlarmRow, AlarmType> alarmTypeColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.alarmType"));
+        alarmTypeColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, AlarmType>("alarmType"));
+        alarmTypeColumn.setStyle("-fx-alignment: CENTER;");
+        alarmTypeColumn.setSortable(false);
+//        alarmTypeColumn.setPrefWidth(500);
+        alarmTypeColumn.setMinWidth(100);
+
+        alarmTypeColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getAlarmType() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarm().getAlarmType());
+            else return new SimpleObjectProperty<>();
+        });
+
+        alarmTypeColumn.setCellFactory(new Callback<TableColumn<AlarmRow, AlarmType>, TableCell<AlarmRow, AlarmType>>() {
+            @Override
+            public TableCell<AlarmRow, AlarmType> call(TableColumn<AlarmRow, AlarmType> param) {
+                return new TableCell<AlarmRow, AlarmType>() {
+                    @Override
+                    protected void updateItem(AlarmType item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(getTranslatedTypeName(item.toString()));
+                        }
+                    }
+                };
+            }
+        });
+
+        TableColumn<AlarmRow, Boolean> confirmationColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.confirmation"));
+        confirmationColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Boolean>("confirmation"));
+        confirmationColumn.setStyle("-fx-alignment: CENTER;");
+        confirmationColumn.setSortable(false);
+//        alarmTypeColumn.setPrefWidth(500);
+        confirmationColumn.setMinWidth(100);
+
+        confirmationColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getAlarmType() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarmConfiguration().isChecked());
+            else return new SimpleObjectProperty<>();
+        });
+
+        confirmationColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Boolean>, TableCell<AlarmRow, Boolean>>() {
+            @Override
+            public TableCell<AlarmRow, Boolean> call(TableColumn<AlarmRow, Boolean> param) {
+                return new TableCell<AlarmRow, Boolean>() {
+                    @Override
+                    protected void updateItem(Boolean item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            ImageView checked = JEConfig.getImage("1404237035_Valid.png", iconSize, iconSize);
+                            ImageView notChecked = JEConfig.getImage("1404237042_Error.png", iconSize, iconSize);
+
+                            ToggleButton checkedButton = new ToggleButton("");
+                            if (item) {
+                                checkedButton.setGraphic(checked);
+                            } else {
+                                checkedButton.setGraphic(notChecked);
+                            }
+                            Tooltip checkedTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.tooltip.checked"));
+                            checkedButton.setTooltip(checkedTooltip);
+                            GlobalToolBar.changeBackgroundOnHoverUsingBinding(checkedButton);
+                            checkedButton.setSelected(item);
+                            checkedButton.styleProperty().bind(
+                                    Bindings
+                                            .when(checkedButton.hoverProperty())
+                                            .then(
+                                                    new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                                            .otherwise(Bindings
+                                                    .when(checkedButton.selectedProperty())
+                                                    .then("-fx-background-insets: 1 1 1;")
+                                                    .otherwise(
+                                                            new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
+                            checkedButton.setOnAction(action -> {
+                                if (checkedButton.isSelected()) {
+                                    checkedButton.setGraphic(checked);
+                                    AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
+                                    alarmRow.getAlarmConfiguration().setChecked(true);
+                                } else {
+                                    checkedButton.setGraphic(notChecked);
+                                    AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
+                                    alarmRow.getAlarmConfiguration().setChecked(false);
+                                }
+                                Platform.runLater(() -> tableView.refresh());
+                            });
+
+                            setGraphic(checkedButton);
+                        }
+                    }
+                };
+            }
+        });
+
+        tableView.getColumns().setAll(dateColumn, nameColumn, isValueColumn, shouldBeValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn);
+    }
+
+    private String getTranslatedTypeName(String item) {
+        switch (item) {
+            case ("L1 "):
+                return I18n.getInstance().getString("plugin.alarm.table.translation.l1");
+            case ("L2"):
+                return I18n.getInstance().getString("plugin.alarm.table.translation.l2");
+            case ("DYNAMIC"):
+                return I18n.getInstance().getString("plugin.alarm.table.translation.dynamic");
+            case ("STATIC"):
+                return I18n.getInstance().getString("plugin.alarm.table.translation.static");
+            case ("NONE"):
+            default:
+                return I18n.getInstance().getString("plugin.alarm.table.translation.none");
+        }
     }
 
     private void initToolBar() {
@@ -141,10 +464,44 @@ public class AlarmPlugin implements Plugin {
         });
 
         Separator sep1 = new Separator(Orientation.VERTICAL);
+        Separator sep2 = new Separator(Orientation.VERTICAL);
 
         timeFrameComboBox = getTimeFrameComboBox();
 
-        toolBar.getItems().setAll(reload, sep1, timeFrameComboBox);
+        JFXDatePicker startDatePicker = null;
+        if (start != null) {
+            startDatePicker = new JFXDatePicker(LocalDate.of(start.getYear(), start.getMonthOfYear(), start.getDayOfMonth()));
+        } else {
+            startDatePicker = new JFXDatePicker();
+        }
+
+        JFXDatePicker endDatePicker = null;
+        if (end != null) {
+            endDatePicker = new JFXDatePicker(LocalDate.of(end.getYear(), end.getMonthOfYear(), end.getDayOfMonth()));
+        } else {
+            endDatePicker = new JFXDatePicker();
+        }
+
+        startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
+            timeFrame = TimeFrame.CUSTOM;
+            if (end != null) {
+                updateList(start, end);
+            }
+        });
+
+        endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
+            timeFrame = TimeFrame.CUSTOM;
+            if (start != null) {
+                updateList(start, end);
+            }
+        });
+
+        startDatePicker.setPrefWidth(120d);
+        endDatePicker.setPrefWidth(120d);
+
+        toolBar.getItems().setAll(reload, sep1, timeFrameComboBox, sep2, startDatePicker, endDatePicker);
     }
 
     private ComboBox<TimeFrame> getTimeFrameComboBox() {
@@ -218,10 +575,13 @@ public class AlarmPlugin implements Plugin {
         };
         box.setCellFactory(cellFactory);
         box.setButtonCell(cellFactory.call(null));
+        box.getSelectionModel().select(timeFrame);
 
         box.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 switch (newValue) {
+                    case CUSTOM:
+                        break;
                     case TODAY:
                         dateHelper.setType(DateHelper.TransformType.TODAY);
                         break;
@@ -253,7 +613,14 @@ public class AlarmPlugin implements Plugin {
                         dateHelper.setType(DateHelper.TransformType.LASTYEAR);
                         break;
                 }
-                updateList();
+
+                if (newValue != TimeFrame.CUSTOM) {
+                    timeFrame = newValue;
+                    start = dateHelper.getStartDate();
+                    end = dateHelper.getEndDate();
+                    updateList(dateHelper.getStartDate(), dateHelper.getEndDate());
+                    Platform.runLater(this::initToolBar);
+                }
             }
         });
 
@@ -336,42 +703,26 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
-        if (!initialized) {
-            init();
-        }
         return borderPane;
     }
 
-    private void init() {
-
-        listView.setPrefWidth(100);
-        setupCellFactory(listView);
-
-        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue != oldValue) {
-                loadAlarm(newValue.getTimeStamp(), newValue.getAlarmConfiguration());
-            }
-        });
-
-        Platform.runLater(() -> timeFrameComboBox.getSelectionModel().select(TimeFrame.TODAY));
-
-        initialized = true;
-    }
-
-    private void updateList() {
+    private void updateList(DateTime start, DateTime end) {
 
         ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
-        listView.setItems(alarmRows);
+        tableView.setItems(alarmRows);
+
+        autoFitTable(tableView);
 
         executor.execute(() -> {
             List<AlarmConfiguration> alarms = getAllAlarmConfigs();
             for (AlarmConfiguration alarmConfiguration : alarms) {
                 JEVisAttribute logAttribute = alarmConfiguration.getLogAttribute();
+
                 if (logAttribute.hasSample())
-                    for (JEVisSample jeVisSample : logAttribute.getSamples(dateHelper.getStartDate(), dateHelper.getEndDate())) {
+                    for (JEVisSample jeVisSample : logAttribute.getSamples(start, end)) {
                         Platform.runLater(() -> {
                             try {
-                                alarmRows.add(new AlarmRow(jeVisSample.getTimestamp(), alarmConfiguration));
+                                alarmRows.add(new AlarmRow(jeVisSample.getTimestamp(), alarmConfiguration, null));
                                 if (!alarmConfiguration.isChecked()) {
                                     this.hasAlarms.set(true);
                                 }
@@ -381,93 +732,41 @@ public class AlarmPlugin implements Plugin {
                         });
                     }
 
-                Platform.runLater(() -> alarmRows.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed()));
-            }
-        });
-    }
+                JEVisAttribute fileLog = alarmConfiguration.getFileLogAttribute();
+                if (fileLog.hasSample())
+                    for (JEVisSample jeVisSample : fileLog.getSamples(start, end)) {
+                        List<Alarm> alarmList = new ArrayList<>();
 
-    private void loadAlarm(DateTime timeStamp, AlarmConfiguration alarmObject) {
-        JEVisAttribute logAttribute = alarmObject.getLogAttribute();
-
-        if (logAttribute != null) {
-            List<JEVisSample> samples = logAttribute.getSamples(timeStamp, timeStamp);
-
-            if (!samples.isEmpty()) {
-                try {
-                    this.gp.getChildren().clear();
-
-                    this.engine.loadContent(samples.get(0).getValueAsString());
-
-                    Label checkedLabel = new Label(I18n.getInstance().getString("plugin.alarms.checked"));
-                    checkedLabel.setAlignment(Pos.CENTER_LEFT);
-
-                    ImageView checked = JEConfig.getImage("1404237035_Valid.png", iconSize, iconSize);
-                    ImageView notChecked = JEConfig.getImage("1404237042_Error.png", iconSize, iconSize);
-
-                    ToggleButton checkedButton = new ToggleButton("", notChecked);
-                    Tooltip checkedTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.tooltip.checked"));
-                    checkedButton.setTooltip(checkedTooltip);
-                    GlobalToolBar.changeBackgroundOnHoverUsingBinding(checkedButton);
-                    checkedButton.setSelected(alarmObject.isChecked());
-                    checkedButton.styleProperty().bind(
-                            Bindings
-                                    .when(checkedButton.hoverProperty())
-                                    .then(
-                                            new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
-                                    .otherwise(Bindings
-                                            .when(checkedButton.selectedProperty())
-                                            .then("-fx-background-insets: 1 1 1;")
-                                            .otherwise(
-                                                    new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
-
-                    checkedButton.setOnAction(action -> {
-                        if (checkedButton.isSelected()) {
-                            checkedButton.setGraphic(checked);
-                            alarmObject.setChecked(true);
-                        } else {
-                            checkedButton.setGraphic(notChecked);
-                            alarmObject.setChecked(false);
-                        }
-                        Platform.runLater(() -> listView.refresh());
-                    });
-
-                    this.gp.add(checkedLabel, 0, 0);
-                    this.gp.add(checkedButton, 1, 0);
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private void setupCellFactory(ListView<AlarmRow> listView) {
-        Callback<ListView<AlarmRow>, ListCell<AlarmRow>> cellFactory = new Callback<ListView<AlarmRow>, ListCell<AlarmRow>>() {
-            @Override
-            public ListCell<AlarmRow> call(ListView<AlarmRow> param) {
-                return new ListCell<AlarmRow>() {
-                    @Override
-                    protected void updateItem(AlarmRow obj, boolean empty) {
-                        super.updateItem(obj, empty);
-
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(obj.getTimeStamp().toString("YYYY-MM-dd HH:mm:ss") + " - " + obj.getAlarmConfiguration().getName());
-                            if (!obj.getAlarmConfiguration().isChecked()) {
-                                setTextFill(Color.RED);
-                                activeAlarms.put(obj.getTimeStamp(), true);
-                            } else {
-                                setTextFill(Color.BLACK);
-                                activeAlarms.remove(obj.getTimeStamp());
+                        try {
+                            JsonAlarm[] jsonAlarmList = JsonTools.objectMapper().readValue(jeVisSample.getValueAsFile().getBytes(), JsonAlarm[].class);
+                            for (JsonAlarm jsonAlarm : jsonAlarmList) {
+                                JEVisObject object = ds.getObject(jsonAlarm.getObject());
+                                JEVisAttribute attribute = object.getAttribute(jsonAlarm.getAttribute());
+                                DateTime dateTime = new DateTime(jsonAlarm.getTimeStamp());
+                                JEVisSample sample = attribute.getSamples(dateTime, dateTime).get(0);
+                                alarmList.add(new Alarm(object, attribute, sample, dateTime, jsonAlarm.getIsValue(), jsonAlarm.getShouldBeValue(), jsonAlarm.getAlarmType(), jsonAlarm.getLogValue()));
                             }
+                        } catch (IOException | JEVisException e) {
+                            e.printStackTrace();
+                        }
+
+                        for (Alarm alarm : alarmList) {
+                            Platform.runLater(() -> {
+                                alarmRows.add(new AlarmRow(alarm.getTimeStamp(), alarmConfiguration, alarm));
+
+                                if (!alarmConfiguration.isChecked()) {
+                                    this.hasAlarms.set(true);
+                                }
+                            });
                         }
                     }
-                };
-            }
-        };
 
-        listView.setCellFactory(cellFactory);
+                Platform.runLater(() -> {
+                    alarmRows.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
+                    autoFitTable(tableView);
+                });
+            }
+        });
     }
 
     private List<AlarmConfiguration> getAllAlarmConfigs() {
@@ -499,7 +798,7 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
-
+        timeFrameComboBox.getSelectionModel().select(TimeFrame.TODAY);
     }
 
     @Override

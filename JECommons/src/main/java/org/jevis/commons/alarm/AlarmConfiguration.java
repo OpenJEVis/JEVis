@@ -25,6 +25,7 @@ public class AlarmConfiguration {
     private final String ALARM_SCOPE = "Alarm Scope";
     private final String ALARM_PERIOD = "Alarm Period";
     private final String ALARM_OBJECTS = "Alarm Objects";
+    private final String LOG_FILE = "Log File";
     public final static String ALARM_CHECKED = "Alarm Checked";
     private final JEVisObject object;
     private final JEVisDataSource ds;
@@ -62,6 +63,15 @@ public class AlarmConfiguration {
         return null;
     }
 
+    public JEVisAttribute getFileLogAttribute() {
+        try {
+            return getObject().getAttribute(LOG_FILE);
+        } catch (JEVisException e) {
+            logger.error("Could not get file log attribute for object {}:{}", getObject().getName(), getObject().getID(), e);
+        }
+        return null;
+    }
+
     public Boolean isChecked() {
         try {
             JEVisSample latestSample = getCheckedAttribute().getLatestSample();
@@ -79,6 +89,11 @@ public class AlarmConfiguration {
             JEVisAttribute checkedAttribute = getObject().getAttribute(ALARM_CHECKED);
             if (checkedAttribute != null) {
                 JEVisSample sample = checkedAttribute.buildSample(new DateTime(), checked);
+                if (checked) {
+                    sample.setNote("Checked by " + ds.getCurrentUser().getAccountName());
+                } else {
+                    sample.setNote("Unchecked by " + ds.getCurrentUser().getAccountName());
+                }
                 sample.commit();
             }
         } catch (Exception e) {
