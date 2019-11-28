@@ -17,19 +17,21 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
 public class ColumnChartSerie {
     private static final Logger logger = LogManager.getLogger(ColumnChartSerie.class);
     private final Boolean hideShowIcons;
+    private boolean forecast;
     private ChartDataModel singleRow;
     private Integer yAxis;
     private ObservableList<MultiAxisBarChart.Data<String, Number>> seriesData = FXCollections.observableArrayList();
@@ -39,10 +41,11 @@ public class ColumnChartSerie {
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
     private TreeMap<DateTime, JEVisSample> sampleMap;
 
-    public ColumnChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
+    public ColumnChartSerie(ChartDataModel singleRow, Boolean hideShowIcons, boolean forecast) throws JEVisException {
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
         this.hideShowIcons = hideShowIcons;
+        this.forecast = forecast;
 
         generateSeriesFromSamples();
     }
@@ -50,14 +53,22 @@ public class ColumnChartSerie {
     private void generateSeriesFromSamples() {
         timeStampFromFirstSample = DateTime.now();
         timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
-        tableEntry = new TableEntry(getTableEntryName());
-        this.serie.setName(getTableEntryName());
+        List<JEVisSample> samples = new ArrayList<>();
+        if (!forecast) {
+            this.tableEntry = new TableEntry(getTableEntryName());
+            this.serie.setName(getTableEntryName());
+            this.tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
 
-        tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
+            samples = singleRow.getSamples();
+        } else {
+            this.tableEntry = new TableEntry(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
+            this.serie.setName(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
+            this.tableEntry.setColor(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
 
-        List<JEVisSample> samples = singleRow.getSamples();
+            samples = singleRow.getForecastSamples();
+        }
+
         JEVisUnit unit = singleRow.getUnit();
-
         serie.getData().clear();
 
         int samplesSize = samples.size();

@@ -75,21 +75,19 @@ public class ProcessorBox extends ComboBox<JEVisObject> {
     }
 
     private List<JEVisObject> getAllChildrenOf(JEVisObject parent) throws JEVisException {
-        List<JEVisObject> list = new ArrayList<>();
         String cleanDataClassName = "Clean Data";
+        String forecastDataClassName = "Forecast Data";
 
-        list = getAllChildren(parent, cleanDataClassName);
-
-        return list;
+        return new ArrayList<>(getAllChildren(parent, cleanDataClassName, forecastDataClassName));
     }
 
-    private List<JEVisObject> getAllChildren(JEVisObject parent, String cleanDataClassName) throws JEVisException {
+    private List<JEVisObject> getAllChildren(JEVisObject parent, String cleanDataClassName, String forecastDataClassName) throws JEVisException {
         List<JEVisObject> list = new ArrayList<>();
 
         for (JEVisObject obj : parent.getChildren()) {
-            if (obj.getJEVisClassName().equals(cleanDataClassName)) {
+            if (obj.getJEVisClassName().equals(cleanDataClassName) || obj.getJEVisClassName().equals(forecastDataClassName)) {
                 list.add(obj);
-                list.addAll(getAllChildren(obj, cleanDataClassName));
+                list.addAll(getAllChildren(obj, cleanDataClassName, forecastDataClassName));
             }
         }
 

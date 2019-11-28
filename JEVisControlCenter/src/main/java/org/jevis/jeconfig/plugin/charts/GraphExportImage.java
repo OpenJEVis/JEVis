@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.graph.view;
+package org.jevis.jeconfig.plugin.charts;
 
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;

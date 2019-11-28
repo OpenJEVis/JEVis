@@ -17,7 +17,7 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.graph.view;
+package org.jevis.jeconfig.plugin.charts;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import eu.hansolo.fx.charts.MatrixPane;

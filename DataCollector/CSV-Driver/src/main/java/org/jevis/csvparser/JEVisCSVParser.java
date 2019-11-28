@@ -127,9 +127,8 @@ public class JEVisCSVParser implements Parser {
             Integer headerLines = DatabaseHelper.getObjectAsInteger(parserObject, ignoreFirstNLines);
             if (headerLines == null) {
                 headerLines = 0;
-            } else {
-                headerLines--;
             }
+
             Integer dpIndex = DatabaseHelper.getObjectAsInteger(parserObject, dpIndexType);
             if (dpIndex != null) {
                 dpIndex--;

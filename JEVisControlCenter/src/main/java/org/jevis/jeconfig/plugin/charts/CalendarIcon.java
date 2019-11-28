@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.graph.view;
+package org.jevis.jeconfig.plugin.charts;
 
 import com.jfoenix.svg.SVGGlyph;
 import javafx.scene.layout.Region;

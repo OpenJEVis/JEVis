@@ -248,3 +248,10 @@
     -fx-background-image: url("/icons/1394564949_search_48.png");
 }
 
+.root {
+    -tab-text-color: -fx-text-base-color ;
+}
+
+.tab-label {
+    -fx-text-fill: -tab-text-color ;
+}

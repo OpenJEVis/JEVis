@@ -81,10 +81,11 @@ public class ObjectPlugin implements Plugin {
     private JEVisTree tree;
     private LoadingPane editorLoadingPane = new LoadingPane();
     private LoadingPane treeLoadingPane = new LoadingPane();
-    private ToolBar toolBar;
+    private final ToolBar toolBar = new ToolBar();
     private ObjectEditor _editor = new ObjectEditor();
     private SimpleBooleanProperty loadingObjectProperty = new SimpleBooleanProperty();
     private String tooltip = I18n.getInstance().getString("pluginmanager.object.tooltip");
+    private boolean initToolbar = false;
 
     public ObjectPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -262,8 +263,7 @@ public class ObjectPlugin implements Plugin {
     @Override
     public Node getToolbar() {
 
-        if (toolBar == null) {
-            toolBar = new ToolBar();
+        if (!initToolbar) {
             toolBar.setId("ObjectPlugin.Toolbar");
             double iconSize = 20;
             ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", iconSize, iconSize));
@@ -319,7 +319,8 @@ public class ObjectPlugin implements Plugin {
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, expandTree, Constants.Plugin.Command.EXPAND);
 
 
-            toolBar.getItems().addAll(save, newB, delete, reload, collapseTree, sep1);// addTable, editTable, createWizard);
+            toolBar.getItems().setAll(save, newB, delete, reload, collapseTree, sep1);// addTable, editTable, createWizard);
+            initToolbar = true;
         }
 
         return toolBar;

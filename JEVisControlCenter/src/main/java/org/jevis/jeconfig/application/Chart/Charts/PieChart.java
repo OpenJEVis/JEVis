@@ -93,7 +93,12 @@ public class PieChart implements Chart {
                     boolean isQuantity = qu.isQuantityUnit(clonedModel.getUnit());
                     boolean isSummable = qu.isSumCalculable(clonedModel.getUnit());
 
-                    List<JEVisSample> samples = clonedModel.getSamples();
+                    List<JEVisSample> samples = new ArrayList<>();
+                    if (singleRow.hasForecastData()) {
+                        samples = clonedModel.getForecastSamples();
+                    } else {
+                        samples = clonedModel.getSamples();
+                    }
                     if (!isQuantity && isSummable) {
                         List<JEVisSample> scaledSamples = new ArrayList<>();
 
@@ -137,12 +142,18 @@ public class PieChart implements Chart {
                     }
 
                     listSumsPiePieces.add(sumPiePiece);
-                    if (!listTableEntryNames.contains(clonedModel.getObject().getName())) {
+                    if (!listTableEntryNames.contains(clonedModel.getObject().getName()) && !singleRow.hasForecastData()) {
                         listTableEntryNames.add(clonedModel.getObject().getName());
+                    } else if (!listTableEntryNames.contains(clonedModel.getObject().getName()) && singleRow.hasForecastData()) {
+                        listTableEntryNames.add(clonedModel.getObject().getName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
                     } else {
                         listTableEntryNames.add(clonedModel.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
                     }
-                    hexColors.add(ColorHelper.toColor(clonedModel.getColor()));
+                    if (!singleRow.hasForecastData()) {
+                        hexColors.add(ColorHelper.toColor(clonedModel.getColor()));
+                    } else {
+                        hexColors.add(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
+                    }
                 }
             }
         }
