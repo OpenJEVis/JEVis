@@ -232,7 +232,7 @@ public class LinkerWidget extends Widget {
 
     @Override
     public void init() {
-        logger.error("Linker.Widget.init");
+        logger.debug("Linker.Widget.init");
 
         try {
 //            this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));

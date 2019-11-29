@@ -34,6 +34,7 @@ public class DashBoardPane extends Pane {
     private DashboardPojo analysis;
     private List<Double> xGrids = new ArrayList<>();
     private List<Double> yGrids = new ArrayList<>();
+    private List<Line> gridLines = new ArrayList<>();
     private Scale scale = new Scale();
     private List<Line> visibleGrid = new ArrayList<>();
     private final JEVisDataSource jeVisDataSource;
@@ -95,18 +96,11 @@ public class DashBoardPane extends Pane {
     }
 
 
-    private <T> Set<T> findDuplicates(Collection<T> collection) {
-        Set<T> uniques = new HashSet<>();
-        return collection.stream()
-                .filter(e -> !uniques.add(e))
-                .collect(Collectors.toSet());
-    }
-
     public void clearView() {
         getChildren().clear();
         setBackground(this.defaultBackground);
         Region filler = new Region();
-        Layouts.setAnchor(filler,0);
+        Layouts.setAnchor(filler, 0);
         getChildren().add(filler);
         setZoom(1d);
         requestLayout();
@@ -114,7 +108,7 @@ public class DashBoardPane extends Pane {
     }
 
     public boolean getSnapToGrid() {
-        return this.control.showSnapToGridProperty.getValue();
+        return this.control.showGridProperty.getValue();
     }
 
     public void updateView() {
@@ -137,7 +131,7 @@ public class DashBoardPane extends Pane {
         this.analysis = analysis;
 
         setSize(analysis.getSize());
-        createGrid(analysis.xGridInterval, analysis.yGridInterval);
+//        createGrid(analysis.xGridInterval, analysis.yGridInterval);
 
 
 //        this.scale.setX(analysis.getZoomFactor());
@@ -187,7 +181,7 @@ public class DashBoardPane extends Pane {
 
     }
 
-    public void setScale(double x,double y){
+    public void setScale(double x, double y) {
         this.scale.setY(y);
         this.scale.setX(x);
     }
@@ -213,45 +207,10 @@ public class DashBoardPane extends Pane {
             public void handle(MouseEvent event) {
                 if (event.isAltDown()) {
                     String text;
-                    Double lineStartX;
-                    Double lineStartY;
-                    double lenght = 0;
-                    double height = 0;
-
                     if (popup.isShowing()) {
                         text = String.format("x: %s -> %s [%s]\ny: %s -> %s [%s]"
                                 , lastAltX.get(), event.getX(), (lastAltX.get() - event.getX())
                                 , lastAltY.get(), event.getY(), (lastAltY.get() - event.getY()));
-
-                        /**
-                         * Not working red line
-                         */
-//                        if(event.getX()>lastAltX.get()){
-//                            lenght=event.getX()-lastAltX.get();
-//                            lineStartX=lastAltX.get();
-//                        }else{
-//                            lenght=lastAltX.get()-event.getX();
-//                            lineStartX=event.getX();
-//                        }
-//
-//                        if(event.getY()>lastAltY.get()){
-//                            height=event.getY()-lastAltY.get();
-//                            lineStartY=lastAltY.get();
-//                        }else{
-//                            height=lastAltY.get()-event.getY();
-//                            lineStartY=event.getY();
-//                        }
-//
-//
-//                        Line line = new Line();
-//                        line.setStartX(0);
-//                        line.setStartY(0);
-//                        line.setEndX(lenght);
-//                        line.setEndY(height);
-//                        line.setFill(Color.RED);
-//
-//                        linePopup.getContent().setAll(line);
-//                        popup.show(DashBoardPane.this,event.getScreenX(),event.getScreenY()-20);
 
                     } else {
                         text = String.format("x: %s\ny: %s", event.getX(), event.getY());
@@ -280,49 +239,38 @@ public class DashBoardPane extends Pane {
         this.setMaxHeight(newValue.getHeight());
         this.setMinHeight(newValue.getHeight());
         this.setPrefHeight(newValue.getHeight());
+        createGrid(analysis.xGridInterval, analysis.yGridInterval);
     }
 
-    /**
-     * TODo support diffreent modes like repeat , stretch
-     *
-     * @param image
-     */
-    public void setBackgroundImage(Image image) {
-        final BackgroundSize backgroundSize = new BackgroundSize(image.getWidth(), image.getHeight(), false, false, false, false);
+//    /**
+//     * TODo support diffreent modes like repeat , stretch
+//     *
+//     * @param image
+//     */
+//    public void setBackgroundImage(Image image) {
+//        final BackgroundSize backgroundSize = new BackgroundSize(image.getWidth(), image.getHeight(), false, false, false, false);
+//
+//        final BackgroundImage backgroundImage = new BackgroundImage(image, BackgroundRepeat.NO_REPEAT,
+//                BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, backgroundSize);
+//        final Background background = new Background(backgroundImage);
+//        logger.debug("SetBackground: {}/{} {}/{}", image.getWidth(), image.getHeight(), this.getWidth(), this.getHeight());
+//        setBackground(background);
+//    }
 
-        final BackgroundImage backgroundImage = new BackgroundImage(image, BackgroundRepeat.NO_REPEAT,
-                BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, backgroundSize);
-        final Background background = new Background(backgroundImage);
-        logger.debug("SetBackground: {}/{} {}/{}", image.getWidth(), image.getHeight(), this.getWidth(), this.getHeight());
-        setBackground(background);
-    }
-
-
-    public void activateGrid(boolean show) {
-        this.snapToGrid = show;
-    }
 
     public void showGrid(boolean show) {
+        gridIsVisible = show;
+        Platform.runLater(() -> {
+            if (show) {
+                if(!DashBoardPane.this.getChildren().contains(visibleGrid.get(0))) {
+                    DashBoardPane.this.getChildren().addAll(this.visibleGrid);
+                }
+            } else {
+                DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
+            }
 
-        if (show) {
-//            activateGrid(true);
-//            createGrid(this.analysis.xGridInterval, this.analysis.yGridInterval);
-            Platform.runLater(() -> {
+        });
 
-                DashBoardPane.this.getChildren().addAll(this.visibleGrid);
-//                visibleGrid.forEach(line -> {
-//                    System.out.println("Add LIne: " + line.toString());
-//                    DashBoardPane.this.getChildren().add(line);
-//                    line.toFront();
-//                });
-            });
-            gridIsVisible = true;
-
-        } else {
-            DashBoardPane.this.getChildren().removeAll(this.visibleGrid);
-            gridIsVisible = false;
-//            visibleGrid.clear();
-        }
     }
 
     /**
@@ -334,17 +282,8 @@ public class DashBoardPane extends Pane {
      * @param yGridInterval
      */
     public void createGrid(double xGridInterval, double yGridInterval) {
-//        System.out.println("getChildren()a: +" + getChildren().size() + "  visibleGrid: " + visibleGrid.size());
-//        getChildren().removeAll(visibleGrid);
-//        System.out.println("getChildren()e: +" + getChildren().size());
-
-        List<Node> oldGrid = new ArrayList<>();
-        getChildren().forEach(node -> {
-            if (node.getId().equals("grid")) {
-                oldGrid.add(node);
-            }
-        });
-        getChildren().removeAll(oldGrid);
+        logger.error("createGrid: {},{}",xGridInterval,yGridInterval);
+        getChildren().removeAll(visibleGrid);
 
 
         double totalHeight = analysis.getSize().getHeight();
@@ -353,6 +292,7 @@ public class DashBoardPane extends Pane {
         int maxRows = Double.valueOf(totalHeight / yGridInterval).intValue() + 1;
         double opacity = 0.4;
         Double[] strokeDashArray = new Double[]{4d};
+
         this.xGrids.clear();
         this.yGrids.clear();
         this.visibleGrid.clear();
