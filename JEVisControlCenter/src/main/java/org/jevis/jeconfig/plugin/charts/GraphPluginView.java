@@ -343,7 +343,7 @@ public class GraphPluginView implements Plugin {
         try {
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
-                    new SaveAnalysisDialog(ds, dataModel, toolBarView.getPickerCombo(), toolBarView.getListAnalysesComboBox(), toolBarView.getChanged());
+                    new SaveAnalysisDialog(ds, dataModel, toolBarView);
                     break;
                 case Constants.Plugin.Command.DELETE:
                     new DeleteAnalysisDialog(ds, dataModel, toolBarView.getListAnalysesComboBox());

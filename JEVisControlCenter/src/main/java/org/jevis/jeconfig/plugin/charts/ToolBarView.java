@@ -124,6 +124,10 @@ public class ToolBarView {
         this.ds = ds;
         this.objectRelations = new ObjectRelations(ds);
         this.graphPluginView = graphPluginView;
+
+        listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
+        listAnalysesComboBox.setPrefWidth(300);
+        setCellFactoryForComboBox();
     }
 
     public ToolBar getToolbar(JEVisDataSource ds) {
@@ -138,8 +142,12 @@ public class ToolBarView {
     }
 
 
-    public void setupAnalysisComboBoxListener() {
+    public void addAnalysisComboBoxListener() {
         listAnalysesComboBox.valueProperty().addListener(analysisComboBoxChangeListener);
+    }
+
+    public void removeAnalysisComboBoxListener() {
+        listAnalysesComboBox.valueProperty().removeListener(analysisComboBoxChangeListener);
     }
 
     private void resetZoom() {
@@ -347,11 +355,7 @@ public class ToolBarView {
     public void updateLayout() {
         Platform.runLater(() -> {
 
-            listAnalysesComboBox = new ComboBox<>(model.getObservableListAnalyses());
-
-            listAnalysesComboBox.setPrefWidth(300);
-
-            setCellFactoryForComboBox();
+            removeAnalysisComboBoxListener();
 
             if (model.getCurrentAnalysis() != null) {
                 listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
@@ -393,7 +397,7 @@ public class ToolBarView {
                         sep4, calcRegression, showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
             }
 
-            setupAnalysisComboBoxListener();
+            addAnalysisComboBoxListener();
             pickerCombo.addListener();
             startToolbarIconListener();
 
@@ -460,7 +464,7 @@ public class ToolBarView {
         });
 
         save.setOnAction(action -> {
-            new SaveAnalysisDialog(ds, model, pickerCombo, listAnalysesComboBox, changed);
+            new SaveAnalysisDialog(ds, model, this);
         });
 
         loadNew.setOnAction(event -> {
