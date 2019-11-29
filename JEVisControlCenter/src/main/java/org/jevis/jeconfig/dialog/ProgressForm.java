@@ -60,8 +60,8 @@ public class ProgressForm {
         dialogStage.show();
     }
 
-    public void hideProgressBar() {
-        dialogStage.hide();
+    public void closeProgressBar() {
+        dialogStage.close();
     }
 
     public Stage getDialogStage() {
