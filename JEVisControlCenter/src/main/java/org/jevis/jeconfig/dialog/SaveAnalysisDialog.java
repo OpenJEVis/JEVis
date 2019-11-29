@@ -19,6 +19,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.plugin.charts.ToolBarView;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
@@ -32,18 +33,20 @@ public class SaveAnalysisDialog {
     private final JEVisDataSource ds;
     private final AnalysisDataModel model;
     private final ObjectRelations objectRelations;
+    private final ToolBarView toolBarView;
     private PickerCombo pickerCombo;
     private ComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean changed;
     private JEVisObject currentAnalysisDirectory = null;
 
-    public SaveAnalysisDialog(JEVisDataSource ds, AnalysisDataModel model, PickerCombo pickerCombo, ComboBox<JEVisObject> listAnalysesComboBox, Boolean changed) {
+    public SaveAnalysisDialog(JEVisDataSource ds, AnalysisDataModel model, ToolBarView toolBarView) {
         this.ds = ds;
         this.model = model;
+        this.toolBarView = toolBarView;
         this.objectRelations = new ObjectRelations(ds);
-        this.pickerCombo = pickerCombo;
-        this.listAnalysesComboBox = listAnalysesComboBox;
-        this.changed = changed;
+        this.pickerCombo = toolBarView.getPickerCombo();
+        this.listAnalysesComboBox = toolBarView.getListAnalysesComboBox();
+        this.changed = toolBarView.getChanged();
 
         saveCurrentAnalysis();
     }
@@ -142,7 +145,7 @@ public class SaveAnalysisDialog {
 
         newAnalysis.showAndWait()
                 .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
                         List<String> check = new ArrayList<>();
                         AtomicReference<JEVisObject> currentAnalysis = new AtomicReference<>();
                         try {
@@ -170,11 +173,10 @@ public class SaveAnalysisDialog {
                             if (newAnalysisObject != null) {
                                 saveDataModel(newAnalysisObject, model.getSelectedData(), model.getCharts());
 
-                                model.setCurrentAnalysis(newAnalysisObject);
-                                pickerCombo.updateCellFactory();
+                                model.setCurrentAnalysisNOEVENT(newAnalysisObject);
                                 model.updateListAnalyses();
                                 model.isGlobalAnalysisTimeFrame(true);
-                                listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
+                                toolBarView.updateLayout();
                             }
                         } else {
 
@@ -188,14 +190,13 @@ public class SaveAnalysisDialog {
                             dialogOverwrite.getDialogPane().getButtonTypes().addAll(overwrite_ok, overwrite_cancel);
 
                             dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
-                                if (overwrite_response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+                                if (overwrite_response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
                                     if (currentAnalysis.get() != null) {
                                         saveDataModel(currentAnalysis.get(), model.getSelectedData(), model.getCharts());
 
+                                        model.setCurrentAnalysisNOEVENT(currentAnalysis.get());
                                         model.updateListAnalyses();
-                                        model.setCurrentAnalysis(currentAnalysis.get());
-                                        pickerCombo.updateCellFactory();
-                                        listAnalysesComboBox.getSelectionModel().select(model.getCurrentAnalysis());
+                                        toolBarView.updateLayout();
                                     }
                                 } else {
 
