@@ -64,10 +64,18 @@ public class ReportLink {
         clonedReportLink.setjEVisID(this.getjEVisID());
         clonedReportLink.setOptional(this.isOptional());
 
-        clonedReportLink.getReportAttribute().setAttributeName(getReportAttribute().getAttributeName());
+        if (getReportAttribute() != null) {
+            clonedReportLink.getReportAttribute().setAttributeName(getReportAttribute().getAttributeName());
 
-        clonedReportLink.getReportAttribute().getReportPeriodConfiguration().setPeriodMode(getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
-        clonedReportLink.getReportAttribute().getReportPeriodConfiguration().setReportAggregation(getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+            if (getReportAttribute().getReportPeriodConfiguration() != null) {
+                clonedReportLink.getReportAttribute().getReportPeriodConfiguration().setPeriodMode(getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
+                clonedReportLink.getReportAttribute().getReportPeriodConfiguration().setReportAggregation(getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+            } else {
+                getReportAttribute().setReportPeriodConfiguration(null);
+            }
+        } else {
+            clonedReportLink.setReportAttribute(null);
+        }
 
         return clonedReportLink;
     }
