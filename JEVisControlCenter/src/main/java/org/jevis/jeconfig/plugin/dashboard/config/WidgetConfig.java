@@ -180,7 +180,6 @@ public class WidgetConfig {
 
 
     public void applyUserConfig(Map<String, ConfigSheet.Property> userConfig) {
-        System.out.println("ApplyUserConfig");
         this.backgroundColor.setValue((Color) userConfig.get(this.backgroundColor.getName()).getObject());
         this.fontColor.setValue((Color) userConfig.get(this.fontColor.getName()).getObject());
         this.fontColorSecondary.setValue((Color) userConfig.get(this.fontColorSecondary.getName()).getObject());
@@ -199,8 +198,6 @@ public class WidgetConfig {
             widgetConfigProperty.getWritableValue().setValue(userConfig.get(widgetConfigProperty.getId()).getObject());
         });
 
-        System.out.println("Font Color: " + this.fontColor.getValue().toString());
-        System.out.println("Background color: " + this.backgroundColor.getValue().toString());
 
 
     }

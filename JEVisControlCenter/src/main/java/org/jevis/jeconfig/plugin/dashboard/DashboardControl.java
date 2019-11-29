@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.dashboard;
 
-import com.google.common.collect.Lists;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -14,16 +13,12 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
-import javafx.util.Callback;
 import org.apache.commons.math3.util.Precision;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.object.plugin.TargetHelper;
-import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.plugin.dashboard.common.DashboardExport;
@@ -68,9 +63,9 @@ public class DashboardControl {
     //    private boolean fitToParent = false;
     public BooleanProperty highlightProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showGridProperty = new SimpleBooleanProperty(false);
-    public BooleanProperty showSnapToGridProperty = new SimpleBooleanProperty(false);
+//    public BooleanProperty showSnapToGridProperty = new SimpleBooleanProperty(true);
     public BooleanProperty editableProperty = new SimpleBooleanProperty(false);
-    public BooleanProperty enableSnapToGridProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty snapToGridProperty = new SimpleBooleanProperty(false);
     private DashBoardPane dashboardPane;
     private DashBoardToolbar toolBar;
     private String firstLoadedConfigHash = null;
@@ -149,13 +144,20 @@ public class DashboardControl {
     }
 
     public void showGrid(boolean showGrid) {
-        showGridProperty.setValue(showGrid);
-        this.dashboardPane.showGrid(showGrid);
+        if(showGrid!=showGridProperty.get()){
+            showGridProperty.setValue(showGrid);
+            dashboardPane.showGrid(showGridProperty.getValue());
+            toolBar.updateView(activeDashboard);
+//            dashboardPane.updateView();
+        }
     }
 
     public void setSnapToGrid(boolean snapToGrid) {
-        this.showSnapToGridProperty.setValue(snapToGrid);
-        this.dashboardPane.activateGrid(snapToGrid);
+        if(snapToGrid!=showGridProperty.getValue()){
+            this.showGridProperty.setValue(snapToGrid);
+            toolBar.updateView(activeDashboard);
+//            dashboardPane.updateView();
+        }
     }
 
 
@@ -241,7 +243,7 @@ public class DashboardControl {
         this.zoomFactor = zoom;
         Size parentSize = dashBordPlugIn.getPluginSize();
         double relWidthDiff = parentSize.getWidth() / dashboardPane.getWidth();
-        double relHeightDiff = parentSize.getWidth() / dashboardPane.getWidth();
+        double relHeightDiff = parentSize.getHeight() / dashboardPane.getHeight();
 
         if (zoomFactor == fitToScreen) {
             dashboardPane.setScale(relWidthDiff, relHeightDiff);
@@ -326,7 +328,7 @@ public class DashboardControl {
             }
             firstLoadedConfigHash = null;
             this.editableProperty.setValue(false);
-            this.enableSnapToGridProperty.setValue(false);
+            this.snapToGridProperty.setValue(true);
             this.backgroundImage=null;
             this.newBackgroundFile=null;
 
@@ -343,7 +345,6 @@ public class DashboardControl {
                 pluginSize.setHeight(pluginSize.getHeight() - 10);
                 pluginSize.setWidth(pluginSize.getWidth() - 10);
                 this.activeDashboard.setSize(pluginSize);
-                //save();/** we need to save to we can create an background image**/
             } else {
                 try {
                     this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
@@ -397,16 +398,14 @@ public class DashboardControl {
                 this.activeTimeFrame = activeDashboard.getTimeFrame();
             }
 
-            toolBar.updateView(activeDashboard);
+
 
             setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
+            toolBar.updateView(activeDashboard);
 
             firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
 
             setZoomFactor(1.0d);
-//            if(dashboardPane.getWidth()>0){
-//                Platform.runLater(()-> setZoomFactor(fitToScreen));
-//            }
 
 
         } catch (Exception ex) {
@@ -445,7 +444,8 @@ public class DashboardControl {
 
     public void setEditable(boolean editable) {
         this.editableProperty.setValue(editable);
-//        System.out.println("setEditable: " + editable);
+//        setSnapToGrid(true);
+        showGrid(editable);
         this.widgetList.forEach(widget -> {
             Platform.runLater(() -> {
                 try {

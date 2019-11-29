@@ -221,7 +221,6 @@ public class DashBordPlugIn implements Plugin {
                 this.dashboardControl.save();
                 return;
         }
-        System.out.println("event: " + cmdType);
     }
 
     @Override
