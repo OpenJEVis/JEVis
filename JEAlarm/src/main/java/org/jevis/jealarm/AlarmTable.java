@@ -235,10 +235,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
 
     private JEVisSample getCurrentSample(Alarm currentAlarm) throws JEVisException {
         DateTime dt = currentAlarm.getAlarmSample().getTimestamp();
-        List<JEVisSample> values = currentAlarm.getAttribute().getSamples(dt.minusMillis(1), dt.plusMillis(1));
-
-        CleanDataObject clean = new CleanDataObject(currentAlarm.getObject(), new ObjectHandler(ds));
-        List<JsonLimitsConfig> configList = clean.getLimitsConfig();
+        List<JEVisSample> values = currentAlarm.getAttribute().getSamples(dt, dt);
 
         if (values.size() == 1) {
             return values.get(0);

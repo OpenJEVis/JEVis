@@ -135,6 +135,23 @@
       }
     },
     {
+      "type": "Log File",
+      "descriptions": {
+        "de": "Der Verlauf der Alarmmeldungen.",
+        "ru": "Ход тревожных сообщений.",
+        "uk": "Перебіг тривожних повідомлень.",
+        "th": "หลักสูตรของข้อความเตือนภัย",
+        "en": "The history of the alarm messages."
+      },
+      "names": {
+        "de": "Datei Verlauf",
+        "ru": "История файла",
+        "th": "ประวัติไฟล์",
+        "uk": "Історія файлів",
+        "en": "File History"
+      }
+    },
+    {
       "type": "Alarm Checked",
       "descriptions": {
         "de": "Das Attribut zeigt ob der der letzte generierte Alarm überprüft wurde.",
