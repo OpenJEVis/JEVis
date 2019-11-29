@@ -37,7 +37,6 @@ import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.controlsfx.control.NotificationPane;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -278,8 +277,8 @@ public class JEConfig extends Application {
         Parameters parameters = getParameters();
         _config.parseParameters(parameters);
 //        PROGRAM_INFO.setName(I18n.getInstance().getString("app.name"));
-        PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
+        PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
 
     }
 

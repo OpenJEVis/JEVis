@@ -45,9 +45,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class ReportWizardDialog extends Dialog<ButtonType> {
+public class ReportWizardDialog {
     private static final Logger logger = LogManager.getLogger(ReportWizardDialog.class);
     Image imgMarkAll = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
 
@@ -62,13 +65,20 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
     //    private Button addButton;
     private Button addMultiple;
     private GridPane gridPane;
+    private Dialog<ButtonType> reportWizardDialog;
 
     public ReportWizardDialog(JEVisObject newObject) {
+        JEVisClass reportLinkClass = null;
+        JEVisClass reportAttributeClass = null;
+        JEVisClass reportPeriodConfigurationClass = null;
         try {
             ds = newObject.getDataSource();
 
             JEVisClass reportLinksDirectoryClass = ds.getJEVisClass("Report Link Directory");
             JEVisClass emailNotificationClass = ds.getJEVisClass("E-Mail Notification");
+            reportLinkClass = newObject.getDataSource().getJEVisClass("Report Link");
+            reportAttributeClass = newObject.getDataSource().getJEVisClass("Report Attribute");
+            reportPeriodConfigurationClass = newObject.getDataSource().getJEVisClass("Report Period Configuration");
 
             reportLinkDirectory = newObject.buildObject("Report Link Directory", reportLinksDirectoryClass);
             reportLinkDirectory.commit();
@@ -79,13 +89,93 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         }
 
         init();
+
+        JEVisClass finalReportLinkClass = reportLinkClass;
+        JEVisClass finalReportAttributeClass = reportAttributeClass;
+        JEVisClass finalReportPeriodConfigurationClass = reportPeriodConfigurationClass;
+        reportWizardDialog.showAndWait()
+                .ifPresent(response -> {
+                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                        if (getSelections() != null) {
+                            ExecutorService executorService = Executors.newFixedThreadPool(4);
+
+                            JEVisObject reportLinkDirectory = getReportLinkDirectory();
+                            ConcurrentHashMap<ReportLink, Boolean> completed = new ConcurrentHashMap<>();
+
+                            final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
+
+                            pForm.activateProgressBar();
+
+                            getReportLinkList().parallelStream().forEach(rl -> {
+                                executorService.submit(() -> {
+                                    try {
+                                        String variableName = rl.getTemplateVariableName();
+
+                                        JEVisObject object = reportLinkDirectory.buildObject(variableName, finalReportLinkClass);
+                                        object.commit();
+
+                                        JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
+                                        JEVisSample sample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
+                                        sample.commit();
+
+                                        JEVisAttribute optionalAttribute = object.getAttribute("Optional");
+                                        JEVisSample sampleOptional = optionalAttribute.buildSample(new DateTime(), rl.isOptional());
+                                        sampleOptional.commit();
+
+                                        JEVisAttribute templateVariableName = object.getAttribute("Template Variable Name");
+                                        JEVisSample sample1 = templateVariableName.buildSample(new DateTime(), variableName);
+                                        sample1.commit();
+
+                                        JEVisObject reportAttribute = object.buildObject("Report Attribute", finalReportAttributeClass);
+                                        reportAttribute.commit();
+                                        JEVisAttribute attribute_name = reportAttribute.getAttribute("Attribute Name");
+
+                                        JEVisSample sample4 = attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
+                                        sample4.commit();
+
+                                        JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", finalReportPeriodConfigurationClass);
+                                        reportPeriodConfiguration.commit();
+
+                                        JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute("Aggregation");
+                                        JEVisSample sample2 = aggregationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+                                        sample2.commit();
+
+                                        JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute("Period");
+                                        JEVisSample sample3 = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
+                                        sample3.commit();
+
+                                        completed.put(rl, true);
+
+                                        if (completed.size() == getReportLinkList().size()) {
+                                            try {
+                                                JEVisFile template = createStandardTemplate(newObject.getName());
+                                                JEVisAttribute templateAttribute = newObject.getAttribute("Template");
+                                                JEVisSample templateSample = templateAttribute.buildSample(new DateTime(), template);
+                                                templateSample.commit();
+
+                                                pForm.hideProgressBar();
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            } catch (JEVisException ex) {
+                                                logger.error(ex);
+                                            }
+                                        }
+                                    } catch (JEVisException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+                            });
+                        }
+                    }
+                });
     }
 
     private void init() {
-        this.initOwner(JEConfig.getStage());
-        this.getDialogPane().setMinHeight(600);
-        this.setResizable(true);
-        this.getDialogPane().setPrefWidth(1220);
+        reportWizardDialog = new Dialog<>();
+        reportWizardDialog.initOwner(JEConfig.getStage());
+        reportWizardDialog.getDialogPane().setMinHeight(600);
+        reportWizardDialog.setResizable(true);
+        reportWizardDialog.getDialogPane().setPrefWidth(1220);
 
         Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("plugin.object.report.dialog.header"));
 
@@ -99,7 +189,7 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
 //        addButton = new Button("", JEConfig.getImage("list-add_3671791.png", 16, 16));
         addMultiple = new Button("", JEConfig.getImage("list-add.png", 16, 16));
 
-        this.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.title"));
+        reportWizardDialog.setTitle(I18n.getInstance().getString("plugin.object.report.dialog.title"));
 
         gridPane = new GridPane();
         gridPane.setPadding(new Insets(10, 10, 10, 10));
@@ -126,13 +216,13 @@ public class ReportWizardDialog extends Dialog<ButtonType> {
         final ButtonType ok = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-        this.getDialogPane().getButtonTypes().addAll(ok, cancel);
+        reportWizardDialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
         vBox.getChildren().add(header);
         vBox.getChildren().add(hbox);
 //        vBox.getChildren().add(addButton);
         vBox.getChildren().add(addMultiple);
         scrollPane.setContent(vBox);
-        this.getDialogPane().setContent(scrollPane);
+        reportWizardDialog.getDialogPane().setContent(scrollPane);
         vBox.setFillWidth(true);
     }
 
