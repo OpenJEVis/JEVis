@@ -61,6 +61,50 @@
         "de": "Bedingung",
         "ru": "Condition",
         "en": "Condition"
+      },
+      "enums" : {
+        "<" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Kleiner (Wert<Vergleichswert)",
+            "en" : "Less (Value<comparison value)"
+          }
+        },
+        "<=" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Kleiner-Gleich (Wert<=Vergleichswert)",
+            "en" : "Less than or equal (value<=omparison value)"
+          }
+        },
+        ">" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Größer (Wert>Vergleichswert)",
+            "en" : "Greater (value>comparison value)"
+          }
+        },
+        ">=" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Größer-Gleich (Wert>=Vergleichswert)",
+            "en" : "Greater or equal (value>=comparison value)"
+          }
+        },
+        "=" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Gleich (Wert=Vergleichswert)",
+            "en" : "Equal (value=comparison value)"
+          }
+        },
+        "!=" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Ungleich (Wert≠Vergleichswert)",
+            "en" : "Unequal (value≠comparison value)"
+          }
+        }
       }
     },
     {

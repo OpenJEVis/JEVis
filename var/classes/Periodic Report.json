@@ -77,7 +77,7 @@
     {
       "name": "Operator",
       "primitiveType": 0,
-      "guiType": "String Enum",
+      "guiType": "Dynamic Enum",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
@@ -86,7 +86,7 @@
     {
       "name": "Schedule",
       "primitiveType": 0,
-      "guiType": "String Enum",
+      "guiType": "Dynamic Enum",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,

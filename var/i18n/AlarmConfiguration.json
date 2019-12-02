@@ -47,6 +47,36 @@
         "th": "ช่วงปลุก",
         "uk": "діапазон сигналізації",
         "en": "Alarm Scope"
+      },
+      "enums" : {
+        "COMPLETE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Alle Alarme",
+            "en" : "Every Alarm"
+          }
+        },
+        "SELECTED" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Ausgewählte Alarme",
+            "en" : "Selected Alarm"
+          }
+        },
+        "WITHOUT_SELECTED" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Ohne ausgewählte Alarme",
+            "en" : "Without selected"
+          }
+        },
+        "NONE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Keie",
+            "en" : "None"
+          }
+        }
       }
     },
     {
@@ -98,6 +128,76 @@
         "th": "ระยะเวลาการเตือนภัย",
         "uk": "період сигналізації",
         "en": "Alarm Period"
+      },
+      "enums" : {
+        "MINUTELY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Minütlich",
+            "ru" : "минутный",
+            "en" : "Minutely"
+          }
+        },
+        "QUARTER_HOURLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Viertelstündlich",
+            "ru" : "Eжеквартально",
+            "en" : "Quarter-hourly"
+          }
+        },
+        "HOURLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatlich",
+            "ru" : "ежечасно",
+            "en" : "hourly"
+          }
+        },
+        "WEEKLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Wöchentlich",
+            "ru" : "Eженедельно",
+            "en" : "Weekly"
+          }
+        },"MONTHLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatlich",
+            "ru" : "ежемесячно",
+            "en" : "Monthly"
+          }
+        },
+        "QUARTERLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Vierteljährlich",
+            "ru" : "Eжеквартальный",
+            "en" : "Quarterly"
+          }
+        },"YEARLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jährlich",
+            "ru" : "Ежегодно",
+            "en" : "Yearly"
+          }
+        },"CUSTOM" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Benutzerdefiniert",
+            "ru" : "Пользовательский",
+            "en" : "Custom"
+          }
+        },"NONE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Keine",
+            "ru" : "Никто",
+            "en" : "None"
+          }
+        }
       }
     },
     {

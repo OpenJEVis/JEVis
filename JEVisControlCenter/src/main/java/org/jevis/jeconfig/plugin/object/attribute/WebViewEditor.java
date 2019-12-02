@@ -76,8 +76,10 @@ public class WebViewEditor implements AttributeEditor {
         }
         ComboBox<DateTime> dateTimeComboBox = new ComboBox<>(FXCollections.observableList(dateTimeList));
         try {
-            dateTimeComboBox.getSelectionModel().select(_lastSample.getTimestamp());
-        } catch (JEVisException e) {
+            if(_lastSample!=null){
+                dateTimeComboBox.getSelectionModel().select(_lastSample.getTimestamp());
+            }
+        } catch (Exception e) {
             logger.error("Could not get Time Stamp of last sample.");
             dateTimeComboBox.getSelectionModel().select(dateTimeList.size() - 1);
         }
@@ -88,7 +90,7 @@ public class WebViewEditor implements AttributeEditor {
                 lastSampleString = _lastSample.getValueAsString();
                 webView.getEngine().loadContent(lastSampleString);
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not get sample as String.");
         }
 
@@ -96,7 +98,7 @@ public class WebViewEditor implements AttributeEditor {
             if (!newValue.equals(oldValue)) {
                 try {
                     webView.getEngine().loadContent(sampleMap.get(newValue).getValueAsString());
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error("Could not get sample string for datetime {}", newValue);
                 }
             }

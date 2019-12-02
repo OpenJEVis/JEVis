@@ -2,22 +2,13 @@ package org.jevis.commons.ws.json;
 
 import java.util.Map;
 
-public class JsonI18nType {
+public class Json18nEnum {
 
-    private String type;
     private Map<String, String> descriptions;
     private Map<String, String> names;
-    private Map<String, Json18nEnum> enums;
+    private Map<String, Integer> positions;
 
-    public JsonI18nType() {
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    public Json18nEnum() {
     }
 
     public Map<String, String> getDescriptions() {
@@ -36,11 +27,12 @@ public class JsonI18nType {
         this.names = names;
     }
 
-    public Map<String, Json18nEnum> getEnums() {
-        return enums;
+
+    public Map<String, Integer> getPositions() {
+        return positions;
     }
 
-    public void setEnums(Map<String, Json18nEnum> enums) {
-        this.enums = enums;
+    public void setPositions(Map<String, Integer> positions) {
+        this.positions = positions;
     }
 }

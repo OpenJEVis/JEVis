@@ -6,13 +6,12 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
+import org.jevis.commons.ws.json.Json18nEnum;
 import org.jevis.commons.ws.json.JsonI18nClass;
 import org.jevis.commons.ws.json.JsonI18nType;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 
 /**
@@ -63,6 +62,43 @@ public class I18nWS {
             logger.warn("Class name not found: {}", className);
             return className;
         }
+    }
+
+    public Map<String, Json18nEnum> getEnum(String className, String typeName){
+        try {
+            JsonI18nClass json = getJsonClass(className);
+            boolean found = false;
+            for (JsonI18nType type : json.getTypes()) {
+                if (type.getType().equalsIgnoreCase(typeName)) {
+                    return type.getEnums();
+
+                }
+            }
+            if (!found) {
+                JEVisClass inheritanceClass = ds.getJEVisClass(className).getInheritance();
+                List<JsonI18nClass> possibleParents = new ArrayList<>();
+                getPossibleParents(possibleParents, inheritanceClass);
+
+                for (JsonI18nClass jsonI18nClass : possibleParents) {
+                    for (JsonI18nType type : jsonI18nClass.getTypes()) {
+                        if (type.getType().equalsIgnoreCase(typeName)) {
+                            return type.getEnums();
+                        }
+                    }
+                }
+            }
+
+            if (!found) {
+                logger.warn("Type name not found: {}-{}", className, typeName);
+            }
+            return new HashMap<>();
+        }catch (Exception ex){
+            return new HashMap<>();
+        }
+    }
+
+    public String getLanguage(){
+        return locale.getLanguage();
     }
 
     public String getTypeName(String jevisClass, String typeName) {
