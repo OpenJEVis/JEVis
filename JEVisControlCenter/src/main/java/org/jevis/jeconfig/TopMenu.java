@@ -121,6 +121,9 @@ public class TopMenu extends MenuBar {
         MenuItem rename = new MenuItem(I18n.getInstance().getString("menu.edit.rename"));
         rename.setAccelerator(new KeyCodeCombination(KeyCode.F2));
 
+        MenuItem reload = new MenuItem(I18n.getInstance().getString("menu.edit.reload"));
+        reload.setAccelerator(new KeyCodeCombination(KeyCode.F5));
+
         MenuItem findObject = new MenuItem(I18n.getInstance().getString("menu.edit.find"));
         findObject.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
 
@@ -141,6 +144,11 @@ public class TopMenu extends MenuBar {
                 activePlugin.handleRequest(Constants.Plugin.Command.COPY);
                 event.consume();
             }
+        });
+
+        reload.setOnAction(event -> {
+            activePlugin.handleRequest(Constants.Plugin.Command.RELOAD);
+            event.consume();
         });
 
         cut.setOnAction(new EventHandler<ActionEvent>() {
@@ -183,7 +191,7 @@ public class TopMenu extends MenuBar {
             }
         });
 
-        menuEdit.getItems().addAll(copy, cut, paste, delete, rename, findObject, findAgain);
+        menuEdit.getItems().addAll(copy, cut, paste, new SeparatorMenuItem(), delete, rename,new SeparatorMenuItem(), reload, findObject, findAgain);
 
         if (JEConfig.getExpert()) {
             MenuItem deleteAllCleanAndRaw = new MenuItem(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));

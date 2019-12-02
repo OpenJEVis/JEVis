@@ -21,9 +21,12 @@
 package org.jevis.rest;
 
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.ws.json.Json18nEnum;
 import org.jevis.commons.ws.json.JsonI18nClass;
 
 import javax.ws.rs.*;
@@ -31,7 +34,9 @@ import javax.ws.rs.core.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * resource service to translate jevis
@@ -97,8 +102,9 @@ public class ResourceI18n {
     }
 
     private JsonI18nClass loadFile(File file) throws IOException {
-//        Gson gson = new Gson();
-//        JsonReader reader = new JsonReader(new InputStreamReader(new FileInputStream(file), "UTF8"));
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
         return objectMapper.readValue(file, JsonI18nClass.class);
     }
 
