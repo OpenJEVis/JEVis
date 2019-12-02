@@ -37,6 +37,7 @@ public class I18n {
 
     public void loadAndSelectBundles(List<Locale> availableLang, Locale local) {
         this.locale = local;
+        Locale.setDefault(local);
 //        bundle = ResourceBundle.getBundle("JEVisCC", local);
 
         for (Locale locale : availableLang) {
