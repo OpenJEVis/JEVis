@@ -20,8 +20,10 @@
 package org.jevis.jeapi.ws;
 
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -86,12 +88,18 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     public JEVisDataSourceWS(String host) {
         this.host = host;
-
-        objectMapper.registerModule(new AfterburnerModule());
+        configureObjectMapper();
     }
 
     public JEVisDataSourceWS() {
+        configureObjectMapper();
+    }
+
+    private void configureObjectMapper(){
         objectMapper.registerModule(new AfterburnerModule());
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
     }
 
     @Override

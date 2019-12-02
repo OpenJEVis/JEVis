@@ -96,6 +96,22 @@
         "de": "SSL",
         "ru": "SSL",
         "en": "SSL"
+      },
+      "enums" : {
+        "SSL/TLS" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "SSL/TLS",
+            "en" : "SSL/TLS"
+          }
+        },
+        "STARTTLS" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "STARTTLS",
+            "en" : "STARTTLS"
+          }
+        }
       }
     },
     {

@@ -66,7 +66,6 @@ public class DashBordPlugIn implements Plugin {
         Layouts.setAnchor(this.rootPane, 0d);
 
 
-
         this.rootPane.getChildren().setAll(this.scrollPane);
 
         notificationPane = new NotificationPane(rootPane);
@@ -87,16 +86,16 @@ public class DashBordPlugIn implements Plugin {
 
     }
 
-    public void showMessage(String message){
-        ScheduledExecutorService executor =  Executors.newSingleThreadScheduledExecutor();
-        Platform.runLater(()->notificationPane.show(message));
+    public void showMessage(String message) {
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        Platform.runLater(() -> notificationPane.show(message));
 
         executor.schedule(new Runnable() {
             @Override
             public void run() {
                 notificationPane.hide();
             }
-        },5,TimeUnit.SECONDS);
+        }, 5, TimeUnit.SECONDS);
 
 
     }
@@ -106,7 +105,7 @@ public class DashBordPlugIn implements Plugin {
 
     }
 
-    public Size getPluginSize(){
+    public Size getPluginSize() {
         return new Size(rootPane.getHeight(), rootPane.getWidth());
     }
 
@@ -161,7 +160,7 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public boolean supportsRequest(int cmdType) {
-
+        System.out.println();
         switch (cmdType) {
             case Constants.Plugin.Command.SAVE:
                 return true;
@@ -172,7 +171,7 @@ public class DashBordPlugIn implements Plugin {
             case Constants.Plugin.Command.NEW:
                 return false;
             case Constants.Plugin.Command.RELOAD:
-                return false;
+                return true;
             case Constants.Plugin.Command.ADD_TABLE:
                 return false;
             case Constants.Plugin.Command.EDIT_TABLE:
@@ -219,6 +218,12 @@ public class DashBordPlugIn implements Plugin {
         switch (cmdType) {
             case Constants.Plugin.Command.SAVE:
                 this.dashboardControl.save();
+                return;
+            case Constants.Plugin.Command.RELOAD:
+                dashboardControl.reload();
+                return;
+            default:
+                logger.error("unknown PluginCommand: {}" + cmdType);
                 return;
         }
     }
@@ -267,7 +272,6 @@ public class DashBordPlugIn implements Plugin {
     public int getPrefTapPos() {
         return 1;
     }
-
 
 
 }
