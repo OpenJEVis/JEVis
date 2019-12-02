@@ -172,7 +172,8 @@ public class DashBordPlugIn implements Plugin {
             case Constants.Plugin.Command.NEW:
                 return false;
             case Constants.Plugin.Command.RELOAD:
-                return false;
+                dashboardControl.reload();
+                return true;
             case Constants.Plugin.Command.ADD_TABLE:
                 return false;
             case Constants.Plugin.Command.EDIT_TABLE:
