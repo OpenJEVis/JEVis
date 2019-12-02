@@ -222,9 +222,9 @@ public class ReportWizardDialog {
         gridPane.setVgap(10);
         gridPane.setHgap(4);
 
-        if (reportLinkList.isEmpty()) {
-            reportLinkList.add(new ReportLink("", null, false, "", new ReportAttribute("Value", new ReportPeriodConfiguration("NONE", PeriodMode.CURRENT))));
-        }
+//        if (reportLinkList.isEmpty()) {
+//            reportLinkList.add(new ReportLink("", null, false, "", new ReportAttribute("Value", new ReportPeriodConfiguration("NONE", PeriodMode.CURRENT))));
+//        }
 
         updateGridPane();
 
