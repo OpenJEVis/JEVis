@@ -31,6 +31,7 @@ public class GUIConstants {
     public static DisplayType PASSWORD_PBKDF2 = new DisplayType("Password PBKDF2", JEVisConstants.PrimitiveType.PASSWORD_PBKDF2);
     public static DisplayType BASIC_TEXT_MULTI = new DisplayType("Text Area", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType BASIC_ENUM = new DisplayType("String Enum", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType DYNAMIC_ENUM = new DisplayType("Dynamic Enum", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType LOCALE = new DisplayType("Language Selector", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType BASIC_TEXT_DATE_FULL = new DisplayType("Date", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType BASIC_TEXT_TIME = new DisplayType("Time", JEVisConstants.PrimitiveType.STRING);

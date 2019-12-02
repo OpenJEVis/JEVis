@@ -35,6 +35,50 @@
         "de": "Anfangsbezugspunkt",
         "ru": "Start Reference Point",
         "en": "Start Reference Point"
+      },
+      "enums" : {
+        "NOW" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jetzt",
+            "en" : "Now"
+          }
+        },
+        "CUSTOM_PERIOD" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Benutzerdefinierter Zeitbereich",
+            "en" : "Custom time range"
+          }
+        },
+        "CURRENT_DAY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Aktueller Tag",
+            "en" : "Current day"
+          }
+        },
+        "CURRENT_WEEK" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Aktuelle Woche",
+            "en" : "Current week"
+          }
+        },
+        "CURRENT_MONTH" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Aktueller Monat",
+            "en" : "Current month"
+          }
+        },
+        "SPECIFIED_DATE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Fester Zeitpunkt",
+            "en" : "Fixed date"
+          }
+        }
       }
     },
     {
@@ -139,6 +183,50 @@
         "de": "Endbezugspunkt",
         "ru": "End Reference Point",
         "en": "End Reference Point"
+      },
+      "enums" : {
+        "NOW" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jetzt",
+            "en" : "Now"
+          }
+        },
+        "CUSTOM_PERIOD" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Benutzerdefinierter Zeitbereich",
+            "en" : "Custom time range"
+          }
+        },
+        "CURRENT_DAY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Aktueller Tag",
+            "en" : "Current day"
+          }
+        },
+        "CURRENT_WEEK" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Aktuelle Woche",
+            "en" : "Current week"
+          }
+        },
+        "CURRENT_MONTH" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Aktueller Monat",
+            "en" : "Current month"
+          }
+        },
+        "SPECIFIED_DATE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Fester Zeitpunkt",
+            "en" : "Fixed date"
+          }
+        }
       }
     },
     {

@@ -96,6 +96,50 @@
         "de": "Bedingung",
         "ru": "Condition",
         "en": "Condition"
+      },
+      "enums" : {
+        "<" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Kleiner (Wert<Vergleichswert)",
+            "en" : "Less (Value<comparison value)"
+          }
+        },
+        "<=" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Kleiner-Gleich (Wert<=Vergleichswert)",
+            "en" : "Less than or equal (value<=comparison value)"
+          }
+        },
+        ">" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Größer (Wert>Vergleichswert)",
+            "en" : "Greater (value>comparison value)"
+          }
+        },
+        ">=" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Größer-Gleich (Wert>=Vergleichswert)",
+            "en" : "Greater or equal (value>=comparison value)"
+          }
+        },
+        "=" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Gleich (Wert=Vergleichswert)",
+            "en" : "Equal (value=comparison value)"
+          }
+        },
+        "!=" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Ungleich (Wert≠Vergleichswert)",
+            "en" : "Unequal (value≠comparison value)"
+          }
+        }
       }
     },
     {
@@ -135,6 +179,69 @@
         "de": "Zeitplan",
         "ru": "Schedule",
         "en": "Schedule"
+      },
+      "enums" : {
+        "MINUTELY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Minütlich",
+            "ru" : "минутный",
+            "en" : "Minutely"
+          }
+        },
+        "QUARTER_HOURLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Viertelstündlich",
+            "ru" : "Eжеквартально",
+            "en" : "Quarter-hourly"
+          }
+        },
+        "HOURLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatlich",
+            "ru" : "ежечасно",
+            "en" : "hourly"
+          }
+        },
+        "WEEKLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Wöchentlich",
+            "ru" : "Eженедельно",
+            "en" : "Weekly"
+          }
+        },"MONTHLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatlich",
+            "ru" : "ежемесячно",
+            "en" : "Monthly"
+          }
+        },
+        "QUARTERLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Vierteljährlich",
+            "ru" : "Eжеквартальный",
+            "en" : "Quarterly"
+          }
+        },"YEARLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jährlich",
+            "ru" : "Ежегодно",
+            "en" : "Yearly"
+          }
+        },"CUSTOM" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Benutzerdefiniert",
+            "ru" : "Пользовательский",
+            "en" : "Custom"
+          }
+        }
       }
     },
     {
