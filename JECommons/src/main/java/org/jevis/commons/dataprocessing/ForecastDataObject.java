@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.commons.constants.JEDataProcessorConstants;
+import org.jevis.commons.constants.GapFillingBoundToSpecific;
+import org.jevis.commons.constants.GapFillingReferencePeriod;
+import org.jevis.commons.constants.GapFillingType;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.json.JsonGapFillingConfig;
@@ -23,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.jevis.commons.constants.GapFillingReferencePeriod.MONTH;
 import static org.jevis.commons.dataprocessing.ForecastDataObject.AttributeName.*;
 
 /**
@@ -220,15 +223,15 @@ public class ForecastDataObject {
 
     public List<JEVisSample> getSampleCache() {
         if (this.sampleCache == null || this.sampleCache.isEmpty()) {
-            String referencePeriod = null;
+            GapFillingReferencePeriod referencePeriod = null;
             Long referencePeriodCount = null;
             try {
                 if (getReferencePeriodAttribute().hasSample()) {
-                    referencePeriod = getReferencePeriodAttribute().getLatestSample().getValueAsString();
+                    referencePeriod = GapFillingReferencePeriod.parse(getReferencePeriodAttribute().getLatestSample().getValueAsString());
                 }
             } catch (JEVisException e) {
                 logger.error("Could not get reference period from {}:{}, assuming default value of month", getForecastDataObject().getName(), getForecastDataObject().getID(), e);
-                referencePeriod = "month";
+                referencePeriod = MONTH;
             }
 
             try {
@@ -242,20 +245,20 @@ public class ForecastDataObject {
 
             long duration = 0L;
             if (referencePeriod != null && referencePeriodCount != null) {
-                switch (referencePeriod.toLowerCase()) {
-                    case (JEDataProcessorConstants.GapFillingReferencePeriod.DAY):
+                switch (referencePeriod) {
+                    case DAY:
                         duration = 2 * 24L * 60L * 60L * 1000L;
                         break;
-                    case (JEDataProcessorConstants.GapFillingReferencePeriod.MONTH):
+                    case MONTH:
                         duration = 2 * 4L * 7L * 24L * 60L * 60L * 1000L;
                         break;
-                    case (JEDataProcessorConstants.GapFillingReferencePeriod.WEEK):
+                    case WEEK:
                         duration = 2 * 7L * 24L * 60L * 60L * 1000L;
                         break;
-                    case (JEDataProcessorConstants.GapFillingReferencePeriod.YEAR):
+                    case YEAR:
                         duration = 2 * 52L * 4L * 7L * 24L * 60L * 60L * 1000L;
                         break;
-                    case (JEDataProcessorConstants.GapFillingReferencePeriod.ALL):
+                    case ALL:
                         try {
                             sampleCache = getInputAttribute().getAllSamples();
                             return sampleCache;
@@ -402,30 +405,21 @@ public class ForecastDataObject {
     public JsonGapFillingConfig getJsonGapFillingConfig() throws JEVisException {
         JsonGapFillingConfig jsonGapFillingConfig = new JsonGapFillingConfig();
 
-        String type = null;
-        String referencePeriod = null;
-        String referencePeriodCount = null;
-        String bindToSpecific = null;
-        if (getTypeAttribute().hasSample()) {
-            type = getTypeAttribute().getLatestSample().getValueAsString();
-        }
+        String referencePeriodCount = "6";
+        GapFillingType type = GapFillingType.parse(getTypeAttribute().getLatestSample().getValueAsString());
 
-        if (getReferencePeriodAttribute().hasSample()) {
-            referencePeriod = getReferencePeriodAttribute().getLatestSample().getValueAsString();
-        }
+        GapFillingReferencePeriod referencePeriod = GapFillingReferencePeriod.parse(getReferencePeriodAttribute().getLatestSample().getValueAsString());
 
         if (getReferencePeriodCountAttribute().hasSample()) {
             referencePeriodCount = getReferencePeriodCountAttribute().getLatestSample().getValueAsString();
         }
 
-        if (getBindToSpecificAttribute().hasSample()) {
-            bindToSpecific = getBindToSpecificAttribute().getLatestSample().getValueAsString();
-        }
+        GapFillingBoundToSpecific bindToSpecific = GapFillingBoundToSpecific.parse(getBindToSpecificAttribute().getLatestSample().getValueAsString());
 
-        jsonGapFillingConfig.setType(type);
-        jsonGapFillingConfig.setReferenceperiod(referencePeriod);
+        jsonGapFillingConfig.setType(type.toString());
+        jsonGapFillingConfig.setReferenceperiod(referencePeriod.toString());
         jsonGapFillingConfig.setReferenceperiodcount(referencePeriodCount);
-        jsonGapFillingConfig.setBindtospecific(bindToSpecific);
+        jsonGapFillingConfig.setBindtospecific(bindToSpecific.toString());
 
         return jsonGapFillingConfig;
     }
