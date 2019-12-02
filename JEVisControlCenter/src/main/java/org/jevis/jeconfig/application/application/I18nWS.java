@@ -93,6 +93,7 @@ public class I18nWS {
             }
             return new HashMap<>();
         }catch (Exception ex){
+            logger.error("Error while loading Enum form type: {}:{} -> {}",className,typeName,ex.getMessage(),ex);
             return new HashMap<>();
         }
     }
