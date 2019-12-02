@@ -64,6 +64,36 @@
         "uk": "тип",
         "th": "ชนิด",
         "en": "Type"
+      },
+      "enums": {
+        "MINIMUM": {
+          "descriptions": null,
+          "names": {
+            "de": "Minimalwert",
+            "en": "Minimum value"
+          }
+        },
+        "MAXIMUM": {
+          "descriptions": null,
+          "names": {
+            "de": "Maximalwert",
+            "en": "Maximum value"
+          }
+        },
+        "MEDIAN": {
+          "descriptions": null,
+          "names": {
+            "de": "Medianwert",
+            "en": "Median value"
+          }
+        },
+        "AVERAGE": {
+          "descriptions": null,
+          "names": {
+            "de": "Durchschnittswert",
+            "en": "Average value"
+          }
+        }
       }
     },
     {
@@ -81,6 +111,50 @@
         "uk": "Обліковий період",
         "th": "ระยะเวลาการอ้างอิง",
         "en": "Reference Period"
+      },
+      "enums": {
+        "DAY": {
+          "descriptions": null,
+          "names": {
+            "de": "Tag",
+            "en": "Day"
+          }
+        },
+        "WEEK": {
+          "descriptions": null,
+          "names": {
+            "de": "Woche",
+            "en": "Week"
+          }
+        },
+        "MONTH": {
+          "descriptions": null,
+          "names": {
+            "de": "Monat",
+            "en": "Month"
+          }
+        },
+        "YEAR": {
+          "descriptions": null,
+          "names": {
+            "de": "Jahr",
+            "en": "Year"
+          }
+        },
+        "ALL": {
+          "descriptions": null,
+          "names": {
+            "de": "Alle",
+            "en": "All"
+          }
+        },
+        "NONE": {
+          "descriptions": null,
+          "names": {
+            "de": "Keine",
+            "en": "None"
+          }
+        }
       }
     },
     {
@@ -115,6 +189,36 @@
         "uk": "Прив’язати до конкретного",
         "th": "ผูกกับเฉพาะ",
         "en": "Bind To Specific"
+      },
+      "enums": {
+        "NONE": {
+          "descriptions": null,
+          "names": {
+            "de": "Tag",
+            "en": "Day"
+          }
+        },
+        "WEEKDAY": {
+          "descriptions": null,
+          "names": {
+            "de": "Wochentag",
+            "en": "Weekday"
+          }
+        },
+        "WEEKOFYEAR": {
+          "descriptions": null,
+          "names": {
+            "de": "Woche des Jahres",
+            "en": "Week of Year"
+          }
+        },
+        "MONTHOFYEAR": {
+          "descriptions": null,
+          "names": {
+            "de": "Monat des Jahres",
+            "en": "Month of Year"
+          }
+        }
       }
     },
     {
@@ -132,6 +236,43 @@
         "uk": "Прогнозний період",
         "th": "ความคุ้มค่า",
         "en": "Forecast Duration"
+      },
+      "enums": {
+        "MINUTES": {
+          "descriptions": null,
+          "names": {
+            "de": "Minuten",
+            "en": "Minutes"
+          }
+        },
+        "HOURS": {
+          "descriptions": null,
+          "names": {
+            "de": "Stunden",
+            "en": "Hours"
+          }
+        },
+        "DAYS": {
+          "descriptions": null,
+          "names": {
+            "de": "Tage",
+            "en": "Days"
+          }
+        },
+        "WEEKS": {
+          "descriptions": null,
+          "names": {
+            "de": "Wochen",
+            "en": "Weeks"
+          }
+        },
+        "MONTHS": {
+          "descriptions": null,
+          "names": {
+            "de": "Monate",
+            "en": "Months"
+          }
+        }
       }
     },
     {

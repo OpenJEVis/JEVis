@@ -37,7 +37,7 @@
     {
       "name": "Type",
       "primitiveType": 0,
-      "guiType": "String Enum",
+      "guiType": "Dynamic Enum",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
@@ -46,7 +46,7 @@
     {
       "name": "Reference Period",
       "primitiveType": 0,
-      "guiType": "String Enum",
+      "guiType": "Dynamic Enum",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
@@ -63,7 +63,7 @@
     {
       "name": "Bind To Specific",
       "primitiveType": 0,
-      "guiType": "String Enum",
+      "guiType": "Dynamic Enum",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
@@ -72,7 +72,7 @@
     {
       "name": "Forecast Duration",
       "primitiveType": 0,
-      "guiType": "String Enum",
+      "guiType": "Dynamic Enum",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
