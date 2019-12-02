@@ -37,7 +37,6 @@ import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
@@ -79,12 +78,14 @@ public class AlarmPlugin implements Plugin {
     private DateTime start;
     private DateTime end;
     private TimeFrame timeFrame;
+    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
 
     public AlarmPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
 
         this.borderPane.setCenter(tableView);
+        this.tableView.setItems(alarmRows);
 
         this.numberFormat.setMinimumFractionDigits(2);
         this.numberFormat.setMaximumFractionDigits(2);
@@ -445,8 +446,8 @@ public class AlarmPlugin implements Plugin {
                                 ds.clearCache();
                                 ds.preload();
 
-                                getContentNode();
-                            } catch (JEVisException e) {
+                                updateList(start, end);
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                             return null;
@@ -708,63 +709,76 @@ public class AlarmPlugin implements Plugin {
 
     private void updateList(DateTime start, DateTime end) {
 
-        ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
-        tableView.setItems(alarmRows);
+        alarmRows.clear();
 
         autoFitTable(tableView);
 
         executor.execute(() -> {
-            List<AlarmConfiguration> alarms = getAllAlarmConfigs();
-            for (AlarmConfiguration alarmConfiguration : alarms) {
-                JEVisAttribute logAttribute = alarmConfiguration.getLogAttribute();
-
-                if (logAttribute.hasSample())
-                    for (JEVisSample jeVisSample : logAttribute.getSamples(start, end)) {
-                        Platform.runLater(() -> {
+            try {
+                List<AlarmConfiguration> alarms = getAllAlarmConfigs();
+                int size = alarms.size();
+                JEConfig.getStatusBar().startProgressJob("AlarmConfigs", size, "Loading alarm configurations");
+                for (AlarmConfiguration alarmConfiguration : alarms) {
+                    JEVisAttribute logAttribute = alarmConfiguration.getLogAttribute();
+                    List<AlarmRow> acList = new ArrayList<>();
+                    if (logAttribute.hasSample()) {
+                        for (JEVisSample jeVisSample : logAttribute.getSamples(start, end)) {
                             try {
-                                alarmRows.add(new AlarmRow(jeVisSample.getTimestamp(), alarmConfiguration, null));
+                                acList.add(new AlarmRow(jeVisSample.getTimestamp(), alarmConfiguration, null));
                                 if (!alarmConfiguration.isChecked()) {
                                     this.hasAlarms.set(true);
                                 }
-                            } catch (JEVisException e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        });
+                        }
                     }
 
-                JEVisAttribute fileLog = alarmConfiguration.getFileLogAttribute();
-                if (fileLog.hasSample())
-                    for (JEVisSample jeVisSample : fileLog.getSamples(start, end)) {
-                        List<Alarm> alarmList = new ArrayList<>();
 
-                        try {
-                            JsonAlarm[] jsonAlarmList = JsonTools.objectMapper().readValue(jeVisSample.getValueAsFile().getBytes(), JsonAlarm[].class);
-                            for (JsonAlarm jsonAlarm : jsonAlarmList) {
-                                JEVisObject object = ds.getObject(jsonAlarm.getObject());
-                                JEVisAttribute attribute = object.getAttribute(jsonAlarm.getAttribute());
-                                DateTime dateTime = new DateTime(jsonAlarm.getTimeStamp());
-                                JEVisSample sample = attribute.getSamples(dateTime, dateTime).get(0);
-                                alarmList.add(new Alarm(object, attribute, sample, dateTime, jsonAlarm.getIsValue(), jsonAlarm.getShouldBeValue(), jsonAlarm.getAlarmType(), jsonAlarm.getLogValue()));
+                    JEVisAttribute fileLog = alarmConfiguration.getFileLogAttribute();
+                    List<AlarmRow> newList = new ArrayList<>();
+                    if (fileLog.hasSample())
+                        for (JEVisSample jeVisSample : fileLog.getSamples(start, end)) {
+                            List<Alarm> alarmList = new ArrayList<>();
+
+                            try {
+                                JsonAlarm[] jsonAlarmList = JsonTools.objectMapper().readValue(jeVisSample.getValueAsFile().getBytes(), JsonAlarm[].class);
+                                for (JsonAlarm jsonAlarm : jsonAlarmList) {
+                                    JEVisObject object = ds.getObject(jsonAlarm.getObject());
+                                    JEVisAttribute attribute = object.getAttribute(jsonAlarm.getAttribute());
+                                    DateTime dateTime = new DateTime(jsonAlarm.getTimeStamp());
+                                    JEVisSample sample = attribute.getSamples(dateTime, dateTime).get(0);
+                                    alarmList.add(new Alarm(object, attribute, sample, dateTime, jsonAlarm.getIsValue(), jsonAlarm.getShouldBeValue(), jsonAlarm.getAlarmType(), jsonAlarm.getLogValue()));
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        } catch (IOException | JEVisException e) {
-                            e.printStackTrace();
-                        }
 
-                        for (Alarm alarm : alarmList) {
-                            Platform.runLater(() -> {
-                                alarmRows.add(new AlarmRow(alarm.getTimeStamp(), alarmConfiguration, alarm));
+                            for (Alarm alarm : alarmList) {
+                                newList.add(new AlarmRow(alarm.getTimeStamp(), alarmConfiguration, alarm));
 
                                 if (!alarmConfiguration.isChecked()) {
                                     this.hasAlarms.set(true);
                                 }
-                            });
+                            }
                         }
-                    }
 
-                Platform.runLater(() -> {
-                    alarmRows.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
-                    autoFitTable(tableView);
-                });
+                    Platform.runLater(() -> {
+                        alarmRows.addAll(acList);
+                        alarmRows.addAll(newList);
+
+                        alarmRows.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
+
+                        JEConfig.getStatusBar().progressProgressJob("AlarmConfigs", alarms.indexOf(alarmConfiguration), "AlarmConfig " + alarmConfiguration.getName() + " done.");
+
+                        if (alarms.indexOf(alarmConfiguration) == size - 1) {
+                            JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "Done.");
+                            Platform.runLater(() -> autoFitTable(tableView));
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }

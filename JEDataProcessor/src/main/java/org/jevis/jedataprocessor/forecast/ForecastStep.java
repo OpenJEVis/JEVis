@@ -1,7 +1,6 @@
 package org.jevis.jedataprocessor.forecast;
 
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.constants.JEDataProcessorConstants;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.jedataprocessor.data.CleanInterval;
@@ -11,6 +10,8 @@ import org.jevis.jedataprocessor.workflow.ProcessStep;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.jevis.commons.constants.GapFillingType.parse;
 
 public class ForecastStep implements ProcessStep {
     @Override
@@ -27,17 +28,17 @@ public class ForecastStep implements ProcessStep {
             GapsAndLimits gal = new GapsAndLimits(intervals, GapsAndLimits.GapsAndLimitsType.FORECAST_TYPE,
                     c, new ArrayList<>(), new ArrayList<>(), sampleCache);
 
-            switch (type.toLowerCase()) {
-                case JEDataProcessorConstants.GapFillingType.MINIMUM:
+            switch (parse(type)) {
+                case MINIMUM:
                     gal.fillMinimum();
                     break;
-                case JEDataProcessorConstants.GapFillingType.MAXIMUM:
+                case MAXIMUM:
                     gal.fillMaximum();
                     break;
-                case JEDataProcessorConstants.GapFillingType.MEDIAN:
+                case MEDIAN:
                     gal.fillMedian();
                     break;
-                case JEDataProcessorConstants.GapFillingType.AVERAGE:
+                case AVERAGE:
                     gal.fillAverage();
                     break;
             }

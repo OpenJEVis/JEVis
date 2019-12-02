@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static org.jevis.commons.constants.JEDataProcessorConstants.GapFillingType;
+import static org.jevis.commons.constants.GapFillingType.parse;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -109,28 +109,28 @@ public class LimitsStep implements ProcessStep {
                             GapsAndLimits gal = new GapsAndLimits(intervals, GapsAndLimits.GapsAndLimitsType.LIMITS_TYPE,
                                     c, new ArrayList<>(), newLimitBreaks, sampleCache);
 
-                            switch (c.getType()) {
-                                case GapFillingType.NONE:
+                            switch (parse(c.getType())) {
+                                case NONE:
                                     break;
-                                case GapFillingType.STATIC:
+                                case STATIC:
                                     gal.fillStatic();
                                     break;
-                                case GapFillingType.INTERPOLATION:
+                                case INTERPOLATION:
                                     gal.fillInterpolation();
                                     break;
-                                case GapFillingType.DEFAULT_VALUE:
+                                case DEFAULT_VALUE:
                                     gal.fillDefault();
                                     break;
-                                case GapFillingType.MINIMUM:
+                                case MINIMUM:
                                     gal.fillMinimum();
                                     break;
-                                case GapFillingType.MAXIMUM:
+                                case MAXIMUM:
                                     gal.fillMaximum();
                                     break;
-                                case GapFillingType.MEDIAN:
+                                case MEDIAN:
                                     gal.fillMedian();
                                     break;
-                                case GapFillingType.AVERAGE:
+                                case AVERAGE:
                                     gal.fillAverage();
                                     break;
                                 default:

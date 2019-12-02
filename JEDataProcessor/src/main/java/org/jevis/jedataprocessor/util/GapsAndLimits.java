@@ -4,7 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.constants.JEDataProcessorConstants;
+import org.jevis.commons.constants.GapFillingBoundToSpecific;
+import org.jevis.commons.constants.GapFillingReferencePeriod;
+import org.jevis.commons.constants.GapFillingType;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
@@ -51,15 +53,15 @@ public class GapsAndLimits {
 
     private Double getSpecificValue(DateTime lastDate) throws JEVisException {
 
-        String bindToSpecificValue = c.getBindtospecific();
-        if (Objects.isNull(bindToSpecificValue)) bindToSpecificValue = "";
+        GapFillingBoundToSpecific bindToSpecificValue = GapFillingBoundToSpecific.parse(c.getBindtospecific());
+        if (Objects.isNull(bindToSpecificValue)) bindToSpecificValue = GapFillingBoundToSpecific.NONE;
         List<JEVisSample> boundListSamples = new ArrayList<>();
         DateTime firstDate;
 
         firstDate = getFirstDate(lastDate);
         List<JEVisSample> listSamplesNew = new ArrayList<>();
-        switch (bindToSpecificValue.toLowerCase()) {
-            case (JEDataProcessorConstants.GapFillingBoundToSpecific.WEEKDAY):
+        switch (bindToSpecificValue) {
+            case WEEKDAY:
                 if (sampleCache != null && !sampleCache.isEmpty()) {
                     for (JEVisSample sample : sampleCache) {
                         if (sample.getTimestamp().getDayOfWeek() == lastDate.getDayOfWeek()) {
@@ -81,7 +83,7 @@ public class GapsAndLimits {
                         }
                 }
                 return calcValueWithType(boundListSamples);
-            case (JEDataProcessorConstants.GapFillingBoundToSpecific.WEEKOFYEAR):
+            case WEEKOFYEAR:
                 if (sampleCache != null && !sampleCache.isEmpty()) {
                     for (JEVisSample sample : sampleCache) {
                         if (sample.getTimestamp().getWeekyear() == lastDate.getWeekyear()) {
@@ -103,7 +105,7 @@ public class GapsAndLimits {
                         }
                 }
                 return calcValueWithType(boundListSamples);
-            case (JEDataProcessorConstants.GapFillingBoundToSpecific.MONTHOFYEAR):
+            case MONTHOFYEAR:
                 if (sampleCache != null && !sampleCache.isEmpty()) {
                     for (JEVisSample sample : sampleCache) {
                         if (sample.getTimestamp().getMonthOfYear() == lastDate.getMonthOfYear()) {
@@ -148,11 +150,11 @@ public class GapsAndLimits {
 
     private Double calcValueWithType(List<JEVisSample> listSamples) throws
             JEVisException {
-        final String gapFillingType = c.getType().toLowerCase();
+        final GapFillingType gapFillingType = GapFillingType.parse(c.getType());
 
         if (Objects.nonNull(listSamples) && !listSamples.isEmpty()) {
             switch (gapFillingType) {
-                case JEDataProcessorConstants.GapFillingType.MINIMUM:
+                case MINIMUM:
                     Double minValue = listSamples.get(0).getValueAsDouble();
                     for (JEVisSample sample : listSamples) {
                         if (sample.getValueAsDouble() != null) {
@@ -160,7 +162,7 @@ public class GapsAndLimits {
                         }
                     }
                     return minValue;
-                case JEDataProcessorConstants.GapFillingType.MAXIMUM:
+                case MAXIMUM:
                     Double maxValue = listSamples.get(0).getValueAsDouble();
                     for (JEVisSample sample : listSamples) {
                         if (sample.getValueAsDouble() != null) {
@@ -170,7 +172,7 @@ public class GapsAndLimits {
                         }
                     }
                     return maxValue;
-                case JEDataProcessorConstants.GapFillingType.MEDIAN:
+                case MEDIAN:
                     Double medianValue = 0d;
                     List<Double> sortedArray = new ArrayList<>();
                     for (JEVisSample sample : listSamples) {
@@ -185,8 +187,8 @@ public class GapsAndLimits {
                     }
 
                     return medianValue;
-                case JEDataProcessorConstants.GapFillingType.AVERAGE:
-                    Double averageValue = 0d;
+                case AVERAGE:
+                    double averageValue = 0d;
                     for (JEVisSample sample : listSamples) {
                         if (sample.getValueAsDouble() != null) {
                             averageValue += sample.getValueAsDouble();
@@ -550,18 +552,18 @@ public class GapsAndLimits {
     }
 
     private DateTime getFirstDate(DateTime lastDate) {
-        final String referencePeriod = c.getReferenceperiod();
+        final GapFillingReferencePeriod referencePeriod = GapFillingReferencePeriod.parse(c.getReferenceperiod());
         int referencePeriodCount = Integer.parseInt(c.getReferenceperiodcount());
         switch (referencePeriod) {
-            case (JEDataProcessorConstants.GapFillingReferencePeriod.DAY):
+            case DAY:
                 return lastDate.minusDays(referencePeriodCount);
-            case (JEDataProcessorConstants.GapFillingReferencePeriod.WEEK):
+            case WEEK:
                 return lastDate.minusWeeks(referencePeriodCount);
-            case (JEDataProcessorConstants.GapFillingReferencePeriod.MONTH):
+            case MONTH:
                 return lastDate.minusMonths(referencePeriodCount);
-            case (JEDataProcessorConstants.GapFillingReferencePeriod.YEAR):
+            case YEAR:
                 return lastDate.minusYears(referencePeriodCount);
-            case (JEDataProcessorConstants.GapFillingReferencePeriod.ALL):
+            case ALL:
                 try {
                     return sampleCache.get(0).getTimestamp();
                 } catch (JEVisException e) {
