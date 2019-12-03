@@ -8,7 +8,10 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.*;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.geometry.Orientation;
@@ -17,7 +20,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,13 +58,13 @@ public class AlarmPlugin implements Plugin {
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
     private final int iconSize = 24;
-    private boolean initialized = false;
     private static Method columnToFitMethod;
     private DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
     private ComboBox<TimeFrame> timeFrameComboBox;
     private SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
     private ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
-    private ExecutorService executor = Executors.newFixedThreadPool(1);
+    private ExecutorService executor = Executors.newFixedThreadPool(4);
+    private ToggleButton showCheckedAlarms = new ToggleButton(I18n.getInstance().getString("plugin.alarm.label.showchecked"));
 
     static {
         try {
@@ -78,14 +80,13 @@ public class AlarmPlugin implements Plugin {
     private DateTime start;
     private DateTime end;
     private TimeFrame timeFrame;
-    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
+//    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
 
     public AlarmPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
-
         this.borderPane.setCenter(tableView);
-        this.tableView.setItems(alarmRows);
+//        this.tableView.setItems(alarmRows);
 
         this.numberFormat.setMinimumFractionDigits(2);
         this.numberFormat.setMaximumFractionDigits(2);
@@ -104,19 +105,21 @@ public class AlarmPlugin implements Plugin {
 
     }
 
-    public static void autoFitTable(TableView tableView) {
-        tableView.getItems().addListener(new ListChangeListener<Object>() {
-            @Override
-            public void onChanged(Change<?> c) {
-                for (Object column : tableView.getColumns()) {
-                    try {
-                        columnToFitMethod.invoke(tableView.getSkin(), column, -1);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+    public static void autoFitTable(TableView<AlarmRow> tableView) {
+//        tableView.getItems().addListener(new ListChangeListener<Object>() {
+//            @Override
+//            public void onChanged(Change<?> c) {
+        for (TableColumn<AlarmRow, ?> column : tableView.getColumns()) {
+            try {
+                if (tableView.getSkin() != null) {
+                    columnToFitMethod.invoke(tableView.getSkin(), column, -1);
                 }
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
             }
-        });
+        }
+//            }
+//        });
     }
 
     private void createColumns() {
@@ -149,10 +152,8 @@ public class AlarmPlugin implements Plugin {
                             if (getTableRow() != null && getTableRow().getItem() != null) {
                                 AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
                                 if (!alarmRow.getAlarmConfiguration().isChecked()) {
-                                    setTextFill(Color.RED);
                                     activeAlarms.put(alarmRow.getTimeStamp(), true);
                                 } else {
-                                    setTextFill(Color.BLACK);
                                     activeAlarms.remove(alarmRow.getTimeStamp());
                                 }
                             }
@@ -163,20 +164,20 @@ public class AlarmPlugin implements Plugin {
         });
 
 
-        TableColumn<AlarmRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.name"));
-        nameColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, String>("name"));
-        nameColumn.setStyle("-fx-alignment: CENTER;");
-        nameColumn.setSortable(true);
-//        nameColumn.setPrefWidth(500);
-        nameColumn.setMinWidth(100);
+        TableColumn<AlarmRow, String> configNameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.configname"));
+        configNameColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, String>("configname"));
+        configNameColumn.setStyle("-fx-alignment: CENTER;");
+        configNameColumn.setSortable(true);
+//        configNameColumn.setPrefWidth(500);
+        configNameColumn.setMinWidth(100);
 
-        nameColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getTimeStamp() != null)
+        configNameColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getAlarmConfiguration() != null)
                 return new SimpleObjectProperty<>(param.getValue().getAlarmConfiguration().getName());
             else return new SimpleObjectProperty<>();
         });
 
-        nameColumn.setCellFactory(new Callback<TableColumn<AlarmRow, String>, TableCell<AlarmRow, String>>() {
+        configNameColumn.setCellFactory(new Callback<TableColumn<AlarmRow, String>, TableCell<AlarmRow, String>>() {
             @Override
             public TableCell<AlarmRow, String> call(TableColumn<AlarmRow, String> param) {
                 return new TableCell<AlarmRow, String>() {
@@ -188,6 +189,46 @@ public class AlarmPlugin implements Plugin {
                             setText(null);
                         } else {
                             setText(item);
+                        }
+                    }
+                };
+            }
+        });
+
+        TableColumn<AlarmRow, JEVisObject> objectNameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.objectname"));
+        objectNameColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, JEVisObject>("objectname"));
+        objectNameColumn.setStyle("-fx-alignment: CENTER;");
+        objectNameColumn.setSortable(true);
+//        objectNameColumn.setPrefWidth(500);
+        objectNameColumn.setMinWidth(100);
+
+        objectNameColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getObject() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarm().getObject());
+            else return new SimpleObjectProperty<>();
+        });
+
+        objectNameColumn.setCellFactory(new Callback<TableColumn<AlarmRow, JEVisObject>, TableCell<AlarmRow, JEVisObject>>() {
+            @Override
+            public TableCell<AlarmRow, JEVisObject> call(TableColumn<AlarmRow, JEVisObject> param) {
+                return new TableCell<AlarmRow, JEVisObject>() {
+                    @Override
+                    protected void updateItem(JEVisObject item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            String text = "";
+                            try {
+                                for (JEVisObject parent : item.getParents()) {
+                                    text += parent.getName();
+                                    break;
+                                }
+                            } catch (JEVisException e) {
+                                e.printStackTrace();
+                            }
+                            setText(text);
                         }
                     }
                 };
@@ -327,11 +368,12 @@ public class AlarmPlugin implements Plugin {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         super.updateItem(item, empty);
-                        if (item == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            setText(numberFormat.format(item) + "%");
+                        setGraphic(null);
+                        setText(null);
+                        if (item == null && !empty) {
+                            setText("± 0%");
+                        } else if (item != null && !empty) {
+                            setText("± " + numberFormat.format(item) + "%");
                         }
                     }
                 };
@@ -413,7 +455,7 @@ public class AlarmPlugin implements Plugin {
                                                     new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
                                             .otherwise(Bindings
                                                     .when(checkedButton.selectedProperty())
-                                                    .then("-fx-background-insets: 1 1 1;")
+                                                    .then("-fx-background-color: transparent;-fx-background-insets: 1 1 1;")
                                                     .otherwise(
                                                             new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
@@ -437,14 +479,14 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
-        tableView.getColumns().setAll(dateColumn, nameColumn, isValueColumn, shouldBeValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn);
+        tableView.getColumns().setAll(dateColumn, configNameColumn, objectNameColumn, isValueColumn, shouldBeValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn);
     }
 
     private String getAlarm(Integer item) {
         switch (item) {
-            case (2):
-                return I18n.getInstance().getString("plugin.alarm.table.alarm.silent");
             case (4):
+                return I18n.getInstance().getString("plugin.alarm.table.alarm.silent");
+            case (2):
                 return I18n.getInstance().getString("plugin.alarm.table.alarm.standby");
             case (1):
             default:
@@ -475,7 +517,6 @@ public class AlarmPlugin implements Plugin {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
 
         reload.setOnAction(event -> {
-            initialized = false;
 
             final String loading = I18n.getInstance().getString("plugin.alarms.reload.progress.message");
             Service<Void> service = new Service<Void>() {
@@ -509,6 +550,7 @@ public class AlarmPlugin implements Plugin {
 
         Separator sep1 = new Separator(Orientation.VERTICAL);
         Separator sep2 = new Separator(Orientation.VERTICAL);
+        Separator sep3 = new Separator(Orientation.VERTICAL);
 
         timeFrameComboBox = getTimeFrameComboBox();
 
@@ -545,7 +587,25 @@ public class AlarmPlugin implements Plugin {
         startDatePicker.setPrefWidth(120d);
         endDatePicker.setPrefWidth(120d);
 
-        toolBar.getItems().setAll(reload, sep1, timeFrameComboBox, sep2, startDatePicker, endDatePicker);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(showCheckedAlarms);
+        showCheckedAlarms.styleProperty().bind(
+                Bindings
+                        .when(showCheckedAlarms.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(showCheckedAlarms.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
+        showCheckedAlarms.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                updateList(start, end);
+            }
+        });
+
+        toolBar.getItems().setAll(reload, sep1, timeFrameComboBox, sep2, startDatePicker, endDatePicker, sep3, showCheckedAlarms);
     }
 
     private ComboBox<TimeFrame> getTimeFrameComboBox() {
@@ -755,77 +815,67 @@ public class AlarmPlugin implements Plugin {
 
     private void updateList(DateTime start, DateTime end) {
 
-        alarmRows.clear();
+//        alarmRows.clear();
+        tableView.getItems().clear();
+        executor.shutdownNow();
+        executor = Executors.newFixedThreadPool(4);
 
         autoFitTable(tableView);
 
-        executor.execute(() -> {
-            try {
-                List<AlarmConfiguration> alarms = getAllAlarmConfigs();
-                int size = alarms.size();
-                JEConfig.getStatusBar().startProgressJob("AlarmConfigs", size, "Loading alarm configurations");
-                for (AlarmConfiguration alarmConfiguration : alarms) {
-                    JEVisAttribute logAttribute = alarmConfiguration.getLogAttribute();
-                    List<AlarmRow> acList = new ArrayList<>();
-                    if (logAttribute.hasSample()) {
-                        for (JEVisSample jeVisSample : logAttribute.getSamples(start, end)) {
-                            try {
-                                acList.add(new AlarmRow(jeVisSample.getTimestamp(), alarmConfiguration, null));
-                                if (!alarmConfiguration.isChecked()) {
-                                    this.hasAlarms.set(true);
+        List<AlarmConfiguration> alarms = getAllAlarmConfigs();
+        int size = alarms.size();
+        JEConfig.getStatusBar().startProgressJob("AlarmConfigs", size, "Loading alarm configurations");
+
+        alarms.parallelStream().forEach(alarmConfiguration -> {
+            Task<List<AlarmRow>> task = new Task<List<AlarmRow>>() {
+                @Override
+                protected List<AlarmRow> call() throws Exception {
+                    List<AlarmRow> list = new ArrayList<>();
+                    try {
+                        JEVisAttribute fileLog = alarmConfiguration.getFileLogAttribute();
+
+                        if (fileLog.hasSample()) {
+                            for (JEVisSample jeVisSample : fileLog.getSamples(start, end)) {
+                                try {
+                                    JsonAlarm[] jsonAlarmList = JsonTools.objectMapper().readValue(jeVisSample.getValueAsFile().getBytes(), JsonAlarm[].class);
+                                    for (JsonAlarm jsonAlarm : jsonAlarmList) {
+                                        JEVisObject object = ds.getObject(jsonAlarm.getObject());
+                                        JEVisAttribute attribute = object.getAttribute(jsonAlarm.getAttribute());
+                                        DateTime dateTime = new DateTime(jsonAlarm.getTimeStamp());
+                                        JEVisSample sample = attribute.getSamples(dateTime, dateTime).get(0);
+
+                                        Alarm alarm = new Alarm(object, attribute, sample, dateTime, jsonAlarm.getIsValue(), jsonAlarm.getShouldBeValue(), jsonAlarm.getAlarmType(), jsonAlarm.getLogValue());
+
+                                        AlarmRow alarmRow = new AlarmRow(alarm.getTimeStamp(), alarmConfiguration, alarm);
+
+                                        list.add(alarmRow);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                            } catch (Exception e) {
-                                e.printStackTrace();
                             }
+
+
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-
-
-                    JEVisAttribute fileLog = alarmConfiguration.getFileLogAttribute();
-                    List<AlarmRow> newList = new ArrayList<>();
-                    if (fileLog.hasSample())
-                        for (JEVisSample jeVisSample : fileLog.getSamples(start, end)) {
-                            List<Alarm> alarmList = new ArrayList<>();
-
-                            try {
-                                JsonAlarm[] jsonAlarmList = JsonTools.objectMapper().readValue(jeVisSample.getValueAsFile().getBytes(), JsonAlarm[].class);
-                                for (JsonAlarm jsonAlarm : jsonAlarmList) {
-                                    JEVisObject object = ds.getObject(jsonAlarm.getObject());
-                                    JEVisAttribute attribute = object.getAttribute(jsonAlarm.getAttribute());
-                                    DateTime dateTime = new DateTime(jsonAlarm.getTimeStamp());
-                                    JEVisSample sample = attribute.getSamples(dateTime, dateTime).get(0);
-                                    alarmList.add(new Alarm(object, attribute, sample, dateTime, jsonAlarm.getIsValue(), jsonAlarm.getShouldBeValue(), jsonAlarm.getAlarmType(), jsonAlarm.getLogValue()));
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-                            for (Alarm alarm : alarmList) {
-                                newList.add(new AlarmRow(alarm.getTimeStamp(), alarmConfiguration, alarm));
-
-                                if (!alarmConfiguration.isChecked()) {
-                                    this.hasAlarms.set(true);
-                                }
-                            }
-                        }
-
-                    Platform.runLater(() -> {
-                        alarmRows.addAll(acList);
-                        alarmRows.addAll(newList);
-
-                        alarmRows.sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
-
-                        JEConfig.getStatusBar().progressProgressJob("AlarmConfigs", alarms.indexOf(alarmConfiguration), "AlarmConfig " + alarmConfiguration.getName() + " done.");
-
-                        if (alarms.indexOf(alarmConfiguration) == size - 1) {
-                            JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "Done.");
-                            Platform.runLater(() -> autoFitTable(tableView));
-                        }
-                    });
+                    return list;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            };
+
+            task.setOnSucceeded(event -> {
+                JEConfig.getStatusBar().progressProgressJob(
+                        "AlarmConfigs",
+                        1,
+                        "AlarmConfigs " + task.getTitle() + " done.");
+                tableView.getItems().addAll(task.getValue());
+
+                tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
+                autoFitTable(tableView);
+            });
+
+            executor.submit(task);
         });
     }
 
@@ -837,7 +887,11 @@ public class AlarmPlugin implements Plugin {
             List<JEVisObject> allObjects = ds.getObjects(alarmConfigClass, true);
             for (JEVisObject object : allObjects) {
                 AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, object);
-                list.add(alarmConfiguration);
+                if (!alarmConfiguration.isChecked()) {
+                    list.add(alarmConfiguration);
+                } else if (alarmConfiguration.isChecked() && showCheckedAlarms.isSelected()) {
+                    list.add(alarmConfiguration);
+                }
             }
         } catch (JEVisException e) {
             e.printStackTrace();
