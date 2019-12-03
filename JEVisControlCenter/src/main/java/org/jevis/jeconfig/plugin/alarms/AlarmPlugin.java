@@ -704,6 +704,9 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public Node getContentNode() {
+
+        timeFrameComboBox.getSelectionModel().select(TimeFrame.TODAY);
+
         return borderPane;
     }
 
@@ -812,7 +815,6 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
-        timeFrameComboBox.getSelectionModel().select(TimeFrame.TODAY);
     }
 
     @Override
