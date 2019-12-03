@@ -276,6 +276,37 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
+        TableColumn<AlarmRow, Integer> logValueColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.alarm"));
+        logValueColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Integer>("alarm"));
+        logValueColumn.setStyle("-fx-alignment: CENTER;");
+        logValueColumn.setSortable(true);
+//        logValueColumn.setPrefWidth(500);
+        logValueColumn.setMinWidth(100);
+
+        logValueColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getLogValue() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarm().getLogValue());
+            else return new SimpleObjectProperty<>();
+        });
+
+        logValueColumn.setCellFactory(new Callback<TableColumn<AlarmRow, Integer>, TableCell<AlarmRow, Integer>>() {
+            @Override
+            public TableCell<AlarmRow, Integer> call(TableColumn<AlarmRow, Integer> param) {
+                return new TableCell<AlarmRow, Integer>() {
+                    @Override
+                    protected void updateItem(Integer item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(getAlarm(item));
+                        }
+                    }
+                };
+            }
+        });
+
         TableColumn<AlarmRow, Double> toleranceColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.tolerance"));
         toleranceColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Double>("tolerance"));
         toleranceColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
@@ -406,7 +437,19 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
-        tableView.getColumns().setAll(dateColumn, nameColumn, isValueColumn, shouldBeValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn);
+        tableView.getColumns().setAll(dateColumn, nameColumn, isValueColumn, shouldBeValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn);
+    }
+
+    private String getAlarm(Integer item) {
+        switch (item) {
+            case (2):
+                return I18n.getInstance().getString("plugin.alarm.table.alarm.silent");
+            case (4):
+                return I18n.getInstance().getString("plugin.alarm.table.alarm.standby");
+            case (1):
+            default:
+                return I18n.getInstance().getString("plugin.alarm.table.alarm.normal");
+        }
     }
 
     private String getTranslatedTypeName(String item) {
