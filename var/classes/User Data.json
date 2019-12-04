@@ -1,0 +1,33 @@
+{
+  "name": "User Data",
+  "description": "The class User Data is used to store user data which takes priority over values in clean data rows",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "User Data",
+      "end": "Data",
+      "type": 3
+    },
+    {
+      "start": "User Data",
+      "end": "Clean Data",
+      "type": 3
+    },
+    {
+      "start": "Clean Data",
+      "end": "Data",
+      "type": 0
+    }
+  ],
+  "types": [
+    {
+      "name": "Value",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": true,
+      "jevisClass": "Data"
+    }
+  ]
+}

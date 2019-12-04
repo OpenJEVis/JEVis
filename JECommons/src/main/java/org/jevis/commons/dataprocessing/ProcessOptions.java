@@ -144,7 +144,7 @@ public class ProcessOptions {
 
         if (ContainsOption(task, TS_START)) {
             try {
-                result[0] = DateTime.parse(GetLatestOption(task, TS_START, new BasicProcessOption(TS_START, "")).getValue(), JEVisDates.DEFAULT_DATE_FORMAT);
+                result[0] = new DateTime(GetLatestOption(task, TS_START, new BasicProcessOption(TS_START, "")).getValue());
 //                result[0] = DateTime.parse(task.getOptions().get(TS_START), DateTimeFormat.forPattern(TS_PATTERN));
             } catch (Exception e) {
                 logger.error("error while parsing " + TS_START + " option");
@@ -155,7 +155,7 @@ public class ProcessOptions {
 
         if (ContainsOption(task, TS_END)) {
             try {
-                result[1] = DateTime.parse(GetLatestOption(task, TS_END, new BasicProcessOption(TS_END, "")).getValue(), JEVisDates.DEFAULT_DATE_FORMAT);
+                result[1] = new DateTime(GetLatestOption(task, TS_END, new BasicProcessOption(TS_END, "")).getValue());
 //                result[1] = DateTime.parse(task.getOptions().get(TS_END), DateTimeFormat.forPattern(TS_PATTERN));
             } catch (Exception ex) {
                 logger.error("error while parsing " + TS_END + " option");

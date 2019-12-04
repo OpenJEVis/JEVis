@@ -59,6 +59,9 @@ public class PrepareStep implements ProcessStep {
         Map<DateTime, JEVisSample> notesMap = cleanDataObject.getNotesMap();
         resourceManager.setNotesMap(notesMap);
 
+        Map<DateTime, JEVisSample> userDataMap = cleanDataObject.getUserDataMap();
+        resourceManager.setUserDataMap(userDataMap);
+
         Period periodCleanData = cleanDataObject.getCleanDataPeriodAlignment();
         Period periodRawData = cleanDataObject.getRawDataPeriodAlignment();
         if (rawSamplesDown.size() > 1)

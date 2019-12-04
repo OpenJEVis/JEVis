@@ -914,7 +914,9 @@ public class XYChart implements Chart {
 
                         String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
-                        RowNote rowNote = new RowNote(dataObject, nearestSample, title, userNote);
+                        String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
+
+                        RowNote rowNote = new RowNote(dataObject, nearestSample, title, userNote, userValue, serie.getSingleRow().getScaleFactor());
 
                         map.put(title, rowNote);
                     }
@@ -927,7 +929,7 @@ public class XYChart implements Chart {
 
             nd.showAndWait().ifPresent(response -> {
                 if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                    saveUserNotes(nd.getNoteMap());
+                    saveUserEntries(nd.getNoteMap());
                 }
             });
         }

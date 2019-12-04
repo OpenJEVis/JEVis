@@ -153,6 +153,10 @@ public class VirtualSample implements JEVisSample {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    public void setAttribute(JEVisAttribute attribute) {
+        this._att = attribute;
+    }
+
     @Override
     public JEVisAttribute getAttribute() {
         return _att;

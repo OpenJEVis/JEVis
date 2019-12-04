@@ -63,5 +63,6 @@ public class NoteConstants {
 
     public interface User {
         String USER_NOTES = "userNotes";
+        String USER_VALUE = "userValue";
     }
 }

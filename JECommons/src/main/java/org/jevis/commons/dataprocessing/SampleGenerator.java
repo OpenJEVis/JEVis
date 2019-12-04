@@ -44,14 +44,12 @@ public class SampleGenerator {
         this.interval = interval;
     }
 
-    public List<JEVisSample> generateSamples() {
+//    public List<JEVisSample> generateSamples() {
+//
+//        return attribute.getSamples(interval.getStart(), interval.getEnd());
+//    }
 
-        return attribute.getSamples(interval.getStart(), interval.getEnd());
-    }
-
-    public List<JEVisSample> getAggregatedSamples(List<JEVisSample> samples) {
-        //aggregate
-
+    public List<JEVisSample> getAggregatedSamples() {
 
         BasicProcess basicProcess = new BasicProcess();
         basicProcess.setJEVisDataSource(ds);
@@ -60,10 +58,12 @@ public class SampleGenerator {
         BasicProcess input = new BasicProcess();
         input.setJEVisDataSource(ds);
         input.setID("Dynamic Input");
-        input.setFunction(new InputFunction(samples));
+        input.setFunction(new InputFunction());
         input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, attribute.getName()));
         input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, object.getID().toString()));
         input.getOptions().add(new BasicProcessOption(ProcessOptions.OFFSET, ""));
+        input.getOptions().add(new BasicProcessOption(ProcessOptions.TS_START, interval.getStart().toString()));
+        input.getOptions().add(new BasicProcessOption(ProcessOptions.TS_END, interval.getEnd().toString()));
         basicProcess.setSubProcesses(Collections.singletonList(input));
 
         switch (manipulationMode) {

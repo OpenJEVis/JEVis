@@ -42,10 +42,7 @@ public class PeriodSampleGenerator extends SampleGenerator {
         JEVisObject dataObject = linkData.getDataObject();
         JEVisAttribute attribute = dataObject.getAttribute(attributeData.getAttributeName());
 
-        List<JEVisSample> samples = generateSamples();
-        logger.debug("Generated " + samples.size() + " samples.");
-
-        List<JEVisSample> aggregatedSamples = getAggregatedSamples(samples);
+        List<JEVisSample> aggregatedSamples = getAggregatedSamples();
         logger.debug("Generated " + aggregatedSamples.size() + " aggregated samples.");
 
         ConcurrentHashMap<String, Object> sampleMap = ProcessHelper.getAttributeSamples(aggregatedSamples, attribute, property.getTimeZone());
