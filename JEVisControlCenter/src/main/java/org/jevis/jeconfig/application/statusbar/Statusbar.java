@@ -107,6 +107,14 @@ public class Statusbar extends ToolBar {
         }
     }
 
+    public double getProgress(String jobID) {
+        Job job = jobList.get(jobID);
+        if (job != null) {
+            return job.done;
+        }
+        return 0;
+    }
+
     public void finishProgressJob(String jobID, String message) {
         Job job = jobList.get(jobID);
         if (job != null) {

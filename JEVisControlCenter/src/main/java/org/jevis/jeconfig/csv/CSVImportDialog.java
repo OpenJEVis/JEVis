@@ -84,8 +84,165 @@ public class CSVImportDialog {
         Semicolon, Comma, Space, Tab, OTHER
     }
 
-    enum Enclosed {
-        NONE, Apostrophe, Ditto, Gravis,  OTHER
+    private Node buildSeparatorPane() {
+        GridPane gp = new GridPane();
+        gp.setPadding(new Insets(0, 10, 0, LEFT_PADDING));
+
+        gp.setHgap(4);
+        gp.setVgap(5);
+
+        Label sepL = new Label(I18n.getInstance().getString("csv.separator.column"));
+        Label sepTextL = new Label(I18n.getInstance().getString("csv.separator.text"));
+
+
+        Callback<ListView<Seperator>, ListCell<Seperator>> seperatorCellFactory = new Callback<ListView<Seperator>, ListCell<Seperator>>() {
+            @Override
+            public ListCell<Seperator> call(ListView<Seperator> param) {
+                return new ListCell<Seperator>() {
+                    @Override
+                    protected void updateItem(Seperator item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null) {
+                            String localText = "";
+                            switch (item) {
+                                case Tab:
+                                    localText = I18n.getInstance().getString("csv.seperators.tab");
+                                    break;
+                                case Comma:
+                                    localText = I18n.getInstance().getString("csv.seperators.comma");
+                                    break;
+                                case OTHER:
+                                    localText = I18n.getInstance().getString("csv.seperators.other");
+                                    break;
+                                case Semicolon:
+                                    localText = I18n.getInstance().getString("csv.seperators.semi");
+                                    break;
+                                case Space:
+                                    localText = I18n.getInstance().getString("csv.seperators.space");
+                                    break;
+                                default:
+                                    break;
+                            }
+                            setText(localText);
+                        }
+
+
+                    }
+                };
+            }
+        };
+        seperatorComboBox.setCellFactory(seperatorCellFactory);
+        seperatorComboBox.setButtonCell(seperatorCellFactory.call(null));
+        otherEnclosedField.setDisable(true);
+        otherSeperatorField.setDisable(true);
+        seperatorComboBox.getSelectionModel().select(Seperator.Semicolon);
+        seperatorComboBox.setOnAction(event -> {
+            if (seperatorComboBox.getValue() == Seperator.OTHER) {
+                otherSeperatorField.setDisable(false);
+                otherSeperatorField.requestFocus();
+            } else {
+                otherSeperatorField.setDisable(true);
+                updateSeperator();
+            }
+        });
+
+        Callback<ListView<Enclosed>, ListCell<Enclosed>> enclosedCellfactory = new Callback<ListView<Enclosed>, ListCell<Enclosed>>() {
+            @Override
+            public ListCell<Enclosed> call(ListView<Enclosed> param) {
+                return new ListCell<Enclosed>() {
+                    @Override
+                    protected void updateItem(Enclosed item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item != null) {
+                            String localText = "";
+                            switch (item) {
+                                case Apostrophe:
+                                    localText = I18n.getInstance().getString("csv.enclosed.apostrophe");
+                                    break;
+                                case Ditto:
+                                    localText = I18n.getInstance().getString("csv.enclosed.ditto");
+                                    break;
+                                case OTHER:
+                                    localText = I18n.getInstance().getString("csv.enclosed.other");
+                                    break;
+                                case NONE:
+                                    localText = I18n.getInstance().getString("csv.enclosed.none");
+                                    break;
+                                case Gravis:
+                                    localText = I18n.getInstance().getString("csv.enclosed.gravis");
+                                    break;
+                                default:
+                            }
+                            setText(localText);
+                        }
+
+                    }
+                };
+            }
+        };
+        enclosedComboBox.setCellFactory(enclosedCellfactory);
+        enclosedComboBox.setButtonCell(enclosedCellfactory.call(null));
+        enclosedComboBox.getSelectionModel().select(Enclosed.NONE);
+        enclosedComboBox.setOnAction(event -> {
+            Platform.runLater(() -> {
+                if (enclosedComboBox.getValue() == Enclosed.OTHER) {
+                    otherEnclosedField.setDisable(false);
+                    otherEnclosedField.requestFocus();
+                } else {
+                    otherEnclosedField.setDisable(true);
+                    updateEnclosed();
+                }
+            });
+        });
+
+        otherSeperatorField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateSeperator();
+        });
+        otherEnclosedField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateEnclosed();
+        });
+
+        enclosedComboBox.setMinWidth(200);
+        seperatorComboBox.setMinWidth(200);
+        otherSeperatorField.setMinWidth(200);
+        otherEnclosedField.setMinWidth(200);
+
+        HBox otherBox = new HBox(5);
+        otherBox.setAlignment(Pos.CENTER_LEFT);
+        otherBox.getChildren().setAll(otherSeperatorField);
+
+        HBox otherTextBox = new HBox(5);
+        otherTextBox.setAlignment(Pos.CENTER_LEFT);
+        otherTextBox.getChildren().setAll(otherEnclosedField);
+
+        HBox root = new HBox();
+
+        VBox columnB = new VBox(5);
+        VBox textB = new VBox(5);
+
+        root.setPadding(new Insets(5, 10, 5, LEFT_PADDING));
+        VBox cSep = new VBox(5);
+        VBox tSep = new VBox(5);
+        cSep.setPadding(new Insets(0, 0, 0, 20));
+        tSep.setPadding(new Insets(0, 0, 0, 20));
+
+        cSep.getChildren().setAll(seperatorComboBox, otherBox);
+        tSep.getChildren().setAll(enclosedComboBox, otherTextBox);
+
+        columnB.getChildren().setAll(sepL, cSep);
+        textB.getChildren().setAll(sepTextL, tSep);
+
+        Region spacer = new Region();
+
+        root.getChildren().setAll(columnB, textB, spacer);
+        root.setAlignment(Pos.TOP_LEFT);
+        HBox.setHgrow(columnB, Priority.NEVER);
+        HBox.setHgrow(textB, Priority.NEVER);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        return root;
+
     }
 
     private ComboBox<Seperator> seperatorComboBox = new ComboBox<>(FXCollections.observableArrayList(Seperator.values()));
@@ -106,8 +263,6 @@ public class CSVImportDialog {
     private Stage stage;
     private Charset charset = Charset.defaultCharset();
     private String customNoteString = "";
-
-
 
 
     public Response show(Stage owner, JEVisDataSource ds) {
@@ -444,164 +599,8 @@ public class CSVImportDialog {
         Default, ARA01, Custom
     }
 
-    private Node buildSeparatorPane() {
-        GridPane gp = new GridPane();
-        gp.setPadding(new Insets(0, 10, 0, LEFT_PADDING));
-
-        gp.setHgap(4);
-        gp.setVgap(5);
-
-        Label sepL = new Label(I18n.getInstance().getString("csv.separator.column"));
-        Label sepTextL = new Label(I18n.getInstance().getString("csv.separator.text"));
-
-
-        Callback<ListView<Seperator>, ListCell<Seperator>> seperatorCellFactory = new Callback<ListView<Seperator>, ListCell<Seperator>>() {
-            @Override
-            public ListCell<Seperator> call(ListView<Seperator> param) {
-                return new ListCell<Seperator>() {
-                    @Override
-                    protected void updateItem(Seperator item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null) {
-                            String localText = "";
-                            switch (item) {
-                                case Tab:
-                                    localText = I18n.getInstance().getString("csv.seperators.tab");
-                                    break;
-                                case Comma:
-                                    localText = I18n.getInstance().getString("csv.seperators.comma");
-                                    break;
-                                case OTHER:
-                                    localText = I18n.getInstance().getString("csv.seperators.other");
-                                    break;
-                                case Semicolon:
-                                    localText = I18n.getInstance().getString("csv.seperators.semi");
-                                    break;
-                                case Space:
-                                    localText = I18n.getInstance().getString("csv.seperators.space");
-                                    break;
-                                default:
-                                    break;
-                            }
-                            setText(localText);
-                        }
-
-
-                    }
-                };
-            }
-        };
-        seperatorComboBox.setCellFactory(seperatorCellFactory);
-        seperatorComboBox.setButtonCell(seperatorCellFactory.call(null));
-        otherEnclosedField.setDisable(true);
-        otherSeperatorField.setDisable(true);
-        seperatorComboBox.getSelectionModel().select(Seperator.Semicolon);
-        seperatorComboBox.setOnAction(event -> {
-            if (seperatorComboBox.getValue() == Seperator.OTHER) {
-                otherSeperatorField.setDisable(false);
-                otherSeperatorField.requestFocus();
-            } else {
-                otherSeperatorField.setDisable(true);
-                updateSeperator();
-            }
-        });
-
-        Callback<ListView<Enclosed>, ListCell<Enclosed>> enclosedCellfactory = new Callback<ListView<Enclosed>, ListCell<Enclosed>>() {
-            @Override
-            public ListCell<Enclosed> call(ListView<Enclosed> param) {
-                return new ListCell<Enclosed>() {
-                    @Override
-                    protected void updateItem(Enclosed item, boolean empty) {
-                        super.updateItem(item, empty);
-
-                        if (item != null) {
-                            String localText = "";
-                            switch (item) {
-                                case Apostrophe:
-                                    localText = I18n.getInstance().getString("csv.enclosed.apostrophe");
-                                    break;
-                                case Ditto:
-                                    localText = I18n.getInstance().getString("csv.enclosed.ditto");
-                                    break;
-                                case OTHER:
-                                    localText = I18n.getInstance().getString("csv.enclosed.other");
-                                    break;
-                                case NONE:
-                                    localText = I18n.getInstance().getString("csv.enclosed.none");
-                                    break;
-                                case Gravis:
-                                    localText = I18n.getInstance().getString("csv.enclosed.gravis");
-                                    break;
-                                default:
-                            }
-                            setText(localText);
-                        }
-
-                    }
-                };
-            }};
-        enclosedComboBox.setCellFactory(enclosedCellfactory);
-        enclosedComboBox.setButtonCell(enclosedCellfactory.call(null));
-        enclosedComboBox.getSelectionModel().select(Enclosed.NONE);
-        enclosedComboBox.setOnAction(event -> {
-            Platform.runLater(() -> {
-                if (enclosedComboBox.getValue() == Enclosed.OTHER) {
-                    otherEnclosedField.setDisable(false);
-                    otherEnclosedField.requestFocus();
-                } else {
-                    otherEnclosedField.setDisable(true);
-                    updateEnclosed();
-                }
-            });
-        });
-
-        otherSeperatorField.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateSeperator();
-        });
-        otherEnclosedField.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateEnclosed();
-        });
-
-        enclosedComboBox.setMinWidth(200);
-        seperatorComboBox.setMinWidth(200);
-        otherSeperatorField.setMinWidth(200);
-        otherEnclosedField.setMinWidth(200);
-
-        HBox otherBox = new HBox(5);
-        otherBox.setAlignment(Pos.CENTER_LEFT);
-        otherBox.getChildren().setAll( otherSeperatorField);
-
-        HBox otherTextBox = new HBox(5);
-        otherTextBox.setAlignment(Pos.CENTER_LEFT);
-        otherTextBox.getChildren().setAll( otherEnclosedField);
-
-        HBox root = new HBox();
-
-        VBox columnB = new VBox(5);
-        VBox textB = new VBox(5);
-
-        root.setPadding(new Insets(5, 10, 5, LEFT_PADDING));
-        VBox cSep = new VBox(5);
-        VBox tSep = new VBox(5);
-        cSep.setPadding(new Insets(0, 0, 0, 20));
-        tSep.setPadding(new Insets(0, 0, 0, 20));
-
-        cSep.getChildren().setAll(seperatorComboBox, otherBox);
-        tSep.getChildren().setAll(enclosedComboBox, otherTextBox);
-
-        columnB.getChildren().setAll(sepL, cSep);
-        textB.getChildren().setAll(sepTextL, tSep);
-
-        Region spacer = new Region();
-
-        root.getChildren().setAll(columnB, textB, spacer);
-        root.setAlignment(Pos.TOP_LEFT);
-        HBox.setHgrow(columnB, Priority.NEVER);
-        HBox.setHgrow(textB, Priority.NEVER);
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        return root;
-
+    enum Enclosed {
+        NONE, Apostrophe, Ditto, Gravis, OTHER
     }
 
 
