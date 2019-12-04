@@ -19,6 +19,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(AlarmTable.class);
     private final JEVisDataSource ds;
     private final List<Alarm> alarms;
+    private boolean hasRawDataObject;
 
     public AlarmTable(JEVisDataSource ds, List<Alarm> alarms) {
         super(ds);
@@ -70,20 +71,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 String name = currentAlarm.getObject().getName() + ":" + currentAlarm.getObject().getID().toString();
                 String nameRaw = "";
 
-                boolean hasRawDataObject = false;
-                JEVisObject currentRawDataObject = null;
-                for (JEVisObject parent : currentAlarm.getObject().getParents()) {
-                    try {
-                        JEVisClass parentClass = parent.getJEVisClass();
-                        if (parentClass != null && parentClass.equals(rawDataClass)) {
-                            hasRawDataObject = true;
-                            currentRawDataObject = parent;
-                            break;
-                        }
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
-                    }
-                }
+                JEVisObject currentRawDataObject = getRawDataObject(currentAlarm.getObject(), rawDataClass);
 
                 String currentUnit = null;
                 try {
@@ -94,7 +82,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                     logger.error("Could not parse Unit.");
                 }
 
-                if (hasRawDataObject) {
+                if (hasRawDataObject && currentRawDataObject != null) {
                     nameRaw = currentRawDataObject.getName() + ":" + currentRawDataObject.getID().toString();
                 }
 
@@ -319,22 +307,10 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 String name = currentAlarm.getObject().getName() + ":" + currentAlarm.getObject().getID().toString();
                 String nameRaw = "";
 
-                boolean hasRawDataObject = false;
-                JEVisObject currentRawDataObject = null;
-                for (JEVisObject parent : currentAlarm.getObject().getParents()) {
-                    try {
-                        JEVisClass parentClass = parent.getJEVisClass();
-                        if (parentClass != null && parentClass.equals(rawDataClass)) {
-                            hasRawDataObject = true;
-                            currentRawDataObject = parent;
-                            break;
-                        }
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
-                    }
-                }
+                hasRawDataObject = false;
+                JEVisObject currentRawDataObject = getRawDataObject(currentAlarm.getObject(), rawDataClass);
 
-                if (hasRawDataObject) {
+                if (hasRawDataObject && currentRawDataObject != null) {
                     nameRaw = currentRawDataObject.getName() + ":" + currentRawDataObject.getID().toString();
                 }
 
@@ -436,5 +412,19 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         } else {
             return sb.toString();
         }
+    }
+
+    private JEVisObject getRawDataObject(JEVisObject object, JEVisClass rawDataClass) throws JEVisException {
+        for (JEVisObject parent : object.getParents()) {
+            JEVisClass parentClass = parent.getJEVisClass();
+            if (parentClass != null && parentClass.equals(rawDataClass)) {
+                hasRawDataObject = true;
+                return parent;
+            } else {
+                getRawDataObject(parent, rawDataClass);
+            }
+        }
+
+        return null;
     }
 }
