@@ -361,8 +361,7 @@ public class SampleEditor {
 
                 SampleGenerator sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, ManipulationMode.NONE, _period);
 
-                samples = sg.generateSamples();
-                samples = sg.getAggregatedSamples(samples);
+                samples = sg.getAggregatedSamples();
 
                 for (SampleEditorExtension extension : extensions) {
                     Platform.runLater(() -> {

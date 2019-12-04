@@ -19,6 +19,9 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.List;
+import java.util.Map;
+
+import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 
 /**
  * align the raw samples and calculate the value per interval if possible
@@ -35,6 +38,7 @@ public class PeriodAlignmentStep implements ProcessStep {
         CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
         List<CleanInterval> rawIntervals = resourceManager.getRawIntervals();
         List<CleanInterval> cleanIntervals = resourceManager.getIntervals();
+        Map<DateTime, JEVisSample> userDataMap = resourceManager.getUserDataMap();
         Integer periodOffset = cleanDataObject.getPeriodOffset();
 
         PeriodComparator periodComparator = new PeriodComparator();
@@ -59,6 +63,9 @@ public class PeriodAlignmentStep implements ProcessStep {
                 JEVisSample rawSample = rawSamples.get(currentSamplePointer);
                 try {
                     DateTime timestamp = rawSample.getTimestamp();
+                    if (userDataMap.containsKey(timestamp)) {
+                        rawSample = userDataMap.get(timestamp);
+                    }
 
                     int offset = Math.abs(periodOffset);
                     if (periodOffset >= 0) {
@@ -123,6 +130,9 @@ public class PeriodAlignmentStep implements ProcessStep {
                         if (!cleanDataObject.getIsPeriodAligned()) { //no alignment
                             for (JEVisSample sample : currentRawSamples) {
                                 sample.setNote("alignment(no)");
+                                if (userDataMap.containsKey(sample.getTimestamp())) {
+                                    sample.setNote(sample.getNote() + "," + USER_VALUE);
+                                }
                                 currentInterval.addTmpSample(sample);
                             }
                         } else if (last) { //last sample
@@ -138,6 +148,9 @@ public class PeriodAlignmentStep implements ProcessStep {
                                 note = "alignment(yes,-" + Math.abs(diff) + "s,last)";
                             } else {
                                 note = "alignment(no)";
+                            }
+                            if (userDataMap.containsKey(sample.getTimestamp())) {
+                                note += "," + USER_VALUE;
                             }
                             sample.setNote(note);
                             rawSample.setNote(note);
@@ -160,6 +173,9 @@ public class PeriodAlignmentStep implements ProcessStep {
                             if (note.equals("")) {
                                 note = ("alignment(no)");
                             }
+                            if (userDataMap.containsKey(sample.getTimestamp())) {
+                                note += "," + USER_VALUE;
+                            }
                             for (JEVisSample rawSample : rawSamples) {
                                 rawSample.setNote(note);
                             }
@@ -181,6 +197,9 @@ public class PeriodAlignmentStep implements ProcessStep {
                             }
                             if (note.equals("")) {
                                 note = ("alignment(no)");
+                            }
+                            if (userDataMap.containsKey(sample.getTimestamp())) {
+                                note += "," + USER_VALUE;
                             }
                             sample.setNote(note);
                             for (JEVisSample rawSample : rawSamples) {

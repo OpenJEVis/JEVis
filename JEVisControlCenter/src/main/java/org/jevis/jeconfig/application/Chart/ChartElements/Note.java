@@ -21,6 +21,7 @@ import static org.jevis.commons.constants.NoteConstants.Forecast.FORECAST_2;
 import static org.jevis.commons.constants.NoteConstants.Gap.GAP;
 import static org.jevis.commons.constants.NoteConstants.Limits.*;
 import static org.jevis.commons.constants.NoteConstants.User.USER_NOTES;
+import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 
 public class Note {
 
@@ -143,6 +144,18 @@ public class Note {
                 try {
                     if (noOfNotes > 0) sb.append(", ");
                     sb.append("N");
+                    noOfNotes++;
+
+                    changed = true;
+
+                } catch (Exception e) {
+                }
+            }
+
+            if (note.contains(USER_VALUE)) {
+                try {
+                    if (noOfNotes > 0) sb.append(", ");
+                    sb.append("U");
                     noOfNotes++;
 
                     changed = true;

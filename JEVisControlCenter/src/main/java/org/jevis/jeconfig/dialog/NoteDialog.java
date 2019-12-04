@@ -8,11 +8,12 @@ import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
-import org.jevis.api.JEVisException;
+import org.apache.commons.validator.routines.DoubleValidator;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
@@ -49,7 +50,7 @@ public class NoteDialog extends Dialog<ButtonType> {
         AlphanumComparator ac = new AlphanumComparator();
         observableList.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
 
-        TableColumn<RowNote, String> columnName = new TableColumn(I18n.getInstance().getString("graph.dialog.column.name"));
+        TableColumn<RowNote, String> columnName = new TableColumn<>(I18n.getInstance().getString("graph.dialog.column.name"));
         columnName.setSortable(false);
         columnName.setCellValueFactory(param -> {
             String name = param.getValue().getName();
@@ -57,26 +58,27 @@ public class NoteDialog extends Dialog<ButtonType> {
         });
 
 
-        TableColumn<RowNote, String> columnTimeStamp = new TableColumn(I18n.getInstance().getString("graph.dialog.column.timestamp"));
+        TableColumn<RowNote, String> columnTimeStamp = new TableColumn<>(I18n.getInstance().getString("graph.dialog.column.timestamp"));
         columnTimeStamp.setSortable(false);
         columnTimeStamp.setCellValueFactory(param -> {
-            DateTime timestamp = null;
+            String s = "";
             try {
-                timestamp = param.getValue().getSample().getTimestamp();
-            } catch (JEVisException e) {
+                DateTime timestamp = param.getValue().getSample().getTimestamp();
+                DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+                s = timestamp.toString(dtf);
+            } catch (Exception e) {
             }
-            DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-            String s = timestamp.toString(dtf);
+
             return new ReadOnlyObjectWrapper<>(s);
         });
 
-        TableColumn<RowNote, String> columnNote = new TableColumn(I18n.getInstance().getString("graph.dialog.column.note"));
+        TableColumn<RowNote, String> columnNote = new TableColumn<>(I18n.getInstance().getString("graph.dialog.column.note"));
         columnNote.setCellValueFactory(param -> {
             String note = param.getValue().getNote();
             return new ReadOnlyObjectWrapper<>(note);
         });
 
-        TableColumn<RowNote, String> columnUserNote = new TableColumn(I18n.getInstance().getString("graph.dialog.column.usernote"));
+        TableColumn<RowNote, String> columnUserNote = new TableColumn<>(I18n.getInstance().getString("graph.dialog.column.usernote"));
         columnUserNote.setSortable(false);
         columnUserNote.setEditable(true);
         columnUserNote.setMinWidth(310d);
@@ -143,8 +145,67 @@ public class NoteDialog extends Dialog<ButtonType> {
             }
         });
 
-        TableView tv = new TableView(observableList);
-        tv.getColumns().addAll(columnName, columnTimeStamp, columnNote, columnUserNote);
+        TableColumn<RowNote, String> columnUserData = new TableColumn<>(I18n.getInstance().getString("graph.dialog.column.uservalue"));
+        columnUserData.setSortable(false);
+        columnUserData.setEditable(true);
+        columnUserData.setMinWidth(310d);
+        columnUserData.setCellValueFactory(param -> {
+            String userValue = param.getValue().getUserValue();
+            return new ReadOnlyObjectWrapper<>(userValue);
+        });
+
+        columnUserData.setCellFactory(new Callback<TableColumn<RowNote, String>, TableCell<RowNote, String>>() {
+            @Override
+            public TableCell<RowNote, String> call(TableColumn<RowNote, String> param) {
+
+                return new TableCell<RowNote, String>() {
+
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            RowNote rowNote = (RowNote) getTableRow().getItem();
+
+                            TextField textArea = new TextField();
+                            if (!rowNote.getUserValue().equals("")) {
+                                double userValue = Double.parseDouble(rowNote.getUserValue()) * rowNote.getScaleFactor();
+                                textArea.setText(String.valueOf(userValue));
+                            }
+
+                            textArea.setAlignment(Pos.CENTER);
+
+                            textArea.textProperty().addListener((observable, oldValue, newValue) -> {
+                                if (!newValue.equals(oldValue)) {
+                                    if (!newValue.equals("")) {
+                                        DoubleValidator validator = DoubleValidator.getInstance();
+                                        try {
+                                            double parsedValue = validator.validate(newValue, I18n.getInstance().getLocale());
+                                            rowNote.setChanged(true);
+                                            rowNote.setUserValue(String.valueOf(parsedValue * (1 / rowNote.getScaleFactor())));
+                                        } catch (Exception e) {
+                                            textArea.setText(oldValue);
+                                        }
+                                    } else {
+                                        rowNote.setChanged(true);
+                                        rowNote.setUserValue("");
+                                    }
+                                }
+                            });
+
+                            setGraphic(textArea);
+                        }
+                    }
+                };
+            }
+        });
+
+        TableView<RowNote> tv = new TableView<>();
+        tv.getColumns().setAll(columnName, columnTimeStamp, columnNote, columnUserNote, columnUserData);
+        tv.setItems(observableList);
 
         hbox.getChildren().add(tv);
         HBox.setHgrow(tv, Priority.ALWAYS);

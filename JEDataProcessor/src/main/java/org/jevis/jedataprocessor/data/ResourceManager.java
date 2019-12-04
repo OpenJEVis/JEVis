@@ -33,6 +33,7 @@ public class ResourceManager {
     private ForecastDataObject forecastDataObject;
     private List<JEVisSample> rawSamplesDown;
     private Map<DateTime, JEVisSample> notesMap;
+    private Map<DateTime, JEVisSample> userDataMap;
     private List<JEVisSample> sampleCache = new ArrayList<>();
     private List<CleanInterval> rawIntervals = new ArrayList<>();
 
@@ -74,6 +75,14 @@ public class ResourceManager {
 
     public void setNotesMap(Map<DateTime, JEVisSample> notesMap) {
         this.notesMap = notesMap;
+    }
+
+    public Map<DateTime, JEVisSample> getUserDataMap() {
+        return userDataMap;
+    }
+
+    public void setUserDataMap(Map<DateTime, JEVisSample> userDataMap) {
+        this.userDataMap = userDataMap;
     }
 
     public List<JEVisSample> getSampleCache() {

@@ -120,8 +120,8 @@ public class ChartDataModel {
                                 if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
                                     SampleGenerator sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
 
-                                    samples = sg.generateSamples();
-                                    samples = sg.getAggregatedSamples(samples);
+//                                    samples = sg.generateSamples();
+                                    samples = sg.getAggregatedSamples();
 
                                     if (!isStringData) {
                                         samples = factorizeSamples(samples);
@@ -199,8 +199,7 @@ public class ChartDataModel {
                                     selectedStart, selectedEnd,
                                     manipulationMode, aggregationPeriod);
 
-                            samples = sg.generateSamples();
-                            samples = sg.getAggregatedSamples(samples);
+                            samples = sg.getAggregatedSamples();
 
                             if (!isStringData) {
                                 samples = factorizeSamples(samples);

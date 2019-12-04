@@ -21,19 +21,19 @@ package org.jevis.commons.dataprocessing.function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.*;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.Process;
+import org.jevis.commons.dataprocessing.*;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class InputFunction implements ProcessFunction {
@@ -65,7 +65,7 @@ public class InputFunction implements ProcessFunction {
 
             JEVisObject object = null;
             if (ProcessOptions.ContainsOption(task, OBJECT_ID)) {
-                long oid = Long.valueOf((ProcessOptions.GetLatestOption(task, OBJECT_ID, new BasicProcessOption(OBJECT_ID, "")).getValue()));
+                long oid = Long.parseLong((ProcessOptions.GetLatestOption(task, OBJECT_ID, new BasicProcessOption(OBJECT_ID, "")).getValue()));
                 try {
                     object = task.getJEVisDataSource().getObject(oid);
                 } catch (JEVisException ex) {
@@ -88,10 +88,46 @@ public class InputFunction implements ProcessFunction {
 
                     JEVisAttribute att = object.getAttribute(ProcessOptions.GetLatestOption(task, ATTRIBUTE_ID, new BasicProcessOption(ATTRIBUTE_ID, "")).getValue());
 
+                    JEVisObject correspondingUserDataObject = null;
+                    boolean foundUserDataObject = false;
+                    final JEVisClass userDataClass = object.getDataSource().getJEVisClass("User Data");
+                    for (JEVisObject parent : object.getParents()) {
+                        for (JEVisObject child : parent.getChildren()) {
+                            if (child.getJEVisClass().equals(userDataClass)) {
+                                correspondingUserDataObject = child;
+                                foundUserDataObject = true;
+                                break;
+                            }
+                        }
+                    }
+
                     DateTime[] startEnd = ProcessOptions.getStartAndEnd(task);
                     logger.info("start: " + startEnd[0] + " end: " + startEnd[1]);
 
-                    _result = att.getSamples(startEnd[0], startEnd[1]);
+                    if (foundUserDataObject) {
+                        SortedMap<DateTime, JEVisSample> map = new TreeMap<>();
+                        for (JEVisSample jeVisSample : att.getSamples(startEnd[0], startEnd[1])) {
+                            map.put(jeVisSample.getTimestamp(), jeVisSample);
+                        }
+
+                        JEVisAttribute userDataValueAttribute = correspondingUserDataObject.getAttribute("Value");
+                        List<JEVisSample> userValues = userDataValueAttribute.getSamples(startEnd[0], startEnd[1]);
+
+                        for (JEVisSample userValue : userValues) {
+                            String note = map.get(userValue.getTimestamp()).getNote();
+                            VirtualSample virtualSample = new VirtualSample(userValue.getTimestamp(), userValue.getValueAsDouble());
+                            virtualSample.setNote(note + "," + USER_VALUE);
+                            virtualSample.setAttribute(map.get(userValue.getTimestamp()).getAttribute());
+
+                            map.remove(userValue.getTimestamp());
+                            map.put(virtualSample.getTimestamp(), virtualSample);
+                        }
+
+                        _result = new ArrayList<>(map.values());
+                    } else {
+                        _result = att.getSamples(startEnd[0], startEnd[1]);
+                    }
+
                     logger.info("Input result: " + _result.size());
                 } catch (JEVisException ex) {
                     logger.fatal(ex);

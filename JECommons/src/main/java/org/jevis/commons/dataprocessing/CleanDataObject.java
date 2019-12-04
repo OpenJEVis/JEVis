@@ -461,6 +461,25 @@ public class CleanDataObject {
         return notesMap;
     }
 
+    public Map<DateTime, JEVisSample> getUserDataMap() {
+        Map<DateTime, JEVisSample> userDataMap = new HashMap<>();
+        try {
+            final JEVisClass userDataClass = rawDataObject.getDataSource().getJEVisClass("User Data");
+            for (JEVisObject obj : cleanObject.getParents().get(0).getChildren(userDataClass, true)) {
+                if (obj.getName().contains(cleanObject.getName())) {
+                    JEVisAttribute userDataValueAttribute = obj.getAttribute("Value");
+                    if (userDataValueAttribute.hasSample()) {
+                        for (JEVisSample smp : userDataValueAttribute.getAllSamples()) {
+                            userDataMap.put(smp.getTimestamp(), smp);
+                        }
+                    }
+                }
+            }
+        } catch (JEVisException e) {
+        }
+        return userDataMap;
+    }
+
     public List<JEVisSample> getMultiplier() {
         if (multiplier == null) {
             multiplier = sampleHandler.getAllSamples(getCleanObject(), MULTIPLIER.getAttributeName());

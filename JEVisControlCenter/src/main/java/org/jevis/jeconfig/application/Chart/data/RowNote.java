@@ -15,17 +15,20 @@ import java.util.List;
 
 public class RowNote {
     private final JEVisObject dataObject;
+    private final Double scaleFactor;
     private SimpleStringProperty name;
     private SimpleStringProperty note;
     private SimpleStringProperty userNote;
+    private SimpleStringProperty userValue;
     private Boolean changed = false;
     private JEVisSample sample;
 
-    public RowNote(JEVisObject dataObject, JEVisSample sample, String name, String userNote) {
+    public RowNote(JEVisObject dataObject, JEVisSample sample, String name, String userNote, String userValue, Double scaleFactor) {
         this.name = new SimpleStringProperty(name);
-
         this.userNote = new SimpleStringProperty(userNote);
+        this.userValue = new SimpleStringProperty(userValue);
         this.dataObject = dataObject;
+        this.scaleFactor = scaleFactor;
         this.sample = sample;
 
         StringBuilder formattedNote = new StringBuilder();
@@ -332,5 +335,21 @@ public class RowNote {
 
     public void setSample(JEVisSample sample) {
         this.sample = sample;
+    }
+
+    public String getUserValue() {
+        return userValue.get();
+    }
+
+    public void setUserValue(String userValue) {
+        this.userValue.set(userValue);
+    }
+
+    public SimpleStringProperty userValueProperty() {
+        return userValue;
+    }
+
+    public Double getScaleFactor() {
+        return scaleFactor;
     }
 }
