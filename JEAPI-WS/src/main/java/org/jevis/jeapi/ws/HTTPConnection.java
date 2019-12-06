@@ -39,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Helper class to build HTTP connections to the JEWebservice.
@@ -129,7 +130,7 @@ public class HTTPConnection {
     }
 
     public InputStream getInputStreamRequest(String resource) throws IOException {
-        Date start = new Date();
+//        Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
 //        logger.trace("after replcae: {}", resource);
@@ -150,8 +151,11 @@ public class HTTPConnection {
         int responseCode = conn.getResponseCode();
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
-
-            return conn.getInputStream();
+            if ("gzip".equals(conn.getContentEncoding())) {
+                return new GZIPInputStream(conn.getInputStream());
+            } else {
+                return conn.getInputStream();
+            }
         } else {
             return null;
         }
