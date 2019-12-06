@@ -103,7 +103,7 @@ public class Main {
         CompressionConfig compressionConfig =
                 server.getListener("grizzly").getCompressionConfig();
         compressionConfig.setCompressionMode(CompressionConfig.CompressionMode.ON); // the mode
-        compressionConfig.setCompressionMinSize(1); // the min amount of bytes to compress
+        compressionConfig.setCompressionMinSize(2048); // the min amount of bytes to compress
         compressionConfig.setCompressableMimeTypes("text/plain", "text/html", "application/json, ");
 
         // register shutdown hook
