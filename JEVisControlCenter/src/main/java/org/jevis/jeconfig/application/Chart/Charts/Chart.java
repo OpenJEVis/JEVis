@@ -307,7 +307,7 @@ public interface Chart {
 
     void setValueForDisplay(DateTime valueForDisplay);
 
-    javafx.scene.chart.Chart getChart();
+    org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart();
 
     Region getRegion();
 
@@ -338,4 +338,6 @@ public interface Chart {
     void checkForY2Axis();
 
     void applyBounds();
+
+    List<ChartDataModel> getChartDataModels();
 }

@@ -26,8 +26,8 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.WritableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Dimension2D;
-import javafx.scene.chart.ValueAxis;
 import javafx.util.Duration;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
 
 import java.util.ArrayList;
 import java.util.List;

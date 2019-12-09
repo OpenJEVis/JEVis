@@ -19,10 +19,10 @@ package org.jevis.jeconfig.application.Chart.Zoom;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
-import javafx.scene.chart.Axis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.layout.Region;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.Axis;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.XYChart;
 
 import static org.jevis.jeconfig.application.Chart.Zoom.JFXUtil.getXShift;
 import static org.jevis.jeconfig.application.Chart.Zoom.JFXUtil.getYShift;

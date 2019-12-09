@@ -5,7 +5,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -22,6 +21,7 @@ import org.jevis.jeconfig.application.Chart.ChartElements.Bubble;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -36,6 +36,7 @@ public class BubbleChart implements Chart {
     private final RegressionType regressionType;
     private final Boolean calcRegression;
     private final Integer polyRegressionDegree;
+    private final List<ChartDataModel> chartDataModels;
     private List<Color> hexColors = new ArrayList<>();
     private List<Integer> noOfBubbles = new ArrayList<>();
     MultiAxisBubbleChart<Number, Number> chart;
@@ -53,6 +54,7 @@ public class BubbleChart implements Chart {
         this.regressionType = regressionType;
         this.calcRegression = calcRegression;
         this.polyRegressionDegree = polyRegressionDegree;
+        this.chartDataModels = chartDataModels;
 
         final NumberAxis xAxis = new NumberAxis();
         final NumberAxis yAxis = new NumberAxis();
@@ -397,6 +399,11 @@ public class BubbleChart implements Chart {
     }
 
     @Override
+    public List<ChartDataModel> getChartDataModels() {
+        return chartDataModels;
+    }
+
+    @Override
     public void showNote(MouseEvent mouseEvent) {
 
     }
@@ -431,7 +438,7 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public javafx.scene.chart.Chart getChart() {
+    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
         return chart;
     }
 

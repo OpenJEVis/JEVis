@@ -14,7 +14,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -30,10 +29,11 @@ import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
@@ -153,7 +153,7 @@ public class ToolBarView {
     private void resetZoom() {
         graphPluginView.getCharts().forEach(chartView -> {
             MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
-            DateValueAxis dateValueAxis = (DateValueAxis) chart.getXAxis();
+            DateAxis dateValueAxis = (DateAxis) chart.getXAxis();
             dateValueAxis.setAutoRanging(true);
             ValueAxis valueAxis1 = (ValueAxis) chart.getY1Axis();
             valueAxis1.setAutoRanging(true);

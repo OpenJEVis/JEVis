@@ -6,7 +6,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -21,6 +20,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
@@ -30,13 +30,14 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeapi.ws.JEVisObjectWS;
-import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisAreaChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
@@ -72,7 +73,7 @@ public class XYChart implements Chart {
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
     NumberAxis y1Axis = new NumberAxis();
     NumberAxis y2Axis = new NumberAxis();
-    DateValueAxis dateAxis = new DateValueAxis();
+    DateAxis dateAxis;
     List<ChartDataModel> chartDataModels;
     MultiAxisChart chart;
     Double minValue = Double.MAX_VALUE;
@@ -92,7 +93,7 @@ public class XYChart implements Chart {
     private DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
     private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
         @Override
-        public void applySetting(javafx.scene.chart.Chart chart) {
+        public void applySetting(org.jevis.jeconfig.application.Chart.Charts.jfx.Chart chart) {
 
         }
     };
@@ -102,6 +103,7 @@ public class XYChart implements Chart {
 
     public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean showL1L2, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
+        this.dateAxis = new DateAxis();
         this.showRawData = showRawData;
         this.showSum = showSum;
         this.showL1L2 = showL1L2;
@@ -299,8 +301,8 @@ public class XYChart implements Chart {
         addSeriesToChart();
 
         if (asDuration) {
+            dateAxis.setFirstTS(timeStampOfFirstSample.get());
             dateAxis.setAsDuration(true);
-            dateAxis.setTimeStampFromFirstSample(timeStampOfFirstSample.get());
         }
 
         generateXAxis(changedBoth);
@@ -458,15 +460,16 @@ public class XYChart implements Chart {
     }
 
     public void generateXAxis(Boolean[] changedBoth) {
-
         dateAxis.setAutoRanging(false);
         dateAxis.setUpperBound((double) chartDataModels.get(0).getSelectedEnd().getMillis());
         dateAxis.setLowerBound((double) chartDataModels.get(0).getSelectedStart().getMillis());
 
+        setTickUnitFromPeriod(dateAxis);
+
         if (!asDuration) dateAxis.setAsDuration(false);
         else {
             dateAxis.setAsDuration(true);
-            dateAxis.setTimeStampFromFirstSample(timeStampOfFirstSample.get());
+            dateAxis.setFirstTS(timeStampOfFirstSample.get());
         }
 
         Period realPeriod = Period.minutes(15);
@@ -488,6 +491,82 @@ public class XYChart implements Chart {
         }
 
         updateXAxisLabel(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
+    }
+
+    public void setTickUnitFromPeriod(DateAxis dateAxis) {
+        double millisMinor = 60000;
+        double millisMajor = 900000;
+        String format = "";
+
+        AggregationPeriod period = chartDataModels.get(0).getAggregationPeriod();
+        AggregationPeriod durationPeriod = AggregationPeriod.NONE;
+        Long millisDuration = timeStampOfLastSample.get().getMillis() - timeStampOfFirstSample.get().getMillis();
+        if (millisDuration > Period.days(1).toStandardDuration().getMillis() * 365.25) {
+            durationPeriod = AggregationPeriod.MONTHLY;
+        } else if (millisDuration > Period.days(1).toStandardDuration().getMillis() * 30.4375) {
+            durationPeriod = AggregationPeriod.WEEKLY;
+        } else if (millisDuration > Period.weeks(1).toStandardDuration().getMillis()) {
+            durationPeriod = AggregationPeriod.DAILY;
+        } else if (millisDuration > Period.days(1).toStandardDuration().getMillis()) {
+            durationPeriod = AggregationPeriod.HOURLY;
+        }
+
+        if (durationPeriod == period) {
+        } else if (durationPeriod == AggregationPeriod.NONE) {
+        } else if (durationPeriod == AggregationPeriod.HOURLY && period == AggregationPeriod.NONE) {
+            period = AggregationPeriod.HOURLY;
+        } else if (durationPeriod == AggregationPeriod.DAILY &&
+                (period == AggregationPeriod.NONE || period == AggregationPeriod.HOURLY)) {
+            period = AggregationPeriod.DAILY;
+        } else if (durationPeriod == AggregationPeriod.WEEKLY &&
+                (period == AggregationPeriod.NONE || period == AggregationPeriod.HOURLY || period == AggregationPeriod.DAILY)) {
+            period = AggregationPeriod.WEEKLY;
+        } else if (durationPeriod == AggregationPeriod.MONTHLY &&
+                (period == AggregationPeriod.NONE || period == AggregationPeriod.HOURLY || period == AggregationPeriod.DAILY || period == AggregationPeriod.WEEKLY)) {
+            period = AggregationPeriod.MONTHLY;
+        }
+
+        switch (period) {
+            case NONE:
+                millisMinor = (double) Period.minutes(1).toStandardDuration().getMillis();
+                millisMajor = (double) Period.minutes(15).toStandardDuration().getMillis();
+                format = "EEE, " + DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
+                break;
+            case HOURLY:
+                millisMinor = (double) Period.minutes(15).toStandardDuration().getMillis();
+                millisMajor = (double) Period.hours(1).toStandardDuration().getMillis();
+                format = "EEE, " + DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
+                break;
+            case DAILY:
+                millisMinor = (double) Period.hours(1).toStandardDuration().getMillis();
+                millisMajor = (double) Period.days(1).toStandardDuration().getMillis();
+                format = "EEE, " + DateTimeFormat.patternForStyle("M-", I18n.getInstance().getLocale());
+                break;
+            case WEEKLY:
+                millisMinor = (double) Period.days(1).toStandardDuration().getMillis();
+                millisMajor = (double) Period.weeks(1).toStandardDuration().getMillis();
+                format = DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
+                break;
+            case MONTHLY:
+                millisMinor = (double) Period.weeks(1).toStandardDuration().getMillis();
+                millisMajor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
+                format = DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
+                break;
+            case QUARTERLY:
+                millisMinor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
+                millisMajor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 4;
+                format = DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
+                break;
+            case YEARLY:
+                millisMinor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
+                millisMajor = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
+                format = DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
+                break;
+        }
+
+        dateAxis.setMinorTickUnit(millisMinor);
+        dateAxis.setTickUnit(millisMajor);
+        dateAxis.setCurrentFormatterProperty(format);
     }
 
     public void updateXAxisLabel(DateTime firstTS, DateTime lastTS) {
@@ -559,12 +638,12 @@ public class XYChart implements Chart {
 
     @Override
     public DateTime getStartDateTime() {
-        return chartDataModels.get(0).getSelectedStart();
+        return timeStampOfFirstSample.get();
     }
 
     @Override
     public DateTime getEndDateTime() {
-        return chartDataModels.get(0).getSelectedEnd();
+        return timeStampOfLastSample.get();
     }
 
     @Override
@@ -752,7 +831,7 @@ public class XYChart implements Chart {
 
             x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
 
-            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
+            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
         }
         if (valueForDisplay != null) {
@@ -893,7 +972,7 @@ public class XYChart implements Chart {
 
             Map<String, RowNote> map = new HashMap<>();
             DateTime valueForDisplay = null;
-            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
+            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
             for (XYChartSerie serie : xyChartSerieList) {
                 try {
@@ -970,7 +1049,7 @@ public class XYChart implements Chart {
     }
 
     @Override
-    public javafx.scene.chart.Chart getChart() {
+    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
         return chart;
     }
 
@@ -1005,6 +1084,11 @@ public class XYChart implements Chart {
     public void applyBounds() {
         dateAxis.setUpperBound((double) chartDataModels.get(0).getSelectedEnd().getMillis());
         dateAxis.setLowerBound((double) chartDataModels.get(0).getSelectedStart().getMillis());
+    }
+
+    @Override
+    public List<ChartDataModel> getChartDataModels() {
+        return chartDataModels;
     }
 
     @Override

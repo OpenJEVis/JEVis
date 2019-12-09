@@ -20,12 +20,12 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.scene.chart.Axis;
-import javafx.scene.chart.ValueAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.input.MouseEvent;
-import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.Axis;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.XYChart;
 
 /**
  * ChartPanManager manages drag gestures on an {@link XYChart} by translating them to panning
@@ -70,7 +70,7 @@ public class ChartPanManager {
             /**
              * TODO what to do with category
              */
-            Axis a = new DateValueAxis();
+            Axis a = new DateAxis();
             xAxis = (ValueAxis<?>) a;
         }
         y1Axis = (ValueAxis<?>) chart.getY1Axis();
