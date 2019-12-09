@@ -36,8 +36,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -63,7 +61,7 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
@@ -74,6 +72,8 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -702,16 +702,16 @@ public class GraphPluginView implements Plugin {
                         logger.error(e);
                     }
                 } else if (cv.getChartType().equals(ChartType.BAR)) {
-                    javafx.scene.chart.BarChart barChart = (javafx.scene.chart.BarChart) cv.getChart().getChart();
+                    org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart barChart = (org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart) cv.getChart().getChart();
                     try {
                         barChart.getData().forEach(numberNumberSeries -> {
-                            javafx.scene.chart.BarChart.Series barChartSeries = (javafx.scene.chart.BarChart.Series) numberNumberSeries;
+                            org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart.Series barChartSeries = (org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart.Series) numberNumberSeries;
                             barChartSeries.getData().forEach(data -> {
-                                final StackPane node = (StackPane) ((javafx.scene.chart.BarChart.Data) data).getNode();
+                                final StackPane node = (StackPane) ((org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart.Data) data).getNode();
                                 NumberFormat nf = NumberFormat.getInstance();
                                 nf.setMinimumFractionDigits(2);
                                 nf.setMaximumFractionDigits(2);
-                                String valueString = nf.format(((javafx.scene.chart.BarChart.Data) data).getXValue());
+                                String valueString = nf.format(((org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart.Data) data).getXValue());
                                 final Text dataText = new Text(valueString + "");
                                 dataText.setPickOnBounds(false);
                                 dataText.setFont(new Font(12));
@@ -1108,7 +1108,7 @@ public class GraphPluginView implements Plugin {
                 notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
                         && !chartView.getChartType().equals(ChartType.BAR)
                         && !chartView.getChartType().equals(ChartType.BUBBLE)
-                        && !chartView.getChartType().equals(ChartType.COLUMN)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateValueAxis) chart.getXAxis()).forEach(xAxis -> {
+                        && !chartView.getChartType().equals(ChartType.COLUMN)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateAxis) chart.getXAxis()).forEach(xAxis -> {
                     xAxis.setAutoRanging(false);
                     xAxis.setLowerBound(xAxisLowerBound);
                     xAxis.setUpperBound(xAxisUpperBound);
@@ -1128,7 +1128,7 @@ public class GraphPluginView implements Plugin {
                 notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
                         && !chartView.getChartType().equals(ChartType.BAR)
                         && !chartView.getChartType().equals(ChartType.BUBBLE)
-                        && !chartView.getChartType().equals(ChartType.COLUMN)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateValueAxis) chart.getXAxis()).forEach(xAxis -> {
+                        && !chartView.getChartType().equals(ChartType.COLUMN)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateAxis) chart.getXAxis()).forEach(xAxis -> {
                     xAxis.setAutoRanging(false);
                     Timeline zoomAnimation = new Timeline();
                     zoomAnimation.stop();
@@ -1153,10 +1153,17 @@ public class GraphPluginView implements Plugin {
     private void setupDoubleClick(ChartView cv, List<ChartView> notActive) {
         cv.getChart().getJfxChartUtil().doubleClickedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                DateTime firstTS = cv.getChart().getStartDateTime();
+                DateTime lastTS = cv.getChart().getEndDateTime();
+
                 notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
                         && !chartView.getChartType().equals(ChartType.BAR)
                         && !chartView.getChartType().equals(ChartType.BUBBLE)
-                        && !chartView.getChartType().equals(ChartType.COLUMN)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateValueAxis) chart.getXAxis()).forEach(xAxis -> xAxis.setAutoRanging(true));
+                        && !chartView.getChartType().equals(ChartType.COLUMN)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (DateAxis) chart.getXAxis()).forEach(xAxis -> {
+//                    xAxis.setAutoRanging(true);
+                    xAxis.setLowerBound(firstTS.getMillis());
+                    xAxis.setUpperBound(lastTS.getMillis());
+                });
                 notActive.stream().filter(chartView -> !chartView.getChartType().equals(ChartType.PIE)
                         && !chartView.getChartType().equals(ChartType.BAR)
                         && !chartView.getChartType().equals(ChartType.BUBBLE)
@@ -1167,9 +1174,6 @@ public class GraphPluginView implements Plugin {
                         && !chartView.getChartType().equals(ChartType.COLUMN)).map(chartView -> (MultiAxisChart) chartView.getChart().getChart()).map(chart -> (ValueAxis) chart.getY2Axis()).forEach(yAxis -> yAxis.setAutoRanging(true));
                 cv.getChart().getJfxChartUtil().doubleClickedProperty().setValue(false);
 
-
-                DateTime firstTS = cv.getChart().getStartDateTime();
-                DateTime lastTS = cv.getChart().getEndDateTime();
                 cv.getChart().updateTableZoom(firstTS.getMillis(), lastTS.getMillis());
                 notActive.forEach(chartView -> chartView.getChart().updateTableZoom(firstTS.getMillis(), lastTS.getMillis()));
                 zoomed = false;

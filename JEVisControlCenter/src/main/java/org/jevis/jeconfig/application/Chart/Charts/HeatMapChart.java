@@ -312,7 +312,7 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public javafx.scene.chart.Chart getChart() {
+    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
         return null;
     }
 
@@ -334,6 +334,11 @@ public class HeatMapChart implements Chart {
     @Override
     public void applyBounds() {
 
+    }
+
+    @Override
+    public List<ChartDataModel> getChartDataModels() {
+        return chartDataModels;
     }
 
     @Override

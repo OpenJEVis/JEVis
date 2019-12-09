@@ -46,7 +46,7 @@ public class PieChart implements Chart {
     private String unit;
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
-    private List<javafx.scene.chart.PieChart.Data> series = new ArrayList<>();
+    private List<org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart.Data> series = new ArrayList<>();
     private PieChartExtended pieChart;
     private List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
@@ -56,7 +56,7 @@ public class PieChart implements Chart {
     private boolean legendMode = false;
     private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
         @Override
-        public void applySetting(javafx.scene.chart.Chart chart) {
+        public void applySetting(org.jevis.jeconfig.application.Chart.Charts.jfx.Chart chart) {
 
         }
     };
@@ -185,7 +185,7 @@ public class PieChart implements Chart {
                     + " " + currentUnitString
                     + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + "%)";
 
-            javafx.scene.chart.PieChart.Data data = new javafx.scene.chart.PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
+            org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart.Data data = new org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
             series.add(data);
             seriesNames.add(name);
         }
@@ -220,7 +220,7 @@ public class PieChart implements Chart {
         caption.setTextFill(Color.DARKORANGE);
         caption.setStyle("-fx-font: 24 arial;");
 
-        for (final javafx.scene.chart.PieChart.Data data : series) {
+        for (final org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart.Data data : series) {
             data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED, //--> is null weil noch nicht da
                     new EventHandler<MouseEvent>() {
                         @Override
@@ -281,6 +281,11 @@ public class PieChart implements Chart {
     @Override
     public void applyBounds() {
 
+    }
+
+    @Override
+    public List<ChartDataModel> getChartDataModels() {
+        return chartDataModels;
     }
 
     @Override
@@ -462,7 +467,7 @@ public class PieChart implements Chart {
     }
 
     @Override
-    public javafx.scene.chart.Chart getChart() {
+    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
         return pieChart;
     }
 
