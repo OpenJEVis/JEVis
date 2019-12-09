@@ -20,7 +20,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.chart.XYChart;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -30,8 +29,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
-import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.XYChart;
 
 /**
  * JFXChartUtil contains chart-related JavaFX utility methods used in the Gillius jfxutils project.
@@ -144,8 +144,8 @@ public class JFXChartUtil {
                     double y = event.getY();
                     if (chartInfo.getXAxisArea().contains(x, y)) {
 //                        chartInfo.getChart().getXAxis().setAutoRanging(true);
-                        ((DateValueAxis) chartInfo.getChart().getXAxis()).setLowerBound(minTs);
-                        ((DateValueAxis) chartInfo.getChart().getXAxis()).setUpperBound(maxTs);
+                        ((DateAxis) chartInfo.getChart().getXAxis()).setLowerBound(minTs);
+                        ((DateAxis) chartInfo.getChart().getXAxis()).setUpperBound(maxTs);
                     } else if (chartInfo.getY1AxisArea().contains(x, y) || chartInfo.getY2AxisArea().contains(x, y)) {
                         if (chartInfo.getChart().getY2Axis() != null) {
                             chartInfo.getChart().getY1Axis().setAutoRanging(true);
@@ -155,8 +155,8 @@ public class JFXChartUtil {
                         }
                     } else {
 //                        chartInfo.getChart().getXAxis().setAutoRanging(true);
-                        ((DateValueAxis) chartInfo.getChart().getXAxis()).setLowerBound(minTs);
-                        ((DateValueAxis) chartInfo.getChart().getXAxis()).setUpperBound(maxTs);
+                        ((DateAxis) chartInfo.getChart().getXAxis()).setLowerBound(minTs);
+                        ((DateAxis) chartInfo.getChart().getXAxis()).setUpperBound(maxTs);
                         chartInfo.getChart().getY1Axis().setAutoRanging(true);
                         if (chartInfo.getChart().getY2Axis() != null) {
                             chartInfo.getChart().getY2Axis().setAutoRanging(true);

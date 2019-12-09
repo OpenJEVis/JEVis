@@ -142,6 +142,7 @@ public class ChartWidget extends Widget {
                 //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
 //            lineChart.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Inset
                 this.borderPane.setBackground(bgColor);
+                this.borderPane.setPadding(new Insets(0, 0, 0, 25));
                 this.lineChart.applyColors();
                 MultiAxisLineChart chart = (MultiAxisLineChart) this.lineChart.getChart();
                 chart.getY2Axis().setVisible(false);
