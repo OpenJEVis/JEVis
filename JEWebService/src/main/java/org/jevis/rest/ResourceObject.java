@@ -218,6 +218,7 @@ public class ResourceObject {
             @DefaultValue("-999") @QueryParam("copy") long copyObject,
             String object) {
         if (object != null && object.length() > 0) {
+            logger.error("postObject: "+object);
             try {
                 this.ds = new SQLDataSource(httpHeaders, request, url);
 
@@ -227,8 +228,8 @@ public class ResourceObject {
                 }
 
                 JsonObject parentObj = this.ds.getObject(json.getParent());
-                if (parentObj != null && this.ds.getUserManager().canCreate(parentObj)) {
-
+                if (parentObj != null && this.ds.getUserManager().canCreate(parentObj,json.getJevisClass())) {
+                    logger.error("can");
 
                     //restful way of moving and object to an other parent while keeping the IDs?
                     if (copyObject > 0) {
@@ -247,10 +248,12 @@ public class ResourceObject {
                     }
 
                 } else {
+                    logger.error("Parent not found");
                     return Response.status(Response.Status.NOT_FOUND).entity("Parent not found").build();
                 }
 
             } catch (AuthenticationException ex) {
+                logger.error("AuthenticationException: "+ex);
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
             } catch (JsonParseException jex) {
                 logger.error("Json parse exception. Error while creating/updating object.", jex);

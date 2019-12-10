@@ -23,7 +23,7 @@ public class RowNote {
     private Boolean changed = false;
     private JEVisSample sample;
 
-    public RowNote(JEVisObject dataObject, JEVisSample sample, String name, String userNote, String userValue, Double scaleFactor) {
+    public RowNote(JEVisObject dataObject, JEVisSample sample,JEVisSample userNoteSample, String name, String userNote, String userValue, Double scaleFactor) {
         this.name = new SimpleStringProperty(name);
         this.userNote = new SimpleStringProperty(userNote);
         this.userValue = new SimpleStringProperty(userValue);
@@ -39,6 +39,12 @@ public class RowNote {
 
         try {
             note = sample.getNote();
+            if(userNoteSample!=null&& !note.contains(NoteConstants.User.USER_NOTES)){
+                if(!userNoteSample.getValueAsString().isEmpty()){
+                    note+=","+NoteConstants.User.USER_NOTES;
+                }
+            }
+
         } catch (JEVisException e) {
 
         }

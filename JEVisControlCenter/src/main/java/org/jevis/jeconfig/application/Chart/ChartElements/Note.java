@@ -13,6 +13,7 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.Layouts;
 
 import static org.jevis.commons.constants.NoteConstants.Calc.CALC_INFINITE;
 import static org.jevis.commons.constants.NoteConstants.Differential.COUNTER_OVERFLOW;
@@ -33,10 +34,15 @@ public class Note {
 //    private static final Image exception = ResourceLoader.getImage("rodentia-icons_process-stop.png");
 //    private static final Image infinity = ResourceLoader.getImage("32423523543543_error_div0.png");
 
-    public Note(JEVisSample sample) throws JEVisException {
+    public Note(JEVisSample sample, JEVisSample noteSample) throws JEVisException {
 //        DateTime timeStamp = sample.getTimestamp();
         String note = sample.getNote();
         ObjectHandler objectHandler = new ObjectHandler(sample.getDataSource());
+
+        if(noteSample!=null && !note.contains(USER_NOTES)){
+            note+=","+USER_NOTES;
+        }
+
 
         if (note != null) {
 
@@ -147,6 +153,7 @@ public class Note {
                     noOfNotes++;
 
                     changed = true;
+                    toolTipString+=noteSample.getValueAsString();
 
                 } catch (Exception e) {
                 }
@@ -165,27 +172,33 @@ public class Note {
             }
 
             if (changed) {
-                Pane hbox = new Pane() {
-                    @Override
-                    protected void setWidth(double value) {
-                        //
-                    }
-
-                    @Override
-                    protected void setHeight(double value) {
-                        //
-                    }
-                };
-////                HBox hbox = new HBox();
-//                hbox.setPadding(new Insets(2, 2, 2, 2));
-//                this.node = hbox;
+//                Pane hbox = new Pane() {
+//                    @Override
+//                    protected void setWidth(double value) {
+//                        //
+//                    }
+//
+//                    @Override
+//                    protected void setHeight(double value) {
+//                        //
+//                    }
+//                };
                 this.noteString = sb.toString();
                 Label label = new Label(sb.toString());
-                label.setBorder(new Border(new BorderStroke(Color.RED,
-                        BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(1))));
+
+                //label.setBorder(new Border(new BorderStroke(Color.LIGHTBLUE,
+                //        BorderStrokeStyle.DASHED, CornerRadii.EMPTY, new BorderWidths(1))));
 
                 label.setStyle("-fx-background-color: #ffffff;");
+                //label.setStyle("-fx-background-color: transparent;");
+                //Pane hbox = new Pane();
+                AnchorPane hbox = new AnchorPane(){
+
+                };
+                hbox.setStyle("-fx-background-color: transparent;");
+
                 hbox.getChildren().add(label);
+                Layouts.setAnchor(label,1);
                 this.node = hbox;
                 if (!toolTipString.equals("")) {
                     Tooltip tooltip = new Tooltip(toolTipString);

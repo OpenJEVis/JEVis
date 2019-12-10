@@ -288,7 +288,9 @@ public class XYChartSerie {
     }
 
     public Node generateNode(JEVisSample sample) throws JEVisException {
-        Note note = new Note(sample);
+
+
+        Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()));
 
         if (note.getNote() != null && hideShowIcons) {
             if (sample.getNote().contains("Zeros")) {

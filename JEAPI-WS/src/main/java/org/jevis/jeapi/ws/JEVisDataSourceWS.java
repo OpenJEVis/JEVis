@@ -817,7 +817,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public List<JEVisSample> getSamples(JEVisAttribute att, DateTime from, DateTime until) {
-
         logger.debug("Get  getSamples: {} {}-{}", att.getName(), from, until);
         //TODO: throw exception?! so the other function can handel it?
 

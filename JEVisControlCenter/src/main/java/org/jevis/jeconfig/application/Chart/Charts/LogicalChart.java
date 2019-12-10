@@ -132,7 +132,7 @@ public class LogicalChart extends XYChart {
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
                     Double valueAsDouble = sample.getValueAsDouble();
-                    Note formattedNote = new Note(sample);
+                    Note formattedNote = new Note(sample,serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
                     String formattedDouble = nf.format(valueAsDouble);
 
                     if (!asDuration) {
