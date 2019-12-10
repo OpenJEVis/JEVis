@@ -30,8 +30,6 @@ import com.sun.javafx.css.converters.EnumConverter;
 import com.sun.javafx.css.converters.PaintConverter;
 import com.sun.javafx.css.converters.SizeConverter;
 import de.jollyday.Holiday;
-import de.jollyday.HolidayManager;
-import de.jollyday.ManagerParameters;
 import javafx.animation.FadeTransition;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.ObjectExpression;
@@ -54,6 +52,7 @@ import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
+import org.jevis.jeconfig.application.tools.Holidays;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -108,7 +107,7 @@ public abstract class Axis<T> extends Region {
 
     // -------------- PUBLIC PROPERTIES --------------------------------------------------------------------------------
     boolean tickLabelsVisibleInvalid = false;
-    HolidayManager holidayManager = HolidayManager.getInstance(ManagerParameters.create(I18n.getInstance().getLocale()));
+
     private Orientation effectiveOrientation;
     private double effectiveTickLabelRotation = Double.NaN;
     private Label axisLabel = new Label();
@@ -843,9 +842,20 @@ public abstract class Axis<T> extends Region {
                     if (tick.getValue() instanceof Long) {
                         DateTime dateTime = new DateTime(tick.getValue());
                         String toolTipString = "";
-                        if (holidayManager.isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()))) {
+                        if (Holidays.getDefaultHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()))
+                                || (Holidays.getSiteHolidayManager() != null && Holidays.getSiteHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()), Holidays.getStateCode()))
+                                || (Holidays.getCustomHolidayManager() != null && Holidays.getCustomHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale())))) {
                             LocalDate localDate = LocalDate.of(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth());
-                            Set<Holiday> holidays = holidayManager.getHolidays(localDate, localDate, "");
+
+                            Set<Holiday> holidays = Holidays.getDefaultHolidayManager().getHolidays(localDate, localDate, "");
+                            if (Holidays.getSiteHolidayManager() != null) {
+                                holidays.addAll(Holidays.getSiteHolidayManager().getHolidays(localDate, localDate, Holidays.getStateCode()));
+                            }
+
+                            if (Holidays.getCustomHolidayManager() != null) {
+                                holidays.addAll(Holidays.getCustomHolidayManager().getHolidays(localDate, localDate, Holidays.getStateCode()));
+                            }
+
                             for (Holiday holiday : holidays) {
                                 toolTipString = holiday.getDescription(I18n.getInstance().getLocale());
                             }
@@ -858,7 +868,7 @@ public abstract class Axis<T> extends Region {
                                     toolTipString += ", " + dateTime.toString("dddd");
                                 }
                             }
-                            tick.textNode.setFill(Color.RED);
+                            tick.textNode.setFill(Color.BLACK);
                             if (!toolTipString.equals("")) {
                                 Tooltip tooltip = new Tooltip(toolTipString);
                                 Tooltip.install(tick.textNode, tooltip);
@@ -866,8 +876,9 @@ public abstract class Axis<T> extends Region {
                         }
                     }
                 } catch (Exception e) {
-
+                    e.printStackTrace();
                 }
+
                 tick.setTextVisible(isTickLabelsVisible());
                 if (shouldAnimate()) tick.textNode.setOpacity(0);
                 getChildren().add(tick.textNode);

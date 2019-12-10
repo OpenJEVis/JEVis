@@ -545,22 +545,22 @@ public class XYChart implements Chart {
             case WEEKLY:
                 millisMinor = (double) Period.days(1).toStandardDuration().getMillis();
                 millisMajor = (double) Period.weeks(1).toStandardDuration().getMillis();
-                format = DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
+                format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
                 break;
             case MONTHLY:
                 millisMinor = (double) Period.weeks(1).toStandardDuration().getMillis();
                 millisMajor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
-                format = DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
+                format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
                 break;
             case QUARTERLY:
                 millisMinor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
                 millisMajor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 4;
-                format = DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
+                format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
                 break;
             case YEARLY:
                 millisMinor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
                 millisMajor = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
-                format = DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
+                format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
                 break;
         }
 

@@ -267,6 +267,8 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                         editor = new LimitEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.ALARM_CONFIG.getId())) {
                                         editor = new AlarmEditor(att);
+                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.CALENDAR.getId())) {
+                                        editor = new CalendarEditor(att);
                                     } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.WEB_VIEW.getId())) {
                                         editor = new WebViewEditor(att);
                                         webview = editor;
