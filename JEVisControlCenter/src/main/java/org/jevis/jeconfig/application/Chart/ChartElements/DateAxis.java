@@ -44,6 +44,7 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
 import java.util.ArrayList;
@@ -346,6 +347,8 @@ public class DateAxis extends ValueAxis<Long> {
         final Double lowerBound = (Double) rangeProps[0];
         final Double upperBound = (Double) rangeProps[1];
         final Double tickUnit = (Double) rangeProps[2];
+        final Double minorTickUnit = getMinorTickUnit();
+
         List<Long> tickValues = new ArrayList<>();
         if (lowerBound.equals(upperBound)) {
             tickValues.add(lowerBound.longValue());
@@ -358,7 +361,7 @@ public class DateAxis extends ValueAxis<Long> {
                 // This is a ridiculous amount of major tick marks, something has probably gone wrong
                 System.err.println("Warning we tried to create more than 2000 major tick marks on a DateAxis. " +
                         "Lower Bound=" + lowerBound + ", Upper Bound=" + upperBound + ", Tick Unit=" + tickUnit);
-            } else {
+            } else if (upperBound - lowerBound < Period.days(1).toStandardDuration().getMillis() * 30.4375) {
                 if (lowerBound + tickUnit < upperBound) {
                     // If tickUnit is integer, start with the nearest integer
                     Double major = Math.rint(tickUnit) == tickUnit ? Math.ceil(lowerBound) : lowerBound + tickUnit;
@@ -369,7 +372,17 @@ public class DateAxis extends ValueAxis<Long> {
                         }
                     }
                 }
+            } else {
+                long startMillis = lowerBound.longValue();
+                int count = (int) Math.ceil((upperBound - startMillis) / minorTickUnit);
+                for (int i = 0; startMillis < upperBound && i < count; startMillis += minorTickUnit.longValue(), i++) {
+                    DateTime currentDate = new DateTime(startMillis).withTime(0, 0, 0, 0);
+                    if (!tickValues.contains(currentDate.getMillis()) && currentDate.getDayOfWeek() == 1 && currentDate.getHourOfDay() == 0 && currentDate.getMinuteOfHour() == 0) {
+                        tickValues.add(currentDate.getMillis());
+                    }
+                }
             }
+
             tickValues.add(upperBound.longValue());
         }
         return tickValues;
@@ -382,7 +395,7 @@ public class DateAxis extends ValueAxis<Long> {
      */
     protected List<Long> calculateMinorTickMarks() {
         final List<Long> minorTickMarks = new ArrayList<>();
-        final double lowerBound = getLowerBound();
+        final Double lowerBound = getLowerBound();
         final double upperBound = getUpperBound();
         final double tickUnit = getTickUnit();
         final double minorUnit = getMinorTickUnit();
@@ -393,24 +406,35 @@ public class DateAxis extends ValueAxis<Long> {
                         "Lower Bound=" + getLowerBound() + ", Upper Bound=" + getUpperBound() + ", Tick Unit=" + tickUnit);
                 return minorTickMarks;
             }
-            final boolean tickUnitIsInteger = Math.rint(tickUnit) == tickUnit;
-            if (tickUnitIsInteger) {
-                Double minor = Math.floor(lowerBound) + minorUnit;
-                int count = (int) Math.ceil((Math.ceil(lowerBound) - minor) / minorUnit);
-                for (int i = 0; minor < Math.ceil(lowerBound) && i < count; minor += minorUnit, i++) {
-                    if (minor > lowerBound) {
+            if (upperBound - lowerBound < Period.days(1).toStandardDuration().getMillis() * 30.4375) {
+                final boolean tickUnitIsInteger = Math.rint(tickUnit) == tickUnit;
+                if (tickUnitIsInteger) {
+                    Double minor = Math.floor(lowerBound) + minorUnit;
+                    int count = (int) Math.ceil((Math.ceil(lowerBound) - minor) / minorUnit);
+                    for (int i = 0; minor < Math.ceil(lowerBound) && i < count; minor += minorUnit, i++) {
+                        if (minor > lowerBound) {
+                            minorTickMarks.add(minor.longValue());
+                        }
+                    }
+                }
+                double major = tickUnitIsInteger ? Math.ceil(lowerBound) : lowerBound;
+                int count = (int) Math.ceil((upperBound - major) / tickUnit);
+                for (int i = 0; major < upperBound && i < count; major += tickUnit, i++) {
+                    final double next = Math.min(major + tickUnit, upperBound);
+                    Double minor = major + minorUnit;
+                    int minorCount = (int) Math.ceil((next - minor) / minorUnit);
+                    for (int j = 0; minor < next && j < minorCount; minor += minorUnit, j++) {
                         minorTickMarks.add(minor.longValue());
                     }
                 }
-            }
-            double major = tickUnitIsInteger ? Math.ceil(lowerBound) : lowerBound;
-            int count = (int) Math.ceil((upperBound - major) / tickUnit);
-            for (int i = 0; major < upperBound && i < count; major += tickUnit, i++) {
-                final double next = Math.min(major + tickUnit, upperBound);
-                Double minor = major + minorUnit;
-                int minorCount = (int) Math.ceil((next - minor) / minorUnit);
-                for (int j = 0; minor < next && j < minorCount; minor += minorUnit, j++) {
-                    minorTickMarks.add(minor.longValue());
+            } else {
+                long startMillis = lowerBound.longValue();
+                int count = (int) Math.ceil((upperBound - startMillis) / minorUnit);
+                for (int i = 0; startMillis < upperBound && i < count; startMillis += minorUnit, i++) {
+                    DateTime currentDate = new DateTime(startMillis).withTime(0, 0, 0, 0);
+                    if (!minorTickMarks.contains(currentDate.getMillis()) && currentDate.getHourOfDay() == 0 && currentDate.getMinuteOfHour() == 0) {
+                        minorTickMarks.add(currentDate.getMillis());
+                    }
                 }
             }
         }

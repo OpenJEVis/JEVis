@@ -102,6 +102,24 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building"
+    },
+    {
+      "name": "Holidays",
+      "primitiveType": 0,
+      "guiType": "Calendar",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building"
+    },
+    {
+      "name": "Custom Holidays",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building"
     }
   ]
 }

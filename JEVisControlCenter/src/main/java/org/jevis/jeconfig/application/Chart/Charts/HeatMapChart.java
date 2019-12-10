@@ -1,8 +1,6 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
 import de.jollyday.Holiday;
-import de.jollyday.HolidayManager;
-import de.jollyday.ManagerParameters;
 import eu.hansolo.fx.charts.ChartType;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
@@ -27,9 +25,11 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.tools.Holidays;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -144,26 +144,42 @@ public class HeatMapChart implements Chart {
         GridPane rightAxis = new GridPane();
         rightAxis.setPadding(new Insets(4));
 
-        HolidayManager holidayManager = HolidayManager.getInstance(ManagerParameters.create(I18n.getInstance().getLocale()));
-
         int row = 0;
         for (DateTime dateTime : yAxisList) {
             Label tsLeft = new Label(dateTime.toString(Y_FORMAT));
 
             Label tsRight = new Label(dateTime.toString(Y2_FORMAT));
             String toolTipString = "";
-            if (holidayManager.isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()))) {
+            if (Holidays.getDefaultHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()))
+                    || (Holidays.getSiteHolidayManager() != null && Holidays.getSiteHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()), Holidays.getStateCode()))
+                    || (Holidays.getCustomHolidayManager() != null && Holidays.getCustomHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale())))) {
                 LocalDate localDate = LocalDate.of(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth());
-                Set<Holiday> holidays = holidayManager.getHolidays(localDate, localDate, "");
+
+                Set<Holiday> holidays = Holidays.getDefaultHolidayManager().getHolidays(localDate, localDate, "");
+                if (Holidays.getSiteHolidayManager() != null) {
+                    holidays.addAll(Holidays.getSiteHolidayManager().getHolidays(localDate, localDate, Holidays.getStateCode()));
+                }
+
+                if (Holidays.getCustomHolidayManager() != null) {
+                    holidays.addAll(Holidays.getCustomHolidayManager().getHolidays(localDate, localDate, Holidays.getStateCode()));
+                }
+
                 for (Holiday holiday : holidays) {
                     toolTipString = holiday.getDescription(I18n.getInstance().getLocale());
                 }
             }
             if (dateTime.getDayOfWeek() == 6 || dateTime.getDayOfWeek() == 7 || !toolTipString.equals("")) {
+                if (dateTime.getDayOfWeek() == 6 || dateTime.getDayOfWeek() == 7) {
+                    if (toolTipString.equals("")) {
+                        toolTipString = DateTimeFormat.forPattern("EEEE").print(dateTime);
+                    } else {
+                        toolTipString += ", " + dateTime.toString("dddd");
+                    }
+                }
                 tsRight.setTextFill(Color.RED);
                 if (!toolTipString.equals("")) {
                     Tooltip tooltip = new Tooltip(toolTipString);
-                    tsRight.setTooltip(tooltip);
+                    Tooltip.install(tsRight, tooltip);
                 }
             }
 

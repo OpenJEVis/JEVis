@@ -66,10 +66,6 @@ public abstract class Chart extends Region {
      */
     private final Label titleLabel = new Label();
     /**
-     * Animator for animating stuff on the chart
-     */
-    private final ChartLayoutAnimator animator = new ChartLayoutAnimator(chartContent);
-    /**
      * When true the chart will display a legend if the chart implementation supports a legend.
      */
     private final BooleanProperty legendVisible = new StyleableBooleanProperty(true) {
@@ -148,6 +144,10 @@ public abstract class Chart extends Region {
             return useChartContentMirroring;
         }
     };
+    /**
+     * Animator for animating stuff on the chart
+     */
+    private final ChartLayoutAnimator animator = new ChartLayoutAnimator(chartContent);
     /**
      * The chart title
      */

@@ -110,6 +110,40 @@
         "th": "สิ้นสุดวันทำงาน",
         "en": "Workday End"
       }
+    },
+    {
+      "type": "Holidays",
+      "descriptions": {
+        "de": "Kalender für Ferien- und Feiertage",
+        "ru": "Календарь на праздники и праздники",
+        "uk": "Календар свят та свят",
+        "th": "ปฏิทินสำหรับวันหยุดและวันหยุด",
+        "en": "Calendar for holidays and holidays"
+      },
+      "names": {
+        "de": "Kalender",
+        "ru": "календарь",
+        "uk": "календар",
+        "th": "ปฏิทิน",
+        "en": "Calendar"
+      }
+    },
+    {
+      "type": "Custom Holidays",
+      "descriptions": {
+        "de": "Benutzerdefinierter Kalender für Ferien- und Feiertage",
+        "ru": "Пользовательский календарь для праздников и праздников",
+        "uk": "Спеціальний календар для свят та свят",
+        "th": "ปฏิทินที่กำหนดเองสำหรับวันหยุดและวันหยุด",
+        "en": "Custom calendar for holidays and holidays"
+      },
+      "names": {
+        "de": "Benutzer Kalender",
+        "ru": "Пользовательский календарь",
+        "uk": "Календар, визначений користувачем",
+        "th": "ปฏิทินที่กำหนดโดยผู้ใช้",
+        "en": "Userdefined Calendar"
+      }
     }
   ]
 }
