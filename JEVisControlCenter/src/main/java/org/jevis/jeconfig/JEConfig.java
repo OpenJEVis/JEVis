@@ -47,6 +47,7 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
 import org.jevis.jeconfig.application.login.FXLogin;
 import org.jevis.jeconfig.application.statusbar.Statusbar;
+import org.jevis.jeconfig.application.tools.Holidays;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
@@ -338,6 +339,7 @@ public class JEConfig extends Application {
                     logger.error("done preloading");
 //                    logger.error("-------test\n {}", _mainDS.getObject(9485l).getChildren());
 
+                    Holidays.setDataSource(_mainDS);
                 } catch (Exception ex) {
                     logger.error("Error while preloading datasource", ex);
                     ex.printStackTrace();
