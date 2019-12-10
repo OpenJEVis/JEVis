@@ -17,6 +17,7 @@ public enum GapFillingType {
                     return STATIC;
                 case ("INTERPOLATION"):
                     return INTERPOLATION;
+                case ("DEFAULT VALUE"):
                 case ("DEFAULT_VALUE"):
                     return DEFAULT_VALUE;
                 case ("MINIMUM"):
