@@ -12,6 +12,7 @@ import javafx.css.Styleable;
 import javafx.css.StyleableBooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.shape.*;
+import javafx.scene.transform.Translate;
 import javafx.util.Duration;
 import org.jevis.jeconfig.application.Chart.Charts.jfx.Axis;
 
@@ -228,6 +229,7 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
         if (symbol != null) {
             getPlotChildren().add(symbol);
             symbol.getStyleClass().setAll("chart-series-line", "series" + itemIndex, series.defaultColorStyleClass);
+            symbol.getTransforms().add(new Translate(0, -50));
         }
     }
 
@@ -297,9 +299,9 @@ public class MultiAxisLineChart<X, Y> extends MultiAxisChart<X, Y> {
 
     private Node createSymbol(Series<X, Y> series, int seriesIndex, final Data<X, Y> item, int itemIndex) {
         Node symbol = item.getNode();
-        if (symbol != null)
-            symbol.getStyleClass().addAll("chart-line-symbol", "series" + seriesIndex, "data" + itemIndex,
-                    series.defaultColorStyleClass);
+//        if (symbol != null)
+//            symbol.getStyleClass().addAll("chart-line-symbol", "series" + seriesIndex, "data" + itemIndex,
+//                    series.defaultColorStyleClass);
         return symbol;
     }
 

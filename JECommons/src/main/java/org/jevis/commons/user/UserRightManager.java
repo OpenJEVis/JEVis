@@ -56,17 +56,40 @@ public class UserRightManager {
         return user.isSysAdmin();
     }
 
+    /**
+     * Check for exeptions for the common rules
+     *
+     * @param objectID
+     * @return
+     */
+    private boolean isRuleException(long objectID) {
+        try {
+            if (canRead(objectID)) {
+                if (ds.getObject(objectID).getJEVisClassName().equals("Data Notes")) {
+                    return true;
+                }
+            }
+            return false;
+
+
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     public boolean canRead(long objectID) {
         return checkMembershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_READ);
     }
 
     public boolean canWrite(long objectID) {
+        if (isRuleException(objectID)) return true;
         return checkMembershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_WRITE);
     }
 
     public boolean canCreate(long objectID) {
         return checkMembershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_CREATE);
     }
+
 
     public boolean canExecute(long objectID) {
         return checkMembershipForType(objectID, JEVisConstants.ObjectRelationship.MEMBER_EXECUTE);

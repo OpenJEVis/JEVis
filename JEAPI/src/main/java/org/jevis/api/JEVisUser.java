@@ -31,6 +31,8 @@ public interface JEVisUser {
 
     boolean canCreate(long objectID);
 
+    boolean canCreate(long objectID, String jevisClass);
+
     boolean canExecute(long objectID);
 
     boolean canDelete(long objectID);

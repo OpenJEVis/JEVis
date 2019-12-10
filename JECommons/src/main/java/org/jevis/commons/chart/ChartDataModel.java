@@ -18,6 +18,8 @@ import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,6 +58,8 @@ public class ChartDataModel {
     private double max;
     private double avg;
     private Double sum;
+    private Map<DateTime, JEVisSample> userNoteMap;
+
 
     /**
      * Maximum number of parallel running getSamples(), not the Dashboard need multiple
@@ -98,6 +102,35 @@ public class ChartDataModel {
         this.unit = _unit;
     }
 
+    public Map<DateTime, JEVisSample> getNoteSamples() {
+        if(userNoteMap!=null){
+            return userNoteMap;
+        }
+
+        Map<DateTime, JEVisSample> noteSample = new TreeMap<>();
+        try {
+            JEVisClass noteclass = getObject().getDataSource().getJEVisClass("Data Notes");
+            for (JEVisObject jeVisObject : getObject().getChildren(noteclass, false)) {
+                try {
+                    jeVisObject.getAttribute("User Notes").getSamples(getSelectedStart(), getSelectedEnd()).forEach(jeVisSample -> {
+                        try {
+                            noteSample.put(jeVisSample.getTimestamp(), jeVisSample);
+                        } catch (Exception ex) {
+
+                        }
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        userNoteMap=noteSample;
+        return noteSample;
+    }
+
     public List<JEVisSample> getSamples() {
         if (this.somethingChanged) {
 
@@ -108,6 +141,7 @@ public class ChartDataModel {
                     try {
                         logger.debug("CDM.getSample.thread: {}{}", Thread.currentThread().getId(), Thread.currentThread().getName());
                         List<JEVisSample> samples = new ArrayList<>();
+                        userNoteMap = null;//reset userNote list
                         getAttribute();
 
                         somethingChanged = false;
@@ -155,11 +189,20 @@ public class ChartDataModel {
                                         getObject().getName(), getObject().getID());
                             }
                         }
+
+                        try {
+                            userNoteMap = getNoteSamples();
+                        } catch (Exception ex) {
+                            logger.error(ex);
+                        }
+
                         return samples;
 
                     } catch (Exception ex) {
                         logger.error(ex);
                     }
+
+
 
                     return new ArrayList<JEVisSample>();
                 }

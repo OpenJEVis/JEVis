@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
 import org.apache.commons.validator.routines.DoubleValidator;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
@@ -32,7 +33,6 @@ public class NoteDialog extends Dialog<ButtonType> {
 
     public NoteDialog(Map<String, RowNote> map) {
         this.noteMap = map;
-
         init();
     }
 
@@ -86,6 +86,8 @@ public class NoteDialog extends Dialog<ButtonType> {
             String userNote = param.getValue().getUserNote();
             return new ReadOnlyObjectWrapper<>(userNote);
         });
+
+
 
         columnUserNote.setCellFactory(new Callback<TableColumn<RowNote, String>, TableCell<RowNote, String>>() {
             @Override
@@ -154,6 +156,7 @@ public class NoteDialog extends Dialog<ButtonType> {
             return new ReadOnlyObjectWrapper<>(userValue);
         });
 
+
         columnUserData.setCellFactory(new Callback<TableColumn<RowNote, String>, TableCell<RowNote, String>>() {
             @Override
             public TableCell<RowNote, String> call(TableColumn<RowNote, String> param) {
@@ -195,6 +198,15 @@ public class NoteDialog extends Dialog<ButtonType> {
                                     }
                                 }
                             });
+                            try {
+                                if (rowNote.getDataObject().getDataSource().getCurrentUser().canWrite(rowNote.getDataObject().getID())) {
+                                    textArea.setDisable(false);
+                                }else{
+                                    textArea.setDisable(true);
+                                }
+                            }catch (Exception ex){
+                                textArea.setDisable(true);
+                            }
 
                             setGraphic(textArea);
                         }

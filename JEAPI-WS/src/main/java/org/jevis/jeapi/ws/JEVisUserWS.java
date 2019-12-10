@@ -126,12 +126,31 @@ public class JEVisUserWS implements JEVisUser {
 
     @Override
     public boolean canWrite(long objectID) {
+
+        try {
+            if (ds.getObject(objectID).getJEVisClassName().equals("Data Notes") && canRead(objectID)) {
+                return true;
+            }
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+
         return urm.canWrite(objectID);
     }
 
     @Override
     public boolean canCreate(long objectID) {
         return urm.canCreate(objectID);
+    }
+
+    @Override
+    public boolean canCreate(long objectID, String jevisClass) {
+
+        if(jevisClass.equals("Data Notes") && canRead(objectID)){
+            return true;
+        }
+
+        return false;
     }
 
     @Override

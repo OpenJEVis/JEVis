@@ -296,9 +296,39 @@ public class UserRightManagerForWS {
             }
         }
 
+        if(object.getJevisClass().equals("Data Notes") && canRead(object)){
+            logger.error("Can write because special rule");
+            return true;
+        }
+
         //no permission
         throw new JEVisException("permission denied", 3021);
 
+    }
+
+    public boolean canCreate(JsonObject object, String jevisclass) throws JEVisException {
+        logger.error("canCreate: {} ,'{}'",object,jevisclass);
+        //Sys Admin can read it all
+        if (isSysAdmin()) {
+            return true;
+        }
+
+        //check for group permissions
+        for (JsonRelationship rel : this.ds.getRelationships(object.getId())) {
+            if (rel.getType() == JEVisConstants.ObjectRelationship.OWNER && this.createGIDS.contains(rel.getTo())) {
+                return true;
+            }
+        }
+
+        //Rule exception , to allow all users to create notes if they can see the Data Object
+
+        if(jevisclass.equals("Data Notes") && canRead(object)){
+            logger.error("Can create because special rule");
+            return true;
+        }
+
+        //no permission
+        throw new JEVisException("permission denied", 3021);
     }
 
     public boolean canCreate(JsonObject object) throws JEVisException {

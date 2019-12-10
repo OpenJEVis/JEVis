@@ -339,7 +339,7 @@ public class ColumnChart implements Chart {
                         nf.setMinimumFractionDigits(2);
                         nf.setMaximumFractionDigits(2);
                         Double valueAsDouble = sample.getValueAsDouble();
-                        Note formattedNote = new Note(sample);
+                        Note formattedNote = new Note(sample,serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
                         String formattedDouble = nf.format(valueAsDouble);
 
                         boolean asDuration = false;
@@ -394,11 +394,18 @@ public class ColumnChart implements Chart {
                             dataObject = serie.getSingleRow().getDataProcessor();
                         else dataObject = serie.getSingleRow().getObject();
 
-                        String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
+                        String userNote = "";
+                        JEVisSample noteSample = serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp());
+
+                        if(noteSample!=null){
+                            userNote=noteSample.getValueAsString();
+                        }
+
+                        //String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
                         String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
-                        RowNote rowNote = new RowNote(dataObject, nearestSample, title, userNote, userValue, serie.getSingleRow().getScaleFactor());
+                        RowNote rowNote = new RowNote(dataObject, nearestSample,serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getSingleRow().getScaleFactor());
 
                         map.put(title, rowNote);
                     }

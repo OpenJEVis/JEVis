@@ -856,8 +856,7 @@ public class XYChart implements Chart {
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
 
-
-                    Note formattedNote = new Note(sample);
+                    Note formattedNote = new Note(sample,serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
 
                     if (!asDuration) {
                         DateTime finalNearest = nearest;
@@ -992,10 +991,11 @@ public class XYChart implements Chart {
                         else dataObject = serie.getSingleRow().getObject();
 
                         String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
-
                         String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
-                        RowNote rowNote = new RowNote(dataObject, nearestSample, title, userNote, userValue, serie.getSingleRow().getScaleFactor());
+                        System.out.println("NoteEditor.nearestSample: "+nearestSample);
+                        System.out.println("NoteEditor.noteSample   :"+serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()));
+                        RowNote rowNote = new RowNote(dataObject, nearestSample,serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getSingleRow().getScaleFactor());
 
                         map.put(title, rowNote);
                     }

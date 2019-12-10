@@ -257,13 +257,6 @@ public class HTTPConnection {
         logger.debug("HTTP POST request {}", con.getURL());
         con.connect();
 
-//        Reader reader = null;
-//        if ("gzip".equals(con.getContentEncoding())) {
-//            OutputStream os = (new GZIPInputStream(con.getInputStream()).
-//            reader = new InputStreamReader(new GZIPInputStream(con.getInputStream()));
-//        } else {
-//            reader = new InputStreamReader(con.getInputStream());
-//        }
         DataOutputStream wr = new DataOutputStream(con.getOutputStream());
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(wr, StandardCharsets.UTF_8));
         writer.write(json);
@@ -276,8 +269,17 @@ public class HTTPConnection {
 //        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
 //        logger.trace("resonseCode {}", responseCode);
         if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
+
+            InputStreamReader streamReader = null;
+            if ("gzip".equals(con.getContentEncoding())) {
+                streamReader = new InputStreamReader(new GZIPInputStream(con.getInputStream()), StandardCharsets.UTF_8);
+            } else {
+                streamReader = new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8);
+            }
+
+            BufferedReader in = new BufferedReader(streamReader);
+           // BufferedReader in = new BufferedReader(
+           //         new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
             String inputLine;
             StringBuffer response = new StringBuffer();
 
@@ -293,6 +295,7 @@ public class HTTPConnection {
             logger.trace("HTTP request closed after: " + ((new Date()).getTime() - start.getTime()) + " msec");
             return response;
         } else {
+            logger.error("Error getResponseCode: {} for '{}'",responseCode ,resource);
             throw new JEVisException("[" + responseCode + "] ", responseCode);
 
 //            return null;

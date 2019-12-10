@@ -117,182 +117,187 @@ public interface Chart {
             if (entry.getValue().getChanged()) {
                 try {
                     JEVisObject obj = entry.getValue().getDataObject();
-                    if (obj.getDataSource().getCurrentUser().canWrite(obj.getID())) {
+                    JEVisUser currentUser = obj.getDataSource().getCurrentUser();
+                    //if (obj.getDataSource().getCurrentUser().canWrite(obj.getID())) {
 
-                        JEVisSample sample = entry.getValue().getSample();
-                        DateTime timeStamp = sample.getTimestamp();
-                        String newUserNote = entry.getValue().getUserNote();
-                        String newUserValue = entry.getValue().getUserValue();
-                        List<JEVisObject> listParents = obj.getParents();
+                    JEVisSample sample = entry.getValue().getSample();
+                    DateTime timeStamp = sample.getTimestamp();
+                    String newUserNote = entry.getValue().getUserNote();
+                    String newUserValue = entry.getValue().getUserValue();
+                    List<JEVisObject> listParents = obj.getParents();
 
-                        JEVisObject correspondingNoteObject = null;
-                        final JEVisClass dataNoteClass = obj.getDataSource().getJEVisClass("Data Notes");
-                        boolean foundNoteObject = false;
+                    JEVisObject correspondingNoteObject = null;
+                    final JEVisClass dataNoteClass = obj.getDataSource().getJEVisClass("Data Notes");
+                    boolean foundNoteObject = false;
+                    for (JEVisObject parent : listParents) {
+                        for (JEVisObject child : parent.getChildren()) {
+                            if (child.getJEVisClass().equals(dataNoteClass)) {
+                                correspondingNoteObject = child;
+                                foundNoteObject = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!foundNoteObject) {
                         for (JEVisObject parent : listParents) {
-                            for (JEVisObject child : parent.getChildren()) {
-                                if (child.getJEVisClass().equals(dataNoteClass)) {
-                                    correspondingNoteObject = child;
-                                    foundNoteObject = true;
-                                    break;
-                                }
-                            }
+                            correspondingNoteObject = parent.buildObject(obj.getName() + " Notes", dataNoteClass);
+                            correspondingNoteObject.commit();
                         }
+                    }
 
-                        if (!foundNoteObject) {
-                            for (JEVisObject parent : listParents) {
-                                correspondingNoteObject = parent.buildObject(obj.getName() + " Notes", dataNoteClass);
-                                correspondingNoteObject.commit();
-                            }
-                        }
+                    if (correspondingNoteObject != null) {
+                        try {
+                            JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
 
-                        if (correspondingNoteObject != null) {
-                            try {
-                                JEVisAttribute userNoteAttribute = correspondingNoteObject.getAttribute("User Notes");
+                            List<JEVisSample> listSamples;
+                            if (userNoteAttribute.hasSample()) {
+                                listSamples = userNoteAttribute.getSamples(timeStamp, timeStamp);
 
-                                List<JEVisSample> listSamples;
-                                if (userNoteAttribute.hasSample()) {
-                                    listSamples = userNoteAttribute.getSamples(timeStamp, timeStamp);
-
-                                    if (!newUserNote.equals("") && listSamples.size() == 1) {
-                                        listSamples.get(0).setValue(newUserNote);
-                                        listSamples.get(0).commit();
-                                    } else if (!newUserNote.equals("")) {
-                                        JEVisSample newSample = userNoteAttribute.buildSample(timeStamp.toDateTimeISO(), newUserNote);
-                                        newSample.commit();
-                                    } else {
-                                        userNoteAttribute.deleteSamplesBetween(timeStamp.toDateTimeISO(), timeStamp.toDateTimeISO());
-                                    }
+                                if (!newUserNote.equals("") && listSamples.size() == 1) {
+                                    listSamples.get(0).setValue(newUserNote);
+                                    listSamples.get(0).commit();
+                                } else if (!newUserNote.equals("")) {
+                                    JEVisSample newSample = userNoteAttribute.buildSample(timeStamp.toDateTimeISO(), newUserNote);
+                                    newSample.commit();
                                 } else {
-                                    if (!newUserNote.equals("")) {
-                                        JEVisSample newSample = userNoteAttribute.buildSample(timeStamp.toDateTimeISO(), newUserNote);
-                                        newSample.commit();
-                                    }
-
+                                    userNoteAttribute.deleteSamplesBetween(timeStamp.toDateTimeISO(), timeStamp.toDateTimeISO());
                                 }
-
-                                if (!newUserNote.equals("") && !sample.getNote().contains("userNotes")) {
-                                    List<JEVisSample> unmodifiedSamples = obj
-                                            .getDataSource()
-                                            .getObject(obj.getID())
-                                            .getAttribute("Value")
-                                            .getSamples(timeStamp, timeStamp);
-
-                                    if (unmodifiedSamples.size() == 1) {
-                                        JEVisSample unmodifiedSample = unmodifiedSamples.get(0);
-                                        String note = unmodifiedSample.getNote();
-                                        note += ",userNotes";
-                                        unmodifiedSample.setNote(note);
-                                        unmodifiedSample.commit();
-                                    }
-                                } else if (newUserNote.equals("") && sample.getNote().contains("userNotes")) {
-                                    List<JEVisSample> unmodifiedSamples = obj
-                                            .getDataSource()
-                                            .getObject(obj.getID())
-                                            .getAttribute("Value")
-                                            .getSamples(timeStamp, timeStamp);
-
-                                    if (unmodifiedSamples.size() == 1) {
-                                        JEVisSample unmodifiedSample = unmodifiedSamples.get(0);
-                                        String note = unmodifiedSample.getNote();
-                                        note = note.replace(",userNotes", "");
-                                        unmodifiedSample.setNote(note);
-                                        unmodifiedSample.commit();
-                                    }
+                            } else {
+                                if (!newUserNote.equals("")) {
+                                    JEVisSample newSample = userNoteAttribute.buildSample(timeStamp.toDateTimeISO(), newUserNote);
+                                    newSample.commit();
                                 }
-
-                            } catch (JEVisException ignored) {
 
                             }
-                        }
 
-                        JEVisObject correspondingUserDataObject = null;
-                        final JEVisClass userDataClass = obj.getDataSource().getJEVisClass("User Data");
-                        boolean foundUserDataObject = false;
+                            if (!newUserNote.equals("") && !sample.getNote().contains("userNotes")) {
+                                List<JEVisSample> unmodifiedSamples = obj
+                                        .getDataSource()
+                                        .getObject(obj.getID())
+                                        .getAttribute("Value")
+                                        .getSamples(timeStamp, timeStamp);
+
+                                if (unmodifiedSamples.size() == 1 && currentUser.canWrite(obj.getID())) {
+                                    JEVisSample unmodifiedSample = unmodifiedSamples.get(0);
+                                    String note = unmodifiedSample.getNote();
+                                    note += ",userNotes";
+                                    unmodifiedSample.setNote(note);
+                                    unmodifiedSample.commit();
+                                }
+                            } else if (newUserNote.equals("") && sample.getNote().contains("userNotes") && currentUser.canWrite(obj.getID())) {
+                                List<JEVisSample> unmodifiedSamples = obj
+                                        .getDataSource()
+                                        .getObject(obj.getID())
+                                        .getAttribute("Value")
+                                        .getSamples(timeStamp, timeStamp);
+
+                                if (unmodifiedSamples.size() == 1) {
+                                    JEVisSample unmodifiedSample = unmodifiedSamples.get(0);
+                                    String note = unmodifiedSample.getNote();
+                                    note = note.replace(",userNotes", "");
+                                    unmodifiedSample.setNote(note);
+                                    unmodifiedSample.commit();
+                                }
+                            }
+
+                        } catch (JEVisException ignored) {
+
+                        }
+                    }
+
+                    JEVisObject correspondingUserDataObject = null;
+                    final JEVisClass userDataClass = obj.getDataSource().getJEVisClass("User Data");
+                    boolean foundUserDataObject = false;
+                    for (JEVisObject parent : listParents) {
+                        for (JEVisObject child : parent.getChildren()) {
+                            if (child.getJEVisClass().equals(userDataClass)) {
+                                correspondingUserDataObject = child;
+                                foundUserDataObject = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!foundUserDataObject) {
                         for (JEVisObject parent : listParents) {
-                            for (JEVisObject child : parent.getChildren()) {
-                                if (child.getJEVisClass().equals(userDataClass)) {
-                                    correspondingUserDataObject = child;
-                                    foundUserDataObject = true;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (!foundUserDataObject) {
-                            for (JEVisObject parent : listParents) {
+                            if(currentUser.canCreate(parent.getID())){
                                 correspondingUserDataObject = parent.buildObject(obj.getName() + " User Data", userDataClass);
                                 correspondingUserDataObject.commit();
                             }
+
                         }
-
-                        if (correspondingUserDataObject != null) {
-                            try {
-                                JEVisAttribute userDataValueAttribute = correspondingUserDataObject.getAttribute("Value");
-
-                                List<JEVisSample> listSamples;
-                                if (userDataValueAttribute.hasSample()) {
-                                    listSamples = userDataValueAttribute.getSamples(timeStamp, timeStamp);
-
-                                    if (!newUserValue.equals("") && listSamples.size() == 1) {
-                                        listSamples.get(0).setValue(Double.parseDouble(newUserValue));
-                                        listSamples.get(0).commit();
-                                    } else if (!newUserValue.equals("")) {
-                                        JEVisSample newSample = userDataValueAttribute.buildSample(timeStamp.toDateTimeISO(), Double.parseDouble(newUserValue));
-                                        newSample.commit();
-                                    } else {
-                                        userDataValueAttribute.deleteSamplesBetween(timeStamp.toDateTimeISO(), timeStamp.toDateTimeISO());
-                                    }
-                                } else {
-                                    if (!newUserValue.equals("")) {
-                                        JEVisSample newSample = userDataValueAttribute.buildSample(timeStamp.toDateTimeISO(), Double.parseDouble(newUserValue));
-                                        newSample.commit();
-                                    }
-                                }
-
-                                if (!newUserValue.equals("") && !sample.getNote().contains(USER_VALUE)) {
-                                    List<JEVisSample> unmodifiedSamples = obj
-                                            .getDataSource()
-                                            .getObject(obj.getID())
-                                            .getAttribute("Value")
-                                            .getSamples(timeStamp, timeStamp);
-
-                                    if (unmodifiedSamples.size() == 1) {
-                                        JEVisSample unmodifiedSample = unmodifiedSamples.get(0);
-                                        String note = unmodifiedSample.getNote();
-                                        note += "," + USER_VALUE;
-                                        unmodifiedSample.setNote(note);
-                                        unmodifiedSample.commit();
-                                    }
-                                } else if (newUserValue.equals("") && sample.getNote().contains(USER_VALUE)) {
-                                    List<JEVisSample> unmodifiedSamples = obj
-                                            .getDataSource()
-                                            .getObject(obj.getID())
-                                            .getAttribute("Value")
-                                            .getSamples(timeStamp, timeStamp);
-
-                                    if (unmodifiedSamples.size() == 1) {
-                                        JEVisSample unmodifiedSample = unmodifiedSamples.get(0);
-                                        String note = unmodifiedSample.getNote();
-                                        note = note.replace("," + USER_VALUE, "");
-                                        unmodifiedSample.setNote(note);
-                                        unmodifiedSample.commit();
-                                    }
-                                }
-
-                            } catch (JEVisException ignored) {
-
-                            }
-                        }
-                    } else {
-                        Platform.runLater(() -> {
-                            Alert alert1 = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
-                            alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
-                            alert1.showAndWait();
-                        });
                     }
 
-                } catch (JEVisException ignored) {
+                    if (correspondingUserDataObject != null && currentUser.canWrite(correspondingUserDataObject.getID())) {
+                        try {
+                            JEVisAttribute userDataValueAttribute = correspondingUserDataObject.getAttribute("Value");
 
+                            List<JEVisSample> listSamples;
+                            if (userDataValueAttribute.hasSample()) {
+                                listSamples = userDataValueAttribute.getSamples(timeStamp, timeStamp);
+
+                                if (!newUserValue.equals("") && listSamples.size() == 1) {
+                                    listSamples.get(0).setValue(Double.parseDouble(newUserValue));
+                                    listSamples.get(0).commit();
+                                } else if (!newUserValue.equals("")) {
+                                    JEVisSample newSample = userDataValueAttribute.buildSample(timeStamp.toDateTimeISO(), Double.parseDouble(newUserValue));
+                                    newSample.commit();
+                                } else {
+                                    userDataValueAttribute.deleteSamplesBetween(timeStamp.toDateTimeISO(), timeStamp.toDateTimeISO());
+                                }
+                            } else {
+                                if (!newUserValue.equals("")) {
+                                    JEVisSample newSample = userDataValueAttribute.buildSample(timeStamp.toDateTimeISO(), Double.parseDouble(newUserValue));
+                                    newSample.commit();
+                                }
+                            }
+
+                            if (!newUserValue.equals("") && !sample.getNote().contains(USER_VALUE)) {
+                                List<JEVisSample> unmodifiedSamples = obj
+                                        .getDataSource()
+                                        .getObject(obj.getID())
+                                        .getAttribute("Value")
+                                        .getSamples(timeStamp, timeStamp);
+
+                                if (unmodifiedSamples.size() == 1) {
+                                    JEVisSample unmodifiedSample = unmodifiedSamples.get(0);
+                                    String note = unmodifiedSample.getNote();
+                                    note += "," + USER_VALUE;
+                                    unmodifiedSample.setNote(note);
+                                    unmodifiedSample.commit();
+                                }
+                            } else if (newUserValue.equals("") && sample.getNote().contains(USER_VALUE)) {
+                                List<JEVisSample> unmodifiedSamples = obj
+                                        .getDataSource()
+                                        .getObject(obj.getID())
+                                        .getAttribute("Value")
+                                        .getSamples(timeStamp, timeStamp);
+
+                                if (unmodifiedSamples.size() == 1) {
+                                    JEVisSample unmodifiedSample = unmodifiedSamples.get(0);
+                                    String note = unmodifiedSample.getNote();
+                                    note = note.replace("," + USER_VALUE, "");
+                                    unmodifiedSample.setNote(note);
+                                    unmodifiedSample.commit();
+                                }
+                            }
+
+                        } catch (JEVisException ignored) {
+
+                        }
+                    }
+                    //} else {
+
+                    //}
+
+                } catch (Exception ignored) {
+                    ignored.printStackTrace();
+                    Platform.runLater(() -> {
+                        Alert alert1 = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        alert1.showAndWait();
+                    });
                 }
             }
         }
