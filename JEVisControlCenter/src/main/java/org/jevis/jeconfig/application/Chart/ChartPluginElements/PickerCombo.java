@@ -448,12 +448,14 @@ public class PickerCombo {
         JEVisObject forCustomTime = analysisDataModel.getCurrentAnalysis();
         if (forCustomTime != null) {
             WorkDays wd = new WorkDays(analysisDataModel.getCurrentAnalysis());
+            wd.setEnabled(analysisDataModel.isCustomWorkDay());
             if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
                 dateHelper.setStartTime(wd.getWorkdayStart());
                 dateHelper.setEndTime(wd.getWorkdayEnd());
             }
         } else if (!analysisDataModel.getObservableListAnalyses().isEmpty()) {
             WorkDays wd = new WorkDays(analysisDataModel.getObservableListAnalyses().get(0));
+            wd.setEnabled(analysisDataModel.isCustomWorkDay());
             if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
                 dateHelper.setStartTime(wd.getWorkdayStart());
                 dateHelper.setEndTime(wd.getWorkdayEnd());

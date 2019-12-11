@@ -458,15 +458,9 @@ public class ChartView implements Observer {
     private void generateChart(Integer chartId, ChartType chartType, List<ChartDataModel> chartDataModels) {
         this.chartType = chartType;
         init();
-        boolean containsEnPI = chartDataModels.stream().anyMatch(ChartDataModel::getEnPI);
         switch (chartType) {
-            case AREA:
-                chart = new AreaChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getShowL1L2(), dataModel.getHideShowIcons(), dataModel.calcRegression(), dataModel.getRegressionType(), dataModel.getPolyRegressionDegree(), dataModel.getAddSeries(), chartId, getChartName());
-                setTableStandard();
-//                tableView.getColumns().get(9).setVisible(containsEnPI);
-                break;
             case LOGICAL:
-                chart = new LogicalChart(chartDataModels, dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                chart = new LogicalChart(dataModel, chartDataModels, getChartId(), getChartName());
                 if (showTable) {
                     setTableStandard();
                     tableView.getColumns().get(2).setVisible(false);
@@ -479,9 +473,8 @@ public class ChartView implements Observer {
                 } else disableTable();
                 break;
             case LINE:
-                chart = new LineChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getShowL1L2(), dataModel.getHideShowIcons(), dataModel.calcRegression(), dataModel.getRegressionType(), dataModel.getPolyRegressionDegree(), dataModel.getAddSeries(), chartId, getChartName());
+                chart = new LineChart(dataModel, chartDataModels, getChartId(), getChartName());
                 setTableStandard();
-//                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case BAR:
                 chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
@@ -495,25 +488,23 @@ public class ChartView implements Observer {
                 tableView.getColumns().get(10).setVisible(false);
                 break;
             case COLUMN:
-                chart = new ColumnChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), chartId, getChartName());
+                chart = new ColumnChart(dataModel, chartDataModels, getChartId(), getChartName());
                 setTableStandard();
-//                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case BUBBLE:
-                chart = new BubbleChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.calcRegression(), dataModel.getRegressionType(), dataModel.getPolyRegressionDegree(), chartId, getChartName());
+                chart = new BubbleChart(dataModel, chartDataModels, getChartId(), getChartName());
                 setTableStandard();
                 break;
             case SCATTER:
-                chart = new ScatterChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getShowL1L2(), dataModel.getHideShowIcons(), dataModel.calcRegression(), dataModel.getRegressionType(), dataModel.getPolyRegressionDegree(), dataModel.getAddSeries(), chartId, getChartName());
+                chart = new ScatterChart(dataModel, chartDataModels, getChartId(), getChartName());
                 setTableStandard();
-//                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;
             case PIE:
-                chart = new PieChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), chartId, getChartName());
+                chart = new PieChart(dataModel, chartDataModels, getChartId(), getChartName());
                 disableTable();
                 break;
             case TABLE:
-                chart = new TableChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getHideShowIcons(), dataModel.getAddSeries(), chartId, getChartName());
+                chart = new TableChart(dataModel, chartDataModels, getChartId(), getChartName());
                 setTableStandard();
                 tableView.getColumns().get(0).setVisible(false);
                 tableView.getColumns().get(2).setVisible(false);
@@ -525,11 +516,12 @@ public class ChartView implements Observer {
                 tableView.getColumns().get(10).setVisible(false);
                 break;
             case HEAT_MAP:
-                chart = new HeatMapChart(chartDataModels, getChartName());
+                chart = new HeatMapChart(chartDataModels, getChartId(), getChartName());
                 disableTable();
                 break;
+            case AREA:
             default:
-                chart = new AreaChart(chartDataModels, dataModel.getShowRawData(), dataModel.getShowSum(), dataModel.getShowL1L2(), dataModel.getHideShowIcons(), dataModel.calcRegression(), dataModel.getRegressionType(), dataModel.getPolyRegressionDegree(), dataModel.getAddSeries(), chartId, getChartName());
+                chart = new AreaChart(dataModel, chartDataModels, getChartId(), getChartName());
                 setTableStandard();
 //                tableView.getColumns().get(9).setVisible(containsEnPI);
                 break;

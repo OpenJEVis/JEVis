@@ -40,6 +40,7 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.Regressi
 import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.NoteDialog;
@@ -64,6 +65,7 @@ public class XYChart implements Chart {
     final RegressionType regressionType;
     final Boolean calcRegression;
     private final Boolean showL1L2;
+    private final Integer chartId;
     Boolean hideShowIcons;
     //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
     private List<Color> hexColors = new ArrayList<>();
@@ -101,20 +103,22 @@ public class XYChart implements Chart {
     private ChartPanManager panner;
     private JFXChartUtil jfxChartUtil;
 
-    public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean showL1L2, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        this.chartDataModels = chartDataModels;
+    public XYChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> selectedModels, Integer chartId, String chartName) {
+        this.chartDataModels = selectedModels;
         this.dateAxis = new DateAxis();
-        this.showRawData = showRawData;
-        this.showSum = showSum;
-        this.showL1L2 = showL1L2;
-        this.regressionType = regressionType;
-        this.hideShowIcons = hideShowIcons;
-        this.calcRegression = calcRegression;
-        this.polyRegressionDegree = polyRegressionDegree;
+        this.showRawData = analysisDataModel.getShowRawData();
+        this.showSum = analysisDataModel.getShowSum();
+        this.showL1L2 = analysisDataModel.getShowL1L2();
+        this.regressionType = analysisDataModel.getRegressionType();
+        this.hideShowIcons = analysisDataModel.getHideShowIcons();
+        this.calcRegression = analysisDataModel.calcRegression();
+        this.polyRegressionDegree = analysisDataModel.getPolyRegressionDegree();
+        this.chartId = chartId;
         this.chartName = chartName;
-        this.addSeriesOfType = addSeriesOfType;
+        this.addSeriesOfType = analysisDataModel.getAddSeries();
         if (!chartDataModels.isEmpty()) {
             workDays = new WorkDays(chartDataModels.get(0).getObject());
+            workDays.setEnabled(analysisDataModel.isCustomWorkDay());
         }
 
         init();
@@ -819,7 +823,7 @@ public class XYChart implements Chart {
 
     @Override
     public Integer getChartId() {
-        return null;
+        return chartId;
     }
 
     @Override
@@ -856,7 +860,7 @@ public class XYChart implements Chart {
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
 
-                    Note formattedNote = new Note(sample,serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
+                    Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
 
                     if (!asDuration) {
                         DateTime finalNearest = nearest;
@@ -993,9 +997,9 @@ public class XYChart implements Chart {
                         String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
                         String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
-                        System.out.println("NoteEditor.nearestSample: "+nearestSample);
-                        System.out.println("NoteEditor.noteSample   :"+serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()));
-                        RowNote rowNote = new RowNote(dataObject, nearestSample,serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getSingleRow().getScaleFactor());
+                        System.out.println("NoteEditor.nearestSample: " + nearestSample);
+                        System.out.println("NoteEditor.noteSample   :" + serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()));
+                        RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getSingleRow().getScaleFactor());
 
                         map.put(title, rowNote);
                     }

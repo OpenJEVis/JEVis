@@ -6,10 +6,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 
 import java.util.List;
@@ -19,8 +19,8 @@ public class TableChart extends XYChart {
     private ChartDataModel singleRow;
     private TableTopDatePicker tableTopDatePicker;
 
-    public TableChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, showRawData, showSum, false, hideShowIcons, false, null, -1, addSeriesOfType, chartId, chartName);
+    public TableChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
+        super(analysisDataModel, chartDataModels, chartId, chartName);
 
         tableTopDatePicker = new TableTopDatePicker(singleRow);
         tableTopDatePicker.setAlignment(Pos.CENTER);

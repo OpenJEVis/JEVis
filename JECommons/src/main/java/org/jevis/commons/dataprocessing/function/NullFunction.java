@@ -29,8 +29,9 @@ import org.joda.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.jevis.commons.dataprocessing.ProcessOptions.CUSTOM;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class NullFunction implements ProcessFunction {
@@ -59,10 +60,19 @@ public class NullFunction implements ProcessFunction {
             //logger.info("Add input result: " + allSamples.size());
         }
 
+        boolean isCustomWorkDay = true;
+        for (ProcessOption option : mainTask.getOptions()) {
+            if (option.getKey().equals(CUSTOM)) {
+                isCustomWorkDay = Boolean.parseBoolean(option.getValue());
+                break;
+            }
+        }
+
         if (aggregationPeriod != AggregationPeriod.NONE) {
             BasicProcess aggregationProcess = new BasicProcess();
             aggregationProcess.setJEVisDataSource(mainTask.getJEVisDataSource());
             aggregationProcess.setObject(mainTask.getObject());
+            aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, Boolean.toString(isCustomWorkDay)));
 
             switch (aggregationPeriod) {
                 case DAILY:

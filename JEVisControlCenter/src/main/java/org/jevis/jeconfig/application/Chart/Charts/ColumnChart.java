@@ -29,6 +29,7 @@ import org.jevis.jeconfig.application.Chart.Charts.jfx.CategoryAxis;
 import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.NoteDialog;
@@ -68,11 +69,11 @@ public class ColumnChart implements Chart {
     private CategoryAxis catAxis = new CategoryAxis();
     private DateTime nearest;
 
-    public ColumnChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Integer chartId, String chartName) {
+    public ColumnChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
-        this.showRawData = showRawData;
-        this.showSum = showSum;
-        this.hideShowIcons = hideShowIcons;
+        this.showRawData = analysisDataModel.getShowRawData();
+        this.showSum = analysisDataModel.getShowSum();
+        this.hideShowIcons = analysisDataModel.getHideShowIcons();
         this.chartId = chartId;
         this.chartName = chartName;
         init();
@@ -339,7 +340,7 @@ public class ColumnChart implements Chart {
                         nf.setMinimumFractionDigits(2);
                         nf.setMaximumFractionDigits(2);
                         Double valueAsDouble = sample.getValueAsDouble();
-                        Note formattedNote = new Note(sample,serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
+                        Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
                         String formattedDouble = nf.format(valueAsDouble);
 
                         boolean asDuration = false;
@@ -397,15 +398,15 @@ public class ColumnChart implements Chart {
                         String userNote = "";
                         JEVisSample noteSample = serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp());
 
-                        if(noteSample!=null){
-                            userNote=noteSample.getValueAsString();
+                        if (noteSample != null) {
+                            userNote = noteSample.getValueAsString();
                         }
 
                         //String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
                         String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
-                        RowNote rowNote = new RowNote(dataObject, nearestSample,serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getSingleRow().getScaleFactor());
+                        RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getSingleRow().getScaleFactor());
 
                         map.put(title, rowNote);
                     }

@@ -59,6 +59,7 @@ public class ChartDataModel {
     private double avg;
     private Double sum;
     private Map<DateTime, JEVisSample> userNoteMap;
+    private boolean customWorkDay = true;
 
 
     /**
@@ -152,7 +153,14 @@ public class ChartDataModel {
                         if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                             try {
                                 if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
-                                    SampleGenerator sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
+                                    SampleGenerator sg = new SampleGenerator(
+                                            attribute.getDataSource(),
+                                            attribute.getObject(),
+                                            attribute,
+                                            selectedStart, selectedEnd,
+                                            customWorkDay,
+                                            manipulationMode,
+                                            aggregationPeriod);
 
 //                                    samples = sg.generateSamples();
                                     samples = sg.getAggregatedSamples();
@@ -240,6 +248,7 @@ public class ChartDataModel {
                                     forecastDataAttribute.getObject(),
                                     forecastDataAttribute,
                                     selectedStart, selectedEnd,
+                                    customWorkDay,
                                     manipulationMode, aggregationPeriod);
 
                             samples = sg.getAggregatedSamples();
@@ -631,6 +640,7 @@ public class ChartDataModel {
         newModel.setAbsolute(this.getAbsolute());
         newModel.setTimeFactor(this.getTimeFactor());
         newModel.setScaleFactor(this.getScaleFactor());
+        newModel.setCustomWorkDay(this.isCustomWorkDay());
 
         return newModel;
     }
@@ -710,5 +720,13 @@ public class ChartDataModel {
     public boolean equals(ChartDataModel obj) {
         return this.getObject().getID().equals(obj.getObject().getID())
                 && this.getDataProcessor().getID().equals(obj.getDataProcessor().getID());
+    }
+
+    public boolean isCustomWorkDay() {
+        return customWorkDay;
+    }
+
+    public void setCustomWorkDay(boolean customWorkDay) {
+        this.customWorkDay = customWorkDay;
     }
 }

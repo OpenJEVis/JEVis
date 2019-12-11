@@ -86,6 +86,7 @@ public class AnalysisDataModel {
     private ObservableList<JEVisObject> observableListAnalyses = FXCollections.observableArrayList();
     private JsonChartDataModel listAnalysisModel = new JsonChartDataModel();
     private List<JsonChartSettings> listChartsSettings = new ArrayList<>();
+    private boolean customWorkDay = true;
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private JEVisObject currentAnalysis = null;
@@ -310,6 +311,7 @@ public class AnalysisDataModel {
                     }
 
                     WorkDays wd = new WorkDays(getCurrentAnalysis());
+                    wd.setEnabled(isCustomWorkDay());
                     if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
                     if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
                 }
@@ -573,6 +575,7 @@ public class AnalysisDataModel {
         setShowSumNO_EVENT(false);
         setShowL1L2_NO_EVENT(false);
         setCalcRegression_NO_EVENT(false);
+        setCustomWorkDayNO_EVENT(true);
         setAutoResizeNO_EVENT(true);
         setRunUpdate(false);
         if (service.isRunning()) {
@@ -853,6 +856,7 @@ public class AnalysisDataModel {
 
     private void updateWorkdayTimesFromJEVisObject(JEVisObject jeVisObject) {
         WorkDays wd = new WorkDays(jeVisObject);
+        wd.setEnabled(isCustomWorkDay());
         if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
             workdayStart = wd.getWorkdayStart();
             workdayEnd = wd.getWorkdayEnd();
@@ -1002,6 +1006,8 @@ public class AnalysisDataModel {
                     if (mdl.getBubbleType() != null) {
                         newData.setBubbleType(BubbleType.parseBubbleType(mdl.getBubbleType()));
                     }
+
+                    newData.setCustomWorkDay(isCustomWorkDay());
 
                     data.put(obj.getID().toString(), newData);
                 } catch (JEVisException e) {
@@ -1216,6 +1222,25 @@ public class AnalysisDataModel {
 
     public void setTemporary(Boolean temporary) {
         this.temporary = temporary;
+    }
+
+    public boolean isCustomWorkDay() {
+        return customWorkDay;
+    }
+
+    public void setCustomWorkDay(boolean customWorkDay) {
+        this.customWorkDay = customWorkDay;
+        getSelectedData().forEach(chartDataModel -> chartDataModel.setCustomWorkDay(customWorkDay));
+        if (customWorkDay) {
+            update();
+        } else {
+            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+        }
+    }
+
+    public void setCustomWorkDayNO_EVENT(boolean customWorkDay) {
+        this.customWorkDay = customWorkDay;
+        getSelectedData().forEach(chartDataModel -> chartDataModel.setCustomWorkDay(customWorkDay));
     }
 }
 
