@@ -52,7 +52,6 @@ public class TargetEditor implements AttributeEditor {
     private JEVisTree tree;
 
     public TargetEditor(JEVisAttribute att, MODE mode, JEVisTree tree) {
-        logger.debug("new Target Editor for: {}", att.getName());
         _attribute = att;
         this.mode = mode;
         this.tree = tree;
@@ -102,7 +101,6 @@ public class TargetEditor implements AttributeEditor {
     }
 
     private void init() {
-        logger.debug("init TargetEditor");
         _treeButton = new Button(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));

@@ -31,7 +31,9 @@ import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
+import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 
 import java.text.ParseException;
 
@@ -59,8 +61,6 @@ public abstract class BasicEditor implements AttributeEditor {
     public BasicEditor(JEVisAttribute att) {
         this.attribute = att;
         this.orgSample = att.getLatestSample();
-
-
     }
 
 
@@ -83,13 +83,12 @@ public abstract class BasicEditor implements AttributeEditor {
             if (!newValue) {
                 try {
                     if ((valueField.getText().isEmpty() && validateEmptyValue())
-                            || (!valueField.getText().isEmpty())
-                    ) {
+                            || (!valueField.getText().isEmpty())) {
 
                         if (valueField.validate()) {
                             this.isValid.setValue(true);
                             this.finalNewValue = parseValue(valueField.getText());
-                            BasicEditor.this.changedProperty.setValue(true);
+                            this.changedProperty.setValue(true);
                         } else {
                             this.isValid.setValue(false);
                         }
@@ -112,7 +111,7 @@ public abstract class BasicEditor implements AttributeEditor {
                 valueField.setText(formatSample(this.orgSample));
                 this.isValid.setValue(true);
 
-                Tooltip tt = new Tooltip("TimeStamp: " + this.orgSample.getTimestamp());
+                Tooltip tt = new Tooltip("TimeStamp: " + this.orgSample.getTimestamp().toString(DateTimeFormat.patternForStyle("MS", I18n.getInstance().getLocale())));
                 tt.setOpacity(0.5);
                 valueField.setTooltip(tt);
             }
@@ -178,6 +177,8 @@ public abstract class BasicEditor implements AttributeEditor {
         if (hasChanged() && isValid()) {
             JEVisSample newSample = this.attribute.buildSample(new DateTime(), this.finalNewValue);
             newSample.commit();
+
+            this.changedProperty.setValue(false);
         }
     }
 
@@ -214,7 +215,7 @@ public abstract class BasicEditor implements AttributeEditor {
 
     /**
      * Check if en empty string shall be validated
-     * Workaround for the problem that null is not a valid numbers and we dont know how to handel this in the GUI or JEVis for now
+     * Workaround for the problem that null is not a valid numbers and we dont know how to handle this in the GUI or JEVis for now
      *
      * @return
      */
@@ -224,4 +225,5 @@ public abstract class BasicEditor implements AttributeEditor {
     public boolean isValid() {
         return this.isValid.getValue();
     }
+
 }

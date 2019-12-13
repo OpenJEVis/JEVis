@@ -902,7 +902,7 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("Warning-icon.png", 20, 20);
+        return JEConfig.getImage("alarm_icon.png", 20, 20);
     }
 
     @Override
