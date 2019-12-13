@@ -24,6 +24,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -33,6 +34,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.text.TextAlignment;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
@@ -224,9 +227,11 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         continue;
                     }
                     AttributeEditor editor = new ErrorEditor();
-                    Label name = new Label(I18nWS.getInstance().getAttributeName(att));
+                    Label name = new Label(I18nWS.getInstance().getAttributeName(att)+":");
                     name.setWrapText(true);
                     name.setMinWidth(100);
+                    name.setAlignment(Pos.CENTER_RIGHT);
+                    name.setTextAlignment(TextAlignment.RIGHT);
 
                     try {
                         String guiDisplayType = type.getGUIDisplayType();
@@ -359,7 +364,10 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     Separator sep = new Separator(Orientation.HORIZONTAL);
                     sep.setOpacity(0.2d);
                     gridPane.add(sep, 0, coloum, 3, 1);
-                    name.setAlignment(Pos.CENTER_RIGHT);
+                    //name.setAlignment(Pos.CENTER_RIGHT);
+                    GridPane.setHgrow(name, Priority.SOMETIMES);
+                    GridPane.setHalignment(name, HPos.RIGHT);
+                    GridPane.setHgrow(editNode, Priority.ALWAYS);
 
                     coloum++;
                     _attributesEditor.add(editor);
