@@ -1,0 +1,19 @@
+{
+  "name": "Meter Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Meter Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "Meter Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

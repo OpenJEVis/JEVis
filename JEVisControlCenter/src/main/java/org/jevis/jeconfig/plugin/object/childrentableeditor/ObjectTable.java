@@ -40,7 +40,7 @@ public class ObjectTable {
                 }
             });
 
-            TableColumn<TableData, String> classColumn = new TableColumn<>("Object Name");
+            TableColumn<TableData, String> classColumn = new TableColumn<>("Class Name");
             classColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<TableData, String>, ObservableValue<String>>() {
                 @Override
                 public ObservableValue<String> call(TableColumn.CellDataFeatures<TableData, String> param) {

@@ -37,6 +37,7 @@ import java.util.*;
 
 public class HeatMapChart implements Chart {
 
+    private final Integer chartId;
     private List<ChartDataModel> chartDataModels;
     private String chartTitle;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -48,8 +49,9 @@ public class HeatMapChart implements Chart {
     private String Y_FORMAT;
     private String Y2_FORMAT;
 
-    public HeatMapChart(List<ChartDataModel> chartDataModels, String chartTitle) {
+    public HeatMapChart(List<ChartDataModel> chartDataModels, Integer chartId, String chartTitle) {
         this.chartDataModels = chartDataModels;
+        this.chartId = chartId;
         this.chartTitle = chartTitle;
         this.Y_MAX = 24L;
         this.X_MAX = 4L;
@@ -284,7 +286,7 @@ public class HeatMapChart implements Chart {
 
     @Override
     public String getChartName() {
-        return null;
+        return chartTitle;
     }
 
     @Override
@@ -294,7 +296,7 @@ public class HeatMapChart implements Chart {
 
     @Override
     public Integer getChartId() {
-        return null;
+        return chartId;
     }
 
     @Override

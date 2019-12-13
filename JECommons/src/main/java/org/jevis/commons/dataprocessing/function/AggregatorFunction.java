@@ -36,6 +36,7 @@ import org.joda.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.jevis.commons.dataprocessing.ProcessOptions.CUSTOM;
 import static org.jevis.commons.dataprocessing.ProcessOptions.getAllTimestamps;
 
 /**
@@ -61,7 +62,17 @@ public class AggregatorFunction implements ProcessFunction {
         }
         List<Interval> intervals = ProcessOptions.getIntervals(mainTask, allTimestamps.get(0), allTimestamps.get(allTimestamps.size() - 1));
 
+        boolean isCustomWorkDay = true;
+        for (ProcessOption option : mainTask.getOptions()) {
+            if (option.getKey().equals(CUSTOM)) {
+                isCustomWorkDay = Boolean.parseBoolean(option.getValue());
+                break;
+            }
+        }
+
         WorkDays workDays = new WorkDays(mainTask.getObject());
+        workDays.setEnabled(isCustomWorkDay);
+
         if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
             Period period = intervals.get(0).toPeriod();
             if (period.getDays() > 0 || period.getWeeks() > 0 || period.getMonths() > 0 || period.getYears() > 0) {

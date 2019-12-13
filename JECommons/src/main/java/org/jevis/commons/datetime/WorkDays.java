@@ -20,8 +20,11 @@ public class WorkDays {
     private final JEVisObject currentObject;
     private JEVisObject nextSiteParent;
     private JEVisClass siteClass;
+    private final LocalTime workdayStartDisabled = LocalTime.of(0, 0, 0, 0);
+    private final LocalTime workdayEndDisabled = LocalTime.of(23, 59, 59, 999999999);
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
+    private boolean enabled = true;
 
     public WorkDays(JEVisObject currentObject) {
         this.currentObject = currentObject;
@@ -56,6 +59,7 @@ public class WorkDays {
                         end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
                     }
                 } catch (Exception e) {
+                    logger.error("Could not get start and end for Building {}:{}", site.getName(), site.getID(), e);
                 }
 
                 if (start != null && end != null) {
@@ -63,7 +67,7 @@ public class WorkDays {
                     workdayEnd = end;
                 }
             } catch (Exception e) {
-
+                logger.error("Could not get site for current object {}:{}", currentObject.getName(), currentObject.getID(), e);
             }
         }
     }
@@ -83,14 +87,30 @@ public class WorkDays {
     }
 
     public LocalTime getWorkdayStart() {
-        return workdayStart;
+        if (enabled) {
+            return workdayStart;
+        } else {
+            return workdayStartDisabled;
+        }
     }
 
     public LocalTime getWorkdayEnd() {
-        return workdayEnd;
+        if (enabled) {
+            return workdayEnd;
+        } else {
+            return workdayEndDisabled;
+        }
     }
 
     public void setWorkdayEnd(LocalTime workdayEnd) {
         this.workdayEnd = workdayEnd;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 }

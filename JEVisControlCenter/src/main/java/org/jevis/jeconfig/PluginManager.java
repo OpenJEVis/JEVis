@@ -42,6 +42,7 @@ import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
+import org.jevis.jeconfig.plugin.meters.MeterPlugin;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.plugin.reports.ReportPlugin;
 import org.jevis.jeconfig.tool.I18n;
@@ -97,6 +98,7 @@ public class PluginManager {
         plugins.add(new GraphPluginView(this._ds, I18n.getInstance().getString("plugin.graph.title")));
         plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
         plugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
+        plugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
         plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
 
 //        plugins.add(new SCADAPlugin(_ds));
@@ -194,6 +196,12 @@ public class PluginManager {
                                                 }
                                             } else if (plugObj.getJEVisClassName().equals(AlarmPlugin.PLUGIN_NAME)) {
                                                 JEVisClass alarmClass = this._ds.getJEVisClass(AlarmPlugin.ALARM_CONFIG_CLASS);
+                                                List<JEVisObject> allAlarms = this._ds.getObjects(alarmClass, true);
+                                                if (allAlarms.size() == 0) {
+                                                    continue;
+                                                }
+                                            } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
+                                                JEVisClass alarmClass = this._ds.getJEVisClass(MeterPlugin.MEASUREMENT_INSTRUMENT_CLASS);
                                                 List<JEVisObject> allAlarms = this._ds.getObjects(alarmClass, true);
                                                 if (allAlarms.size() == 0) {
                                                     continue;
