@@ -49,6 +49,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.threeten.extra.Days;
 
 import java.text.NumberFormat;
 import java.util.*;
@@ -505,18 +506,20 @@ public class XYChart implements Chart {
         AggregationPeriod period = chartDataModels.get(0).getAggregationPeriod();
         AggregationPeriod durationPeriod = AggregationPeriod.NONE;
         Long millisDuration = timeStampOfLastSample.get().getMillis() - timeStampOfFirstSample.get().getMillis();
-        if (millisDuration > Period.days(1).toStandardDuration().getMillis() * 365.25) {
+        if (millisDuration >= Period.days(1).toStandardDuration().getMillis() * (365.25 - Days.of(60).getAmount()) ) {
             durationPeriod = AggregationPeriod.MONTHLY;
-        } else if (millisDuration > Period.days(1).toStandardDuration().getMillis() * 30.4375) {
+        } else if (millisDuration >= Period.days(1).toStandardDuration().getMillis() * 30.4375) {
             durationPeriod = AggregationPeriod.WEEKLY;
-        } else if (millisDuration > Period.weeks(1).toStandardDuration().getMillis()) {
+        } else if (millisDuration >= Period.days(4).toStandardDuration().getMillis()) {
             durationPeriod = AggregationPeriod.DAILY;
-        } else if (millisDuration > Period.days(1).toStandardDuration().getMillis()) {
+        } else if (millisDuration >= Period.hours(8).toStandardDuration().getMillis()) {
             durationPeriod = AggregationPeriod.HOURLY;
         }
 
+
         if (durationPeriod == period) {
         } else if (durationPeriod == AggregationPeriod.NONE) {
+            period = durationPeriod;
         } else if (durationPeriod == AggregationPeriod.HOURLY && period == AggregationPeriod.NONE) {
             period = AggregationPeriod.HOURLY;
         } else if (durationPeriod == AggregationPeriod.DAILY &&
@@ -529,6 +532,7 @@ public class XYChart implements Chart {
                 (period == AggregationPeriod.NONE || period == AggregationPeriod.HOURLY || period == AggregationPeriod.DAILY || period == AggregationPeriod.WEEKLY)) {
             period = AggregationPeriod.MONTHLY;
         }
+
 
         switch (period) {
             case NONE:
@@ -547,6 +551,7 @@ public class XYChart implements Chart {
                 format = "EEE, " + DateTimeFormat.patternForStyle("M-", I18n.getInstance().getLocale());
                 break;
             case WEEKLY:
+                System.out.println("Wekk ....");
                 millisMinor = (double) Period.days(1).toStandardDuration().getMillis();
                 millisMajor = (double) Period.weeks(1).toStandardDuration().getMillis();
                 format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
