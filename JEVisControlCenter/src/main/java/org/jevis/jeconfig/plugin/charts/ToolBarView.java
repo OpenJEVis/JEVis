@@ -82,6 +82,19 @@ public class ToolBarView {
     private Boolean changed = false;
 
     private ToggleButton runUpdateButton;
+    private ToggleButton customWorkDay;
+
+    private JEVisDataSource getDs() {
+        return ds;
+    }
+
+    private ToggleButton addSeriesRunningMean;
+    private ImageView pauseIcon;
+    private ImageView playIcon;
+    private ToggleButton showRawData;
+    private ToggleButton showSum;
+    private ToggleButton showL1L2;
+    private ToggleButton calcRegression;
     private ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
@@ -97,6 +110,7 @@ public class ToolBarView {
                         changed = false;
                         getGraphPluginView().handleRequest(Constants.Plugin.Command.SAVE);
                     }
+                    model.setTemporary(false);
                 });
             }
             model.setCurrentAnalysis(newValue);
@@ -106,18 +120,6 @@ public class ToolBarView {
             changed = false;
         }
     };
-
-    private JEVisDataSource getDs() {
-        return ds;
-    }
-
-    private ToggleButton addSeriesRunningMean;
-    private ImageView pauseIcon;
-    private ImageView playIcon;
-    private ToggleButton showRawData;
-    private ToggleButton showSum;
-    private ToggleButton showL1L2;
-    private ToggleButton calcRegression;
 
     public ToolBarView(AnalysisDataModel model, JEVisDataSource ds, GraphPluginView graphPluginView) {
         this.model = model;
@@ -339,6 +341,7 @@ public class ToolBarView {
         showSum.setDisable(bool);
         showL1L2.setDisable(bool);
         calcRegression.setDisable(bool);
+        customWorkDay.setDisable(bool);
         disableIcons.setDisable(bool);
         zoomOut.setDisable(bool);
         presetDateBox.setDisable(bool);
@@ -388,13 +391,13 @@ public class ToolBarView {
                         sep1, presetDateBox, pickerDateStart, pickerDateEnd,
                         sep2, reload, zoomOut,
                         sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                        sep4, calcRegression, showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
+                        sep4, customWorkDay, calcRegression, showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
             } else {
                 toolBar.getItems().addAll(listAnalysesComboBox,
                         sep1, presetDateBox, pickerDateStart, pickerDateEnd,
                         sep2, reload, zoomOut,
                         sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                        sep4, calcRegression, showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
+                        sep4, customWorkDay, calcRegression, showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
             }
 
             addAnalysisComboBoxListener();
@@ -487,11 +490,17 @@ public class ToolBarView {
 
         calcRegression.setOnAction(event -> calcRegression());
 
+        customWorkDay.setOnAction(event -> customWorkDay());
+
         disableIcons.setOnAction(event -> hideShowIconsInGraph());
 
         addSeriesRunningMean.setOnAction(event -> addSeriesRunningMean());
 
         autoResize.setOnAction(event -> autoResizeInGraph());
+    }
+
+    private void customWorkDay() {
+        model.setCustomWorkDay(!model.isCustomWorkDay());
     }
 
     private void createToolbarIcons() {
@@ -624,6 +633,21 @@ public class ToolBarView {
                                 new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
                         .otherwise(Bindings
                                 .when(calcRegression.selectedProperty())
+                                .then("-fx-background-insets: 1 1 1;")
+                                .otherwise(
+                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+
+        customWorkDay = new ToggleButton("WD");
+        Tooltip customWorkDayTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday"));
+        customWorkDay.setTooltip(customWorkDayTooltip);
+        customWorkDay.setSelected(model.isCustomWorkDay());
+        customWorkDay.styleProperty().bind(
+                Bindings
+                        .when(customWorkDay.hoverProperty())
+                        .then(
+                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
+                        .otherwise(Bindings
+                                .when(customWorkDay.selectedProperty())
                                 .then("-fx-background-insets: 1 1 1;")
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));

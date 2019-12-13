@@ -27,6 +27,7 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
@@ -62,11 +63,11 @@ public class PieChart implements Chart {
     };
     private List<String> seriesNames = new ArrayList<>();
 
-    public PieChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Integer chartId, String chartName) {
+    public PieChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
-        this.showRawData = showRawData;
-        this.showSum = showSum;
-        this.hideShowIcons = hideShowIcons;
+        this.showRawData = analysisDataModel.getShowRawData();
+        this.showSum = analysisDataModel.getShowSum();
+        this.hideShowIcons = analysisDataModel.getHideShowIcons();
         this.chartName = chartName;
         this.chartId = chartId;
         init();

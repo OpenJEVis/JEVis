@@ -26,12 +26,13 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTimeZone;
 
@@ -59,13 +60,15 @@ public class SampleGraphExtension implements SampleEditorExtension {
         bp.setStyle("-fx-background-color: transparent");
 
         ChartDataModel chartDataModel = null;
+        JEVisDataSource ds = null;
         try {
             chartDataModel = new ChartDataModel(obj.getDataSource());
+            ds = obj.getDataSource();
         } catch (JEVisException e) {
             logger.error("Could not get data source from object: " + e);
         }
 
-        if (chartDataModel != null) {
+        if (chartDataModel != null && ds != null) {
             try {
                 if (obj.getObject().getJEVisClassName().equals("Data")) chartDataModel.setObject(obj.getObject());
                 else if (obj.getObject().getJEVisClassName().equals("Clean Data")) {
@@ -89,7 +92,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
             List<ChartDataModel> chartDataModelList = new ArrayList<>();
             chartDataModelList.add(chartDataModel);
 
-            LineChart lc = new LineChart(chartDataModelList, false, false, false, false, false, null, -1, ManipulationMode.NONE, 0, "");
+            LineChart lc = new LineChart(new AnalysisDataModel(ds, null), chartDataModelList, 0, "");
             lc.setRegion(lc.getJfxChartUtil().setupZooming((MultiAxisChart<?, ?>) lc.getChart()));
 
             bp.setCenter(lc.getRegion());

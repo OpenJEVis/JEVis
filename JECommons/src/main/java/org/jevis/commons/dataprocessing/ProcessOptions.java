@@ -46,6 +46,7 @@ import java.util.*;
 public class ProcessOptions {
     public static final String PERIOD = "period";
     public static final String OFFSET = "offset";
+    public static final String CUSTOM = "custom";
     public static final String TS_START = "date-start";
     public static final String TS_END = "date-end";
     private static final Logger logger = LogManager.getLogger(ProcessOptions.class);
@@ -295,6 +296,16 @@ public class ProcessOptions {
         if (!ContainsOption(task, OFFSET)) {
             logger.warn("Error missing offset option");
             WorkDays wd = new WorkDays(task.getObject());
+
+            boolean isCustomWorkDay = true;
+            for (ProcessOption option : task.getOptions()) {
+                if (option.getKey().equals(CUSTOM)) {
+                    isCustomWorkDay = Boolean.parseBoolean(option.getValue());
+                    break;
+                }
+            }
+
+            wd.setEnabled(isCustomWorkDay);
             if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
                 task.getOptions().add(new BasicProcessOption(OFFSET, "2001-01-01 " +
                         wd.getWorkdayStart().getHour()
