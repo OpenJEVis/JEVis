@@ -279,8 +279,8 @@ public class MeterPlugin implements Plugin {
             }
         });
 
-
-        toolBar.getItems().setAll(reload, sep1, save, sep2, newButton, delete, sep3, printButton);
+        // -delete
+        toolBar.getItems().setAll(reload, sep1, save, sep2, newButton, sep3, printButton);
     }
 
     @Override

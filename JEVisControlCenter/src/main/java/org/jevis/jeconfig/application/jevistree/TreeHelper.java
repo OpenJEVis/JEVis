@@ -29,6 +29,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.KeyCombination;
@@ -44,6 +45,7 @@ import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.export.ExportMaster;
+import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.ObjectHelper;
@@ -743,6 +745,138 @@ public class TreeHelper {
             }
         } catch (JEVisException e) {
             logger.error("Could not get JEVis data source.", e);
+        }
+    }
+
+    public static void EventSetLimitsRecursive(JEVisTree tree) {
+        logger.debug("EventSetLimitsRecursive");
+        try {
+            if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
+                ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
+
+
+                if (tree.getJEVisDataSource().getCurrentUser().canWrite(items.get(0).getValue().getJEVisObject().getID())) {
+
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title"));
+                    alert.setHeaderText(null);
+                    GridPane gp = new GridPane();
+                    gp.setHgap(4);
+                    gp.setVgap(6);
+                    Label limit1MinLabel = new Label("Limit 1 Min");
+                    TextField limit1Min = new TextField();
+                    Label limit1MaxLabel = new Label("Limit 1 Max");
+                    TextField limit1Max = new TextField();
+
+                    Label limit2MinLabel = new Label("Limit 2 Min");
+                    TextField limit2Min = new TextField();
+                    Label limit2MaxLabel = new Label("Limit 2 Max");
+                    TextField limit2Max = new TextField();
+
+                    gp.add(limit1MinLabel, 0, 0);
+                    gp.add(limit1Min, 1, 0);
+                    gp.add(limit1MaxLabel, 0, 1);
+                    gp.add(limit1Max, 1, 1);
+
+                    gp.add(new Separator(Orientation.HORIZONTAL), 0, 2, 2, 1);
+
+                    gp.add(limit2MinLabel, 0, 3);
+                    gp.add(limit2Min, 1, 3);
+                    gp.add(limit2MaxLabel, 0, 4);
+                    gp.add(limit2Max, 1, 4);
+
+                    alert.getDialogPane().setContent(gp);
+
+                    alert.showAndWait().ifPresent(buttonType -> {
+                        if (buttonType.equals(ButtonType.OK)) {
+                            try {
+                                BigDecimal limit1MinValue = new BigDecimal(limit1Min.getText());
+                                BigDecimal limit1MaxValue = new BigDecimal(limit1Max.getText());
+                                BigDecimal limit2MinValue = new BigDecimal(limit2Min.getText());
+                                BigDecimal limit2MaxValue = new BigDecimal(limit2Max.getText());
+
+                                List<JsonLimitsConfig> list = new ArrayList<>();
+
+                                JsonLimitsConfig newConfig1 = new JsonLimitsConfig();
+                                newConfig1.setName(I18n.getInstance().getString("newobject.title1"));
+                                newConfig1.setMin(limit1MinValue.toString());
+                                newConfig1.setMax(limit1MaxValue.toString());
+
+                                list.add(newConfig1);
+
+                                JsonLimitsConfig newConfig2 = new JsonLimitsConfig();
+                                newConfig2.setName(I18n.getInstance().getString("newobject.title2"));
+                                newConfig2.setMin(limit2MinValue.toString());
+                                newConfig2.setMax(limit2MaxValue.toString());
+
+                                list.add(newConfig2);
+
+                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title") + "...");
+
+                                Task<Void> set = new Task<Void>() {
+                                    @Override
+                                    protected Void call() {
+                                        for (TreeItem<JEVisTreeRow> item : items) {
+                                            setLimits(item.getValue().getJEVisObject(), list);
+                                        }
+
+                                        return null;
+                                    }
+                                };
+                                set.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+                                set.setOnCancelled(event -> {
+                                    logger.debug("Setting all limits cancelled");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                set.setOnFailed(event -> {
+                                    logger.debug("Setting all limits failed");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                pForm.activateProgressBar(set);
+                                pForm.getDialogStage().show();
+
+                                new Thread(set).start();
+
+                            } catch (Exception ex) {
+                                logger.catching(ex);
+                                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
+                                        I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                            }
+                        } else {
+                            // ... user chose CANCEL or closed the dialog
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        alert1.showAndWait();
+                    });
+
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not get JEVis data source.", e);
+        }
+    }
+
+    private static void setLimits(JEVisObject jeVisObject, List<JsonLimitsConfig> list) {
+        try {
+            if (jeVisObject.getJEVisClassName().equals("Clean Data")) {
+                JEVisAttribute limitsAttribute = jeVisObject.getAttribute(CleanDataObject.AttributeName.LIMITS_CONFIGURATION.getAttributeName());
+                if (limitsAttribute != null) {
+                    limitsAttribute.addSamples(Collections.singletonList(limitsAttribute.buildSample(new DateTime(), list.toString())));
+                }
+
+            }
+            for (JEVisObject child : jeVisObject.getChildren()) {
+                setLimits(child, list);
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not delete value samples for {}:{}", jeVisObject.getName(), jeVisObject.getID());
         }
     }
 

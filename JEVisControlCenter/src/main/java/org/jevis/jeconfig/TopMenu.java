@@ -191,7 +191,7 @@ public class TopMenu extends MenuBar {
             }
         });
 
-        menuEdit.getItems().addAll(copy, cut, paste, new SeparatorMenuItem(), delete, rename,new SeparatorMenuItem(), reload, findObject, findAgain);
+        menuEdit.getItems().addAll(copy, cut, paste, new SeparatorMenuItem(), delete, rename, new SeparatorMenuItem(), reload, findObject, findAgain);
 
         if (JEConfig.getExpert()) {
             MenuItem deleteAllCleanAndRaw = new MenuItem(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));
@@ -199,6 +199,9 @@ public class TopMenu extends MenuBar {
 
             MenuItem createMultiplierAndDifferential = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setMultiplierAndDifferential.title"));
             createMultiplierAndDifferential.setAccelerator(new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+
+            MenuItem setLimits = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title"));
+            setLimits.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
             MenuItem enableAll = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.enable"));
             enableAll.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
@@ -209,7 +212,7 @@ public class TopMenu extends MenuBar {
             MenuItem resetCalculation = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.resetcalc"));
             resetCalculation.setAccelerator(new KeyCodeCombination(KeyCode.J, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
-            menuEdit.getItems().addAll(deleteAllCleanAndRaw, createMultiplierAndDifferential, enableAll, disableAll, resetCalculation);
+            menuEdit.getItems().addAll(deleteAllCleanAndRaw, setLimits, createMultiplierAndDifferential, enableAll, disableAll, resetCalculation);
         }
 
 //        menuEdit.getItems().addAll(copie, delete, rename);
