@@ -82,8 +82,27 @@ public class SelectTargetDialog {
         this.selectionMode = selectionMode;
     }
 
-    public void setInitOwner(Window dialogOwner){
-        this.dialogOwner=dialogOwner;
+    public static JEVisTreeFilter buildMultiClassFilter(JEVisClass firstClass, List<JEVisClass> classes) {
+        String className = "";
+        try {
+            BasicCellFilter onlyData = new BasicCellFilter(I18nWS.getInstance().getClassName(firstClass));
+            List<ObjectAttributeFilter> filter = FilterFactory.buildFilterForHeirs(firstClass, ObjectAttributeFilter.NONE);
+            filter.forEach(objectAttributeFilter -> {
+                onlyData.addItemFilter(objectAttributeFilter);
+                onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, objectAttributeFilter);
+            });
+
+            for (JEVisClass jeVisClass : classes) {
+                ObjectAttributeFilter filter1 = new ObjectAttributeFilter(jeVisClass.getName(), ObjectAttributeFilter.NONE);
+                onlyData.addItemFilter(filter1);
+                onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, filter1);
+            }
+
+            return onlyData;
+        } catch (Exception ex) {
+        }
+
+        return new BasicCellFilter(className);
     }
 
     public static JEVisTreeFilter buildCalendarFilter() {
@@ -119,6 +138,10 @@ public class SelectTargetDialog {
         }
 
         return new BasicCellFilter(jevisClass);
+    }
+
+    public void setInitOwner(Window dialogOwner) {
+        this.dialogOwner = dialogOwner;
     }
 
     public static JEVisTreeFilter buildAllAnalysis(JEVisDataSource ds) {
@@ -267,7 +290,7 @@ public class SelectTargetDialog {
         stage.setAlwaysOnTop(true);
 //        stage.sizeToScene();
         stage.toFront();
-        if(dialogOwner!=null){
+        if (dialogOwner != null) {
             stage.initOwner(dialogOwner);
         }
 
