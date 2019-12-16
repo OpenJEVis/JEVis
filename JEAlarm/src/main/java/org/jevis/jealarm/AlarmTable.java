@@ -289,8 +289,8 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("    <th>Raw Datapoint</th>");
         sb.append("    <th>Clean Datapoint Class</th>");
         sb.append("    <th>Time Stamp</th>");
-        sb.append("    <th>Is Value</th>");
-        sb.append("    <th>Should-be Value</th>");
+        sb.append("    <th>Current Value</th>");
+        sb.append("    <th>Set Value</th>");
         sb.append("    <th>Alarm Type</th>");
         sb.append("  </tr>");//border=\"0\"
 
