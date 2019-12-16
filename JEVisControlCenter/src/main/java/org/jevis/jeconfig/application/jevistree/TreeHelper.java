@@ -867,7 +867,9 @@ public class TreeHelper {
         try {
             if (jeVisObject.getJEVisClassName().equals("Clean Data")) {
                 JEVisAttribute limitsAttribute = jeVisObject.getAttribute(CleanDataObject.AttributeName.LIMITS_CONFIGURATION.getAttributeName());
-                if (limitsAttribute != null) {
+                JEVisAttribute limitsEnabledAttribute = jeVisObject.getAttribute(CleanDataObject.AttributeName.LIMITS_ENABLED.getAttributeName());
+                if (limitsAttribute != null && limitsEnabledAttribute != null) {
+                    limitsEnabledAttribute.addSamples(Collections.singletonList(limitsEnabledAttribute.buildSample(new DateTime(), true)));
                     limitsAttribute.addSamples(Collections.singletonList(limitsAttribute.buildSample(new DateTime(), list.toString())));
                 }
 
