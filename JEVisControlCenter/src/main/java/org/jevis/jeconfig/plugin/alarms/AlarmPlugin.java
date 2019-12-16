@@ -14,12 +14,17 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -86,6 +91,10 @@ public class AlarmPlugin implements Plugin {
         this.ds = ds;
         this.title = title;
         this.borderPane.setCenter(tableView);
+        Label label = new Label(I18n.getInstance().getString("plugin.alarms.noalarms"));
+        label.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+        this.tableView.setPlaceholder(label);
+
 //        this.tableView.setItems(alarmRows);
 
         this.numberFormat.setMinimumFractionDigits(2);
@@ -873,6 +882,11 @@ public class AlarmPlugin implements Plugin {
 
                 tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
                 autoFitTable(tableView);
+
+                if (task.getValue().isEmpty()) {
+                    tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+                    tableView.setStyle("-fx-background-color: white;");
+                }
             });
 
             executor.submit(task);
