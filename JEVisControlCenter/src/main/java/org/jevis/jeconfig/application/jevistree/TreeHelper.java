@@ -872,7 +872,6 @@ public class TreeHelper {
                     limitsEnabledAttribute.addSamples(Collections.singletonList(limitsEnabledAttribute.buildSample(new DateTime(), true)));
                     limitsAttribute.addSamples(Collections.singletonList(limitsAttribute.buildSample(new DateTime(), list.toString())));
                 }
-
             }
             for (JEVisObject child : jeVisObject.getChildren()) {
                 setLimits(child, list);

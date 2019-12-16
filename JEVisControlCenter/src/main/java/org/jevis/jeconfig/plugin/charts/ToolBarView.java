@@ -637,7 +637,7 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        customWorkDay = new ToggleButton("WD");
+        customWorkDay = new ToggleButton("", JEConfig.getImage("iconfinder_calendar-clock_299096.png", iconSize, iconSize));
         Tooltip customWorkDayTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday"));
         customWorkDay.setTooltip(customWorkDayTooltip);
         customWorkDay.setSelected(model.isCustomWorkDay());
