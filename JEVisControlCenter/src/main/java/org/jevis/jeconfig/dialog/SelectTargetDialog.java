@@ -193,7 +193,7 @@ public class SelectTargetDialog {
         return new BasicCellFilter("Calculation");
     }
 
-    public static JEVisTreeFilter buildAllMessurment(JEVisDataSource ds) {
+    public static JEVisTreeFilter buildAllMeasurement(JEVisDataSource ds) {
         try {
             JEVisClass dsClass = ds.getJEVisClass("Measurement Directory");
             JEVisClass dirClass = ds.getJEVisClass("Measurement Instrument");
