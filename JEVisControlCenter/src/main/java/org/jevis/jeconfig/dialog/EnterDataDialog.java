@@ -3,7 +3,6 @@ package org.jevis.jeconfig.dialog;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -13,7 +12,6 @@ import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
@@ -22,8 +20,11 @@ import org.jevis.api.*;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.json.JsonLimitsConfig;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
@@ -55,6 +56,7 @@ public class EnterDataDialog {
     private Double lastValue;
     private JEVisClass dataClass;
     private JEVisClass cleanDataClass;
+    private TextField searchIdField = new TextField();
 
     public EnterDataDialog(JEVisDataSource dataSource) {
         this.ds = dataSource;
@@ -101,36 +103,51 @@ public class EnterDataDialog {
         } catch (JEVisException e) {
             e.printStackTrace();
         }
-        ComboBox<JEVisObject> idBox = new ComboBox<>(FXCollections.observableList(allData));
 
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-            @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new ListCell<JEVisObject>() {
-                    @Override
-                    protected void updateItem(JEVisObject obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            String prefix = objectRelations.getObjectPath(obj);
+        Button treeButton = new Button(I18n
+                .getInstance().getString("plugin.object.attribute.target.button"),
+                JEConfig.getImage("folders_explorer.png", 18, 18));
 
-                            setText(prefix + obj.getName() + ":" + obj.getID());
-                        }
+        treeButton.setOnAction(event -> {
 
-                    }
-                };
+            TargetHelper th = null;
+            if (selectedObject != null) {
+                th = new TargetHelper(ds, selectedObject.getID().toString());
             }
-        };
 
-        idBox.setCellFactory(cellFactory);
-        idBox.setButtonCell(cellFactory.call(null));
-        idBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != oldValue) {
-                selectedObject = newValue;
+            List<JEVisTreeFilter> allFilter = new ArrayList<>();
+            JEVisTreeFilter allCurrentClassFilter = SelectTargetDialog.buildAllDataFilter();
+            allFilter.add(allCurrentClassFilter);
+
+            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE);
+            selectTargetDialog.setInitOwner(stage.getScene().getWindow());
+
+            List<UserSelection> openList = new ArrayList<>();
+
+            if (th != null && !th.getObject().isEmpty()) {
+                for (JEVisObject obj : th.getObject())
+                    openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
+            }
+
+            if (selectTargetDialog.show(
+                    ds,
+                    I18n.getInstance().getString("dialog.target.data.title"),
+                    openList
+            ) == SelectTargetDialog.Response.OK) {
+                logger.trace("Selection Done");
+
+                List<UserSelection> selections = selectTargetDialog.getUserSelection();
+                for (UserSelection us : selections) {
+                    selectedObject = us.getSelectedObject();
+                    break;
+                }
+
+                treeButton.setText(selectedObject.getName());
+                searchIdField.setText(selectedObject.getID().toString());
+
                 loadLastValue();
             }
+
         });
 
         Label diffSwitchLabel = new Label(I18n.getInstance().getString("graph.dialog.note.text.diff"));
@@ -148,7 +165,6 @@ public class EnterDataDialog {
         Label valueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
         doubleField = new TextField();
 
-        TextField searchIdField = new TextField();
         HashMap<Long, JEVisObject> finalMap = map;
         searchIdField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
@@ -156,7 +172,8 @@ public class EnterDataDialog {
                     long l = Long.parseLong(newValue);
                     JEVisObject selection = finalMap.get(l);
                     if (selection != null) {
-                        idBox.getSelectionModel().select(selection);
+                        selectedObject = selection;
+                        treeButton.setText(selection.getName());
                     }
                 } catch (Exception ignored) {
                 }
@@ -325,7 +342,7 @@ public class EnterDataDialog {
         gridPane.add(valueLabel, 5, row);
         row++;
         gridPane.add(searchIdField, 0, row);
-        gridPane.add(idBox, 1, row, 2, 1);
+        gridPane.add(treeButton, 1, row, 2, 1);
 //        gridPane.add(diffSwitch, 2, row);
         gridPane.add(datePicker, 3, row);
         gridPane.add(timePicker, 4, row);
@@ -342,8 +359,8 @@ public class EnterDataDialog {
         stage.setScene(scene);
         stage.centerOnScreen();
 
-        GridPane.setHgrow(idBox, Priority.ALWAYS);
-        GridPane.setFillWidth(idBox, true);
+        GridPane.setHgrow(treeButton, Priority.ALWAYS);
+        GridPane.setFillWidth(treeButton, true);
 
         stage.showAndWait();
 
