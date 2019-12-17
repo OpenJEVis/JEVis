@@ -12,8 +12,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -36,6 +34,7 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.Regressi
 import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.control.RegressionBox;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
@@ -250,17 +249,14 @@ public class ToolBarView {
         if (!model.calcRegression()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 
-            Label polyDegreeLabel = new Label("Degree:");
+            Label polyDegreeLabel = new Label(I18n.getInstance().getString("plugin.graph.toolbar.regression.degree"));
             NumberSpinner polyDegreeNumberSpinner = new NumberSpinner(new BigDecimal(1), new BigDecimal(1));
             polyDegreeNumberSpinner.setMin(new BigDecimal(1));
             polyDegreeNumberSpinner.setMax(new BigDecimal(11));
 
-            Label regressionTypeLabel = new Label("Type");
-            ObservableList<RegressionType> regressionTypes = FXCollections.observableArrayList(RegressionType.values());
-            regressionTypes.remove(0);
-            ComboBox<RegressionType> regressionTypeComboBox = new ComboBox<>(regressionTypes);
-            regressionTypeComboBox.getSelectionModel().select(RegressionType.POLY);
-            regressionTypeComboBox.setDisable(true);
+            Label regressionTypeLabel = new Label(I18n.getInstance().getString("plugin.graph.toolbar.regression.type"));
+
+            RegressionBox regressionTypeComboBox = new RegressionBox();
 
             GridPane gridPane = new GridPane();
             gridPane.setVgap(4);

@@ -1,5 +1,8 @@
 package org.jevis.jeconfig.plugin.meters;
 
+import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXTimePicker;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -15,29 +18,48 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
+import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
+import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.dialog.NewMeterDialog;
 import org.jevis.jeconfig.dialog.Response;
+import org.jevis.jeconfig.dialog.SelectTargetDialog;
+import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.jevis.jeconfig.tool.I18n;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
+import org.joda.time.DateTimeZone;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.NumberFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.FormatStyle;
 import java.util.*;
+import java.util.function.UnaryOperator;
 
 public class MeterPlugin implements Plugin {
     public static final String MEASUREMENT_INSTRUMENT_CLASS = "Measurement Instrument";
@@ -63,6 +85,7 @@ public class MeterPlugin implements Plugin {
     Map<String, AttributeEditor> attributeEditorMap = new HashMap<>();
     private TabPane tabPane = new TabPane();
     private boolean initialized = false;
+    Map<JEVisAttribute, AttributeValueChange> changeMap = new HashMap<>();
 
     public MeterPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -75,7 +98,7 @@ public class MeterPlugin implements Plugin {
                     Tab selectedItem = this.tabPane.getSelectionModel().getSelectedItem();
                     if (selectedItem != null && selectedItem.getContent() instanceof TableView) {
                         TableView<MeterRow> tableView = (TableView<MeterRow>) selectedItem.getContent();
-                        autoFitTable(tableView);
+//                        autoFitTable(tableView);
                     }
                 });
             }
@@ -106,7 +129,7 @@ public class MeterPlugin implements Plugin {
     private void createColumns(TableView<MeterRow> tableView, JEVisClass jeVisClass) {
 
         try {
-            TableColumn<MeterRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.objectname"));
+            TableColumn<MeterRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnname"));
             nameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject().getName()));
             nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
 
@@ -115,39 +138,80 @@ public class MeterPlugin implements Plugin {
             JEVisType onlineIdType = jeVisClass.getType("Online ID");
             JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
             JEVisType multiplierType = cleanDataClass.getType("Value Multiplier");
+            JEVisType locationType = jeVisClass.getType("Location");
+            JEVisType measuringPointIdType = jeVisClass.getType("Measuring Point ID");
+            JEVisType measuringPointName = jeVisClass.getType("Measuring Point Name");
 
             for (JEVisType type : jeVisClass.getTypes()) {
-                TableColumn<MeterRow, Object> column = new TableColumn<>(I18nWS.getInstance().getTypeName(jeVisClass.getName(), type.getName()));
+                TableColumn<MeterRow, JEVisAttribute> column = new TableColumn<>(I18nWS.getInstance().getTypeName(jeVisClass.getName(), type.getName()));
                 column.setStyle("-fx-alignment: CENTER;");
+                if (type.equals(locationType) || type.equals(measuringPointIdType) || type.equals(measuringPointName)) {
+                    column.setVisible(false);
+                }
                 column.setId(type.getName());
-                column.setCellValueFactory(param -> new ReadOnlyObjectWrapper(param.getValue().getObject()));
-                column.setCellFactory(new Callback<TableColumn<MeterRow, Object>, TableCell<MeterRow, Object>>() {
-                    @Override
-                    public TableCell<MeterRow, Object> call(TableColumn<MeterRow, Object> param) {
-                        return new TableCell<MeterRow, Object>() {
-                            @Override
-                            protected void updateItem(Object item, boolean empty) {
-                                super.updateItem(item, empty);
-
-                                if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
-                                    setText(null);
-                                    setGraphic(null);
-                                } else {
-                                    MeterRow meterRow = (MeterRow) getTableRow().getItem();
-                                    JEVisAttribute jeVisAttribute = meterRow.getAttributeMap().get(type);
-                                    if (jeVisAttribute != null) {
-
-                                        String hash = jeVisAttribute.getObject().getID() + ":" + jeVisAttribute.getName();
-                                        AttributeEditor editor = attributeEditorMap.get(hash);
-
-                                        editor.setReadOnly(false);
-                                        setGraphic(editor.getEditor());
-                                    }
-                                }
-                            }
-                        };
+                column.setCellValueFactory(param -> {
+                    try {
+                        return new ReadOnlyObjectWrapper<>(param.getValue().getObject().getAttribute(type));
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
                     }
+                    return new ReadOnlyObjectWrapper<>();
                 });
+
+                switch (type.getPrimitiveType()) {
+                    case JEVisConstants.PrimitiveType.LONG:
+                        column.setCellFactory(valueCellInteger());
+                        break;
+                    case JEVisConstants.PrimitiveType.DOUBLE:
+                        column.setCellFactory(valueCellDouble());
+                        break;
+                    case JEVisConstants.PrimitiveType.FILE:
+                        column.setCellFactory(valueCellFile());
+                        break;
+                    case JEVisConstants.PrimitiveType.BOOLEAN:
+                        column.setCellFactory(valueCellBoolean());
+                        break;
+                    default:
+                        if (type.getName().equalsIgnoreCase("Password") || type.getPrimitiveType() == JEVisConstants.PrimitiveType.PASSWORD_PBKDF2) {
+                            column.setCellFactory(valueCellStringPassword());
+                        } else if (type.getGUIDisplayType().equals(GUIConstants.TARGET_OBJECT.getId()) || type.getGUIDisplayType().equals(GUIConstants.TARGET_ATTRIBUTE.getId())) {
+                            column.setCellFactory(valueCellTargetSelection());
+                        } else if (type.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || type.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
+                            column.setCellFactory(valueCellDateTime());
+                        } else {
+                            column.setCellFactory(valueCellString());
+                        }
+
+                        break;
+                }
+
+//                column.setCellFactory(new Callback<TableColumn<MeterRow, Object>, TableCell<MeterRow, Object>>() {
+//                    @Override
+//                    public TableCell<MeterRow, Object> call(TableColumn<MeterRow, Object> param) {
+//                        return new TableCell<MeterRow, Object>() {
+//                            @Override
+//                            protected void updateItem(Object item, boolean empty) {
+//                                super.updateItem(item, empty);
+//
+//                                if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+//                                    setText(null);
+//                                    setGraphic(null);
+//                                } else {
+//                                    MeterRow meterRow = (MeterRow) getTableRow().getItem();
+//                                    JEVisAttribute jeVisAttribute = meterRow.getAttributeMap().get(type);
+//                                    if (jeVisAttribute != null) {
+//
+//                                        String hash = jeVisAttribute.getObject().getID() + ":" + jeVisAttribute.getName();
+//                                        AttributeEditor editor = attributeEditorMap.get(hash);
+//
+//                                        editor.setReadOnly(false);
+//                                        setGraphic(editor.getEditor());
+//                                    }
+//                                }
+//                            }
+//                        };
+//                    }
+//                });
 
                 tableView.getColumns().add(column);
 
@@ -155,7 +219,7 @@ public class MeterPlugin implements Plugin {
                     TableColumn<MeterRow, Object> multiplierColumn = new TableColumn<>(I18nWS.getInstance().getTypeName(cleanDataClass.getName(), multiplierType.getName()));
                     multiplierColumn.setStyle("-fx-alignment: CENTER;");
                     multiplierColumn.setId(multiplierType.getName());
-                    multiplierColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper(param.getValue().getObject()));
+                    multiplierColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject()));
                     multiplierColumn.setCellFactory(new Callback<TableColumn<MeterRow, Object>, TableCell<MeterRow, Object>>() {
                         @Override
                         public TableCell<MeterRow, Object> call(TableColumn<MeterRow, Object> param) {
@@ -190,6 +254,538 @@ public class MeterPlugin implements Plugin {
         } catch (JEVisException e) {
             e.printStackTrace();
         }
+    }
+
+    private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellDateTime() {
+        return new Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>>() {
+            @Override
+            public TableCell<MeterRow, JEVisAttribute> call(TableColumn<MeterRow, JEVisAttribute> param) {
+                return new TableCell<MeterRow, JEVisAttribute>() {
+                    @Override
+                    protected void updateItem(JEVisAttribute item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+
+                            JFXDatePicker pickerDate = new JFXDatePicker();
+                            JFXTimePicker pickerTime = new JFXTimePicker();
+                            pickerTime.set24HourView(true);
+                            pickerTime.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
+
+                            if (item.hasSample()) {
+                                try {
+                                    DateTime date = JEVisDates.parseDefaultDate(item);
+                                    LocalDateTime lDate = LocalDateTime.of(
+                                            date.get(DateTimeFieldType.year()), date.get(DateTimeFieldType.monthOfYear()), date.get(DateTimeFieldType.dayOfMonth()),
+                                            date.get(DateTimeFieldType.hourOfDay()), date.get(DateTimeFieldType.minuteOfHour()), date.get(DateTimeFieldType.secondOfMinute()));
+                                    lDate.atZone(ZoneId.of(date.getZone().getID()));
+                                    pickerDate.valueProperty().setValue(lDate.toLocalDate());
+                                    pickerTime.valueProperty().setValue(lDate.toLocalTime());
+                                } catch (Exception ex) {
+                                    logger.catching(ex);
+                                }
+                            }
+
+                            pickerDate.valueProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue != oldValue) {
+                                    try {
+                                        updateDate(item, getCurrentDate(pickerDate, pickerTime));
+                                    } catch (Exception e) {
+                                        logger.error(e);
+                                    }
+                                }
+                            });
+
+                            pickerTime.valueProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue != oldValue) {
+                                    try {
+                                        updateDate(item, getCurrentDate(pickerDate, pickerTime));
+                                    } catch (Exception e) {
+                                        logger.error(e);
+                                    }
+                                }
+                            });
+
+                            HBox hBox = new HBox(pickerDate, pickerTime);
+                            hBox.setSpacing(4);
+                            setGraphic(hBox);
+                        }
+                    }
+
+                    private DateTime getCurrentDate(JFXDatePicker pickerDate, JFXTimePicker pickerTime) {
+                        return new DateTime(
+                                pickerDate.valueProperty().get().getYear(), pickerDate.valueProperty().get().getMonthValue(), pickerDate.valueProperty().get().getDayOfMonth(),
+                                pickerTime.valueProperty().get().getHour(), pickerTime.valueProperty().get().getMinute(), pickerTime.valueProperty().get().getSecond(),
+                                DateTimeZone.getDefault());
+                    }
+
+                    private void updateDate(JEVisAttribute item, DateTime datetime) throws JEVisException {
+                        AttributeValueChange attributeValueChange = changeMap.get(item);
+                        if (attributeValueChange != null) {
+                            attributeValueChange.setDateTime(datetime);
+                        } else {
+                            AttributeValueChange valueChange = new AttributeValueChange(item.getPrimitiveType(), item.getType().getGUIDisplayType(), item, datetime);
+                            changeMap.put(item, valueChange);
+                        }
+                    }
+                };
+            }
+        };
+    }
+
+    private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellTargetSelection() {
+        return new Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>>() {
+            @Override
+            public TableCell<MeterRow, JEVisAttribute> call(TableColumn<MeterRow, JEVisAttribute> param) {
+                return new TableCell<MeterRow, JEVisAttribute>() {
+                    @Override
+                    protected void updateItem(JEVisAttribute item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            MeterRow meterRow = (MeterRow) getTableRow().getItem();
+
+                            Button treeButton = new Button(I18n
+                                    .getInstance().getString("plugin.object.attribute.target.button"),
+                                    JEConfig.getImage("folders_explorer.png", 18, 18));
+                            treeButton.wrapTextProperty().setValue(true);
+
+                            Button gotoButton = new Button(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
+                                    JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
+                            gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
+
+                            gotoButton.setOnAction(event -> {
+                                try {
+                                    TargetHelper th = new TargetHelper(ds, item);
+                                    if (th.isValid() && th.targetAccessible()) {
+                                        JEVisObject findObj = ds.getObject(th.getObject().get(0).getID());
+                                        JEConfig.openObjectInPlugin(ObjectPlugin.PLUGIN_NAME, findObj);
+                                    }
+                                } catch (Exception ex) {
+                                    logger.catching(ex);
+                                }
+                            });
+
+                            treeButton.setOnAction(event -> {
+                                try {
+                                    SelectTargetDialog selectTargetDialog = null;
+                                    JEVisSample latestSample = item.getLatestSample();
+                                    TargetHelper th = null;
+                                    if (latestSample != null) {
+                                        th = new TargetHelper(item.getDataSource(), latestSample.getValueAsString());
+                                        if (th.isValid() && th.targetAccessible()) {
+                                            logger.info("Target Is valid");
+                                            setButtonText(treeButton, item);
+                                        }
+                                    }
+
+                                    List<JEVisTreeFilter> allFilter = new ArrayList<>();
+                                    JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataFilter();
+                                    allFilter.add(allDataFilter);
+
+                                    selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE);
+
+                                    selectTargetDialog.setInitOwner(treeButton.getScene().getWindow());
+
+                                    List<UserSelection> openList = new ArrayList<>();
+
+                                    if (th != null && !th.getObject().isEmpty()) {
+                                        for (JEVisObject obj : th.getObject()) {
+                                            openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
+                                        }
+                                    }
+
+                                    if (selectTargetDialog.show(
+                                            ds,
+                                            I18n.getInstance().getString("dialog.target.data.title"),
+                                            openList
+                                    ) == SelectTargetDialog.Response.OK) {
+                                        logger.trace("Selection Done");
+
+                                        String newTarget = "";
+                                        List<UserSelection> selections = selectTargetDialog.getUserSelection();
+                                        for (UserSelection us : selections) {
+                                            int index = selections.indexOf(us);
+                                            if (index > 0) newTarget += ";";
+
+                                            newTarget += us.getSelectedObject().getID();
+                                            if (us.getSelectedAttribute() != null) {
+                                                newTarget += ":" + us.getSelectedAttribute().getName();
+                                            } else {
+                                                newTarget += ":Value";
+                                            }
+                                        }
+
+                                        AttributeValueChange attributeValueChange = changeMap.get(item);
+                                        if (attributeValueChange != null) {
+                                            attributeValueChange.setStringValue(newTarget);
+                                        } else {
+                                            AttributeValueChange valueChange = new AttributeValueChange(item.getPrimitiveType(), item.getType().getGUIDisplayType(), item, newTarget);
+                                            changeMap.put(item, valueChange);
+                                        }
+                                    }
+                                    setButtonText(treeButton, item);
+
+                                } catch (Exception ex) {
+                                    logger.catching(ex);
+                                }
+                            });
+
+                            setButtonText(treeButton, item);
+
+                            HBox hBox = new HBox(treeButton, gotoButton);
+                            hBox.setSpacing(4);
+
+                            setGraphic(hBox);
+                        }
+
+                    }
+                };
+            }
+
+        };
+    }
+
+    private void setButtonText(Button treeButton, JEVisAttribute att) {
+        try {
+            TargetHelper th = new TargetHelper(ds, att);
+
+            if (th.isValid() && th.targetAccessible()) {
+
+                StringBuilder bText = new StringBuilder();
+
+                JEVisClass cleanData = ds.getJEVisClass("Clean Data");
+
+                for (JEVisObject obj : th.getObject()) {
+                    int index = th.getObject().indexOf(obj);
+                    if (index > 0) bText.append("; ");
+
+                    if (obj.getJEVisClass().equals(cleanData)) {
+                        List<JEVisObject> parents = obj.getParents();
+                        if (!parents.isEmpty()) {
+                            for (JEVisObject parent : parents) {
+                                bText.append("[");
+                                bText.append(parent.getID());
+                                bText.append("] ");
+                                bText.append(parent.getName());
+                                bText.append(" / ");
+                            }
+                        }
+                    }
+
+                    bText.append("[");
+                    bText.append(obj.getID());
+                    bText.append("] ");
+                    bText.append(obj.getName());
+
+                    if (th.hasAttribute()) {
+
+                        bText.append(" - ");
+                        bText.append(th.getAttribute().get(index).getName());
+
+                    }
+                }
+
+                Platform.runLater(() -> treeButton.setText(bText.toString()));
+            }
+
+        } catch (Exception ex) {
+            logger.catching(ex);
+        }
+    }
+
+    private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellString() {
+        return new Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>>() {
+            @Override
+            public TableCell<MeterRow, JEVisAttribute> call(TableColumn<MeterRow, JEVisAttribute> param) {
+                return new TableCell<MeterRow, JEVisAttribute>() {
+                    @Override
+                    protected void updateItem(JEVisAttribute item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            MeterRow meterRow = (MeterRow) getTableRow().getItem();
+
+                            JFXTextField textField = new JFXTextField();
+                            try {
+                                JEVisAttribute attribute = meterRow.getAttributeMap().get(item.getType());
+                                if (attribute != null && attribute.hasSample()) {
+                                    textField.setText(attribute.getLatestSample().getValueAsString());
+                                }
+                            } catch (JEVisException e) {
+                                e.printStackTrace();
+                            }
+
+                            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                                try {
+                                    AttributeValueChange attributeValueChange = changeMap.get(item);
+                                    if (attributeValueChange != null) {
+                                        attributeValueChange.setStringValue(newValue);
+                                    } else {
+                                        AttributeValueChange valueChange = new AttributeValueChange(item.getPrimitiveType(), item.getType().getGUIDisplayType(), item, newValue);
+                                        changeMap.put(item, valueChange);
+                                    }
+                                } catch (Exception ex) {
+                                    logger.error("Error in string text", ex);
+                                }
+                            });
+
+                            setGraphic(textField);
+                        }
+
+                    }
+                };
+            }
+
+        };
+    }
+
+    private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellStringPassword() {
+        return null;
+    }
+
+    private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellBoolean() {
+        return null;
+    }
+
+    private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellFile() {
+        return new Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>>() {
+            @Override
+            public TableCell<MeterRow, JEVisAttribute> call(TableColumn<MeterRow, JEVisAttribute> param) {
+                return new TableCell<MeterRow, JEVisAttribute>() {
+
+                    @Override
+                    protected void updateItem(JEVisAttribute item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            JEVisFile file = null;
+                            MeterRow meterRow = (MeterRow) getTableRow().getItem();
+
+                            try {
+                                JEVisAttribute attribute = meterRow.getAttributeMap().get(item.getType());
+                                if (attribute != null && attribute.hasSample()) {
+                                    file = attribute.getLatestSample().getValueAsFile();
+                                }
+                            } catch (JEVisException e) {
+                                e.printStackTrace();
+                            }
+
+                            Button downloadButton = new Button("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", 18, 18));
+                            Button uploadButton = new Button("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", 18, 18));
+
+                            JEVisFile finalFile = file;
+                            downloadButton.setOnAction(event -> {
+                                try {
+                                    if (finalFile != null) {
+                                        FileChooser fileChooser = new FileChooser();
+                                        fileChooser.setInitialFileName(finalFile.getFilename());
+                                        fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
+                                        fileChooser.getExtensionFilters().addAll(
+                                                new FileChooser.ExtensionFilter("All Files", "*.*"));
+                                        File selectedFile = fileChooser.showSaveDialog(null);
+                                        if (selectedFile != null) {
+                                            JEConfig.setLastPath(selectedFile);
+                                            finalFile.saveToFile(selectedFile);
+                                        }
+                                    }
+                                } catch (Exception ex) {
+                                    logger.fatal(ex);
+                                }
+
+                            });
+
+                            uploadButton.setOnAction(event -> {
+                                try {
+                                    FileChooser fileChooser = new FileChooser();
+                                    fileChooser.setInitialDirectory(JEConfig.getLastPath());
+                                    fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.upload"));
+                                    fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("All Files", "*.*"));
+                                    File selectedFile = fileChooser.showOpenDialog(JEConfig.getStage());
+                                    if (selectedFile != null) {
+                                        try {
+                                            JEConfig.setLastPath(selectedFile);
+                                            logger.debug("add new file: {}", selectedFile);
+                                            JEVisFile jfile = new JEVisFileImp(selectedFile.getName(), selectedFile);
+
+                                            AttributeValueChange attributeValueChange = changeMap.get(item);
+                                            if (attributeValueChange != null) {
+                                                attributeValueChange.setJeVisFile(jfile);
+                                            } else {
+                                                AttributeValueChange valueChange = new AttributeValueChange(item.getPrimitiveType(), item.getType().getGUIDisplayType(), item, jfile);
+                                                changeMap.put(item, valueChange);
+                                            }
+                                        } catch (Exception ex) {
+                                            logger.catching(ex);
+                                        }
+                                    }
+                                } catch (Exception ex) {
+                                    logger.error("Error in string text", ex);
+                                }
+                            });
+
+                            setGraphic(new HBox(uploadButton, downloadButton));
+                        }
+                    }
+                };
+            }
+
+        };
+    }
+
+    private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellDouble() {
+        return new Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>>() {
+            @Override
+            public TableCell<MeterRow, JEVisAttribute> call(TableColumn<MeterRow, JEVisAttribute> param) {
+                return new TableCell<MeterRow, JEVisAttribute>() {
+
+                    @Override
+                    protected void updateItem(JEVisAttribute item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            MeterRow meterRow = (MeterRow) getTableRow().getItem();
+
+                            JFXTextField textField = new JFXTextField();
+                            try {
+                                JEVisAttribute attribute = meterRow.getAttributeMap().get(item.getType());
+                                if (attribute != null && attribute.hasSample()) {
+                                    textField.setText(attribute.getLatestSample().getValueAsDouble().toString());
+                                }
+                            } catch (JEVisException e) {
+                                e.printStackTrace();
+                            }
+
+                            NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
+                            UnaryOperator<TextFormatter.Change> filter = t -> {
+                                if (t.getText().length() > 1) {/** Copy&paste case **/
+                                    try {
+                                        /**
+                                         * TODO: maybe try different locales
+                                         */
+                                        Number newNumber = numberFormat.parse(t.getText());
+                                        t.setText(String.valueOf(newNumber.doubleValue()));
+                                    } catch (Exception ex) {
+                                        t.setText("");
+                                    }
+                                } else if (t.getText().matches(",")) {/** to be use the Double.parse **/
+                                    t.setText(".");
+                                }
+
+                                try {
+                                    /** We don't use the NumberFormat to validate, because he is not strict enough **/
+                                    Double parse = Double.parseDouble(t.getControlNewText());
+                                } catch (Exception ex) {
+                                    t.setText("");
+                                }
+                                return t;
+                            };
+
+                            textField.setTextFormatter(new TextFormatter<>(filter));
+
+                            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                                try {
+                                    Double value = Double.parseDouble(newValue);
+                                    AttributeValueChange attributeValueChange = changeMap.get(item);
+                                    if (attributeValueChange != null) {
+                                        attributeValueChange.setDoubleValue(value);
+                                    } else {
+                                        AttributeValueChange valueChange = new AttributeValueChange(item.getPrimitiveType(), item.getType().getGUIDisplayType(), item, value);
+                                        changeMap.put(item, valueChange);
+                                    }
+                                } catch (Exception ex) {
+                                    logger.error("Error in double text", ex);
+                                }
+                            });
+
+
+                            setGraphic(textField);
+
+                        }
+
+                    }
+                };
+            }
+
+        };
+    }
+
+    private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellInteger() {
+        return new Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>>() {
+            @Override
+            public TableCell<MeterRow, JEVisAttribute> call(TableColumn<MeterRow, JEVisAttribute> param) {
+                return new TableCell<MeterRow, JEVisAttribute>() {
+                    @Override
+                    protected void updateItem(JEVisAttribute item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            MeterRow meterRow = (MeterRow) getTableRow().getItem();
+
+                            JFXTextField textField = new JFXTextField();
+                            try {
+                                JEVisAttribute attribute = meterRow.getAttributeMap().get(item.getType());
+                                if (attribute != null && attribute.hasSample()) {
+                                    textField.setText(attribute.getLatestSample().getValueAsDouble().toString());
+                                }
+                            } catch (JEVisException e) {
+                                e.printStackTrace();
+                            }
+
+                            UnaryOperator<TextFormatter.Change> filter = t -> {
+
+                                if (t.getControlNewText().isEmpty()) {
+                                    t.setText("0");
+                                } else {
+                                    try {
+                                        Long bewValue = Long.parseLong(t.getControlNewText());
+                                    } catch (Exception ex) {
+                                        t.setText("");
+                                    }
+                                }
+
+                                return t;
+                            };
+
+                            textField.setTextFormatter(new TextFormatter<>(filter));
+
+                            textField.textProperty().addListener((observable, oldValue, newValue) -> {
+                                try {
+                                    Long value = Long.parseLong(newValue);
+                                    AttributeValueChange attributeValueChange = changeMap.get(item);
+                                    if (attributeValueChange != null) {
+                                        attributeValueChange.setLongValue(value);
+                                    } else {
+                                        AttributeValueChange valueChange = new AttributeValueChange(item.getPrimitiveType(), item.getType().getGUIDisplayType(), item, value);
+                                        changeMap.put(item, valueChange);
+                                    }
+                                } catch (Exception ex) {
+                                    logger.error("Error in double text", ex);
+                                }
+                            });
+
+
+                            setGraphic(textField);
+
+                        }
+
+                    }
+                };
+            }
+
+        };
     }
 
     private void initToolBar() {
@@ -567,7 +1163,7 @@ public class MeterPlugin implements Plugin {
                 Platform.runLater(() -> {
                     tabPane.getTabs().add(tab);
 
-                    Platform.runLater(() -> autoFitTable(tableView));
+//                    Platform.runLater(() -> autoFitTable(tableView));
 
                 });
             } catch (JEVisException e) {

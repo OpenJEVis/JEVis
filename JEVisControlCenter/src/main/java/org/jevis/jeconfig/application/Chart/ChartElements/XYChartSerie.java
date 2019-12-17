@@ -151,7 +151,7 @@ public class XYChartSerie {
             sum = max;
         }
 
-
+        serie.setAxisIndex(singleRow.getAxis());
         serie.getData().setAll(dataList);
         JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
 
