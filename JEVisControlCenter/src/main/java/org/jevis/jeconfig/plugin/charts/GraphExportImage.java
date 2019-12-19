@@ -36,7 +36,7 @@ public class GraphExportImage {
 
         String formattedName = model.getCurrentAnalysis().getName().replaceAll(" ", "_");
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("CSV File Destination");
+        fileChooser.setTitle("Image File Destination");
         DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
 
         if (JEConfig.getLastPath() != null) {
@@ -48,14 +48,17 @@ public class GraphExportImage {
 
         fileChooser.setInitialFileName(formattedName + I18n.getInstance().getString("plugin.graph.dialog.export.from")
                 + fmtDate.print(minDate) + I18n.getInstance().getString("plugin.graph.dialog.export.to")
-                + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()) + ".png");
+                + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()));
 
-        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
+        FileChooser.ExtensionFilter pngFilter = new FileChooser.ExtensionFilter("Portable Network Graphics Files (*.png)", ".png");
+//        FileChooser.ExtensionFilter jpgFilter = new FileChooser.ExtensionFilter("Joint Photographic Experts Group Files (*.jpg)", ".jpg");
+        fileChooser.getExtensionFilters().addAll(pngFilter);
+        fileChooser.setSelectedExtensionFilter(pngFilter);
+
         File file = fileChooser.showSaveDialog(JEConfig.getStage());
         if (file != null) {
-            String fileName = file.getName();
-            String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1, file.getName().length());
-            destinationFile = file;
+            String fileExtension = fileChooser.getSelectedExtensionFilter().getExtensions().get(0);
+            destinationFile = new File(file + fileExtension);
             formatName = fileExtension;
             JEConfig.setLastPath(file);
         }
