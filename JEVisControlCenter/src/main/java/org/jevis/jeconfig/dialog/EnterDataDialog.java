@@ -22,6 +22,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
@@ -57,6 +58,7 @@ public class EnterDataDialog {
     private JEVisClass dataClass;
     private JEVisClass cleanDataClass;
     private TextField searchIdField = new TextField();
+    private Label unitField;
 
     public EnterDataDialog(JEVisDataSource dataSource) {
         this.ds = dataSource;
@@ -165,6 +167,9 @@ public class EnterDataDialog {
         Label valueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
         doubleField = new TextField();
 
+        Label unitLabel = new Label(I18n.getInstance().getString("graph.table.unit"));
+        unitField = new Label();
+
         HashMap<Long, JEVisObject> finalMap = map;
         searchIdField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
@@ -174,6 +179,7 @@ public class EnterDataDialog {
                     if (selection != null) {
                         selectedObject = selection;
                         treeButton.setText(selection.getName());
+                        loadLastValue();
                     }
                 } catch (Exception ignored) {
                 }
@@ -340,6 +346,7 @@ public class EnterDataDialog {
 //        gridPane.add(diffSwitchLabel, 2, row);
         gridPane.add(dateLabel, 3, row, 2, 1);
         gridPane.add(valueLabel, 5, row);
+        gridPane.add(unitLabel, 6, row);
         row++;
         gridPane.add(searchIdField, 0, row);
         gridPane.add(treeButton, 1, row, 2, 1);
@@ -347,13 +354,14 @@ public class EnterDataDialog {
         gridPane.add(datePicker, 3, row);
         gridPane.add(timePicker, 4, row);
         gridPane.add(doubleField, 5, row);
+        gridPane.add(unitField, 6, row);
         row++;
-        gridPane.add(sep, 0, row, 6, 1);
+        gridPane.add(sep, 0, row, 7, 1);
         row++;
         gridPane.add(lastTSLabel, 1, row);
         gridPane.add(lastValueLabel, 2, row);
-        gridPane.add(cancel, 4, row);
-        gridPane.add(confirm, 5, row);
+        gridPane.add(cancel, 5, row);
+        gridPane.add(confirm, 6, row);
 
         Scene scene = new Scene(gridPane);
         stage.setScene(scene);
@@ -390,8 +398,16 @@ public class EnterDataDialog {
     private void loadLastValue() {
         if (selectedObject != null) {
             JEVisAttribute valueAttribute = null;
+            String unitString = "";
             try {
                 valueAttribute = selectedObject.getAttribute("Value");
+
+                JEVisUnit displayUnit = valueAttribute.getDisplayUnit();
+                unitString = UnitManager.getInstance().format(displayUnit);
+                if (!unitString.equals("")) {
+                    String finalUnitString = unitString;
+                    Platform.runLater(() -> this.unitField.setText(finalUnitString));
+                }
             } catch (JEVisException e) {
                 logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
             }
@@ -408,10 +424,15 @@ public class EnterDataDialog {
                         if (lastTS != null && lastValue != null) {
                             DateTime finalLastTS = lastTS;
                             Double finalLastValue = lastValue;
+                            String finalUnitString = unitString;
                             Platform.runLater(() -> {
                                 this.lastTSLabel.setText(finalLastTS.toString("yyyy-MM-dd HH:mm") + " : ");
 
-                                this.lastValueLabel.setText(numberFormat.format(finalLastValue));
+                                if (!finalUnitString.equals("")) {
+                                    this.lastValueLabel.setText(numberFormat.format(finalLastValue) + " " + finalUnitString);
+                                } else {
+                                    this.lastValueLabel.setText(numberFormat.format(finalLastValue));
+                                }
                             });
                         }
                     }
