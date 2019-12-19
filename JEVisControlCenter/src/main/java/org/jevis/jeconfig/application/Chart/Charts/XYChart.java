@@ -506,7 +506,7 @@ public class XYChart implements Chart {
         AggregationPeriod period = chartDataModels.get(0).getAggregationPeriod();
         AggregationPeriod durationPeriod = AggregationPeriod.NONE;
         Long millisDuration = timeStampOfLastSample.get().getMillis() - timeStampOfFirstSample.get().getMillis();
-        if (millisDuration >= Period.days(1).toStandardDuration().getMillis() * (365.25 - Days.of(60).getAmount()) ) {
+        if (millisDuration >= Period.days(1).toStandardDuration().getMillis() * (365.25 - Days.of(60).getAmount())) {
             durationPeriod = AggregationPeriod.MONTHLY;
         } else if (millisDuration >= Period.days(1).toStandardDuration().getMillis() * 30.4375) {
             durationPeriod = AggregationPeriod.WEEKLY;
@@ -1002,9 +1002,7 @@ public class XYChart implements Chart {
                         String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
                         String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
-                        System.out.println("NoteEditor.nearestSample: " + nearestSample);
-                        System.out.println("NoteEditor.noteSample   :" + serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()));
-                        RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getSingleRow().getScaleFactor());
+                        RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getUnit(), serie.getSingleRow().getScaleFactor());
 
                         map.put(title, rowNote);
                     }

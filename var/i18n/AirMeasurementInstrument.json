@@ -123,9 +123,9 @@
         "en": "Specifies the date of installation of the air meter."
       },
       "names": {
-        "de": "Einbaudatum",
-        "ru": "Installation Date",
-        "en": "Installation Date"
+        "de": "Einbau",
+        "ru": "Installation",
+        "en": "Installation"
       }
     },
     {
@@ -136,9 +136,9 @@
         "en": "The verification date indicates when the meter must next be checked and, if necessary, calibrated to ensure measurement accuracy."
       },
       "names": {
-        "de": "Überprüfungsdatum",
-        "ru": "Verification Date",
-        "en": "Verification Date"
+        "de": "Überprüfung",
+        "ru": "Verification",
+        "en": "Verification"
       }
     },
     {

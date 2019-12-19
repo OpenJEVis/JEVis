@@ -20,13 +20,15 @@ public class RowNote {
     private SimpleStringProperty note;
     private SimpleStringProperty userNote;
     private SimpleStringProperty userValue;
+    private SimpleStringProperty userValueUnit;
     private Boolean changed = false;
     private JEVisSample sample;
 
-    public RowNote(JEVisObject dataObject, JEVisSample sample,JEVisSample userNoteSample, String name, String userNote, String userValue, Double scaleFactor) {
+    public RowNote(JEVisObject dataObject, JEVisSample sample, JEVisSample userNoteSample, String name, String userNote, String userValue, String userValueUnit, Double scaleFactor) {
         this.name = new SimpleStringProperty(name);
         this.userNote = new SimpleStringProperty(userNote);
         this.userValue = new SimpleStringProperty(userValue);
+        this.userValueUnit = new SimpleStringProperty(userValueUnit);
         this.dataObject = dataObject;
         this.scaleFactor = scaleFactor;
         this.sample = sample;
@@ -39,9 +41,9 @@ public class RowNote {
 
         try {
             note = sample.getNote();
-            if(userNoteSample!=null&& !note.contains(NoteConstants.User.USER_NOTES)){
-                if(!userNoteSample.getValueAsString().isEmpty()){
-                    note+=","+NoteConstants.User.USER_NOTES;
+            if (userNoteSample != null && !note.contains(NoteConstants.User.USER_NOTES)) {
+                if (!userNoteSample.getValueAsString().isEmpty()) {
+                    note += "," + NoteConstants.User.USER_NOTES;
                 }
             }
 
@@ -349,6 +351,18 @@ public class RowNote {
 
     public void setUserValue(String userValue) {
         this.userValue.set(userValue);
+    }
+
+    public String getUserValueUnit() {
+        return userValueUnit.get();
+    }
+
+    public void setUserValueUnit(String userValueUnit) {
+        this.userValueUnit.set(userValueUnit);
+    }
+
+    public SimpleStringProperty userValueUnitProperty() {
+        return userValueUnit;
     }
 
     public SimpleStringProperty userValueProperty() {
