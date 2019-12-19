@@ -51,8 +51,8 @@ public class GraphExportImage {
                 + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()));
 
         FileChooser.ExtensionFilter pngFilter = new FileChooser.ExtensionFilter("Portable Network Graphics Files (*.png)", ".png");
-//        FileChooser.ExtensionFilter jpgFilter = new FileChooser.ExtensionFilter("Joint Photographic Experts Group Files (*.jpg)", ".jpg");
-        fileChooser.getExtensionFilters().addAll(pngFilter);
+        FileChooser.ExtensionFilter jpgFilter = new FileChooser.ExtensionFilter("Joint Photographic Experts Group Files (*.jpg)", ".jpg");
+        fileChooser.getExtensionFilters().addAll(pngFilter, jpgFilter);
         fileChooser.setSelectedExtensionFilter(pngFilter);
 
         File file = fileChooser.showSaveDialog(JEConfig.getStage());
@@ -74,7 +74,7 @@ public class GraphExportImage {
             WritableImage image = vBox.snapshot(snapshotParameters, null);
 
             try {
-                ImageIO.write(SwingFXUtils.fromFXImage(image, null), formatName, destinationFile);
+                ImageIO.write(SwingFXUtils.fromFXImage(image, null), ".png", destinationFile);
             } catch (IOException e) {
                 logger.error("Error: could not export to file.", e);
             }
