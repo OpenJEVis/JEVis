@@ -8,6 +8,7 @@ package org.jevis.report3.data.reportlink;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.*;
+import org.jevis.commons.constants.AlarmConstants;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.datetime.PeriodHelper;
@@ -81,6 +82,7 @@ public class AlarmFunction implements ReportData {
             CleanDataAlarm cleanDataAlarm = new CleanDataAlarm(alarmObj);
 
             AlarmType alarmType = cleanDataAlarm.getAlarmType();
+            String operator = AlarmConstants.Operator.getValue(cleanDataAlarm.getOperator());
 
             List<JEVisSample> listLogs = cleanDataObject.getAlarmLogAttribute().getSamples(interval.getStart(), interval.getEnd());
             Map<DateTime, JEVisSample> isValues = new HashMap<>();
@@ -113,7 +115,7 @@ public class AlarmFunction implements ReportData {
                         Double isValue = isValues.get(smp.getTimestamp()).getValueAsDouble();
                         Double shouldBeValue = shouldBeValues.get(smp.getTimestamp()).getValueAsDouble();
                         int logValue = smp.getValueAsLong().intValue();
-                        Alarm alarm = new Alarm(alarmObj, null, smp, smp.getTimestamp(), isValue, shouldBeValue, alarmType, logValue);
+                        Alarm alarm = new Alarm(alarmObj, null, smp, smp.getTimestamp(), isValue, operator, shouldBeValue, alarmType, logValue);
                         alarm.setTolerance(cleanDataAlarm.getTolerance());
                         alarmList.add(alarm);
                     } catch (Exception e) {
