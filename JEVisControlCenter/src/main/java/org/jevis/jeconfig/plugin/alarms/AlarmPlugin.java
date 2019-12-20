@@ -285,6 +285,37 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
+        TableColumn<AlarmRow, String> operatorColumn = new TableColumn<>("");
+        operatorColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, String>("operator"));
+        operatorColumn.setStyle("-fx-alignment: CENTER;");
+        operatorColumn.setSortable(false);
+//        operatorColumn.setPrefWidth(500);
+//        operatorColumn.setMinWidth(100);
+
+        operatorColumn.setCellValueFactory(param -> {
+            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getOperator() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarm().getOperator());
+            else return new SimpleObjectProperty<>();
+        });
+
+        operatorColumn.setCellFactory(new Callback<TableColumn<AlarmRow, String>, TableCell<AlarmRow, String>>() {
+            @Override
+            public TableCell<AlarmRow, String> call(TableColumn<AlarmRow, String> param) {
+                return new TableCell<AlarmRow, String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(item);
+                        }
+                    }
+                };
+            }
+        });
+
         TableColumn<AlarmRow, Double> shouldBeValueColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.shouldBeValue"));
         shouldBeValueColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, Double>("shouldBeValue"));
         shouldBeValueColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
@@ -293,8 +324,8 @@ public class AlarmPlugin implements Plugin {
         shouldBeValueColumn.setMinWidth(100);
 
         shouldBeValueColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getShouldBeValue() != null)
-                return new SimpleObjectProperty<>(param.getValue().getAlarm().getShouldBeValue());
+            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getSetValue() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarm().getSetValue());
             else return new SimpleObjectProperty<>();
         });
 
@@ -488,7 +519,7 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
-        tableView.getColumns().setAll(dateColumn, configNameColumn, objectNameColumn, isValueColumn, shouldBeValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn);
+        tableView.getColumns().setAll(dateColumn, configNameColumn, objectNameColumn, isValueColumn, operatorColumn, shouldBeValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn);
     }
 
     private String getAlarm(Integer item) {
@@ -505,7 +536,7 @@ public class AlarmPlugin implements Plugin {
 
     private String getTranslatedTypeName(String item) {
         switch (item) {
-            case ("L1 "):
+            case ("L1"):
                 return I18n.getInstance().getString("plugin.alarm.table.translation.l1");
             case ("L2"):
                 return I18n.getInstance().getString("plugin.alarm.table.translation.l2");
@@ -853,7 +884,7 @@ public class AlarmPlugin implements Plugin {
                                         DateTime dateTime = new DateTime(jsonAlarm.getTimeStamp());
                                         JEVisSample sample = attribute.getSamples(dateTime, dateTime).get(0);
 
-                                        Alarm alarm = new Alarm(object, attribute, sample, dateTime, jsonAlarm.getIsValue(), jsonAlarm.getShouldBeValue(), jsonAlarm.getAlarmType(), jsonAlarm.getLogValue());
+                                        Alarm alarm = new Alarm(object, attribute, sample, dateTime, jsonAlarm.getIsValue(), jsonAlarm.getOperator(), jsonAlarm.getShouldBeValue(), jsonAlarm.getAlarmType(), jsonAlarm.getLogValue());
 
                                         AlarmRow alarmRow = new AlarmRow(alarm.getTimeStamp(), alarmConfiguration, alarm);
 
