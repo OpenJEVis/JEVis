@@ -152,8 +152,8 @@ public class AlarmFunction implements ReportData {
         tmpMap.put(COLUMN_FROM, PeriodHelper.transformTimestampsToExcelTime(ts));
         tmpMap.put(COLUMN_UNTIL, PeriodHelper.transformTimestampsToExcelTime(ts));
         tmpMap.put(COLUMN_IS, alarm.getIsValue());
-        tmpMap.put(COLUMN_SHOULDBE, alarm.getShouldBeValue());
-        tmpMap.put(COLUMN_DIFF, alarm.getIsValue() - alarm.getShouldBeValue());
+        tmpMap.put(COLUMN_SHOULDBE, alarm.getSetValue());
+        tmpMap.put(COLUMN_DIFF, alarm.getIsValue() - alarm.getSetValue());
         tmpMap.put(COLUMN_TOLERANCE, alarm.getTolerance());
         tmpMap.put(COLUMN_OBJECTNAME, alarm.getObject().getName());
 

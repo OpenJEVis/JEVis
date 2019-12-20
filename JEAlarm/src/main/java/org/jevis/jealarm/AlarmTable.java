@@ -55,7 +55,9 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("    <th>Raw Datapoint</th>");
         sb.append("    <th>Clean Datapoint Class</th>");
         sb.append("    <th>Time Stamp</th>");
-        sb.append("    <th>Value</th>");
+        sb.append("    <th>Current Value</th>");
+        sb.append("    <th></th>");
+        sb.append("    <th>Set Value</th>");
         sb.append("    <th>Alarm Type</th>");
         sb.append("  </tr>");//border=\"0\"
 
@@ -155,6 +157,16 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                     if (currentUnit != null) {
                         sb.append(" ").append(currentUnit);
                     }
+                }
+                sb.append("</td>");
+                /**
+                 * Operator
+                 */
+                sb.append("<td style=\"");
+                sb.append(css);
+                sb.append("\">");
+                if (currentAlarm.getOperator() != null) {
+                    sb.append(currentAlarm.getOperator());
                 }
                 sb.append("</td>");
                 /**
@@ -290,6 +302,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("    <th>Clean Datapoint Class</th>");
         sb.append("    <th>Time Stamp</th>");
         sb.append("    <th>Current Value</th>");
+        sb.append("    <th></th>");
         sb.append("    <th>Set Value</th>");
         sb.append("    <th>Alarm Type</th>");
         sb.append("  </tr>");//border=\"0\"
@@ -381,12 +394,22 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 if (currentUnit != null) sb.append(" ").append(currentUnit);
                 sb.append("</td>");
                 /**
+                 * Operator
+                 */
+                sb.append("<td style=\"");
+                sb.append(css);
+                sb.append("\">");
+                if (currentAlarm.getOperator() != null) {
+                    sb.append(currentAlarm.getOperator());
+                }
+                sb.append("</td>");
+                /**
                  * Should-be Value
                  */
                 sb.append("<td style=\"");
                 sb.append(css);
                 sb.append("\">");
-                sb.append(nf.format(currentAlarm.getShouldBeValue()));
+                sb.append(nf.format(currentAlarm.getSetValue()));
                 if (currentUnit != null) sb.append(" ").append(currentUnit);
                 sb.append("</td>");
                 /**
