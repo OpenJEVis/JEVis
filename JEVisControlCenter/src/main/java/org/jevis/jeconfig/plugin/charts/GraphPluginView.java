@@ -618,6 +618,12 @@ public class GraphPluginView implements Plugin {
                     formatCharts();
 
                     JEConfig.getStatusBar().finishProgressJob(GraphPluginView.JOB_NAME, "done");
+
+                    for (ChartView chartView : charts) {
+                        if (chartView.getChartType() == ChartType.HEAT_MAP) {
+                            Platform.runLater(this::formatCharts);
+                        }
+                    }
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
