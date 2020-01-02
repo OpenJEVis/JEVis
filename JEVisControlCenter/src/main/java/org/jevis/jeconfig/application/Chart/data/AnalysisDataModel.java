@@ -28,6 +28,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
 import org.jevis.commons.json.JsonChartSettings;
@@ -45,7 +46,6 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.Regressi
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 

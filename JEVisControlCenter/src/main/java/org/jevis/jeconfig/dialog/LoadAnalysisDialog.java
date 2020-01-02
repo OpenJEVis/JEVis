@@ -26,6 +26,7 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.datetime.DateHelper;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
@@ -34,7 +35,6 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;

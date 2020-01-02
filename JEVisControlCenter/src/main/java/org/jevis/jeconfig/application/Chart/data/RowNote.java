@@ -5,9 +5,9 @@ import org.jevis.api.*;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.text.NumberFormat;

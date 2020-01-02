@@ -45,21 +45,25 @@ public class WorkDays {
                 JEVisObject site = getNextSiteRecursive(currentObject);
                 LocalTime start = null;
                 LocalTime end = null;
-                try {
-                    JEVisAttribute attStart = site.getAttribute("Workday Beginning");
-                    JEVisAttribute attEnd = site.getAttribute("Workday End");
-                    if (attStart.hasSample()) {
-                        String startStr = attStart.getLatestSample().getValueAsString();
-                        DateTime dtStart = DateTime.parse(startStr);
-                        start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), 0, 0);
+                if (site != null) {
+                    try {
+                        JEVisAttribute attStart = site.getAttribute("Workday Beginning");
+                        JEVisAttribute attEnd = site.getAttribute("Workday End");
+                        if (attStart.hasSample()) {
+                            String startStr = attStart.getLatestSample().getValueAsString();
+                            DateTime dtStart = DateTime.parse(startStr);
+                            start = LocalTime.of(dtStart.getHourOfDay(), dtStart.getMinuteOfHour(), 0, 0);
+                        }
+                        if (attEnd.hasSample()) {
+                            String endStr = attEnd.getLatestSample().getValueAsString();
+                            DateTime dtEnd = DateTime.parse(endStr);
+                            end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Could not get start and end for Building {}:{}", site.getName(), site.getID(), e);
                     }
-                    if (attEnd.hasSample()) {
-                        String endStr = attEnd.getLatestSample().getValueAsString();
-                        DateTime dtEnd = DateTime.parse(endStr);
-                        end = LocalTime.of(dtEnd.getHourOfDay(), dtEnd.getMinuteOfHour(), 59, 999999999);
-                    }
-                } catch (Exception e) {
-                    logger.error("Could not get start and end for Building {}:{}", site.getName(), site.getID(), e);
+                } else {
+                    logger.warn("Could not get site object for object {}:{}.", currentObject.getName(), currentObject.getID());
                 }
 
                 if (start != null && end != null) {

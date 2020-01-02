@@ -16,13 +16,13 @@ import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -31,7 +31,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTimeZone;
 
 import java.util.List;

@@ -10,9 +10,9 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -174,11 +174,7 @@ public class TimeFrames {
             @Override
             public boolean hasPreviousPeriod(Interval interval) {
                 /** Customer special case **/
-                if (cpo.getEndReferencePoint().equals("NOW")) {
-                    return false;
-                }
-
-                return true;
+                return !cpo.getEndReferencePoint().equals("NOW");
             }
 
         };
@@ -258,7 +254,7 @@ public class TimeFrames {
 
             @Override
             public String toString() {
-                return getID().toString();
+                return getID();
             }
 
             @Override
@@ -480,7 +476,7 @@ public class TimeFrames {
 
             @Override
             public String toString() {
-                return getID().toString();
+                return getID();
             }
 
             @Override

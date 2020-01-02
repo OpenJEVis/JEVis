@@ -46,6 +46,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.type.DisplayType;
@@ -54,7 +55,6 @@ import org.jevis.jeconfig.dialog.ExceptionDialog;
 import org.jevis.jeconfig.plugin.classes.ClassHelper;
 import org.jevis.jeconfig.plugin.classes.ClassTree;
 import org.jevis.jeconfig.plugin.classes.relationship.ValidParentEditor;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 import javax.measure.unit.Unit;

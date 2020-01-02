@@ -15,11 +15,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.text.DecimalFormat;
 

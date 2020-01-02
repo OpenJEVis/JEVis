@@ -1,12 +1,14 @@
-package org.jevis.jeconfig.tool;
+package org.jevis.commons.i18n;
 
-import org.apache.commons.beanutils.locale.LocaleBeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import static java.util.Locale.GERMANY;
+import static java.util.Locale.UK;
 
 
 /**
@@ -16,10 +18,11 @@ public class I18n {
 
     private static final Logger logger = LogManager.getLogger(I18n.class);
     private static I18n i18n;
-    private Locale locale = LocaleBeanUtils.getDefaultLocale();
+    private Locale locale = Locale.getDefault();
     private PropertyResourceBundle bundle;
     private ResourceBundle defaultBundle;
-    private Map<Locale, ResourceBundle> allBundles = new HashMap<>();
+    private Map<Locale, PropertyResourceBundle> allBundles = new HashMap<>();
+    private List<Locale> availableLang = new ArrayList<>();
 
     public static synchronized I18n getInstance() {
         if (i18n == null)
@@ -28,32 +31,22 @@ public class I18n {
     }
 
     public I18n() {
-        this.defaultBundle = ResourceBundle.getBundle("JEVisCC", Locale.ENGLISH);
-    }
-
-    public ResourceBundle getBundle() {
-        return this.bundle;
-    }
-
-    public void loadAndSelectBundles(List<Locale> availableLang, Locale local) {
-        this.locale = local;
-        Locale.setDefault(local);
-//        bundle = ResourceBundle.getBundle("JEVisCC", local);
+        this.defaultBundle = ResourceBundle.getBundle("JEVis", Locale.ENGLISH);
+        availableLang.add(UK);
+        availableLang.add(GERMANY);
+        availableLang.add(Locale.forLanguageTag("ru"));
+        availableLang.add(Locale.forLanguageTag("uk"));
+        availableLang.add(Locale.forLanguageTag("th"));
 
         for (Locale locale : availableLang) {
             try {
-                String s = "JEVisCC_" + locale.getLanguage() + ".properties";
+                String s = "JEVis_" + locale.getLanguage() + ".properties";
 
                 InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(s);
                 if (resourceAsStream != null) {
                     InputStreamReader inputStreamReader = new InputStreamReader(resourceAsStream, StandardCharsets.UTF_8);
                     Reader reader = new BufferedReader(inputStreamReader);
-                    if (locale.equals(local)) {
-                        this.bundle = new PropertyResourceBundle(reader);
-                        this.allBundles.put(locale, this.bundle);
-                    } else {
-                        this.allBundles.put(locale, new PropertyResourceBundle(reader));
-                    }
+                    this.allBundles.put(locale, new PropertyResourceBundle(reader));
                 }
             } catch (UnsupportedEncodingException e) {
                 logger.error("Unsupported encoding exception. Error while reading resource file.", e);
@@ -61,6 +54,19 @@ public class I18n {
                 logger.error("IO exception. Error while reading resource file.", e);
             }
         }
+    }
+
+    public List<Locale> getAvailableLang() {
+        return availableLang;
+    }
+
+    public ResourceBundle getBundle() {
+        return this.bundle;
+    }
+
+    public void selectBundle(Locale local) {
+        this.locale = local;
+        this.bundle = allBundles.get(local);
     }
 
     public Locale getLocale() {
@@ -104,7 +110,7 @@ public class I18n {
         }
     }
 
-    public Map<Locale, ResourceBundle> getAllBundles() {
+    public Map<Locale, PropertyResourceBundle> getAllBundles() {
         return allBundles;
     }
 }

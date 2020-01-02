@@ -19,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
@@ -26,7 +27,6 @@ import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.scada.data.ConfigSheet;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -202,7 +202,7 @@ public class DashBordModel {
                 alert.setHeaderText(I18n.getInstance().getString("plugin.dashboard.load.error.file.header"));
                 alert.setContentText(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
 
-                alert.show();;
+                alert.show();
                 return;
             }
 

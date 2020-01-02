@@ -44,11 +44,11 @@ import org.jevis.commons.constants.GapFillingBoundToSpecific;
 import org.jevis.commons.constants.GapFillingReferencePeriod;
 import org.jevis.commons.constants.GapFillingType;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.json.JsonTools;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.io.IOException;

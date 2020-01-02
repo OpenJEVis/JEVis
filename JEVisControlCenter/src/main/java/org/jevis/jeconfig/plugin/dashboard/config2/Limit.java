@@ -15,8 +15,8 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
-import org.jevis.jeconfig.tool.I18n;
 
 public class Limit {
 

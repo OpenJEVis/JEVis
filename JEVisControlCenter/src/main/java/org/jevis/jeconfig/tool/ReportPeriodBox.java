@@ -6,6 +6,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.report.PeriodMode;
 
 public class ReportPeriodBox extends ComboBox<PeriodMode> {

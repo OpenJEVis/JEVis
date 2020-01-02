@@ -37,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.*;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
@@ -48,7 +49,6 @@ import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.jevistree.plugin.MapPlugin;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.WidgetTreePlugin;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.List;

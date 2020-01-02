@@ -12,11 +12,11 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -370,7 +370,7 @@ public class WidgetColumnFactory {
                     @Override
                     protected void updateItem(String item, boolean empty) {
                         if (item != null && !empty) {
-                            TextField textField = new TextField(item.toString());
+                            TextField textField = new TextField(item);
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 setWidgetTitle(textField.getText(), (Widget) getTableRow().getItem());

@@ -41,10 +41,10 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.GapFillingBoundToSpecific;
 import org.jevis.commons.constants.GapFillingReferencePeriod;
 import org.jevis.commons.constants.GapFillingType;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonTools;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 import org.joda.time.DateTime;
 

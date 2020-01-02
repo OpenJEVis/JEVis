@@ -42,11 +42,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.jfx.Axis;
 import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 /**

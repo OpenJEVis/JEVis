@@ -42,6 +42,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.application.JavaVersionCheck;
@@ -49,7 +50,6 @@ import org.jevis.jeconfig.application.login.FXLogin;
 import org.jevis.jeconfig.application.statusbar.Statusbar;
 import org.jevis.jeconfig.application.tools.Holidays;
 import org.jevis.jeconfig.dialog.HiddenConfig;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
 
@@ -57,6 +57,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URISyntaxException;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.prefs.Preferences;
@@ -328,7 +329,8 @@ public class JEConfig extends Application {
                 _mainDS = login.getDataSource();
 
                 JEConfig.userpassword = login.getUserPassword();
-                I18n.getInstance().loadAndSelectBundles(login.getAvailableLang(), login.getSelectedLocale());
+                I18n.getInstance().selectBundle(login.getSelectedLocale());
+                Locale.setDefault(login.getSelectedLocale());
                 I18nWS.setDataSource((JEVisDataSourceWS) _mainDS);
                 I18nWS.getInstance().setLocale(login.getSelectedLocale());
 

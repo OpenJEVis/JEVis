@@ -18,9 +18,9 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.extension.calculation.CalculationViewController;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 public class CalculationExtension implements ObjectEditorExtension {

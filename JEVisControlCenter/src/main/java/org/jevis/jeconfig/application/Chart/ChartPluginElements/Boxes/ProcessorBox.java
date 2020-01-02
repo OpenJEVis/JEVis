@@ -8,8 +8,8 @@ import javafx.scene.control.ListView;
 import javafx.util.Callback;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.List;

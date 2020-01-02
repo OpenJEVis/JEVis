@@ -23,6 +23,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
@@ -39,7 +40,6 @@ import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.dialog.SaveAnalysisDialog;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 import org.joda.time.DateTime;
 

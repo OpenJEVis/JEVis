@@ -37,6 +37,7 @@ import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.map.MapViewPlugin;
 import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
@@ -45,7 +46,6 @@ import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.meters.MeterPlugin;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.plugin.reports.ReportPlugin;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.Comparator;

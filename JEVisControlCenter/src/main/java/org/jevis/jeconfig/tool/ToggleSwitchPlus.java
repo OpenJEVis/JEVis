@@ -6,6 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import org.controlsfx.control.ToggleSwitch;
+import org.jevis.commons.i18n.I18n;
 
 /**
  * Advanced ToggleButton with an localized on/off text

@@ -26,10 +26,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonScheduler;
 import org.jevis.commons.json.JsonSchedulerRule;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.time.LocalTime;
 import java.time.format.FormatStyle;

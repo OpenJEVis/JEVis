@@ -14,17 +14,16 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.Benchmark;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeItem;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.jevistree.TreePlugin;
 import org.jevis.jeconfig.plugin.dashboard.config.DataPointNode;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -626,7 +625,7 @@ public class WidgetTreePlugin implements TreePlugin {
                                         if (box.isSelected()) {
                                             selectedTreeItems.add((JEVisTreeItem) getTreeTableRow().getTreeItem());
                                         } else {
-                                            selectedTreeItems.remove((JEVisTreeItem) getTreeTableRow().getTreeItem());
+                                            selectedTreeItems.remove(getTreeTableRow().getTreeItem());
                                         }
 
 //                                        if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
