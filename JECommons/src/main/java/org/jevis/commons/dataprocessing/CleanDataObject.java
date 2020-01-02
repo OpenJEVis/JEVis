@@ -331,6 +331,7 @@ public class CleanDataObject {
                     firstDate = new DateTime(firstTimestampRaw.getYear(), firstTimestampRaw.getMonthOfYear(), firstTimestampRaw.getDayOfMonth(), 0, 0);
                 } else {
                     firstDate = null;
+                    logger.error("Could not get first date for: {}:{}", getCleanObject().getName(), getCleanObject().getID());
 //                    throw new RuntimeException("No raw values in clean data row");
                 }
             }
