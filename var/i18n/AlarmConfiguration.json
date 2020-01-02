@@ -73,8 +73,8 @@
         "NONE" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Keie",
-            "en" : "None"
+            "de": "Keine",
+            "en": "None"
           }
         }
       }
@@ -149,9 +149,9 @@
         "HOURLY" : {
           "descriptions" : null,
           "names" : {
-            "de" : "Monatlich",
-            "ru" : "ежечасно",
-            "en" : "hourly"
+            "de": "Stündlich",
+            "ru": "ежечасно",
+            "en": "Hourly"
           }
         },
         "WEEKLY" : {
