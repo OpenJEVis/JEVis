@@ -24,7 +24,7 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisConstants.Direction;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.commons.i18n.I18n;
 
 /**
  *

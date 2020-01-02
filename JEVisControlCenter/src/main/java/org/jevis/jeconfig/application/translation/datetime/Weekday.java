@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.translation.datetime;
 
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.commons.i18n.I18n;
 
 public enum Weekday {
 
