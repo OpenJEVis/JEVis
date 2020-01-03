@@ -22,6 +22,9 @@ package org.jevis.jeconfig.plugin.object.extension;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -63,6 +66,7 @@ public class MemberExtension implements ObjectEditorExtension {
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     //    AnchorPane _view = new AnchorPane();
     private BorderPane _view = new BorderPane();
+    private String lastFilterInput = "";
 
     public MemberExtension(JEVisObject obj) {
         this._obj = obj;
@@ -297,7 +301,9 @@ public class MemberExtension implements ObjectEditorExtension {
         Label newUserLabel = new Label(I18n.getInstance().getString("plugin.object.member.addmember"));
         newUserLabel.setPrefHeight(21);
         GridPane.setValignment(newUserLabel, VPos.CENTER);
-        HBox addNewBox = new HBox(2);
+        GridPane addNewBox = new GridPane();
+        addNewBox.setHgap(2);
+        addNewBox.setVgap(2);
         gridPane.add(addNewBox, 0, yAxis, 7, 1);
         GridPane.setFillWidth(addNewBox, true);
 
@@ -340,31 +346,59 @@ public class MemberExtension implements ObjectEditorExtension {
             }
         });
 
+        ObservableList<JEVisObject> possibleUsers = FXCollections.observableArrayList();
+
         try {
-//            List<JEVisObject> usersObjs = obj.getDataSource().getObjects(obj.getDataSource().getJEVisClass("User"), true);
             allUsers.sort(Comparator.comparing(this::getDisplayName));
-
             for (JEVisObject user : allUsers) {
-//                System.out.print("User in box: " + user.getName());
                 if (!members.containsKey(user)) {
-//                    logger.info(" is not member yet");
-                    users.getItems().add(user);
-                } else {
-//                    logger.info(" is allready member");
+                    possibleUsers.add(user);
                 }
-
             }
-
-            users.getSelectionModel().selectFirst();
-
         } catch (Exception ex) {
             logger.fatal(ex);
         }
+
+        FilteredList<JEVisObject> filteredData = new FilteredList<>(possibleUsers, s -> true);
+        TextField filterInput = new TextField();
+
+        filterInput.textProperty().addListener(obs -> {
+            String filter = filterInput.getText();
+            if (filter == null || filter.length() == 0) {
+                filteredData.setPredicate(s -> true);
+            } else {
+                if (filter.contains(" ")) {
+                    String[] result = filter.split(" ");
+                    filteredData.setPredicate(s -> {
+                        boolean match = false;
+                        String string = (objectRelations.getObjectPath(s) + s.getName()).toLowerCase();
+                        for (String value : result) {
+                            String subString = value.toLowerCase();
+                            if (!string.contains(subString))
+                                return false;
+                            else match = true;
+                        }
+                        return match;
+                    });
+                } else {
+                    filteredData.setPredicate(s -> (objectRelations.getObjectPath(s) + s.getName()).toLowerCase().contains(filter.toLowerCase()));
+                }
+            }
+            Platform.runLater(() -> users.getSelectionModel().selectFirst());
+        });
+
+        users.setItems(filteredData);
+
+        Platform.runLater(() -> {
+            filterInput.setText(lastFilterInput);
+            users.getSelectionModel().selectFirst();
+        });
 
         newB.setGraphic(JEConfig.getImage("list-add.png", 17, 17));
         newB.setOnAction(t -> {
             try {
                 JEVisObject userObj = users.getSelectionModel().getSelectedItem();
+                lastFilterInput = filterInput.getText();
 
                 userObj.buildRelationship(obj, JEVisConstants.ObjectRelationship.MEMBER_READ, JEVisConstants.Direction.FORWARD);
                 Platform.runLater(() -> {
@@ -381,7 +415,10 @@ public class MemberExtension implements ObjectEditorExtension {
             }
         });
 
-        addNewBox.getChildren().setAll(newUserLabel, users, newB);
+        addNewBox.add(newUserLabel, 0, 0, 1, 2);
+        addNewBox.add(filterInput, 1, 0, 1, 1);
+        addNewBox.add(users, 1, 1, 1, 1);
+        addNewBox.add(newB, 2, 1, 1, 1);
         HBox.setHgrow(users, Priority.ALWAYS);
 
         ScrollPane scroll = new ScrollPane();

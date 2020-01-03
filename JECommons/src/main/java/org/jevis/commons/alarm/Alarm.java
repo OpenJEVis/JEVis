@@ -3,6 +3,7 @@ package org.jevis.commons.alarm;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 
 /**
@@ -76,5 +77,21 @@ public class Alarm {
 
     public DateTime getTimeStamp() {
         return timeStamp;
+    }
+
+    public String getTranslatedTypeName() {
+        switch (alarmType.toString()) {
+            case ("L1"):
+                return I18n.getInstance().getString("plugin.alarm.table.translation.l1");
+            case ("L2"):
+                return I18n.getInstance().getString("plugin.alarm.table.translation.l2");
+            case ("DYNAMIC"):
+                return I18n.getInstance().getString("plugin.alarm.table.translation.dynamic");
+            case ("STATIC"):
+                return I18n.getInstance().getString("plugin.alarm.table.translation.static");
+            case ("NONE"):
+            default:
+                return I18n.getInstance().getString("plugin.alarm.table.translation.none");
+        }
     }
 }

@@ -32,7 +32,6 @@ import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmConfiguration;
-import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonAlarm;
@@ -420,31 +419,31 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
-        TableColumn<AlarmRow, AlarmType> alarmTypeColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.alarmType"));
-        alarmTypeColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, AlarmType>("alarmType"));
+        TableColumn<AlarmRow, String> alarmTypeColumn = new TableColumn<>(I18n.getInstance().getString("plugin.alarm.table.alarmType"));
+        alarmTypeColumn.setCellValueFactory(new PropertyValueFactory<AlarmRow, String>("alarmType"));
         alarmTypeColumn.setStyle("-fx-alignment: CENTER;");
         alarmTypeColumn.setSortable(false);
 //        alarmTypeColumn.setPrefWidth(500);
         alarmTypeColumn.setMinWidth(100);
 
         alarmTypeColumn.setCellValueFactory(param -> {
-            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getAlarmType() != null)
-                return new SimpleObjectProperty<>(param.getValue().getAlarm().getAlarmType());
+            if (param != null && param.getValue() != null && param.getValue().getAlarm() != null && param.getValue().getAlarm().getTranslatedTypeName() != null)
+                return new SimpleObjectProperty<>(param.getValue().getAlarm().getTranslatedTypeName());
             else return new SimpleObjectProperty<>();
         });
 
-        alarmTypeColumn.setCellFactory(new Callback<TableColumn<AlarmRow, AlarmType>, TableCell<AlarmRow, AlarmType>>() {
+        alarmTypeColumn.setCellFactory(new Callback<TableColumn<AlarmRow, String>, TableCell<AlarmRow, String>>() {
             @Override
-            public TableCell<AlarmRow, AlarmType> call(TableColumn<AlarmRow, AlarmType> param) {
-                return new TableCell<AlarmRow, AlarmType>() {
+            public TableCell<AlarmRow, String> call(TableColumn<AlarmRow, String> param) {
+                return new TableCell<AlarmRow, String>() {
                     @Override
-                    protected void updateItem(AlarmType item, boolean empty) {
+                    protected void updateItem(String item, boolean empty) {
                         super.updateItem(item, empty);
                         if (item == null || empty) {
                             setGraphic(null);
                             setText(null);
                         } else {
-                            setText(getTranslatedTypeName(item.toString()));
+                            setText(item);
                         }
                     }
                 };
@@ -531,22 +530,6 @@ public class AlarmPlugin implements Plugin {
             case (1):
             default:
                 return I18n.getInstance().getString("plugin.alarm.table.alarm.normal");
-        }
-    }
-
-    private String getTranslatedTypeName(String item) {
-        switch (item) {
-            case ("L1"):
-                return I18n.getInstance().getString("plugin.alarm.table.translation.l1");
-            case ("L2"):
-                return I18n.getInstance().getString("plugin.alarm.table.translation.l2");
-            case ("DYNAMIC"):
-                return I18n.getInstance().getString("plugin.alarm.table.translation.dynamic");
-            case ("STATIC"):
-                return I18n.getInstance().getString("plugin.alarm.table.translation.static");
-            case ("NONE"):
-            default:
-                return I18n.getInstance().getString("plugin.alarm.table.translation.none");
         }
     }
 
