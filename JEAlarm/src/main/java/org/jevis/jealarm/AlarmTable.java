@@ -419,7 +419,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 sb.append("<td style=\"");
                 sb.append(css);
                 sb.append("\">");
-                sb.append(currentAlarm.getAlarmType());
+                sb.append(currentAlarm.getTranslatedTypeName());
                 sb.append("</td>");
 
                 sb.append("</tr>");// style=\"border: 1px solid #D9E4E6;\">");
@@ -451,4 +451,6 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
 
         return null;
     }
+
+
 }
