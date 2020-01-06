@@ -47,6 +47,7 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ProcessorB
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.TimeZoneBox;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.tool.ScreenSize;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -75,8 +76,8 @@ public class SampleEditor {
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
 
-    private JFXDatePicker startDate = new JFXDatePicker();
-    private JFXDatePicker endDate = new JFXDatePicker();
+    private JFXDatePicker startDatePicker = new JFXDatePicker();
+    private JFXDatePicker endDatePicker = new JFXDatePicker();
     private int lastDataSettings = 0;
 
     //    private DateTime _from;
@@ -110,18 +111,11 @@ public class SampleEditor {
 
         final Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setWidth(740);
-        stage.setHeight(800);
+        stage.setWidth(780);
+        stage.setHeight( ScreenSize.fitScreenHeight(800));
         stage.setMaxWidth(2000);
         stage.initStyle(StageStyle.UTILITY);
-        stage.setResizable(false);
-
-        Screen screen = Screen.getPrimary();
-        if (screen.getBounds().getHeight() < 740) {
-            stage.setWidth(screen.getBounds().getHeight());
-        }
-
-        HBox buttonPanel = new HBox();
+        stage.setResizable(true);
 
         ok.setDefaultButton(true);
 
@@ -134,8 +128,8 @@ public class SampleEditor {
         Label startLabel = new Label(I18n.getInstance().getString("attribute.editor.from"));
 
 
-        startDate.setMaxWidth(120);
-        endDate.setMaxWidth(120);
+        startDatePicker.setMaxWidth(120);
+        endDatePicker.setMaxWidth(120);
 
 
         Label endLabel = new Label(I18n.getInstance().getString("attribute.editor.until"));
@@ -144,8 +138,8 @@ public class SampleEditor {
                 DateTime from = attribute.getTimestampFromLastSample().minusDays(1);
                 DateTime until = attribute.getTimestampFromLastSample().plusDays(1);
 
-                startDate.valueProperty().set(LocalDate.of(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth()));
-                endDate.valueProperty().set(LocalDate.of(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth()));
+                startDatePicker.valueProperty().set(LocalDate.of(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth()));
+                endDatePicker.valueProperty().set(LocalDate.of(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth()));
 
                 WorkDays wd = new WorkDays(attribute.getObject());
                 if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
@@ -155,33 +149,110 @@ public class SampleEditor {
             }
         }
 
-        Node preClean = buildProcessorBox();
+        //Node preClean = buildProcessorBox();
 
+        ProcessorBox processorBox = new ProcessorBox(_attribute.getObject(), null);
+        processorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                _attribute = newValue.getAttribute("Value");
+                updateSamples(startDatePicker, endDatePicker);
+            } catch (Exception ex) {
+                logger.fatal(ex);
+            }
+        });
+
+        AggregationBox aggregationBox = new AggregationBox(AggregationPeriod.NONE);
+        aggregationBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            _period = newValue;
+            updateSamples(startDatePicker, endDatePicker);
+        });
+
+        processorBox.setMinWidth(150);
+        aggregationBox.setMinWidth(150);
+
+        Label dataProcessorHeader = new Label(I18n.getInstance().getString("attribute.editor.dataprocessing"));
+        dataProcessorHeader.setStyle("-fx-font-weight: bold");
+        Label dataProcessorLable = new Label(I18n.getInstance().getString("attribute.editor.processor"));
+        Label aggregationLabel = new Label(I18n.getInstance().getString("attribute.editor.aggregate"));
+
+        Button config = new Button();
+        config.setGraphic(JEConfig.getImage("Service Manager.png", 16, 16));
+
+
+
+        Label timeZoneLabel = new Label("Timezone");
+        timeZoneLabel.setStyle("-fx-font-weight: bold");
         TimeZoneBox timeZoneBox = new TimeZoneBox();
-        HBox bottomBox = new HBox(timeZoneBox);
-        bottomBox.setPadding(new Insets(10));
+//        GridPane bottomBox = new GridPane();
+//        bottomBox.setHgap(5);
+//        bottomBox.setVgap(2);
+//        bottomBox.add(timeZoneLabel, 0, 0, 2, 1);
+//        bottomBox.add(timeZoneBox, 0, 1, 1, 1);
+//        bottomBox.add(new Region(), 0, 2, 1, 1); // column=1 row=0
+
+//        bottomBox.setPadding(new Insets(10));
         timeZoneBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             dateTimeZone = newValue;
-            updateSamples(startDate, endDate);
+            updateSamples(startDatePicker, endDatePicker);
         });
 
         Label timeRangeL = new Label(I18n.getInstance().getString("attribute.editor.timerange"));
         timeRangeL.setStyle("-fx-font-weight: bold");
-        GridPane timeSpan = new GridPane();
-        timeSpan.setHgap(5);
-        timeSpan.setVgap(2);
-        timeSpan.add(timeRangeL, 0, 0, 2, 1); // column=1 row=0
-        timeSpan.add(startLabel, 0, 1, 1, 1); // column=1 row=0
-        timeSpan.add(endLabel, 0, 2, 1, 1); // column=1 row=0
+//        GridPane timeSpan = new GridPane();
+//        timeSpan.setHgap(5);
+//        timeSpan.setVgap(2);
+//        timeSpan.setMaxWidth(250d);
+//        timeSpan.add(timeRangeL, 0, 0, 2, 1); // column=1 row=0
+//        timeSpan.add(startLabel, 0, 1, 1, 1); // column=1 row=0
+//        timeSpan.add(endLabel, */0, 2, 1, 1); // column=1 row=0
 
-        timeSpan.add(startDate, 1, 1, 1, 1); // column=1 row=0
-        timeSpan.add(endDate, 1, 2, 1, 1); // column=1 row=0
+//        grid.add(header, 0, 0, 2, 1); // column=1 row=0
+//        grid.add(aggregation, 0, 2, 1, 1); // column=1 row=0
+//        grid.add(aggregationBox, 1, 2, 1, 1); // column=1 row=0
+//        grid.add(dataProcessor, 0, 3, 1, 1);
+//        grid.add(processorBox, 1, 3, 1, 1);
+//        grid.setMaxWidth(250d);
+        GridPane.setHgrow(aggregationBox,Priority.ALWAYS);
+        GridPane.setHgrow(processorBox,Priority.ALWAYS);
+//
+//        timeSpan.add(startDatePicker, 1, 1, 1, 1); // column=1 row=0
+//        timeSpan.add(endDatePicker, 1, 2, 1, 1); // column=1 row=0
 
-        buttonPanel.getChildren().addAll(timeSpan, preClean, spacer, ok, cancel);
-        buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
-        buttonPanel.setPadding(new Insets(10));
-        buttonPanel.setSpacing(15);//10
-        buttonPanel.setMaxHeight(25);
+        HBox buttonBox = new HBox(15,spacer, ok, cancel);
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
+        HBox.setHgrow(spacer,Priority.ALWAYS);
+
+        aggregationBox.setMinWidth(150);
+        dataProcessorLable.setMinWidth(150);
+        timeZoneBox.setMaxWidth(200);
+
+        GridPane buttonGridPane= new GridPane();
+        buttonGridPane.setPadding(new Insets(10));
+        buttonGridPane.setHgap(15);
+        buttonGridPane.setVgap(5);
+
+        buttonGridPane.add(timeRangeL,0,0,2,1);
+        buttonGridPane.add(dataProcessorHeader,2,0,2,1);
+        buttonGridPane.add(timeZoneLabel,4,0,2,1);
+
+        buttonGridPane.addRow(1,startLabel, startDatePicker,aggregationLabel,aggregationBox,timeZoneBox);
+        buttonGridPane.addRow(2,endLabel, endDatePicker,dataProcessorLable,processorBox);
+        buttonGridPane.add(buttonBox,0,3,6,1);
+
+//        buttonGridPane.addColumn(0,header,aggregationLabel,aggregationBox);
+//        buttonGridPane.addColumn(0,new Region(),dataProcessorLable,processorBox);
+//        buttonGridPane.addColumn(1,preClean);
+//        buttonGridPane.addColumn(2,bottomBox);
+//        buttonGridPane.add(buttonBox,0,1,3,1);
+
+       //HBox buttonPanel = new HBox();
+
+       // buttonPanel.getChildren().addAll(timeSpan, preClean, spacer, ok, cancel);
+        //buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
+       // buttonPanel.setPadding(new Insets(10));
+        //buttonPanel.setSpacing(15);//10
+        //buttonPanel.setMaxHeight(25);
+        GridPane.setHgrow(buttonBox,Priority.ALWAYS);
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(cancel, Priority.NEVER);
@@ -226,9 +297,9 @@ public class SampleEditor {
 
         Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("attribute.editor.title"));//new Separator(Orientation.HORIZONTAL),
 
-        root.getChildren().addAll(header, tabPane, new Separator(Orientation.HORIZONTAL), buttonPanel, bottomBox);
+        root.getChildren().addAll(header, tabPane, new Separator(Orientation.HORIZONTAL), buttonGridPane);
         VBox.setVgrow(tabPane, Priority.ALWAYS);
-        VBox.setVgrow(buttonPanel, Priority.NEVER);
+        VBox.setVgrow(buttonGridPane, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
 
         ok.setOnAction(t -> {
@@ -248,15 +319,15 @@ public class SampleEditor {
             }
         });
 
-        startDate.valueProperty().addListener((observable, oldValue, newValue) -> {
+        startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
 //            _from = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 0, 0);
 //            updateSamples(startDate, _until);
-            updateSamples(startDate, endDate);
+            updateSamples(startDatePicker, endDatePicker);
         });
-        endDate.valueProperty().addListener((observable, oldValue, newValue) -> {
+        endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
 //            _until = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 23, 59, 59, 999);
 //            updateSamples(_from, _until);
-            updateSamples(startDate, endDate);
+            updateSamples(startDatePicker, endDatePicker);
         });
 
         cancel.setOnAction(t -> {
@@ -270,8 +341,8 @@ public class SampleEditor {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                if (startDate != null && endDate != null) {
-                    updateSamples(startDate, endDate);
+                if (startDatePicker != null && endDatePicker != null) {
+                    updateSamples(startDatePicker, endDatePicker);
                 }
             }
         });
@@ -291,7 +362,7 @@ public class SampleEditor {
         processorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 _attribute = newValue.getAttribute("Value");
-                updateSamples(startDate, endDate);
+                updateSamples(startDatePicker, endDatePicker);
             } catch (Exception ex) {
                 logger.fatal(ex);
             }
@@ -300,7 +371,7 @@ public class SampleEditor {
         AggregationBox aggregationBox = new AggregationBox(AggregationPeriod.NONE);
         aggregationBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             _period = newValue;
-            updateSamples(startDate, endDate);
+            updateSamples(startDatePicker, endDatePicker);
         });
 
         processorBox.setMinWidth(150);
@@ -322,6 +393,9 @@ public class SampleEditor {
         grid.add(aggregationBox, 1, 2, 1, 1); // column=1 row=0
         grid.add(dataProcessor, 0, 3, 1, 1);
         grid.add(processorBox, 1, 3, 1, 1);
+        grid.setMaxWidth(250d);
+        GridPane.setHgrow(aggregationBox,Priority.ALWAYS);
+        GridPane.setHgrow(processorBox,Priority.ALWAYS);
 
         return grid;
     }
