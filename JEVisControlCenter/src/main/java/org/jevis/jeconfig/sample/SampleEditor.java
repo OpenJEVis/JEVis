@@ -23,6 +23,8 @@ import com.jfoenix.controls.JFXDatePicker;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -33,6 +35,7 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisObject;
@@ -42,6 +45,7 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ProcessorBox;
@@ -158,7 +162,46 @@ public class SampleEditor {
         Node preClean = buildProcessorBox();
 
         TimeZoneBox timeZoneBox = new TimeZoneBox();
-        HBox bottomBox = new HBox(timeZoneBox);
+
+        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", 17, 17));
+        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
+        reload.setTooltip(reloadTooltip);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
+
+        reload.setOnAction(event -> {
+
+            final String loading = I18n.getInstance().getString("plugin.alarms.reload.progress.message");
+            Service<Void> service = new Service<Void>() {
+                @Override
+                protected Task<Void> createTask() {
+                    return new Task<Void>() {
+                        @Override
+                        protected Void call() {
+                            updateMessage(loading);
+                            try {
+                                _attribute.getDataSource().reloadAttribute(_attribute);
+                                Platform.runLater(() -> updateSamples(startDate, endDate));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return null;
+                        }
+                    };
+                }
+            };
+            ProgressDialog pd = new ProgressDialog(service);
+            pd.setHeaderText(I18n.getInstance().getString("plugin.reports.reload.progress.header"));
+            pd.setTitle(I18n.getInstance().getString("plugin.reports.reload.progress.title"));
+            pd.getDialogPane().setContent(null);
+
+            service.start();
+
+        });
+
+        Region spacer2 = new Region();
+        HBox.setHgrow(spacer2, Priority.ALWAYS);
+
+        HBox bottomBox = new HBox(timeZoneBox, spacer2, reload);
         bottomBox.setPadding(new Insets(10));
         timeZoneBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             dateTimeZone = newValue;
