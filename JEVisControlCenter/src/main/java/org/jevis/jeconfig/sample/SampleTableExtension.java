@@ -215,7 +215,6 @@ public class SampleTableExtension implements SampleEditorExtension {
                 }
         );
 
-
 //        boolean disableEdit = true;
         box.getChildren()
                 .setAll(addNewSample, deleteAll, deleteSelected, deleteInBetween, saveButton);
