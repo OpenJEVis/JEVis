@@ -34,7 +34,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 
 import java.text.ParseException;
@@ -112,7 +112,7 @@ public class CSVTable extends TableView<CSVLine> {
 
     public Task<Integer> doImport() {
 
-        Task<Integer> uploadTask = new Task<Integer>() {
+        return new Task<Integer>() {
             @Override
             public Integer call() throws InterruptedException {
                 boolean hadErrors = false;
@@ -121,15 +121,15 @@ public class CSVTable extends TableView<CSVLine> {
                 CSVColumnHeader dateColumn = null;
                 CSVColumnHeader timeColumn = null;
                 List<DateTime> combinedList = null;
-                for (CSVColumnHeader header : header) {
-                    if (header.getMeaning() == CSVColumnHeader.Meaning.DateTime) {
-                        tsColumn = header;
+                for (CSVColumnHeader header1 : header) {
+                    if (header1.getMeaning() == CSVColumnHeader.Meaning.DateTime) {
+                        tsColumn = header1;
                         break;
-                    } else if (header.getMeaning() == CSVColumnHeader.Meaning.Date) {
-                        dateColumn = header;
+                    } else if (header1.getMeaning() == CSVColumnHeader.Meaning.Date) {
+                        dateColumn = header1;
                         break;
-                    } else if (header.getMeaning() == CSVColumnHeader.Meaning.Time) {
-                        timeColumn = header;
+                    } else if (header1.getMeaning() == CSVColumnHeader.Meaning.Time) {
+                        timeColumn = header1;
                         break;
                     }
                 }
@@ -143,19 +143,19 @@ public class CSVTable extends TableView<CSVLine> {
                 if (dateColumn != null || timeColumn != null) {
                     List<DateTime> listDate = new ArrayList<>();
                     List<DateTime> listTime = new ArrayList<>();
-                    for (CSVColumnHeader header : header) {
-                        if (header.getMeaning() == CSVColumnHeader.Meaning.Date) {
+                    for (CSVColumnHeader header1 : header) {
+                        if (header1.getMeaning() == CSVColumnHeader.Meaning.Date) {
                             for (CSVLine line : toImportList) {
                                 try {
-                                    listDate.add(header.getValueAsDate(line.getColumn(header.getColumn())));
+                                    listDate.add(header1.getValueAsDate(line.getColumn(header1.getColumn())));
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
                             }
-                        } else if (header.getMeaning() == CSVColumnHeader.Meaning.Time) {
+                        } else if (header1.getMeaning() == CSVColumnHeader.Meaning.Time) {
                             for (CSVLine line : toImportList) {
                                 try {
-                                    listTime.add(header.getValueAsDate(line.getColumn(header.getColumn())));
+                                    listTime.add(header1.getValueAsDate(line.getColumn(header1.getColumn())));
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
@@ -179,8 +179,8 @@ public class CSVTable extends TableView<CSVLine> {
 
                 Integer importedSize = 0;
                 //find values and import them
-                for (CSVColumnHeader header : header) {
-                    if (header.getMeaning() == CSVColumnHeader.Meaning.Value || header.getMeaning() == CSVColumnHeader.Meaning.Text) {
+                for (CSVColumnHeader header1 : header) {
+                    if (header1.getMeaning() == CSVColumnHeader.Meaning.Value || header1.getMeaning() == CSVColumnHeader.Meaning.Text) {
                         List<JEVisSample> _newSamples = new ArrayList<>();
 
                         for (CSVLine line : toImportList) {
@@ -194,9 +194,9 @@ public class CSVTable extends TableView<CSVLine> {
                                 } else {
                                     throw new JEVisException("Found no timestamp", 34253325);
                                 }
-                                if (header.getMeaning() == CSVColumnHeader.Meaning.Value) {
-                                    Double value = header.getValueAsDouble(line.getColumn(header.getColumn()));
-                                    JEVisAttribute targetAtt = header.getTarget();
+                                if (header1.getMeaning() == CSVColumnHeader.Meaning.Value) {
+                                    Double value = header1.getValueAsDouble(line.getColumn(header1.getColumn()));
+                                    JEVisAttribute targetAtt = header1.getTarget();
                                     String note = "CSV Import by " + ds.getCurrentUser().getAccountName();
                                     if (!customNote.equals("")) {
                                         note += "; " + customNote;
@@ -212,14 +212,14 @@ public class CSVTable extends TableView<CSVLine> {
                             }
                         }
                         try {
-                            logger.debug("Import " + _newSamples.size() + " sample(s) into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName());
+                            logger.debug("Import " + _newSamples.size() + " sample(s) into " + header1.getTarget().getObject().getID() + "." + header1.getTarget().getName());
 //                            importedSize+= header.getTarget().addSamples(_newSamples); // not working because of missing API implementation
-                            header.getTarget().addSamples(_newSamples);
+                            header1.getTarget().addSamples(_newSamples);
                             importedSize += _newSamples.size();
                         } catch (Exception ex) {
                             hadErrors = true;
                             setException(ex);
-                            logger.error("Error while importing sample(s) into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName(), ex);
+                            logger.error("Error while importing sample(s) into " + header1.getTarget().getObject().getID() + "." + header1.getTarget().getName(), ex);
                         }
                     }
                 }
@@ -233,8 +233,6 @@ public class CSVTable extends TableView<CSVLine> {
                 return importedSize;
             }
         };
-
-        return uploadTask;
 
     }
 
@@ -252,7 +250,7 @@ public class CSVTable extends TableView<CSVLine> {
 
     public void refreshTable() {
 //        getItems().clear();
-        ObservableList observableList = FXCollections.observableArrayList(parser.parse());
+        ObservableList<CSVLine> observableList = FXCollections.observableArrayList(parser.parse());
         Platform.runLater(() -> {
 //            updateColumns();
             setItems(observableList);

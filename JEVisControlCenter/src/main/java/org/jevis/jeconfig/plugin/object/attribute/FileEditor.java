@@ -35,12 +35,15 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.dialog.ImageViewerDialog;
+import org.jevis.jeconfig.dialog.PDFViewerDialog;
 import org.jevis.jeconfig.dialog.ProgressForm;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -114,18 +117,33 @@ public class FileEditor implements AttributeEditor {
         uploadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.upload"),
                 JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", 18, 18));
 
+        boolean isPDF = false;
+        boolean isImage = false;
+
         Region rightSpacer = new Region();
         HBox.setHgrow(rightSpacer, Priority.ALWAYS);
 
         try {
             JEVisSample lsample = attribute.getLatestSample();
             if (lsample != null) {
+                String fileName = lsample.getValueAsString();
                 if (_autoDownload) {
-                    _downloadButton.setText(lsample.getValueAsString());
+                    _downloadButton.setText(fileName);
                 } else {
                     _downloadButton.setText(I18n.getInstance().getString("plugin.object.attribute.file.button_emty"));
                 }
-
+                String s = fileName.substring(fileName.length() - 3).toLowerCase();
+                switch (s) {
+                    case "pdf":
+                        isPDF = true;
+                        break;
+                    case "png":
+                    case "jpg":
+                    case "jpeg":
+                    case "gif":
+                        isImage = true;
+                        break;
+                }
             } else {
                 _downloadButton.setDisable(true);
             }
@@ -138,6 +156,37 @@ public class FileEditor implements AttributeEditor {
 
         box.getChildren().setAll(uploadButton, _downloadButton, rightSpacer);
 
+        if (isPDF) {
+            Button pdfButton = new Button("", JEConfig.getImage("pdf_24_2133056.png", 18, 18));
+            box.getChildren().add(2, pdfButton);
+            pdfButton.setOnAction(event -> {
+                PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
+                try {
+                    JEVisSample latestSample = attribute.getLatestSample();
+                    if (latestSample != null) {
+                        pdfViewerDialog.show(latestSample.getValueAsFile(), JEConfig.getStage());
+                    }
+                } catch (JEVisException e) {
+                    logger.error("Could not open pdf viewer", e);
+                }
+            });
+        }
+
+        if (isImage) {
+            Button imageButton = new Button("", JEConfig.getImage("export-image.png", 18, 18));
+            box.getChildren().add(2, imageButton);
+            imageButton.setOnAction(event -> {
+                ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
+                try {
+                    JEVisSample latestSample = attribute.getLatestSample();
+                    if (latestSample != null) {
+                        imageViewerDialog.show(latestSample.getValueAsFile(), JEConfig.getStage());
+                    }
+                } catch (JEVisException e) {
+                    logger.error("Could not open pdf viewer", e);
+                }
+            });
+        }
 
         uploadButton.setOnAction(t -> {
             FileChooser fileChooser = new FileChooser();

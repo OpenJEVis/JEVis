@@ -99,11 +99,6 @@ public class LogicalChart extends XYChart {
     }
 
     @Override
-    public void generateXAxis(Boolean[] changedBoth) {
-
-    }
-
-    @Override
     public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
         Point2D mouseCoordinates = null;
         if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());

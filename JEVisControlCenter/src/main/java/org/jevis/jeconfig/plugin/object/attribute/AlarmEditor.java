@@ -42,6 +42,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.AlarmConstants;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonAlarmConfig;
 import org.jevis.commons.json.JsonScheduler;
 import org.jevis.commons.json.JsonTools;
@@ -50,7 +51,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.io.IOException;

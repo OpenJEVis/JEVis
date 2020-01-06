@@ -45,12 +45,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonFactory;
 import org.jevis.commons.json.JsonFileExporter;
 import org.jevis.commons.json.JsonObject;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

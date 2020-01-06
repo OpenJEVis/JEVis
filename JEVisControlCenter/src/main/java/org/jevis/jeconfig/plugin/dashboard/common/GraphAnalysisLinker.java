@@ -7,13 +7,13 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.Interval;
 
 public class GraphAnalysisLinker {

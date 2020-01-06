@@ -7,11 +7,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import org.jevis.api.*;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 

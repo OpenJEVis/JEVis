@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.reports;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
@@ -13,6 +14,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
@@ -24,13 +27,13 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
 import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -57,6 +60,7 @@ public class ReportPlugin implements Plugin {
     private List<JEVisObject> disabledItemList;
     private WebEngine engine = web.getEngine();
     private HBox hBox = new HBox();
+    private TextField filterInput = new TextField();
     private final int iconSize = 24;
 
     public ReportPlugin(JEVisDataSource ds, String title) {
@@ -75,8 +79,11 @@ public class ReportPlugin implements Plugin {
         sp.setId("mainsplitpane");
         sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
-        sp.getItems().setAll(listView, view);
+        VBox vBox = new VBox(filterInput, listView);
+        sp.getItems().setAll(vBox, view);
         this.borderPane.setCenter(sp);
+
+        VBox.setVgrow(listView, Priority.ALWAYS);
 
         sp.setDividerPositions(0.3);
 
@@ -311,7 +318,35 @@ public class ReportPlugin implements Plugin {
             return ac.compare(name1, name2);
         });
 
-        listView.setItems(reports);
+        FilteredList<JEVisObject> filteredData = new FilteredList<>(reports, s -> true);
+
+        filterInput.setPadding(new Insets(10));
+
+        filterInput.textProperty().addListener(obs -> {
+            String filter = filterInput.getText();
+            if (filter == null || filter.length() == 0) {
+                filteredData.setPredicate(s -> true);
+            } else {
+                if (filter.contains(" ")) {
+                    String[] result = filter.split(" ");
+                    filteredData.setPredicate(s -> {
+                        boolean match = false;
+                        String string = (objectRelations.getObjectPath(s) + s.getName()).toLowerCase();
+                        for (String value : result) {
+                            String subString = value.toLowerCase();
+                            if (!string.contains(subString))
+                                return false;
+                            else match = true;
+                        }
+                        return match;
+                    });
+                } else {
+                    filteredData.setPredicate(s -> (objectRelations.getObjectPath(s) + s.getName()).toLowerCase().contains(filter.toLowerCase()));
+                }
+            }
+        });
+
+        listView.setItems(filteredData);
         listView.setPrefWidth(250);
         disabledItemList = getDisabledItems(reports);
         setupCellFactory(listView);
@@ -438,15 +473,15 @@ public class ReportPlugin implements Plugin {
 //                        .stateProperty()
 //                        .addListener((observable, oldValue, newValue) -> {
 //                            if (newValue == Worker.State.SUCCEEDED) {
-                                try {
+                try {
 
-                                    byte[] bytes = sampleMap.get(lastSample.getTimestamp()).getValueAsFile().getBytes();
-                                    String base64 = Base64.getEncoder().encodeToString(bytes);
-                                    // call JS function from Java code
-                                    engine.executeScript("openFileFromBase64('" + base64 + "')");
-                                } catch (Exception e) {
-                                    logger.error("Could not load latest report for {}:{}", reportObject.getName(), reportObject.getID(), e);
-                                }
+                    byte[] bytes = sampleMap.get(lastSample.getTimestamp()).getValueAsFile().getBytes();
+                    String base64 = Base64.getEncoder().encodeToString(bytes);
+                    // call JS function from Java code
+                    engine.executeScript("openFileFromBase64('" + base64 + "')");
+                } catch (Exception e) {
+                    logger.error("Could not load latest report for {}:{}", reportObject.getName(), reportObject.getID(), e);
+                }
 //                            }
 //                        });
             }

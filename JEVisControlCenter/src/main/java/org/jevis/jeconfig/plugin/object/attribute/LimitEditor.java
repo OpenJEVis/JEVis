@@ -43,10 +43,12 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.constants.GapFillingBoundToSpecific;
 import org.jevis.commons.constants.GapFillingReferencePeriod;
 import org.jevis.commons.constants.GapFillingType;
+import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.json.JsonTools;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -67,6 +69,7 @@ public class LimitEditor implements AttributeEditor {
             GapFillingBoundToSpecific.WEEKOFYEAR, GapFillingBoundToSpecific.MONTHOFYEAR);
     private final ObservableList<GapFillingType> optionsType = FXCollections.observableArrayList(GapFillingType.NONE, GapFillingType.INTERPOLATION, GapFillingType.AVERAGE,
             GapFillingType.DEFAULT_VALUE, GapFillingType.STATIC, GapFillingType.MINIMUM, GapFillingType.MAXIMUM, GapFillingType.MEDIAN);
+    private String unitString = "";
     public JEVisAttribute _attribute;
     private HBox box = new HBox(12);
     private JEVisSample _newSample;
@@ -78,7 +81,14 @@ public class LimitEditor implements AttributeEditor {
         logger.debug("==init== for: {}", att.getName());
         _attribute = att;
         _lastSample = _attribute.getLatestSample();
-
+        try {
+            JEVisAttribute valueAttribute = _attribute.getObject().getAttribute(CleanDataObject.VALUE_ATTRIBUTE_NAME);
+            if (valueAttribute != null) {
+                unitString = UnitManager.getInstance().format(valueAttribute.getDisplayUnit());
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -230,7 +240,6 @@ public class LimitEditor implements AttributeEditor {
         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
         dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
 
-
         dialog.showAndWait()
                 .ifPresent(response -> {
                     if (response.getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
@@ -266,6 +275,8 @@ public class LimitEditor implements AttributeEditor {
         JFXTextField nameField = new JFXTextField();
         JFXTextField minField = new JFXTextField();
         JFXTextField maxField = new JFXTextField();
+        Label unitFieldMin = new Label(unitString);
+        Label unitFieldMax = new Label(unitString);
 
         JFXComboBox<GapFillingType> typeBox = new JFXComboBox<>(optionsType);
         Callback<ListView<GapFillingType>, ListCell<GapFillingType>> cellFactoryTypeBox = new Callback<javafx.scene.control.ListView<GapFillingType>, ListCell<GapFillingType>>() {
@@ -444,10 +455,16 @@ public class LimitEditor implements AttributeEditor {
 
         gridPane.add(minLabel, 0, row);
         gridPane.add(minField, 1, row, 2, 1);
+        if (!unitString.equals("")) {
+            gridPane.add(unitFieldMin, 3, row);
+        }
         row++;
 
         gridPane.add(maxLabel, 0, row);
         gridPane.add(maxField, 1, row, 2, 1);
+        if (!unitString.equals("")) {
+            gridPane.add(unitFieldMax, 3, row);
+        }
 
         tab.setContent(gridPane);
     }

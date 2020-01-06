@@ -14,12 +14,12 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
 import org.apache.commons.validator.routines.DoubleValidator;
-import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -86,7 +86,6 @@ public class NoteDialog extends Dialog<ButtonType> {
             String userNote = param.getValue().getUserNote();
             return new ReadOnlyObjectWrapper<>(userNote);
         });
-
 
 
         columnUserNote.setCellFactory(new Callback<TableColumn<RowNote, String>, TableCell<RowNote, String>>() {
@@ -173,15 +172,15 @@ public class NoteDialog extends Dialog<ButtonType> {
                         } else {
                             RowNote rowNote = (RowNote) getTableRow().getItem();
 
-                            TextField textArea = new TextField();
+                            TextField textField = new TextField();
                             if (!rowNote.getUserValue().equals("")) {
                                 double userValue = Double.parseDouble(rowNote.getUserValue()) * rowNote.getScaleFactor();
-                                textArea.setText(String.valueOf(userValue));
+                                textField.setText(String.valueOf(userValue));
                             }
 
-                            textArea.setAlignment(Pos.CENTER);
+                            textField.setAlignment(Pos.CENTER);
 
-                            textArea.textProperty().addListener((observable, oldValue, newValue) -> {
+                            textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 if (!newValue.equals(oldValue)) {
                                     if (!newValue.equals("")) {
                                         DoubleValidator validator = DoubleValidator.getInstance();
@@ -190,7 +189,7 @@ public class NoteDialog extends Dialog<ButtonType> {
                                             rowNote.setChanged(true);
                                             rowNote.setUserValue(String.valueOf(parsedValue * (1 / rowNote.getScaleFactor())));
                                         } catch (Exception e) {
-                                            textArea.setText(oldValue);
+                                            textField.setText(oldValue);
                                         }
                                     } else {
                                         rowNote.setChanged(true);
@@ -200,15 +199,25 @@ public class NoteDialog extends Dialog<ButtonType> {
                             });
                             try {
                                 if (rowNote.getDataObject().getDataSource().getCurrentUser().canWrite(rowNote.getDataObject().getID())) {
-                                    textArea.setDisable(false);
-                                }else{
-                                    textArea.setDisable(true);
+                                    textField.setDisable(false);
+                                } else {
+                                    textField.setDisable(true);
                                 }
-                            }catch (Exception ex){
-                                textArea.setDisable(true);
+                            } catch (Exception ex) {
+                                textField.setDisable(true);
                             }
 
-                            setGraphic(textArea);
+                            HBox hBox = new HBox(textField);
+                            hBox.setSpacing(4);
+                            if (!UnitManager.getInstance().format(rowNote.getUserValueUnit()).equals("")) {
+                                Label unitLabel = new Label();
+                                unitLabel.setAlignment(Pos.CENTER);
+                                unitLabel.setText(UnitManager.getInstance().format(rowNote.getUserValueUnit()));
+                                hBox.getChildren().add(unitLabel);
+                            }
+
+                            hBox.setAlignment(Pos.CENTER);
+                            setGraphic(new VBox(hBox));
                         }
                     }
                 };

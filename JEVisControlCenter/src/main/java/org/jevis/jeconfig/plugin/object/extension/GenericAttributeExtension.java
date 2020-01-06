@@ -35,6 +35,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -43,7 +44,6 @@ import org.jevis.jeconfig.dialog.ExceptionDialog;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.List;

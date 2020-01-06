@@ -6,8 +6,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.tool.I18n;
 
 public class DeleteAnalysisDialog {
     private static final Logger logger = LogManager.getLogger(DeleteAnalysisDialog.class);

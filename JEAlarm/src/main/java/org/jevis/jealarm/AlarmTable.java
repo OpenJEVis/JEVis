@@ -7,6 +7,7 @@ import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
@@ -39,7 +40,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("<br>");
         sb.append("<br>");
 
-        sb.append("<h2>Limits</h2>");
+        sb.append("<h2>").append(I18n.getInstance().getString("alarms.table.title.limits")).append("</h2>");
 
         /**
          * Start of Table
@@ -50,13 +51,15 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("<tr style=\"");
         sb.append(headerCSS);
         sb.append("\" >");
-        sb.append("    <th>Organisation</th>");
-        sb.append("    <th>Building</th>");
-        sb.append("    <th>Raw Datapoint</th>");
-        sb.append("    <th>Clean Datapoint Class</th>");
-        sb.append("    <th>Time Stamp</th>");
-        sb.append("    <th>Value</th>");
-        sb.append("    <th>Alarm Type</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.organisation")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.building")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.rawdata")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.cleandata")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.timestamp")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.currentvalue")).append("</th>");
+        sb.append("    <th></th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.setvalue")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.alarmtype")).append("</th>");
         sb.append("  </tr>");//border=\"0\"
 
         JEVisClass organizationClass = ds.getJEVisClass("Organization");
@@ -155,6 +158,16 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                     if (currentUnit != null) {
                         sb.append(" ").append(currentUnit);
                     }
+                }
+                sb.append("</td>");
+                /**
+                 * Operator
+                 */
+                sb.append("<td style=\"");
+                sb.append(css);
+                sb.append("\">");
+                if (currentAlarm.getOperator() != null) {
+                    sb.append(currentAlarm.getOperator());
                 }
                 sb.append("</td>");
                 /**
@@ -276,7 +289,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         JEVisClass buildingClass = ds.getJEVisClass("Monitored Object");
         JEVisClass rawDataClass = ds.getJEVisClass("Data");
 
-        sb.append("<h2>Alarms</h2>");
+        sb.append("<h2>").append(I18n.getInstance().getString("alarms.table.title.alarms")).append("</h2>");
 
         sb.append("<table style=\"");
         sb.append(tableCSS);
@@ -284,14 +297,15 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
         sb.append("<tr style=\"");
         sb.append(headerCSS);
         sb.append("\" >");
-        sb.append("    <th>Organisation</th>");
-        sb.append("    <th>Building</th>");
-        sb.append("    <th>Raw Datapoint</th>");
-        sb.append("    <th>Clean Datapoint Class</th>");
-        sb.append("    <th>Time Stamp</th>");
-        sb.append("    <th>Is Value</th>");
-        sb.append("    <th>Should-be Value</th>");
-        sb.append("    <th>Alarm Type</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.organisation")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.building")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.rawdata")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.cleandata")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.timestamp")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.currentvalue")).append("</th>");
+        sb.append("    <th></th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.setvalue")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("alarms.table.captions.alarmtype")).append("</th>");
         sb.append("  </tr>");//border=\"0\"
 
         NumberFormat nf = NumberFormat.getInstance();
@@ -381,12 +395,22 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 if (currentUnit != null) sb.append(" ").append(currentUnit);
                 sb.append("</td>");
                 /**
+                 * Operator
+                 */
+                sb.append("<td style=\"");
+                sb.append(css);
+                sb.append("\">");
+                if (currentAlarm.getOperator() != null) {
+                    sb.append(currentAlarm.getOperator());
+                }
+                sb.append("</td>");
+                /**
                  * Should-be Value
                  */
                 sb.append("<td style=\"");
                 sb.append(css);
                 sb.append("\">");
-                sb.append(nf.format(currentAlarm.getShouldBeValue()));
+                sb.append(nf.format(currentAlarm.getSetValue()));
                 if (currentUnit != null) sb.append(" ").append(currentUnit);
                 sb.append("</td>");
                 /**
@@ -395,7 +419,7 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
                 sb.append("<td style=\"");
                 sb.append(css);
                 sb.append("\">");
-                sb.append(currentAlarm.getAlarmType());
+                sb.append(currentAlarm.getTranslatedTypeName());
                 sb.append("</td>");
 
                 sb.append("</tr>");// style=\"border: 1px solid #D9E4E6;\">");
@@ -427,4 +451,6 @@ public class AlarmTable extends org.jevis.commons.alarm.AlarmTable {
 
         return null;
     }
+
+
 }

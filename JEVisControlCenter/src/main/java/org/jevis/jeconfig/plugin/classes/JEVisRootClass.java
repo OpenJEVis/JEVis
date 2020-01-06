@@ -20,7 +20,7 @@
 package org.jevis.jeconfig.plugin.classes;
 
 import org.jevis.api.*;
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.commons.i18n.I18n;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

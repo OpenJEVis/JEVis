@@ -53,6 +53,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
@@ -79,7 +80,6 @@ import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
@@ -618,6 +618,12 @@ public class GraphPluginView implements Plugin {
                     formatCharts();
 
                     JEConfig.getStatusBar().finishProgressJob(GraphPluginView.JOB_NAME, "done");
+
+                    for (ChartView chartView : charts) {
+                        if (chartView.getChartType() == ChartType.HEAT_MAP) {
+                            Platform.runLater(this::formatCharts);
+                        }
+                    }
                 } catch (Exception ex) {
                     logger.error(ex);
                 }

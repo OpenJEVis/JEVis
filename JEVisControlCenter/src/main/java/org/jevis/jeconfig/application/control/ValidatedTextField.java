@@ -3,7 +3,7 @@ package org.jevis.jeconfig.application.control;
 import com.jfoenix.controls.JFXTextField;
 import javafx.geometry.Pos;
 import org.apache.commons.validator.routines.AbstractFormatValidator;
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.commons.i18n.I18n;
 
 import java.util.regex.Pattern;
 

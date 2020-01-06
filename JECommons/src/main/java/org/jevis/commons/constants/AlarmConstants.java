@@ -20,7 +20,7 @@ public interface AlarmConstants {
                 case SMALLER_EQUALS:
                     return "<=";
                 default:
-                    return null;
+                    return "";
             }
         }
 

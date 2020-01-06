@@ -21,23 +21,26 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.tools.Holidays;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 public class HeatMapChart implements Chart {
 
     private final Integer chartId;
+    private final WorkDays workDays;
     private List<ChartDataModel> chartDataModels;
     private String chartTitle;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -55,6 +58,7 @@ public class HeatMapChart implements Chart {
         this.chartTitle = chartTitle;
         this.Y_MAX = 24L;
         this.X_MAX = 4L;
+        this.workDays = new WorkDays(chartDataModels.get(0).getObject());
 
         init();
     }
@@ -106,9 +110,38 @@ public class HeatMapChart implements Chart {
         List<DateTime> yAxisList = new ArrayList<>();
         List<DateTime> xAxisList = new ArrayList<>();
 
+        boolean isCustomStart = false;
+        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+
+            LocalTime of = null;
+            try {
+                of = LocalTime.of(samples.get(0).getTimestamp().getHourOfDay(), samples.get(0).getTimestamp().getMinuteOfHour());
+
+                if (workDays.getWorkdayStart().equals(of)) {
+                    isCustomStart = true;
+                }
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+        }
+
         for (int y = 0; y < Y_MAX; y++) {
             int xCell = 0;
-            yAxisList.add(currentTS);
+
+            if (!isCustomStart) {
+                yAxisList.add(currentTS);
+            } else {
+                DateTime helpDate = new DateTime(currentTS.getMillis());
+                for (int x = 0; x < X_MAX; x++) {
+                    if (helpDate.getHourOfDay() == 0) {
+                        yAxisList.add(helpDate);
+                        break;
+                    } else {
+                        helpDate = helpDate.plus(inputSampleRate);
+                    }
+                }
+            }
+
             for (int x = 0; x < X_MAX; x++) {
                 if (xAxisList.size() < X_MAX) {
                     xAxisList.add(currentTS);

@@ -12,8 +12,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -25,6 +23,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
@@ -36,11 +35,11 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.Regressi
 import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.control.RegressionBox;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
 import org.jevis.jeconfig.dialog.SaveAnalysisDialog;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 import org.joda.time.DateTime;
 
@@ -250,17 +249,14 @@ public class ToolBarView {
         if (!model.calcRegression()) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 
-            Label polyDegreeLabel = new Label("Degree:");
+            Label polyDegreeLabel = new Label(I18n.getInstance().getString("plugin.graph.toolbar.regression.degree"));
             NumberSpinner polyDegreeNumberSpinner = new NumberSpinner(new BigDecimal(1), new BigDecimal(1));
             polyDegreeNumberSpinner.setMin(new BigDecimal(1));
             polyDegreeNumberSpinner.setMax(new BigDecimal(11));
 
-            Label regressionTypeLabel = new Label("Type");
-            ObservableList<RegressionType> regressionTypes = FXCollections.observableArrayList(RegressionType.values());
-            regressionTypes.remove(0);
-            ComboBox<RegressionType> regressionTypeComboBox = new ComboBox<>(regressionTypes);
-            regressionTypeComboBox.getSelectionModel().select(RegressionType.POLY);
-            regressionTypeComboBox.setDisable(true);
+            Label regressionTypeLabel = new Label(I18n.getInstance().getString("plugin.graph.toolbar.regression.type"));
+
+            RegressionBox regressionTypeComboBox = new RegressionBox();
 
             GridPane gridPane = new GridPane();
             gridPane.setVgap(4);
@@ -637,7 +633,7 @@ public class ToolBarView {
                                 .otherwise(
                                         new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
 
-        customWorkDay = new ToggleButton("WD");
+        customWorkDay = new ToggleButton("", JEConfig.getImage("iconfinder_calendar-clock_299096.png", iconSize, iconSize));
         Tooltip customWorkDayTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.customworkday"));
         customWorkDay.setTooltip(customWorkDayTooltip);
         customWorkDay.setSelected(model.isCustomWorkDay());

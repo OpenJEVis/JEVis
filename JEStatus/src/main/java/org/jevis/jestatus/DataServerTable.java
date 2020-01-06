@@ -3,6 +3,7 @@ package org.jevis.jestatus;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.AlarmTable;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.joda.time.DateTime;
@@ -38,7 +39,7 @@ public class DataServerTable extends AlarmTable {
         sb.append("<br>");
         sb.append("<br>");
 
-        sb.append("<h2>Data Server</h2>");
+        sb.append("<h2>").append(I18n.getInstance().getString("status.table.title.dataserver")).append("</h2>");
 
         /**
          * Start of Table
@@ -49,11 +50,11 @@ public class DataServerTable extends AlarmTable {
         sb.append("<tr style=\"");
         sb.append(headerCSS);
         sb.append("\" >");
-        sb.append("    <th>Organisation</th>");
-        sb.append("    <th>Building</th>");
-        sb.append("    <th>Channel</th>");
-        sb.append("    <th>Target Data Point</th>");
-        sb.append("    <th>Last Time Stamp</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.organisation")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.building")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.channel")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.targetdatapoint")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.lasttimestamp")).append("</th>");
         sb.append("  </tr>");//border=\"0\"
 
 

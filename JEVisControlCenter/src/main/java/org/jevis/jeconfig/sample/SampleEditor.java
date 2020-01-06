@@ -41,13 +41,12 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ProcessorBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.TimeZoneBox;
 import org.jevis.jeconfig.dialog.DialogHeader;
-import org.jevis.jeconfig.tool.I18n;
-import org.jevis.jeconfig.tool.ScreenSize;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -297,9 +296,9 @@ public class SampleEditor {
 
         Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("attribute.editor.title"));//new Separator(Orientation.HORIZONTAL),
 
-        root.getChildren().addAll(header, tabPane, new Separator(Orientation.HORIZONTAL), buttonGridPane);
+        root.getChildren().addAll(header, tabPane, new Separator(Orientation.HORIZONTAL), buttonPanel, bottomBox);
         VBox.setVgrow(tabPane, Priority.ALWAYS);
-        VBox.setVgrow(buttonGridPane, Priority.NEVER);
+        VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
 
         ok.setOnAction(t -> {
@@ -327,7 +326,7 @@ public class SampleEditor {
         endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
 //            _until = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 23, 59, 59, 999);
 //            updateSamples(_from, _until);
-            updateSamples(startDatePicker, endDatePicker);
+            updateSamples(startDate, endDate);
         });
 
         cancel.setOnAction(t -> {

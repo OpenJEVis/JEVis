@@ -3,7 +3,9 @@ package org.jevis.jestatus;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.AlarmTable;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.util.*;
 
@@ -33,32 +35,30 @@ public class CleanDataTable extends AlarmTable {
 
         List<JEVisObject> outOfBounds = new ArrayList<>();
         List<JEVisObject> cleanDataObjects = getCleanDataObjects();
-        Map<JEVisObject, JEVisObject> dataAndCleanData = new HashMap<>();
+
+        Map<JEVisObject, List<JEVisObject>> dataAndCleanData = new HashMap<>();
         for (JEVisObject cleanDataObject : cleanDataObjects) {
             List<JEVisObject> parents = cleanDataObject.getParents();
             if (parents.size() > 0) {
-                dataAndCleanData.put(parents.get(0), cleanDataObject);
+                List<JEVisObject> allChildren = getAllChildrenOf(parents.get(0));
+                dataAndCleanData.put(parents.get(0), allChildren);
             }
         }
 
-        for (JEVisObject calcObject : calcObjects) {
-            JEVisObject obj = dataAndCleanData.get(calcObject);
-            if (obj != null) {
-                cleanDataObjects.remove(obj);
-            }
-        }
+        calcObjects.stream().map(dataAndCleanData::get).filter(Objects::nonNull).forEach(cleanDataObjects::removeAll);
 
-        for (JEVisObject calcObject : dataServerObjects) {
-            JEVisObject obj = dataAndCleanData.get(calcObject);
-            if (obj != null) {
-                cleanDataObjects.remove(obj);
-            }
-        }
+        dataServerObjects.stream().map(dataAndCleanData::get).filter(Objects::nonNull).forEach(cleanDataObjects::removeAll);
 
         for (JEVisObject obj : cleanDataObjects) {
-            JEVisSample lastSample = obj.getAttribute(VALUE_ATTRIBUTE_NAME).getLatestSample();
+            JEVisAttribute attribute = obj.getAttribute(VALUE_ATTRIBUTE_NAME);
+            JEVisSample lastSample = attribute.getLatestSample();
+            Period period = attribute.getInputSampleRate();
             if (lastSample != null) {
-                if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
+                DateTime timestamp = lastSample.getTimestamp();
+                DateTime now = new DateTime();
+
+                if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)
+                        && (!timestamp.plus(period).equals(now) && !timestamp.plus(period).isAfter(now))) {
                     outOfBounds.add(obj);
                 }
             }
@@ -95,7 +95,7 @@ public class CleanDataTable extends AlarmTable {
         sb.append("<br>");
         sb.append("<br>");
 
-        sb.append("<h2>Clean Data</h2>");
+        sb.append("<h2>").append(I18n.getInstance().getString("status.table.title.cleandata")).append("</h2>");
 
         /**
          * Start of Table
@@ -106,12 +106,12 @@ public class CleanDataTable extends AlarmTable {
         sb.append("<tr style=\"");
         sb.append(headerCSS);
         sb.append("\" >");
-        sb.append("    <th>Organisation</th>");
-        sb.append("    <th>Building</th>");
-        sb.append("    <th>Raw Datapoint</th>");
-        sb.append("    <th>Last Raw Value</th>");
-        sb.append("    <th>Clean Datapoint Class</th>");
-        sb.append("    <th>Last Clean Value</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.organisation")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.building")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.rawdatapoint")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.lastrawvalue")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.cleandatapoint")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.lastcleanvalue")).append("</th>");
         sb.append("  </tr>");//border=\"0\"
 
         boolean odd = false;
@@ -211,6 +211,22 @@ public class CleanDataTable extends AlarmTable {
         sb.append("<br>");
 
         setTableString(sb.toString());
+    }
+
+    private List<JEVisObject> getAllChildrenOf(JEVisObject parent) throws JEVisException {
+
+        return new ArrayList<>(getAllChildren(parent));
+    }
+
+    private List<JEVisObject> getAllChildren(JEVisObject parent) throws JEVisException {
+        List<JEVisObject> list = new ArrayList<>();
+
+        for (JEVisObject obj : parent.getChildren()) {
+            list.add(obj);
+            list.addAll(getAllChildren(obj));
+        }
+
+        return list;
     }
 
     private List<JEVisObject> getCleanDataObjects() throws JEVisException {

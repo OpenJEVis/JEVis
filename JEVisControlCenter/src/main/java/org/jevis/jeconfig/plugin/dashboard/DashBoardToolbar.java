@@ -15,11 +15,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.text.DecimalFormat;
 
@@ -172,10 +172,8 @@ public class DashBoardToolbar extends ToolBar {
         Separator sep3 = new Separator();
         Separator sep4 = new Separator();
 
-
         newButton.setDisable(true);
         delete.setDisable(true);
-
 
         showGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.showgrid")));
         snapGridButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.dashboard.toolbar.tip.usegrid")));

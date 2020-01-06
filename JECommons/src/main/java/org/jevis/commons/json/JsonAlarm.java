@@ -35,6 +35,7 @@ public class JsonAlarm {
     private String attribute;
     private String timeStamp;
     private Double isValue;
+    private String operator;
     private Double shouldBeValue;
     private Long object;
     private AlarmType alarmType;
@@ -69,6 +70,15 @@ public class JsonAlarm {
 
     public void setIsValue(Double isValue) {
         this.isValue = isValue;
+    }
+
+    @XmlElement(name = "operator")
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
     }
 
     @XmlElement(name = "shouldBeValue")

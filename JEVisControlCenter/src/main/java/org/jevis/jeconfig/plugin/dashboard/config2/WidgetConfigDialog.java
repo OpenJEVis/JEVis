@@ -6,13 +6,13 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.WidgetTreePlugin;
 import org.jevis.jeconfig.plugin.dashboard.widget.GenericConfigNode;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
-import org.jevis.jeconfig.tool.I18n;
 
 public class WidgetConfigDialog extends Alert {
 
