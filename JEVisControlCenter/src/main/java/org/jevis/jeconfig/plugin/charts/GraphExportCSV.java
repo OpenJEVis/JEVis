@@ -415,8 +415,8 @@ public class GraphExportCSV {
             listDateTimes.add(dateTimes);
         }
 
-        List<Map<String, List<JEVisSample>>> listMaps = new ArrayList<>();
-        List<Map<String, Map<DateTime, JEVisSample>>> listNotes = new ArrayList<>();
+        Map<String, Map<String, List<JEVisSample>>> listMaps = new HashMap<>();
+        Map<String, Map<String, Map<DateTime, JEVisSample>>> listNotes = new HashMap<>();
         for (ChartSettings cset : charts) {
             Map<String, Map<DateTime, JEVisSample>> mapNotes = new HashMap<>();
             Map<String, List<JEVisSample>> map = new HashMap<>();
@@ -455,13 +455,13 @@ public class GraphExportCSV {
                     mapNotes.put(mdl.getObject().getName(), sampleMap);
                 }
             }
-            listMaps.add(map);
-            listNotes.add(mapNotes);
+            listMaps.put(cset.getName(), map);
+            listNotes.put(cset.getName(), mapNotes);
         }
 
         columnIndex = 0;
         for (ChartSettings cset : charts) {
-            int chartsIndex = cset.getId();
+            Integer chartsIndex = cset.getId();
             int currentSize = listDateColumns.get(chartsIndex).size();
             for (int i = 0; i < currentSize; i++) {
                 Cell dateCell = getOrCreateCell(sheet, i + 10, columnIndex);
@@ -473,7 +473,7 @@ public class GraphExportCSV {
             for (ChartDataModel mdl : model.getSelectedData()) {
                 String objName = mdl.getObject().getName();
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
-                    List<JEVisSample> jeVisSamples = listMaps.get(chartsIndex).get(objName);
+                    List<JEVisSample> jeVisSamples = listMaps.get(cset.getName()).get(objName);
                     for (JEVisSample jeVisSample : jeVisSamples) {
                         Cell valueCell = getOrCreateCell(sheet, jeVisSamples.indexOf(jeVisSample) + 10, columnIndex);
                         valueCell.setCellValue(jeVisSample.getValueAsDouble());
@@ -481,7 +481,7 @@ public class GraphExportCSV {
                     }
                     columnIndex++;
                     if (withUserNotes) {
-                        Map<DateTime, JEVisSample> dateTimeJEVisSampleMap = listNotes.get(chartsIndex).get(objName);
+                        Map<DateTime, JEVisSample> dateTimeJEVisSampleMap = listNotes.get(cset.getName()).get(objName);
                         Map<DateTime, Long> dateTimeLongMap = listDateTimes.get(chartsIndex);
                         for (Map.Entry<DateTime, JEVisSample> entry : dateTimeJEVisSampleMap.entrySet()) {
                             DateTime dateTime = entry.getKey();
@@ -1129,8 +1129,8 @@ public class GraphExportCSV {
             listDateColumns.add(dateColumn);
         }
 
-        List<Map<String, List<JEVisSample>>> listMaps = new ArrayList<>();
-        List<Map<String, Map<DateTime, JEVisSample>>> listNotes = new ArrayList<>();
+        Map<String, Map<String, List<JEVisSample>>> listMaps = new HashMap<>();
+        Map<String, Map<String, Map<DateTime, JEVisSample>>> listNotes = new HashMap<>();
         for (ChartSettings cset : charts) {
             Map<String, Map<DateTime, JEVisSample>> mapNotes = new HashMap<>();
             Map<String, List<JEVisSample>> map = new HashMap<>();
@@ -1169,14 +1169,14 @@ public class GraphExportCSV {
                     mapNotes.put(mdl.getObject().getName(), sampleMap);
                 }
             }
-            listMaps.add(map);
-            listNotes.add(mapNotes);
+            listMaps.put(cset.getName(), map);
+            listNotes.put(cset.getName(), mapNotes);
         }
 
         for (int i = 0; i < size; i++) {
             StringBuilder str = new StringBuilder();
             for (ChartSettings cset : charts) {
-                int chartsIndex = cset.getId();
+                Integer chartsIndex = cset.getId();
                 boolean hasValues = i < listDateColumns.get(chartsIndex).size();
 
                 if (hasValues) {
@@ -1189,11 +1189,11 @@ public class GraphExportCSV {
                     String objName = mdl.getObject().getName();
                     if (mdl.getSelectedcharts().contains(cset.getId())) {
                         if (hasValues) {
-                            JEVisSample sample1 = listMaps.get(chartsIndex).get(objName).get(i);
+                            JEVisSample sample1 = listMaps.get(cset.getName()).get(objName).get(i);
                             String formattedValue = numberFormat.format(sample1.getValueAsDouble());
                             str.append(formattedValue).append(COL_SEP);
                             if (withUserNotes) {
-                                JEVisSample sample = listNotes.get(chartsIndex).get(objName).get(sample1.getTimestamp());
+                                JEVisSample sample = listNotes.get(cset.getName()).get(objName).get(sample1.getTimestamp());
                                 if (sample != null) {
                                     str.append(sample.getValueAsString());
                                 }
