@@ -32,10 +32,10 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.drivermanagment.ClassImporter;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.csv.CSVImportDialog;
 import org.jevis.jeconfig.dialog.AboutDialog;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.PasswordDialog;
 import org.joda.time.DateTime;
 
@@ -121,62 +121,77 @@ public class TopMenu extends MenuBar {
         MenuItem rename = new MenuItem(I18n.getInstance().getString("menu.edit.rename"));
         rename.setAccelerator(new KeyCodeCombination(KeyCode.F2));
 
+        MenuItem reload = new MenuItem(I18n.getInstance().getString("menu.edit.reload"));
+        reload.setAccelerator(new KeyCodeCombination(KeyCode.F5));
+
         MenuItem findObject = new MenuItem(I18n.getInstance().getString("menu.edit.find"));
         findObject.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN));
 
         MenuItem findAgain = new MenuItem(I18n.getInstance().getString("menu.edit.findagain"));
         findAgain.setAccelerator(new KeyCodeCombination(KeyCode.F3));
 
-//        paste.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.PASTE);
-//            }
-//        });
-//
-//        copy.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.COPY);
-//            }
-//        });
-//
-//        cut.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.CUT);
-//            }
-//        });
-//
-//        delete.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.DELETE);
-//            }
-//        });
-//
-//        rename.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.RENAME);
-//            }
-//        });
-//
-//        findObject.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.FIND_OBJECT);
-//            }
-//        });
-//
-//        findAgain.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override
-//            public void handle(ActionEvent event) {
-//                activePlugin.handleRequest(Constants.Plugin.Command.FIND_AGAIN);
-//            }
-//        });
+        paste.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.PASTE);
+                event.consume();
+            }
+        });
 
-        menuEdit.getItems().addAll(copy, cut, paste, delete, rename, findObject, findAgain);
+        copy.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.COPY);
+                event.consume();
+            }
+        });
+
+        reload.setOnAction(event -> {
+            activePlugin.handleRequest(Constants.Plugin.Command.RELOAD);
+            event.consume();
+        });
+
+        cut.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.CUT);
+                event.consume();
+            }
+        });
+
+        delete.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.DELETE);
+                event.consume();
+            }
+        });
+
+        rename.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.RENAME);
+                event.consume();
+            }
+        });
+
+        findObject.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.FIND_OBJECT);
+                event.consume();
+            }
+        });
+
+        findAgain.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                activePlugin.handleRequest(Constants.Plugin.Command.FIND_AGAIN);
+                event.consume();
+            }
+        });
+
+        menuEdit.getItems().addAll(copy, cut, paste, new SeparatorMenuItem(), delete, rename, new SeparatorMenuItem(), reload, findObject, findAgain);
 
         if (JEConfig.getExpert()) {
             MenuItem deleteAllCleanAndRaw = new MenuItem(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));
@@ -184,6 +199,9 @@ public class TopMenu extends MenuBar {
 
             MenuItem createMultiplierAndDifferential = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setMultiplierAndDifferential.title"));
             createMultiplierAndDifferential.setAccelerator(new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+
+            MenuItem setLimits = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title"));
+            setLimits.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
             MenuItem enableAll = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.enable"));
             enableAll.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
@@ -194,7 +212,7 @@ public class TopMenu extends MenuBar {
             MenuItem resetCalculation = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.resetcalc"));
             resetCalculation.setAccelerator(new KeyCodeCombination(KeyCode.J, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
-            menuEdit.getItems().addAll(deleteAllCleanAndRaw, createMultiplierAndDifferential, enableAll, disableAll, resetCalculation);
+            menuEdit.getItems().addAll(deleteAllCleanAndRaw, setLimits, createMultiplierAndDifferential, enableAll, disableAll, resetCalculation);
         }
 
 //        menuEdit.getItems().addAll(copie, delete, rename);

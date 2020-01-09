@@ -10,10 +10,10 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartElements.*;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.LogicalYAxisStringConverter;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -26,8 +26,8 @@ import java.util.TreeMap;
 public class LogicalChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(LogicalChart.class);
 
-    public LogicalChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, false, false, false, hideShowIcons, false, null, -1, addSeriesOfType, chartId, chartName);
+    public LogicalChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
+        super(analysisDataModel, chartDataModels, chartId, chartName);
     }
 
     @Override
@@ -99,11 +99,6 @@ public class LogicalChart extends XYChart {
     }
 
     @Override
-    public void generateXAxis(Boolean[] changedBoth) {
-
-    }
-
-    @Override
     public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
         Point2D mouseCoordinates = null;
         if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
@@ -112,7 +107,7 @@ public class LogicalChart extends XYChart {
 
             x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
 
-            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
+            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
         }
         if (valueForDisplay != null) {
@@ -132,7 +127,7 @@ public class LogicalChart extends XYChart {
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
                     Double valueAsDouble = sample.getValueAsDouble();
-                    Note formattedNote = new Note(sample);
+                    Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
                     String formattedDouble = nf.format(valueAsDouble);
 
                     if (!asDuration) {

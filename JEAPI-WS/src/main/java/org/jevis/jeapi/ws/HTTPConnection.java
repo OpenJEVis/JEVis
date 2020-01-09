@@ -39,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Helper class to build HTTP connections to the JEWebservice.
@@ -129,7 +130,7 @@ public class HTTPConnection {
     }
 
     public InputStream getInputStreamRequest(String resource) throws IOException {
-        Date start = new Date();
+//        Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
 //        logger.trace("after replcae: {}", resource);
@@ -139,6 +140,7 @@ public class HTTPConnection {
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
         conn.setRequestProperty("Accept-Charset", "UTF-8");
+        conn.setRequestProperty("Accept-Encoding", "gzip");
         conn.setReadTimeout(this.readTimeout);
         addAuth(conn, this.username, this.password);
 
@@ -149,8 +151,11 @@ public class HTTPConnection {
         int responseCode = conn.getResponseCode();
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
-
-            return conn.getInputStream();
+            if ("gzip".equals(conn.getContentEncoding())) {
+                return new GZIPInputStream(conn.getInputStream());
+            } else {
+                return conn.getInputStream();
+            }
         } else {
             return null;
         }
@@ -252,13 +257,6 @@ public class HTTPConnection {
         logger.debug("HTTP POST request {}", con.getURL());
         con.connect();
 
-//        Reader reader = null;
-//        if ("gzip".equals(con.getContentEncoding())) {
-//            OutputStream os = (new GZIPInputStream(con.getInputStream()).
-//            reader = new InputStreamReader(new GZIPInputStream(con.getInputStream()));
-//        } else {
-//            reader = new InputStreamReader(con.getInputStream());
-//        }
         DataOutputStream wr = new DataOutputStream(con.getOutputStream());
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(wr, StandardCharsets.UTF_8));
         writer.write(json);
@@ -271,8 +269,17 @@ public class HTTPConnection {
 //        Gson gson2 = new GsonBuilder().setPrettyPrinting().create();
 //        logger.trace("resonseCode {}", responseCode);
         if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
+
+            InputStreamReader streamReader = null;
+            if ("gzip".equals(con.getContentEncoding())) {
+                streamReader = new InputStreamReader(new GZIPInputStream(con.getInputStream()), StandardCharsets.UTF_8);
+            } else {
+                streamReader = new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8);
+            }
+
+            BufferedReader in = new BufferedReader(streamReader);
+           // BufferedReader in = new BufferedReader(
+           //         new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
             String inputLine;
             StringBuffer response = new StringBuffer();
 
@@ -288,6 +295,7 @@ public class HTTPConnection {
             logger.trace("HTTP request closed after: " + ((new Date()).getTime() - start.getTime()) + " msec");
             return response;
         } else {
+            logger.error("Error getResponseCode: {} for '{}'",responseCode ,resource);
             throw new JEVisException("[" + responseCode + "] ", responseCode);
 
 //            return null;

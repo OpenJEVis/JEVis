@@ -49,9 +49,9 @@ import org.jevis.api.JEVisOption;
 import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.datasource.DataSourceLoader;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.ParameterHelper;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.awt.*;
 import java.io.IOException;
@@ -62,9 +62,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-
-import static java.util.Locale.GERMANY;
-import static java.util.Locale.UK;
 
 /**
  * The FXLogin represents the common JEVis login dialog with all necessary
@@ -113,7 +110,6 @@ public class FXLogin extends AnchorPane {
     private boolean useCSSFile = false;
     private ApplicationInfo app = new ApplicationInfo("FXLogin", "");
     private Locale selectedLocale = Locale.getDefault();
-    private List<Locale> availableLang = new ArrayList<>();
 
 
     private FXLogin() {
@@ -125,12 +121,6 @@ public class FXLogin extends AnchorPane {
         this.mainStage = stage;
         this.app = app;
         this.parameters = parameters;
-
-        availableLang.add(UK);
-        availableLang.add(GERMANY);
-        availableLang.add(Locale.forLanguageTag("ru"));
-        availableLang.add(Locale.forLanguageTag("uk"));
-        availableLang.add(Locale.forLanguageTag("th"));
 
         this.configuration = parseConfig(parameters);
         for (JEVisOption opt : this.configuration) {
@@ -196,11 +186,11 @@ public class FXLogin extends AnchorPane {
                     });
 
                 } else {
-                    I18n.getInstance().loadAndSelectBundles(getAvailableLang(), getSelectedLocale());
+                    I18n.getInstance().selectBundle(getSelectedLocale());
                     throw new RuntimeException(I18n.getInstance().getString("app.login.exception.runtime"));
                 }
             } catch (Exception ex) {
-                I18n.getInstance().loadAndSelectBundles(getAvailableLang(), getSelectedLocale());
+                I18n.getInstance().selectBundle(getSelectedLocale());
                 logger.trace("{}: {}", I18n.getInstance().getString("app.login.error.message"), ex, ex);
                 Platform.runLater(() -> {
                     Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -339,13 +329,13 @@ public class FXLogin extends AnchorPane {
             }
         };
 
-        ObservableList<Locale> options = FXCollections.observableArrayList(availableLang);
+        ObservableList<Locale> options = FXCollections.observableArrayList(I18n.getInstance().getAvailableLang());
 
         final ComboBox<Locale> comboBox = new ComboBox<Locale>(options);
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
 
-        if (availableLang.contains(Locale.getDefault())) {
+        if (I18n.getInstance().getAvailableLang().contains(Locale.getDefault())) {
             comboBox.getSelectionModel().select(Locale.getDefault());
         }
 
@@ -837,9 +827,5 @@ public class FXLogin extends AnchorPane {
         String LIGHT_BLUE2 = "#0E8CCC";
         String LIGHT_GREY = "#efefef";
         String LIGHT_GREY2 = "#f4f4f4";
-    }
-
-    public List<Locale> getAvailableLang() {
-        return availableLang;
     }
 }

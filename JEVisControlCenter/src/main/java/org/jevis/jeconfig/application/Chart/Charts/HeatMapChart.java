@@ -1,8 +1,6 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
 import de.jollyday.Holiday;
-import de.jollyday.HolidayManager;
-import de.jollyday.ManagerParameters;
 import eu.hansolo.fx.charts.ChartType;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
@@ -23,20 +21,26 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.application.tools.Holidays;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 public class HeatMapChart implements Chart {
 
+    private final Integer chartId;
+    private final WorkDays workDays;
     private List<ChartDataModel> chartDataModels;
     private String chartTitle;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -48,11 +52,13 @@ public class HeatMapChart implements Chart {
     private String Y_FORMAT;
     private String Y2_FORMAT;
 
-    public HeatMapChart(List<ChartDataModel> chartDataModels, String chartTitle) {
+    public HeatMapChart(List<ChartDataModel> chartDataModels, Integer chartId, String chartTitle) {
         this.chartDataModels = chartDataModels;
+        this.chartId = chartId;
         this.chartTitle = chartTitle;
         this.Y_MAX = 24L;
         this.X_MAX = 4L;
+        this.workDays = new WorkDays(chartDataModels.get(0).getObject());
 
         init();
     }
@@ -104,9 +110,38 @@ public class HeatMapChart implements Chart {
         List<DateTime> yAxisList = new ArrayList<>();
         List<DateTime> xAxisList = new ArrayList<>();
 
+        boolean isCustomStart = false;
+        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+
+            LocalTime of = null;
+            try {
+                of = LocalTime.of(samples.get(0).getTimestamp().getHourOfDay(), samples.get(0).getTimestamp().getMinuteOfHour());
+
+                if (workDays.getWorkdayStart().equals(of)) {
+                    isCustomStart = true;
+                }
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+        }
+
         for (int y = 0; y < Y_MAX; y++) {
             int xCell = 0;
-            yAxisList.add(currentTS);
+
+            if (!isCustomStart) {
+                yAxisList.add(currentTS);
+            } else {
+                DateTime helpDate = new DateTime(currentTS.getMillis());
+                for (int x = 0; x < X_MAX; x++) {
+                    if (helpDate.getHourOfDay() == 0) {
+                        yAxisList.add(helpDate);
+                        break;
+                    } else {
+                        helpDate = helpDate.plus(inputSampleRate);
+                    }
+                }
+            }
+
             for (int x = 0; x < X_MAX; x++) {
                 if (xAxisList.size() < X_MAX) {
                     xAxisList.add(currentTS);
@@ -144,26 +179,42 @@ public class HeatMapChart implements Chart {
         GridPane rightAxis = new GridPane();
         rightAxis.setPadding(new Insets(4));
 
-        HolidayManager holidayManager = HolidayManager.getInstance(ManagerParameters.create(I18n.getInstance().getLocale()));
-
         int row = 0;
         for (DateTime dateTime : yAxisList) {
             Label tsLeft = new Label(dateTime.toString(Y_FORMAT));
 
             Label tsRight = new Label(dateTime.toString(Y2_FORMAT));
             String toolTipString = "";
-            if (holidayManager.isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()))) {
+            if (Holidays.getDefaultHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()))
+                    || (Holidays.getSiteHolidayManager() != null && Holidays.getSiteHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale()), Holidays.getStateCode()))
+                    || (Holidays.getCustomHolidayManager() != null && Holidays.getCustomHolidayManager().isHoliday(dateTime.toCalendar(I18n.getInstance().getLocale())))) {
                 LocalDate localDate = LocalDate.of(dateTime.getYear(), dateTime.getMonthOfYear(), dateTime.getDayOfMonth());
-                Set<Holiday> holidays = holidayManager.getHolidays(localDate, localDate, "");
+
+                Set<Holiday> holidays = Holidays.getDefaultHolidayManager().getHolidays(localDate, localDate, "");
+                if (Holidays.getSiteHolidayManager() != null) {
+                    holidays.addAll(Holidays.getSiteHolidayManager().getHolidays(localDate, localDate, Holidays.getStateCode()));
+                }
+
+                if (Holidays.getCustomHolidayManager() != null) {
+                    holidays.addAll(Holidays.getCustomHolidayManager().getHolidays(localDate, localDate, Holidays.getStateCode()));
+                }
+
                 for (Holiday holiday : holidays) {
                     toolTipString = holiday.getDescription(I18n.getInstance().getLocale());
                 }
             }
             if (dateTime.getDayOfWeek() == 6 || dateTime.getDayOfWeek() == 7 || !toolTipString.equals("")) {
+                if (dateTime.getDayOfWeek() == 6 || dateTime.getDayOfWeek() == 7) {
+                    if (toolTipString.equals("")) {
+                        toolTipString = DateTimeFormat.forPattern("EEEE").print(dateTime);
+                    } else {
+                        toolTipString += ", " + dateTime.toString("dddd");
+                    }
+                }
                 tsRight.setTextFill(Color.RED);
                 if (!toolTipString.equals("")) {
                     Tooltip tooltip = new Tooltip(toolTipString);
-                    tsRight.setTooltip(tooltip);
+                    Tooltip.install(tsRight, tooltip);
                 }
             }
 
@@ -268,7 +319,7 @@ public class HeatMapChart implements Chart {
 
     @Override
     public String getChartName() {
-        return null;
+        return chartTitle;
     }
 
     @Override
@@ -278,7 +329,7 @@ public class HeatMapChart implements Chart {
 
     @Override
     public Integer getChartId() {
-        return null;
+        return chartId;
     }
 
     @Override
@@ -312,12 +363,7 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public DateTime getNearest() {
-        return null;
-    }
-
-    @Override
-    public javafx.scene.chart.Chart getChart() {
+    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
         return null;
     }
 
@@ -339,6 +385,11 @@ public class HeatMapChart implements Chart {
     @Override
     public void applyBounds() {
 
+    }
+
+    @Override
+    public List<ChartDataModel> getChartDataModels() {
+        return chartDataModels;
     }
 
     @Override

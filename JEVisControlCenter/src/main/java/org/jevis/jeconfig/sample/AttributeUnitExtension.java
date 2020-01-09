@@ -16,11 +16,12 @@ import javafx.scene.layout.*;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTimeZone;
 
 import java.util.List;
@@ -95,13 +96,14 @@ public class AttributeUnitExtension implements SampleEditorExtension {
 
             applyToRight.setOnAction(event -> {
                 try {
-                    att.setDisplayUnit(att.getInputUnit());
+                    JEVisUnit unit = iuUnit.getUnit();
+                    att.setDisplayUnit(unit);
                     att.setDisplaySampleRate(att.getInputSampleRate());
 
-                    ouUnit.setUnit(att.getInputUnit());
-                    ouUnit.getUnitButton().setText(att.getInputUnit().getFormula());
+                    ouUnit.setUnit(unit);
+                    ouUnit.getUnitButton().setText(unit.getFormula());
                     ouUnit.getPrefixBox().getSelectionModel().select(
-                            UnitManager.getInstance().getPrefix(att.getInputUnit().getPrefix()));
+                            UnitManager.getInstance().getPrefix(unit.getPrefix()));
                     ouUnit.getSymbolField().setText(iuUnit.getSymbolField().getText());
 
                     ouRate.samplingRateProperty().setValue(att.getInputSampleRate());
@@ -115,13 +117,14 @@ public class AttributeUnitExtension implements SampleEditorExtension {
 
             applyToLeft.setOnAction(event -> {
                 try {
-                    att.setInputUnit(att.getDisplayUnit());
+                    JEVisUnit unit = ouUnit.getUnit();
+                    att.setInputUnit(unit);
                     att.setInputSampleRate(att.getDisplaySampleRate());
 
-                    iuUnit.setUnit(att.getDisplayUnit());
-                    iuUnit.getUnitButton().setText(att.getDisplayUnit().getFormula());
+                    iuUnit.setUnit(unit);
+                    iuUnit.getUnitButton().setText(unit.getFormula());
                     iuUnit.getPrefixBox().getSelectionModel().select(
-                            UnitManager.getInstance().getPrefix(att.getDisplayUnit().getPrefix()));
+                            UnitManager.getInstance().getPrefix(unit.getPrefix()));
                     iuUnit.getSymbolField().setText(ouUnit.getSymbolField().getText());
 
                     iuRate.samplingRateProperty().setValue(att.getDisplaySampleRate());

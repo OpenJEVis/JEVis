@@ -4,11 +4,15 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.*;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.control.ColorPickerAdv;
 
 public class LimitStaticPane extends GridPane {
     private static final Logger logger = LogManager.getLogger(LimitStaticPane.class);
@@ -20,8 +24,8 @@ public class LimitStaticPane extends GridPane {
     private CheckBox enableLowerBox = new CheckBox(I18n.getInstance().getString("plugin.dashboard.valuewidget.limit.enable.lower"));
     private TextField upperValueField = new TextField();
     private TextField lowerValueField = new TextField();
-    private ColorPicker upperColorPicker = new ColorPicker();
-    private ColorPicker lowerColorPicker = new ColorPicker();
+    private ColorPickerAdv upperColorPicker = new ColorPickerAdv();
+    private ColorPickerAdv lowerColorPicker = new ColorPickerAdv();
 
     private final Limit limit;
 

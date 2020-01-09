@@ -32,10 +32,10 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.dimpex.DimpEX;
 import org.jevis.commons.dimpex.DimpexObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
 import org.jevis.jeconfig.dialog.JsonExportDialog;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.io.File;
 import java.util.ArrayList;

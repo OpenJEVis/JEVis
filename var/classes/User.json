@@ -11,91 +11,12 @@
   ],
   "types": [
     {
-      "name": "Activities",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "User"
-    },
-    {
-      "name": "E-Mail",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "description": "E-Mail Address of the User.",
-      "inherited": false,
-      "jevisClass": "User"
-    },
-    {
       "name": "Enabled",
       "primitiveType": 4,
       "guiType": "Check Box",
       "guiposition": 0,
       "validity": 0,
       "description": "Enable/Disable the user. Only an enabled user can login.",
-      "inherited": false,
-      "jevisClass": "User"
-    },
-    {
-      "name": "First Name",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "description": "First name of the user.",
-      "inherited": false,
-      "jevisClass": "User"
-    },
-    {
-      "name": "Language",
-      "primitiveType": 0,
-      "guiType": "String Enum",
-      "guiposition": 0,
-      "validity": 0,
-      "description": "Language of the user.",
-      "inherited": false,
-      "jevisClass": "User"
-    },
-    {
-      "name": "Last Name",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "description": "Last name of the user.",
-      "inherited": false,
-      "jevisClass": "User"
-    },
-    {
-      "name": "Password",
-      "primitiveType": 7,
-      "guiType": "Password PBKDF2",
-      "guiposition": 0,
-      "validity": 0,
-      "description": "Password for this user.",
-      "inherited": false,
-      "jevisClass": "User"
-    },
-    {
-      "name": "Phone",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "description": "Phone number of the User.",
-      "inherited": false,
-      "jevisClass": "User"
-    },
-    {
-      "name": "Position",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "description": "Position of the User in the company.",
       "inherited": false,
       "jevisClass": "User"
     },
@@ -110,11 +31,42 @@
       "jevisClass": "User"
     },
     {
-      "name": "Timezone",
-      "primitiveType": 0,
-      "guiType": "Time Zone",
+      "name": "Password",
+      "primitiveType": 7,
+      "guiType": "Password PBKDF2",
       "guiposition": 0,
       "validity": 0,
+      "description": "Password for this user.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "E-Mail",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "description": "E-Mail Address of the User.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Last Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "description": "Last name of the user.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "First Name",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "description": "First name of the user.",
       "inherited": false,
       "jevisClass": "User"
     },
@@ -129,9 +81,47 @@
       "jevisClass": "User"
     },
     {
+      "name": "Position",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "description": "Position of the User in the company.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Phone",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "description": "Phone number of the User.",
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Timezone",
+      "primitiveType": 0,
+      "guiType": "Time Zone",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
       "name": "Start Dashboard",
       "primitiveType": 0,
       "guiType": "Object Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "User"
+    },
+    {
+      "name": "Activities",
+      "primitiveType": 0,
+      "guiType": "Text",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,

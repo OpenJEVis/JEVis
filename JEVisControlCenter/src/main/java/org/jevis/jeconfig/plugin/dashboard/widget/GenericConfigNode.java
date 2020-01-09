@@ -5,16 +5,20 @@ import com.jfoenix.validation.DoubleValidator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.GridPane;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.config2.ConfigTab;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
-import org.jevis.jeconfig.tool.I18n;
 
 public class GenericConfigNode extends Tab implements ConfigTab {
 
@@ -37,8 +41,8 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     private CheckBox showShadowField = new CheckBox();
     private Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
     private Spinner<Integer> borderSizeSpinner = new Spinner<Integer>(0, 20, 0);
-    private ColorPicker bgColorPicker = new ColorPicker();
-    private ColorPicker fColorPicker = new ColorPicker();
+    private ColorPickerAdv bgColorPicker = new ColorPickerAdv();
+    private ColorPickerAdv fColorPicker = new ColorPickerAdv();
     private TimeFactoryBox timeFrameBox;
     private Widget widget;
     private DataModelDataHandler dataModelDataHandler;

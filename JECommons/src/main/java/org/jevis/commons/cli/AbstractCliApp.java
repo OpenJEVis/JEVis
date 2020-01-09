@@ -27,12 +27,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.datasource.DataSourceLoader;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -166,6 +164,12 @@ public abstract class AbstractCliApp {
                     ds.preload();
                 } catch (JEVisException e) {
                     logger.fatal("Could not preload items!", e);
+                }
+
+                try {
+                    I18n.getInstance().selectBundle(Locale.getDefault());
+                } catch (Exception e) {
+                    logger.error("Could not get default locale!", e);
                 }
             }
         }

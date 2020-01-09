@@ -4,19 +4,18 @@ import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYScatterChartSerie;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisScatterChart;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 
 import java.util.List;
 
 public class ScatterChart extends XYChart {
 
-    public ScatterChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean showL1L2, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        super(chartDataModels, showRawData, showSum, showL1L2, hideShowIcons, calcRegression, regressionType, polyRegressionDegree, addSeriesOfType, chartId, chartName);
+    public ScatterChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
+        super(analysisDataModel, chartDataModels, chartId, chartName);
     }
 
     @Override

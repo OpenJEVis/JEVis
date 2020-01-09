@@ -5,8 +5,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -20,19 +18,22 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.ColumnChartSerie;
-import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.CategoryAxis;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.NoteDialog;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
@@ -68,11 +69,11 @@ public class ColumnChart implements Chart {
     private CategoryAxis catAxis = new CategoryAxis();
     private DateTime nearest;
 
-    public ColumnChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Integer chartId, String chartName) {
+    public ColumnChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
-        this.showRawData = showRawData;
-        this.showSum = showSum;
-        this.hideShowIcons = hideShowIcons;
+        this.showRawData = analysisDataModel.getShowRawData();
+        this.showSum = analysisDataModel.getShowSum();
+        this.hideShowIcons = analysisDataModel.getHideShowIcons();
         this.chartId = chartId;
         this.chartName = chartName;
         init();
@@ -84,9 +85,20 @@ public class ColumnChart implements Chart {
         for (ChartDataModel singleRow : chartDataModels) {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
-                    ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons);
+                    ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons, false);
                     columnChartSerieList.add(serie);
                     hexColors.add(ColorHelper.toColor(singleRow.getColor()));
+
+                    if (singleRow.hasForecastData()) {
+                        try {
+                            ColumnChartSerie forecast = new ColumnChartSerie(singleRow, hideShowIcons, true);
+
+                            hexColors.add(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
+                            columnChartSerieList.add(forecast);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
 
                 } catch (JEVisException e) {
                     e.printStackTrace();
@@ -175,12 +187,12 @@ public class ColumnChart implements Chart {
 
     @Override
     public DateTime getStartDateTime() {
-        return chartDataModels.get(0).getSelectedStart();
+        return timeStampOfFirstSample.get();
     }
 
     @Override
     public DateTime getEndDateTime() {
-        return chartDataModels.get(0).getSelectedEnd();
+        return timeStampOfLastSample.get();
     }
 
     @Override
@@ -206,7 +218,7 @@ public class ColumnChart implements Chart {
         for (ChartDataModel singleRow : chartDataModels) {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
-                    ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons);
+                    ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons, false);
 
                     hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 //                    series.add(serie.getSerie());
@@ -280,6 +292,11 @@ public class ColumnChart implements Chart {
     }
 
     @Override
+    public List<ChartDataModel> getChartDataModels() {
+        return chartDataModels;
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
     }
@@ -304,7 +321,7 @@ public class ColumnChart implements Chart {
 
             x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
 
-            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
+            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
         }
         if (valueForDisplay != null) {
@@ -323,7 +340,7 @@ public class ColumnChart implements Chart {
                         nf.setMinimumFractionDigits(2);
                         nf.setMaximumFractionDigits(2);
                         Double valueAsDouble = sample.getValueAsDouble();
-                        Note formattedNote = new Note(sample);
+                        Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
                         String formattedDouble = nf.format(valueAsDouble);
 
                         boolean asDuration = false;
@@ -360,7 +377,7 @@ public class ColumnChart implements Chart {
 
             Map<String, RowNote> map = new HashMap<>();
             DateTime valueForDisplay = null;
-            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
+            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
             for (ColumnChartSerie serie : columnChartSerieList) {
                 try {
@@ -378,9 +395,18 @@ public class ColumnChart implements Chart {
                             dataObject = serie.getSingleRow().getDataProcessor();
                         else dataObject = serie.getSingleRow().getObject();
 
-                        String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
+                        String userNote = "";
+                        JEVisSample noteSample = serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp());
 
-                        RowNote rowNote = new RowNote(dataObject, nearestSample, title, userNote);
+                        if (noteSample != null) {
+                            userNote = noteSample.getValueAsString();
+                        }
+
+                        //String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
+
+                        String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
+
+                        RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getUnit(), serie.getSingleRow().getScaleFactor());
 
                         map.put(title, rowNote);
                     }
@@ -393,7 +419,7 @@ public class ColumnChart implements Chart {
 
             nd.showAndWait().ifPresent(response -> {
                 if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                    saveUserNotes(nd.getNoteMap());
+                    saveUserEntries(nd.getNoteMap());
                 }
             });
         }
@@ -416,17 +442,12 @@ public class ColumnChart implements Chart {
     }
 
     @Override
-    public DateTime getNearest() {
-        return nearest;
-    }
-
-    @Override
     public void setValueForDisplay(DateTime valueForDisplay) {
         this.valueForDisplay = valueForDisplay;
     }
 
     @Override
-    public javafx.scene.chart.Chart getChart() {
+    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
         return columnChart;
     }
 

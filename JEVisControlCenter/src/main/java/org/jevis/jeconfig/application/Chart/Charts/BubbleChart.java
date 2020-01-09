@@ -5,7 +5,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -22,8 +21,10 @@ import org.jevis.jeconfig.application.Chart.ChartElements.Bubble;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -36,6 +37,9 @@ public class BubbleChart implements Chart {
     private final RegressionType regressionType;
     private final Boolean calcRegression;
     private final Integer polyRegressionDegree;
+    private final List<ChartDataModel> chartDataModels;
+    private final Integer chartId;
+    private final String chartName;
     private List<Color> hexColors = new ArrayList<>();
     private List<Integer> noOfBubbles = new ArrayList<>();
     MultiAxisBubbleChart<Number, Number> chart;
@@ -49,10 +53,13 @@ public class BubbleChart implements Chart {
     private String xUnit;
     private String yUnit;
 
-    public BubbleChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, Integer polyRegressionDegree, Integer chartId, String chartName) {
-        this.regressionType = regressionType;
-        this.calcRegression = calcRegression;
-        this.polyRegressionDegree = polyRegressionDegree;
+    public BubbleChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
+        this.regressionType = analysisDataModel.getRegressionType();
+        this.calcRegression = analysisDataModel.calcRegression();
+        this.polyRegressionDegree = analysisDataModel.getPolyRegressionDegree();
+        this.chartDataModels = chartDataModels;
+        this.chartId = chartId;
+        this.chartName = chartName;
 
         final NumberAxis xAxis = new NumberAxis();
         final NumberAxis yAxis = new NumberAxis();
@@ -203,7 +210,7 @@ public class BubbleChart implements Chart {
             chart.setRegressionColor(0, hexColors.get(0));
             chart.setRegression(0, regressionType, polyRegressionDegree);
         }
-        chart.setTitle(chartName);
+        chart.setTitle(getChartName());
         chart.setLegendVisible(false);
 
         String xAxisTitle = "";
@@ -272,7 +279,7 @@ public class BubbleChart implements Chart {
 
     @Override
     public String getChartName() {
-        return null;
+        return chartName;
     }
 
     @Override
@@ -282,7 +289,7 @@ public class BubbleChart implements Chart {
 
     @Override
     public Integer getChartId() {
-        return null;
+        return chartId;
     }
 
     @Override
@@ -397,6 +404,11 @@ public class BubbleChart implements Chart {
     }
 
     @Override
+    public List<ChartDataModel> getChartDataModels() {
+        return chartDataModels;
+    }
+
+    @Override
     public void showNote(MouseEvent mouseEvent) {
 
     }
@@ -426,17 +438,12 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public DateTime getNearest() {
-        return null;
-    }
-
-    @Override
     public void setValueForDisplay(DateTime valueForDisplay) {
 
     }
 
     @Override
-    public javafx.scene.chart.Chart getChart() {
+    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
         return chart;
     }
 

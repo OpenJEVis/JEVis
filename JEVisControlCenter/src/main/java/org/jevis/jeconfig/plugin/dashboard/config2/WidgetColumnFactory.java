@@ -12,10 +12,11 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -255,6 +256,7 @@ public class WidgetColumnFactory {
 
                             button.setOnAction(event -> {
                                 item.openConfig();
+                                WidgetColumnFactory.this.table.refresh();
 //                                item.updateData(null);
 //                            WidgetColumnFactory.this.table.refresh();
                             });
@@ -368,7 +370,7 @@ public class WidgetColumnFactory {
                     @Override
                     protected void updateItem(String item, boolean empty) {
                         if (item != null && !empty) {
-                            TextField textField = new TextField(item.toString());
+                            TextField textField = new TextField(item);
 
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
                                 setWidgetTitle(textField.getText(), (Widget) getTableRow().getItem());
@@ -427,15 +429,16 @@ public class WidgetColumnFactory {
                     @Override
                     protected void updateItem(Color item, boolean empty) {
                         if (item != null && !empty) {
-                            ColorPicker colorPicker = new ColorPicker(item);
+                            ColorPickerAdv colorPicker = new ColorPickerAdv();
                             colorPicker.setMaxWidth(100d);
+                            colorPicker.setValue(item);
 
                             colorPicker.setStyle("-fx-color-label-visible: false ;");
                             colorPicker.setOnAction(event -> {
                                 setWidgetFGColor(colorPicker.getValue(), (Widget) getTableRow().getItem());
                             });
 
-                            addFocusRefreshListener(colorPicker);
+//                            addFocusRefreshListener(colorPicker);
 
                             setGraphic(colorPicker);
                         }
@@ -477,16 +480,23 @@ public class WidgetColumnFactory {
                     @Override
                     protected void updateItem(Color item, boolean empty) {
                         if (item != null && !empty) {
-                            ColorPicker colorPicker = new ColorPicker(item);
-                            colorPicker.setMaxWidth(100d);
-                            colorPicker.setStyle("-fx-color-label-visible: false ;");
+//                            ColorPicker colorPicker = new ColorPicker(item);
+//                            colorPicker.setMaxWidth(100d);
+//                            colorPicker.setStyle("-fx-color-label-visible: false ;");
+//
+//                            colorPicker.setOnAction(event -> {
+//                                setWidgetBGColor(colorPicker.getValue(), (Widget) getTableRow().getItem());
+//                            });
 
-                            colorPicker.setOnAction(event -> {
-                                setWidgetBGColor(colorPicker.getValue(), (Widget) getTableRow().getItem());
+                            ColorPickerAdv colorPicker = new ColorPickerAdv();
+                            colorPicker.setValue(item);
+                            setGraphic(colorPicker);
+                            colorPicker.selectColorProperty().addListener((observable, oldValue, newValue) -> {
+                                setWidgetBGColor(newValue, (Widget) getTableRow().getItem());
                             });
 
-                            addFocusRefreshListener(colorPicker);
-                            setGraphic(colorPicker);
+//                            addFocusRefreshListener(colorPicker);
+//                            setGraphic(colorPicker);
                         }
 
                     }

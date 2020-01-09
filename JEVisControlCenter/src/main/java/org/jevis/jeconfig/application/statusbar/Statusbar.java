@@ -41,8 +41,8 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.CommonOptions;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -105,6 +105,14 @@ public class Statusbar extends ToolBar {
             job.done += jobsDone;
             setProgressBar(job.total, job.done, message);
         }
+    }
+
+    public double getProgress(String jobID) {
+        Job job = jobList.get(jobID);
+        if (job != null) {
+            return job.done;
+        }
+        return 0;
     }
 
     public void finishProgressJob(String jobID, String message) {

@@ -30,8 +30,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.chart.Axis;
-import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
@@ -44,9 +42,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.Axis;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
 import org.joda.time.DateTime;
 
 /**
@@ -178,7 +178,7 @@ public class ChartZoomManager {
             /**
              * TODO what to do with category
              */
-            Axis a = new DateValueAxis();
+            Axis a = new DateAxis();
             xAxis = (ValueAxis<?>) a;
         }
         this.y1Axis = (ValueAxis<?>) chart.getY1Axis();
@@ -542,6 +542,7 @@ public class ChartZoomManager {
 
         selecting.set(false);
         zoomFinished.setValue(true);
+
     }
 
     private class MouseWheelZoomHandler implements EventHandler<ScrollEvent> {

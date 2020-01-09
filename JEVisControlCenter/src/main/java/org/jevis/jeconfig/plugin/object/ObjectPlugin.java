@@ -43,6 +43,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.CommonClasses;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
@@ -53,7 +54,6 @@ import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.bulkedit.CreateTable;
 import org.jevis.jeconfig.bulkedit.EditTable;
 import org.jevis.jeconfig.dialog.*;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.LoadingPane;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -81,10 +81,11 @@ public class ObjectPlugin implements Plugin {
     private JEVisTree tree;
     private LoadingPane editorLoadingPane = new LoadingPane();
     private LoadingPane treeLoadingPane = new LoadingPane();
-    private ToolBar toolBar;
+    private final ToolBar toolBar = new ToolBar();
     private ObjectEditor _editor = new ObjectEditor();
     private SimpleBooleanProperty loadingObjectProperty = new SimpleBooleanProperty();
     private String tooltip = I18n.getInstance().getString("pluginmanager.object.tooltip");
+    private boolean initToolbar = false;
 
     public ObjectPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -216,7 +217,7 @@ public class ObjectPlugin implements Plugin {
         allObjects.add(SelectTargetDialog.buildAllAttributesFilter());
         allObjects.add(SelectTargetDialog.buildCalendarFilter());
         allObjects.add(SelectTargetDialog.buildAllDataSources(this.ds));
-        allObjects.add(SelectTargetDialog.buildAllMessurment(this.ds));
+        allObjects.add(SelectTargetDialog.buildAllMeasurement(this.ds));
         allObjects.add(SelectTargetDialog.buildAllCalculation(this.ds));
         allObjects.add(SelectTargetDialog.buildAllAnalysis(this.ds));
         allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "User"));
@@ -262,8 +263,7 @@ public class ObjectPlugin implements Plugin {
     @Override
     public Node getToolbar() {
 
-        if (toolBar == null) {
-            toolBar = new ToolBar();
+        if (!initToolbar) {
             toolBar.setId("ObjectPlugin.Toolbar");
             double iconSize = 20;
             ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", iconSize, iconSize));
@@ -319,7 +319,8 @@ public class ObjectPlugin implements Plugin {
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, expandTree, Constants.Plugin.Command.EXPAND);
 
 
-            toolBar.getItems().addAll(save, newB, delete, reload, collapseTree, sep1);// addTable, editTable, createWizard);
+            toolBar.getItems().setAll(save, newB, delete, reload, collapseTree, sep1);// addTable, editTable, createWizard);
+            initToolbar = true;
         }
 
         return toolBar;

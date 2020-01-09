@@ -442,8 +442,6 @@ public abstract class Widget extends Region {
     public abstract String typeID();
 
     public void openConfig() {
-//        WidgetConfigEditor widgetConfigEditor = new WidgetConfigEditor(this.config);
-//        widgetConfigEditor.show();
     }
 
 

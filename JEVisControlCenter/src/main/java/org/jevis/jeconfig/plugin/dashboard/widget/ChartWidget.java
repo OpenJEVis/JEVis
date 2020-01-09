@@ -16,10 +16,10 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
@@ -69,7 +69,6 @@ public class ChartWidget extends Widget {
         widgetPojo.setTitle("new Chart Widget");
         widgetPojo.setType(typeID());
 
-
         return widgetPojo;
     }
 
@@ -110,10 +109,7 @@ public class ChartWidget extends Widget {
                 /**
                  * LineChart does not support updateData so we need to create an new one every time;
                  */
-                this.lineChart = new LineChart(this.sampleHandler.getDataModel(),
-                        false, false, false, false,
-                        false, null, -1,
-                        ManipulationMode.NONE, 0, "");
+                this.lineChart = new LineChart(new AnalysisDataModel(getDataSource(), null), this.sampleHandler.getDataModel(), 0, "");
 
                 this.borderPane.setCenter(this.lineChart.getChart());
                 updateConfig();/** workaround because we make a new chart everytime**/
@@ -143,6 +139,7 @@ public class ChartWidget extends Widget {
                 //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
 //            lineChart.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Inset
                 this.borderPane.setBackground(bgColor);
+                this.borderPane.setPadding(new Insets(0, 0, 0, 25));
                 this.lineChart.applyColors();
                 MultiAxisLineChart chart = (MultiAxisLineChart) this.lineChart.getChart();
                 chart.getY2Axis().setVisible(false);

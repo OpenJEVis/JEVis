@@ -18,6 +18,8 @@ import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,6 +39,7 @@ public class ChartDataModel {
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
     private JEVisObject dataProcessorObject = null;
     private List<JEVisSample> samples = new ArrayList<>();
+    private List<JEVisSample> forecastSamples = new ArrayList<>();
     private boolean somethingChanged = true;
     private JEVisUnit unit;
     private List<Integer> selectedCharts = new ArrayList<>();
@@ -48,18 +51,22 @@ public class ChartDataModel {
     private Boolean absolute = false;
     private BubbleType bubbleType = BubbleType.NONE;
     private boolean isStringData = false;
+    private boolean hasForecastData = false;
     private double timeFactor = 1.0;
     private Double scaleFactor = 1d;
-    private boolean fillZeroes = true;
     private double min;
     private double max;
     private double avg;
     private Double sum;
+    private Map<DateTime, JEVisSample> userNoteMap;
+    private boolean customWorkDay = true;
+
 
     /**
      * Maximum number of parallel running getSamples(), not the Dashboard need multiple
      */
     private static ExecutorService executor = Executors.newFixedThreadPool(10);
+    private JEVisAttribute forecastDataAttribute;
 
     public ChartDataModel(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
@@ -96,26 +103,46 @@ public class ChartDataModel {
         this.unit = _unit;
     }
 
-    /**
-     * Workaround by FS, Nils says the we dont want filling with zeroes and it also
-     * makes problems with the avg in the Dashboard but we cannot remove this because
-     * the Graph will not work on the x axis with multiple charts.
-     **/
-    public void setFillZeroes(boolean fillZeroes) {
-        this.fillZeroes = fillZeroes;
+    public Map<DateTime, JEVisSample> getNoteSamples() {
+        if(userNoteMap!=null){
+            return userNoteMap;
+        }
+
+        Map<DateTime, JEVisSample> noteSample = new TreeMap<>();
+        try {
+            JEVisClass noteclass = getObject().getDataSource().getJEVisClass("Data Notes");
+            for (JEVisObject jeVisObject : getObject().getChildren(noteclass, false)) {
+                try {
+                    jeVisObject.getAttribute("User Notes").getSamples(getSelectedStart(), getSelectedEnd()).forEach(jeVisSample -> {
+                        try {
+                            noteSample.put(jeVisSample.getTimestamp(), jeVisSample);
+                        } catch (Exception ex) {
+
+                        }
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        userNoteMap=noteSample;
+        return noteSample;
     }
 
     public List<JEVisSample> getSamples() {
         if (this.somethingChanged) {
-//            ExecutorService executor = Executors.newFixedThreadPool(1);
 
-            FutureTask<List<JEVisSample>> datatask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
+            FutureTask<List<JEVisSample>> futureTask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
                 @Override
                 public List<JEVisSample> call() {
 
                     try {
                         logger.debug("CDM.getSample.thread: {}{}", Thread.currentThread().getId(), Thread.currentThread().getName());
                         List<JEVisSample> samples = new ArrayList<>();
+                        userNoteMap = null;//reset userNote list
                         getAttribute();
 
                         somethingChanged = false;
@@ -126,10 +153,17 @@ public class ChartDataModel {
                         if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                             try {
                                 if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
-                                    SampleGenerator sg = new SampleGenerator(attribute.getDataSource(), attribute.getObject(), attribute, selectedStart, selectedEnd, manipulationMode, aggregationPeriod);
+                                    SampleGenerator sg = new SampleGenerator(
+                                            attribute.getDataSource(),
+                                            attribute.getObject(),
+                                            attribute,
+                                            selectedStart, selectedEnd,
+                                            customWorkDay,
+                                            manipulationMode,
+                                            aggregationPeriod);
 
-                                    samples = sg.generateSamples();
-                                    samples = sg.getAggregatedSamples(samples);
+//                                    samples = sg.generateSamples();
+                                    samples = sg.getAggregatedSamples();
 
                                     if (!isStringData) {
                                         samples = factorizeSamples(samples);
@@ -163,25 +197,95 @@ public class ChartDataModel {
                                         getObject().getName(), getObject().getID());
                             }
                         }
+
+                        try {
+                            userNoteMap = getNoteSamples();
+                        } catch (Exception ex) {
+                            logger.error(ex);
+                        }
+
                         return samples;
 
                     } catch (Exception ex) {
                         logger.error(ex);
                     }
 
+
+
                     return new ArrayList<JEVisSample>();
                 }
             });
 
-            executor.execute(datatask);
+            executor.execute(futureTask);
             try {
-                samples = datatask.get();
+                samples = futureTask.get();
             } catch (Exception ex) {
                 logger.error(ex);
             }
-//            executor.shutdown();
         }
         return samples;
+    }
+
+    public List<JEVisSample> getForecastSamples() {
+
+        FutureTask<List<JEVisSample>> futureTask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
+            @Override
+            public List<JEVisSample> call() {
+
+                try {
+                    logger.debug("CDM.getSample.thread: {}{}", Thread.currentThread().getId(), Thread.currentThread().getName());
+                    List<JEVisSample> samples = new ArrayList<>();
+                    getAttribute();
+
+
+                    if (getSelectedStart() == null || getSelectedEnd() == null) {
+                        return samples;
+                    }
+                    if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
+                        try {
+
+                            SampleGenerator sg = new SampleGenerator(forecastDataAttribute.getDataSource(),
+                                    forecastDataAttribute.getObject(),
+                                    forecastDataAttribute,
+                                    selectedStart, selectedEnd,
+                                    customWorkDay,
+                                    manipulationMode, aggregationPeriod);
+
+                            samples = sg.getAggregatedSamples();
+
+                            if (!isStringData) {
+                                samples = factorizeSamples(samples);
+                            }
+
+                        } catch (Exception ex) {
+                            logger.error(ex);
+                        }
+                    } else {
+                        if (getDataProcessor() != null) {
+                            logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                                    getDataProcessor().getName(), getDataProcessor().getID());
+                        } else {
+                            logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                                    getObject().getName(), getObject().getID());
+                        }
+                    }
+                    return samples;
+
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+
+                return new ArrayList<JEVisSample>();
+            }
+        });
+
+        executor.execute(futureTask);
+        try {
+            forecastSamples = futureTask.get();
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+        return forecastSamples;
     }
 
     public void setSamples(List<JEVisSample> samples) {
@@ -382,9 +486,18 @@ public class ChartDataModel {
 
                 String jevisClassName = getObject().getJEVisClassName();
                 if (jevisClassName.equals("Data") || jevisClassName.equals("Clean Data") || jevisClassName.equals("String Data")) {
-                    if (dataProcessorObject == null) this.attribute = getObject().getAttribute("Value");
-                    else this.attribute = getDataProcessor().getAttribute("Value");
+                    if (dataProcessorObject == null) {
+                        this.attribute = getObject().getAttribute("Value");
+                    } else {
+                        this.attribute = getDataProcessor().getAttribute("Value");
+                    }
 
+                    JEVisClass forecastData = this.dataSource.getJEVisClass("Forecast Data");
+                    List<JEVisObject> children = this.attribute.getObject().getChildren(forecastData, false);
+                    if (!children.isEmpty()) {
+                        this.hasForecastData = true;
+                        this.forecastDataAttribute = children.get(0).getAttribute("Value");
+                    }
 
                     if (jevisClassName.equals("String Data")) {
                         this.isStringData = true;
@@ -417,6 +530,9 @@ public class ChartDataModel {
         return getAttribute() != null && getAttribute().hasSample();
     }
 
+    public boolean hasForecastData() {
+        return hasForecastData;
+    }
 
     public List<Integer> getSelectedcharts() {
         return selectedCharts;
@@ -521,12 +637,20 @@ public class ChartDataModel {
         newModel.setSamples(this.getSamples());
         newModel.setUnit(this.getUnit());
         newModel.setBubbleType(this.getBubbleType());
+        newModel.setAbsolute(this.getAbsolute());
+        newModel.setTimeFactor(this.getTimeFactor());
+        newModel.setScaleFactor(this.getScaleFactor());
+        newModel.setCustomWorkDay(this.isCustomWorkDay());
 
         return newModel;
     }
 
     public Boolean getAbsolute() {
         return absolute;
+    }
+
+    public JEVisAttribute getForecastDataAttribute() {
+        return forecastDataAttribute;
     }
 
     public void setAbsolute(Boolean absolute) {
@@ -585,8 +709,24 @@ public class ChartDataModel {
         this.sum = sum;
     }
 
+    public void setTimeFactor(double timeFactor) {
+        this.timeFactor = timeFactor;
+    }
+
+    public void setScaleFactor(Double scaleFactor) {
+        this.scaleFactor = scaleFactor;
+    }
+
     public boolean equals(ChartDataModel obj) {
         return this.getObject().getID().equals(obj.getObject().getID())
                 && this.getDataProcessor().getID().equals(obj.getDataProcessor().getID());
+    }
+
+    public boolean isCustomWorkDay() {
+        return customWorkDay;
+    }
+
+    public void setCustomWorkDay(boolean customWorkDay) {
+        this.customWorkDay = customWorkDay;
     }
 }

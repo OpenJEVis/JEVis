@@ -46,6 +46,7 @@ import java.util.*;
 public class ProcessOptions {
     public static final String PERIOD = "period";
     public static final String OFFSET = "offset";
+    public static final String CUSTOM = "custom";
     public static final String TS_START = "date-start";
     public static final String TS_END = "date-end";
     private static final Logger logger = LogManager.getLogger(ProcessOptions.class);
@@ -144,7 +145,7 @@ public class ProcessOptions {
 
         if (ContainsOption(task, TS_START)) {
             try {
-                result[0] = DateTime.parse(GetLatestOption(task, TS_START, new BasicProcessOption(TS_START, "")).getValue(), JEVisDates.DEFAULT_DATE_FORMAT);
+                result[0] = new DateTime(GetLatestOption(task, TS_START, new BasicProcessOption(TS_START, "")).getValue());
 //                result[0] = DateTime.parse(task.getOptions().get(TS_START), DateTimeFormat.forPattern(TS_PATTERN));
             } catch (Exception e) {
                 logger.error("error while parsing " + TS_START + " option");
@@ -155,7 +156,7 @@ public class ProcessOptions {
 
         if (ContainsOption(task, TS_END)) {
             try {
-                result[1] = DateTime.parse(GetLatestOption(task, TS_END, new BasicProcessOption(TS_END, "")).getValue(), JEVisDates.DEFAULT_DATE_FORMAT);
+                result[1] = new DateTime(GetLatestOption(task, TS_END, new BasicProcessOption(TS_END, "")).getValue());
 //                result[1] = DateTime.parse(task.getOptions().get(TS_END), DateTimeFormat.forPattern(TS_PATTERN));
             } catch (Exception ex) {
                 logger.error("error while parsing " + TS_END + " option");
@@ -295,6 +296,16 @@ public class ProcessOptions {
         if (!ContainsOption(task, OFFSET)) {
             logger.warn("Error missing offset option");
             WorkDays wd = new WorkDays(task.getObject());
+
+            boolean isCustomWorkDay = true;
+            for (ProcessOption option : task.getOptions()) {
+                if (option.getKey().equals(CUSTOM)) {
+                    isCustomWorkDay = Boolean.parseBoolean(option.getValue());
+                    break;
+                }
+            }
+
+            wd.setEnabled(isCustomWorkDay);
             if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
                 task.getOptions().add(new BasicProcessOption(OFFSET, "2001-01-01 " +
                         wd.getWorkdayStart().getHour()

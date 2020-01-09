@@ -19,6 +19,9 @@
  */
 package org.jevis.jeconfig;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -30,16 +33,19 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.map.MapViewPlugin;
+import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
-import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
+import org.jevis.jeconfig.plugin.meters.MeterPlugin;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.plugin.reports.ReportPlugin;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -91,6 +97,8 @@ public class PluginManager {
 //        plugins.add(new ObjectPlugin(_ds, I18n.getInstance().getString("plugin.object.title")));
         plugins.add(new GraphPluginView(this._ds, I18n.getInstance().getString("plugin.graph.title")));
         plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
+        plugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
+        plugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
         plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
 
 //        plugins.add(new SCADAPlugin(_ds));
@@ -186,6 +194,18 @@ public class PluginManager {
                                                 if (allReports.size() == 0) {
                                                     continue;
                                                 }
+                                            } else if (plugObj.getJEVisClassName().equals(AlarmPlugin.PLUGIN_NAME)) {
+                                                JEVisClass alarmClass = this._ds.getJEVisClass(AlarmPlugin.ALARM_CONFIG_CLASS);
+                                                List<JEVisObject> allAlarms = this._ds.getObjects(alarmClass, true);
+                                                if (allAlarms.size() == 0) {
+                                                    continue;
+                                                }
+                                            } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
+                                                JEVisClass alarmClass = this._ds.getJEVisClass(MeterPlugin.MEASUREMENT_INSTRUMENT_CLASS);
+                                                List<JEVisObject> allAlarms = this._ds.getObjects(alarmClass, true);
+                                                if (allAlarms.size() == 0) {
+                                                    continue;
+                                                }
                                             }
 
                                             enabledPlugins.add(plugin);
@@ -251,6 +271,31 @@ public class PluginManager {
                 pluginTab.setTooltip(new Tooltip(plugin.getToolTip()));
 //            pluginTab.setContent(plugin.getView().getNode());
                 pluginTab.setContent(plugin.getContentNode());
+
+                if (plugin instanceof AlarmPlugin) {
+                    AlarmPlugin alarmPlugin = (AlarmPlugin) plugin;
+                    Timeline flasher = new Timeline(
+
+                            new KeyFrame(Duration.seconds(0.5), e -> {
+                                pluginTab.setStyle("-tab-text-color: black;");
+                            }),
+
+                            new KeyFrame(Duration.seconds(1.0), e -> {
+                                pluginTab.setStyle("-tab-text-color: red;");
+                            })
+                    );
+                    flasher.setCycleCount(Animation.INDEFINITE);
+
+                    alarmPlugin.hasAlarmsProperty().addListener((observable, oldValue, newValue) -> {
+                        if (newValue) {
+                            flasher.play();
+                        } else {
+                            flasher.stop();
+                            pluginTab.setStyle("-tab-text-color: black;");
+                        }
+                    });
+                }
+
                 this.tabPane.getTabs().add(pluginTab);
 
                 pluginTab.setOnClosed(t -> {

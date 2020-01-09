@@ -34,7 +34,6 @@ public class ProcessMonitor {
         view.getTasks().add(task);
 
         task.setOnSucceeded(event -> {
-            System.out.println("Task Finished");
 //            boolean someArerunning = false;
 //            for (Task otherTask : (List<Task>) view.getTasks()) {
 //                if (((Task) otherTask).isDone()) {

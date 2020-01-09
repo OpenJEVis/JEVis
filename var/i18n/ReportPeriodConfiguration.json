@@ -18,6 +18,449 @@
         "de": "Aggregation",
         "ru": "Aggregation",
         "en": "Aggregation"
+      },
+      "enums" : {
+        "NONE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Keine Aggregation, keine Datenmanipulation",
+            "en" : "No aggregation, no manipulation"
+          }
+        },
+        "HOURLY_NONE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Stundenwerte, keine Datenmanipulation",
+            "en" : "Hourly values, no manipulation"
+          }
+        },
+        "DAILY_NONE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Tageswerte, keine Datenmanipulation",
+            "en" : "Daily values, no manipulation"
+          }
+        },
+        "WEEKLY_NONE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Wochenwerte, keine Datenmanipulation",
+            "en" : "Weekly values, no manipulation"
+          }
+        },
+        "MONTHLY_NONE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatswerte, keine Datenmanipulation",
+            "en" : "Monthly values, no manipulation"
+          }
+        },
+        "QUARTERLY_NONE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Quartalswerte, keine Datenmanipulation",
+            "en" : "Quarterly values, no manipulation"
+          }
+        },
+        "YEARLY_NONE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jahreswerte, keine Datenmanipulation",
+            "en" : "Yearly values, no manipulation"
+          }
+        },
+        "NONE_AVERAGE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Keine Aggregation, Durchschnitsswert",
+            "en" : "No aggregation, average value"
+          }
+        },
+        "HOURLY_AVERAGE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Stundenwerte, Durchschnitsswert",
+            "en" : "Hourly values, average value"
+          }
+        },
+        "DAILY_AVERAGE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Tageswerte, Durchschnitsswert",
+            "en" : "Daily values, average value"
+          }
+        },
+        "WEEKLY_AVERAGE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Wochenwerte, Durchschnitsswert",
+            "en" : "Weekly values, average value"
+          }
+        },
+        "MONTHLY_AVERAGE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatswerte, Durchschnitsswert",
+            "en" : "Monthly values, average value"
+          }
+        },
+        "QUARTERLY_AVERAGE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Quartalswerte, Durchschnitsswert",
+            "en" : "Quarterly values, average value"
+          }
+        },
+        "YEARLY_AVERAGE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jahreswerte, Durchschnitsswert",
+            "en" : "Yearly values, average value"
+          }
+        },
+        "NONE_SORTED_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Keine Aggregation, Aufsteigend sortiert",
+            "en" : "No aggregation, sorted in ascending order"
+          }
+        },
+        "HOURLY_SORTED_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Stundenwerte, Aufsteigend sortiert",
+            "en" : "Hourly values, sorted in ascending order"
+          }
+        },
+        "DAILY_SORTED_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Tageswerte, Aufsteigend sortiert",
+            "en" : "Daily values, sorted in ascending order"
+          }
+        },
+        "WEEKLY_SORTED_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Wochenwerte, Aufsteigend sortiert",
+            "en" : "Weekly values, sorted in ascending order"
+          }
+        },
+        "MONTHLY_SORTED_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatswerte, Aufsteigend sortiert",
+            "en" : "Monthly values, sorted in ascending order"
+          }
+        },
+        "QUARTERLY_SORTED_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Quartalswerte, Aufsteigend sortiert",
+            "en" : "Quarterly values, sorted in ascending order"
+          }
+        },
+        "YEARLY_SORTED_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jahreswerte, Aufsteigend sortiert",
+            "en" : "Yearly values, sorted in ascending order"
+          }
+        },
+        "NONE_SORTED_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Keine Aggregation, Absteigend sortiert",
+            "en" : "No aggregation, sorted in descending order"
+          }
+        },
+        "HOURLY_SORTED_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Stundenwerte, Absteigend sortiert",
+            "en" : "Hourly values, sorted in descending order"
+          }
+        },
+        "DAILY_SORTED_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Tageswerte, Absteigend sortiert",
+            "en" : "Daily values, sorted in descending order"
+          }
+        },
+        "WEEKLY_SORTED_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Wochenwerte, Absteigend sortiert",
+            "en" : "Weekly values, sorted in descending order"
+          }
+        },
+        "MONTHLY_SORTED_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatswerte, Absteigend sortiert",
+            "en" : "Monthly values, sorted in descending order"
+          }
+        },
+        "QUARTERLY_SORTED_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Quartalswerte, Absteigend sortiert",
+            "en" : "Quarterly values, sorted in descending order"
+          }
+        },
+        "YEARLY_SORTED_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jahreswerte, Absteigend sortiert",
+            "en" : "Yearly values, sorted in descending order"
+          }
+        },
+        "NONE_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Keine Aggregation, Minimalwert der Periode",
+            "en" : "No aggregation, minimum value of the period"
+          }
+        },
+        "HOURLY_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Stundenwerte, Minimalwert der Periode",
+            "en" : "Hourly values, minimum value of the period"
+          }
+        },
+        "DAILY_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Tageswerte, Minimalwert der Periode",
+            "en" : "Daily values, minimum value of the period"
+          }
+        },
+        "WEEKLY_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Wochenwerte, Minimalwert der Periode",
+            "en" : "Weekly values, minimum value of the period"
+          }
+        },
+        "MONTHLY_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatswerte, Minimalwert der Periode",
+            "en" : "Monthly values, minimum value of the period"
+          }
+        },
+        "QUARTERLY_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Quartalswerte, Minimalwert der Periode",
+            "en" : "Quarterly values, minimum value of the period"
+          }
+        },
+        "YEARLY_MIN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jahreswerte, Minimalwert der Periode",
+            "en" : "Yearly values, minimum value of the period"
+          }
+        },
+        "NONE_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Keine Aggregation, Maximalwert der Periode",
+            "en" : "No aggregation, maximum value of the period"
+          }
+        },
+        "HOURLY_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Stundenwerte, Maximalwert der Periode",
+            "en" : "Hourly values, maximum value of the period"
+          }
+        },
+        "DAILY_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Tageswerte, Maximalwert der Periode",
+            "en" : "Daily values, maximum value of the period"
+          }
+        },
+        "WEEKLY_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Wochenwerte, Maximalwert der Periode",
+            "en" : "Weekly values, maximum value of the period"
+          }
+        },
+        "MONTHLY_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatswerte, Maximalwert der Periode",
+            "en" : "Monthly values, maximum value of the period"
+          }
+        },
+        "QUARTERLY_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Quartalswerte, Maximalwert der Periode",
+            "en" : "Quarterly values, maximum value of the period"
+          }
+        },
+        "YEARLY_MAX" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jahreswerte, Maximalwert der Periode",
+            "en" : "Yearly values, maximum value of the period"
+          }
+        },
+        "NONE_MEDIAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Keine Aggregation, Medianwert der Periode",
+            "en" : "No aggregation, median value of the period"
+          }
+        },
+        "HOURLY_MEDIAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Stundenwerte, Medianwert der Periode",
+            "en" : "Hourly values, median value of the period"
+          }
+        },
+        "DAILY_MEDIAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Tageswerte, Medianwert der Periode",
+            "en" : "Daily values, median value of the period"
+          }
+        },
+        "WEEKLY_MEDIAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Wochenwerte, Medianwert der Periode",
+            "en" : "Weekly values, median value of the period"
+          }
+        },
+        "MONTHLY_MEDIAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatswerte, Medianwert der Periode",
+            "en" : "Monthly values, median value of the period"
+          }
+        },
+        "QUARTERLY_MEDIAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Quartalswerte, Medianwert der Periode",
+            "en" : "Quarterly values, median value of the period"
+          }
+        },
+        "YEARLY_MEDIAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jahreswerte, Medianwert der Periode",
+            "en" : "Yearly values, median value of the period"
+          }
+        },
+        "NONE_CENTRIC_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Keine Aggregation, zentrierte Gleitende Mittelwerte",
+            "en" : "No aggregation, centric running mean values"
+          }
+        },
+        "HOURLY_CENTRIC_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Stundenwerte, zentrierte Gleitende Mittelwerte",
+            "en" : "Hourly values, centric running mean values"
+          }
+        },
+        "DAILY_CENTRIC_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Tageswerte, zentrierte Gleitende Mittelwerte",
+            "en" : "Daily values, centric running mean values"
+          }
+        },
+        "WEEKLY_CENTRIC_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Wochenwerte, zentrierte Gleitende Mittelwerte",
+            "en" : "Weekly values, centric running mean values"
+          }
+        },
+        "MONTHLY_CENTRIC_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatswerte, zentrierte Gleitende Mittelwerte",
+            "en" : "Monthly values, centric running mean values"
+          }
+        },
+        "QUARTERLY_CENTRIC_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Quartalswerte, zentrierte Gleitende Mittelwerte",
+            "en" : "Quarterly values, centric running mean values"
+          }
+        },
+        "YEARLY_CENTRIC_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jahreswerte, zentrierte Gleitende Mittelwerte",
+            "en" : "Yearly values, centric running mean values"
+          }
+        },
+        "NONE_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Keine Aggregation, Gleitende Mittelwerte",
+            "en" : "No aggregation, running mean values"
+          }
+        },
+        "HOURLY_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Stundenwerte, Gleitende Mittelwerte",
+            "en" : "Hourly values, running mean values"
+          }
+        },
+        "DAILY_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Tageswerte, Gleitende Mittelwerte",
+            "en" : "Daily values, running mean values"
+          }
+        },
+        "WEEKLY_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Wochenwerte, Gleitende Mittelwerte",
+            "en" : "Weekly values, running mean values"
+          }
+        },
+        "MONTHLY_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatswerte, Gleitende Mittelwerte",
+            "en" : "Monthly values, running mean values"
+          }
+        },
+        "QUARTERLY_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Quartalswerte, Gleitende Mittelwerte",
+            "en" : "Quarterly values, running mean values"
+          }
+        },
+        "YEARLY_RUNNING_MEAN" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jahreswerte, Gleitende Mittelwerte",
+            "en" : "Yearly values, running mean values"
+          }
+        }
       }
     },
     {
@@ -31,7 +474,33 @@
         "de": "Periode",
         "ru": "Period",
         "en": "Period"
+      },
+      "enums" : {
+      "LAST" : {
+        "enumID" : null,
+        "descriptions" : null,
+        "names" : {
+          "de" : "Letzte",
+          "en" : "Last"
+        }
+      },
+      "CURRENT" : {
+        "enumID" : null,
+        "descriptions" : null,
+        "names" : {
+          "de" : "Aktulle",
+          "en" : "Current"
+        }
+      },
+      "ALL" : {
+        "enumID" : null,
+        "descriptions" : null,
+        "names" : {
+          "de" : "Alles",
+          "en" : "All"
+        }
       }
+    }
     }
   ]
 }

@@ -3,6 +3,7 @@ package org.jevis.jestatus;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.AlarmTable;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 
 import java.util.List;
@@ -27,19 +28,21 @@ public class ServiceStatus extends AlarmTable {
         sb.append("<br>");
         sb.append("<br>");
 
-        sb.append("<h2>Service Status</h2>");
+        sb.append("<h2>").append(I18n.getInstance().getString("status.table.title.services")).append("</h2>");
 
         JEVisClass alarmClass = ds.getJEVisClass("JEAlarm");
         JEVisClass dataCollectorClass = ds.getJEVisClass("JEDataCollector");
         JEVisClass dataprocessorClass = ds.getJEVisClass("JEDataProcessor");
         JEVisClass calcClass = ds.getJEVisClass("JECalc");
         JEVisClass reportClass = ds.getJEVisClass("JEReport");
+        JEVisClass notifierClass = ds.getJEVisClass("JENotifier");
 
         List<JEVisObject> alarms = ds.getObjects(alarmClass, true);
         List<JEVisObject> dataCollectors = ds.getObjects(dataCollectorClass, true);
         List<JEVisObject> dataProcessors = ds.getObjects(dataprocessorClass, true);
         List<JEVisObject> calcs = ds.getObjects(calcClass, true);
         List<JEVisObject> reports = ds.getObjects(reportClass, true);
+        List<JEVisObject> notifiers = ds.getObjects(notifierClass, true);
 
         sb.append("<table style=\"");
         sb.append(tableCSS);
@@ -47,9 +50,9 @@ public class ServiceStatus extends AlarmTable {
         sb.append("<tr style=\"");
         sb.append(headerCSS);
         sb.append("\" >");
-        sb.append("    <th>Service</th>");
-        sb.append("    <th>Last Contact</th>");
-        sb.append("    <th>status</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.service")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.lastcontact")).append("</th>");
+        sb.append("    <th>").append(I18n.getInstance().getString("status.table.captions.status")).append("</th>");
         sb.append("  </tr>");
 
         DateTime contactAlarm = null;
@@ -116,7 +119,7 @@ public class ServiceStatus extends AlarmTable {
          * Service Column
          */
         sb.append("<td style=\"");
-        sb.append(highlight);
+        sb.append(rowCss + highlight);
         sb.append("\">");
         sb.append(dataCollectorClass.getName());
         sb.append("</td>");
@@ -124,7 +127,7 @@ public class ServiceStatus extends AlarmTable {
          * Last Contact Column
          */
         sb.append("<td style=\"");
-        sb.append(highlight);
+        sb.append(rowCss + highlight);
         sb.append("\">");
         if (contactDataCollector != null) {
             sb.append(contactDataCollector.toString(timestampFormat));
@@ -134,7 +137,7 @@ public class ServiceStatus extends AlarmTable {
          * Status Column
          */
         sb.append("<td style=\"");
-        sb.append(highlight);
+        sb.append(rowCss + highlight);
         sb.append("\">");
         if (statusDataCollector != null) {
             sb.append(getStatus(statusDataCollector));
@@ -206,7 +209,7 @@ public class ServiceStatus extends AlarmTable {
          * Service Column
          */
         sb.append("<td style=\"");
-        sb.append(highlight);
+        sb.append(rowCss + highlight);
         sb.append("\">");
         sb.append(calcClass.getName());
         sb.append("</td>");
@@ -214,7 +217,7 @@ public class ServiceStatus extends AlarmTable {
          * Last Contact Column
          */
         sb.append("<td style=\"");
-        sb.append(highlight);
+        sb.append(rowCss + highlight);
         sb.append("\">");
         if (contactCalc != null) {
             sb.append(contactCalc.toString(timestampFormat));
@@ -224,7 +227,7 @@ public class ServiceStatus extends AlarmTable {
          * Status Column
          */
         sb.append("<td style=\"");
-        sb.append(highlight);
+        sb.append(rowCss + highlight);
         sb.append("\">");
         if (statusCalc != null) {
             sb.append(getStatus(statusCalc));
@@ -277,6 +280,51 @@ public class ServiceStatus extends AlarmTable {
         sb.append("</td>");
         sb.append("</tr>");
 
+        DateTime contactNotifier = null;
+        Long statusNotifier = null;
+
+        if (!notifiers.isEmpty()) {
+            JEVisAttribute statusAttribute = notifiers.get(0).getAttribute("Status");
+            if (statusAttribute != null) {
+                JEVisSample latestSample = statusAttribute.getLatestSample();
+                if (latestSample != null) {
+                    contactNotifier = latestSample.getTimestamp();
+                    statusNotifier = latestSample.getValueAsLong();
+                }
+            }
+        }
+
+        sb.append("<tr>");
+        /**
+         * Service Column
+         */
+        sb.append("<td style=\"");
+        sb.append(rowCss + highlight);
+        sb.append("\">");
+        sb.append(notifierClass.getName());
+        sb.append("</td>");
+        /**
+         * Last Contact Column
+         */
+        sb.append("<td style=\"");
+        sb.append(rowCss + highlight);
+        sb.append("\">");
+        if (contactNotifier != null) {
+            sb.append(contactNotifier.toString(timestampFormat));
+        }
+        sb.append("</td>");
+        /**
+         * Status Column
+         */
+        sb.append("<td style=\"");
+        sb.append(rowCss + highlight);
+        sb.append("\">");
+        if (statusNotifier != null) {
+            sb.append(getStatus(statusNotifier));
+        }
+        sb.append("</td>");
+        sb.append("</tr>");
+
         sb.append("</table>");
         sb.append("<br>");
 
@@ -285,11 +333,11 @@ public class ServiceStatus extends AlarmTable {
 
     public String getStatus(Long status) {
         if (status == 0) {
-            return "offline";
+            return I18n.getInstance().getString("status.table.status.offline");
         } else if (status == 1) {
-            return "online, waiting";
+            return I18n.getInstance().getString("status.table.status.online.waiting");
         } else if (status == 2) {
-            return "online, running";
+            return I18n.getInstance().getString("status.table.status.online.running");
         } else return null;
     }
 }

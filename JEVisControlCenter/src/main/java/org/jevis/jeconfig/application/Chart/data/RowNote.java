@@ -5,9 +5,9 @@ import org.jevis.api.*;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
@@ -15,17 +15,22 @@ import java.util.List;
 
 public class RowNote {
     private final JEVisObject dataObject;
+    private final Double scaleFactor;
     private SimpleStringProperty name;
     private SimpleStringProperty note;
     private SimpleStringProperty userNote;
+    private SimpleStringProperty userValue;
+    private SimpleStringProperty userValueUnit;
     private Boolean changed = false;
     private JEVisSample sample;
 
-    public RowNote(JEVisObject dataObject, JEVisSample sample, String name, String userNote) {
+    public RowNote(JEVisObject dataObject, JEVisSample sample, JEVisSample userNoteSample, String name, String userNote, String userValue, String userValueUnit, Double scaleFactor) {
         this.name = new SimpleStringProperty(name);
-
         this.userNote = new SimpleStringProperty(userNote);
+        this.userValue = new SimpleStringProperty(userValue);
+        this.userValueUnit = new SimpleStringProperty(userValueUnit);
         this.dataObject = dataObject;
+        this.scaleFactor = scaleFactor;
         this.sample = sample;
 
         StringBuilder formattedNote = new StringBuilder();
@@ -36,6 +41,12 @@ public class RowNote {
 
         try {
             note = sample.getNote();
+            if (userNoteSample != null && !note.contains(NoteConstants.User.USER_NOTES)) {
+                if (!userNoteSample.getValueAsString().isEmpty()) {
+                    note += "," + NoteConstants.User.USER_NOTES;
+                }
+            }
+
         } catch (JEVisException e) {
 
         }
@@ -230,6 +241,24 @@ public class RowNote {
             formattedNote.append(System.getProperty("line.separator"));
         }
 
+        if (note.contains(NoteConstants.Forecast.FORECAST) && note.contains(NoteConstants.Forecast.FORECAST_AVERAGE)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.forecast.average"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+        if (note.contains(NoteConstants.Forecast.FORECAST) && note.contains(NoteConstants.Forecast.FORECAST_MEDIAN)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.forecast.median"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+
+        if (note.contains(NoteConstants.Forecast.FORECAST) && note.contains(NoteConstants.Forecast.FORECAST_MIN)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.forecast.min"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+        if (note.contains(NoteConstants.Forecast.FORECAST) && note.contains(NoteConstants.Forecast.FORECAST_MAX)) {
+            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.forecast.max"));
+            formattedNote.append(System.getProperty("line.separator"));
+        }
+
         try {
             JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
             JEVisObject object = sample.getAttribute().getObject();
@@ -314,5 +343,33 @@ public class RowNote {
 
     public void setSample(JEVisSample sample) {
         this.sample = sample;
+    }
+
+    public String getUserValue() {
+        return userValue.get();
+    }
+
+    public void setUserValue(String userValue) {
+        this.userValue.set(userValue);
+    }
+
+    public String getUserValueUnit() {
+        return userValueUnit.get();
+    }
+
+    public void setUserValueUnit(String userValueUnit) {
+        this.userValueUnit.set(userValueUnit);
+    }
+
+    public SimpleStringProperty userValueUnitProperty() {
+        return userValueUnit;
+    }
+
+    public SimpleStringProperty userValueProperty() {
+        return userValue;
+    }
+
+    public Double getScaleFactor() {
+        return scaleFactor;
     }
 }

@@ -8,10 +8,10 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.List;
 
@@ -73,13 +73,6 @@ public class NewWidgetSelector extends GridPane {
 
         Widget newWidget = selectedWidget.getControl().createNewWidget(selectedWidget.createDefaultConfig());
         newWidget.getConfig().setSize(size);
-//        newWidget.getConfig().setTitle(I18n.getInstance().getString("plugin.dashboard.toolbar.new.title"));
-
-//        Widget newWidget = selectedWidget.clone();
-//        WidgetPojo widgetPojo = newWidget.getConfig();
-//        widgetPojo.setSize(size);
-
-//        newWidget.updateConfig(widgetPojo);
 
         return newWidget;
     }

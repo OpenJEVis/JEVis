@@ -20,8 +20,8 @@
 package org.jevis.jeconfig.application.unit;
 
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.jeconfig.tool.I18n;
 
 /**
  *

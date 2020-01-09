@@ -31,6 +31,7 @@ public class GUIConstants {
     public static DisplayType PASSWORD_PBKDF2 = new DisplayType("Password PBKDF2", JEVisConstants.PrimitiveType.PASSWORD_PBKDF2);
     public static DisplayType BASIC_TEXT_MULTI = new DisplayType("Text Area", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType BASIC_ENUM = new DisplayType("String Enum", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType DYNAMIC_ENUM = new DisplayType("Dynamic Enum", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType LOCALE = new DisplayType("Language Selector", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType BASIC_TEXT_DATE_FULL = new DisplayType("Date", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType BASIC_TEXT_TIME = new DisplayType("Time", JEVisConstants.PrimitiveType.STRING);
@@ -43,6 +44,7 @@ public class GUIConstants {
     public static DisplayType GAP_FILLING_CONFIG = new DisplayType("Gap Filling Config", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType LIMITS_CONFIG = new DisplayType("Limits Config", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType ALARM_CONFIG = new DisplayType("Alarm Config", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType CALENDAR = new DisplayType("Calendar", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType WEB_VIEW = new DisplayType("Web View", JEVisConstants.PrimitiveType.STRING);
 
     private static final Logger logger = LogManager.getLogger(GUIConstants.class);
@@ -72,6 +74,7 @@ public class GUIConstants {
             add(GAP_FILLING_CONFIG);
             add(LIMITS_CONFIG);
             add(ALARM_CONFIG);
+            add(CALENDAR);
             add(WEB_VIEW);
         }
     };

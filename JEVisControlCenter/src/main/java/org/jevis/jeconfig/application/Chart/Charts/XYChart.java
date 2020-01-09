@@ -6,7 +6,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -21,32 +20,36 @@ import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeapi.ws.JEVisObjectWS;
-import org.jevis.jeconfig.application.Chart.ChartElements.DateValueAxis;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisAreaChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.NoteDialog;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.threeten.extra.Days;
 
 import java.text.NumberFormat;
 import java.util.*;
@@ -63,6 +66,7 @@ public class XYChart implements Chart {
     final RegressionType regressionType;
     final Boolean calcRegression;
     private final Boolean showL1L2;
+    private final Integer chartId;
     Boolean hideShowIcons;
     //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
     private List<Color> hexColors = new ArrayList<>();
@@ -72,7 +76,7 @@ public class XYChart implements Chart {
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
     NumberAxis y1Axis = new NumberAxis();
     NumberAxis y2Axis = new NumberAxis();
-    DateValueAxis dateAxis = new DateValueAxis();
+    DateAxis dateAxis;
     List<ChartDataModel> chartDataModels;
     MultiAxisChart chart;
     Double minValue = Double.MAX_VALUE;
@@ -92,28 +96,30 @@ public class XYChart implements Chart {
     private DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
     private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
         @Override
-        public void applySetting(javafx.scene.chart.Chart chart) {
+        public void applySetting(org.jevis.jeconfig.application.Chart.Charts.jfx.Chart chart) {
 
         }
     };
     private WorkDays workDays = new WorkDays(null);
     private ChartPanManager panner;
     private JFXChartUtil jfxChartUtil;
-    private DateTime nearest;
 
-    public XYChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean showL1L2, Boolean hideShowIcons, Boolean calcRegression, RegressionType regressionType, int polyRegressionDegree, ManipulationMode addSeriesOfType, Integer chartId, String chartName) {
-        this.chartDataModels = chartDataModels;
-        this.showRawData = showRawData;
-        this.showSum = showSum;
-        this.showL1L2 = showL1L2;
-        this.regressionType = regressionType;
-        this.hideShowIcons = hideShowIcons;
-        this.calcRegression = calcRegression;
-        this.polyRegressionDegree = polyRegressionDegree;
+    public XYChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> selectedModels, Integer chartId, String chartName) {
+        this.chartDataModels = selectedModels;
+        this.dateAxis = new DateAxis();
+        this.showRawData = analysisDataModel.getShowRawData();
+        this.showSum = analysisDataModel.getShowSum();
+        this.showL1L2 = analysisDataModel.getShowL1L2();
+        this.regressionType = analysisDataModel.getRegressionType();
+        this.hideShowIcons = analysisDataModel.getHideShowIcons();
+        this.calcRegression = analysisDataModel.calcRegression();
+        this.polyRegressionDegree = analysisDataModel.getPolyRegressionDegree();
+        this.chartId = chartId;
         this.chartName = chartName;
-        this.addSeriesOfType = addSeriesOfType;
+        this.addSeriesOfType = analysisDataModel.getAddSeries();
         if (!chartDataModels.isEmpty()) {
             workDays = new WorkDays(chartDataModels.get(0).getObject());
+            workDays.setEnabled(analysisDataModel.isCustomWorkDay());
         }
 
         init();
@@ -131,7 +137,8 @@ public class XYChart implements Chart {
         addManipulationToTitle = new AtomicBoolean(false);
         manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
-        ChartDataModel sumModel = null;
+        ChartDataModel sumModelY1 = null;
+        ChartDataModel sumModelY2 = null;
         for (ChartDataModel singleRow : chartDataModels) {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
@@ -149,6 +156,17 @@ public class XYChart implements Chart {
                     }
 
                     xyChartSerieList.add(generateSerie(changedBoth, singleRow));
+
+                    if (singleRow.hasForecastData()) {
+                        try {
+                            XYChartSerie forecast = new XYChartSerie(singleRow, hideShowIcons, true);
+
+                            hexColors.add(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
+                            xyChartSerieList.add(forecast);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
 
                     if (calcRegression) {
                         chart.setRegressionColor(singleRow.getAxis(), ColorHelper.toColor(singleRow.getColor()));
@@ -190,8 +208,12 @@ public class XYChart implements Chart {
                         }
                     }
 
-                    if (showSum && sumModel == null) {
-                        sumModel = singleRow.clone();
+                    if (showSum && sumModelY1 == null) {
+                        sumModelY1 = singleRow.clone();
+                    }
+
+                    if (showSum && sumModelY2 == null) {
+                        sumModelY2 = singleRow.clone();
                     }
 
                 } catch (JEVisException e) {
@@ -200,70 +222,92 @@ public class XYChart implements Chart {
             }
         }
 
-        if (showSum && chartDataModels.size() > 1 && sumModel != null) {
+        List<ChartDataModel> sumModels = new ArrayList<>();
+        sumModels.add(sumModelY1);
+        sumModels.add(sumModelY2);
+
+        if (showSum && chartDataModels.size() > 1 && sumModelY1 != null) {
             try {
-                JsonObject json = new JsonObject();
-                json.setId(9999999999L);
-                json.setName("~" + I18n.getInstance().getString("plugin.graph.table.sum"));
-                JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) chartDataModels.get(0).getObject().getDataSource(), json);
+                for (ChartDataModel sumModel : sumModels) {
+                    int index = sumModels.indexOf(sumModel);
+                    JsonObject json = new JsonObject();
+                    json.setId(9999999999L);
+                    json.setName("~" + I18n.getInstance().getString("plugin.graph.table.sum"));
+                    if (index == 0) {
+                        json.setName(json.getName() + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1"));
+                    } else {
+                        json.setName(json.getName() + " " + I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y2"));
+                    }
+                    JEVisObject test = new JEVisObjectWS((JEVisDataSourceWS) chartDataModels.get(0).getObject().getDataSource(), json);
 
-                sumModel.setObject(test);
-                sumModel.setAxis(1);
-                sumModel.setColor(ColorHelper.toRGBCode(Color.BLACK));
-                Map<DateTime, JEVisSample> sumSamples = new HashMap<>();
-                for (ChartDataModel model : chartDataModels) {
-                    for (JEVisSample jeVisSample : model.getSamples()) {
+                    sumModel.setObject(test);
+                    sumModel.setAxis(index);
+                    if (index == 0) {
+                        sumModel.setColor(ColorHelper.toRGBCode(Color.BLACK));
+                    } else {
+                        sumModel.setColor(ColorHelper.toRGBCode(Color.SADDLEBROWN));
+                    }
+                    Map<DateTime, JEVisSample> sumSamples = new HashMap<>();
+                    boolean hasData = false;
+                    for (ChartDataModel model : chartDataModels) {
+                        if (model.getAxis() == index) {
+                            hasData = true;
+                            for (JEVisSample jeVisSample : model.getSamples()) {
+                                try {
+                                    DateTime ts = jeVisSample.getTimestamp();
+                                    Double value = jeVisSample.getValueAsDouble();
+                                    if (!sumSamples.containsKey(ts)) {
+                                        JEVisSample smp = new VirtualSample(ts, value);
+                                        smp.setNote("sum");
+                                        sumSamples.put(ts, smp);
+                                    } else {
+                                        JEVisSample smp = sumSamples.get(ts);
+
+                                        smp.setValue(smp.getValueAsDouble() + value);
+                                    }
+                                } catch (JEVisException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+                    ArrayList<JEVisSample> arrayList = new ArrayList<>(sumSamples.values());
+                    arrayList.sort((o1, o2) -> {
                         try {
-                            DateTime ts = jeVisSample.getTimestamp();
-                            Double value = jeVisSample.getValueAsDouble();
-                            if (!sumSamples.containsKey(ts)) {
-                                JEVisSample smp = new VirtualSample(ts, value);
-                                smp.setNote("sum");
-                                sumSamples.put(ts, smp);
+                            if (o1.getTimestamp().isBefore(o2.getTimestamp())) {
+                                return -1;
+                            } else if (o1.getTimestamp().equals(o2.getTimestamp())) {
+                                return 0;
                             } else {
-                                JEVisSample smp = sumSamples.get(ts);
-
-                                smp.setValue(smp.getValueAsDouble() + value);
+                                return 1;
                             }
                         } catch (JEVisException e) {
                             e.printStackTrace();
                         }
-                    }
+                        return -1;
+                    });
 
-                }
-                ArrayList<JEVisSample> arrayList = new ArrayList<>(sumSamples.values());
-                arrayList.sort((o1, o2) -> {
+                    sumModel.setSamples(arrayList);
+                    sumModel.setSomethingChanged(false);
+
                     try {
-                        if (o1.getTimestamp().isBefore(o2.getTimestamp())) {
-                            return -1;
-                        } else if (o1.getTimestamp().equals(o2.getTimestamp())) {
-                            return 0;
-                        } else {
-                            return 1;
+                        if (hasData) {
+                            xyChartSerieList.add(generateSerie(changedBoth, sumModel));
                         }
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }
-                    return -1;
-                });
-
-                sumModel.setSamples(arrayList);
-                sumModel.setSomethingChanged(false);
+                }
             } catch (JEVisException e) {
                 logger.error("Could not generate sum of data rows: ", e);
-            }
-            try {
-                xyChartSerieList.add(generateSerie(changedBoth, sumModel));
-            } catch (JEVisException e) {
-                e.printStackTrace();
             }
         }
 
         addSeriesToChart();
 
         if (asDuration) {
+            dateAxis.setFirstTS(timeStampOfFirstSample.get());
             dateAxis.setAsDuration(true);
-            dateAxis.setTimeStampFromFirstSample(timeStampOfFirstSample.get());
         }
 
         generateXAxis(changedBoth);
@@ -307,7 +351,7 @@ public class XYChart implements Chart {
     }
 
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
-        XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons);
+        XYChartSerie serie = new XYChartSerie(singleRow, hideShowIcons, false);
 
         hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 
@@ -347,7 +391,7 @@ public class XYChart implements Chart {
         if (!addSeriesOfType.equals(ManipulationMode.NONE)) {
             ManipulationMode oldMode = singleRow.getManipulationMode();
             singleRow.setManipulationMode(addSeriesOfType);
-            XYChartSerie serie2 = new XYChartSerie(singleRow, hideShowIcons);
+            XYChartSerie serie2 = new XYChartSerie(singleRow, hideShowIcons, false);
 
             hexColors.add(ColorHelper.toColor(singleRow.getColor()).darker());
 
@@ -421,15 +465,16 @@ public class XYChart implements Chart {
     }
 
     public void generateXAxis(Boolean[] changedBoth) {
-
         dateAxis.setAutoRanging(false);
         dateAxis.setUpperBound((double) chartDataModels.get(0).getSelectedEnd().getMillis());
         dateAxis.setLowerBound((double) chartDataModels.get(0).getSelectedStart().getMillis());
 
+        setTickUnitFromPeriod(dateAxis);
+
         if (!asDuration) dateAxis.setAsDuration(false);
         else {
             dateAxis.setAsDuration(true);
-            dateAxis.setTimeStampFromFirstSample(timeStampOfFirstSample.get());
+            dateAxis.setFirstTS(timeStampOfFirstSample.get());
         }
 
         Period realPeriod = Period.minutes(15);
@@ -451,6 +496,86 @@ public class XYChart implements Chart {
         }
 
         updateXAxisLabel(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
+    }
+
+    public void setTickUnitFromPeriod(DateAxis dateAxis) {
+        double millisMinor = 60000;
+        double millisMajor = 900000;
+        String format = "";
+
+        AggregationPeriod period = chartDataModels.get(0).getAggregationPeriod();
+        AggregationPeriod durationPeriod = AggregationPeriod.NONE;
+        Long millisDuration = timeStampOfLastSample.get().getMillis() - timeStampOfFirstSample.get().getMillis();
+        if (millisDuration >= Period.days(1).toStandardDuration().getMillis() * (365.25 - Days.of(60).getAmount())) {
+            durationPeriod = AggregationPeriod.MONTHLY;
+        } else if (millisDuration >= Period.days(1).toStandardDuration().getMillis() * 30.4375) {
+            durationPeriod = AggregationPeriod.WEEKLY;
+        } else if (millisDuration >= Period.days(4).toStandardDuration().getMillis()) {
+            durationPeriod = AggregationPeriod.DAILY;
+        } else if (millisDuration >= Period.hours(8).toStandardDuration().getMillis()) {
+            durationPeriod = AggregationPeriod.HOURLY;
+        }
+
+
+        if (durationPeriod == period) {
+        } else if (durationPeriod == AggregationPeriod.NONE) {
+            period = durationPeriod;
+        } else if (durationPeriod == AggregationPeriod.HOURLY && period == AggregationPeriod.NONE) {
+            period = AggregationPeriod.HOURLY;
+        } else if (durationPeriod == AggregationPeriod.DAILY &&
+                (period == AggregationPeriod.NONE || period == AggregationPeriod.HOURLY)) {
+            period = AggregationPeriod.DAILY;
+        } else if (durationPeriod == AggregationPeriod.WEEKLY &&
+                (period == AggregationPeriod.NONE || period == AggregationPeriod.HOURLY || period == AggregationPeriod.DAILY)) {
+            period = AggregationPeriod.WEEKLY;
+        } else if (durationPeriod == AggregationPeriod.MONTHLY &&
+                (period == AggregationPeriod.NONE || period == AggregationPeriod.HOURLY || period == AggregationPeriod.DAILY || period == AggregationPeriod.WEEKLY)) {
+            period = AggregationPeriod.MONTHLY;
+        }
+
+
+        switch (period) {
+            case NONE:
+                millisMinor = (double) Period.minutes(1).toStandardDuration().getMillis();
+                millisMajor = (double) Period.minutes(15).toStandardDuration().getMillis();
+                format = "EEE, " + DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
+                break;
+            case HOURLY:
+                millisMinor = (double) Period.minutes(15).toStandardDuration().getMillis();
+                millisMajor = (double) Period.hours(1).toStandardDuration().getMillis();
+                format = "EEE, " + DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
+                break;
+            case DAILY:
+                millisMinor = (double) Period.hours(1).toStandardDuration().getMillis();
+                millisMajor = (double) Period.days(1).toStandardDuration().getMillis();
+                format = "EEE, " + DateTimeFormat.patternForStyle("M-", I18n.getInstance().getLocale());
+                break;
+            case WEEKLY:
+                System.out.println("Wekk ....");
+                millisMinor = (double) Period.days(1).toStandardDuration().getMillis();
+                millisMajor = (double) Period.weeks(1).toStandardDuration().getMillis();
+                format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
+                break;
+            case MONTHLY:
+                millisMinor = (double) Period.weeks(1).toStandardDuration().getMillis();
+                millisMajor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
+                format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
+                break;
+            case QUARTERLY:
+                millisMinor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
+                millisMajor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 4;
+                format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
+                break;
+            case YEARLY:
+                millisMinor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
+                millisMajor = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
+                format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
+                break;
+        }
+
+        dateAxis.setMinorTickUnit(millisMinor);
+        dateAxis.setTickUnit(millisMajor);
+        dateAxis.setCurrentFormatterProperty(format);
     }
 
     public void updateXAxisLabel(DateTime firstTS, DateTime lastTS) {
@@ -522,12 +647,12 @@ public class XYChart implements Chart {
 
     @Override
     public DateTime getStartDateTime() {
-        return chartDataModels.get(0).getSelectedStart();
+        return timeStampOfFirstSample.get();
     }
 
     @Override
     public DateTime getEndDateTime() {
-        return chartDataModels.get(0).getSelectedEnd();
+        return timeStampOfLastSample.get();
     }
 
     @Override
@@ -703,7 +828,7 @@ public class XYChart implements Chart {
 
     @Override
     public Integer getChartId() {
-        return null;
+        return chartId;
     }
 
     @Override
@@ -715,7 +840,7 @@ public class XYChart implements Chart {
 
             x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
 
-            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
+            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
         }
         if (valueForDisplay != null) {
@@ -731,7 +856,7 @@ public class XYChart implements Chart {
                     TableEntry tableEntry = serie.getTableEntry();
                     TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
 
-                    nearest = null;
+                    DateTime nearest = null;
                     if (sampleTreeMap.get(finalValueForDisplay) != null) {
                         nearest = finalValueForDisplay;
                     } else {
@@ -740,18 +865,19 @@ public class XYChart implements Chart {
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
 
-
-                    Note formattedNote = new Note(sample);
+                    Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
 
                     if (!asDuration) {
+                        DateTime finalNearest = nearest;
                         Platform.runLater(() -> {
-                            if (nearest != null) {
-                                tableEntry.setDate(nearest
+                            if (finalNearest != null) {
+                                tableEntry.setDate(finalNearest
                                         .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                             } else tableEntry.setValue("-");
                         });
                     } else {
-                        Platform.runLater(() -> tableEntry.setDate((nearest.getMillis() -
+                        DateTime finalNearest1 = nearest;
+                        Platform.runLater(() -> tableEntry.setDate((finalNearest1.getMillis() -
                                 timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h"));
                     }
                     Platform.runLater(() -> tableEntry.setNote(formattedNote.getNoteAsString()));
@@ -855,7 +981,7 @@ public class XYChart implements Chart {
 
             Map<String, RowNote> map = new HashMap<>();
             DateTime valueForDisplay = null;
-            valueForDisplay = ((DateValueAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
+            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
             for (XYChartSerie serie : xyChartSerieList) {
                 try {
@@ -874,8 +1000,9 @@ public class XYChart implements Chart {
                         else dataObject = serie.getSingleRow().getObject();
 
                         String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
+                        String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
-                        RowNote rowNote = new RowNote(dataObject, nearestSample, title, userNote);
+                        RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getUnit(), serie.getSingleRow().getScaleFactor());
 
                         map.put(title, rowNote);
                     }
@@ -888,7 +1015,7 @@ public class XYChart implements Chart {
 
             nd.showAndWait().ifPresent(response -> {
                 if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                    saveUserNotes(nd.getNoteMap());
+                    saveUserEntries(nd.getNoteMap());
                 }
             });
         }
@@ -929,7 +1056,7 @@ public class XYChart implements Chart {
     }
 
     @Override
-    public javafx.scene.chart.Chart getChart() {
+    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
         return chart;
     }
 
@@ -967,6 +1094,11 @@ public class XYChart implements Chart {
     }
 
     @Override
+    public List<ChartDataModel> getChartDataModels() {
+        return chartDataModels;
+    }
+
+    @Override
     public ChartPanManager getPanner() {
         return panner;
     }
@@ -985,11 +1117,6 @@ public class XYChart implements Chart {
 
     public void setMaxValue(Double maxValue) {
         this.maxValue = maxValue;
-    }
-
-    @Override
-    public DateTime getNearest() {
-        return nearest;
     }
 
     public List<Color> getHexColors() {

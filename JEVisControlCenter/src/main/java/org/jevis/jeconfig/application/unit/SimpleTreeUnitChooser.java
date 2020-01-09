@@ -37,10 +37,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.dialog.DialogHeader;
-import org.jevis.jeconfig.tool.I18n;
 
 import javax.measure.unit.Unit;
 

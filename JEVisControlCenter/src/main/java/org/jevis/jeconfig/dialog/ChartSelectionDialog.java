@@ -40,6 +40,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
@@ -54,7 +55,6 @@ import org.jevis.jeconfig.application.jevistree.TreePlugin;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 

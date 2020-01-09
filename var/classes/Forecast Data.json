@@ -1,0 +1,116 @@
+{
+  "name": "Forecast Data",
+  "description": "The class Forecast Data represents a container for a series of predicted numeric values, which are based on the parent.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Forecast Data",
+      "end": "Data",
+      "type": 0
+    },
+    {
+      "start": "Forecast Data",
+      "end": "Data",
+      "type": 3
+    },
+    {
+      "start": "Forecast Data",
+      "end": "Clean Data",
+      "type": 3
+    },
+    {
+      "start": "Forecast Data",
+      "end": "Forecast Data",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Enabled",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Forecast Data"
+    },
+    {
+      "name": "Type",
+      "primitiveType": 0,
+      "guiType": "Dynamic Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Forecast Data"
+    },
+    {
+      "name": "Reference Period",
+      "primitiveType": 0,
+      "guiType": "Dynamic Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Forecast Data"
+    },
+    {
+      "name": "Reference Period Count",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Forecast Data"
+    },
+    {
+      "name": "Bind To Specific",
+      "primitiveType": 0,
+      "guiType": "Dynamic Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Forecast Data"
+    },
+    {
+      "name": "Forecast Duration",
+      "primitiveType": 0,
+      "guiType": "Dynamic Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Forecast Data"
+    },
+    {
+      "name": "Forecast Duration Count",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Forecast Data"
+    },
+    {
+      "name": "Last Run",
+      "primitiveType": 0,
+      "guiType": "Date Time",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Forecast Data"
+    },
+    {
+      "name": "Cycle Time",
+      "primitiveType": 2,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Forecast Data"
+    },
+    {
+      "name": "Timezone",
+      "primitiveType": 0,
+      "guiType": "Time Zone",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Forecast Data"
+    }
+  ]
+}

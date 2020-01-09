@@ -43,12 +43,12 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.resource.ImageConverter;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.NumberSpinner;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.math.BigDecimal;
 
@@ -89,9 +89,11 @@ public class NewObjectDialog {
 
         JEVisClass parentClass = null;
         JEVisClass dataDirectoryClass = null;
+        JEVisClass dataClass = null;
         try {
             parentClass = parent.getJEVisClass();
             dataDirectoryClass = parent.getDataSource().getJEVisClass("Data Directory");
+            dataClass = parent.getDataSource().getJEVisClass("Data");
         } catch (JEVisException e) {
             e.printStackTrace();
         }
@@ -165,37 +167,45 @@ public class NewObjectDialog {
             }
         };
 
-        final ComboBox<JEVisClass> comboBox = new ComboBox<>(options);
-        comboBox.setCellFactory(cellFactory);
-        comboBox.setButtonCell(cellFactory.call(null));
+        final ComboBox<JEVisClass> jeVisClassComboBox = new ComboBox<>(options);
+        CheckBox createCleanData = new CheckBox(I18n.getInstance().getString("jevistree.dialog.new.withcleandata"));
+        createCleanData.setVisible(true);
 
-        comboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        jeVisClassComboBox.setCellFactory(cellFactory);
+        jeVisClassComboBox.setButtonCell(cellFactory.call(null));
+
+        JEVisClass finalDataClass = dataClass;
+        jeVisClassComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!userSetName) {
                     fName.setText(I18nWS.getInstance().getClassName(newValue.getName()));
                 }
-            } catch (JEVisException ex) {
+                if (newValue.equals(finalDataClass)) {
+                    Platform.runLater(() -> createCleanData.setVisible(true));
+                } else {
+                    Platform.runLater(() -> createCleanData.setVisible(false));
+                }
+            } catch (Exception ex) {
                 logger.fatal(ex);
             }
         });
 
         if (jclass != null) {
-            comboBox.getSelectionModel().select(jclass);
+            jeVisClassComboBox.getSelectionModel().select(jclass);
         }
 
-        comboBox.setMinWidth(250);
-        comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
+        jeVisClassComboBox.setMinWidth(250);
+        jeVisClassComboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
 
         Label lCount = new Label(I18n.getInstance().getString("jevistree.dialog.new.amount"));
         //TODo: disable spinner if class is unique also disable OK button if there is already one of its kind
         final NumberSpinner count = new NumberSpinner(BigDecimal.valueOf(1), BigDecimal.valueOf(1));
 
         if (fixClass) {
-            comboBox.setDisable(true);
+            jeVisClassComboBox.setDisable(true);
             count.setDisable(true);
         }
 
-        CheckBox createCleanData = new CheckBox(I18n.getInstance().getString("jevistree.dialog.new.withcleandata"));
         createCleanData.setSelected(true);
         createCleanData.setOnAction(event -> withCleanData = !withCleanData);
 
@@ -204,7 +214,7 @@ public class NewObjectDialog {
 
 
         gp.add(lClass, 0, ++x, 1, 1);
-        gp.add(comboBox, 1, x, 1, 1);
+        gp.add(jeVisClassComboBox, 1, x, 1, 1);
         gp.add(lCount, 0, ++x);
         gp.add(count, 1, x);
 
@@ -223,13 +233,13 @@ public class NewObjectDialog {
 
 
         fName.setDisable(true);
-        comboBox.setDisable(true);
+        jeVisClassComboBox.setDisable(true);
         count.setDisable(true);
 
         try {
             if (parent.getDataSource().getCurrentUser().canWrite(parent.getID())) {
                 fName.setDisable(false);
-                comboBox.setDisable(false);
+                jeVisClassComboBox.setDisable(false);
                 count.setDisable(false);
             }
         } catch (JEVisException ex) {
@@ -239,7 +249,7 @@ public class NewObjectDialog {
         if (type == Type.NEW) {
             dialog.setTitle(I18n.getInstance().getString("jevistree.dialog.new.title"));
             dialog.setHeaderText(I18n.getInstance().getString("jevistree.dialog.new.title"));
-            comboBox.getSelectionModel().selectFirst();
+            jeVisClassComboBox.getSelectionModel().selectFirst();
         } else if (type == Type.RENAME) {
             dialog.setTitle(I18n.getInstance().getString("jevistree.dialog.rename.title"));
             dialog.setHeaderText(I18n.getInstance().getString("jevistree.dialog.rename.header"));
@@ -258,8 +268,8 @@ public class NewObjectDialog {
             });
 
             count.setDisable(true);
-            comboBox.getSelectionModel().select(jclass);
-            comboBox.setDisable(true);
+            jeVisClassComboBox.getSelectionModel().select(jclass);
+            jeVisClassComboBox.setDisable(true);
         }
 
 
@@ -273,7 +283,7 @@ public class NewObjectDialog {
                     if (response.getButtonData().getTypeCode() == ButtonType.FINISH.getButtonData().getTypeCode()) {
 
                         createName = fName.getText();
-                        createClass = comboBox.getSelectionModel().getSelectedItem();
+                        createClass = jeVisClassComboBox.getSelectionModel().getSelectedItem();
                         createCount = Integer.parseInt(count.getNumber().toString());//dirty :)
 
                         NewObjectDialog.this.response = Response.YES;

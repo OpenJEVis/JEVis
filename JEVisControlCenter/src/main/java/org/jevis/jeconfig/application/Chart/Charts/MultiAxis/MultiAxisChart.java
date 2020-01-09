@@ -22,10 +22,6 @@ import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.chart.Axis;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.Chart;
-import javafx.scene.chart.ValueAxis;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -39,6 +35,10 @@ import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.*;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.Axis;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.CategoryAxis;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.Chart;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 
 import java.util.*;
@@ -1271,6 +1271,23 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                     }
                 }
             }
+
+            for (Shape s : y1RegressionLines) {
+                s.setStrokeWidth(2);
+                s.setStroke(y1RegressionSeriesColors.get(y1RegressionLines.indexOf(s)));
+                getPlotChildren().add(s);
+                if (!y1RegressionFormulas.isEmpty()) {
+                    HBox hBox = new HBox();
+                    hBox.setMinWidth(getXAxis().getWidth() / 2);
+                    Label label = y1RegressionFormulas.get(y1RegressionLines.indexOf(s));
+                    hBox.getChildren().add(label);
+                    flowPaneY1Formulas.getChildren().add(hBox);
+                    label.setVisible(true);
+                    label.setWrapText(true);
+                    label.toFront();
+                }
+
+            }
         }
 
         if (hasY2AxisRegression) {
@@ -1306,38 +1323,21 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
                     }
                 }
             }
-        }
 
-        for (Shape s : y1RegressionLines) {
-            s.setStrokeWidth(2);
-            s.setStroke(y1RegressionSeriesColors.get(y1RegressionLines.indexOf(s)));
-            getPlotChildren().add(s);
-            if (!y1RegressionFormulas.isEmpty()) {
-                HBox hBox = new HBox();
-                hBox.setMinWidth(getXAxis().getWidth() / 2);
-                Label label = y1RegressionFormulas.get(y1RegressionLines.indexOf(s));
-                hBox.getChildren().add(label);
-                flowPaneY1Formulas.getChildren().add(hBox);
-                label.setVisible(true);
-                label.setWrapText(true);
-                label.toFront();
-            }
-
-        }
-
-        for (Shape s : y2RegressionLines) {
-            s.setStrokeWidth(2);
-            s.setStroke(y2RegressionSeriesColors.get(y2RegressionLines.indexOf(s)));
-            getPlotChildren().add(s);
-            if (!y2RegressionFormulas.isEmpty()) {
-                HBox hBox = new HBox();
-                hBox.setMinWidth(getXAxis().getWidth() / 2);
-                Label label = y2RegressionFormulas.get(y2RegressionLines.indexOf(s));
-                hBox.getChildren().add(label);
-                flowPaneY2Formulas.getChildren().add(hBox);
-                label.setVisible(true);
-                label.setWrapText(true);
-                label.toFront();
+            for (Shape s : y2RegressionLines) {
+                s.setStrokeWidth(2);
+                s.setStroke(y2RegressionSeriesColors.get(y2RegressionLines.indexOf(s)));
+                getPlotChildren().add(s);
+                if (!y2RegressionFormulas.isEmpty()) {
+                    HBox hBox = new HBox();
+                    hBox.setMinWidth(getXAxis().getWidth() / 2);
+                    Label label = y2RegressionFormulas.get(y2RegressionLines.indexOf(s));
+                    hBox.getChildren().add(label);
+                    flowPaneY2Formulas.getChildren().add(hBox);
+                    label.setVisible(true);
+                    label.setWrapText(true);
+                    label.toFront();
+                }
             }
         }
     }
@@ -2114,6 +2114,7 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
         String defaultColorStyleClass;
         boolean setToRemove = false;
         private List<Data<X, Y>> displayedData = new ArrayList<>();
+        private Integer axisIndex = 0;
 
         // -------------- PUBLIC PROPERTIES ----------------------------------------
 
@@ -2121,8 +2122,11 @@ public abstract class MultiAxisChart<X, Y> extends Chart {
          *
          */
         public int getAxisIndex() {
-//            return data.get().stream().findFirst().map(xyData -> (int) xyData.getExtraValue()).orElse(0);
-            return 0;
+            return axisIndex;
+        }
+
+        public void setAxisIndex(int axisIndex) {
+            this.axisIndex = axisIndex;
         }
 
         /**

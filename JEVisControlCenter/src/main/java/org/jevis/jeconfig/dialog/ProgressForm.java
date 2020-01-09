@@ -56,6 +56,14 @@ public class ProgressForm {
         dialogStage.show();
     }
 
+    public void activateProgressBar() {
+        dialogStage.show();
+    }
+
+    public void closeProgressBar() {
+        dialogStage.close();
+    }
+
     public Stage getDialogStage() {
         return dialogStage;
     }

@@ -32,13 +32,13 @@ import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.unit.UnitObject;
 import org.jevis.jeconfig.application.unit.UnitTree;
-import org.jevis.jeconfig.tool.I18n;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>

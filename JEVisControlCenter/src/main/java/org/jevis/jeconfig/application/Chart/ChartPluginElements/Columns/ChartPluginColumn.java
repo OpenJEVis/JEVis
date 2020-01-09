@@ -6,12 +6,12 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.*;
 
@@ -36,7 +36,7 @@ public interface ChartPluginColumn {
                 AlphanumComparator ac = new AlphanumComparator();
                 children.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
                 List<String> cleanNames = new ArrayList<>();
-                for (Map.Entry<Locale, ResourceBundle> entry : I18n.getInstance().getAllBundles().entrySet()) {
+                for (Map.Entry<Locale, PropertyResourceBundle> entry : I18n.getInstance().getAllBundles().entrySet()) {
                     ResourceBundle resourceBundle = entry.getValue();
                     try {
                         cleanNames.add(resourceBundle.getString("tree.treehelper.cleandata.name"));

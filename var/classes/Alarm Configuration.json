@@ -22,7 +22,7 @@
     {
       "name": "Alarm Scope",
       "primitiveType": 0,
-      "guiType": "String Enum",
+      "guiType": "Dynamic Enum",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
@@ -49,7 +49,7 @@
     {
       "name": "Alarm Period",
       "primitiveType": 0,
-      "guiType": "String Enum",
+      "guiType": "Dynamic Enum",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
@@ -68,6 +68,24 @@
       "name": "Log",
       "primitiveType": 0,
       "guiType": "Web View",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Alarm Configuration"
+    },
+    {
+      "name": "Log File",
+      "primitiveType": 3,
+      "guiType": "File Selector",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Alarm Configuration"
+    },
+    {
+      "name": "Alarm Checked",
+      "primitiveType": 4,
+      "guiType": "Check Box",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,

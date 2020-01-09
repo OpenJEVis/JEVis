@@ -8,6 +8,7 @@ public interface JsonNames {
     interface Dashboard {
 
         String BACKGROUND_COLOR = "Dash Board Color";
+        String BACKGROUND_MODE = "backgroundMode";
         String X_GRID_INTERVAL = "X Axis Grid Interval";
         String Y_GRID_INTERVAL = "Y Axis Grid Interval";
         String ZOOM_FACTOR = "Zoom Factor";

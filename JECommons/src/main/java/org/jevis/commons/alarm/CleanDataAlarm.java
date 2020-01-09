@@ -35,16 +35,14 @@ public class CleanDataAlarm {
     private AlarmType alarmType;
     private List<UsageSchedule> usageSchedules = new ArrayList<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final boolean validAlarmConfiguration;
 
     public CleanDataAlarm(JEVisObject cleanDataObject) throws JEVisException {
         this.cleanDataObject = cleanDataObject;
 
         createJsonList(cleanDataObject);
 
-        boolean parsed = parseJsonList(cleanDataObject);
-        if (!parsed) {
-            throw new JEVisException("Could not parse Json.", 4214218);
-        }
+        validAlarmConfiguration = parseJsonList(cleanDataObject);
     }
 
     private boolean parseJsonList(JEVisObject cleanDataObject) {
@@ -158,5 +156,9 @@ public class CleanDataAlarm {
 
     public List<UsageSchedule> getUsageSchedules() {
         return usageSchedules;
+    }
+
+    public boolean isValidAlarmConfiguration() {
+        return validAlarmConfiguration;
     }
 }

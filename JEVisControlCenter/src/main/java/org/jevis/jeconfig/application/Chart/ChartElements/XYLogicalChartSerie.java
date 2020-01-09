@@ -10,7 +10,7 @@ import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYLogicalChartSerie.class);
 
     public XYLogicalChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
-        super(singleRow, hideShowIcons);
+        super(singleRow, hideShowIcons, false);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
                 data.setExtraValue(yAxis);
 
                 data.setNode(null);
-                Note note = new Note(sample);
+                Note note = new Note(sample,singleRow.getNoteSamples().get(sample.getTimestamp()));
 
                 if (note.getNote() != null && hideShowIcons) {
                     note.getNote().setVisible(true);

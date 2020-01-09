@@ -20,6 +20,7 @@ import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -28,7 +29,6 @@ import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.dialog.SelectTargetDialog.MODE;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -52,7 +52,6 @@ public class TargetEditor implements AttributeEditor {
     private JEVisTree tree;
 
     public TargetEditor(JEVisAttribute att, MODE mode, JEVisTree tree) {
-        logger.debug("new Target Editor for: {}", att.getName());
         _attribute = att;
         this.mode = mode;
         this.tree = tree;
@@ -102,7 +101,6 @@ public class TargetEditor implements AttributeEditor {
     }
 
     private void init() {
-        logger.debug("init TargetEditor");
         _treeButton = new Button(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));
@@ -182,6 +180,7 @@ public class TargetEditor implements AttributeEditor {
 
                     selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE);
                 }
+                selectTargetDialog.setInitOwner(_treeButton.getScene().getWindow());
 
                 List<UserSelection> openList = new ArrayList<>();
                 if (th != null && !th.getAttribute().isEmpty()) {

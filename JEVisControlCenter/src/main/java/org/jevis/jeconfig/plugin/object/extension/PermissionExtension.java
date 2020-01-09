@@ -22,8 +22,12 @@ package org.jevis.jeconfig.plugin.object.extension;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -37,6 +41,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.ToggleSwitch;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.relationship.RelationsManagment;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -47,7 +52,6 @@ import org.jevis.jeconfig.dialog.InfoDialog;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.permission.AddSharePermissionsDialog;
 import org.jevis.jeconfig.plugin.object.permission.RemoveSharePermissonsDialog;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 import java.util.ArrayList;
@@ -376,14 +380,19 @@ public class PermissionExtension implements ObjectEditorExtension {
 
     }
 
-    private HBox buildNewBox(final JEVisObject obj, final List<JEVisObject> allreadyOwner) throws JEVisException {
+    private String lastFilterInput = "";
+
+    private GridPane buildNewBox(final JEVisObject obj, final List<JEVisObject> allreadyOwner) throws JEVisException {
         JEVisClass groupClass = obj.getDataSource().getJEVisClass(Constants.JEVisClass.GROUP);
         List<JEVisObject> allGroups = obj.getDataSource().getObjects(groupClass, true);
 
         Label newOwnerlabel = new Label(I18n.getInstance().getString("plugin.object.permissions.share_with_new"));
         newOwnerlabel.setPrefHeight(21);
+        newOwnerlabel.setAlignment(Pos.CENTER);
         GridPane.setValignment(newOwnerlabel, VPos.CENTER);
-        HBox addNewBox = new HBox(5);
+        GridPane addNewBox = new GridPane();
+        addNewBox.setHgap(10);
+        addNewBox.setVgap(4);
 
         Button newB = new Button();
         //ToDo
@@ -411,6 +420,7 @@ public class PermissionExtension implements ObjectEditorExtension {
 
         groupsCBox.setCellFactory(cellFactory);
         groupsCBox.setButtonCell(cellFactory.call(null));
+        ObservableList<JEVisObject> possibleOwners = FXCollections.observableArrayList();
 
         try {
             AlphanumComparator ac = new AlphanumComparator();
@@ -418,21 +428,53 @@ public class PermissionExtension implements ObjectEditorExtension {
 
             for (JEVisObject group : allGroups) {
                 if (!allreadyOwner.contains(group)) {
-                    groupsCBox.getItems().add(group);
+                    possibleOwners.add(group);
                 }
-
             }
-
-            groupsCBox.getSelectionModel().selectFirst();
-
         } catch (Exception ex) {
             logger.fatal(ex);
         }
+
+        FilteredList<JEVisObject> filteredData = new FilteredList<>(possibleOwners, s -> true);
+        TextField filterInput = new TextField();
+
+        filterInput.textProperty().addListener(obs -> {
+            String filter = filterInput.getText();
+            if (filter == null || filter.length() == 0) {
+                filteredData.setPredicate(s -> true);
+            } else {
+                if (filter.contains(" ")) {
+                    String[] result = filter.split(" ");
+                    filteredData.setPredicate(s -> {
+                        boolean match = false;
+                        String string = (objectRelations.getObjectPath(s) + s.getName()).toLowerCase();
+                        for (String value : result) {
+                            String subString = value.toLowerCase();
+                            if (!string.contains(subString))
+                                return false;
+                            else match = true;
+                        }
+                        return match;
+                    });
+                } else {
+                    filteredData.setPredicate(s -> (objectRelations.getObjectPath(s) + s.getName()).toLowerCase().contains(filter.toLowerCase()));
+                }
+            }
+            Platform.runLater(() -> groupsCBox.getSelectionModel().selectFirst());
+        });
+
+        groupsCBox.setItems(filteredData);
+
+        Platform.runLater(() -> {
+            filterInput.setText(lastFilterInput);
+            groupsCBox.getSelectionModel().selectFirst();
+        });
 
         newB.setGraphic(JEConfig.getImage("list-add.png", 17, 17));
         newB.setOnAction(t -> {
             try {
                 JEVisObject groupObj = groupsCBox.getSelectionModel().getSelectedItem();
+                lastFilterInput = filterInput.getText();
 //                    logger.info("create relationship for user: " + groupObj.getName());
 
                 if (groupObj.getJEVisClass().getName().equals(Constants.JEVisClass.GROUP)) {
@@ -466,7 +508,10 @@ public class PermissionExtension implements ObjectEditorExtension {
             }
         });
 
-        addNewBox.getChildren().setAll(newOwnerlabel, groupsCBox, newB);
+        addNewBox.add(newOwnerlabel, 0, 0, 1, 2);
+        addNewBox.add(filterInput, 1, 0, 1, 1);
+        addNewBox.add(groupsCBox, 1, 1, 1, 1);
+        addNewBox.add(newB, 2, 1, 1, 1);
 
         return addNewBox;
     }

@@ -47,6 +47,36 @@
         "th": "ช่วงปลุก",
         "uk": "діапазон сигналізації",
         "en": "Alarm Scope"
+      },
+      "enums" : {
+        "COMPLETE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Alle Alarme",
+            "en" : "Every Alarm"
+          }
+        },
+        "SELECTED" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Ausgewählte Alarme",
+            "en" : "Selected Alarm"
+          }
+        },
+        "WITHOUT_SELECTED" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Ohne ausgewählte Alarme",
+            "en" : "Without selected"
+          }
+        },
+        "NONE" : {
+          "descriptions" : null,
+          "names" : {
+            "de": "Keine",
+            "en": "None"
+          }
+        }
       }
     },
     {
@@ -98,6 +128,76 @@
         "th": "ระยะเวลาการเตือนภัย",
         "uk": "період сигналізації",
         "en": "Alarm Period"
+      },
+      "enums" : {
+        "MINUTELY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Minütlich",
+            "ru" : "минутный",
+            "en" : "Minutely"
+          }
+        },
+        "QUARTER_HOURLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Viertelstündlich",
+            "ru" : "Eжеквартально",
+            "en" : "Quarter-hourly"
+          }
+        },
+        "HOURLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de": "Stündlich",
+            "ru": "ежечасно",
+            "en": "Hourly"
+          }
+        },
+        "WEEKLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Wöchentlich",
+            "ru" : "Eженедельно",
+            "en" : "Weekly"
+          }
+        },"MONTHLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Monatlich",
+            "ru" : "ежемесячно",
+            "en" : "Monthly"
+          }
+        },
+        "QUARTERLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Vierteljährlich",
+            "ru" : "Eжеквартальный",
+            "en" : "Quarterly"
+          }
+        },"YEARLY" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Jährlich",
+            "ru" : "Ежегодно",
+            "en" : "Yearly"
+          }
+        },"CUSTOM" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Benutzerdefiniert",
+            "ru" : "Пользовательский",
+            "en" : "Custom"
+          }
+        },"NONE" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "Keine",
+            "ru" : "Никто",
+            "en" : "None"
+          }
+        }
       }
     },
     {
@@ -132,6 +232,40 @@
         "th": "ประวัติศาสตร์",
         "uk": "історія",
         "en": "History"
+      }
+    },
+    {
+      "type": "Log File",
+      "descriptions": {
+        "de": "Der Verlauf der Alarmmeldungen.",
+        "ru": "Ход тревожных сообщений.",
+        "uk": "Перебіг тривожних повідомлень.",
+        "th": "หลักสูตรของข้อความเตือนภัย",
+        "en": "The history of the alarm messages."
+      },
+      "names": {
+        "de": "Datei Verlauf",
+        "ru": "История файла",
+        "th": "ประวัติไฟล์",
+        "uk": "Історія файлів",
+        "en": "File History"
+      }
+    },
+    {
+      "type": "Alarm Checked",
+      "descriptions": {
+        "de": "Das Attribut zeigt ob der der letzte generierte Alarm überprüft wurde.",
+        "ru": "Атрибут показывает, был ли проверен последний сгенерированный сигнал тревоги.",
+        "uk": "Атрибут показує, чи перевірено останній створений сигнал тривоги.",
+        "th": "แอททริบิวจะแสดงว่ามีการตรวจสอบสัญญาณเตือนที่สร้างล่าสุดหรือไม่",
+        "en": "The attribute shows if the last generated alarm has been checked."
+      },
+      "names": {
+        "de": "Geprüft",
+        "ru": "проверенный",
+        "th": "การทดสอบ",
+        "uk": "перевірений",
+        "en": "Checked"
       }
     }
   ]

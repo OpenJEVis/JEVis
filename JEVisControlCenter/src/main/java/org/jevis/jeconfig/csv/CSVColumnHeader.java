@@ -37,18 +37,19 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jeconfig.application.unit.UnitChooserDialog;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -70,27 +71,25 @@ public class CSVColumnHeader {
     private static double ROW_HIGHT = 25;
     final Button unitButton = new Button(I18n.getInstance().getString("csv.table.unit"));
     private final VBox root = new VBox(5);
-    Label typeL = new Label(I18n.getInstance().getString("csv.table.meaning"));
-    Label formateL = new Label(I18n.getInstance().getString("csv.table.format"));
-    DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
+    private Label typeL = new Label(I18n.getInstance().getString("csv.table.meaning"));
+    private Label formatL = new Label(I18n.getInstance().getString("csv.table.format"));
+    private DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
     private JEVisAttribute _target = null;
-    private ComboBox<String> meaning;
+    private ComboBox<Meaning> meaning;
     private HashMap<Integer, CSVLine> _lines = new HashMap<Integer, CSVLine>();
-    private HashMap<Integer, SimpleObjectProperty<Node>> _valuePropertys = new HashMap<Integer, SimpleObjectProperty<Node>>();
+    private HashMap<Integer, SimpleObjectProperty<Node>> _valueProperty = new HashMap<Integer, SimpleObjectProperty<Node>>();
     private HashMap<Integer, CSVCellGraphic> _valueGraphic = new HashMap<Integer, CSVCellGraphic>();
     private DateTimeZone _selectedTimeZone = DateTimeZone.getDefault();
     private CSVTable _table;
-    private String _currentFormate;
-
-    private String _groupingSeparator;
+    private String _currentFormat;
     private char _decimalSeparator;
 
     private SimpleDateFormat dateFormatter = new SimpleDateFormat();
     private Meaning currentMeaning = Meaning.Ignore;
-    private int coloumNr = -1;
+    private int columnNr = -1;
 
     public CSVColumnHeader(CSVTable table, int column) {
-        coloumNr = column;
+        columnNr = column;
         _table = table;
 
         root.setPrefHeight(110);
@@ -139,7 +138,7 @@ public class CSVColumnHeader {
 //            }
 //        });
 
-        Iterator it = _valuePropertys.entrySet().iterator();
+        Iterator it = _valueProperty.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry pairs = (Map.Entry) it.next();
 //            logger.info(pairs.getKey() + " = " + pairs.getValue());
@@ -148,9 +147,9 @@ public class CSVColumnHeader {
             CSVCellGraphic graphic = _valueGraphic.get(pairs.getKey());
             CSVLine csvLIne = _lines.get(pairs.getKey());
 
-            graphic.setText(getFormatedValue(csvLIne.getColumn(coloumNr)));
-            graphic.setValid(valueIsValid(csvLIne.getColumn(coloumNr)));
-            graphic.setToolTipText("Original: '" + csvLIne.getColumn(coloumNr) + "'");
+            graphic.setText(getFormattedValue(csvLIne.getColumn(columnNr)));
+            graphic.setValid(valueIsValid(csvLIne.getColumn(columnNr)));
+            graphic.setToolTipText("Original: '" + csvLIne.getColumn(columnNr) + "'");
 
             if (getMeaning() == Meaning.Ignore) {
                 graphic.setIgnore();
@@ -173,19 +172,11 @@ public class CSVColumnHeader {
     }
 
     public int getColumn() {
-        return coloumNr;
+        return columnNr;
     }
 
     public JEVisAttribute getTarget() {
         return _target;
-    }
-
-    private String getCurrentFormate() {
-        return _currentFormate;
-    }
-
-    private String getGroupingSeparator() {
-        return _groupingSeparator;
     }
 
     private char getDecimalSeparator() {
@@ -194,66 +185,57 @@ public class CSVColumnHeader {
 
     public SimpleObjectProperty getValueProperty(CSVLine line) {
         int lineNumber = line.getRowNumber();
-        if (_valuePropertys.containsKey(lineNumber)) {
-            return _valuePropertys.get(lineNumber);
+        if (_valueProperty.containsKey(lineNumber)) {
+            return _valueProperty.get(lineNumber);
         } else {
             _lines.put(lineNumber, line);
 
-            CSVCellGraphic graphic = new CSVCellGraphic(line.getColumn(coloumNr));
+            CSVCellGraphic graphic = new CSVCellGraphic(line.getColumn(columnNr));
             _valueGraphic.put(lineNumber, graphic);
-            graphic.setText(getFormatedValue(line.getColumn(coloumNr)));
-            graphic.setValid(valueIsValid(line.getColumn(coloumNr)));
-            graphic.setToolTipText(line.getColumn(coloumNr));
+            graphic.setText(getFormattedValue(line.getColumn(columnNr)));
+            graphic.setValid(valueIsValid(line.getColumn(columnNr)));
+            graphic.setToolTipText(line.getColumn(columnNr));
 
             if (getMeaning() == Meaning.Ignore) {
                 graphic.setIgnore();
                 graphic.getGraphic().setDisable(true);
             }
 
-            _valuePropertys.put(lineNumber, new SimpleObjectProperty<>(graphic.getGraphic()));
-            return _valuePropertys.get(lineNumber);
+            _valueProperty.put(lineNumber, new SimpleObjectProperty<>(graphic.getGraphic()));
+            return _valueProperty.get(lineNumber);
         }
     }
 
-    public String getFormatedValue(String value) {
-//        logger.info("get formatedt value: " + value);
+    public String getFormattedValue(String value) {
+        logger.debug("get formatted value: " + value);
         try {
 
             switch (currentMeaning) {
                 case Date:
-                    Date date = getDateFormater().parse(value);
-                    return getDateFormater().format(date);
                 case DateTime:
-                    Date datetime = getDateFormater().parse(value);
-                    return getDateFormater().format(datetime);
                 case Time:
                     Date time = getDateFormater().parse(value);
                     return getDateFormater().format(time);
                 case Value:
-                    //hmm lokks some kinde if strage i bet there is a better ways
                     DecimalFormat df = new DecimalFormat("###,###,###,###,###,###,###,###,###,##0.00###################################");
-//                    String unit = "";
-//
+
                     if (getTarget() != null && getTarget().getInputUnit() != null) {
                         JEVisUnit unit = getTarget().getInputUnit();
                         logger.debug("Value with unit: " + df.format(getValueAsDouble(value)) + unit.getLabel());
                         return df.format(getValueAsDouble(value)) + unit.getLabel();
                     }
-//                    logger.info("unit.format: " + unit);
-
-//                    return df.format(getValueAsDouble(value)) + unit;
                     return getValueAsDouble(value) + "";
                 case Index:
                     break;
                 case Ignore:
                     return value;
-//                    logger.info("To Ignore");
             }
         } catch (Exception pe) {
             logger.error(pe);
             return value;
         }
         return value;
+
     }
 
     /**
@@ -266,7 +248,7 @@ public class CSVColumnHeader {
         if (getMeaning() == Meaning.Value) {
             return value;
         } else {
-            throw new ParseException(value, coloumNr);
+            throw new ParseException(value, columnNr);
         }
     }
 
@@ -282,7 +264,7 @@ public class CSVColumnHeader {
             return new DateTime(datetime).withZoneRetainFields(getTimeZone());
 
         } else {
-            throw new ParseException(value, coloumNr);
+            throw new ParseException(value, columnNr);
 
         }
     }
@@ -302,12 +284,9 @@ public class CSVColumnHeader {
 
             switch (currentMeaning) {
                 case Date:
-                    Date date = getDateFormater().parse(value);
-                    date.getTime();
-                    return true;
                 case DateTime:
                     Date datetime = getDateFormater().parse(value);
-                    datetime.getTime();
+                    getDateFormater().format(datetime);
                     return true;
                 case Time:
                     Date time = getDateFormater().parse(value);
@@ -318,22 +297,6 @@ public class CSVColumnHeader {
                     getValueAsDouble(value);
                     return true;
 
-//                    symbols.setDecimalSeparator(getDecimalSeparator());
-//                    DecimalFormat df = new DecimalFormat("#,#", symbols);
-//                    String tmpValue = value;
-//
-//                    if (getDecimalSeparator() == ',') {
-//                        tmpValue = tmpValue.replace('.', ' ');//removeall grouping chars
-//                    } else {
-//                        tmpValue = tmpValue.replace(',', ' ');//removeall grouping chars
-//                    }
-//                    tmpValue = tmpValue.trim();//some locales use the spaceas grouping
-//
-//                    Number number = df.parse(tmpValue);
-//                    Double dValue = number.doubleValue();
-//
-//                    logger.info("Value is valid: " + dValue);
-//                    return true;
                 case Text:
                     //TODO maybe check for .... if the attriute is from type string
                     return true;
@@ -391,26 +354,53 @@ public class CSVColumnHeader {
     }
 
     private void buildMeaningButton() {
-        ObservableList<String> options = FXCollections.observableArrayList();
+        ObservableList<Meaning> options = FXCollections.observableArrayList(Meaning.values());
 
-        for (Meaning meaningEnum : Meaning.values()) {
-            options.add(meaningEnum.name());
-        }
-
-        meaning = new ComboBox<String>(options);
-        meaning.getSelectionModel().selectFirst();
-
-        meaning.valueProperty().addListener(new ChangeListener<String>() {
-
+        Callback<ListView<Meaning>, ListCell<Meaning>> meaningFactory = new Callback<ListView<Meaning>, ListCell<Meaning>>() {
             @Override
-            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+            public ListCell<Meaning> call(ListView<Meaning> param) {
+                return new ListCell<Meaning>(){
+                    @Override
+                    protected void updateItem(Meaning item, boolean empty) {
+                        super.updateItem(item, empty);
+                        String text= "";
+                        if(item!=null){
+                            switch (item){
+                                case Date:
+                                    text =I18n.getInstance().getString("csv.table.meaning.date");
+                                    break;
+                                case Text:
+                                    text =I18n.getInstance().getString("csv.table.meaning.text");
+                                    break;
+                                case Time:
+                                    text =I18n.getInstance().getString("csv.table.meaning.time");
+                                    break;
+                                case Index:
+                                    text =I18n.getInstance().getString("csv.table.meaning.index");
+                                    break;
+                                case Value:
+                                    text =I18n.getInstance().getString("csv.table.meaning.value");
+                                    break;
+                                case Ignore:
+                                    text =I18n.getInstance().getString("csv.table.meaning.ignore");
+                                    break;
+                                case DateTime:
+                                    text =I18n.getInstance().getString("csv.table.meaning.datetime");
+                                    break;
+                            }
+                        }
 
-                if (t1 != null) {
-                    setMeaning(Meaning.valueOf(t1));
-                }
-
+                        setText(text);
+                    }
+                };
             }
-        });
+        };
+        meaning = new ComboBox<Meaning>(options);
+        meaning.setCellFactory(meaningFactory);
+        meaning.setButtonCell(meaningFactory.call(null));
+        meaning.getSelectionModel().selectFirst();
+        meaning.setOnAction(event -> setMeaning(meaning.getValue()));
+
 
         meaning.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
     }
@@ -576,7 +566,6 @@ public class CSVColumnHeader {
 
         switch (mode) {
             case DateTime:
-
                 format.setText(findDateTimePattern());
                 dateFormatter = new SimpleDateFormat(format.getText());
                 break;
@@ -595,8 +584,8 @@ public class CSVColumnHeader {
 
             @Override
             public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                _currentFormate = format.getText();
-                dateFormatter = new SimpleDateFormat(_currentFormate);
+                _currentFormat = format.getText();
+                dateFormatter = new SimpleDateFormat(_currentFormat);
                 formatAllRows();
             }
         });
@@ -640,7 +629,7 @@ public class CSVColumnHeader {
         gp.add(typeL, 0, 0);
         gp.add(meaning, 1, 0);
 
-        gp.add(formateL, 0, 1);
+        gp.add(formatL, 0, 1);
         gp.add(boxFormate, 1, 1);
 
         gp.add(timeZoneL, 0, 2);
@@ -674,47 +663,54 @@ public class CSVColumnHeader {
      * @return
      */
     private String findDateTimePattern() {
+        try {
+            //SimpleObjectProperty<Node>> _valuePropertys
+            String valueString = "";
+            int workaround = 0;
+            Iterator it = _lines.entrySet().iterator();
+            while (it.hasNext()) {
+                try {
+                    Map.Entry<Integer, CSVLine> pairs = (Map.Entry) it.next();
 
-        //SimpleObjectProperty<Node>> _valuePropertys
-        String valueString = "";
-        int workaround = 0;
-        Iterator it = _lines.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<Integer, CSVLine> pairs = (Map.Entry) it.next();
-            workaround++;
-            if (workaround == 3) {
-                valueString = pairs.getValue().getColumn(coloumNr);
-            } else if (workaround > 3) {
-                break;
-            }
-
-        }
-
-
-        //Best formats are first in list
-        String[] pattern = {
-                "yyyy-MM-dd'T'HH:mm:ssZ",
-                "yyyy-MM-dd HH:mm:ss Z",
-                "yyyy-MM-dd HH:mm:ss",
-                "dd-MM-yyyy HH:mm:ss Z",
-                "dd-MM-yyyy HH:mm:ss"
-        };
-
-        DateTime minDate = new DateTime(1980, 1, 1, 1, 0, 0, 0);
-        DateTime maxDate = DateTime.now().plusYears(2);
-
-        for (int i = 0; i < pattern.length; i++) {
-            try {
-                DateTimeFormatter dtf = DateTimeFormat.forPattern(pattern[i]);
-                DateTime parsedTime = dtf.parseDateTime(valueString);
-                if (parsedTime.isAfter(minDate) && parsedTime.isBefore(maxDate)) {
-                    return pattern[i];
+                    workaround++;
+                    if (workaround == 3) {
+                        valueString = pairs.getValue().getColumn(columnNr);
+                    } else if (workaround > 3) {
+                        break;
+                    }
+                }catch (Exception ex){
+                    logger.error(ex);
                 }
-            } catch (Exception ex) {
-                logger.fatal(ex);
-            }
-        }
 
+            }
+
+
+            //Best formats are first in list
+            String[] pattern = {
+                    "yyyy-MM-dd'T'HH:mm:ssZ",
+                    "yyyy-MM-dd HH:mm:ss Z",
+                    "yyyy-MM-dd HH:mm:ss",
+                    "dd-MM-yyyy HH:mm:ss Z",
+                    "dd-MM-yyyy HH:mm:ss"
+            };
+
+            DateTime minDate = new DateTime(1980, 1, 1, 1, 0, 0, 0);
+            DateTime maxDate = DateTime.now().plusYears(2);
+
+            for (int i = 0; i < pattern.length; i++) {
+                try {
+                    DateTimeFormatter dtf = DateTimeFormat.forPattern(pattern[i]);
+                    DateTime parsedTime = dtf.parseDateTime(valueString);
+                    if (parsedTime.isAfter(minDate) && parsedTime.isBefore(maxDate)) {
+                        return pattern[i];
+                    }
+                } catch (Exception ex) {
+                    logger.fatal(ex);
+                }
+            }
+        }catch (Exception ex){
+            logger.error(ex);
+        }
         return "yyyy-MM-dd HH:mm:ss";
     }
 
@@ -731,8 +727,8 @@ public class CSVColumnHeader {
 
 
                 SelectTargetDialog selectionDialog = new SelectTargetDialog(allFilter, basicFilter, null, SelectionMode.SINGLE);
-
                 selectionDialog.setMode(SimpleTargetPlugin.MODE.ATTRIBUTE);
+                selectionDialog.setInitOwner(button.getScene().getWindow());
                 if (selectionDialog.show(
                         _table.getDataSource(),
                         I18n.getInstance().getString("csv.target.title"),
@@ -792,75 +788,6 @@ public class CSVColumnHeader {
         alert.getDialogPane().setContent(helpView);
 
         alert.showAndWait();
-
-//        final Stage stage = new Stage();
-//
-//        stage.setTitle("Help: Formate");
-//        stage.initModality(Modality.NONE);
-//        stage.initOwner(JEConfig.getStage());
-//
-////        BorderPane root = new BorderPane();
-//        VBox root = new VBox();
-//
-//        Scene scene = new Scene(root);
-//        stage.setScene(scene);
-//        stage.setWidth(750);
-//        stage.setHeight(620);
-//        stage.initStyle(StageStyle.UTILITY);
-//
-//        BorderPane header = new BorderPane();
-//        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
-//        header.setPadding(new Insets(10, 10, 10, 10));
-//
-//        Label topTitle = new Label("Help: Formate");
-//        topTitle.setTextFill(Color.web("#0076a3"));
-//        topTitle.setFont(Font.font("Cambria", 25));
-//
-//        ImageView imageView = ResourceLoader.getImage("1404161580_help_blue.png", 65, 65);
-//
-//        stage.getIcons().add(imageView.getImage());
-//
-//        VBox vboxLeft = new VBox();
-//        VBox vboxRight = new VBox();
-//        vboxLeft.getChildren().add(topTitle);
-//        vboxLeft.setAlignment(Pos.CENTER_LEFT);
-//        vboxRight.setAlignment(Pos.CENTER_LEFT);
-//        vboxRight.getChildren().add(imageView);
-//
-//        header.setLeft(vboxLeft);
-//
-//        header.setRight(vboxRight);
-//
-//        HBox webBox = new HBox();
-//        webBox.setPadding(new Insets(10));
-//        WebView helpView = new WebView();
-////        helpView.getEngine().loadContent(getFormateHelpText());
-////        URL urlHello = getClass().getResource("/html/help_dateformate.html");
-//        helpView.getEngine().load(getClass().getResource("/html/help_dateformate.html").toExternalForm());
-//
-//        webBox.getChildren().setAll(helpView);
-//
-////        TextArea helpText = new TextArea();
-////        helpText.setText(ICON_QUESTION);
-//        HBox buttonbox = new HBox();
-//        buttonbox.setAlignment(Pos.BOTTOM_RIGHT);
-//
-//        Button close = new Button("Close");
-//        close.setDefaultButton(true);
-//        close.setCancelButton(true);
-//        close.setOnAction(new EventHandler<ActionEvent>() {
-//
-//            @Override
-//            public void handle(ActionEvent t) {
-//                stage.hide();
-//            }
-//        });
-//        buttonbox.getChildren().setAll(close);
-//        buttonbox.setPadding(new Insets(10));
-//
-//        root.getChildren().setAll(header, webBox, buttonbox);
-//
-//        stage.show();
     }
 
     public enum Meaning {

@@ -3,7 +3,6 @@ package org.jevis.jeconfig.dialog;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -13,15 +12,21 @@ import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.database.ObjectHandler;
+import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.json.JsonLimitsConfig;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.application.jevistree.UserSelection;
+import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
@@ -32,6 +37,7 @@ import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class EnterDataDialog {
@@ -51,6 +57,8 @@ public class EnterDataDialog {
     private Double lastValue;
     private JEVisClass dataClass;
     private JEVisClass cleanDataClass;
+    private TextField searchIdField = new TextField();
+    private Label unitField;
 
     public EnterDataDialog(JEVisDataSource dataSource) {
         this.ds = dataSource;
@@ -97,36 +105,51 @@ public class EnterDataDialog {
         } catch (JEVisException e) {
             e.printStackTrace();
         }
-        ComboBox<JEVisObject> idBox = new ComboBox<>(FXCollections.observableList(allData));
 
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-            @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new ListCell<JEVisObject>() {
-                    @Override
-                    protected void updateItem(JEVisObject obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (obj == null || empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            String prefix = objectRelations.getObjectPath(obj);
+        Button treeButton = new Button(I18n
+                .getInstance().getString("plugin.object.attribute.target.button"),
+                JEConfig.getImage("folders_explorer.png", 18, 18));
 
-                            setText(prefix + obj.getName() + ":" + obj.getID());
-                        }
+        treeButton.setOnAction(event -> {
 
-                    }
-                };
+            TargetHelper th = null;
+            if (selectedObject != null) {
+                th = new TargetHelper(ds, selectedObject.getID().toString());
             }
-        };
 
-        idBox.setCellFactory(cellFactory);
-        idBox.setButtonCell(cellFactory.call(null));
-        idBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != oldValue) {
-                selectedObject = newValue;
+            List<JEVisTreeFilter> allFilter = new ArrayList<>();
+            JEVisTreeFilter allCurrentClassFilter = SelectTargetDialog.buildAllDataFilter();
+            allFilter.add(allCurrentClassFilter);
+
+            SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE);
+            selectTargetDialog.setInitOwner(stage.getScene().getWindow());
+
+            List<UserSelection> openList = new ArrayList<>();
+
+            if (th != null && !th.getObject().isEmpty()) {
+                for (JEVisObject obj : th.getObject())
+                    openList.add(new UserSelection(UserSelection.SelectionType.Object, obj));
+            }
+
+            if (selectTargetDialog.show(
+                    ds,
+                    I18n.getInstance().getString("dialog.target.data.title"),
+                    openList
+            ) == SelectTargetDialog.Response.OK) {
+                logger.trace("Selection Done");
+
+                List<UserSelection> selections = selectTargetDialog.getUserSelection();
+                for (UserSelection us : selections) {
+                    selectedObject = us.getSelectedObject();
+                    break;
+                }
+
+                treeButton.setText(selectedObject.getName());
+                searchIdField.setText(selectedObject.getID().toString());
+
                 loadLastValue();
             }
+
         });
 
         Label diffSwitchLabel = new Label(I18n.getInstance().getString("graph.dialog.note.text.diff"));
@@ -144,7 +167,9 @@ public class EnterDataDialog {
         Label valueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
         doubleField = new TextField();
 
-        TextField searchIdField = new TextField();
+        Label unitLabel = new Label(I18n.getInstance().getString("graph.table.unit"));
+        unitField = new Label();
+
         HashMap<Long, JEVisObject> finalMap = map;
         searchIdField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
@@ -152,7 +177,9 @@ public class EnterDataDialog {
                     long l = Long.parseLong(newValue);
                     JEVisObject selection = finalMap.get(l);
                     if (selection != null) {
-                        idBox.getSelectionModel().select(selection);
+                        selectedObject = selection;
+                        treeButton.setText(selection.getName());
+                        loadLastValue();
                     }
                 } catch (Exception ignored) {
                 }
@@ -177,11 +204,13 @@ public class EnterDataDialog {
 
                     JEVisAttribute valueAttribute = null;
                     JEVisAttribute diffAttribute = null;
+                    Map<JsonLimitsConfig, JEVisObject> limitsConfigs = new HashMap<>();
                     try {
                         valueAttribute = selectedObject.getAttribute("Value");
                         for (JEVisObject jeVisObject : selectedObject.getChildren(cleanDataClass, false)) {
                             diffAttribute = jeVisObject.getAttribute("Conversion to Differential");
-                            break;
+                            CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject, new ObjectHandler(ds));
+                            limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
                         }
                     } catch (JEVisException e) {
                         logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
@@ -217,10 +246,89 @@ public class EnterDataDialog {
                                 }));
 
                             } else {
-                                buildSample(valueAttribute, ts, newVal);
+                                boolean hasError = false;
+                                DateTime prevTs = ts.minus(valueAttribute.getInputSampleRate());
+                                List<JEVisSample> previousSample = valueAttribute.getSamples(prevTs, prevTs);
+                                Double prevValue = newVal;
+                                try {
+                                    prevValue = previousSample.get(previousSample.size() - 1).getValueAsDouble();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                for (Map.Entry<JsonLimitsConfig, JEVisObject> c : limitsConfigs.entrySet()) {
+                                    double newDiff = newVal - prevValue;
+                                    if (newDiff < Double.parseDouble(c.getKey().getMin())) {
+                                        hasError = true;
+
+                                        Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.smaller") + " " +
+                                                newDiff + " < " + Double.parseDouble(c.getKey().getMin()));
+                                        warning.setResizable(true);
+                                        JEVisAttribute finalValueAttribute = valueAttribute;
+                                        Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
+                                            if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                buildSample(finalValueAttribute, ts, newVal);
+                                            } else {
+
+                                            }
+                                        }));
+                                    } else if (newDiff > Double.parseDouble(c.getKey().getMax())) {
+                                        hasError = true;
+
+                                        Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.bigger") + " " +
+                                                newDiff + " > " + Double.parseDouble(c.getKey().getMax()));
+                                        warning.setResizable(true);
+                                        JEVisAttribute finalValueAttribute = valueAttribute;
+                                        Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
+                                            if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                buildSample(finalValueAttribute, ts, newVal);
+                                            } else {
+
+                                            }
+                                        }));
+                                    }
+                                }
+
+                                if (!hasError) {
+                                    buildSample(valueAttribute, ts, newVal);
+                                }
                             }
                         } else {
-                            buildSample(valueAttribute, ts, newVal);
+                            boolean hasError = false;
+                            for (Map.Entry<JsonLimitsConfig, JEVisObject> c : limitsConfigs.entrySet()) {
+                                if (newVal < Double.parseDouble(c.getKey().getMin())) {
+                                    hasError = true;
+
+                                    Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.smaller") + " " +
+                                            newVal + " < " + Double.parseDouble(c.getKey().getMin()));
+                                    warning.setResizable(true);
+                                    JEVisAttribute finalValueAttribute = valueAttribute;
+                                    Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
+                                        if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                            buildSample(finalValueAttribute, ts, newVal);
+                                        } else {
+
+                                        }
+                                    }));
+                                } else if (newVal > Double.parseDouble(c.getKey().getMax())) {
+                                    hasError = true;
+
+                                    Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.bigger") + " " +
+                                            newVal + " > " + Double.parseDouble(c.getKey().getMax()));
+                                    warning.setResizable(true);
+                                    JEVisAttribute finalValueAttribute = valueAttribute;
+                                    Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
+                                        if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                            buildSample(finalValueAttribute, ts, newVal);
+                                        } else {
+
+                                        }
+                                    }));
+                                }
+                            }
+
+                            if (!hasError) {
+                                buildSample(valueAttribute, ts, newVal);
+                            }
                         }
 
                     }
@@ -238,27 +346,29 @@ public class EnterDataDialog {
 //        gridPane.add(diffSwitchLabel, 2, row);
         gridPane.add(dateLabel, 3, row, 2, 1);
         gridPane.add(valueLabel, 5, row);
+        gridPane.add(unitLabel, 6, row);
         row++;
         gridPane.add(searchIdField, 0, row);
-        gridPane.add(idBox, 1, row, 2, 1);
+        gridPane.add(treeButton, 1, row, 2, 1);
 //        gridPane.add(diffSwitch, 2, row);
         gridPane.add(datePicker, 3, row);
         gridPane.add(timePicker, 4, row);
         gridPane.add(doubleField, 5, row);
+        gridPane.add(unitField, 6, row);
         row++;
-        gridPane.add(sep, 0, row, 6, 1);
+        gridPane.add(sep, 0, row, 7, 1);
         row++;
         gridPane.add(lastTSLabel, 1, row);
         gridPane.add(lastValueLabel, 2, row);
-        gridPane.add(cancel, 4, row);
-        gridPane.add(confirm, 5, row);
+        gridPane.add(cancel, 5, row);
+        gridPane.add(confirm, 6, row);
 
         Scene scene = new Scene(gridPane);
         stage.setScene(scene);
         stage.centerOnScreen();
 
-        GridPane.setHgrow(idBox, Priority.ALWAYS);
-        GridPane.setFillWidth(idBox, true);
+        GridPane.setHgrow(treeButton, Priority.ALWAYS);
+        GridPane.setFillWidth(treeButton, true);
 
         stage.showAndWait();
 
@@ -288,8 +398,16 @@ public class EnterDataDialog {
     private void loadLastValue() {
         if (selectedObject != null) {
             JEVisAttribute valueAttribute = null;
+            String unitString = "";
             try {
                 valueAttribute = selectedObject.getAttribute("Value");
+
+                JEVisUnit displayUnit = valueAttribute.getDisplayUnit();
+                unitString = UnitManager.getInstance().format(displayUnit);
+                if (!unitString.equals("")) {
+                    String finalUnitString = unitString;
+                    Platform.runLater(() -> this.unitField.setText(finalUnitString));
+                }
             } catch (JEVisException e) {
                 logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
             }
@@ -306,10 +424,15 @@ public class EnterDataDialog {
                         if (lastTS != null && lastValue != null) {
                             DateTime finalLastTS = lastTS;
                             Double finalLastValue = lastValue;
+                            String finalUnitString = unitString;
                             Platform.runLater(() -> {
                                 this.lastTSLabel.setText(finalLastTS.toString("yyyy-MM-dd HH:mm") + " : ");
 
-                                this.lastValueLabel.setText(numberFormat.format(finalLastValue));
+                                if (!finalUnitString.equals("")) {
+                                    this.lastValueLabel.setText(numberFormat.format(finalLastValue) + " " + finalUnitString);
+                                } else {
+                                    this.lastValueLabel.setText(numberFormat.format(finalLastValue));
+                                }
                             });
                         }
                     }

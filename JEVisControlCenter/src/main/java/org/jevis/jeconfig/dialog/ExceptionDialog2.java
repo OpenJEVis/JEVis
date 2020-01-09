@@ -5,7 +5,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Window;
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.commons.i18n.I18n;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

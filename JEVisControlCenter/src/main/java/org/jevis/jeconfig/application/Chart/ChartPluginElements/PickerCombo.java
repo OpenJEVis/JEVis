@@ -14,10 +14,10 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -299,12 +299,20 @@ public class PickerCombo {
                 if (!mdl.getSelectedcharts().isEmpty()) {
                     JEVisAttribute att = mdl.getAttribute();
                     setMinMax(att);
+                    if (mdl.hasForecastData()) {
+                        JEVisAttribute forecastDataAttribute = mdl.getForecastDataAttribute();
+                        setMinMax(forecastDataAttribute);
+                    }
                 }
             }
         } else {
             for (ChartDataModel model : chartDataModels) {
                 JEVisAttribute att = model.getAttribute();
                 setMinMax(att);
+                if (model.hasForecastData()) {
+                    JEVisAttribute forecastDataAttribute = model.getForecastDataAttribute();
+                    setMinMax(forecastDataAttribute);
+                }
             }
         }
     }
@@ -440,12 +448,14 @@ public class PickerCombo {
         JEVisObject forCustomTime = analysisDataModel.getCurrentAnalysis();
         if (forCustomTime != null) {
             WorkDays wd = new WorkDays(analysisDataModel.getCurrentAnalysis());
+            wd.setEnabled(analysisDataModel.isCustomWorkDay());
             if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
                 dateHelper.setStartTime(wd.getWorkdayStart());
                 dateHelper.setEndTime(wd.getWorkdayEnd());
             }
         } else if (!analysisDataModel.getObservableListAnalyses().isEmpty()) {
             WorkDays wd = new WorkDays(analysisDataModel.getObservableListAnalyses().get(0));
+            wd.setEnabled(analysisDataModel.isCustomWorkDay());
             if (wd.getWorkdayStart() != null && wd.getWorkdayEnd() != null) {
                 dateHelper.setStartTime(wd.getWorkdayStart());
                 dateHelper.setEndTime(wd.getWorkdayEnd());

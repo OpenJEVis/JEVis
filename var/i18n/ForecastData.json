@@ -1,0 +1,347 @@
+{
+  "jevisclass": "Forecast Data",
+  "names": {
+    "de": "Prognose",
+    "ru": "прогноз",
+    "uk": "прогноз",
+    "th": "พยากรณ์",
+    "en": "Forecast"
+  },
+  "descriptions": {
+    "de": "Die Prognose-Klasse stellt einen Container für eine Reihe von vorhergesagten numerischen Werten dar, die auf dem übergeordneten Element basieren.",
+    "ru": "Класс Forecast Data представляет контейнер для серии предсказанных числовых значений, основанных на родительском элементе.",
+    "uk": "Прогнозовані дані класу являють собою контейнер для серії передбачуваних числових значень, які базуються на батьківському.",
+    "th": "ข้อมูลที่คาดการณ์ระดับหมายถึงภาชนะสำหรับชุดของค่าตัวเลขที่ทำนายซึ่งจะขึ้นอยู่กับผู้ปกครอง",
+    "en": "The class Forecast Data represents a container for a series of predicted numeric values, which are based on the parent."
+  },
+  "types": [
+    {
+      "type": "Enabled",
+      "descriptions": {
+        "de": "Aktiviert/Deaktiviert die Datenbereinigung",
+        "ru": "Включает/выключает очистку данных.",
+        "uk": "Ввімкнути / Вимкнути очищення даних",
+        "th": "เปิดใช้งาน / ปิดใช้งานการล้างข้อมูล",
+        "en": "Enables/Disables the data cleaning"
+      },
+      "names": {
+        "de": "Aktiviert",
+        "ru": "Активированный",
+        "uk": "Увімкнено",
+        "th": "เปิดการใช้งาน",
+        "en": "Enabled"
+      }
+    },
+    {
+      "type": "Value",
+      "descriptions": {
+        "de": "Wert der Datenreihe",
+        "ru": "Значение ряда данных",
+        "uk": "Значення ряду даних",
+        "th": "ค่าของชุดข้อมูล",
+        "en": "Value of the data series"
+      },
+      "names": {
+        "de": "Wert",
+        "ru": "ценность",
+        "uk": "Значення",
+        "th": "ความคุ้มค่า",
+        "en": "Value"
+      }
+    },
+    {
+      "type": "Type",
+      "descriptions": {
+        "de": "Art der erzeugten Prognose Daten, zur Auswahl stehen Berechnungen auf Basis des Durschnittswerts, des Medians, des Minimum oder des Maximums der ausgewählten vergangenen Zeitperiode.",
+        "ru": "Тип сгенерированных данных прогноза вы можете выбрать из расчетов на основе среднего значения, медианы, минимума или максимума за выбранный прошедший период времени.",
+        "uk": "Тип згенерованих прогнозних даних ви можете обрати з розрахунків виходячи із середнього, медіанного, мінімального чи максимуму вибраного минулого періоду часу.",
+        "th": "ประเภทของข้อมูลการพยากรณ์ที่สร้างขึ้นคุณสามารถเลือกจากการคำนวณตามค่าเฉลี่ยค่ามัธยฐานค่าต่ำสุดหรือสูงสุดของช่วงเวลาที่ผ่านมาที่เลือก",
+        "en": "Type of generated forecast data, you can choose from calculations based on the average, the median, the minimum or the maximum of the selected past time period."
+      },
+      "names": {
+        "de": "Typ",
+        "ru": "тип",
+        "uk": "тип",
+        "th": "ชนิด",
+        "en": "Type"
+      },
+      "enums": {
+        "MINIMUM": {
+          "descriptions": null,
+          "names": {
+            "de": "Minimalwert",
+            "en": "Minimum value"
+          }
+        },
+        "MAXIMUM": {
+          "descriptions": null,
+          "names": {
+            "de": "Maximalwert",
+            "en": "Maximum value"
+          }
+        },
+        "MEDIAN": {
+          "descriptions": null,
+          "names": {
+            "de": "Medianwert",
+            "en": "Median value"
+          }
+        },
+        "AVERAGE": {
+          "descriptions": null,
+          "names": {
+            "de": "Durchschnittswert",
+            "en": "Average value"
+          }
+        }
+      }
+    },
+    {
+      "type": "Reference Period",
+      "descriptions": {
+        "de": "Der Bezugszeitraum aus dem die Prognose Daten generiert werden.",
+        "ru": "Базисный период, из которого создаются данные прогноза.",
+        "uk": "Опорний період, з якого формуються прогнозні дані.",
+        "th": "ช่วงเวลาอ้างอิงที่สร้างข้อมูลการพยากรณ์",
+        "en": "The reference period from which the forecast data is generated."
+      },
+      "names": {
+        "de": "Bezugszeitraum",
+        "ru": "Учетный период",
+        "uk": "Обліковий період",
+        "th": "ระยะเวลาการอ้างอิง",
+        "en": "Reference Period"
+      },
+      "enums": {
+        "DAY": {
+          "descriptions": null,
+          "names": {
+            "de": "Tag",
+            "en": "Day"
+          }
+        },
+        "WEEK": {
+          "descriptions": null,
+          "names": {
+            "de": "Woche",
+            "en": "Week"
+          }
+        },
+        "MONTH": {
+          "descriptions": null,
+          "names": {
+            "de": "Monat",
+            "en": "Month"
+          }
+        },
+        "YEAR": {
+          "descriptions": null,
+          "names": {
+            "de": "Jahr",
+            "en": "Year"
+          }
+        },
+        "ALL": {
+          "descriptions": null,
+          "names": {
+            "de": "Alle",
+            "en": "All"
+          }
+        },
+        "NONE": {
+          "descriptions": null,
+          "names": {
+            "de": "Keine",
+            "en": "None"
+          }
+        }
+      }
+    },
+    {
+      "type": "Reference Period Count",
+      "descriptions": {
+        "de": "Multiplikator für den ausgewählten Bezugszeitraum.",
+        "ru": "Множитель для выбранного отчетного периода.",
+        "uk": "Множник для вибраного еталонного періоду.",
+        "th": "ตัวคูณสำหรับช่วงเวลาอ้างอิงที่เลือก",
+        "en": "Multiplier for the selected reference period."
+      },
+      "names": {
+        "de": "Anzahl Bezugszeitraum",
+        "ru": "Номер отчетного периода",
+        "uk": "Кількість еталонного періоду",
+        "th": "จำนวนระยะเวลาอ้างอิง",
+        "en": "Reference Period Count"
+      }
+    },
+    {
+      "type": "Bind To Specific",
+      "descriptions": {
+        "de": "Der ermittelte Prognose-Wert wird aus den Intervallen des eingestellten Zeitraums gebildet.",
+        "ru": "Расчетное значение прогноза формируется из интервалов заданного периода.",
+        "uk": "Розраховане прогнозне значення формується з інтервалів заданого періоду.",
+        "th": "ค่าพยากรณ์ที่คำนวณได้จะเกิดขึ้นจากช่วงเวลาของช่วงเวลาที่กำหนด",
+        "en": "The calculated forecast value is formed from the intervals of the set period."
+      },
+      "names": {
+        "de": "Gebunden auf",
+        "ru": "Привязать к конкретному",
+        "uk": "Прив’язати до конкретного",
+        "th": "ผูกกับเฉพาะ",
+        "en": "Bind To Specific"
+      },
+      "enums": {
+        "NONE": {
+          "descriptions": null,
+          "names": {
+            "de": "Tag",
+            "en": "Day"
+          }
+        },
+        "WEEKDAY": {
+          "descriptions": null,
+          "names": {
+            "de": "Wochentag",
+            "en": "Weekday"
+          }
+        },
+        "WEEKOFYEAR": {
+          "descriptions": null,
+          "names": {
+            "de": "Woche des Jahres",
+            "en": "Week of Year"
+          }
+        },
+        "MONTHOFYEAR": {
+          "descriptions": null,
+          "names": {
+            "de": "Monat des Jahres",
+            "en": "Month of Year"
+          }
+        }
+      }
+    },
+    {
+      "type": "Forecast Duration",
+      "descriptions": {
+        "de": "Der Zeitraum für den Prognose-Werte gebildet werden.",
+        "ru": "Период для прогнозных значений формируется.",
+        "uk": "Формується період для прогнозних значень.",
+        "th": "ช่วงเวลาสำหรับค่าการพยากรณ์จะเกิดขึ้น",
+        "en": "The period for the forecast values are formed."
+      },
+      "names": {
+        "de": "Prognose Zeitraum",
+        "ru": "ценность",
+        "uk": "Прогнозний період",
+        "th": "ความคุ้มค่า",
+        "en": "Forecast Duration"
+      },
+      "enums": {
+        "MINUTES": {
+          "descriptions": null,
+          "names": {
+            "de": "Minuten",
+            "en": "Minutes"
+          }
+        },
+        "HOURS": {
+          "descriptions": null,
+          "names": {
+            "de": "Stunden",
+            "en": "Hours"
+          }
+        },
+        "DAYS": {
+          "descriptions": null,
+          "names": {
+            "de": "Tage",
+            "en": "Days"
+          }
+        },
+        "WEEKS": {
+          "descriptions": null,
+          "names": {
+            "de": "Wochen",
+            "en": "Weeks"
+          }
+        },
+        "MONTHS": {
+          "descriptions": null,
+          "names": {
+            "de": "Monate",
+            "en": "Months"
+          }
+        }
+      }
+    },
+    {
+      "type": "Forecast Duration Count",
+      "descriptions": {
+        "de": "Multiplikator für den Prognosezeitraum.",
+        "ru": "Множитель на прогнозный период.",
+        "uk": "Мультиплікатор на прогнозний період.",
+        "th": "ตัวคูณสำหรับช่วงเวลาพยากรณ์",
+        "en": "Multiplier for the forecast period."
+      },
+      "names": {
+        "de": "Anzahl Prognose Zeitraum",
+        "ru": "Номер прогнозируемого периода",
+        "uk": "Кількість прогнозного періоду",
+        "th": "จำนวนช่วงเวลาที่คาดการณ์",
+        "en": "Forecast Duration Count"
+      }
+    },
+    {
+      "type": "Last Run",
+      "descriptions": {
+        "de": "Der letzte Zeitpunkt zu dem die Prognose-Werte gebildet wurden.",
+        "ru": "В последний раз прогнозные значения были сформированы.",
+        "uk": "Востаннє формувалися прогнозні значення.",
+        "th": "ครั้งสุดท้ายที่ค่าการพยากรณ์เกิดขึ้น",
+        "en": "The last time the forecast values were formed."
+      },
+      "names": {
+        "de": "Letzter Zyklus",
+        "ru": "Последний цикл",
+        "uk": "Останній цикл",
+        "th": "รอบสุดท้าย",
+        "en": "Last cycle"
+      }
+    },
+    {
+      "type": "Cycle Time",
+      "descriptions": {
+        "de": "Bestimmt das Intervall in dem sich die Bildung der Prognose-Werte wiederholt.",
+        "ru": "Указывает интервал, в котором повторяется формирование значений прогноза.",
+        "uk": "Вказує інтервал, в якому повторюється формування прогнозних значень.",
+        "th": "ระบุช่วงเวลาที่การก่อตัวของค่าพยากรณ์ซ้ำ",
+        "en": "Specifies the interval in which the formation of the forecast values repeats."
+      },
+      "names": {
+        "de": "Taktzeit",
+        "ru": "время цикла",
+        "uk": "час циклу",
+        "th": "รอบเวลา",
+        "en": "Cycle Time"
+      }
+    },
+    {
+      "type": "Timezone",
+      "descriptions": {
+        "de": "Bestimmt die Zeitzone für den Zyklus (Server Zeitzone).",
+        "ru": "Указывает часовой пояс для цикла (часовой пояс сервера).",
+        "uk": "Вказує часовий пояс для циклу (часовий пояс сервера).",
+        "th": "ระบุเขตเวลาสำหรับรอบ (เขตเวลาของเซิร์ฟเวอร์)",
+        "en": "Specifies the time zone for the cycle (server time zone)."
+      },
+      "names": {
+        "de": "Zeitzone",
+        "ru": "часовой пояс",
+        "uk": "часовий пояс",
+        "th": "โซนเวลา",
+        "en": "Timezone"
+      }
+    }
+  ]
+}

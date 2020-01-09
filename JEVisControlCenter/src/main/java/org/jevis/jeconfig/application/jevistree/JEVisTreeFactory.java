@@ -35,9 +35,9 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.*;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
@@ -49,10 +49,8 @@ import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.jevistree.plugin.MapPlugin;
 import org.jevis.jeconfig.dialog.HiddenConfig;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.WidgetTreePlugin;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -80,6 +78,7 @@ public class JEVisTreeFactory {
         final KeyCombination deleteAllCalculations = new KeyCodeCombination(KeyCode.J, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 //        final KeyCombination deleteBrokenTS = new KeyCodeCombination(KeyCode.T, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination createMultiplierAndDifferential = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+        final KeyCombination setLimitsRecursive = new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination enableAll = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination disableAll = new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 
@@ -121,6 +120,9 @@ public class JEVisTreeFactory {
 //                    TreeHelper.EventDeleteBrokenTS(tree);
                 } else if (createMultiplierAndDifferential.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventCreateMultiplierAndDifferential(tree);
+                    t.consume();
+                } else if (setLimitsRecursive.match(t) && JEConfig.getExpert()) {
+                    TreeHelper.EventSetLimitsRecursive(tree);
                     t.consume();
                 } else if ((enableAll.match(t) || disableAll.match(t)) && JEConfig.getExpert()) {
                     if (enableAll.match(t)) {
@@ -203,55 +205,55 @@ public class JEVisTreeFactory {
         tree.setSortMode(TreeSortMode.ALL_DESCENDANTS);
 
 
-        if (JEConfig.getExpert()) {
-
-            try {
-                List<JEVisClass> prioClasses = new ArrayList<>();
-                List<JEVisClass> allClasses = ds.getJEVisClasses();
-                List<String> allAttributes = new ArrayList<>();
-                List<String> prioAttribute = new ArrayList<>();
-                /** first we high prio Classes **/
-                prioClasses.add(ds.getJEVisClass("Clean Data"));
-                prioClasses.forEach(jeVisClass -> {
-                    try {
-                        jeVisClass.getTypes().forEach(jeVisType -> {
-                            try {
-                                addAttributeSave(prioAttribute, jeVisType.getName());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-
-                allClasses.forEach(jeVisClass -> {
-                    try {
-                        jeVisClass.getTypes().forEach(jeVisType -> {
-                            try {
-                                addAttributeSave(allAttributes, jeVisType.getName());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-                Collections.sort(allAttributes);
-
-                List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = createAttributeColumns(prioAttribute);
-                attributeColumns.addAll(createAttributeColumns(allAttributes));
-//                List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = xAttributeColumn(allAttributes);
-                tree.getColumns().addAll(attributeColumns);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-        }
+//        if (JEConfig.getExpert()) {
+//
+//            try {
+//                List<JEVisClass> prioClasses = new ArrayList<>();
+//                List<JEVisClass> allClasses = ds.getJEVisClasses();
+//                List<String> allAttributes = new ArrayList<>();
+//                List<String> prioAttribute = new ArrayList<>();
+//                /** first we high prio Classes **/
+//                prioClasses.add(ds.getJEVisClass("Clean Data"));
+//                prioClasses.forEach(jeVisClass -> {
+//                    try {
+//                        jeVisClass.getTypes().forEach(jeVisType -> {
+//                            try {
+//                                addAttributeSave(prioAttribute, jeVisType.getName());
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                        });
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                });
+//
+//                allClasses.forEach(jeVisClass -> {
+//                    try {
+//                        jeVisClass.getTypes().forEach(jeVisType -> {
+//                            try {
+//                                addAttributeSave(allAttributes, jeVisType.getName());
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                        });
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                });
+//                Collections.sort(allAttributes);
+//
+//                List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = createAttributeColumns(prioAttribute);
+//                attributeColumns.addAll(createAttributeColumns(allAttributes));
+////                List<TreeTableColumn<JEVisTreeRow, JEVisAttribute>> attributeColumns = xAttributeColumn(allAttributes);
+//                tree.getColumns().addAll(attributeColumns);
+//
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//
+//        }
 
 
         if (withMinMaxTSColumn) {

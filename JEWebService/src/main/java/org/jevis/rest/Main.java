@@ -2,6 +2,7 @@ package org.jevis.rest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.grizzly.http.CompressionConfig;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.ssl.SSLContextConfigurator;
 import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
@@ -9,6 +10,7 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.filter.EncodingFilter;
 import org.jevis.api.JEVisException;
 import org.jevis.ws.sql.ConnectionFactory;
 
@@ -78,6 +80,7 @@ public class Main {
         rc.setApplicationName("JEWebservice");
         rc.register(MultiPartFeature.class);
         rc.register(GZipEncoder.class);
+        rc.register(EncodingFilter.class);
 
         final HttpServer server;
 
@@ -96,6 +99,12 @@ public class Main {
         } else {
             server = GrizzlyHttpServerFactory.createHttpServer(URI.create(Config.getURI()), rc);
         }
+
+        CompressionConfig compressionConfig =
+                server.getListener("grizzly").getCompressionConfig();
+        compressionConfig.setCompressionMode(CompressionConfig.CompressionMode.ON); // the mode
+        compressionConfig.setCompressionMinSize(2048); // the min amount of bytes to compress
+        compressionConfig.setCompressableMimeTypes("text/plain", "text/html", "application/json, ");
 
         // register shutdown hook
         Runtime.getRuntime().addShutdownHook(

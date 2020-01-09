@@ -6,10 +6,10 @@ import javafx.scene.Node;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.childrentableeditor.ObjectTable;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.Layouts;
 
 

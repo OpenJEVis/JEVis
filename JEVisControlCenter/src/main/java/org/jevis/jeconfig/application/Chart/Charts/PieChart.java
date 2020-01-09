@@ -20,6 +20,7 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
@@ -27,8 +28,8 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -46,7 +47,7 @@ public class PieChart implements Chart {
     private String unit;
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
-    private List<javafx.scene.chart.PieChart.Data> series = new ArrayList<>();
+    private List<org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart.Data> series = new ArrayList<>();
     private PieChartExtended pieChart;
     private List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
@@ -56,17 +57,17 @@ public class PieChart implements Chart {
     private boolean legendMode = false;
     private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
         @Override
-        public void applySetting(javafx.scene.chart.Chart chart) {
+        public void applySetting(org.jevis.jeconfig.application.Chart.Charts.jfx.Chart chart) {
 
         }
     };
     private List<String> seriesNames = new ArrayList<>();
 
-    public PieChart(List<ChartDataModel> chartDataModels, Boolean showRawData, Boolean showSum, Boolean hideShowIcons, Integer chartId, String chartName) {
+    public PieChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
-        this.showRawData = showRawData;
-        this.showSum = showSum;
-        this.hideShowIcons = hideShowIcons;
+        this.showRawData = analysisDataModel.getShowRawData();
+        this.showSum = analysisDataModel.getShowSum();
+        this.hideShowIcons = analysisDataModel.getHideShowIcons();
         this.chartName = chartName;
         this.chartId = chartId;
         init();
@@ -93,7 +94,12 @@ public class PieChart implements Chart {
                     boolean isQuantity = qu.isQuantityUnit(clonedModel.getUnit());
                     boolean isSummable = qu.isSumCalculable(clonedModel.getUnit());
 
-                    List<JEVisSample> samples = clonedModel.getSamples();
+                    List<JEVisSample> samples = new ArrayList<>();
+                    if (singleRow.hasForecastData()) {
+                        samples = clonedModel.getForecastSamples();
+                    } else {
+                        samples = clonedModel.getSamples();
+                    }
                     if (!isQuantity && isSummable) {
                         List<JEVisSample> scaledSamples = new ArrayList<>();
 
@@ -137,12 +143,18 @@ public class PieChart implements Chart {
                     }
 
                     listSumsPiePieces.add(sumPiePiece);
-                    if (!listTableEntryNames.contains(clonedModel.getObject().getName())) {
+                    if (!listTableEntryNames.contains(clonedModel.getObject().getName()) && !singleRow.hasForecastData()) {
                         listTableEntryNames.add(clonedModel.getObject().getName());
+                    } else if (!listTableEntryNames.contains(clonedModel.getObject().getName()) && singleRow.hasForecastData()) {
+                        listTableEntryNames.add(clonedModel.getObject().getName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
                     } else {
                         listTableEntryNames.add(clonedModel.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
                     }
-                    hexColors.add(ColorHelper.toColor(clonedModel.getColor()));
+                    if (!singleRow.hasForecastData()) {
+                        hexColors.add(ColorHelper.toColor(clonedModel.getColor()));
+                    } else {
+                        hexColors.add(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
+                    }
                 }
             }
         }
@@ -174,7 +186,7 @@ public class PieChart implements Chart {
                     + " " + currentUnitString
                     + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + "%)";
 
-            javafx.scene.chart.PieChart.Data data = new javafx.scene.chart.PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
+            org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart.Data data = new org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
             series.add(data);
             seriesNames.add(name);
         }
@@ -209,7 +221,7 @@ public class PieChart implements Chart {
         caption.setTextFill(Color.DARKORANGE);
         caption.setStyle("-fx-font: 24 arial;");
 
-        for (final javafx.scene.chart.PieChart.Data data : series) {
+        for (final org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart.Data data : series) {
             data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED, //--> is null weil noch nicht da
                     new EventHandler<MouseEvent>() {
                         @Override
@@ -270,6 +282,11 @@ public class PieChart implements Chart {
     @Override
     public void applyBounds() {
 
+    }
+
+    @Override
+    public List<ChartDataModel> getChartDataModels() {
+        return chartDataModels;
     }
 
     @Override
@@ -446,17 +463,12 @@ public class PieChart implements Chart {
     }
 
     @Override
-    public DateTime getNearest() {
-        return null;
-    }
-
-    @Override
     public void setValueForDisplay(DateTime valueForDisplay) {
         this.valueForDisplay = valueForDisplay;
     }
 
     @Override
-    public javafx.scene.chart.Chart getChart() {
+    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
         return pieChart;
     }
 

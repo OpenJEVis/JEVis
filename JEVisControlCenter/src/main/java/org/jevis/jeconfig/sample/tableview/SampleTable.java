@@ -34,9 +34,11 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.dialog.ImageViewerDialog;
+import org.jevis.jeconfig.dialog.PDFViewerDialog;
 import org.jevis.jeconfig.dialog.ProgressForm;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -692,14 +694,27 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                             String fileName = "";
                             TableSample tableSample = (TableSample) getTableRow().getItem();
                             JEVisSample sample = tableSample.getJevisSample();
+                            boolean isPDF = false;
+                            boolean isImage = false;
                             try {
                                 fileName = sample.getValueAsString();
+                                String s = fileName.substring(fileName.length() - 3).toLowerCase();
+                                switch (s) {
+                                    case "pdf":
+                                        isPDF = true;
+                                        break;
+                                    case "png":
+                                    case "jpg":
+                                    case "jpeg":
+                                    case "gif":
+                                        isImage = true;
+                                        break;
+                                }
 
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
-                            Button downloadButton = new Button(I18n.getInstance().getString("plugin.object.attribute.file.download.title")
-                                    + " (" + fileName + ")");
+                            Button downloadButton = new Button(fileName, JEConfig.getImage("save.gif", 14, 14));
 
                             downloadButton.setOnAction(event -> {
 
@@ -722,7 +737,36 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                 }
 
                             });
-                            setGraphic(downloadButton);
+
+                            HBox hBox = new HBox(downloadButton);
+                            if (isPDF) {
+                                Button pdfButton = new Button("", JEConfig.getImage("pdf_24_2133056.png", 14, 14));
+                                hBox.getChildren().add(pdfButton);
+                                pdfButton.setOnAction(event -> {
+                                    PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
+                                    try {
+                                        pdfViewerDialog.show(sample.getValueAsFile(), this.getScene().getWindow());
+                                    } catch (JEVisException e) {
+                                        logger.error("Could not open pdf viewer", e);
+                                    }
+                                });
+                            }
+
+                            if (isImage) {
+                                Button imageButton = new Button("", JEConfig.getImage("export-image.png", 18, 18));
+                                hBox.getChildren().add(imageButton);
+                                imageButton.setOnAction(event -> {
+                                    ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
+                                    try {
+                                        imageViewerDialog.show(sample.getValueAsFile(), JEConfig.getStage());
+                                    } catch (JEVisException e) {
+                                        logger.error("Could not open pdf viewer", e);
+                                    }
+                                });
+                            }
+
+                            hBox.setSpacing(4);
+                            setGraphic(hBox);
 
                         }
 

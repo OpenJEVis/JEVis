@@ -32,15 +32,19 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.constants.GapFillingBoundToSpecific;
+import org.jevis.commons.constants.GapFillingReferencePeriod;
+import org.jevis.commons.constants.GapFillingType;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonTools;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.tool.I18n;
 import org.jevis.jeconfig.tool.NumberSpinner;
 import org.joda.time.DateTime;
 
@@ -50,8 +54,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.jevis.commons.constants.JEDataProcessorConstants.*;
-
 /**
  * Editor to configure JsonGapFillingConfig elements
  */
@@ -59,11 +61,11 @@ public class GapFillingEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(GapFillingEditor.class);
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _readOnly = new SimpleBooleanProperty(false);
-    private final ObservableList<String> optionsReferencePeriods = FXCollections.observableArrayList(GapFillingReferencePeriod.NONE, GapFillingReferencePeriod.DAY,
-            GapFillingReferencePeriod.WEEK, GapFillingReferencePeriod.MONTH, GapFillingReferencePeriod.YEAR);
-    private final ObservableList<String> optionsBoundSpecifics = FXCollections.observableArrayList(GapFillingBoundToSpecific.NONE, GapFillingBoundToSpecific.WEEKDAY,
+    private final ObservableList<GapFillingReferencePeriod> optionsReferencePeriods = FXCollections.observableArrayList(GapFillingReferencePeriod.NONE, GapFillingReferencePeriod.DAY,
+            GapFillingReferencePeriod.WEEK, GapFillingReferencePeriod.MONTH, GapFillingReferencePeriod.YEAR, GapFillingReferencePeriod.ALL);
+    private final ObservableList<GapFillingBoundToSpecific> optionsBoundSpecifics = FXCollections.observableArrayList(GapFillingBoundToSpecific.NONE, GapFillingBoundToSpecific.WEEKDAY,
             GapFillingBoundToSpecific.WEEKOFYEAR, GapFillingBoundToSpecific.MONTHOFYEAR);
-    private final ObservableList<String> optionsType = FXCollections.observableArrayList(GapFillingType.NONE, GapFillingType.INTERPOLATION, GapFillingType.AVERAGE,
+    private final ObservableList<GapFillingType> optionsType = FXCollections.observableArrayList(GapFillingType.NONE, GapFillingType.INTERPOLATION, GapFillingType.AVERAGE,
             GapFillingType.DEFAULT_VALUE, GapFillingType.STATIC, GapFillingType.MINIMUM, GapFillingType.MAXIMUM, GapFillingType.MEDIAN);
     public JEVisAttribute _attribute;
     private HBox box = new HBox(12);
@@ -85,7 +87,7 @@ public class GapFillingEditor implements AttributeEditor {
     public static List<JsonGapFillingConfig> createDefaultConfig() {
         List<JsonGapFillingConfig> list = new ArrayList<>();
         JsonGapFillingConfig newConfig1 = new JsonGapFillingConfig();
-        newConfig1.setType(GapFillingType.INTERPOLATION);
+        newConfig1.setType(GapFillingType.INTERPOLATION.toString());
         newConfig1.setBoundary("3600000");
 
 
@@ -93,11 +95,11 @@ public class GapFillingEditor implements AttributeEditor {
         list.add(newConfig1);
 
         JsonGapFillingConfig newConfig2 = new JsonGapFillingConfig();
-        newConfig2.setType(GapFillingType.AVERAGE);
+        newConfig2.setType(GapFillingType.AVERAGE.toString());
         newConfig2.setBoundary("2592000000");
-        newConfig2.setBindtospecific(GapFillingBoundToSpecific.WEEKDAY);
+        newConfig2.setBindtospecific(GapFillingBoundToSpecific.WEEKDAY.toString());
         newConfig2.setReferenceperiodcount("1");
-        newConfig2.setReferenceperiod(GapFillingReferencePeriod.MONTH);
+        newConfig2.setReferenceperiod(GapFillingReferencePeriod.MONTH.toString());
 
         newConfig2.setName(I18n.getInstance().getString("newobject.title2"));
         list.add(newConfig2);
@@ -116,34 +118,6 @@ public class GapFillingEditor implements AttributeEditor {
                 e.printStackTrace();
             }
         });
-
-
-//        ToggleSwitchPlus enableButton = new ToggleSwitchPlus();
-//        enableButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
-//            if (newValue) {
-////                enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
-//                _changed.setValue((_lastSample != null));
-//                delete = (_lastSample != null);
-//            } else {
-////                enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
-//            }
-//        });
-//
-//        openConfig.visibleProperty().bind(enableButton.selectedProperty());
-//
-//        try {
-//            if (_lastSample != null && !_lastSample.getValueAsString().isEmpty()) {
-//                enableButton.setSelected(true);
-////                enableButton.setText(I18n.getInstance().getString("button.toggle.activate"));
-//            } else {
-//                enableButton.setSelected(false);
-////                enableButton.setText(I18n.getInstance().getString("button.toggle.deactivate"));
-//            }
-//
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-
 
         box.getChildren().addAll(openConfig);
 
@@ -244,8 +218,8 @@ public class GapFillingEditor implements AttributeEditor {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setResizable(true);
-        dialog.setHeight(300);
-        dialog.setWidth(350);
+        dialog.setHeight(450);
+        dialog.setWidth(620);
         dialog.setTitle(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.title"));
         dialog.setHeaderText(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.header"));
         dialog.setGraphic(JEConfig.getImage("fill_gap.png", 48, 48));
@@ -301,9 +275,129 @@ public class GapFillingEditor implements AttributeEditor {
         Label referencePeriodCountLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.referenceperiodcount"));
         Label boundToSpecificLabel = new Label(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.label.boundto"));
 
-        JFXComboBox typeBox = new JFXComboBox(optionsType);
-        JFXComboBox referencePeriodBox = new JFXComboBox(optionsReferencePeriods);
-        JFXComboBox boundSpecificBox = new JFXComboBox(optionsBoundSpecifics);
+        JFXComboBox<GapFillingType> typeBox = new JFXComboBox<>(optionsType);
+        Callback<ListView<GapFillingType>, ListCell<GapFillingType>> cellFactoryTypeBox = new Callback<javafx.scene.control.ListView<GapFillingType>, ListCell<GapFillingType>>() {
+            @Override
+            public ListCell<GapFillingType> call(javafx.scene.control.ListView<GapFillingType> param) {
+                return new ListCell<GapFillingType>() {
+                    @Override
+                    protected void updateItem(GapFillingType type, boolean empty) {
+                        super.updateItem(type, empty);
+                        if (empty || type == null) {
+                            setText("");
+                        } else {
+                            String text = "";
+                            switch (type) {
+                                case NONE:
+                                    text = I18n.getInstance().getString("plugin.alarm.table.translation.none");
+                                    break;
+                                case STATIC:
+                                    text = I18n.getInstance().getString("graph.dialog.note.text.limit2.static");
+                                    break;
+                                case INTERPOLATION:
+                                    text = I18n.getInstance().getString("graph.dialog.note.text.limit2.interpolation");
+                                    break;
+                                case DEFAULT_VALUE:
+                                    text = I18n.getInstance().getString("graph.dialog.note.text.limit2.default");
+                                    break;
+                                case MINIMUM:
+                                    text = I18n.getInstance().getString("graph.dialog.note.text.limit2.min");
+                                    break;
+                                case MAXIMUM:
+                                    text = I18n.getInstance().getString("graph.dialog.note.text.limit2.max");
+                                    break;
+                                case MEDIAN:
+                                    text = I18n.getInstance().getString("graph.dialog.note.text.limit2.median");
+                                    break;
+                                case AVERAGE:
+                                    text = I18n.getInstance().getString("graph.dialog.note.text.limit2.average");
+                                    break;
+                            }
+                            setText(text);
+                        }
+                    }
+                };
+            }
+        };
+        typeBox.setCellFactory(cellFactoryTypeBox);
+        typeBox.setButtonCell(cellFactoryTypeBox.call(null));
+
+        JFXComboBox<GapFillingReferencePeriod> referencePeriodBox = new JFXComboBox<>(optionsReferencePeriods);
+        Callback<ListView<GapFillingReferencePeriod>, ListCell<GapFillingReferencePeriod>> cellFactoryReferencePeriodBox = new Callback<javafx.scene.control.ListView<GapFillingReferencePeriod>, ListCell<GapFillingReferencePeriod>>() {
+            @Override
+            public ListCell<GapFillingReferencePeriod> call(javafx.scene.control.ListView<GapFillingReferencePeriod> param) {
+                return new ListCell<GapFillingReferencePeriod>() {
+                    @Override
+                    protected void updateItem(GapFillingReferencePeriod referencePeriod, boolean empty) {
+                        super.updateItem(referencePeriod, empty);
+                        if (empty || referencePeriod == null) {
+                            setText("");
+                        } else {
+                            String text = "";
+                            switch (referencePeriod) {
+                                case DAY:
+                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.day");
+                                    break;
+                                case WEEK:
+                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.week");
+                                    break;
+                                case MONTH:
+                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.month");
+                                    break;
+                                case YEAR:
+                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.year");
+                                    break;
+                                case ALL:
+                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.all");
+                                    break;
+                                case NONE:
+                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.referenceperiod.none");
+                                    break;
+                            }
+                            setText(text);
+                        }
+                    }
+                };
+            }
+        };
+        referencePeriodBox.setCellFactory(cellFactoryReferencePeriodBox);
+        referencePeriodBox.setButtonCell(cellFactoryReferencePeriodBox.call(null));
+
+        JFXComboBox<GapFillingBoundToSpecific> boundSpecificBox = new JFXComboBox<>(optionsBoundSpecifics);
+        Callback<ListView<GapFillingBoundToSpecific>, ListCell<GapFillingBoundToSpecific>> cellFactoryBoundToSpecificBox = new Callback<javafx.scene.control.ListView<GapFillingBoundToSpecific>, ListCell<GapFillingBoundToSpecific>>() {
+            @Override
+            public ListCell<GapFillingBoundToSpecific> call(javafx.scene.control.ListView<GapFillingBoundToSpecific> param) {
+                return new ListCell<GapFillingBoundToSpecific>() {
+                    @Override
+                    protected void updateItem(GapFillingBoundToSpecific boundToSpecific, boolean empty) {
+                        super.updateItem(boundToSpecific, empty);
+                        if (empty || boundToSpecific == null) {
+                            setText("");
+                        } else {
+                            String text = "";
+                            switch (boundToSpecific) {
+                                case NONE:
+                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.boundtospecific.none");
+                                    break;
+                                case WEEKDAY:
+                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.boundtospecific.weekday");
+                                    break;
+                                case WEEKOFYEAR:
+                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.boundtospecific.weekofyear");
+                                    break;
+                                case MONTHOFYEAR:
+                                    text = I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.boundtospecific.monthofyear");
+                                    break;
+                            }
+                            setText(text);
+                        }
+                    }
+                };
+            }
+        };
+        boundSpecificBox.setCellFactory(cellFactoryBoundToSpecificBox);
+        boundSpecificBox.setButtonCell(cellFactoryBoundToSpecificBox.call(null));
+
         NumberSpinner referencePeriodCountText = new NumberSpinner(new BigDecimal(1), new BigDecimal(1));
         referencePeriodCountText.setMin(new BigDecimal(1));
         referencePeriodCountText.setMax(new BigDecimal(99));
@@ -321,16 +415,14 @@ public class GapFillingEditor implements AttributeEditor {
         /**
          * Fill configuration values into gui elements
          */
-        typeBox.getSelectionModel().select(config.getType());
+        typeBox.getSelectionModel().select(GapFillingType.parse(config.getType()));
         boundaryText.setText((Long.parseLong(config.getBoundary()) / 1000) + ""); //msec -> sec
         defaultValueText.setText(config.getDefaultvalue());
 
-        typeBox.getSelectionModel().select(
-                optionsType.contains(config.getType()) ? config.getType()
-                        : GapFillingType.NONE);
-        referencePeriodBox.getSelectionModel().select(
-                optionsReferencePeriods.contains(config.getReferenceperiod()) ? config.getReferenceperiod()
-                        : GapFillingReferencePeriod.NONE);
+        typeBox.getSelectionModel().select(GapFillingType.parse(config.getType()));
+        referencePeriodBox.getSelectionModel().select(GapFillingReferencePeriod.parse(config.getReferenceperiod()));
+        boundSpecificBox.getSelectionModel().select(GapFillingBoundToSpecific.parse(config.getBindtospecific()));
+
         BigDecimal parsedValue = new BigDecimal(145);
         try {
             if (config.getReferenceperiodcount() != null)
@@ -340,10 +432,6 @@ public class GapFillingEditor implements AttributeEditor {
         }
 
         referencePeriodCountText.setNumber(parsedValue);
-
-        boundSpecificBox.getSelectionModel().select(
-                optionsBoundSpecifics.contains(config.getBindtospecific()) ? config.getBindtospecific()
-                        : GapFillingBoundToSpecific.NONE);
 
         /**
          * Change Listeners
@@ -372,12 +460,6 @@ public class GapFillingEditor implements AttributeEditor {
             config.setBindtospecific(newValue.toString());
         });
 
-        typeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            config.setType(newValue.toString());
-
-        });
-
-
         /**
          * Create layout based on JsonGapFillingConfig type
          */
@@ -389,12 +471,12 @@ public class GapFillingEditor implements AttributeEditor {
         gridPane.add(boundaryLabel, 0, row);
         gridPane.add(boundaryText, 1, row);
 
-        if (config.getType().equals(GapFillingType.DEFAULT_VALUE)) {
+        if (GapFillingType.parse(config.getType()).equals(GapFillingType.DEFAULT_VALUE)) {
             row++;
             gridPane.add(defaultValueLabel, 0, row);
             gridPane.add(defaultValueText, 1, row);
-        } else if (config.getType().equals(GapFillingType.NONE) || config.getType().equals(GapFillingType.STATIC)
-                || config.getType().equals(GapFillingType.INTERPOLATION)) {
+        } else if (GapFillingType.parse(config.getType()).equals(GapFillingType.NONE) || GapFillingType.parse(config.getType()).equals(GapFillingType.STATIC)
+                || GapFillingType.parse(config.getType()).equals(GapFillingType.INTERPOLATION)) {
             //Nothing to add
         } else {
             row++;

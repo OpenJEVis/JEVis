@@ -102,8 +102,7 @@ public class CalcInputObject {
 
                     SampleGenerator sampleGenerator = new SampleGenerator(valueAttribute.getDataSource(), valueAttribute.getObject(), valueAttribute, startTime, endTime, ManipulationMode.NONE, aggregationPeriod);
 
-                    returnSamples = sampleGenerator.generateSamples();
-                    returnSamples = sampleGenerator.getAggregatedSamples(returnSamples);
+                    returnSamples = sampleGenerator.getAggregatedSamples();
                 } catch (JEVisException e) {
                     logger.error("Could not generate samples: " + e);
                 }
@@ -138,8 +137,7 @@ public class CalcInputObject {
 
                     SampleGenerator sampleGenerator = new SampleGenerator(valueAttribute.getDataSource(), valueAttribute.getObject(), valueAttribute, startTime, endTime, ManipulationMode.NONE, AggregationPeriod.NONE);
                     QuantityUnits qu = new QuantityUnits();
-                    List<JEVisSample> tempList = sampleGenerator.generateSamples();
-                    tempList = sampleGenerator.getAggregatedSamples(tempList);
+                    List<JEVisSample> tempList = sampleGenerator.getAggregatedSamples();
 
                     if (!tempList.isEmpty()) {
                         boolean isQuantity = qu.isQuantityUnit(valueAttribute.getDisplayUnit());

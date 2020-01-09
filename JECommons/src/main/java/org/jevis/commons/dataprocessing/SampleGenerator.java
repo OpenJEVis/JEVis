@@ -25,6 +25,7 @@ public class SampleGenerator {
     private JEVisObject object;
     private ManipulationMode manipulationMode;
     private AggregationPeriod aggregationPeriod;
+    private Boolean customWorkday = true;
 
     public SampleGenerator(JEVisDataSource ds, JEVisObject object, JEVisAttribute attribute, DateTime from, DateTime until, ManipulationMode manipulationMode, AggregationPeriod aggregationPeriod) {
         this.ds = ds;
@@ -33,6 +34,16 @@ public class SampleGenerator {
         this.manipulationMode = manipulationMode;
         this.aggregationPeriod = aggregationPeriod;
         this.interval = new Interval(from, until);
+    }
+
+    public SampleGenerator(JEVisDataSource ds, JEVisObject object, JEVisAttribute attribute, DateTime from, DateTime until, Boolean customWorkday, ManipulationMode manipulationMode, AggregationPeriod aggregationPeriod) {
+        this.ds = ds;
+        this.object = object;
+        this.attribute = attribute;
+        this.manipulationMode = manipulationMode;
+        this.aggregationPeriod = aggregationPeriod;
+        this.interval = new Interval(from, until);
+        this.customWorkday = customWorkday;
     }
 
     public SampleGenerator(JEVisDataSource ds, JEVisObject object, JEVisAttribute attribute, Interval interval, ManipulationMode manipulationMode, AggregationPeriod aggregationPeriod) {
@@ -44,14 +55,12 @@ public class SampleGenerator {
         this.interval = interval;
     }
 
-    public List<JEVisSample> generateSamples() {
+//    public List<JEVisSample> generateSamples() {
+//
+//        return attribute.getSamples(interval.getStart(), interval.getEnd());
+//    }
 
-        return attribute.getSamples(interval.getStart(), interval.getEnd());
-    }
-
-    public List<JEVisSample> getAggregatedSamples(List<JEVisSample> samples) {
-        //aggregate
-
+    public List<JEVisSample> getAggregatedSamples() {
 
         BasicProcess basicProcess = new BasicProcess();
         basicProcess.setJEVisDataSource(ds);
@@ -60,11 +69,15 @@ public class SampleGenerator {
         BasicProcess input = new BasicProcess();
         input.setJEVisDataSource(ds);
         input.setID("Dynamic Input");
-        input.setFunction(new InputFunction(samples));
+        input.setFunction(new InputFunction());
         input.getOptions().add(new BasicProcessOption(InputFunction.ATTRIBUTE_ID, attribute.getName()));
         input.getOptions().add(new BasicProcessOption(InputFunction.OBJECT_ID, object.getID().toString()));
         input.getOptions().add(new BasicProcessOption(ProcessOptions.OFFSET, ""));
+        input.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, customWorkday.toString()));
+        input.getOptions().add(new BasicProcessOption(ProcessOptions.TS_START, interval.getStart().toString()));
+        input.getOptions().add(new BasicProcessOption(ProcessOptions.TS_END, interval.getEnd().toString()));
         basicProcess.setSubProcesses(Collections.singletonList(input));
+        basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, customWorkday.toString()));
 
         switch (manipulationMode) {
             case MIN:
@@ -142,6 +155,7 @@ public class SampleGenerator {
                 }
                 aggregationProcess.setFunction(new AggregatorFunction());
                 aggregationProcess.setID("Aggregation");
+                aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, customWorkday.toString()));
 
                 aggregationProcess.setSubProcesses(Collections.singletonList(basicProcess));
                 return aggregationProcess.getResult();

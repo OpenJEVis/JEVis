@@ -64,46 +64,49 @@ public class WebViewEditor implements AttributeEditor {
      */
     private void init() {
         List<JEVisSample> allSamples = _attribute.getAllSamples();
-        Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
-        List<DateTime> dateTimeList = new ArrayList<>();
-        for (JEVisSample jeVisSample : allSamples) {
-            try {
-                dateTimeList.add(jeVisSample.getTimestamp());
-                sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
-            } catch (JEVisException e) {
-                logger.error("Could not add date to dat list.");
-            }
-        }
-        ComboBox<DateTime> dateTimeComboBox = new ComboBox<>(FXCollections.observableList(dateTimeList));
-        try {
-            dateTimeComboBox.getSelectionModel().select(_lastSample.getTimestamp());
-        } catch (JEVisException e) {
-            logger.error("Could not get Time Stamp of last sample.");
-            dateTimeComboBox.getSelectionModel().select(dateTimeList.size() - 1);
-        }
-
-        String lastSampleString = "";
-        try {
-            if (_lastSample != null) {
-                lastSampleString = _lastSample.getValueAsString();
-                webView.getEngine().loadContent(lastSampleString);
-            }
-        } catch (JEVisException e) {
-            logger.error("Could not get sample as String.");
-        }
-
-        dateTimeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.equals(oldValue)) {
+        if (!allSamples.isEmpty()) {
+            Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
+            List<DateTime> dateTimeList = new ArrayList<>();
+            for (JEVisSample jeVisSample : allSamples) {
                 try {
-                    webView.getEngine().loadContent(sampleMap.get(newValue).getValueAsString());
+                    dateTimeList.add(jeVisSample.getTimestamp());
+                    sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
                 } catch (JEVisException e) {
-                    logger.error("Could not get sample string for datetime {}", newValue);
+                    logger.error("Could not add date to dat list.");
                 }
             }
-        });
+            ComboBox<DateTime> dateTimeComboBox = new ComboBox<>(FXCollections.observableList(dateTimeList));
+            try {
+                if (_lastSample != null) {
+                    dateTimeComboBox.getSelectionModel().select(_lastSample.getTimestamp());
+                }
+            } catch (Exception e) {
+                logger.error("Could not get Time Stamp of last sample.");
+                dateTimeComboBox.getSelectionModel().select(dateTimeList.size() - 1);
+            }
 
-        vBox.getChildren().setAll(dateTimeComboBox, webView);
+            String lastSampleString = "";
+            try {
+                if (_lastSample != null) {
+                    lastSampleString = _lastSample.getValueAsString();
+                    webView.getEngine().loadContent(lastSampleString);
+                }
+            } catch (Exception e) {
+                logger.error("Could not get sample as String.");
+            }
 
+            dateTimeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.equals(oldValue)) {
+                    try {
+                        webView.getEngine().loadContent(sampleMap.get(newValue).getValueAsString());
+                    } catch (Exception e) {
+                        logger.error("Could not get sample string for datetime {}", newValue);
+                    }
+                }
+            });
+
+            vBox.getChildren().setAll(dateTimeComboBox, webView);
+        }
     }
 
     @Override

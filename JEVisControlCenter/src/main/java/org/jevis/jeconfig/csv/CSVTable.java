@@ -22,19 +22,19 @@ package org.jevis.jeconfig.csv;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Service;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.scene.control.Alert;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.commons.i18n.I18n;
 import org.joda.time.DateTime;
 
 import java.text.ParseException;
@@ -58,29 +58,38 @@ public class CSVTable extends TableView<CSVLine> {
         this.ds = ds;
         setItems(FXCollections.observableArrayList(parser.getRows()));
         setMaxHeight(1024);
-        build();
+        updateColumns();
 
     }
 
-    private void build() {
-        //Simple column guessing base in the secound last line
+    private void updateColumns() {
+        getColumns().clear();
         header = new ArrayList<>();
+
+        TableColumn<CSVLine, String> lineColumn = new TableColumn("Nr.");
+        lineColumn.setCellFactory(new Callback<TableColumn<CSVLine, String>, TableCell<CSVLine, String>>() {
+            @Override
+            public TableCell<CSVLine, String> call(TableColumn<CSVLine, String> param) {
+                TableCell<CSVLine, String> cell = new TableCell<CSVLine, String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        setText("" + (getTableRow().getIndex() + 1 + +parser.getHeader()));
+                    }
+                };
+                return cell;
+            }
+        });
+        lineColumn.setMaxWidth(30);
+        getColumns().add(lineColumn);
 
         for (int i = 0; i < parser.getColumnCount(); i++) {
             String columnName = "Column " + i;
-
-            columnName = "";
-
             TableColumn<CSVLine, String> column = new TableColumn(columnName);
             final CSVColumnHeader header = new CSVColumnHeader(this, i);
             this.header.add(header);
             column.setSortable(false);//layout problem
             column.setPrefWidth(310);
-
-//            column.prefWidthProperty().bind(widthProperty().divide(parser.getColumnCount()));
-//            column.setPrefWidth(widthProperty().doubleValue() / parser.getColumnCount());
-            final int rowID = i;
-
             column.setCellValueFactory(p -> {
                 if (p != null) {
                     try {
@@ -100,144 +109,131 @@ public class CSVTable extends TableView<CSVLine> {
         }
     }
 
-    public boolean doImport() {
 
-        Service<Void> service = new Service<Void>() {
+    public Task<Integer> doImport() {
+
+        return new Task<Integer>() {
             @Override
-            protected Task<Void> createTask() {
-                return new Task<Void>() {
-                    @Override
-                    protected void succeeded() {
-                        Platform.runLater(() -> {
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle(I18n.getInstance().getString("csv.import.dialog.success.header"));
-                            alert.setHeaderText(null);
-                            alert.setContentText(I18n.getInstance().getString("csv.import.dialog.success.message"));
-                            alert.showAndWait();
-                        });
+            public Integer call() throws InterruptedException {
+                boolean hadErrors = false;
+                updateMessage(I18n.getInstance().getString("csv.progress.message"));
+                CSVColumnHeader tsColumn = null;
+                CSVColumnHeader dateColumn = null;
+                CSVColumnHeader timeColumn = null;
+                List<DateTime> combinedList = null;
+                for (CSVColumnHeader header1 : header) {
+                    if (header1.getMeaning() == CSVColumnHeader.Meaning.DateTime) {
+                        tsColumn = header1;
+                        break;
+                    } else if (header1.getMeaning() == CSVColumnHeader.Meaning.Date) {
+                        dateColumn = header1;
+                        break;
+                    } else if (header1.getMeaning() == CSVColumnHeader.Meaning.Time) {
+                        timeColumn = header1;
+                        break;
                     }
+                }
 
-                    @Override
-                    protected void failed() {
-                        Platform.runLater(() -> {
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle(I18n.getInstance().getString("csv.import.dialog.failed.title"));
-                            alert.setHeaderText(null);
-                            alert.setContentText(I18n.getInstance().getString("csv.import.dialog.failed.message"));
-                            alert.showAndWait();
-                        });
+                List<CSVLine> toImportList = new ArrayList<>();
+                parser.getRows().forEach(csvLine -> {
+                    if (!csvLine.isEmpty()) {
+                        toImportList.add(csvLine);
                     }
-
-                    @Override
-                    protected Void call() {
-                        updateMessage(I18n.getInstance().getString("csv.progress.message"));
-                        CSVColumnHeader tsColumn = null;
-                        CSVColumnHeader dateColumn = null;
-                        CSVColumnHeader timeColumn = null;
-                        List<DateTime> combinedList = null;
-                        for (CSVColumnHeader header : header) {
-                            if (header.getMeaning() == CSVColumnHeader.Meaning.DateTime) {
-                                tsColumn = header;
-                                break;
-                            } else if (header.getMeaning() == CSVColumnHeader.Meaning.Date) {
-                                dateColumn = header;
-                                break;
-                            } else if (header.getMeaning() == CSVColumnHeader.Meaning.Time) {
-                                timeColumn = header;
-                                break;
-                            }
-                        }
-
-                        if (dateColumn != null || timeColumn != null) {
-                            List<DateTime> listDate = new ArrayList<>();
-                            List<DateTime> listTime = new ArrayList<>();
-                            for (CSVColumnHeader header : header) {
-                                if (header.getMeaning() == CSVColumnHeader.Meaning.Date) {
-                                    for (CSVLine line : parser.getRows()) {
-                                        try {
-                                            listDate.add(header.getValueAsDate(line.getColumn(header.getColumn())));
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                } else if (header.getMeaning() == CSVColumnHeader.Meaning.Time) {
-                                    for (CSVLine line : parser.getRows()) {
-                                        try {
-                                            listTime.add(header.getValueAsDate(line.getColumn(header.getColumn())));
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }
-                            }
-                            if (listDate.size() == listTime.size()) {
-                                combinedList = new ArrayList<>();
-                                for (int i = 0; i < listDate.size(); i++) {
-                                    DateTime dt = listDate.get(i);
-                                    DateTime tt = listTime.get(i);
-                                    combinedList.add(new DateTime(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth(),
-                                            tt.getHourOfDay(), tt.getMinuteOfHour(), tt.getSecondOfMinute()).withZoneRetainFields(dt.getZone()));
-                                }
-                            }
-                        }
-
-                        if (tsColumn == null) {
-                            //TODO check for an Date and an Time Column and combine to DateTime
-                        }
-
-                        //find values and import them
-                        for (CSVColumnHeader header : header) {
-                            if (header.getMeaning() == CSVColumnHeader.Meaning.Value || header.getMeaning() == CSVColumnHeader.Meaning.Text) {
-                                List<JEVisSample> _newSamples = new ArrayList<>();
-
-                                for (CSVLine line : parser.getRows()) {
-                                    try {
-                                        DateTime ts = null;
-                                        int rowNumber = line.getRowNumber();
-                                        if (tsColumn != null) {
-                                            ts = tsColumn.getValueAsDate(line.getColumn(tsColumn.getColumn()));
-                                        } else if (combinedList != null) {
-                                            ts = combinedList.get(rowNumber);
-                                        } else {
-                                            throw new JEVisException("Found no timestamp", 34253325);
-                                        }
-                                        if (header.getMeaning() == CSVColumnHeader.Meaning.Value) {
-                                            Double value = header.getValueAsDouble(line.getColumn(header.getColumn()));
-                                            JEVisAttribute targetAtt = header.getTarget();
-                                            String note = "CSV Import by " + ds.getCurrentUser().getAccountName();
-                                            if (!customNote.equals("")) {
-                                                note += "; " + customNote;
-                                            }
-                                            JEVisSample newSample = targetAtt.buildSample(ts, value, note);
-                                            _newSamples.add(newSample);
-                                        }
-
-                                    } catch (Exception pe) {
-                                        logger.error("error while building sample");
-                                        //pe.printStackTrace();
-                                    }
-                                }
+                });
+                if (dateColumn != null || timeColumn != null) {
+                    List<DateTime> listDate = new ArrayList<>();
+                    List<DateTime> listTime = new ArrayList<>();
+                    for (CSVColumnHeader header1 : header) {
+                        if (header1.getMeaning() == CSVColumnHeader.Meaning.Date) {
+                            for (CSVLine line : toImportList) {
                                 try {
-                                    logger.debug("Import " + _newSamples.size() + " sample(s) into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName());
-                                    header.getTarget().addSamples(_newSamples);
-                                } catch (JEVisException ex) {
-                                    logger.error("Error while importing sample(s) into " + header.getTarget().getObject().getID() + "." + header.getTarget().getName(), ex);
-                                    failed();
+                                    listDate.add(header1.getValueAsDate(line.getColumn(header1.getColumn())));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
                                 }
-
+                            }
+                        } else if (header1.getMeaning() == CSVColumnHeader.Meaning.Time) {
+                            for (CSVLine line : toImportList) {
+                                try {
+                                    listTime.add(header1.getValueAsDate(line.getColumn(header1.getColumn())));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
-                        return null;
                     }
-                };
+                    if (listDate.size() == listTime.size()) {
+                        combinedList = new ArrayList<>();
+                        for (int i = 0; i < listDate.size(); i++) {
+                            DateTime dt = listDate.get(i);
+                            DateTime tt = listTime.get(i);
+                            combinedList.add(new DateTime(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth(),
+                                    tt.getHourOfDay(), tt.getMinuteOfHour(), tt.getSecondOfMinute()).withZoneRetainFields(dt.getZone()));
+                        }
+                    }
+                }
+
+                if (tsColumn == null) {
+                    //TODO check for an Date and an Time Column and combine to DateTime
+                }
+
+                Integer importedSize = 0;
+                //find values and import them
+                for (CSVColumnHeader header1 : header) {
+                    if (header1.getMeaning() == CSVColumnHeader.Meaning.Value || header1.getMeaning() == CSVColumnHeader.Meaning.Text) {
+                        List<JEVisSample> _newSamples = new ArrayList<>();
+
+                        for (CSVLine line : toImportList) {
+                            try {
+                                DateTime ts = null;
+                                int rowNumber = line.getRowNumber();
+                                if (tsColumn != null) {
+                                    ts = tsColumn.getValueAsDate(line.getColumn(tsColumn.getColumn()));
+                                } else if (combinedList != null) {
+                                    ts = combinedList.get(rowNumber);
+                                } else {
+                                    throw new JEVisException("Found no timestamp", 34253325);
+                                }
+                                if (header1.getMeaning() == CSVColumnHeader.Meaning.Value) {
+                                    Double value = header1.getValueAsDouble(line.getColumn(header1.getColumn()));
+                                    JEVisAttribute targetAtt = header1.getTarget();
+                                    String note = "CSV Import by " + ds.getCurrentUser().getAccountName();
+                                    if (!customNote.equals("")) {
+                                        note += "; " + customNote;
+                                    }
+                                    JEVisSample newSample = targetAtt.buildSample(ts, value, note);
+                                    _newSamples.add(newSample);
+                                }
+
+                            } catch (Exception ex) {
+                                logger.error("error while building sample");
+                                hadErrors = true;
+                                setException(ex);
+                            }
+                        }
+                        try {
+                            logger.debug("Import " + _newSamples.size() + " sample(s) into " + header1.getTarget().getObject().getID() + "." + header1.getTarget().getName());
+//                            importedSize+= header.getTarget().addSamples(_newSamples); // not working because of missing API implementation
+                            header1.getTarget().addSamples(_newSamples);
+                            importedSize += _newSamples.size();
+                        } catch (Exception ex) {
+                            hadErrors = true;
+                            setException(ex);
+                            logger.error("Error while importing sample(s) into " + header1.getTarget().getObject().getID() + "." + header1.getTarget().getName(), ex);
+                        }
+                    }
+                }
+
+
+                if (hadErrors) {
+                    failed();
+                } else {
+                    succeeded();
+                }
+                return importedSize;
             }
         };
-        ProgressDialog pd = new ProgressDialog(service);
-        pd.setHeaderText(I18n.getInstance().getString("csv.progress.header"));
-        pd.setTitle(I18n.getInstance().getString("csv.progress.title"));
 
-        service.start();
-        return true;
     }
 
     public JEVisDataSource getDataSource() {
@@ -253,7 +249,18 @@ public class CSVTable extends TableView<CSVLine> {
 
 
     public void refreshTable() {
-        setItems(FXCollections.observableArrayList(parser.parse()));
+//        getItems().clear();
+        ObservableList<CSVLine> observableList = FXCollections.observableArrayList(parser.parse());
+        Platform.runLater(() -> {
+//            updateColumns();
+            setItems(observableList);
+        });
+
+    }
+
+
+    public void setCSVParser(CSVParser parser) {
+        this.parser = parser;
     }
 
     public CSVParser getParser() {

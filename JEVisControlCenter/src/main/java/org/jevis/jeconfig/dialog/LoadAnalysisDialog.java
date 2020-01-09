@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXTimePicker;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -26,6 +27,7 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.CustomPeriodObject;
 import org.jevis.commons.datetime.DateHelper;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
@@ -34,7 +36,6 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -56,7 +57,9 @@ public class LoadAnalysisDialog {
     private JFXTimePicker pickerTimeStart;
     private JFXDatePicker pickerDateEnd;
     private JFXTimePicker pickerTimeEnd;
-    private jfxtras.scene.control.ListView<JEVisObject> analysisListView;
+    private FilteredList<JEVisObject> filteredData;
+    private TextField filterInput = new TextField();
+    private ListView<JEVisObject> analysisListView;
     private JEVisDataSource ds;
     private DateHelper dateHelper = new DateHelper();
     private ComboBox<AggregationPeriod> aggregationBox;
@@ -93,7 +96,33 @@ public class LoadAnalysisDialog {
 //        double maxScreenWidth = Screen.getPrimary().getBounds().getWidth();
 //        stage.setWidth(maxScreenWidth - 250);
 
-        analysisListView = new ListView<>(analysisDataModel.getObservableListAnalyses());
+        filteredData = new FilteredList<>(analysisDataModel.getObservableListAnalyses(), s -> true);
+
+        filterInput.textProperty().addListener(obs -> {
+            String filter = filterInput.getText();
+            if (filter == null || filter.length() == 0) {
+                filteredData.setPredicate(s -> true);
+            } else {
+                if (filter.contains(" ")) {
+                    String[] result = filter.split(" ");
+                    filteredData.setPredicate(s -> {
+                        boolean match = false;
+                        String string = (objectRelations.getObjectPath(s) + s.getName()).toLowerCase();
+                        for (String value : result) {
+                            String subString = value.toLowerCase();
+                            if (!string.contains(subString))
+                                return false;
+                            else match = true;
+                        }
+                        return match;
+                    });
+                } else {
+                    filteredData.setPredicate(s -> (objectRelations.getObjectPath(s) + s.getName()).toLowerCase().contains(filter.toLowerCase()));
+                }
+            }
+        });
+
+        analysisListView = new ListView<>(filteredData);
         analysisListView.getSelectionModel().selectedIndexProperty().addListener(
                 (observable, oldValue, newValue) ->
                         Platform.runLater(() ->
@@ -363,7 +392,9 @@ public class LoadAnalysisDialog {
         loadButton.setOnAction(event -> {
             response = Response.LOAD;
 
-            analysisDataModel.setCurrentAnalysis(analysisListView.getSelectedItem());
+            if (analysisListView.getSelectedItem() != null) {
+                analysisDataModel.setCurrentAnalysis(analysisListView.getSelectedItem());
+            }
             analysisDataModel.setAggregationPeriod(aggregationBox.getSelectionModel().getSelectedItem());
             analysisDataModel.setManipulationMode(mathBox.getSelectionModel().getSelectedItem());
             AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(presetDateBox.getSelectionModel().getSelectedItem());
@@ -596,7 +627,8 @@ public class LoadAnalysisDialog {
 //            GridPane.setFillWidth(freeSpace, true);
 
             /** Column 0 */
-            gridLayout.add(analysisListView, 0, 0, 1, 16);
+            gridLayout.add(filterInput, 0, 0, 1, 1);
+            gridLayout.add(analysisListView, 0, 1, 1, 15);
 
             /** Column 1 **/
             gridLayout.add(freeSpace, 1, 0, 1, 16);

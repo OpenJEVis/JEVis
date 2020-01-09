@@ -34,10 +34,8 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import org.apache.logging.log4j.LogManager;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisType;
+import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -46,7 +44,6 @@ import org.jevis.jeconfig.dialog.ExceptionDialog;
 import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.attribute.*;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,10 +63,10 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     private JEVisObject _obj;
     private boolean _needSave = false;
     private List<AttributeEditor> _attributesEditor;
-    private JEVisTree tree;
+    private static JEVisTree tree;
 
     public GenericAttributeExtension(JEVisObject obj, JEVisTree tree) {
-        this.tree = tree;
+        GenericAttributeExtension.tree = tree;
         _obj = obj;
         _attributesEditor = new ArrayList<>();
         _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
@@ -187,6 +184,108 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         return null;
     }
 
+    public static AttributeEditor getEditor(JEVisType type, JEVisAttribute att) throws JEVisException {
+        String guiDisplayType = type.getGUIDisplayType();
+        AttributeEditor editor = null;
+        switch (type.getPrimitiveType()) {
+            case JEVisConstants.PrimitiveType.STRING:
+                try {
+
+                    if (guiDisplayType == null || guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
+                        editor = new StringEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
+                        editor = new StringMultiLine(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
+                        editor = new DateEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_OBJECT.getId())) {
+                        editor = new TargetEditor(att, SelectTargetDialog.MODE.OBJECT, tree);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_ATTRIBUTE.getId())) {
+                        editor = new TargetEditor(att, SelectTargetDialog.MODE.ATTRIBUTE, tree);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_PASSWORD.getId())) {
+                        editor = new ReadablePasswordEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.DATE_TIME.getId())) {
+                        editor = new DateTimeEditor2(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_TIME.getId())) {
+                        editor = new TimeEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.SCHEDULE.getId())) {
+                        editor = new ScheduleEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TIME_ZONE.getId())) {
+                        editor = new TimeZoneEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_ENUM.getId())) {
+                        editor = new EnumEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.DYNAMIC_ENUM.getId())) {
+                        editor = new DynamicEnumEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LOCALE.getId())) {
+                        editor = new LanguageEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.GAP_FILLING_CONFIG.getId())) {
+                        editor = new GapFillingEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LIMITS_CONFIG.getId())) {
+                        editor = new LimitEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.ALARM_CONFIG.getId())) {
+                        editor = new AlarmEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.CALENDAR.getId())) {
+                        editor = new CalendarEditor(att);
+                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.WEB_VIEW.getId())) {
+                        editor = new WebViewEditor(att);
+                    }
+                } catch (Exception e) {
+                    logger.error("Error with GUI Type: {} {} {}", type.getName(), type.getPrimitiveType(), type.getGUIDisplayType());
+                    editor = new StringEditor(att);
+                }
+
+                break;
+            case JEVisConstants.PrimitiveType.BOOLEAN:
+                if (guiDisplayType == null) {
+                    editor = new BooleanValueEditor(att);
+                } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_BOOLEAN.getId())) {
+                    editor = new BooleanValueEditor(att);
+                } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BOOLEAN_BUTTON.getId())) {
+                    editor = new BooleanValueEditor(att);
+                }
+                break;
+            case JEVisConstants.PrimitiveType.FILE:
+                if (guiDisplayType == null) {
+                    editor = new FileEditor(att);
+                } else if (guiDisplayType.equals(GUIConstants.BASIC_FILER.getId())) {
+                    editor = new FileEditor(att);
+                } else {
+                    editor = new StringEditor(att);
+                }
+                break;
+            case JEVisConstants.PrimitiveType.DOUBLE:
+
+                if (guiDisplayType == null) {
+                    editor = new DoubleEditor(att);
+                } else {
+                    editor = new DoubleEditor(att);
+                }
+                break;
+            case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
+                if (guiDisplayType == null) {
+                    editor = new PasswordEditor(att);
+                } else {
+                    editor = new PasswordEditor(att);
+                }
+                break;
+            case JEVisConstants.PrimitiveType.LONG:
+
+                try {
+                    //TODO
+                    editor = new LongEditor(att);
+                } catch (Exception e) {
+                    logger.catching(e);
+                    editor = new LongEditor(att);
+                }
+                break;
+
+            default:
+                editor = new StringEditor(att);
+                break;
+
+        }
+        return editor;
+    }
+
     private void buildGui(JEVisObject obj) {
         logger.trace("load: {}", obj.getID());
         _needSave = false;
@@ -226,107 +325,18 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                     AttributeEditor editor = new ErrorEditor();
                     Label name = new Label(I18nWS.getInstance().getAttributeName(att));
                     name.setWrapText(true);
-//                    name.setMinWidth(100);
+                    name.setMinWidth(100);
 
                     try {
-                        String guiDisplayType = type.getGUIDisplayType();
 
-                        switch (type.getPrimitiveType()) {
-                            case JEVisConstants.PrimitiveType.STRING:
-                                try {
+                        editor = getEditor(type, att);
 
-                                    if (guiDisplayType == null || guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
-                                        editor = new StringEditor(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
-                                        editor = new StringMultiLine(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
-                                        editor = new DateEditor(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_OBJECT.getId())) {
-                                        editor = new TargetEditor(att, SelectTargetDialog.MODE.OBJECT, tree);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TARGET_ATTRIBUTE.getId())) {
-                                        editor = new TargetEditor(att, SelectTargetDialog.MODE.ATTRIBUTE, tree);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_PASSWORD.getId())) {
-                                        editor = new ReadablePasswordEditor(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.DATE_TIME.getId())) {
-                                        editor = new DateTimeEditor2(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_TEXT_TIME.getId())) {
-                                        editor = new TimeEditor(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.SCHEDULE.getId())) {
-                                        editor = new ScheduleEditor(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.TIME_ZONE.getId())) {
-                                        editor = new TimeZoneEditor(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_ENUM.getId())) {
-                                        editor = new EnumEditor(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LOCALE.getId())) {
-                                        editor = new LanguageEditor(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.GAP_FILLING_CONFIG.getId())) {
-                                        editor = new GapFillingEditor(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.LIMITS_CONFIG.getId())) {
-                                        editor = new LimitEditor(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.ALARM_CONFIG.getId())) {
-                                        editor = new AlarmEditor(att);
-                                    } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.WEB_VIEW.getId())) {
-                                        editor = new WebViewEditor(att);
-                                        webview = editor;
-                                        webViewName = name;
-                                    }
-                                } catch (Exception e) {
-                                    logger.error("Error with GUI Type: {} {} {}", type.getName(), type.getPrimitiveType(), type.getGUIDisplayType());
-                                    editor = new StringEditor(att);
-                                }
-
-                                break;
-                            case JEVisConstants.PrimitiveType.BOOLEAN:
-                                if (guiDisplayType == null) {
-                                    editor = new BooleanValueEditor(att);
-                                } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BASIC_BOOLEAN.getId())) {
-                                    editor = new BooleanValueEditor(att);
-                                } else if (guiDisplayType.equalsIgnoreCase(GUIConstants.BOOLEAN_BUTTON.getId())) {
-                                    editor = new BooleanValueEditor(att);
-                                }
-                                break;
-                            case JEVisConstants.PrimitiveType.FILE:
-                                if (guiDisplayType == null) {
-                                    editor = new FileEditor(att);
-                                } else if (guiDisplayType.equals(GUIConstants.BASIC_FILER.getId())) {
-                                    editor = new FileEditor(att);
-                                } else {
-                                    editor = new StringEditor(att);
-                                }
-                                break;
-                            case JEVisConstants.PrimitiveType.DOUBLE:
-
-                                if (guiDisplayType == null) {
-                                    editor = new DoubleEditor(att);
-                                } else {
-                                    editor = new DoubleEditor(att);
-                                }
-                                break;
-                            case JEVisConstants.PrimitiveType.PASSWORD_PBKDF2:
-                                if (guiDisplayType == null) {
-                                    editor = new PasswordEditor(att);
-                                } else {
-                                    editor = new PasswordEditor(att);
-                                }
-                                break;
-                            case JEVisConstants.PrimitiveType.LONG:
-
-                                try {
-                                    //TODO
-                                    editor = new LongEditor(att);
-                                } catch (Exception e) {
-                                    logger.catching(e);
-                                    editor = new LongEditor(att);
-                                }
-                                break;
-
-                            default:
-                                editor = new StringEditor(att);
-                                break;
-
-                        }
                         editor.setReadOnly(readOnly);
 
+                        if (editor instanceof WebViewEditor) {
+                            webview = editor;
+                            webViewName = name;
+                        }
 
                     } catch (Exception ex) {
                         ex.printStackTrace();

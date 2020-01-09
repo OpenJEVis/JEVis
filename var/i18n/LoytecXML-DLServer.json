@@ -126,6 +126,22 @@
         "de": "Benutzer",
         "ru": "User",
         "en": "User"
+      },
+      "enums" : {
+        "admin" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "admin",
+            "en" : "admin"
+          }
+        },
+        "operator" : {
+          "descriptions" : null,
+          "names" : {
+            "de" : "operator",
+            "en" : "operator"
+          }
+        }
       }
     },
     {

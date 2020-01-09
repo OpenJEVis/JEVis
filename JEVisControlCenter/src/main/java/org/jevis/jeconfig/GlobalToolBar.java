@@ -53,53 +53,12 @@ public class GlobalToolBar {
             public void handle(ActionEvent t) {
                 logger.info("send command  " + command);
                 pm.getSelectedPlugin().handleRequest(command);
-
-//                if (pm.getSelectedPlugin() instanceof ObjectPlugin) {
-//                    ((ObjectPlugin) pm.getSelectedPlugin()).handleRequest(command);
-//                }
             }
         });
 
     }
 
-    /**
-     * @return
-     * @TODO: replace with an plugin.getToolbar or so
-     */
-    public ToolBar BuildResourceToolBar() {
-        ToolBar toolBar = new ToolBar();
-        double iconSize = 20;
-        ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", iconSize, iconSize));
-        changeBackgroundOnHoverUsingBinding(newB);
-        addEventHandler(pm, newB, Constants.Plugin.Command.NEW);
 
-        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
-        changeBackgroundOnHoverUsingBinding(save);
-        addEventHandler(pm, save, Constants.Plugin.Command.SAVE);
-
-        ToggleButton delete = new ToggleButton("", JEConfig.getImage("list-remove.png", iconSize, iconSize));
-        changeBackgroundOnHoverUsingBinding(delete);
-        addEventHandler(pm, delete, Constants.Plugin.Command.DELETE);
-
-        Separator sep1 = new Separator();
-
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
-        changeBackgroundOnHoverUsingBinding(reload);
-        addEventHandler(pm, reload, Constants.Plugin.Command.RELOAD);
-
-        //@AITBilal - A new table create/edit button on the ToolBar
-        ToggleButton addTable = new ToggleButton("", JEConfig.getImage("add_table.png", iconSize, iconSize));
-        changeBackgroundOnHoverUsingBinding(addTable);
-        addEventHandler(pm, addTable, Constants.Plugin.Command.ADD_TABLE);
-
-        ToggleButton editTable = new ToggleButton("", JEConfig.getImage("edit_table.png", iconSize, iconSize));
-        changeBackgroundOnHoverUsingBinding(editTable);
-        addEventHandler(pm, editTable, Constants.Plugin.Command.EDIT_TABLE);
-
-        toolBar.getItems().addAll(save, newB, delete, reload, sep1);//addTable, editTable);
-
-        return toolBar;
-    }
 
     public static void BuildEventhandler(Plugin plugin, ButtonBase button, final int command) {
         button.setOnAction(new EventHandler<ActionEvent>() {

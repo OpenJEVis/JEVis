@@ -2,10 +2,7 @@ package org.jevis.commons.alarm;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.object.plugin.TargetHelper;
@@ -28,9 +25,12 @@ public class AlarmConfiguration {
     private final String ALARM_SCOPE = "Alarm Scope";
     private final String ALARM_PERIOD = "Alarm Period";
     private final String ALARM_OBJECTS = "Alarm Objects";
+    private final String LOG_FILE = "Log File";
+    public final static String ALARM_CHECKED = "Alarm Checked";
     private final JEVisObject object;
     private final JEVisDataSource ds;
     private Boolean enabled;
+    private Boolean checked;
     private SampleHandler sampleHandler;
     private Long id;
     private String name;
@@ -54,6 +54,53 @@ public class AlarmConfiguration {
         return enabled;
     }
 
+    public JEVisAttribute getCheckedAttribute() {
+        try {
+            return getObject().getAttribute(ALARM_CHECKED);
+        } catch (JEVisException e) {
+            logger.error("Could not get checked attribute for object {}:{}", getObject().getName(), getObject().getID(), e);
+        }
+        return null;
+    }
+
+    public JEVisAttribute getFileLogAttribute() {
+        try {
+            return getObject().getAttribute(LOG_FILE);
+        } catch (JEVisException e) {
+            logger.error("Could not get file log attribute for object {}:{}", getObject().getName(), getObject().getID(), e);
+        }
+        return null;
+    }
+
+    public Boolean isChecked() {
+        try {
+            JEVisSample latestSample = getCheckedAttribute().getLatestSample();
+            if (latestSample != null) {
+                return latestSample.getValueAsBoolean();
+            } else return false;
+        } catch (JEVisException e) {
+            logger.error("Could not get checked status for object {}:{}", getObject().getName(), getObject().getID(), e);
+        }
+        return false;
+    }
+
+    public void setChecked(Boolean checked) {
+        try {
+            JEVisAttribute checkedAttribute = getObject().getAttribute(ALARM_CHECKED);
+            if (checkedAttribute != null) {
+                JEVisSample sample = checkedAttribute.buildSample(new DateTime(), checked);
+                if (checked) {
+                    sample.setNote("Checked by " + ds.getCurrentUser().getAccountName());
+                } else {
+                    sample.setNote("Unchecked by " + ds.getCurrentUser().getAccountName());
+                }
+                sample.commit();
+            }
+        } catch (Exception e) {
+            logger.error("Could not set checked attribute for object {}:{}", getObject().getName(), getObject().getID(), e);
+        }
+    }
+
     public JEVisObject getObject() {
         return object;
     }
@@ -65,8 +112,9 @@ public class AlarmConfiguration {
     }
 
     public String getName() {
-        if (name == null)
+        if (name == null) {
             name = getObject().getName();
+        }
         return name;
     }
 
@@ -99,7 +147,9 @@ public class AlarmConfiguration {
     public Period getAlarmPeriod() {
         if (alarmPeriod == null) {
             String alarmPeriodString = sampleHandler.getLastSample(getObject(), ALARM_PERIOD, "");
-            if (alarmPeriodString.equals(Period.HOURLY.toString())) alarmPeriod = Period.HOURLY;
+            if (alarmPeriodString.equals(Period.MINUTELY.toString())) alarmPeriod = Period.MINUTELY;
+            else if (alarmPeriodString.equals(Period.QUARTER_HOURLY.toString())) alarmPeriod = Period.QUARTER_HOURLY;
+            else if (alarmPeriodString.equals(Period.HOURLY.toString())) alarmPeriod = Period.HOURLY;
             else if (alarmPeriodString.equals(Period.DAILY.toString())) alarmPeriod = Period.DAILY;
             else if (alarmPeriodString.equals(Period.WEEKLY.toString())) alarmPeriod = Period.WEEKLY;
             else if (alarmPeriodString.equals(Period.MONTHLY.toString())) alarmPeriod = Period.MONTHLY;
@@ -120,13 +170,20 @@ public class AlarmConfiguration {
             try {
                 timeStampAttribute = getObject().getAttribute(TIME_STAMP);
             } catch (JEVisException e) {
-                logger.error("Could not get time stamp attribute: " + e);
+                logger.error("Could not get time stamp attribute: ", e);
             }
         }
         return timeStampAttribute;
     }
 
     public JEVisAttribute getLogAttribute() {
+        if (logAttribute == null) {
+            try {
+                logAttribute = getObject().getAttribute(LOG);
+            } catch (JEVisException e) {
+                logger.error("Could not get log attribute: ", e);
+            }
+        }
         return logAttribute;
     }
 

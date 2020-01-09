@@ -5,19 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.*;
 import javafx.geometry.Pos;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.controlsfx.control.PropertySheet;
-import org.jevis.jeconfig.application.resource.ResourceLoader;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.scada.data.ConfigSheet;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.*;
 
@@ -145,14 +140,6 @@ public class WidgetConfig {
         return true;
     }
 
-    public JsonNode getConfigNode(String name) {
-        return this.jsonNode.get(name);
-    }
-
-    public JsonNode getExtraSettingNode() {
-        return this.extraNode;
-    }
-
     public String getType() {
         return this.type;
     }
@@ -161,43 +148,8 @@ public class WidgetConfig {
         this.type = type;
     }
 
-    /**
-     * TODO: add default setting to list like the additional settings
-     *
-     * @return
-     */
-    public PropertySheet getConfigSheet() {
-        WidgetConfigEditor widgetConfigEditor = new WidgetConfigEditor(this);
-        widgetConfigEditor.show();
 
 
-        this.userConfig.clear();
-        this.userConfig.put(this.title.getName(), new ConfigSheet.Property("Title", GENERAL_GROUP, this.title.getValue(), "Help"));
-        this.userConfig.put(this.unit.getName(), new ConfigSheet.Property("Unit", GENERAL_GROUP, this.unit.getValue(), "Help"));
-
-        this.userConfig.put(this.backgroundColor.getName(), new ConfigSheet.Property("Background Color", GENERAL_GROUP, this.backgroundColor.getValue(), "Help"));
-        this.userConfig.put(this.fontColorSecondary.getName(), new ConfigSheet.Property(this.fontColorSecondary.getName(), GENERAL_GROUP, this.fontColorSecondary.getValue(), "Help"));
-        this.userConfig.put(this.fontColor.getName(), new ConfigSheet.Property("Font Color", GENERAL_GROUP, this.fontColor.getValue(), "Help"));
-        this.userConfig.put("Font Size", new ConfigSheet.Property("fontSize", GENERAL_GROUP, this.fontSize.getValue(), "Help"));
-
-        this.userConfig.put("Height", new ConfigSheet.Property("Height", GENERAL_GROUP, this.size.getValue().getHeight(), "Help"));
-        this.userConfig.put("Width", new ConfigSheet.Property("Width", GENERAL_GROUP, this.size.getValue().getWidth(), "Help"));
-
-
-        this.additionalSetting.forEach(widgetConfigProperty -> {
-//            System.out.println("Add additional config: " + widgetConfigProperty.getId() + "  " + widgetConfigProperty.getName());
-            this.userConfig.put(widgetConfigProperty.getId(), new ConfigSheet.Property(widgetConfigProperty.getName(), widgetConfigProperty.getCategory(), widgetConfigProperty.getWritableValue().getValue(), widgetConfigProperty.getDescription()));
-
-        });
-
-
-        ConfigSheet ct = new ConfigSheet();
-        PropertySheet propertySheet = ct.getSheet(this.userConfig);
-        propertySheet.setMode(PropertySheet.Mode.CATEGORY);
-        propertySheet.setSearchBoxVisible(false);
-        propertySheet.setModeSwitcherVisible(false);
-        return propertySheet;
-    }
 
     public ObjectNode toJsonNode() {
         ObjectNode jsonNode = this.mapper.createObjectNode();
@@ -222,12 +174,7 @@ public class WidgetConfig {
     }
 
 
-    public void applyUserConfig() {
-        applyUserConfig(this.userConfig);
-    }
-
     public void applyUserConfig(Map<String, ConfigSheet.Property> userConfig) {
-        System.out.println("ApplyUserConfig");
         this.backgroundColor.setValue((Color) userConfig.get(this.backgroundColor.getName()).getObject());
         this.fontColor.setValue((Color) userConfig.get(this.fontColor.getName()).getObject());
         this.fontColorSecondary.setValue((Color) userConfig.get(this.fontColorSecondary.getName()).getObject());
@@ -246,42 +193,11 @@ public class WidgetConfig {
             widgetConfigProperty.getWritableValue().setValue(userConfig.get(widgetConfigProperty.getId()).getObject());
         });
 
-        System.out.println("Font Color: " + this.fontColor.getValue().toString());
-        System.out.println("Background color: " + this.backgroundColor.getValue().toString());
 
 
     }
 
-    public boolean openConfig() {
-
-        Dialog configDia = new Dialog();
-        configDia.setTitle(I18n.getInstance().getString("plugin.scada.element.config.title"));
-        configDia.setHeaderText(I18n.getInstance().getString("plugin.scada.element.config.header"));
-
-
-        configDia.getDialogPane().setContent(getConfigSheet());
-        configDia.resizableProperty().setValue(true);
-        configDia.setHeight(800);
-        configDia.setWidth(500);
-
-        configDia.getDialogPane().setMinWidth(500);
-        configDia.getDialogPane().setMinHeight(500);
-        configDia.setGraphic(ResourceLoader.getImage("1394482166_blueprint_tool.png", 50, 50));
-
-        ButtonType buttonTypeOk = new ButtonType(I18n.getInstance().getString("plugin.scada.element.config.ok"), ButtonBar.ButtonData.OK_DONE);
-        ButtonType buttonTypeCancel = new ButtonType(I18n.getInstance().getString("plugin.scada.element.config.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-
-
-        configDia.getDialogPane().getButtonTypes().addAll(buttonTypeCancel, buttonTypeOk);
-
-        Optional<ButtonType> opt = configDia.showAndWait();
-        if (opt.get().equals(buttonTypeOk)) {
-            applyUserConfig(this.userConfig);
-            return true;
-        }
-
-        return false;
-    }
+    
 
 
 }

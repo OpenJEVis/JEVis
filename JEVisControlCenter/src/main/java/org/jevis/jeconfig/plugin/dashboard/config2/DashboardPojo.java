@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.paint.Color;
 import org.jevis.api.JEVisObject;
@@ -12,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DashboardPojo {
+
     public static String DATA_HANDLER_NODE = "dataHandler";
     public static String WIDGET_SETTINGS_NODE = "extra";
 
@@ -22,14 +22,54 @@ public class DashboardPojo {
     public Color fontColorSecondary = Color.DODGERBLUE;
     public String title = "Default dashboard";
 
-    public Color backgroundColor = Color.web("#126597");
+    public String backgroundMode = "default";
+    public Color backgroundColor = Color.web("#f4f4f4");//#126597
     public Double xGridInterval = 25.0d;
     public Double yGridInterval = 25.0d;
 
     public Size size = Size.DEFAULT;
 
-    private final ObjectMapper mapper = new ObjectMapper();
-    private TimeFrameFactory timeFrame;
+    private TimeFrameFactory timeFrame = new TimeFrameFactory() {
+        @Override
+        public String getListName() {
+            return "";
+        }
+
+        @Override
+        public Interval nextPeriod(Interval interval, int addAmount) {
+            return interval;
+        }
+
+        @Override
+        public Interval previousPeriod(Interval interval, int addAmount) {
+            return interval;
+        }
+
+        @Override
+        public String format(Interval interval) {
+            return "";
+        }
+
+        @Override
+        public Interval getInterval(DateTime dateTime) {
+            return new Interval(dateTime,dateTime);
+        }
+
+        @Override
+        public String getID() {
+            return "";
+        }
+
+        @Override
+        public boolean hasNextPeriod(Interval interval) {
+            return false;
+        }
+
+        @Override
+        public boolean hasPreviousPeriod(Interval interval) {
+            return false;
+        }
+    };
 
     private Interval interval = new Interval(new DateTime(), new DateTime());
     private Integer updateRate = 900;
@@ -111,6 +151,14 @@ public class DashboardPojo {
 
     public void setZoomFactor(Double zoomFactor) {
         this.zoomFactor = zoomFactor;
+    }
+
+    public String getBackgroundMode() {
+        return backgroundMode;
+    }
+
+    public void setBackgroundMode(String backgroundMode) {
+        this.backgroundMode = backgroundMode;
     }
 
     public JEVisObject getDashboardObject() {

@@ -4,8 +4,8 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import org.controlsfx.control.PropertySheet;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.plugin.scada.data.ConfigSheet;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

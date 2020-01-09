@@ -10,7 +10,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
-import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class TableSerie extends XYChartSerie {
     private static final Logger logger = LogManager.getLogger(TableSerie.class);
 
     public TableSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
-        super(singleRow, hideShowIcons);
+        super(singleRow, hideShowIcons, false);
     }
 
     public void generateSeriesFromSamples() throws JEVisException {

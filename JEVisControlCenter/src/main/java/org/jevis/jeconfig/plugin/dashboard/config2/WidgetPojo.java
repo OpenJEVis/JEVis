@@ -18,7 +18,7 @@ public class WidgetPojo {
 
     private BorderWidths borderSize = new BorderWidths(0.2);
     private Color fontColor = Color.BLACK;
-    private Color fontColorSecondary = Color.DODGERBLUE;
+    private Color fontColorSecondary = Color.WHITESMOKE;
     private String title = "Title";
     private Color backgroundColor = Color.web("#126597");
     private Double xPosition = 100d;

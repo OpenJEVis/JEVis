@@ -6,8 +6,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -17,13 +15,15 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.CategoryAxis;
+import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -44,7 +44,7 @@ public class BarChart implements Chart {
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
     private List<BarChartSerie> barChartSerieList = new ArrayList<>();
-    private javafx.scene.chart.BarChart barChart;
+    private org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart barChart;
     private List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -88,7 +88,7 @@ public class BarChart implements Chart {
         NumberAxis numberAxis = new NumberAxis();
         CategoryAxis catAxis = new CategoryAxis();
 
-        barChart = new javafx.scene.chart.BarChart(numberAxis, catAxis);
+        barChart = new org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart<>(numberAxis, catAxis);
 
         barChart.setTitle(chartName);
         barChart.setLegendVisible(false);
@@ -190,12 +190,12 @@ public class BarChart implements Chart {
 
     @Override
     public DateTime getStartDateTime() {
-        return chartDataModels.get(0).getSelectedStart();
+        return timeStampOfFirstSample.get();
     }
 
     @Override
     public DateTime getEndDateTime() {
-        return chartDataModels.get(0).getSelectedEnd();
+        return timeStampOfLastSample.get();
     }
 
     @Override
@@ -284,6 +284,11 @@ public class BarChart implements Chart {
     }
 
     @Override
+    public List<ChartDataModel> getChartDataModels() {
+        return chartDataModels;
+    }
+
+    @Override
     public String getChartName() {
         return chartName;
     }
@@ -332,17 +337,12 @@ public class BarChart implements Chart {
     }
 
     @Override
-    public DateTime getNearest() {
-        return nearest;
-    }
-
-    @Override
     public void setValueForDisplay(DateTime valueForDisplay) {
         this.valueForDisplay = valueForDisplay;
     }
 
     @Override
-    public javafx.scene.chart.Chart getChart() {
+    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
         return barChart;
     }
 

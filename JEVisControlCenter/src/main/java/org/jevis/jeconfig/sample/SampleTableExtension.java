@@ -35,11 +35,11 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.ConfirmDialog;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.sample.tableview.SampleTable;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
@@ -214,7 +214,6 @@ public class SampleTableExtension implements SampleEditorExtension {
 
                 }
         );
-
 
 //        boolean disableEdit = true;
         box.getChildren()

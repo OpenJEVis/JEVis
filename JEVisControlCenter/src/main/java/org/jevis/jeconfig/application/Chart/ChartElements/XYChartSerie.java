@@ -15,12 +15,12 @@ import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.plugin.graph.view.GraphPluginView;
-import org.jevis.jeconfig.tool.I18n;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
@@ -32,6 +32,7 @@ import java.util.TreeMap;
 
 public class XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
+    private final boolean forecast;
     Integer yAxis;
     MultiAxisChart.Series<Number, Number> serie;
     TableEntry tableEntry;
@@ -43,11 +44,12 @@ public class XYChartSerie {
     Double minValue = Double.MAX_VALUE;
     Double maxValue = -Double.MAX_VALUE;
 
-    public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
+    public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons, boolean forecast) throws JEVisException {
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
         this.hideShowIcons = hideShowIcons;
         this.serie = new MultiAxisChart.Series<>();
+        this.forecast = forecast;
 
         generateSeriesFromSamples();
     }
@@ -55,12 +57,21 @@ public class XYChartSerie {
     public void generateSeriesFromSamples() throws JEVisException {
         timeStampFromFirstSample = DateTime.now();
         timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
-        tableEntry = new TableEntry(getTableEntryName());
-        this.serie.setName(getTableEntryName());
 
-        tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
+        List<JEVisSample> samples = new ArrayList<>();
+        if (!forecast) {
+            this.tableEntry = new TableEntry(getTableEntryName());
+            this.serie.setName(getTableEntryName());
+            this.tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
 
-        List<JEVisSample> samples = singleRow.getSamples();
+            samples = singleRow.getSamples();
+        } else {
+            this.tableEntry = new TableEntry(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
+            this.serie.setName(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
+            this.tableEntry.setColor(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
+
+            samples = singleRow.getForecastSamples();
+        }
 
         JEVisUnit unit = singleRow.getUnit();
 
@@ -140,7 +151,7 @@ public class XYChartSerie {
             sum = max;
         }
 
-
+        serie.setAxisIndex(singleRow.getAxis());
         serie.getData().setAll(dataList);
         JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
 
@@ -277,7 +288,9 @@ public class XYChartSerie {
     }
 
     public Node generateNode(JEVisSample sample) throws JEVisException {
-        Note note = new Note(sample);
+
+
+        Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()));
 
         if (note.getNote() != null && hideShowIcons) {
             if (sample.getNote().contains("Zeros")) {

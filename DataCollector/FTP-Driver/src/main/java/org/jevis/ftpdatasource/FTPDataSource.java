@@ -167,11 +167,16 @@ public class FTPDataSource implements DataSource {
 
             }
         } catch (JEVisException ex) {
-            logger.error("JEVis Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
+            logger.error("JEVis Exception. From the device {}:{}. {}", channel.getName(), channel.getID(), ex.getMessage());
+            logger.debug("JEVis Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
         } catch (SocketException ex) {
-            logger.error("Socket Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
+            logger.error("Socket Exception. From the device {}:{}. {}", channel.getName(), channel.getID(), ex.getMessage());
+            logger.debug("Socket Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
         } catch (IOException ex) {
-            logger.error("IO Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
+            logger.error("IO Exception. From the device {}:{}. {}", channel.getName(), channel.getID(), ex.getMessage());
+            logger.debug("IO Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
+        } catch (Exception ex) {
+            logger.error("Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
         }
 
         return answerList;

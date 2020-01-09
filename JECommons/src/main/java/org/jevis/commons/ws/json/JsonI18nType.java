@@ -7,6 +7,7 @@ public class JsonI18nType {
     private String type;
     private Map<String, String> descriptions;
     private Map<String, String> names;
+    private Map<String, Json18nEnum> enums;
 
     public JsonI18nType() {
     }
@@ -33,5 +34,13 @@ public class JsonI18nType {
 
     public void setNames(Map<String, String> names) {
         this.names = names;
+    }
+
+    public Map<String, Json18nEnum> getEnums() {
+        return enums;
+    }
+
+    public void setEnums(Map<String, Json18nEnum> enums) {
+        this.enums = enums;
     }
 }

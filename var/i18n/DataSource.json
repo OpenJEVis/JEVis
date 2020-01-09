@@ -2,38 +2,50 @@
   "jevisclass": "Data Source",
   "names": {
     "de": "Datenquelle",
-    "ru": "Data Source",
+    "ru": "источник данных",
+    "uk": "джерело даних",
+    "th": "แหล่งข้อมูล",
     "en": "Data Source"
   },
   "descriptions": {
-    "de": "Eine Data Quelle ist eine generische Klasse, welche für spezielle Daten Quellen, z.B. Datenserver oder Speichermedien, abgeleitet wird.",
-    "ru": "Data Source",
-    "en": "A Data Source is a generic class, to be inherited by specialized Data Sources, such as data servers or storage medias."
+    "de": "Eine Datenquelle ist eine generische Klasse, welche für spezielle Daten Quellen, z.B. Datenserver oder Speichermedien, abgeleitet wird.",
+    "ru": "Источник данных - это универсальный класс, который предназначен для специальных источников данных, например, Сервер данных или носитель.",
+    "uk": "Джерело даних - це загальний клас, який для спеціальних джерел даних, напр. Сервер даних або носій інформації.",
+    "th": "แหล่งข้อมูลเป็นคลาสทั่วไปสำหรับแหล่งข้อมูลพิเศษเช่น เซิร์ฟเวอร์ข้อมูลหรือสื่อบันทึกข้อมูล",
+    "en": "A data source is a generic class which is derived for special data sources, e.g. Data server or storage media."
   },
   "types": [
     {
       "type": "Enabled",
       "descriptions": {
-        "de": "Aktiviert das Auslesen der Datenquelle",
-        "ru": "Enabled desctiption",
-        "en": "Enabled desctiption"
+        "de": "Aktiviert das Auslesen der Datenquelle.",
+        "ru": "Позволяет читать источник данных.",
+        "uk": "Вмикає зчитування джерела даних.",
+        "th": "เปิดใช้งานการอ่านของแหล่งข้อมูล",
+        "en": "Enables the reading of the data source."
       },
       "names": {
-        "de": "Aktiviert/Deaktiviert den Datenserver",
-        "ru": "Enabled",
-        "en": "Enables/Disables the Data Server"
+        "de": "Aktiviert",
+        "ru": "включен",
+        "uk": "включений",
+        "th": "เปิดการใช้งาน",
+        "en": "Enabled"
       }
     },
     {
       "type": "Timezone",
       "descriptions": {
         "de": "Bestimmt die Zeitzone des Datenservers",
-        "ru": "Timezone description",
+        "ru": "Определяет часовой пояс сервера данных",
+        "uk": "Визначає часовий пояс сервера даних",
+        "th": "กำหนดเขตเวลาของเซิร์ฟเวอร์ข้อมูล",
         "en": "Defines the timezone of the Data Server"
       },
       "names": {
         "de": "Zeitzone",
-        "ru": "Timezone",
+        "ru": "часовой пояс",
+        "uk": "часовий пояс",
+        "th": "โซนเวลา",
         "en": "Timezone"
       }
     },
@@ -41,25 +53,33 @@
       "type": "Last Run",
       "descriptions": {
         "de": "Der letzte Zeitpunkt an dem die Datenquelle abgerufen wurde.",
-        "ru": "Timezone description",
+        "ru": "Последний раз источник данных был получен.",
+        "uk": "Востаннє було отримано джерело даних.",
+        "th": "ครั้งสุดท้ายที่มีการดึงแหล่งข้อมูล",
         "en": "The data source has been read last at this time."
       },
       "names": {
-        "de": "Letzte Auslesung",
-        "ru": "Last Run",
-        "en": "Last Run"
+        "de": "Letzter Zyklus",
+        "ru": "Последний цикл",
+        "uk": "Останній цикл",
+        "th": "รอบสุดท้าย",
+        "en": "Last cycle"
       }
     },
     {
       "type": "Cycle Time",
       "descriptions": {
         "de": "Bestimmt das Intervall in dem sich die Auslesung des Datenservers wiederholt.",
-        "ru": "Timezone description",
+        "ru": "Указывает интервал, в котором повторяется чтение сервера данных.",
+        "uk": "Вказує інтервал, через який повторне читання сервера даних.",
+        "th": "ระบุช่วงเวลาที่การอ่านเซิร์ฟเวอร์ข้อมูลซ้ำแล้วซ้ำอีก",
         "en": "Defines the interval in which the readout of the Data Server is repeated"
       },
       "names": {
-        "de": "Taktdauer",
-        "ru": "Cycle Time",
+        "de": "Taktzeit",
+        "ru": "время цикла",
+        "uk": "час циклу",
+        "th": "รอบเวลา",
         "en": "Cycle Time"
       }
     },
@@ -68,24 +88,32 @@
       "descriptions": {
         "de": "Dieses Feld definiert ab wann ein Datenpunkt nicht mehr gelistet wird. Angegeben in Stunden.",
         "ru": "Это поле определяет, когда точка данных больше не отображается в списке. Указано в часах.",
+        "uk": "Це поле визначає, коли точку даних більше не вказано. Вказано в годинах.",
+        "th": "ฟิลด์นี้กำหนดว่าเมื่อใดที่ข้อมูลไม่ได้อยู่ในรายการ ระบุเป็นชั่วโมง",
         "en": "This field defines when a data point is no longer listed. Specified in hours."
       },
       "names": {
         "de": "Am weitesten zurückliegend berichtet",
         "ru": "Самый дальний из тех, кто сообщал.",
+        "uk": "Останні повідомлення",
+        "th": "รายงานล่าสุด",
         "en": "Furthest back reported"
       }
     },
     {
       "type": "Latest reported",
       "descriptions": {
-        "de": "Dieses Feld definiert ab wann ein Datepunkt gelistet wird. Angegeben in Stunden.",
-        "ru": "Это поле определяет, с какого момента отображается точка привязки. Указано в часах.",
-        "en": "This field defines from when a datepoint is listed. Specified in hours."
+        "de": "Dieses Feld definiert ab wann ein Datenpunkt gelistet wird. Angegeben in Stunden.",
+        "ru": "Это поле определяет, когда будет указана точка данных. Указано в часах.",
+        "uk": "Це поле визначає, коли буде вказано точку даних. Вказано в годинах.",
+        "th": "ฟิลด์นี้จะกำหนดเวลาที่จะแสดงรายการจุดข้อมูล ระบุเป็นชั่วโมง",
+        "en": "This field defines when a data point will be listed. Specified in hours."
       },
       "names": {
         "de": "Kürzest berichtet",
         "ru": "Последний раз сообщалось.",
+        "uk": "Найкоротший повідомив",
+        "th": "รายงานสั้นที่สุด",
         "en": "Latest back reported"
       }
     }

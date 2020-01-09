@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +26,9 @@ import org.jevis.jeconfig.plugin.dashboard.config.DataPointNode;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.LastPeriod;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
+import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
@@ -66,16 +71,31 @@ public class DataModelDataHandler {
         System.out.println("Models: " + getDataModel().size());
         System.out.println("forcedInterval: " + forcedInterval);
         System.out.println("Interval Factoy: " + timeFrameFactory);
-        System.out.println("isautoAggregation: " + autoAggregation);
+        System.out.println("isAutoAggregation: " + autoAggregation);
+//        getDataModel().forEach(chartDataModel -> {
+//            System.out.println("model: " + chartDataModel.getObject().getID() + " " + chartDataModel.getObject().getName());
+//            System.out.println("EnPI: " + chartDataModel.getEnPI());
+//            System.out.println("model.datasize: " + chartDataModel.getSamples().size());
+//            chartDataModel.getSamples().forEach(jeVisSample -> {
+//                System.out.println("S: " + jeVisSample);
+//            });
+//        });
+        System.out.println("----");
+
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        TabPane tabPane = new TabPane();
         getDataModel().forEach(chartDataModel -> {
-            System.out.println("model: " + chartDataModel.getObject().getID() + " " + chartDataModel.getObject().getName());
-            System.out.println("EnPI: " + chartDataModel.getEnPI());
-            System.out.println("model.datasize: " + chartDataModel.getSamples().size());
-            chartDataModel.getSamples().forEach(jeVisSample -> {
-                System.out.println("S: " + jeVisSample);
-            });
+            SampleTable sampleTable = new SampleTable(chartDataModel.getAttribute(), DateTimeZone.getDefault(),chartDataModel.getSamples());
+            Tab tab = new Tab(chartDataModel.getObject().getName()+":"+chartDataModel.getAttribute().getName(),sampleTable);
+            tabPane.getTabs().add(tab);
         });
-        System.out.println("-----------------------------------------");
+        alert.setGraphic(null);
+        alert.setHeaderText(null);
+        alert.getDialogPane().setContent(tabPane);
+        alert.setResizable(true);
+        alert.show();
+
     }
 
     public DataModelDataHandler(JEVisDataSource jeVisDataSource, JsonNode configNode) {

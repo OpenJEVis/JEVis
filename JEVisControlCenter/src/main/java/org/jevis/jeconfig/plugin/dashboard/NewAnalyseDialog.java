@@ -43,9 +43,9 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.resource.ImageConverter;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
-import org.jevis.jeconfig.tool.I18n;
 
 import java.util.List;
 

@@ -145,7 +145,7 @@ public class ResourceVirtualSample {
                     SampleGenerator sampleGenerator = new SampleGenerator(null, tmpObject(obj), tmpAttribute(att, jeVisSampleList),
                             startDate, endDate, manipulationMode, aggregationPeriod);
                     benchmark.printBenchmarkDetail("Done building generator");
-                    List<JEVisSample> virtualSamples = sampleGenerator.getAggregatedSamples(jeVisSampleList);
+                    List<JEVisSample> virtualSamples = sampleGenerator.getAggregatedSamples();
                     benchmark.printBenchmarkDetail("Total VirtualSample: " + virtualSamples.size());
                     List<JsonSample> jsonSamples = tmpJsonSampleList(virtualSamples);
                     benchmark.printBenchmarkDetail("Total result: " + jsonSamples.size());
@@ -316,7 +316,6 @@ public class ResourceVirtualSample {
 
             @Override
             public void setDisplayUnit(JEVisUnit unit) throws JEVisException {
-                ;
             }
 
             @Override

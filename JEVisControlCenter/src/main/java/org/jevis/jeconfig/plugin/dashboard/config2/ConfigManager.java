@@ -24,16 +24,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetIDs;
+import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widgets;
-import org.jevis.jeconfig.tool.I18n;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -58,9 +59,11 @@ public class ConfigManager {
     private static final Logger logger = LogManager.getLogger(ConfigManager.class);
     private final TimeFrames timeFrames;
     private JEVisObject dashboardObject = null;
+    private ObjectRelations objectRelations;
 
     public ConfigManager(JEVisDataSource dataSource) {
         this.jeVisDataSource = dataSource;
+        this.objectRelations = new ObjectRelations(jeVisDataSource);
         this.timeFrames = new TimeFrames(this.jeVisDataSource);
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         this.mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
@@ -68,30 +71,19 @@ public class ConfigManager {
 
     }
 
-    public JsonNode readDashboardFile(JEVisObject dashboardObject) {
-        try {
+    public JsonNode readDashboardFile(JEVisObject dashboardObject) throws Exception{
             this.dashboardObject = dashboardObject;
             JEVisSample lastConfigSample = dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
             JEVisFile file = lastConfigSample.getValueAsFile();
             JsonNode jsonNode = this.mapper.readTree(file.getBytes());
             return jsonNode;
-
-        } catch (Exception ex) {
-            logger.error(ex);
-            logger.error("Missing Json File configuration");
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText(I18n.getInstance().getString("plugin.dashboard.load.error.file.header"));
-            alert.setContentText(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
-
-            alert.showAndWait();
-            return null;
-        }
     }
 
     public ObjectMapper getMapper() {
         return mapper;
     }
+
+
 
     public void saveDashboard(DashboardPojo dashboardPojo, List<Widget> widgets, String filename, JEVisObject parent, java.io.File wallpaper) throws IOException, JEVisException {
 
@@ -105,6 +97,10 @@ public class ConfigManager {
         } else {
             dashboardObject = parent.buildObject(filename, dashboardClass);
             dashboardObject.commit();
+//            long newID=dashboardObject.getID();
+            parent.getDataSource().reloadAttribute(dashboardObject);
+//            dashboardObject= parent.getDataSource().getObject(newID);
+            dashboardPojo.setJevisObject(dashboardObject);
         }
 
 
@@ -131,8 +127,9 @@ public class ConfigManager {
             ObjectNode dashBoardNode = this.mapper.createObjectNode();
 //            this.mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             dashBoardNode
-                    .put(JSON_VERSION, "1.1")
+                    .put(JSON_VERSION, "1.2")
                     .put(BACKGROUND_COLOR, dashboardPojo.getBackgroundColor().toString())
+                    .put(BACKGROUND_MODE, dashboardPojo.getBackgroundMode())
 //                    .put(SHOW_GRID, dashboardPojo.getShowGrid())
                     .put(SNAP_TO_GRID, false)//dashboardPojo.getSnapToGrid()
                     .put("Show Grid", false)//old Version Fallback
@@ -228,6 +225,12 @@ public class ConfigManager {
                 dashboardPojo.setBackgroundColor(Color.valueOf(jsonNode.get(BACKGROUND_COLOR).asText(Color.TRANSPARENT.toString())));
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", BACKGROUND_COLOR, ex);
+            }
+
+            try {
+                dashboardPojo.setBackgroundMode(jsonNode.get(BACKGROUND_MODE).asText(BackgroundMode.defaultMode));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", BACKGROUND_MODE, ex);
             }
 
             try {
@@ -331,37 +334,41 @@ public class ConfigManager {
     }
 
     public ObjectProperty<Image> getBackgroundImage(JEVisObject analysisObject) {
-        logger.debug("getBackgroundImage: {}", analysisObject.getID());
         ObjectProperty<Image> imageBoardBackground = new SimpleObjectProperty<>(Image.class, "Dash Board Color", JEConfig.getImage("transPixel.png"));
+        if (analysisObject == null) {
+            return null;
+        }
 
-        Task<Image> imageLoadTask = new Task<Image>() {
-            @Override
-            public Image call() throws InterruptedException {
-                try {
+
+//        logger.debug("getBackgroundImage: {}", analysisObject.getID());
+
+
+            Task<Image> imageLoadTask = new Task<Image>() {
+                @Override
+                public Image call() throws InterruptedException {
+                    try {
 //                    logger.error("getBackgroundImage: {}", analysisObject);
 //                    if (analysisObject == null) {
 //                        return JEConfig.getImage("transPixel.png");
 //                    }
-                    JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
-                    if (bgFile != null && bgFile.hasSample()) {
-                        JEVisSample backgroundImage = bgFile.getLatestSample();
-                        if (backgroundImage != null) {
-                            JEVisFile imageFile = backgroundImage.getValueAsFile();
-                            InputStream in = new ByteArrayInputStream(imageFile.getBytes());
-                            return new Image(in);
+                        JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
+                        if (bgFile != null && bgFile.hasSample()) {
+                            JEVisSample backgroundImage = bgFile.getLatestSample();
+                            if (backgroundImage != null) {
+                                JEVisFile imageFile = backgroundImage.getValueAsFile();
+                                InputStream in = new ByteArrayInputStream(imageFile.getBytes());
+                                return new Image(in);
+                            }
                         }
+                    } catch (Exception ex) {
+                        logger.error("Could not load background image: {}", ex, ex);
                     }
-
-
-                } catch (Exception ex) {
-                    logger.error("Could load background image: {}", ex);
+                    throw new InterruptedException("could not load background image");
                 }
-                throw new InterruptedException("could load background image");
-            }
-        };
+            };
 
-        imageLoadTask.setOnSucceeded(e -> imageBoardBackground.setValue(imageLoadTask.getValue()));
-        new Thread(imageLoadTask).start();
+            imageLoadTask.setOnSucceeded(e -> imageBoardBackground.setValue(imageLoadTask.getValue()));
+            new Thread(imageLoadTask).start();
 
         return imageBoardBackground;
     }
@@ -386,11 +393,11 @@ public class ConfigManager {
 
         JEVisClass analysesDirectory = null;
         List<JEVisObject> listAnalysesDirectories = null;
-        AtomicBoolean hasMulitDirs = new AtomicBoolean(false);
+        AtomicBoolean hasMultitDirs = new AtomicBoolean(false);
         try {
             analysesDirectory = jeVisDataSource.getJEVisClass("Analyses Directory");
             listAnalysesDirectories = jeVisDataSource.getObjects(analysesDirectory, false);
-            hasMulitDirs.set(listAnalysesDirectories.size() > 1);
+            hasMultitDirs.set(listAnalysesDirectories.size() > 1);
 
         } catch (JEVisException e) {
             e.printStackTrace();
@@ -398,7 +405,7 @@ public class ConfigManager {
 
         ObjectProperty<JEVisObject> currentAnalysisDirectory = new SimpleObjectProperty<>(null);
         ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
-        ObjectRelations objectRelations = new ObjectRelations(jeVisDataSource);
+
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
             @Override
             public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
@@ -409,7 +416,7 @@ public class ConfigManager {
                         if (empty || obj == null || obj.getName() == null) {
                             setText("");
                         } else {
-                            if (hasMulitDirs.get())
+                            if (!hasMultitDirs.get())
                                 setText(obj.getName());
                             else {
                                 String prefix = objectRelations.getObjectPath(obj);
@@ -511,6 +518,7 @@ public class ConfigManager {
 
                         try {
                             dashboardPojo.setName(name.getText());
+                            dashboardPojo.setTitle(name.getText());
                             saveDashboard(dashboardPojo, widgetList, name.getText(), currentAnalysisDirectory.getValue(), wallpaper);
                         } catch (Exception ex) {
                             ex.printStackTrace();
