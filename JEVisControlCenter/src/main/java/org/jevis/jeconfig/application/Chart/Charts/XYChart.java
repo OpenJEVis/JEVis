@@ -867,8 +867,8 @@ public class XYChart implements Chart {
 
                     Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
 
+                    DateTime finalNearest = nearest;
                     if (!asDuration) {
-                        DateTime finalNearest = nearest;
                         Platform.runLater(() -> {
                             if (finalNearest != null) {
                                 tableEntry.setDate(finalNearest
@@ -876,8 +876,7 @@ public class XYChart implements Chart {
                             } else tableEntry.setValue("-");
                         });
                     } else {
-                        DateTime finalNearest1 = nearest;
-                        Platform.runLater(() -> tableEntry.setDate((finalNearest1.getMillis() -
+                        Platform.runLater(() -> tableEntry.setDate((finalNearest.getMillis() -
                                 timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h"));
                     }
                     Platform.runLater(() -> tableEntry.setNote(formattedNote.getNoteAsString()));

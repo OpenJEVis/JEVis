@@ -1039,6 +1039,7 @@ public class GraphPluginView implements Plugin {
                 case HEAT_MAP:
                     break;
                 case COLUMN:
+                    setupMouseMoved(cv, notActive);
                     break;
                 default:
                     break;
@@ -1087,8 +1088,7 @@ public class GraphPluginView implements Plugin {
                 if (!na.getChartType().equals(ChartType.PIE)
                         && !na.getChartType().equals(ChartType.BAR)
                         && !na.getChartType().equals(ChartType.BUBBLE)
-                        && !na.getChartType().equals(ChartType.TABLE)
-                        && !na.getChartType().equals(ChartType.COLUMN)) {
+                        && !na.getChartType().equals(ChartType.TABLE)) {
                     na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                 } else if (na.getChartType().equals(ChartType.TABLE)) {
                     na.updateTablesSimultaneously(null, cv.getValueForDisplay());
