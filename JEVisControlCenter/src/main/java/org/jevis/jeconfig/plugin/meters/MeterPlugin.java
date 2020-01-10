@@ -2,7 +2,6 @@ package org.jevis.jeconfig.plugin.meters;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.JFXTimePicker;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -13,17 +12,18 @@ import javafx.collections.ObservableSet;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.print.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
-import javafx.util.converter.LocalTimeStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
@@ -41,9 +41,7 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.type.GUIConstants;
-import org.jevis.jeconfig.dialog.NewMeterDialog;
-import org.jevis.jeconfig.dialog.Response;
-import org.jevis.jeconfig.dialog.SelectTargetDialog;
+import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
@@ -57,14 +55,15 @@ import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.FormatStyle;
 import java.util.*;
 import java.util.function.UnaryOperator;
 
 public class MeterPlugin implements Plugin {
     public static final String MEASUREMENT_INSTRUMENT_CLASS = "Measurement Instrument";
     private static final Logger logger = LogManager.getLogger(MeterPlugin.class);
-    private static final double EDITOR_MAX_HEIGHT = 60;
+    private static final double EDITOR_MAX_HEIGHT = 50;
+    private final int toolBarIconSize = 24;
+    private final int tableIconSize = 18;
     public static String PLUGIN_NAME = "Meter Plugin";
     private static Method columnToFitMethod;
 
@@ -81,7 +80,6 @@ public class MeterPlugin implements Plugin {
     private final String title;
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
-    private final int iconSize = 24;
     Map<String, AttributeEditor> attributeEditorMap = new HashMap<>();
     private TabPane tabPane = new TabPane();
     private boolean initialized = false;
@@ -98,7 +96,7 @@ public class MeterPlugin implements Plugin {
                     Tab selectedItem = this.tabPane.getSelectionModel().getSelectedItem();
                     if (selectedItem != null && selectedItem.getContent() instanceof TableView) {
                         TableView<MeterRow> tableView = (TableView<MeterRow>) selectedItem.getContent();
-//                        autoFitTable(tableView);
+                        autoFitTable(tableView);
                     }
                 });
             }
@@ -113,12 +111,14 @@ public class MeterPlugin implements Plugin {
 //            @Override
 //            public void onChanged(Change<?> c) {
         for (TableColumn<MeterRow, ?> column : tableView.getColumns()) {
-            try {
-                if (tableView.getSkin() != null) {
-                    columnToFitMethod.invoke(tableView.getSkin(), column, -1);
+            if (column.isVisible()) {
+                try {
+                    if (tableView.getSkin() != null) {
+                        columnToFitMethod.invoke(tableView.getSkin(), column, -1);
+                    }
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    e.printStackTrace();
                 }
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
             }
         }
 
@@ -152,7 +152,7 @@ public class MeterPlugin implements Plugin {
                 column.setCellValueFactory(param -> {
                     try {
                         return new ReadOnlyObjectWrapper<>(param.getValue().getObject().getAttribute(type));
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                     return new ReadOnlyObjectWrapper<>();
@@ -167,6 +167,7 @@ public class MeterPlugin implements Plugin {
                         break;
                     case JEVisConstants.PrimitiveType.FILE:
                         column.setCellFactory(valueCellFile());
+                        column.setMinWidth(115);
                         break;
                     case JEVisConstants.PrimitiveType.BOOLEAN:
                         column.setCellFactory(valueCellBoolean());
@@ -176,8 +177,10 @@ public class MeterPlugin implements Plugin {
                             column.setCellFactory(valueCellStringPassword());
                         } else if (type.getGUIDisplayType().equals(GUIConstants.TARGET_OBJECT.getId()) || type.getGUIDisplayType().equals(GUIConstants.TARGET_ATTRIBUTE.getId())) {
                             column.setCellFactory(valueCellTargetSelection());
+                            column.setMinWidth(85);
                         } else if (type.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || type.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                             column.setCellFactory(valueCellDateTime());
+                            column.setMinWidth(100);
                         } else {
                             column.setCellFactory(valueCellString());
                         }
@@ -185,37 +188,9 @@ public class MeterPlugin implements Plugin {
                         break;
                 }
 
-//                column.setCellFactory(new Callback<TableColumn<MeterRow, Object>, TableCell<MeterRow, Object>>() {
-//                    @Override
-//                    public TableCell<MeterRow, Object> call(TableColumn<MeterRow, Object> param) {
-//                        return new TableCell<MeterRow, Object>() {
-//                            @Override
-//                            protected void updateItem(Object item, boolean empty) {
-//                                super.updateItem(item, empty);
-//
-//                                if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
-//                                    setText(null);
-//                                    setGraphic(null);
-//                                } else {
-//                                    MeterRow meterRow = (MeterRow) getTableRow().getItem();
-//                                    JEVisAttribute jeVisAttribute = meterRow.getAttributeMap().get(type);
-//                                    if (jeVisAttribute != null) {
-//
-//                                        String hash = jeVisAttribute.getObject().getID() + ":" + jeVisAttribute.getName();
-//                                        AttributeEditor editor = attributeEditorMap.get(hash);
-//
-//                                        editor.setReadOnly(false);
-//                                        setGraphic(editor.getEditor());
-//                                    }
-//                                }
-//                            }
-//                        };
-//                    }
-//                });
-
                 tableView.getColumns().add(column);
 
-                if (type.equals(onlineIdType)) {
+                if (type.equals(onlineIdType) && true == false) {
                     TableColumn<MeterRow, Object> multiplierColumn = new TableColumn<>(I18nWS.getInstance().getTypeName(cleanDataClass.getName(), multiplierType.getName()));
                     multiplierColumn.setStyle("-fx-alignment: CENTER;");
                     multiplierColumn.setId(multiplierType.getName());
@@ -270,9 +245,6 @@ public class MeterPlugin implements Plugin {
                         } else {
 
                             JFXDatePicker pickerDate = new JFXDatePicker();
-                            JFXTimePicker pickerTime = new JFXTimePicker();
-                            pickerTime.set24HourView(true);
-                            pickerTime.setConverter(new LocalTimeStringConverter(FormatStyle.MEDIUM));
 
                             if (item.hasSample()) {
                                 try {
@@ -282,7 +254,6 @@ public class MeterPlugin implements Plugin {
                                             date.get(DateTimeFieldType.hourOfDay()), date.get(DateTimeFieldType.minuteOfHour()), date.get(DateTimeFieldType.secondOfMinute()));
                                     lDate.atZone(ZoneId.of(date.getZone().getID()));
                                     pickerDate.valueProperty().setValue(lDate.toLocalDate());
-                                    pickerTime.valueProperty().setValue(lDate.toLocalTime());
                                 } catch (Exception ex) {
                                     logger.catching(ex);
                                 }
@@ -291,33 +262,21 @@ public class MeterPlugin implements Plugin {
                             pickerDate.valueProperty().addListener((observable, oldValue, newValue) -> {
                                 if (newValue != oldValue) {
                                     try {
-                                        updateDate(item, getCurrentDate(pickerDate, pickerTime));
+                                        updateDate(item, getCurrentDate(pickerDate));
                                     } catch (Exception e) {
                                         logger.error(e);
                                     }
                                 }
                             });
 
-                            pickerTime.valueProperty().addListener((observable, oldValue, newValue) -> {
-                                if (newValue != oldValue) {
-                                    try {
-                                        updateDate(item, getCurrentDate(pickerDate, pickerTime));
-                                    } catch (Exception e) {
-                                        logger.error(e);
-                                    }
-                                }
-                            });
-
-                            HBox hBox = new HBox(pickerDate, pickerTime);
-                            hBox.setSpacing(4);
-                            setGraphic(hBox);
+                            setGraphic(pickerDate);
                         }
                     }
 
-                    private DateTime getCurrentDate(JFXDatePicker pickerDate, JFXTimePicker pickerTime) {
+                    private DateTime getCurrentDate(JFXDatePicker pickerDate) {
                         return new DateTime(
                                 pickerDate.valueProperty().get().getYear(), pickerDate.valueProperty().get().getMonthValue(), pickerDate.valueProperty().get().getDayOfMonth(),
-                                pickerTime.valueProperty().get().getHour(), pickerTime.valueProperty().get().getMinute(), pickerTime.valueProperty().get().getSecond(),
+                                0, 0, 0,
                                 DateTimeZone.getDefault());
                     }
 
@@ -349,14 +308,15 @@ public class MeterPlugin implements Plugin {
                         } else {
                             MeterRow meterRow = (MeterRow) getTableRow().getItem();
 
-                            Button treeButton = new Button(I18n
-                                    .getInstance().getString("plugin.object.attribute.target.button"),
-                                    JEConfig.getImage("folders_explorer.png", 18, 18));
+                            Button treeButton = new Button("",
+                                    JEConfig.getImage("folders_explorer.png", tableIconSize, tableIconSize));
                             treeButton.wrapTextProperty().setValue(true);
 
-                            Button gotoButton = new Button(I18n.getInstance().getString("plugin.object.attribute.target.goto"),
-                                    JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", 18, 18));//icon
+                            Button gotoButton = new Button("",
+                                    JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", tableIconSize, tableIconSize));//icon
                             gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
+
+                            Boolean foundTarget = false;
 
                             gotoButton.setOnAction(event -> {
                                 try {
@@ -379,7 +339,7 @@ public class MeterPlugin implements Plugin {
                                         th = new TargetHelper(item.getDataSource(), latestSample.getValueAsString());
                                         if (th.isValid() && th.targetAccessible()) {
                                             logger.info("Target Is valid");
-                                            setButtonText(treeButton, item);
+                                            setToolTipText(treeButton, item);
                                         }
                                     }
 
@@ -428,19 +388,25 @@ public class MeterPlugin implements Plugin {
                                             changeMap.put(item, valueChange);
                                         }
                                     }
-                                    setButtonText(treeButton, item);
+                                    setToolTipText(treeButton, item);
 
                                 } catch (Exception ex) {
                                     logger.catching(ex);
                                 }
                             });
 
-                            setButtonText(treeButton, item);
 
-                            HBox hBox = new HBox(treeButton, gotoButton);
+                            HBox hBox = new HBox(treeButton);
+                            hBox.setAlignment(Pos.CENTER);
                             hBox.setSpacing(4);
 
-                            setGraphic(hBox);
+                            if (setToolTipText(treeButton, item)) {
+                                hBox.getChildren().add(gotoButton);
+                            }
+
+                            VBox vBox = new VBox(hBox);
+                            vBox.setAlignment(Pos.CENTER);
+                            setGraphic(vBox);
                         }
 
                     }
@@ -450,7 +416,8 @@ public class MeterPlugin implements Plugin {
         };
     }
 
-    private void setButtonText(Button treeButton, JEVisAttribute att) {
+    private boolean setToolTipText(Button treeButton, JEVisAttribute att) {
+        boolean foundTarget = false;
         try {
             TargetHelper th = new TargetHelper(ds, att);
 
@@ -488,14 +455,17 @@ public class MeterPlugin implements Plugin {
                         bText.append(th.getAttribute().get(index).getName());
 
                     }
+
+                    foundTarget = true;
                 }
 
-                Platform.runLater(() -> treeButton.setText(bText.toString()));
+                Platform.runLater(() -> treeButton.setTooltip(new Tooltip(bText.toString())));
             }
 
         } catch (Exception ex) {
             logger.catching(ex);
         }
+        return foundTarget;
     }
 
     private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellString() {
@@ -568,19 +538,38 @@ public class MeterPlugin implements Plugin {
                             setGraphic(null);
                         } else {
                             JEVisFile file = null;
+                            String fileName = "";
+
+                            boolean isPDF = false;
+                            boolean isImage = false;
+
                             MeterRow meterRow = (MeterRow) getTableRow().getItem();
 
                             try {
                                 JEVisAttribute attribute = meterRow.getAttributeMap().get(item.getType());
                                 if (attribute != null && attribute.hasSample()) {
                                     file = attribute.getLatestSample().getValueAsFile();
+
+                                    fileName = file.getFilename();
+                                    String s = fileName.substring(fileName.length() - 3).toLowerCase();
+                                    switch (s) {
+                                        case "pdf":
+                                            isPDF = true;
+                                            break;
+                                        case "png":
+                                        case "jpg":
+                                        case "jpeg":
+                                        case "gif":
+                                            isImage = true;
+                                            break;
+                                    }
                                 }
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
 
-                            Button downloadButton = new Button("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", 18, 18));
-                            Button uploadButton = new Button("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", 18, 18));
+                            Button downloadButton = new Button("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
+                            Button uploadButton = new Button("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
 
                             JEVisFile finalFile = file;
                             downloadButton.setOnAction(event -> {
@@ -632,7 +621,30 @@ public class MeterPlugin implements Plugin {
                                 }
                             });
 
-                            setGraphic(new HBox(uploadButton, downloadButton));
+                            HBox hBox = new HBox(uploadButton, downloadButton);
+                            hBox.setAlignment(Pos.CENTER);
+                            hBox.setSpacing(4);
+
+                            if (isPDF) {
+                                Button pdfButton = new Button("", JEConfig.getImage("pdf_24_2133056.png", tableIconSize, tableIconSize));
+                                hBox.getChildren().add(pdfButton);
+                                pdfButton.setOnAction(event -> {
+                                    PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
+                                    pdfViewerDialog.show(finalFile, this.getScene().getWindow());
+                                });
+                            } else if (isImage) {
+                                Button imageButton = new Button("", JEConfig.getImage("export-image.png", tableIconSize, tableIconSize));
+                                hBox.getChildren().add(imageButton);
+                                imageButton.setOnAction(event -> {
+                                    ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
+                                    imageViewerDialog.show(finalFile, JEConfig.getStage());
+                                });
+                            }
+
+                            VBox vBox = new VBox(hBox);
+                            vBox.setAlignment(Pos.CENTER);
+
+                            setGraphic(vBox);
                         }
                     }
                 };
@@ -789,7 +801,7 @@ public class MeterPlugin implements Plugin {
     }
 
     private void initToolBar() {
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", toolBarIconSize, toolBarIconSize));
         Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
         reload.setTooltip(reloadTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
@@ -798,24 +810,24 @@ public class MeterPlugin implements Plugin {
 
         Separator sep1 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
+        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
 
         save.setOnAction(event -> handleRequest(Constants.Plugin.Command.SAVE));
 
         Separator sep2 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton newButton = new ToggleButton("", JEConfig.getImage("list-add.png", iconSize, iconSize));
+        ToggleButton newButton = new ToggleButton("", JEConfig.getImage("list-add.png", toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newButton);
         newButton.setOnAction(event -> handleRequest(Constants.Plugin.Command.NEW));
 
-        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", iconSize, iconSize));
+        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
         delete.setOnAction(event -> handleRequest(Constants.Plugin.Command.DELETE));
 
         Separator sep3 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", iconSize, iconSize));
+        ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", toolBarIconSize, toolBarIconSize));
         Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
         printButton.setTooltip(printTooltip);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
