@@ -629,7 +629,7 @@ public class LoadAnalysisDialog {
 
             /** Column 0 */
             gridLayout.add(filterInput, 0, 0, 1, 1);
-            gridLayout.add(analysisListView, 0, 1, 1, 12);
+            gridLayout.add(analysisListView, 0, 1, 1, 13);
 
             /** Column 1 **/
             gridLayout.add(freeSpace, 1, 0, 1, 16);
@@ -679,7 +679,6 @@ public class LoadAnalysisDialog {
 //            analysisListView.setMaxWidth(600d);
             GridPane.setHgrow(analysisListView, Priority.ALWAYS);
             GridPane.setVgrow(analysisListView, Priority.ALWAYS);
-            GridPane.setFillHeight(analysisListView, true);
 
             HBox buttonBox = new HBox(10);
             Region spacer = new Region();

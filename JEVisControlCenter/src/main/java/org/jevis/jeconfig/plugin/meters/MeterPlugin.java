@@ -43,8 +43,6 @@ import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
-import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
-import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
@@ -80,7 +78,6 @@ public class MeterPlugin implements Plugin {
     private final String title;
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
-    Map<String, AttributeEditor> attributeEditorMap = new HashMap<>();
     private TabPane tabPane = new TabPane();
     private boolean initialized = false;
     Map<JEVisAttribute, AttributeValueChange> changeMap = new HashMap<>();
@@ -167,7 +164,7 @@ public class MeterPlugin implements Plugin {
                         break;
                     case JEVisConstants.PrimitiveType.FILE:
                         column.setCellFactory(valueCellFile());
-                        column.setMinWidth(115);
+                        column.setMinWidth(125);
                         break;
                     case JEVisConstants.PrimitiveType.BOOLEAN:
                         column.setCellFactory(valueCellBoolean());
@@ -180,7 +177,7 @@ public class MeterPlugin implements Plugin {
                             column.setMinWidth(85);
                         } else if (type.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || type.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                             column.setCellFactory(valueCellDateTime());
-                            column.setMinWidth(100);
+                            column.setMinWidth(110);
                         } else {
                             column.setCellFactory(valueCellString());
                         }
@@ -212,10 +209,7 @@ public class MeterPlugin implements Plugin {
 
                                         if (jeVisAttribute != null) {
                                             String hash = jeVisAttribute.getObject().getID() + ":" + jeVisAttribute.getName();
-                                            AttributeEditor editor = attributeEditorMap.get(hash);
 
-                                            editor.setReadOnly(false);
-                                            setGraphic(editor.getEditor());
                                         }
                                     }
                                 }
@@ -526,6 +520,7 @@ public class MeterPlugin implements Plugin {
 
     private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellFile() {
         return new Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>>() {
+
             @Override
             public TableCell<MeterRow, JEVisAttribute> call(TableColumn<MeterRow, JEVisAttribute> param) {
                 return new TableCell<MeterRow, JEVisAttribute>() {
@@ -537,20 +532,33 @@ public class MeterPlugin implements Plugin {
                             setText(null);
                             setGraphic(null);
                         } else {
-                            JEVisFile file = null;
+                            Button downloadButton = new Button("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
                             String fileName = "";
 
                             boolean isPDF = false;
                             boolean isImage = false;
 
-                            MeterRow meterRow = (MeterRow) getTableRow().getItem();
+                            AttributeValueChange valueChange;
+                            if (changeMap.get(item) == null) {
+                                valueChange = new AttributeValueChange();
+                                try {
+                                    valueChange.setPrimitiveType(item.getPrimitiveType());
+                                    valueChange.setGuiDisplayType(item.getType().getGUIDisplayType());
+                                    valueChange.setAttribute(item);
+                                } catch (JEVisException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                valueChange = changeMap.get(item);
+                            }
 
                             try {
-                                JEVisAttribute attribute = meterRow.getAttributeMap().get(item.getType());
-                                if (attribute != null && attribute.hasSample()) {
-                                    file = attribute.getLatestSample().getValueAsFile();
+                                if (item.hasSample()) {
+                                    valueChange.setJeVisFile(item.getLatestSample().getValueAsFile());
+                                    fileName = valueChange.getJeVisFile().getFilename();
+                                    String finalFileName = fileName;
+                                    Platform.runLater(() -> downloadButton.setTooltip(new Tooltip(finalFileName + " " + I18n.getInstance().getString("plugin.object.attribute.file.download"))));
 
-                                    fileName = file.getFilename();
                                     String s = fileName.substring(fileName.length() - 3).toLowerCase();
                                     switch (s) {
                                         case "pdf":
@@ -568,22 +576,20 @@ public class MeterPlugin implements Plugin {
                                 e.printStackTrace();
                             }
 
-                            Button downloadButton = new Button("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
                             Button uploadButton = new Button("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
 
-                            JEVisFile finalFile = file;
                             downloadButton.setOnAction(event -> {
                                 try {
-                                    if (finalFile != null) {
+                                    if (valueChange.getJeVisFile() != null) {
                                         FileChooser fileChooser = new FileChooser();
-                                        fileChooser.setInitialFileName(finalFile.getFilename());
+                                        fileChooser.setInitialFileName(valueChange.getJeVisFile().getFilename());
                                         fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
                                         fileChooser.getExtensionFilters().addAll(
                                                 new FileChooser.ExtensionFilter("All Files", "*.*"));
                                         File selectedFile = fileChooser.showSaveDialog(null);
                                         if (selectedFile != null) {
                                             JEConfig.setLastPath(selectedFile);
-                                            finalFile.saveToFile(selectedFile);
+                                            valueChange.getJeVisFile().saveToFile(selectedFile);
                                         }
                                     }
                                 } catch (Exception ex) {
@@ -609,8 +615,8 @@ public class MeterPlugin implements Plugin {
                                             if (attributeValueChange != null) {
                                                 attributeValueChange.setJeVisFile(jfile);
                                             } else {
-                                                AttributeValueChange valueChange = new AttributeValueChange(item.getPrimitiveType(), item.getType().getGUIDisplayType(), item, jfile);
-                                                changeMap.put(item, valueChange);
+                                                valueChange.setJeVisFile(jfile);
+                                                valueChange.setChanged(true);
                                             }
                                         } catch (Exception ex) {
                                             logger.catching(ex);
@@ -627,17 +633,21 @@ public class MeterPlugin implements Plugin {
 
                             if (isPDF) {
                                 Button pdfButton = new Button("", JEConfig.getImage("pdf_24_2133056.png", tableIconSize, tableIconSize));
+                                String finalFileName1 = fileName;
+                                Platform.runLater(() -> pdfButton.setTooltip(new Tooltip(finalFileName1 + " " + I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"))));
                                 hBox.getChildren().add(pdfButton);
                                 pdfButton.setOnAction(event -> {
                                     PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
-                                    pdfViewerDialog.show(finalFile, this.getScene().getWindow());
+                                    pdfViewerDialog.show(valueChange.getJeVisFile(), this.getScene().getWindow());
                                 });
                             } else if (isImage) {
                                 Button imageButton = new Button("", JEConfig.getImage("export-image.png", tableIconSize, tableIconSize));
+                                String finalFileName1 = fileName;
+                                Platform.runLater(() -> imageButton.setTooltip(new Tooltip(finalFileName1 + " " + I18n.getInstance().getString("plugin.object.attribute.file.download"))));
                                 hBox.getChildren().add(imageButton);
                                 imageButton.setOnAction(event -> {
                                     ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
-                                    imageViewerDialog.show(finalFile, JEConfig.getStage());
+                                    imageViewerDialog.show(valueChange.getJeVisFile(), JEConfig.getStage());
                                 });
                             }
 
@@ -695,7 +705,7 @@ public class MeterPlugin implements Plugin {
                                 }
 
                                 try {
-                                    /** We don't use the NumberFormat to validate, because he is not strict enough **/
+                                    /** We don't use the NumberFormat to validate, because it is not strict enough **/
                                     Double parse = Double.parseDouble(t.getControlNewText());
                                 } catch (Exception ex) {
                                     t.setText("");
@@ -993,18 +1003,16 @@ public class MeterPlugin implements Plugin {
     public void handleRequest(int cmdType) {
         switch (cmdType) {
             case Constants.Plugin.Command.SAVE:
-                for (Map.Entry<String, AttributeEditor> entry : attributeEditorMap.entrySet()) {
-                    String s = entry.getKey();
-                    AttributeEditor attributeEditor = entry.getValue();
-
-                    if (attributeEditor.hasChanged()) {
-                        System.out.println("hasChanged: " + attributeEditor);
-                        try {
-                            attributeEditor.commit();
-                        } catch (JEVisException e) {
-                            e.printStackTrace();
-                        }
+                DateTime saveTime = new DateTime();
+                for (Map.Entry<JEVisAttribute, AttributeValueChange> entry : changeMap.entrySet()) {
+                    JEVisAttribute a = entry.getKey();
+                    AttributeValueChange attributeValueChange = entry.getValue();
+                    try {
+                        attributeValueChange.commit(saveTime);
+                    } catch (JEVisException e) {
+                        logger.error("Could not save {} for attribute {} of object {}:{}", attributeValueChange.toString(), a.getName(), a.getObject().getName(), a.getObject().getID(), e);
                     }
+
                 }
                 break;
             case Constants.Plugin.Command.DELETE:
@@ -1078,7 +1086,7 @@ public class MeterPlugin implements Plugin {
     private void updateList() {
 
         Platform.runLater(() -> tabPane.getTabs().clear());
-        attributeEditorMap.clear();
+        changeMap.clear();
 
         Map<JEVisClass, List<JEVisObject>> allMeters = getAllMeters();
         List<JEVisClass> classes = new ArrayList<>();
@@ -1127,14 +1135,6 @@ public class MeterPlugin implements Plugin {
 
                             map.put(type, meterObjectAttribute);
 
-                            AttributeEditor editor = GenericAttributeExtension.getEditor(type, meterObjectAttribute);
-
-                            String hash = meterObjectAttribute.getObject().getID() + ":" + meterObjectAttribute.getName();
-
-                            if (!attributeEditorMap.containsKey(hash)) {
-                                attributeEditorMap.put(hash, editor);
-                            }
-
                             if (type.equals(onlineIdType)) {
                                 if (meterObjectAttribute.hasSample()) {
                                     TargetHelper th = new TargetHelper(ds, meterObjectAttribute);
@@ -1147,14 +1147,6 @@ public class MeterPlugin implements Plugin {
 
                                             if (cleanObjectAttribute != null) {
                                                 map.put(multiplierType, cleanObjectAttribute);
-
-                                                AttributeEditor editor2 = GenericAttributeExtension.getEditor(multiplierType, cleanObjectAttribute);
-
-                                                String hash2 = cleanObjectAttribute.getObject().getID() + ":" + cleanObjectAttribute.getName();
-
-                                                if (!attributeEditorMap.containsKey(hash2)) {
-                                                    attributeEditorMap.put(hash2, editor2);
-                                                }
                                             }
                                         }
                                     }
