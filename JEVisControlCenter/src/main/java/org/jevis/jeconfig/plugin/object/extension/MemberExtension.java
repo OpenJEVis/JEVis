@@ -361,6 +361,7 @@ public class MemberExtension implements ObjectEditorExtension {
 
         FilteredList<JEVisObject> filteredData = new FilteredList<>(possibleUsers, s -> true);
         TextField filterInput = new TextField();
+        filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         filterInput.textProperty().addListener(obs -> {
             String filter = filterInput.getText();
