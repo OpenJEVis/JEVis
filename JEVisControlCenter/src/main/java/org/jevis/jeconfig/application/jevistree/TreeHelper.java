@@ -775,12 +775,12 @@ public class TreeHelper {
                     CheckBox setPeriod = new CheckBox("Period");
                     setPeriod.setSelected(true);
 
-                    gp.add(setUnit, 0, 0);
-                    gp.add(l_prefixL, 0, 1);
-                    gp.add(l_unitL, 0, 2);
-                    gp.add(l_example, 0, 3);
-                    gp.add(setPeriod, 0, 4);
-                    gp.add(l_SampleRate, 0, 5);
+                    gp.add(setUnit, 0, 0, 2, 1);
+                    gp.add(l_prefixL, 1, 1);
+                    gp.add(l_unitL, 1, 2);
+                    gp.add(l_example, 1, 3);
+                    gp.add(setPeriod, 0, 4, 2, 1);
+                    gp.add(l_SampleRate, 1, 5);
 
                     final JEVisDataSource ds = items.get(0).getValue().getJEVisObject().getDataSource();
                     final JEVisObject object = getFirstCleanObject(items.get(0).getValue().getJEVisObject());
