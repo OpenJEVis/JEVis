@@ -203,6 +203,9 @@ public class TopMenu extends MenuBar {
             MenuItem setLimits = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title"));
             setLimits.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
+            MenuItem setUnitsAndPeriods = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setUnitAndPeriodRecursive.title"));
+            setUnitsAndPeriods.setAccelerator(new KeyCodeCombination(KeyCode.U, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+
             MenuItem enableAll = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.enable"));
             enableAll.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
@@ -212,7 +215,7 @@ public class TopMenu extends MenuBar {
             MenuItem resetCalculation = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.resetcalc"));
             resetCalculation.setAccelerator(new KeyCodeCombination(KeyCode.J, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
-            menuEdit.getItems().addAll(deleteAllCleanAndRaw, setLimits, createMultiplierAndDifferential, enableAll, disableAll, resetCalculation);
+            menuEdit.getItems().addAll(deleteAllCleanAndRaw, setLimits, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation);
         }
 
 //        menuEdit.getItems().addAll(copie, delete, rename);

@@ -54,6 +54,8 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.dialog.*;
+import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
+import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -746,6 +748,149 @@ public class TreeHelper {
         } catch (JEVisException e) {
             logger.error("Could not get JEVis data source.", e);
         }
+    }
+
+    public static void EventSetUnitAndPeriodRecursive(JEVisTree tree) {
+        logger.debug("EventSetUnitAndPeriodRecursive");
+        try {
+            if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
+                ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
+
+                if (tree.getJEVisDataSource().getCurrentUser().canWrite(items.get(0).getValue().getJEVisObject().getID())) {
+
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle(I18n.getInstance().getString("jevistree.dialog.setUnitAndPeriodRecursive.title"));
+                    alert.setHeaderText(null);
+                    GridPane gp = new GridPane();
+                    gp.setHgap(4);
+                    gp.setVgap(6);
+
+                    final Label l_prefixL = new Label(I18n.getInstance().getString("attribute.editor.unit.prefix"));
+                    final Label l_unitL = new Label(I18n.getInstance().getString("attribute.editor.unit.unit"));
+                    final Label l_example = new Label(I18n.getInstance().getString("attribute.editor.unit.symbol"));
+                    final Label l_SampleRate = new Label(I18n.getInstance().getString("attribute.editor.unit.samplingrate"));
+
+                    CheckBox setUnit = new CheckBox("Unit");
+                    setUnit.setSelected(true);
+                    CheckBox setPeriod = new CheckBox("Period");
+                    setPeriod.setSelected(true);
+
+                    gp.add(setUnit, 0, 0);
+                    gp.add(l_prefixL, 0, 1);
+                    gp.add(l_unitL, 0, 2);
+                    gp.add(l_example, 0, 3);
+                    gp.add(setPeriod, 0, 4);
+                    gp.add(l_SampleRate, 0, 5);
+
+                    final JEVisDataSource ds = items.get(0).getValue().getJEVisObject().getDataSource();
+                    final JEVisObject object = getFirstCleanObject(items.get(0).getValue().getJEVisObject());
+
+                    JEVisAttribute valueAtt = object.getAttribute("Value");
+
+                    UnitSelectUI unitUI = new UnitSelectUI(ds, valueAtt.getInputUnit());
+                    unitUI.getPrefixBox().setPrefWidth(95);
+                    unitUI.getUnitButton().setPrefWidth(95);
+                    unitUI.getSymbolField().setPrefWidth(95);
+                    SamplingRateUI periodUI = new SamplingRateUI(valueAtt.getInputSampleRate());
+
+                    gp.add(unitUI.getPrefixBox(), 1, 0, 1, 1);
+                    gp.add(unitUI.getUnitButton(), 1, 1, 1, 1);
+                    gp.add(unitUI.getSymbolField(), 1, 2, 1, 1);
+                    gp.add(periodUI, 1, 3, 1, 1);
+
+                    alert.getDialogPane().setContent(gp);
+
+                    alert.showAndWait().ifPresent(buttonType -> {
+                        if (buttonType.equals(ButtonType.OK)) {
+                            try {
+                                boolean unit = setUnit.isSelected();
+                                boolean period = setPeriod.isSelected();
+
+                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.setUnitAndPeriodRecursive.title") + "...");
+
+                                Task<Void> set = new Task<Void>() {
+                                    @Override
+                                    protected Void call() {
+                                        for (TreeItem<JEVisTreeRow> item : items) {
+                                            try {
+                                                setUnitAndPeriod(items.get(0).getValue().getJEVisObject(), unit, unitUI, period, periodUI);
+                                            } catch (JEVisException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+
+                                        return null;
+                                    }
+                                };
+                                set.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+                                set.setOnCancelled(event -> {
+                                    logger.debug("Setting all units and periods cancelled");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                set.setOnFailed(event -> {
+                                    logger.debug("Setting all units and periods failed");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                pForm.activateProgressBar(set);
+                                pForm.getDialogStage().show();
+
+                                new Thread(set).start();
+
+                            } catch (Exception ex) {
+                                logger.catching(ex);
+                                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
+                                        I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                            }
+                        } else {
+                            // ... user chose CANCEL or closed the dialog
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        alert1.showAndWait();
+                    });
+
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not get JEVis data source.", e);
+        }
+    }
+
+    private static void setUnitAndPeriod(JEVisObject jeVisObject, boolean isUnit, UnitSelectUI unit, boolean isPeriod, SamplingRateUI rate) throws JEVisException {
+        if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
+            JEVisAttribute valueAtt = jeVisObject.getAttribute("Value");
+            if (isUnit) {
+                valueAtt.setDisplayUnit(unit.getUnit());
+                valueAtt.setInputUnit(unit.getUnit());
+            }
+
+            if (isPeriod) {
+                valueAtt.setDisplaySampleRate(rate.samplingRateProperty().getValue());
+                valueAtt.setInputSampleRate(rate.samplingRateProperty().getValue());
+            }
+            valueAtt.commit();
+        } else {
+            for (JEVisObject jeVisObject1 : jeVisObject.getChildren()) {
+                setUnitAndPeriod(jeVisObject1, isUnit, unit, isPeriod, rate);
+            }
+        }
+    }
+
+    private static JEVisObject getFirstCleanObject(JEVisObject jeVisObject) throws JEVisException {
+        for (JEVisObject object : jeVisObject.getChildren()) {
+            if (object.getJEVisClassName().equals("Data") || object.getJEVisClassName().equals("Clean data")) {
+                return object;
+            } else {
+                return getFirstCleanObject(object);
+            }
+        }
+        return jeVisObject;
     }
 
     public static void EventSetLimitsRecursive(JEVisTree tree) {
