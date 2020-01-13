@@ -761,6 +761,7 @@ public class TreeHelper {
                     Alert alert = new Alert(AlertType.CONFIRMATION);
                     alert.setTitle(I18n.getInstance().getString("jevistree.dialog.setUnitAndPeriodRecursive.title"));
                     alert.setHeaderText(null);
+                    alert.setResizable(true);
                     GridPane gp = new GridPane();
                     gp.setHgap(4);
                     gp.setVgap(6);
@@ -776,11 +777,11 @@ public class TreeHelper {
                     setPeriod.setSelected(true);
 
                     gp.add(setUnit, 0, 0, 2, 1);
-                    gp.add(l_prefixL, 1, 1);
-                    gp.add(l_unitL, 1, 2);
-                    gp.add(l_example, 1, 3);
+                    gp.add(l_prefixL, 0, 1);
+                    gp.add(l_unitL, 0, 2);
+                    gp.add(l_example, 0, 3);
                     gp.add(setPeriod, 0, 4, 2, 1);
-                    gp.add(l_SampleRate, 1, 5);
+                    gp.add(l_SampleRate, 0, 5);
 
                     final JEVisDataSource ds = items.get(0).getValue().getJEVisObject().getDataSource();
                     final JEVisObject object = getFirstCleanObject(items.get(0).getValue().getJEVisObject());
@@ -793,10 +794,10 @@ public class TreeHelper {
                     unitUI.getSymbolField().setPrefWidth(95);
                     SamplingRateUI periodUI = new SamplingRateUI(valueAtt.getInputSampleRate());
 
-                    gp.add(unitUI.getPrefixBox(), 1, 0, 1, 1);
-                    gp.add(unitUI.getUnitButton(), 1, 1, 1, 1);
-                    gp.add(unitUI.getSymbolField(), 1, 2, 1, 1);
-                    gp.add(periodUI, 1, 3, 1, 1);
+                    gp.add(unitUI.getPrefixBox(), 1, 1);
+                    gp.add(unitUI.getUnitButton(), 1, 2);
+                    gp.add(unitUI.getSymbolField(), 1, 3);
+                    gp.add(periodUI, 1, 5);
 
                     alert.getDialogPane().setContent(gp);
 
@@ -875,10 +876,10 @@ public class TreeHelper {
                 valueAtt.setInputSampleRate(rate.samplingRateProperty().getValue());
             }
             valueAtt.commit();
-        } else {
-            for (JEVisObject jeVisObject1 : jeVisObject.getChildren()) {
-                setUnitAndPeriod(jeVisObject1, isUnit, unit, isPeriod, rate);
-            }
+        }
+
+        for (JEVisObject jeVisObject1 : jeVisObject.getChildren()) {
+            setUnitAndPeriod(jeVisObject1, isUnit, unit, isPeriod, rate);
         }
     }
 
