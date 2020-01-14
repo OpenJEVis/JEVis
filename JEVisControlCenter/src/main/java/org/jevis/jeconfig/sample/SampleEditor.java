@@ -36,10 +36,7 @@ import javafx.stage.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.SampleGenerator;
@@ -330,7 +327,14 @@ public class SampleEditor {
 
     private Node buildProcessorBox() {
 
-        ProcessorBox processorBox = new ProcessorBox(_attribute.getObject(), null);
+        JEVisObject rawDataParent = _attribute.getObject();
+        try {
+            rawDataParent = getRawDataParent(_attribute.getObject());
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        ProcessorBox processorBox = new ProcessorBox(rawDataParent, _attribute.getObject());
         processorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 _attribute = newValue.getAttribute("Value");
@@ -367,6 +371,14 @@ public class SampleEditor {
         grid.add(processorBox, 1, 3, 1, 1);
 
         return grid;
+    }
+
+    private JEVisObject getRawDataParent(JEVisObject object) throws JEVisException {
+        if (object.getJEVisClassName().equals("Data")) {
+            return object;
+        } else {
+            return getRawDataParent(object.getParents().get(0));
+        }
     }
 
     private void updateSamples(JFXDatePicker startDate, JFXDatePicker endDate) {
