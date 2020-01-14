@@ -32,6 +32,8 @@ import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmConfiguration;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonAlarm;
@@ -40,7 +42,10 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
+import org.jevis.jeconfig.plugin.AnalysisRequest;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.InvocationTargetException;
@@ -231,12 +236,25 @@ public class AlarmPlugin implements Plugin {
                             try {
                                 for (JEVisObject parent : item.getParents()) {
                                     text += parent.getName();
+
+                                    if (getTableRow() != null && getTableRow().getItem() != null) {
+                                        AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
+                                        DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
+                                        DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
+
+                                        AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                                        AnalysisRequest analysisRequest = new AnalysisRequest(parent, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
+
+                                        this.setOnMouseClicked(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
+                                    }
                                     break;
                                 }
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
                             setText(text);
+                            setTextFill(Color.BLUE);
+                            setUnderline(true);
                         }
                     }
                 };
