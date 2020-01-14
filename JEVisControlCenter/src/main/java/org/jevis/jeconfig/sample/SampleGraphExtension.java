@@ -32,6 +32,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTimeZone;
@@ -93,6 +94,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
             chartDataModelList.add(chartDataModel);
 
             LineChart lc = new LineChart(new AnalysisDataModel(ds, null), chartDataModelList, 0, "");
+            Platform.runLater(() -> ((MultiAxisLineChart) lc.getChart()).getY2Axis().setVisible(false));
             lc.setRegion(lc.getJfxChartUtil().setupZooming((MultiAxisChart<?, ?>) lc.getChart()));
 
             bp.setCenter(lc.getRegion());
