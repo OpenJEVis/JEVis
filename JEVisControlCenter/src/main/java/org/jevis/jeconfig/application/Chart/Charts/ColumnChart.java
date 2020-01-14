@@ -37,7 +37,6 @@ import org.jevis.jeconfig.dialog.NoteDialog;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.PeriodFormat;
 
 import java.text.NumberFormat;
 import java.util.*;
@@ -321,45 +320,49 @@ public class ColumnChart implements Chart {
 
             x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
 
-            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
+            stringForDisplay = ((CategoryAxis) ((MultiAxisChart) getChart()).getXAxis()).getValueForDisplay(x);
 
+            if (stringForDisplay != null) {
+                valueForDisplay = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(stringForDisplay);
+            }
         }
         if (valueForDisplay != null) {
             setValueForDisplay(valueForDisplay);
-            for (ColumnChartSerie serie : columnChartSerieList) {
+            DateTime finalValueForDisplay = valueForDisplay;
+            NumberFormat nf = NumberFormat.getInstance();
+            nf.setMinimumFractionDigits(2);
+            nf.setMaximumFractionDigits(2);
+
+            columnChartSerieList.parallelStream().forEach(serie -> {
                 try {
                     TableEntry tableEntry = serie.getTableEntry();
                     TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
 
-                    DateTime nearest = sampleTreeMap.lowerKey(valueForDisplay);
+                    DateTime nearest = null;
+                    if (sampleTreeMap.get(finalValueForDisplay) != null) {
+                        nearest = finalValueForDisplay;
+                    } else {
+                        nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
+                    }
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
 
                     if (sample != null) {
-                        NumberFormat nf = NumberFormat.getInstance();
-                        nf.setMinimumFractionDigits(2);
-                        nf.setMaximumFractionDigits(2);
                         Double valueAsDouble = sample.getValueAsDouble();
                         Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
                         String formattedDouble = nf.format(valueAsDouble);
 
-                        boolean asDuration = false;
-                        if (!asDuration) {
-                            Platform.runLater(() -> tableEntry.setDate(nearest
-                                    .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss"))));
-                        } else {
-                            Platform.runLater(() -> tableEntry.setDate((nearest.getMillis() -
-                                    timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h"));
-                        }
+                        DateTime finalNearest = nearest;
+                        Platform.runLater(() -> tableEntry.setDate(finalNearest
+                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss"))));
                         Platform.runLater(() -> tableEntry.setNote(formattedNote.getNoteAsString()));
                         String unit = serie.getUnit();
                         Platform.runLater(() -> tableEntry.setValue(formattedDouble + " " + unit));
-                        Platform.runLater(() -> tableEntry.setPeriod(getPeriod().toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()))));
                     }
                 } catch (Exception ex) {
                 }
 
-            }
+            });
         }
     }
 

@@ -16,6 +16,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
@@ -44,20 +46,23 @@ public class HeatMapChart implements Chart {
     private List<ChartDataModel> chartDataModels;
     private String chartTitle;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-    private Long Y_MAX;
-    private Long X_MAX;
+    private Long ROWS;
+    private Long COLS;
 
     private Region chartRegion;
     private String X_FORMAT;
     private String Y_FORMAT;
     private String Y2_FORMAT;
+    private double maxValue;
+    private Map<MatrixXY, Double> matrixData = new HashMap<>();
+    private String unit;
 
     public HeatMapChart(List<ChartDataModel> chartDataModels, Integer chartId, String chartTitle) {
         this.chartDataModels = chartDataModels;
         this.chartId = chartId;
         this.chartTitle = chartTitle;
-        this.Y_MAX = 24L;
-        this.X_MAX = 4L;
+        this.ROWS = 24L;
+        this.COLS = 4L;
         this.workDays = new WorkDays(chartDataModels.get(0).getObject());
 
         init();
@@ -67,7 +72,7 @@ public class HeatMapChart implements Chart {
         List<MatrixChartItem> matrixData1 = new ArrayList<>();
 
         ChartDataModel chartDataModel = chartDataModels.get(0);
-        String unit = UnitManager.getInstance().format(chartDataModel.getUnit());
+        unit = UnitManager.getInstance().format(chartDataModel.getUnit());
         Period period = new Period(chartDataModel.getSelectedStart(), chartDataModel.getSelectedEnd());
         Period inputSampleRate = chartDataModel.getAttribute().getInputSampleRate();
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
@@ -75,8 +80,8 @@ public class HeatMapChart implements Chart {
         numberFormat.setMaximumFractionDigits(2);
 
         HeatMapXY heatMapXY = getHeatMapXY(period, inputSampleRate);
-        X_MAX = heatMapXY.getX();
-        Y_MAX = heatMapXY.getY();
+        COLS = heatMapXY.getX();
+        ROWS = heatMapXY.getY();
         X_FORMAT = heatMapXY.getX_FORMAT();
         Y_FORMAT = heatMapXY.getY_FORMAT();
         Y2_FORMAT = heatMapXY.getY2_FORMAT();
@@ -125,14 +130,14 @@ public class HeatMapChart implements Chart {
             }
         }
 
-        for (int y = 0; y < Y_MAX; y++) {
+        for (int y = 0; y < ROWS; y++) {
             int xCell = 0;
 
             if (!isCustomStart) {
                 yAxisList.add(currentTS);
             } else {
                 DateTime helpDate = new DateTime(currentTS.getMillis());
-                for (int x = 0; x < X_MAX; x++) {
+                for (int x = 0; x < COLS; x++) {
                     if (helpDate.getHourOfDay() == 0) {
                         yAxisList.add(helpDate);
                         break;
@@ -142,8 +147,8 @@ public class HeatMapChart implements Chart {
                 }
             }
 
-            for (int x = 0; x < X_MAX; x++) {
-                if (xAxisList.size() < X_MAX) {
+            for (int x = 0; x < COLS; x++) {
+                if (xAxisList.size() < COLS) {
                     xAxisList.add(currentTS);
                 }
 
@@ -155,7 +160,7 @@ public class HeatMapChart implements Chart {
                         minValue = Math.min(minValue, valueAsDouble);
                         maxValue = Math.max(maxValue, valueAsDouble);
                         matrixData1.add(new MatrixChartItem(xCell, y, valueAsDouble));
-
+                        matrixData.put(new MatrixXY(xCell, y), valueAsDouble);
                         xCell++;
                     }
                 } catch (Exception e) {
@@ -166,12 +171,14 @@ public class HeatMapChart implements Chart {
             }
         }
 
+        this.maxValue = maxValue;
+
         MatrixItemSeries<MatrixChartItem> matrixItemSeries1 = new MatrixItemSeries<>(matrixData1, ChartType.MATRIX_HEATMAP);
 
-        MatrixPane matrixHeatMap = new MatrixPane<>(matrixItemSeries1);
+        MatrixPane<MatrixChartItem> matrixHeatMap = new MatrixPane<>(matrixItemSeries1);
         matrixHeatMap.setColorMapping(ColorMapping.GREEN_YELLOW_RED);
         matrixHeatMap.getMatrix().setUseSpacer(false);
-        matrixHeatMap.getMatrix().setColsAndRows(X_MAX.intValue(), Y_MAX.intValue());
+        matrixHeatMap.getMatrix().setColsAndRows(COLS.intValue(), ROWS.intValue());
 
         GridPane leftAxis = new GridPane();
         leftAxis.setPadding(new Insets(4));
@@ -315,6 +322,22 @@ public class HeatMapChart implements Chart {
         VBox.setVgrow(spHor, Priority.ALWAYS);
 
         setRegion(spVer);
+    }
+
+    public final Double getValueAt(final LinearGradient GRADIENT, Color color) {
+        List<Stop> stops = GRADIENT.getStops();
+        Stop foundStop = null;
+
+        for (Stop stop : stops) {
+            if (stop.getColor().equals(color)) {
+                foundStop = stop;
+                break;
+            }
+        }
+
+        if (foundStop != null) {
+            return foundStop.getOffset();
+        } else return null;
     }
 
     @Override
@@ -570,5 +593,25 @@ public class HeatMapChart implements Chart {
         }
 
         return new HeatMapXY(x, x_Format, y, y_Format, y2_Format, aggregationPeriod);
+    }
+
+    public double getMaxValue() {
+        return maxValue;
+    }
+
+    public Long getROWS() {
+        return ROWS;
+    }
+
+    public Long getCOLS() {
+        return COLS;
+    }
+
+    public Map<MatrixXY, Double> getMatrixData() {
+        return matrixData;
+    }
+
+    public String getUnit() {
+        return unit;
     }
 }

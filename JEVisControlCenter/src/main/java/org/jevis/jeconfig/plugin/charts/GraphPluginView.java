@@ -21,6 +21,8 @@ package org.jevis.jeconfig.plugin.charts;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import eu.hansolo.fx.charts.MatrixPane;
+import eu.hansolo.fx.charts.data.MatrixChartItem;
+import eu.hansolo.fx.charts.tools.Helper;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -31,6 +33,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -39,6 +42,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -67,12 +71,10 @@ import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
-import org.jevis.jeconfig.application.Chart.Charts.BubbleChart;
-import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
+import org.jevis.jeconfig.application.Chart.Charts.*;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
-import org.jevis.jeconfig.application.Chart.Charts.TableChart;
 import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
 import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
@@ -83,10 +85,7 @@ import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -734,11 +733,11 @@ public class GraphPluginView implements Plugin {
                     }
                 } else if (cv.getChartType().equals(ChartType.HEAT_MAP)) {
                     VBox spVer = (VBox) cv.getChartRegion();
-                    MatrixPane matrixHeatMap = null;
+                    MatrixPane<MatrixChartItem> matrixHeatMap = null;
                     for (Node node : spVer.getChildren()) {
                         if (node instanceof HBox) {
                             HBox spHor = (HBox) node;
-                            matrixHeatMap = spHor.getChildren().stream().filter(node1 -> node1 instanceof MatrixPane).findFirst().map(node1 -> (MatrixPane) node1).orElse(matrixHeatMap);
+                            matrixHeatMap = spHor.getChildren().stream().filter(node1 -> node1 instanceof MatrixPane).findFirst().map(node1 -> (MatrixPane<MatrixChartItem>) node1).orElse(matrixHeatMap);
                         }
                     }
 
@@ -790,6 +789,48 @@ public class GraphPluginView implements Plugin {
                                 }
                             }
                         }
+
+                        Tooltip tp = new Tooltip("");
+
+                        HeatMapChart chart = (HeatMapChart) cv.getChart();
+
+                        double width = matrixHeatMap.getMatrix().getWidth() - matrixHeatMap.getMatrix().getInsets().getLeft() - matrixHeatMap.getMatrix().getInsets().getRight();
+                        double height = matrixHeatMap.getMatrix().getHeight() - matrixHeatMap.getMatrix().getInsets().getTop() - matrixHeatMap.getMatrix().getInsets().getBottom();
+                        double pixelSize = Math.min((width / chart.getCOLS()), (height / chart.getROWS()));
+                        double spacer = pixelSize * spacerSizeFactor;
+                        double pixelWidthMinusDoubleSpacer = pixelWidth - spacer * 2;
+                        double pixelHeightMinusDoubleSpacer = pixelHeight - spacer * 2;
+
+                        double spacerPlusPixelWidthMinusDoubleSpacer = spacer + pixelWidthMinusDoubleSpacer;
+                        double spacerPlusPixelHeightMinusDoubleSpacer = spacer + pixelHeightMinusDoubleSpacer;
+
+                        MatrixPane<MatrixChartItem> finalMatrixHeatMap = matrixHeatMap;
+                        matrixHeatMap.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                            @Override
+                            public void handle(MouseEvent t) {
+                                Node node = (Node) t.getSource();
+                                for (int y = 0; y < chart.getROWS(); y++) {
+                                    for (int x = 0; x < chart.getCOLS(); x++) {
+                                        if (Helper.isInRectangle(t.getX(), t.getY(), x * pixelWidth + spacer, y * pixelHeight + spacer, x * pixelWidth + spacerPlusPixelWidthMinusDoubleSpacer, y * pixelHeight + spacerPlusPixelHeightMinusDoubleSpacer)) {
+                                            Double value = null;
+                                            for (Map.Entry<MatrixXY, Double> entry : chart.getMatrixData().entrySet()) {
+                                                MatrixXY matrixXY = entry.getKey();
+                                                if (matrixXY.getY() == y && matrixXY.getX() == x) {
+                                                    value = entry.getValue();
+                                                    break;
+                                                }
+                                            }
+
+                                            if (value != null) {
+                                                Double finalValue = value;
+                                                Platform.runLater(() -> tp.setText(finalValue.toString() + " " + chart.getUnit()));
+                                                Platform.runLater(() -> tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY()));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
                     }
                 }
 
@@ -1039,6 +1080,7 @@ public class GraphPluginView implements Plugin {
                 case HEAT_MAP:
                     break;
                 case COLUMN:
+                    setupMouseMoved(cv, notActive);
                     break;
                 default:
                     break;
@@ -1087,8 +1129,7 @@ public class GraphPluginView implements Plugin {
                 if (!na.getChartType().equals(ChartType.PIE)
                         && !na.getChartType().equals(ChartType.BAR)
                         && !na.getChartType().equals(ChartType.BUBBLE)
-                        && !na.getChartType().equals(ChartType.TABLE)
-                        && !na.getChartType().equals(ChartType.COLUMN)) {
+                        && !na.getChartType().equals(ChartType.TABLE)) {
                     na.updateTablesSimultaneously(null, cv.getValueForDisplay());
                 } else if (na.getChartType().equals(ChartType.TABLE)) {
                     na.updateTablesSimultaneously(null, cv.getValueForDisplay());

@@ -197,146 +197,156 @@ public class EnterDataDialog {
         );
         confirm.setOnAction(event -> {
             if (selectedObject != null) {
-                DoubleValidator validator = new DoubleValidator();
-                Double newVal = validator.validate(doubleField.getText(), I18n.getInstance().getLocale());
+                try {
+                    if (ds.getCurrentUser().canWrite(selectedObject.getID())) {
+                        DoubleValidator validator = new DoubleValidator();
+                        Double newVal = validator.validate(doubleField.getText(), I18n.getInstance().getLocale());
 
-                if (newVal != null) {
+                        if (newVal != null) {
 
-                    JEVisAttribute valueAttribute = null;
-                    JEVisAttribute diffAttribute = null;
-                    Map<JsonLimitsConfig, JEVisObject> limitsConfigs = new HashMap<>();
-                    try {
-                        valueAttribute = selectedObject.getAttribute("Value");
-                        for (JEVisObject jeVisObject : selectedObject.getChildren(cleanDataClass, false)) {
-                            diffAttribute = jeVisObject.getAttribute("Conversion to Differential");
-                            CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject, new ObjectHandler(ds));
-                            limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
-                        }
-                    } catch (JEVisException e) {
-                        logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
-                    }
-                    DateTime ts = new DateTime(
-                            datePicker.valueProperty().get().getYear(), datePicker.valueProperty().get().getMonthValue(), datePicker.valueProperty().get().getDayOfMonth(),
-                            timePicker.valueProperty().get().getHour(), timePicker.valueProperty().get().getMinute(), timePicker.valueProperty().get().getSecond());
-
-                    if (valueAttribute != null) {
-
-                        JEVisSample diffSample = null;
-                        Boolean isDiff = false;
-                        if (diffAttribute != null && diffAttribute.hasSample()) {
-                            diffSample = diffAttribute.getLatestSample();
+                            JEVisAttribute valueAttribute = null;
+                            JEVisAttribute diffAttribute = null;
+                            Map<JsonLimitsConfig, JEVisObject> limitsConfigs = new HashMap<>();
                             try {
-                                isDiff = diffSample.getValueAsBoolean();
+                                valueAttribute = selectedObject.getAttribute("Value");
+                                for (JEVisObject jeVisObject : selectedObject.getChildren(cleanDataClass, false)) {
+                                    diffAttribute = jeVisObject.getAttribute("Conversion to Differential");
+                                    CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject, new ObjectHandler(ds));
+                                    limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
+                                }
                             } catch (JEVisException e) {
-                                e.printStackTrace();
+                                logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
                             }
-                        }
+                            DateTime ts = new DateTime(
+                                    datePicker.valueProperty().get().getYear(), datePicker.valueProperty().get().getMonthValue(), datePicker.valueProperty().get().getDayOfMonth(),
+                                    timePicker.valueProperty().get().getHour(), timePicker.valueProperty().get().getMinute(), timePicker.valueProperty().get().getSecond());
 
-                        if (isDiff) {
-                            if (lastValue != null && lastValue > newVal) {
-                                Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.differror"));
-                                warning.setResizable(true);
-                                JEVisAttribute finalValueAttribute = valueAttribute;
-                                Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
-                                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                        buildSample(finalValueAttribute, ts, newVal);
+                            if (valueAttribute != null) {
+
+                                JEVisSample diffSample = null;
+                                Boolean isDiff = false;
+                                if (diffAttribute != null && diffAttribute.hasSample()) {
+                                    diffSample = diffAttribute.getLatestSample();
+                                    try {
+                                        isDiff = diffSample.getValueAsBoolean();
+                                    } catch (JEVisException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                if (isDiff) {
+                                    if (lastValue != null && lastValue > newVal) {
+                                        Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.differror"));
+                                        warning.setResizable(true);
+                                        JEVisAttribute finalValueAttribute = valueAttribute;
+                                        Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
+                                            if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                buildSample(finalValueAttribute, ts, newVal);
+                                            } else {
+
+                                            }
+                                        }));
+
                                     } else {
+                                        boolean hasError = false;
+                                        DateTime prevTs = ts.minus(valueAttribute.getInputSampleRate());
+                                        List<JEVisSample> previousSample = valueAttribute.getSamples(prevTs, prevTs);
+                                        Double prevValue = newVal;
+                                        try {
+                                            prevValue = previousSample.get(previousSample.size() - 1).getValueAsDouble();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        for (Map.Entry<JsonLimitsConfig, JEVisObject> c : limitsConfigs.entrySet()) {
+                                            double newDiff = newVal - prevValue;
+                                            if (newDiff < Double.parseDouble(c.getKey().getMin())) {
+                                                hasError = true;
 
-                                    }
-                                }));
+                                                Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.smaller") + " " +
+                                                        newDiff + " < " + Double.parseDouble(c.getKey().getMin()));
+                                                warning.setResizable(true);
+                                                JEVisAttribute finalValueAttribute = valueAttribute;
+                                                Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
+                                                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                        buildSample(finalValueAttribute, ts, newVal);
+                                                    } else {
 
-                            } else {
-                                boolean hasError = false;
-                                DateTime prevTs = ts.minus(valueAttribute.getInputSampleRate());
-                                List<JEVisSample> previousSample = valueAttribute.getSamples(prevTs, prevTs);
-                                Double prevValue = newVal;
-                                try {
-                                    prevValue = previousSample.get(previousSample.size() - 1).getValueAsDouble();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                for (Map.Entry<JsonLimitsConfig, JEVisObject> c : limitsConfigs.entrySet()) {
-                                    double newDiff = newVal - prevValue;
-                                    if (newDiff < Double.parseDouble(c.getKey().getMin())) {
-                                        hasError = true;
+                                                    }
+                                                }));
+                                            } else if (newDiff > Double.parseDouble(c.getKey().getMax())) {
+                                                hasError = true;
 
-                                        Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.smaller") + " " +
-                                                newDiff + " < " + Double.parseDouble(c.getKey().getMin()));
-                                        warning.setResizable(true);
-                                        JEVisAttribute finalValueAttribute = valueAttribute;
-                                        Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
-                                            if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                buildSample(finalValueAttribute, ts, newVal);
-                                            } else {
+                                                Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.bigger") + " " +
+                                                        newDiff + " > " + Double.parseDouble(c.getKey().getMax()));
+                                                warning.setResizable(true);
+                                                JEVisAttribute finalValueAttribute = valueAttribute;
+                                                Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
+                                                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                        buildSample(finalValueAttribute, ts, newVal);
+                                                    } else {
 
+                                                    }
+                                                }));
                                             }
-                                        }));
-                                    } else if (newDiff > Double.parseDouble(c.getKey().getMax())) {
-                                        hasError = true;
+                                        }
 
-                                        Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.diff.bigger") + " " +
-                                                newDiff + " > " + Double.parseDouble(c.getKey().getMax()));
-                                        warning.setResizable(true);
-                                        JEVisAttribute finalValueAttribute = valueAttribute;
-                                        Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
-                                            if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                buildSample(finalValueAttribute, ts, newVal);
-                                            } else {
+                                        if (!hasError) {
+                                            buildSample(valueAttribute, ts, newVal);
+                                        }
+                                    }
+                                } else {
+                                    boolean hasError = false;
+                                    for (Map.Entry<JsonLimitsConfig, JEVisObject> c : limitsConfigs.entrySet()) {
+                                        if (newVal < Double.parseDouble(c.getKey().getMin())) {
+                                            hasError = true;
 
-                                            }
-                                        }));
+                                            Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.smaller") + " " +
+                                                    newVal + " < " + Double.parseDouble(c.getKey().getMin()));
+                                            warning.setResizable(true);
+                                            JEVisAttribute finalValueAttribute = valueAttribute;
+                                            Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
+                                                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                    buildSample(finalValueAttribute, ts, newVal);
+                                                } else {
+
+                                                }
+                                            }));
+                                        } else if (newVal > Double.parseDouble(c.getKey().getMax())) {
+                                            hasError = true;
+
+                                            Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.bigger") + " " +
+                                                    newVal + " > " + Double.parseDouble(c.getKey().getMax()));
+                                            warning.setResizable(true);
+                                            JEVisAttribute finalValueAttribute = valueAttribute;
+                                            Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
+                                                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                                                    buildSample(finalValueAttribute, ts, newVal);
+                                                } else {
+
+                                                }
+                                            }));
+                                        }
+                                    }
+
+                                    if (!hasError) {
+                                        buildSample(valueAttribute, ts, newVal);
                                     }
                                 }
 
-                                if (!hasError) {
-                                    buildSample(valueAttribute, ts, newVal);
-                                }
                             }
+
                         } else {
-                            boolean hasError = false;
-                            for (Map.Entry<JsonLimitsConfig, JEVisObject> c : limitsConfigs.entrySet()) {
-                                if (newVal < Double.parseDouble(c.getKey().getMin())) {
-                                    hasError = true;
-
-                                    Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.smaller") + " " +
-                                            newVal + " < " + Double.parseDouble(c.getKey().getMin()));
-                                    warning.setResizable(true);
-                                    JEVisAttribute finalValueAttribute = valueAttribute;
-                                    Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
-                                        if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                            buildSample(finalValueAttribute, ts, newVal);
-                                        } else {
-
-                                        }
-                                    }));
-                                } else if (newVal > Double.parseDouble(c.getKey().getMax())) {
-                                    hasError = true;
-
-                                    Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.nodiff.bigger") + " " +
-                                            newVal + " > " + Double.parseDouble(c.getKey().getMax()));
-                                    warning.setResizable(true);
-                                    JEVisAttribute finalValueAttribute = valueAttribute;
-                                    Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
-                                        if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                            buildSample(finalValueAttribute, ts, newVal);
-                                        } else {
-
-                                        }
-                                    }));
-                                }
-                            }
-
-                            if (!hasError) {
-                                buildSample(valueAttribute, ts, newVal);
-                            }
+                            Alert warning = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("plugin.object.dialog.data.error.number"));
+                            warning.setResizable(true);
+                            warning.showAndWait();
                         }
-
+                    } else {
+                        Alert warning = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("dialog.warning.notallowed"));
+                        warning.setResizable(true);
+                        warning.showAndWait();
                     }
-
-                } else {
-                    Alert warning = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("plugin.object.dialog.data.error.number"));
-                    warning.setResizable(true);
-                    warning.showAndWait();
+                } catch (JEVisException e) {
+                    logger.error("Could not get current User", e);
                 }
             }
         });

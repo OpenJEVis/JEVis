@@ -69,6 +69,7 @@ public class ReportPlugin implements Plugin {
 
         this.hBox.setPadding(new Insets(4, 4, 4, 4));
         this.hBox.setSpacing(4);
+        this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
         BorderPane view = new BorderPane();
         view.setTop(hBox);

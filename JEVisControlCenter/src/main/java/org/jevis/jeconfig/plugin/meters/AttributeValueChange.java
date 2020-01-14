@@ -1,7 +1,7 @@
 package org.jevis.jeconfig.plugin.meters;
 
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisFile;
+import org.jevis.api.*;
+import org.jevis.jeconfig.application.type.GUIConstants;
 import org.joda.time.DateTime;
 
 public class AttributeValueChange {
@@ -15,41 +15,51 @@ public class AttributeValueChange {
     private Long longValue;
     private JEVisFile jeVisFile;
     private DateTime dateTime;
+    boolean changed = false;
 
     public AttributeValueChange(int primitiveType, String guiDisplayType, JEVisAttribute attribute, String stringValue) {
         this.primitiveType = primitiveType;
+        this.guiDisplayType = guiDisplayType;
         this.attribute = attribute;
         this.stringValue = stringValue;
     }
 
     public AttributeValueChange(int primitiveType, String guiDisplayType, JEVisAttribute attribute, Double doubleValue) {
         this.primitiveType = primitiveType;
+        this.guiDisplayType = guiDisplayType;
         this.attribute = attribute;
         this.doubleValue = doubleValue;
     }
 
     public AttributeValueChange(int primitiveType, String guiDisplayType, JEVisAttribute attribute, Boolean booleanValue) {
         this.primitiveType = primitiveType;
+        this.guiDisplayType = guiDisplayType;
         this.attribute = attribute;
         this.booleanValue = booleanValue;
     }
 
     public AttributeValueChange(int primitiveType, String guiDisplayType, JEVisAttribute attribute, Long longValue) {
         this.primitiveType = primitiveType;
+        this.guiDisplayType = guiDisplayType;
         this.attribute = attribute;
         this.longValue = longValue;
     }
 
     public AttributeValueChange(int primitiveType, String guiDisplayType, JEVisAttribute attribute, JEVisFile jeVisFile) {
         this.primitiveType = primitiveType;
+        this.guiDisplayType = guiDisplayType;
         this.attribute = attribute;
         this.jeVisFile = jeVisFile;
     }
 
     public AttributeValueChange(int primitiveType, String guiDisplayType, JEVisAttribute attribute, DateTime dateTime) {
         this.primitiveType = primitiveType;
+        this.guiDisplayType = guiDisplayType;
         this.attribute = attribute;
         this.dateTime = dateTime;
+    }
+
+    public AttributeValueChange() {
     }
 
     public String getStringValue() {
@@ -98,5 +108,78 @@ public class AttributeValueChange {
 
     public void setJeVisFile(JEVisFile jeVisFile) {
         this.jeVisFile = jeVisFile;
+    }
+
+    public boolean isChanged() {
+        return changed;
+    }
+
+    public void setChanged(boolean changed) {
+        this.changed = changed;
+    }
+
+    public void setPrimitiveType(int primitiveType) {
+        this.primitiveType = primitiveType;
+    }
+
+    public void setGuiDisplayType(String guiDisplayType) {
+        this.guiDisplayType = guiDisplayType;
+    }
+
+    public void setAttribute(JEVisAttribute attribute) {
+        this.attribute = attribute;
+    }
+
+    public void commit(DateTime dateTime) throws JEVisException {
+        switch (primitiveType) {
+            case JEVisConstants.PrimitiveType.LONG:
+                JEVisSample longSample = attribute.buildSample(dateTime, longValue);
+                longSample.commit();
+                break;
+            case JEVisConstants.PrimitiveType.DOUBLE:
+                JEVisSample doubleSample = attribute.buildSample(dateTime, doubleValue);
+                doubleSample.commit();
+                break;
+            case JEVisConstants.PrimitiveType.FILE:
+                JEVisSample fileSample = attribute.buildSample(dateTime, jeVisFile);
+                fileSample.commit();
+                break;
+            case JEVisConstants.PrimitiveType.BOOLEAN:
+                JEVisSample boolSample = attribute.buildSample(dateTime, booleanValue);
+                boolSample.commit();
+                break;
+            default:
+                if (primitiveType == JEVisConstants.PrimitiveType.PASSWORD_PBKDF2) {
+
+                } else if (guiDisplayType.equals(GUIConstants.TARGET_OBJECT.getId()) || guiDisplayType.equals(GUIConstants.TARGET_ATTRIBUTE.getId())) {
+                    JEVisSample targetSample = attribute.buildSample(dateTime, stringValue);
+                    targetSample.commit();
+                } else if (guiDisplayType.equals(GUIConstants.DATE_TIME.getId()) || guiDisplayType.equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
+                    JEVisSample dateSample = attribute.buildSample(dateTime, this.dateTime.toString());
+                    dateSample.commit();
+                } else {
+                    JEVisSample stringSample = attribute.buildSample(dateTime, stringValue);
+                    stringSample.commit();
+                }
+
+                break;
+        }
+    }
+
+    @Override
+    public String toString() {
+        if (stringValue != null) {
+            return stringValue;
+        } else if (doubleValue != null) {
+            return doubleValue.toString();
+        } else if (booleanValue != null) {
+            return booleanValue.toString();
+        } else if (longValue != null) {
+            return longValue.toString();
+        } else if (jeVisFile != null) {
+            return jeVisFile.getFilename();
+        } else if (dateTime != null) {
+            return dateTime.toString();
+        } else return "";
     }
 }
