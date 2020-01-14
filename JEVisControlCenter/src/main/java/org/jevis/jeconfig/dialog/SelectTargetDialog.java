@@ -144,18 +144,88 @@ public class SelectTargetDialog {
         this.dialogOwner = dialogOwner;
     }
 
-    public static JEVisTreeFilter buildAllAnalysis(JEVisDataSource ds) {
+    public static JEVisTreeFilter buildAllAlarms(JEVisDataSource ds) {
         try {
-            JEVisClass dsClass = ds.getJEVisClass("Analyses Directory");
-            JEVisClass inputClass = ds.getJEVisClass("Dasboard Analysis");
-            JEVisClass outputClass = ds.getJEVisClass("Analysis");
-
-//            JEVisClass dpClass = ds.getJEVisClass("Data Point");
+            JEVisClass dsClass = ds.getJEVisClass("Alarm Directory");
+            JEVisClass alarmConfigurationClass = ds.getJEVisClass("Alarm Configuration");
 
             BasicCellFilter allFilter = new BasicCellFilter(I18nWS.getInstance().getClassName(dsClass));
             List<ObjectAttributeFilter> filter = FilterFactory.buildFilterForHeirs(dsClass, ObjectAttributeFilter.NONE);
-            filter.addAll(FilterFactory.buildFilterForHeirs(inputClass, ObjectAttributeFilter.NONE));
-            filter.addAll(FilterFactory.buildFilterForHeirs(outputClass, ObjectAttributeFilter.NONE));
+            filter.addAll(FilterFactory.buildFilterForHeirs(alarmConfigurationClass, ObjectAttributeFilter.NONE));
+            filter.forEach(objectAttributeFilter -> {
+                allFilter.addItemFilter(objectAttributeFilter);
+                allFilter.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, objectAttributeFilter);
+            });
+
+            return allFilter;
+        } catch (Exception ex) {
+        }
+
+        return new BasicCellFilter("Alarm Directory");
+    }
+
+    public static JEVisTreeFilter buildAllDocuments(JEVisDataSource ds) {
+        try {
+            JEVisClass dsClass = ds.getJEVisClass("Document Directory");
+            JEVisClass documentClass = ds.getJEVisClass("Document");
+
+            BasicCellFilter allFilter = new BasicCellFilter(I18nWS.getInstance().getClassName(dsClass));
+            List<ObjectAttributeFilter> filter = FilterFactory.buildFilterForHeirs(dsClass, ObjectAttributeFilter.NONE);
+            filter.addAll(FilterFactory.buildFilterForHeirs(documentClass, ObjectAttributeFilter.NONE));
+            filter.forEach(objectAttributeFilter -> {
+                allFilter.addItemFilter(objectAttributeFilter);
+                allFilter.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, objectAttributeFilter);
+            });
+
+            return allFilter;
+        } catch (Exception ex) {
+        }
+
+        return new BasicCellFilter("Document Directory");
+    }
+
+    public static JEVisTreeFilter buildAllReports(JEVisDataSource ds) {
+        try {
+            JEVisClass dsClass = ds.getJEVisClass("Report Directory");
+            JEVisClass reportClass = ds.getJEVisClass("Report");
+            JEVisClass periodicReportClass = ds.getJEVisClass("Periodic Report");
+            JEVisClass emailNotificationClass = ds.getJEVisClass("E-Mail Notification");
+            JEVisClass reportLinkDirectoryClass = ds.getJEVisClass("Report Link Directory");
+            JEVisClass reportLinkClass = ds.getJEVisClass("Report Link");
+            JEVisClass reportAttributeClass = ds.getJEVisClass("Report Attribute");
+            JEVisClass reportPeriodConfigurationClass = ds.getJEVisClass("Report Period Configuration");
+
+            BasicCellFilter allFilter = new BasicCellFilter(I18nWS.getInstance().getClassName(dsClass));
+            List<ObjectAttributeFilter> filter = FilterFactory.buildFilterForHeirs(dsClass, ObjectAttributeFilter.NONE);
+            filter.addAll(FilterFactory.buildFilterForHeirs(reportClass, ObjectAttributeFilter.NONE));
+            filter.addAll(FilterFactory.buildFilterForHeirs(periodicReportClass, ObjectAttributeFilter.NONE));
+            filter.addAll(FilterFactory.buildFilterForHeirs(emailNotificationClass, ObjectAttributeFilter.NONE));
+            filter.addAll(FilterFactory.buildFilterForHeirs(reportLinkDirectoryClass, ObjectAttributeFilter.NONE));
+            filter.addAll(FilterFactory.buildFilterForHeirs(reportLinkClass, ObjectAttributeFilter.NONE));
+            filter.addAll(FilterFactory.buildFilterForHeirs(reportAttributeClass, ObjectAttributeFilter.NONE));
+            filter.addAll(FilterFactory.buildFilterForHeirs(reportPeriodConfigurationClass, ObjectAttributeFilter.NONE));
+            filter.forEach(objectAttributeFilter -> {
+                allFilter.addItemFilter(objectAttributeFilter);
+                allFilter.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, objectAttributeFilter);
+            });
+
+            return allFilter;
+        } catch (Exception ex) {
+        }
+
+        return new BasicCellFilter("Report Directory");
+    }
+
+    public static JEVisTreeFilter buildAllAnalyses(JEVisDataSource ds) {
+        try {
+            JEVisClass dsClass = ds.getJEVisClass("Analyses Directory");
+            JEVisClass dashboardAnalysis = ds.getJEVisClass("Dashboard Analysis");
+            JEVisClass analysis = ds.getJEVisClass("Analysis");
+
+            BasicCellFilter allFilter = new BasicCellFilter(I18nWS.getInstance().getClassName(dsClass));
+            List<ObjectAttributeFilter> filter = FilterFactory.buildFilterForHeirs(dsClass, ObjectAttributeFilter.NONE);
+            filter.addAll(FilterFactory.buildFilterForHeirs(dashboardAnalysis, ObjectAttributeFilter.NONE));
+            filter.addAll(FilterFactory.buildFilterForHeirs(analysis, ObjectAttributeFilter.NONE));
             filter.forEach(objectAttributeFilter -> {
                 allFilter.addItemFilter(objectAttributeFilter);
                 allFilter.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, objectAttributeFilter);
@@ -174,8 +244,6 @@ public class SelectTargetDialog {
             JEVisClass dsClass = ds.getJEVisClass("Calculation");
             JEVisClass inputClass = ds.getJEVisClass("Input");
             JEVisClass outputClass = ds.getJEVisClass("Output");
-
-//            JEVisClass dpClass = ds.getJEVisClass("Data Point");
 
             BasicCellFilter allFilter = new BasicCellFilter(I18nWS.getInstance().getClassName(dsClass));
             List<ObjectAttributeFilter> filter = FilterFactory.buildFilterForHeirs(dsClass, ObjectAttributeFilter.NONE);
@@ -197,7 +265,6 @@ public class SelectTargetDialog {
         try {
             JEVisClass dsClass = ds.getJEVisClass("Measurement Directory");
             JEVisClass dirClass = ds.getJEVisClass("Measurement Instrument");
-//            JEVisClass dpClass = ds.getJEVisClass("Data Point");
 
             BasicCellFilter allFilter = new BasicCellFilter(I18nWS.getInstance().getClassName(dsClass));
             List<ObjectAttributeFilter> filter = FilterFactory.buildFilterForHeirs(dsClass, ObjectAttributeFilter.NONE);
@@ -221,11 +288,15 @@ public class SelectTargetDialog {
             JEVisClass dsClass = ds.getJEVisClass("Data Server");
             JEVisClass dirClass = ds.getJEVisClass("Data Point Directory");
             JEVisClass dpClass = ds.getJEVisClass("Data Point");
+            JEVisClass channelDirectoryClass = ds.getJEVisClass("Channel Directory");
+            JEVisClass channelClass = ds.getJEVisClass("Channel");
 
             BasicCellFilter allFilter = new BasicCellFilter(I18nWS.getInstance().getClassName(dsClass));
             List<ObjectAttributeFilter> filter = FilterFactory.buildFilterForHeirs(dsClass, ObjectAttributeFilter.NONE);
             filter.addAll(FilterFactory.buildFilterForHeirs(dirClass, ObjectAttributeFilter.NONE));
             filter.addAll(FilterFactory.buildFilterForHeirs(dpClass, ObjectAttributeFilter.NONE));
+            filter.addAll(FilterFactory.buildFilterForHeirs(channelDirectoryClass, ObjectAttributeFilter.NONE));
+            filter.addAll(FilterFactory.buildFilterForHeirs(channelClass, ObjectAttributeFilter.NONE));
             filter.forEach(objectAttributeFilter -> {
                 allFilter.addItemFilter(objectAttributeFilter);
                 allFilter.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, objectAttributeFilter);
@@ -240,7 +311,7 @@ public class SelectTargetDialog {
 
 
     public static JEVisTreeFilter buildAllDataAndCleanDataFilter() {
-        BasicCellFilter onlyData = new BasicCellFilter(I18n.getInstance().getString("tree.filter.data"));
+        BasicCellFilter onlyData = new BasicCellFilter(I18n.getInstance().getString("tree.filter.dataandcleandata"));
         ObjectAttributeFilter d1 = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
         ObjectAttributeFilter d2 = new ObjectAttributeFilter("Clean Data", ObjectAttributeFilter.NONE);
         onlyData.addItemFilter(d1);
