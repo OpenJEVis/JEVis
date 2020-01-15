@@ -19,6 +19,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import javax.imageio.ImageIO;
+import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -29,13 +30,14 @@ public class GraphExportImage {
     private DateTime minDate = null;
     private DateTime maxDate = null;
     private String formatName;
+    private final FileChooser fileChooser;
 
     public GraphExportImage(AnalysisDataModel model) {
         this.model = model;
         this.setDates();
 
         String formattedName = model.getCurrentAnalysis().getName().replaceAll(" ", "_");
-        FileChooser fileChooser = new FileChooser();
+        fileChooser = new FileChooser();
         fileChooser.setTitle("Image File Destination");
         DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyyMMdd");
 
@@ -74,8 +76,26 @@ public class GraphExportImage {
             WritableImage image = vBox.snapshot(snapshotParameters, null);
 
             try {
-                ImageIO.write(SwingFXUtils.fromFXImage(image, null), ".png", destinationFile);
-            } catch (IOException e) {
+                String extension = fileChooser.getSelectedExtensionFilter().getExtensions().get(0).substring(1);
+
+                if (extension.equals("jpg")) {
+                    PixelGrabber pg = new PixelGrabber(SwingFXUtils.fromFXImage(image, null), 0, 0, -1, -1, true);
+                    pg.grabPixels();
+                    int width = pg.getWidth(), height = pg.getHeight();
+
+                    int[] RGB_MASKS = {0xFF0000, 0xFF00, 0xFF};
+                    ColorModel RGB_OPAQUE = new DirectColorModel(32, RGB_MASKS[0], RGB_MASKS[1], RGB_MASKS[2]);
+
+                    DataBuffer buffer = new DataBufferInt((int[]) pg.getPixels(), pg.getWidth() * pg.getHeight());
+                    WritableRaster raster = Raster.createPackedRaster(buffer, width, height, width, RGB_MASKS, null);
+                    BufferedImage bi = new BufferedImage(RGB_OPAQUE, raster, false, null);
+
+                    ImageIO.write(bi, extension, destinationFile);
+                } else {
+
+                    ImageIO.write(SwingFXUtils.fromFXImage(image, null), extension, destinationFile);
+                }
+            } catch (IOException | InterruptedException e) {
                 logger.error("Error: could not export to file.", e);
             }
         });

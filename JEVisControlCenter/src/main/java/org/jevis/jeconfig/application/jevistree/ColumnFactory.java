@@ -43,6 +43,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
@@ -221,9 +222,9 @@ public class ColumnFactory {
     public static TreeTableColumn<JEVisTreeRow, String> buildDataTS(boolean max) {
         String columnName;
         if (max) {
-            columnName = "Max Value TS";
+            columnName = I18n.getInstance().getString("jevistree.column.maxts");
         } else {
-            columnName = "Min Value TS";
+            columnName = I18n.getInstance().getString("jevistree.column.mints");
         }
 
         TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn<>(columnName);

@@ -45,6 +45,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
@@ -208,23 +209,26 @@ public class ObjectPlugin implements Plugin {
         left.setStyle("-fx-background-color: #E2E2E2;");
 
         VBox.setVgrow(tree, Priority.ALWAYS);
-//            VBox.setVgrow(search, Priority.NEVER);
-
 
         List<JEVisTreeFilter> allObjects = new ArrayList<>();
-        allObjects.add(SelectTargetDialog.buildAllObjects());
-        allObjects.add(SelectTargetDialog.buildAllDataAndCleanDataFilter());
-        allObjects.add(SelectTargetDialog.buildAllAttributesFilter());
+
         allObjects.add(SelectTargetDialog.buildCalendarFilter());
         allObjects.add(SelectTargetDialog.buildAllDataSources(this.ds));
         allObjects.add(SelectTargetDialog.buildAllMeasurement(this.ds));
         allObjects.add(SelectTargetDialog.buildAllCalculation(this.ds));
-        allObjects.add(SelectTargetDialog.buildAllAnalysis(this.ds));
+        allObjects.add(SelectTargetDialog.buildAllAnalyses(this.ds));
+        allObjects.add(SelectTargetDialog.buildAllDocuments(this.ds));
+        allObjects.add(SelectTargetDialog.buildAllAlarms(this.ds));
         allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "User"));
         allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Group"));
-//        allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Analysis"));
-        allObjects.add(SelectTargetDialog.buildClassFilter(this.ds, "Report"));
+        allObjects.add(SelectTargetDialog.buildAllReports(this.ds));
 
+        AlphanumComparator ac = new AlphanumComparator();
+        allObjects.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+
+        allObjects.add(0, SelectTargetDialog.buildAllAttributesFilter());
+        allObjects.add(0, SelectTargetDialog.buildAllDataAndCleanDataFilter());
+        allObjects.add(0, SelectTargetDialog.buildAllObjects());
 
         Finder finder = new Finder(tree);
         SearchFilterBar searchBar = new SearchFilterBar(tree, allObjects, finder);

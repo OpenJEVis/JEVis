@@ -609,6 +609,7 @@ public class LoadAnalysisDialog {
             pickerTimeStart = pickerCombo.getStartTimePicker();
             pickerDateEnd = pickerCombo.getEndDatePicker();
             pickerTimeEnd = pickerCombo.getEndTimePicker();
+            filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
             Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
             Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
@@ -628,7 +629,7 @@ public class LoadAnalysisDialog {
 
             /** Column 0 */
             gridLayout.add(filterInput, 0, 0, 1, 1);
-            gridLayout.add(analysisListView, 0, 1, 1, 15);
+            gridLayout.add(analysisListView, 0, 1, 1, 13);
 
             /** Column 1 **/
             gridLayout.add(freeSpace, 1, 0, 1, 16);
@@ -677,6 +678,7 @@ public class LoadAnalysisDialog {
             else analysisListView.setMinWidth(900d);
 //            analysisListView.setMaxWidth(600d);
             GridPane.setHgrow(analysisListView, Priority.ALWAYS);
+            GridPane.setVgrow(analysisListView, Priority.ALWAYS);
 
             HBox buttonBox = new HBox(10);
             Region spacer = new Region();
@@ -700,6 +702,7 @@ public class LoadAnalysisDialog {
 
             root.getChildren().setAll(gridLayout, sep, buttonBox);
 
+            VBox.setVgrow(analysisListView, Priority.ALWAYS);
             VBox.setVgrow(gridLayout, Priority.ALWAYS);
             VBox.setVgrow(sep, Priority.NEVER);
             VBox.setVgrow(buttonBox, Priority.NEVER);

@@ -81,6 +81,7 @@ public class JEVisTreeFactory {
         final KeyCombination setLimitsRecursive = new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination enableAll = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination disableAll = new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+        final KeyCombination setUnitAndPeriod = new KeyCodeCombination(KeyCode.U, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 
         final KeyCombination pageDown = new KeyCodeCombination(KeyCode.PAGE_DOWN);
 
@@ -123,6 +124,9 @@ public class JEVisTreeFactory {
                     t.consume();
                 } else if (setLimitsRecursive.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventSetLimitsRecursive(tree);
+                    t.consume();
+                } else if (setUnitAndPeriod.match(t) && JEConfig.getExpert()) {
+                    TreeHelper.EventSetUnitAndPeriodRecursive(tree);
                     t.consume();
                 } else if ((enableAll.match(t) || disableAll.match(t)) && JEConfig.getExpert()) {
                     if (enableAll.match(t)) {
