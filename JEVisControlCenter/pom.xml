@@ -71,6 +71,11 @@
             <version>8.0-r6</version>
         </dependency>
         <dependency>
+            <groupId>de.gsi.chart</groupId>
+            <artifactId>chartfx-chart</artifactId>
+            <version>8.1.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.jfxtras</groupId>
             <artifactId>jfxtras-labs</artifactId>
             <version>8.0-r6</version>
