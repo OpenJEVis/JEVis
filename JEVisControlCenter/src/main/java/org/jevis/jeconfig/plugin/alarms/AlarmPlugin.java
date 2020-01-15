@@ -236,18 +236,18 @@ public class AlarmPlugin implements Plugin {
                             try {
                                 for (JEVisObject parent : item.getParents()) {
                                     text += parent.getName();
-
-                                    if (getTableRow() != null && getTableRow().getItem() != null) {
-                                        AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
-                                        DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
-                                        DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
-
-                                        AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
-                                        AnalysisRequest analysisRequest = new AnalysisRequest(parent, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
-
-                                        this.setOnMouseClicked(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
-                                    }
                                     break;
+                                }
+
+                                if (getTableRow() != null && getTableRow().getItem() != null) {
+                                    AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
+                                    DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
+                                    DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
+
+                                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                                    AnalysisRequest analysisRequest = new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
+
+                                    this.setOnMouseClicked(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
                                 }
                             } catch (JEVisException e) {
                                 e.printStackTrace();

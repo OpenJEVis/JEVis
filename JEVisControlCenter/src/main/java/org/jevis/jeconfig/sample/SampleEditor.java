@@ -374,7 +374,7 @@ public class SampleEditor {
     }
 
     private JEVisObject getRawDataParent(JEVisObject object) throws JEVisException {
-        if (object.getJEVisClassName().equals("Data")) {
+        if (object.getJEVisClassName().equals("Data") || !object.getJEVisClassName().equals("Clean Data")) {
             return object;
         } else {
             return getRawDataParent(object.getParents().get(0));
