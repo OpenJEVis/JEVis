@@ -113,6 +113,7 @@ public class GraphPluginView implements Plugin {
     //this.chartView = new ChartView(dataModel);
     private VBox vBox = new VBox();
     private BorderPane border = new BorderPane(sp);
+    private Tooltip tp;
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
         this.dataModel = new AnalysisDataModel(ds, this);
@@ -408,7 +409,12 @@ public class GraphPluginView implements Plugin {
         Platform.runLater(() -> {
             vBox.getChildren().clear();
             sp.setContent(vBox);
+            try {
+                tp.hide();
+            } catch (Exception ignored) {
+            }
         });
+
         JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "");
 
         AtomicDouble autoMinSize = new AtomicDouble(0);
@@ -790,7 +796,7 @@ public class GraphPluginView implements Plugin {
                             }
                         }
 
-                        Tooltip tp = new Tooltip("");
+                        tp = new Tooltip("");
 
                         HeatMapChart chart = (HeatMapChart) cv.getChart();
 

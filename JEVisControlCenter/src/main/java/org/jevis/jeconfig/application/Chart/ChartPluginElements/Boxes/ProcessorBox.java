@@ -17,16 +17,16 @@ import java.util.List;
 public class ProcessorBox extends ComboBox<JEVisObject> {
 
     public ProcessorBox(JEVisObject object, JEVisObject selectedObject) {
-        final List<JEVisObject> _dataProcessors = new ArrayList<JEVisObject>();
+        final List<JEVisObject> dataProcessors = new ArrayList<JEVisObject>();
         String rawDataString = I18n.getInstance().getString("graph.processing.raw");
 
         if (object != null) {
             try {
-                _dataProcessors.addAll(getAllChildrenOf(object));
+                dataProcessors.addAll(getAllChildrenOf(object));
 
-                if (_dataProcessors.isEmpty()) {
+                if (dataProcessors.isEmpty()) {
                     for (JEVisObject parent : object.getParents()) {
-                        _dataProcessors.addAll(getAllChildrenOf(parent));
+                        dataProcessors.addAll(getAllChildrenOf(parent));
                     }
                 }
             } catch (JEVisException e) {
@@ -34,7 +34,7 @@ public class ProcessorBox extends ComboBox<JEVisObject> {
             }
         }
         AlphanumComparator ac = new AlphanumComparator();
-        _dataProcessors.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+        dataProcessors.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
 
 
         setPrefWidth(160);
@@ -42,7 +42,7 @@ public class ProcessorBox extends ComboBox<JEVisObject> {
         ObservableList<JEVisObject> processors = FXCollections.observableArrayList();
 
         processors.add(object);
-        processors.addAll(_dataProcessors);
+        processors.addAll(dataProcessors);
 
         setItems(processors);
 

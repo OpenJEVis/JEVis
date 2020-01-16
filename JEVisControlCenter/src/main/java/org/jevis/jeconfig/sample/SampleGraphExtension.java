@@ -19,24 +19,28 @@
  */
 package org.jevis.jeconfig.sample;
 
+import de.gsi.chart.XYChart;
+import de.gsi.chart.axes.AxisLabelOverlapPolicy;
+import de.gsi.chart.axes.spi.DefaultNumericAxis;
+import de.gsi.chart.plugins.DataPointTooltip;
+import de.gsi.chart.plugins.Zoomer;
+import de.gsi.chart.renderer.LineStyle;
+import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
+import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.Charts.LineChart;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.tools.ColorHelper;
+import org.jevis.commons.i18n.I18n;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,49 +58,72 @@ public class SampleGraphExtension implements SampleEditorExtension {
         _att = att;
     }
 
-    private void buildGui(JEVisAttribute obj, List<JEVisSample> samples) {
+    private void buildGui(JEVisAttribute attribute, List<JEVisSample> samples) {
 
         BorderPane bp = new BorderPane();
         bp.setStyle("-fx-background-color: transparent");
 
-        ChartDataModel chartDataModel = null;
-        JEVisDataSource ds = null;
         try {
-            chartDataModel = new ChartDataModel(obj.getDataSource());
-            ds = obj.getDataSource();
-        } catch (JEVisException e) {
-            logger.error("Could not get data source from object: " + e);
-        }
+            if (attribute.getObject().getJEVisClassName().equals("Data") || attribute.getObject().getJEVisClassName().equals("Clean Data")) {
 
-        if (chartDataModel != null && ds != null) {
-            try {
-                if (obj.getObject().getJEVisClassName().equals("Data")) chartDataModel.setObject(obj.getObject());
-                else if (obj.getObject().getJEVisClassName().equals("Clean Data")) {
-                    chartDataModel.setDataProcessor(obj.getObject());
-                    chartDataModel.setObject(obj.getObject().getParents().get(0));
-                } else {
-                    chartDataModel.setObject(obj.getObject());
+                DateTime firstTS = null;
+                DateTime lastTS = null;
+                DoubleDataSet dataSet = new DoubleDataSet(attribute.getObject().getName());
+                for (JEVisSample jeVisSample : samples) {
+                    try {
+                        dataSet.add(jeVisSample.getTimestamp().getMillis() / 1000.0, jeVisSample.getValueAsDouble());
+
+                        if (samples.indexOf(jeVisSample) == 0) {
+                            firstTS = jeVisSample.getTimestamp();
+                        } else if (samples.indexOf(jeVisSample) == samples.size() - 1) {
+                            lastTS = jeVisSample.getTimestamp();
+                        }
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
                 }
-            } catch (JEVisException e) {
 
+                DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
+                String overall = String.format("%s %s %s",
+                        dtfOutLegend.print(firstTS),
+                        I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
+                        dtfOutLegend.print(lastTS));
+
+                final DefaultNumericAxis xAxis1 = new DefaultNumericAxis(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall, null);
+                xAxis1.setOverlapPolicy(AxisLabelOverlapPolicy.SKIP_ALT);
+                final DefaultNumericAxis yAxis1 = new DefaultNumericAxis(null, null);
+
+                final XYChart chart = new XYChart(xAxis1, yAxis1);
+                chart.legendVisibleProperty().set(false);
+                chart.getPlugins().add(new Zoomer());
+                //            chart.getPlugins().add(new EditAxis());
+
+                DataPointTooltip dataPointTooltip = new DataPointTooltip();
+                try {
+                    dataPointTooltip.setPickingDistance(attribute.getDisplaySampleRate().toStandardDuration().getMillis() / 1000.0);
+                } catch (Exception ignored) {
+                }
+
+                chart.getPlugins().add(dataPointTooltip);
+                // set them false to make the plot faster
+                chart.setAnimated(false);
+
+                xAxis1.setAutoRangeRounding(false);
+                // xAxis1.invertAxis(true); TODO: bug inverted time axis crashes when zooming
+                xAxis1.setTimeAxis(true);
+                yAxis1.setAutoRangeRounding(true);
+
+                ErrorDataSetRenderer renderer = new ErrorDataSetRenderer();
+                renderer.setPolyLineStyle(LineStyle.AREA);
+                renderer.getDatasets().add(dataSet);
+
+                chart.getRenderers().add(renderer);
+
+                bp.setCenter(chart);
+                _view.setCenter(bp);
             }
-
-            List<Integer> list = new ArrayList<>();
-            list.add(0);
-            chartDataModel.setSelectedCharts(list);
-            chartDataModel.setAttribute(obj);
-            chartDataModel.setSamples(samples);
-            chartDataModel.setColor(ColorHelper.toRGBCode(Color.BLUE));
-            chartDataModel.setSomethingChanged(false);
-
-            List<ChartDataModel> chartDataModelList = new ArrayList<>();
-            chartDataModelList.add(chartDataModel);
-
-            LineChart lc = new LineChart(new AnalysisDataModel(ds, null), chartDataModelList, 0, "");
-            lc.setRegion(lc.getJfxChartUtil().setupZooming((MultiAxisChart<?, ?>) lc.getChart()));
-
-            bp.setCenter(lc.getRegion());
-            _view.setCenter(bp);
+        } catch (JEVisException e) {
+            e.printStackTrace();
         }
     }
 
