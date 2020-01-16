@@ -867,7 +867,7 @@ public class AlarmPlugin implements Plugin {
         int size = alarms.size();
         JEConfig.getStatusBar().startProgressJob("AlarmConfigs", size, "Loading alarm configurations");
 
-        alarms.parallelStream().forEach(alarmConfiguration -> {
+        alarms.forEach(alarmConfiguration -> {
             Task<List<AlarmRow>> task = new Task<List<AlarmRow>>() {
                 @Override
                 protected List<AlarmRow> call() throws Exception {
@@ -906,7 +906,6 @@ public class AlarmPlugin implements Plugin {
             };
 
             task.setOnSucceeded(event -> {
-                Platform.runLater(() -> {
                     JEConfig.getStatusBar().progressProgressJob(
                             "AlarmConfigs",
                             1,
@@ -921,7 +920,6 @@ public class AlarmPlugin implements Plugin {
                         tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
                         tableView.setStyle("-fx-background-color: white;");
                     }
-                });
             });
 
             executor.submit(task);
