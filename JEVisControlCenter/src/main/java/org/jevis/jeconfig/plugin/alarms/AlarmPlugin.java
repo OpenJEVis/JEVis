@@ -72,7 +72,7 @@ public class AlarmPlugin implements Plugin {
     private ComboBox<TimeFrame> timeFrameComboBox;
     private SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
     private ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
-    private ExecutorService executor = Executors.newFixedThreadPool(4);
+    private ExecutorService executor;
     private ToggleButton showCheckedAlarms = new ToggleButton(I18n.getInstance().getString("plugin.alarm.label.showchecked"));
 
     static {
@@ -116,6 +116,17 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
+    }
+
+    private void restartExecutor() {
+        try {
+            if (this.executor != null) {
+                this.executor.shutdownNow();
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+        this.executor = Executors.newFixedThreadPool(4);
     }
 
     public static void autoFitTable(TableView<AlarmRow> tableView) {
@@ -858,8 +869,7 @@ public class AlarmPlugin implements Plugin {
 
 //        alarmRows.clear();
         tableView.getItems().clear();
-        executor.shutdownNow();
-        executor = Executors.newFixedThreadPool(4);
+        restartExecutor();
 
         autoFitTable(tableView);
 
@@ -867,7 +877,7 @@ public class AlarmPlugin implements Plugin {
         int size = alarms.size();
         JEConfig.getStatusBar().startProgressJob("AlarmConfigs", size, "Loading alarm configurations");
 
-        alarms.forEach(alarmConfiguration -> {
+        alarms.parallelStream().forEach(alarmConfiguration -> {
             Task<List<AlarmRow>> task = new Task<List<AlarmRow>>() {
                 @Override
                 protected List<AlarmRow> call() throws Exception {
@@ -906,20 +916,20 @@ public class AlarmPlugin implements Plugin {
             };
 
             task.setOnSucceeded(event -> {
-                    JEConfig.getStatusBar().progressProgressJob(
-                            "AlarmConfigs",
-                            1,
-                            "AlarmConfigs " + task.getTitle() + " done.");
+                JEConfig.getStatusBar().progressProgressJob(
+                        "AlarmConfigs",
+                        1,
+                        "AlarmConfigs " + task.getTitle() + " done.");
 
-                    tableView.getItems().addAll(task.getValue());
+                tableView.getItems().addAll(task.getValue());
 
-                    tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
-                    autoFitTable(tableView);
+                tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
+                autoFitTable(tableView);
 
-                    if (task.getValue().isEmpty()) {
-                        tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-                        tableView.setStyle("-fx-background-color: white;");
-                    }
+                if (task.getValue().isEmpty()) {
+                    tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+                    tableView.setStyle("-fx-background-color: white;");
+                }
             });
 
             executor.submit(task);
