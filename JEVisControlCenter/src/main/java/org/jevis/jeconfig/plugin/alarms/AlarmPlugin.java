@@ -877,10 +877,10 @@ public class AlarmPlugin implements Plugin {
         int size = alarms.size();
         JEConfig.getStatusBar().startProgressJob("AlarmConfigs", size, "Loading alarm configurations");
 
-        alarms.parallelStream().forEach(alarmConfiguration -> {
+        alarms.forEach(alarmConfiguration -> {
             Task<List<AlarmRow>> task = new Task<List<AlarmRow>>() {
                 @Override
-                protected List<AlarmRow> call() throws Exception {
+                protected List<AlarmRow> call() {
                     List<AlarmRow> list = new ArrayList<>();
                     try {
                         JEVisAttribute fileLog = alarmConfiguration.getFileLogAttribute();
