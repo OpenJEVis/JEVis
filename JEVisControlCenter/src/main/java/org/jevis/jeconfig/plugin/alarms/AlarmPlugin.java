@@ -906,19 +906,22 @@ public class AlarmPlugin implements Plugin {
             };
 
             task.setOnSucceeded(event -> {
-                JEConfig.getStatusBar().progressProgressJob(
-                        "AlarmConfigs",
-                        1,
-                        "AlarmConfigs " + task.getTitle() + " done.");
-                tableView.getItems().addAll(task.getValue());
+                Platform.runLater(() -> {
+                    JEConfig.getStatusBar().progressProgressJob(
+                            "AlarmConfigs",
+                            1,
+                            "AlarmConfigs " + task.getTitle() + " done.");
 
-                tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
-                autoFitTable(tableView);
+                    tableView.getItems().addAll(task.getValue());
 
-                if (task.getValue().isEmpty()) {
-                    tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-                    tableView.setStyle("-fx-background-color: white;");
-                }
+                    tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
+                    autoFitTable(tableView);
+
+                    if (task.getValue().isEmpty()) {
+                        tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+                        tableView.setStyle("-fx-background-color: white;");
+                    }
+                });
             });
 
             executor.submit(task);
