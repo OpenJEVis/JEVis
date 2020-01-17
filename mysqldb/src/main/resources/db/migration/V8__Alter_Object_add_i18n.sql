@@ -1,0 +1,6 @@
+LOCK TABLES `object` WRITE;
+
+alter table `object`
+ADD COLUMN i18n VARCHAR(1024);
+
+UNLOCK TABLES;

@@ -22,17 +22,17 @@ package org.jevis.jeapi.ws;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.ws.json.JsonI18n;
 import org.jevis.commons.ws.json.JsonObject;
 
 import javax.swing.event.EventListenerList;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author fs
@@ -43,6 +43,7 @@ public class JEVisObjectWS implements JEVisObject {
     private final EventListenerList listeners = new EventListenerList();
     private JEVisDataSourceWS ds;
     private JsonObject json;
+
 
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
         this.ds = ds;
@@ -75,12 +76,69 @@ public class JEVisObjectWS implements JEVisObject {
 
     @Override
     public String getName() {
-        return this.json.getName();
+        return getLocalName(I18n.getInstance().getLocale().getLanguage());
     }
 
     @Override
     public void setName(String name) {
         this.json.setName(name);
+    }
+
+    @Override
+    public String getLocalName(String key) {
+        if(key.toLowerCase().equals("default")){
+            return this.json.getName();
+        }
+
+        if(!json.getI18n().isEmpty()){
+            for (JsonI18n jsonI18n : json.getI18n()) {
+                if (jsonI18n.getKey().equals(key)) {
+                    return jsonI18n.getValue();
+                }
+            }
+        }
+
+        return json.getName();
+    }
+
+    @Override
+    public Map<String, String> getLocalNameList() {
+        Map<String,String> names = new HashedMap();
+        json.getI18n().forEach(jsonI18n -> {
+            names.put(jsonI18n.getKey(),jsonI18n.getValue());
+        });
+
+        return names;
+    }
+
+    @Override
+    public void setLocalName(String key, String name) {
+
+        if(!json.getI18n().isEmpty()){
+            for (JsonI18n jsonI18n : json.getI18n()) {
+                if (jsonI18n.getKey().equals(key)) {
+                    jsonI18n.setValue(name);
+                }
+            }
+        }else{
+            JsonI18n newI18n = new JsonI18n();
+            newI18n.setKey(key);
+            newI18n.setValue(name);
+
+            json.getI18n().add(newI18n);
+        }
+    }
+
+    @Override
+    public void setLocalNames(Map<String, String> translation) {
+        json.getI18n().clear();
+        translation.forEach((s, s2) -> {
+            JsonI18n jsonI18n = new JsonI18n();
+            jsonI18n.setKey(s);
+            jsonI18n.setValue(s2);
+            json.getI18n().add(jsonI18n );
+        });
+
     }
 
     @Override

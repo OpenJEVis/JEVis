@@ -20,6 +20,7 @@
 package org.jevis.api;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This interface represents a JEVis Object.
@@ -33,7 +34,8 @@ import java.util.List;
 public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparable<JEVisObject> {
 
     /**
-     * Returns the name of the JEVisObject entity as String.
+     * Returns the name of the JEVisObject entity as String based on the set local.
+     * Return default name if no translation for the local exist.
      *
      * Names are not unique in the JEVis system. For a unique identifier use the
      * ID.
@@ -41,6 +43,44 @@ public interface JEVisObject extends JEVisComponent, JEVisCommittable, Comparabl
      * @return Name as String
      */
     String getName();
+
+    /**
+     * Returns the name of the JEVisObject for the given ISO 639 local code.
+     * <pre>
+     * new Locale("he").getLanguage()
+     *    ...
+     * </pre>
+     *
+     * @param key
+     * @return
+     */
+    String getLocalName(String key);
+
+    /**
+     * Set the local name of the JEVisObject. The key is local name as ISO 639.
+     *
+     * <pre>
+     * new Locale("he").getLanguage()
+     *    ...
+     * </pre>
+     *
+     * @param key
+     * @param name
+     */
+    void setLocalName(String key, String name);
+
+    void setLocalNames(Map<String,String> translation);
+
+    /** returns a Mit with all localissations for the name. The key is the  ISO 639 language name.
+     * <pre>
+     * new Locale("he").getLanguage()
+     *    ...
+     * </pre>
+     *
+     * @return
+     */
+    Map<String,String> getLocalNameList();
+
 
     /**
      * Set the name of the JEVisObject.

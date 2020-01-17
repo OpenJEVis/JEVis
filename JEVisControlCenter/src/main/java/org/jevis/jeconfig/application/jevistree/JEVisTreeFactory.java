@@ -48,6 +48,7 @@ import org.jevis.jeconfig.application.jevistree.filter.ObjectAttributeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.jevistree.plugin.MapPlugin;
 import org.jevis.jeconfig.dialog.HiddenConfig;
+import org.jevis.jeconfig.dialog.LocalNameDialog;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.WidgetTreePlugin;
 
 import java.util.ArrayList;
@@ -154,8 +155,10 @@ public class JEVisTreeFactory {
                         t.consume();
                     }
                 } else if (rename.match(t)) {
-                    TreeHelper.EventRename(tree, selectedObj.getValue().getJEVisObject());
-                    t.consume();
+                    LocalNameDialog localNameDialog = new LocalNameDialog(selectedObj.getValue().getJEVisObject());
+                    localNameDialog.show();
+                    //TreeHelper.EventRename(tree, selectedObj.getValue().getJEVisObject());
+                    //t.consume();
                 } else if (copyIDandValue.match(t)) {
                     final Clipboard clipboard = Clipboard.getSystemClipboard();
                     final ClipboardContent content = new ClipboardContent();
