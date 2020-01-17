@@ -1,18 +1,20 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import de.gsi.chart.XYChart;
+import de.gsi.chart.axes.spi.DefaultNumericAxis;
+import de.gsi.chart.plugins.Zoomer;
+import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
@@ -21,13 +23,9 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.ColumnChartSerie;
-import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.CategoryAxis;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
+import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
@@ -49,14 +47,14 @@ public class ColumnChart implements Chart {
     private final Boolean showSum;
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(DateTime.now());
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
-    NumberAxis y1Axis = new NumberAxis();
-    NumberAxis y2Axis = new NumberAxis();
+    DefaultNumericAxis y1Axis = new DefaultNumericAxis();
+    DefaultNumericAxis y2Axis = new DefaultNumericAxis();
     private String chartName;
     private String unit;
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
     private List<ColumnChartSerie> columnChartSerieList = new ArrayList<>();
-    private MultiAxisBarChart columnChart;
+    private XYChart columnChart;
     private List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -65,14 +63,16 @@ public class ColumnChart implements Chart {
     private Region areaChartRegion;
     private AtomicReference<ManipulationMode> manipulationMode;
     private ChartPanManager panner;
-    private CategoryAxis catAxis = new CategoryAxis();
+    private DefaultNumericAxis catAxis = new DefaultNumericAxis();
     private DateTime nearest;
+    private boolean hasSecondAxis = false;
+    private ChartType chartType = ChartType.COLUMN;
 
     public ColumnChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
         this.showRawData = analysisDataModel.getShowRawData();
         this.showSum = analysisDataModel.getShowSum();
-        this.hideShowIcons = analysisDataModel.getHideShowIcons();
+        this.hideShowIcons = analysisDataModel.getShowIcons();
         this.chartId = chartId;
         this.chartName = chartName;
         init();
@@ -85,6 +85,9 @@ public class ColumnChart implements Chart {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
                     ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons, false);
+                    if (singleRow.getAxis() == 1) {
+                        hasSecondAxis = true;
+                    }
                     columnChartSerieList.add(serie);
                     hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 
@@ -110,27 +113,39 @@ public class ColumnChart implements Chart {
             if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
         }
 
-        NumberAxis numberAxis1 = new NumberAxis();
-        NumberAxis numberAxis2 = new NumberAxis();
+        DefaultNumericAxis numberAxis1 = new DefaultNumericAxis();
+        DefaultNumericAxis numberAxis2 = new DefaultNumericAxis();
 
-        columnChart = new MultiAxisBarChart(catAxis, numberAxis1, numberAxis2);
+        columnChart = new XYChart(catAxis, numberAxis1);
+
+        if (hasSecondAxis) {
+
+        }
+
+        columnChart.legendVisibleProperty().set(false);
+        columnChart.getPlugins().add(new Zoomer());
 
         columnChart.setTitle(chartName);
         columnChart.setLegendVisible(false);
         columnChart.getXAxis().setAutoRanging(true);
 
-        columnChart.getXAxis().setLabel(unit);
+        columnChart.getXAxis().setName(unit);
 
         addSeriesToChart();
 
     }
 
     private void addSeriesToChart() {
+        ErrorDataSetRenderer rendererY1 = new ErrorDataSetRenderer();
+        ErrorDataSetRenderer rendererY2 = new ErrorDataSetRenderer();
         for (ColumnChartSerie columnChartSerie : columnChartSerieList) {
-            Platform.runLater(() -> {
-                columnChart.getData().add(columnChartSerie.getSerie());
-                tableData.add(columnChartSerie.getTableEntry());
-            });
+
+            if (!hasSecondAxis || columnChartSerie.getyAxis() == 0) {
+                rendererY1.getDatasets().add(columnChartSerie.getDataSet());
+            } else if (columnChartSerie.getyAxis() == 1) {
+                rendererY2.getDatasets().add(columnChartSerie.getDataSet());
+            }
+            Platform.runLater(() -> tableData.add(columnChartSerie.getTableEntry()));
         }
     }
 
@@ -151,36 +166,36 @@ public class ColumnChart implements Chart {
 
     @Override
     public void initializeZoom() {
-        panner = null;
-
-        getChart().setOnMouseMoved(mouseEvent -> {
-            updateTable(mouseEvent, null);
-        });
-
-        panner = new ChartPanManager((MultiAxisChart<?, ?>) getChart());
-
-        panner.setMouseFilter(mouseEvent -> {
-            if (mouseEvent.getButton() != MouseButton.SECONDARY
-                    && (mouseEvent.getButton() != MouseButton.PRIMARY
-                    || !mouseEvent.isShortcutDown())) {
-                mouseEvent.consume();
-            }
-        });
-        panner.start();
-
-        JFXChartUtil jfxChartUtil = new JFXChartUtil(timeStampOfFirstSample.get().getMillis(), timeStampOfLastSample.get().getMillis());
-        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
-
-            if (mouseEvent.getButton() != MouseButton.PRIMARY
-                    || mouseEvent.isShortcutDown()) {
-                mouseEvent.consume();
-                if (mouseEvent.isControlDown()) {
-                    showNote(mouseEvent);
-                }
-            }
-        });
-
-        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
+//        panner = null;
+//
+//        getChart().setOnMouseMoved(mouseEvent -> {
+//            updateTable(mouseEvent, null);
+//        });
+//
+//        panner = new ChartPanManager((MultiAxisChart<?, ?>) getChart());
+//
+//        panner.setMouseFilter(mouseEvent -> {
+//            if (mouseEvent.getButton() != MouseButton.SECONDARY
+//                    && (mouseEvent.getButton() != MouseButton.PRIMARY
+//                    || !mouseEvent.isShortcutDown())) {
+//                mouseEvent.consume();
+//            }
+//        });
+//        panner.start();
+//
+//        JFXChartUtil jfxChartUtil = new JFXChartUtil(timeStampOfFirstSample.get().getMillis(), timeStampOfLastSample.get().getMillis());
+//        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
+//
+//            if (mouseEvent.getButton() != MouseButton.PRIMARY
+//                    || mouseEvent.isShortcutDown()) {
+//                mouseEvent.consume();
+//                if (mouseEvent.isControlDown()) {
+//                    showNote(mouseEvent);
+//                }
+//            }
+//        });
+//
+//        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
 
     }
 
@@ -195,61 +210,13 @@ public class ColumnChart implements Chart {
     }
 
     @Override
-    public void updateChart() {
-        for (ChartDataModel chartDataModel : chartDataModels) {
-            JEVisAttribute att = chartDataModel.getAttribute();
-            if (att != null) {
-                try {
-                    att.getDataSource().reloadAttribute(att);
-                } catch (JEVisException e) {
-                    logger.error("Could not reload Attribute: " + att.getObject().getName() + ":" + att.getObject().getID() + ":" + att.getName());
-                }
-            }
-        }
-
-
-        manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
-
-//        series.clear();
-        hexColors.clear();
-        tableData.clear();
-
-        for (ChartDataModel singleRow : chartDataModels) {
-            if (!singleRow.getSelectedcharts().isEmpty()) {
-                try {
-                    ColumnChartSerie serie = new ColumnChartSerie(singleRow, hideShowIcons, false);
-
-                    hexColors.add(ColorHelper.toColor(singleRow.getColor()));
-//                    series.add(serie.getSerie());
-                    tableData.add(serie.getTableEntry());
-
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        if (chartDataModels != null && chartDataModels.size() > 0) {
-            unit = UnitManager.getInstance().format(chartDataModels.get(0).getUnit());
-            if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
-
-        }
-
-        columnChart.applyCss();
-
-        columnChart.setTitle(chartName);
-//        columnChart.getXAxis().setTickLabelRotation(-90d);
-        columnChart.getXAxis().setLabel(unit);
-    }
-
-    @Override
     public void setDataModels(List<ChartDataModel> chartDataModels) {
         this.chartDataModels = chartDataModels;
     }
 
     @Override
-    public void setHideShowIcons(Boolean hideShowIcons) {
-        this.hideShowIcons = hideShowIcons;
+    public void setShowIcons(Boolean showIcons) {
+        this.hideShowIcons = showIcons;
     }
 
     @Override
@@ -318,9 +285,9 @@ public class ColumnChart implements Chart {
         String stringForDisplay = null;
         if (valueForDisplay == null) {
 
-            x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
-
-            stringForDisplay = ((CategoryAxis) ((MultiAxisChart) getChart()).getXAxis()).getValueForDisplay(x);
+//            x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
+//
+//            stringForDisplay = ((CategoryAxis) ((MultiAxisChart) getChart()).getXAxis()).getValueForDisplay(x);
 
             if (stringForDisplay != null) {
                 valueForDisplay = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(stringForDisplay);
@@ -367,7 +334,7 @@ public class ColumnChart implements Chart {
     }
 
     @Override
-    public void updateTableZoom(Long lowerBound, Long upperBound) {
+    public void updateTableZoom(double lowerBound, double upperBound) {
 
     }
 
@@ -376,11 +343,11 @@ public class ColumnChart implements Chart {
         if (manipulationMode.get().equals(ManipulationMode.NONE)) {
 
             Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-            double x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(mouseCoordinates).getX();
+//            double x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(mouseCoordinates).getX();
 
             Map<String, RowNote> map = new HashMap<>();
             DateTime valueForDisplay = null;
-            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
+//            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
             for (ColumnChartSerie serie : columnChartSerieList) {
                 try {
@@ -450,8 +417,13 @@ public class ColumnChart implements Chart {
     }
 
     @Override
-    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
+    public de.gsi.chart.XYChart getChart() {
         return columnChart;
+    }
+
+    @Override
+    public ChartType getChartType() {
+        return chartType;
     }
 
     @Override

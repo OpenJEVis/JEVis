@@ -9,6 +9,7 @@ import org.jevis.api.*;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
@@ -30,7 +31,7 @@ public interface Chart {
 
     void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay);
 
-    void updateTableZoom(Long lowerBound, Long upperBound);
+    void updateTableZoom(double lowerBound, double upperBound);
 
     void showNote(MouseEvent mouseEvent);
 
@@ -307,7 +308,9 @@ public interface Chart {
 
     void setValueForDisplay(DateTime valueForDisplay);
 
-    org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart();
+    de.gsi.chart.Chart getChart();
+
+    ChartType getChartType();
 
     Region getRegion();
 
@@ -321,11 +324,9 @@ public interface Chart {
 
     DateTime getEndDateTime();
 
-    void updateChart();
-
     void setDataModels(List<ChartDataModel> chartDataModels);
 
-    void setHideShowIcons(Boolean hideShowIcons);
+    void setShowIcons(Boolean showIcons);
 
     void setChartSettings(ChartSettingsFunction function);
 

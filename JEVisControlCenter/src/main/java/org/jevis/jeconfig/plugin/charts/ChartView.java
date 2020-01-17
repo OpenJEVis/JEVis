@@ -336,9 +336,9 @@ public class ChartView implements Observer {
     public void update(Observable o, Object arg) {
     }
 
-    public Chart getChart() {
-        return chart;
-    }
+//    public Chart getChart() {
+//        return chart;
+//    }
 
     private void disableTable() {
         showTable = false;
@@ -420,10 +420,6 @@ public class ChartView implements Observer {
         } else return null;
     }
 
-    public TableView<TableEntry> getLegend() {
-        return tableView;
-    }
-
     public void drawAreaChart(Integer chartId, ChartType chartType) {
         this.chartId = chartId;
 
@@ -477,7 +473,7 @@ public class ChartView implements Observer {
                 setTableStandard();
                 break;
             case BAR:
-                chart = new BarChart(chartDataModels, dataModel.getHideShowIcons(), chartId, getChartName());
+                chart = new BarChart(chartDataModels, dataModel.getShowIcons(), chartId, getChartName());
                 setTableStandard();
                 tableView.getColumns().get(4).setVisible(false);
                 tableView.getColumns().get(5).setVisible(false);
@@ -573,18 +569,8 @@ public class ChartView implements Observer {
                     }
                 }
             }
-            if (!getChanged()) {
-                chart.setTitle(getChartName());
-                chart.setHideShowIcons(dataModel.getHideShowIcons());
-                chart.setDataModels(currentSelectedChartDataModels);
-                boolean containsEnPI = currentSelectedChartDataModels.stream().anyMatch(ChartDataModel::getEnPI);
-//                tableView.getColumns().get(9).setVisible(containsEnPI);
 
-                chart.updateChart();
-            } else {
-
-                generateChart(getChartId(), getChartType(), currentSelectedChartDataModels);
-            }
+            generateChart(getChartId(), getChartType(), currentSelectedChartDataModels);
 
             tableView.sort();
         }

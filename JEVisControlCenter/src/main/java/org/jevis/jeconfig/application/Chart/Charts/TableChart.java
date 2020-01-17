@@ -32,7 +32,7 @@ public class TableChart extends XYChart {
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
         this.singleRow = singleRow;
-        TableSerie serie = new TableSerie(singleRow, hideShowIcons);
+        TableSerie serie = new TableSerie(singleRow, showIcons);
 
         getHexColors().add(ColorHelper.toColor(singleRow.getColor()));
 
@@ -64,26 +64,26 @@ public class TableChart extends XYChart {
 
     @Override
     public void generateYAxis() {
-        y1Axis.setAutoRanging(false);
-        y2Axis.setAutoRanging(false);
-
-        y1Axis.setLowerBound(0);
-        y2Axis.setLowerBound(0);
-
-        y1Axis.setUpperBound(0);
-        y2Axis.setUpperBound(0);
-
-        y1Axis.setMaxHeight(0);
-        y2Axis.setMaxHeight(0);
-
-        y1Axis.setTickLabelsVisible(false);
-        y2Axis.setTickLabelsVisible(false);
-
-        y1Axis.setVisible(false);
-        y2Axis.setVisible(false);
-
-        y1Axis.setLabel("");
-        y2Axis.setLabel("");
+//        y1Axis.setAutoRanging(false);
+//        y2Axis.setAutoRanging(false);
+//
+//        y1Axis.setLowerBound(0);
+//        y2Axis.setLowerBound(0);
+//
+//        y1Axis.setUpperBound(0);
+//        y2Axis.setUpperBound(0);
+//
+//        y1Axis.setMaxHeight(0);
+//        y2Axis.setMaxHeight(0);
+//
+//        y1Axis.setTickLabelsVisible(false);
+//        y2Axis.setTickLabelsVisible(false);
+//
+//        y1Axis.setVisible(false);
+//        y2Axis.setVisible(false);
+//
+//        y1Axis.setLabel("");
+//        y2Axis.setLabel("");
 
     }
 

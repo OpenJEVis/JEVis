@@ -1,10 +1,9 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
+import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
-import javafx.scene.Node;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -34,21 +33,24 @@ public class XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
     private final boolean forecast;
     Integer yAxis;
-    MultiAxisChart.Series<Number, Number> serie;
+    DoubleDataSet valueDataSet;
+    DoubleDataSet noteDataSet;
     TableEntry tableEntry;
     ChartDataModel singleRow;
-    Boolean hideShowIcons;
+    Boolean showIcons;
     TreeMap<DateTime, JEVisSample> sampleMap;
     DateTime timeStampFromFirstSample = DateTime.now();
     DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
     Double minValue = Double.MAX_VALUE;
     Double maxValue = -Double.MAX_VALUE;
 
-    public XYChartSerie(ChartDataModel singleRow, Boolean hideShowIcons, boolean forecast) throws JEVisException {
+    public XYChartSerie(ChartDataModel singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
-        this.hideShowIcons = hideShowIcons;
-        this.serie = new MultiAxisChart.Series<>();
+        this.showIcons = showIcons;
+        this.valueDataSet = new DoubleDataSet(singleRow.getTitle());
+        this.valueDataSet.setStyle("strokeColor=" + singleRow.getColor() + "; fillColor= " + singleRow.getColor() + ";");
+        this.noteDataSet = new DoubleDataSet(singleRow.getTitle());
         this.forecast = forecast;
 
         generateSeriesFromSamples();
@@ -61,13 +63,13 @@ public class XYChartSerie {
         List<JEVisSample> samples = new ArrayList<>();
         if (!forecast) {
             this.tableEntry = new TableEntry(getTableEntryName());
-            this.serie.setName(getTableEntryName());
+            this.valueDataSet.setName(getTableEntryName());
             this.tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
 
             samples = singleRow.getSamples();
         } else {
             this.tableEntry = new TableEntry(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
-            this.serie.setName(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
+            this.valueDataSet.setName(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
             this.tableEntry.setColor(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
 
             samples = singleRow.getForecastSamples();
@@ -75,7 +77,7 @@ public class XYChartSerie {
 
         JEVisUnit unit = singleRow.getUnit();
 
-        serie.getData().clear();
+        valueDataSet.clearData();
 
         int samplesSize = samples.size();
 //        int seriesDataSize = serie.getData().size();
@@ -110,7 +112,8 @@ public class XYChartSerie {
         Double sum = 0.0;
         long zeroCount = 0;
 
-        List<MultiAxisChart.Data<Number, Number>> dataList = new ArrayList<>();
+//        List<MultiAxisChart.Data<Number, Number>> dataList = new ArrayList<>();
+        int noteIndex = 0;
         for (JEVisSample sample : samples) {
             try {
 //                int index = samples.indexOf(sample);
@@ -126,18 +129,27 @@ public class XYChartSerie {
                     zeroCount++;
                 }
 
-                Long timestamp = dateTime.getMillis();
+                Double timestamp = dateTime.getMillis() / 1000d;
 
-                MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>();
-                data.setXValue(timestamp);
-                data.setYValue(currentValue);
-                data.setExtraValue(yAxis);
+//                MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>();
+//                data.setXValue(timestamp);
+//                data.setYValue(currentValue);
+//                data.setExtraValue(yAxis);
+//
+//                data.setNode(null);
+//                data.setNode(generateNode(sample));
+//
+//                setDataNodeColor(data);
 
-                data.setNode(null);
-                data.setNode(generateNode(sample));
+                valueDataSet.add(timestamp, currentValue);
 
-                setDataNodeColor(data);
-                dataList.add(data);
+                String noteString = generateNote(sample);
+                if (noteString != null && showIcons) {
+                    noteDataSet.add(timestamp, currentValue);
+                    noteDataSet.addDataLabel(noteIndex, noteString);
+                    noteDataSet.addDataStyle(noteIndex, "strokeColor=" + singleRow.getColor() + "; fillColor= " + singleRow.getColor() + ";strokeDashPattern=solid");
+                    noteIndex++;
+                }
 
                 sampleMap.put(dateTime, sample);
 
@@ -151,8 +163,8 @@ public class XYChartSerie {
             sum = max;
         }
 
-        serie.setAxisIndex(singleRow.getAxis());
-        serie.getData().setAll(dataList);
+//        dataSet.setAxisIndex(singleRow.getAxis());
+//        dataSet.getData().setAll(dataList);
         JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
 
 
@@ -287,30 +299,25 @@ public class XYChartSerie {
         }
     }
 
-    public Node generateNode(JEVisSample sample) throws JEVisException {
-
-
+    public String generateNote(JEVisSample sample) throws JEVisException {
         Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()));
 
-        if (note.getNote() != null && hideShowIcons) {
-            if (sample.getNote().contains("Zeros")) {
-                return null;
-            }
-            note.getNote().setVisible(true);
-            return note.getNote();
-        } else {
-            if (sample.getNote() != null && sample.getNote().contains("Zeros")) {
-                return null;
-            }
-            Rectangle rect = new Rectangle(0, 0);
-            rect.setFill(ColorHelper.toColor(singleRow.getColor()));
-            rect.setVisible(false);
-            return rect;
-        }
+        return note.getNoteAsString();
+//        if (note.getNote() != null && hideShowIcons) {
+//            if (sample.getNote().contains("Zeros")) {
+//                return null;
+//            }
+//            note.getNote().setVisible(true);
+//            return note.getNoteAsString();
+//        } else return null;
     }
 
-    public MultiAxisChart.Series getSerie() {
-        return serie;
+    public DoubleDataSet getValueDataSet() {
+        return valueDataSet;
+    }
+
+    public DoubleDataSet getNoteDataSet() {
+        return noteDataSet;
     }
 
     public TableEntry getTableEntry() {

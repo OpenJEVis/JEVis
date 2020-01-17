@@ -6,7 +6,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYScatterChartSerie;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisScatterChart;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 
@@ -20,10 +19,10 @@ public class ScatterChart extends XYChart {
 
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
-        XYChartSerie serie = new XYScatterChartSerie(singleRow, hideShowIcons);
+        XYChartSerie serie = new XYScatterChartSerie(singleRow, showIcons);
 
         getHexColors().add(ColorHelper.toColor(singleRow.getColor()));
-        chart.getData().add(serie.getSerie());
+        chart.getDatasets().add(serie.getValueDataSet());
         tableData.add(serie.getTableEntry());
 
         /**
@@ -46,11 +45,6 @@ public class ScatterChart extends XYChart {
 
         checkManipulation(singleRow);
         return serie;
-    }
-
-    @Override
-    public void initializeChart() {
-        setChart(new MultiAxisScatterChart(dateAxis, y1Axis, y2Axis));
     }
 
     @Override

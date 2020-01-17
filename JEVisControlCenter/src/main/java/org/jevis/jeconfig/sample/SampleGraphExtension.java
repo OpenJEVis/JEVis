@@ -22,6 +22,7 @@ package org.jevis.jeconfig.sample;
 import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.AxisLabelOverlapPolicy;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
+import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
 import de.gsi.chart.plugins.DataPointTooltip;
 import de.gsi.chart.plugins.Zoomer;
 import de.gsi.chart.renderer.LineStyle;
@@ -41,6 +42,9 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 
 /**
@@ -89,11 +93,19 @@ public class SampleGraphExtension implements SampleEditorExtension {
                         I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
                         dtfOutLegend.print(lastTS));
 
-                final DefaultNumericAxis xAxis1 = new DefaultNumericAxis(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall, null);
-                xAxis1.setOverlapPolicy(AxisLabelOverlapPolicy.SKIP_ALT);
-                final DefaultNumericAxis yAxis1 = new DefaultNumericAxis(null, null);
+                final DefaultNumericAxis xAxis = new DefaultNumericAxis(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall, null);
+                xAxis.setOverlapPolicy(AxisLabelOverlapPolicy.SKIP_ALT);
+                xAxis.setAutoRangeRounding(false);
+                xAxis.setTimeAxis(true);
+                DefaultTimeFormatter axisLabelFormatter = (DefaultTimeFormatter) xAxis.getAxisLabelFormatter();
+                Instant instant = Instant.now();
+                ZoneId systemZone = ZoneId.systemDefault();
+                ZoneOffset currentOffsetForMyZone = systemZone.getRules().getOffset(instant);
+                axisLabelFormatter.setTimeZoneOffset(currentOffsetForMyZone);
 
-                final XYChart chart = new XYChart(xAxis1, yAxis1);
+                final DefaultNumericAxis yAxis = new DefaultNumericAxis(null, null);
+
+                final XYChart chart = new XYChart(xAxis, yAxis);
                 chart.legendVisibleProperty().set(false);
                 chart.getPlugins().add(new Zoomer());
                 //            chart.getPlugins().add(new EditAxis());
@@ -108,10 +120,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
                 // set them false to make the plot faster
                 chart.setAnimated(false);
 
-                xAxis1.setAutoRangeRounding(false);
-                // xAxis1.invertAxis(true); TODO: bug inverted time axis crashes when zooming
-                xAxis1.setTimeAxis(true);
-                yAxis1.setAutoRangeRounding(true);
+                yAxis.setAutoRangeRounding(true);
 
                 ErrorDataSetRenderer renderer = new ErrorDataSetRenderer();
                 renderer.setPolyLineStyle(LineStyle.AREA);

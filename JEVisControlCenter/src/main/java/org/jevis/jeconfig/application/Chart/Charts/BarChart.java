@@ -1,17 +1,16 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import de.gsi.chart.XYChart;
+import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -19,7 +18,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.CategoryAxis;
+import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
 import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
 import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
@@ -29,7 +28,6 @@ import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BarChart implements Chart {
@@ -44,7 +42,7 @@ public class BarChart implements Chart {
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
     private List<BarChartSerie> barChartSerieList = new ArrayList<>();
-    private org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart barChart;
+    private de.gsi.chart.XYChart barChart;
     private List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -55,6 +53,7 @@ public class BarChart implements Chart {
     private AtomicReference<ManipulationMode> manipulationMode;
     private ChartPanManager panner;
     private DateTime nearest;
+    private ChartType chartType = ChartType.BAR;
 
     public BarChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
         this.chartDataModels = chartDataModels;
@@ -85,17 +84,17 @@ public class BarChart implements Chart {
             if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
         }
 
-        NumberAxis numberAxis = new NumberAxis();
-        CategoryAxis catAxis = new CategoryAxis();
+        DefaultNumericAxis numberAxis = new DefaultNumericAxis();
+        de.gsi.chart.axes.spi.CategoryAxis catAxis = new de.gsi.chart.axes.spi.CategoryAxis();
 
-        barChart = new org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart<>(numberAxis, catAxis);
+        barChart = new XYChart(numberAxis, catAxis);
 
         barChart.setTitle(chartName);
         barChart.setLegendVisible(false);
         barChart.getXAxis().setAutoRanging(true);
         //barChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
-        barChart.getXAxis().setTickLabelRotation(-90);
-        barChart.getXAxis().setLabel(unit);
+//        barChart.getXAxis().setTickLabelRotation(-90);
+        barChart.getXAxis().setName(unit);
 
         //initializeZoom();
 //        setTimer();
@@ -105,38 +104,11 @@ public class BarChart implements Chart {
     public void addSeriesToChart() {
         for (BarChartSerie barChartSerie : barChartSerieList) {
             Platform.runLater(() -> {
-                barChart.getData().add(barChartSerie.getSerie());
+                barChart.getDatasets().add(barChartSerie.getDataSet());
                 tableData.add(barChartSerie.getTableEntry());
             });
         }
     }
-
-    private void setTimer() {
-        Service<Void> service = new Service<Void>() {
-            @Override
-            protected Task<Void> createTask() {
-                return new Task<Void>() {
-                    @Override
-                    protected Void call() throws Exception {
-
-                        try {
-                            TimeUnit.SECONDS.sleep(60);
-                            //System.out.println("Reloading");
-                            Platform.runLater(BarChart.this::updateChart);
-                        } catch (InterruptedException e) {
-                            logger.error("Sleep interrupted: " + e);
-                        }
-                        succeeded();
-
-                        return null;
-                    }
-                };
-            }
-        };
-
-        service.start();
-    }
-
 
     @Override
     public ObservableList<TableEntry> getTableData() {
@@ -199,63 +171,13 @@ public class BarChart implements Chart {
     }
 
     @Override
-    public void updateChart() {
-        chartDataModels.forEach(singleRow -> {
-            JEVisAttribute att = singleRow.getAttribute();
-            if (att != null) {
-                try {
-                    att.getDataSource().reloadAttribute(att);
-                } catch (JEVisException e) {
-                    logger.error("Could not reload Attribute: " + att.getObject().getName() + ":" + att.getObject().getID() + ":" + att.getName());
-                }
-            }
-        });
-
-
-        manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
-
-        barChart.getData().clear();
-        hexColors.clear();
-        tableData.clear();
-
-        chartDataModels.forEach(singleRow -> {
-            if (!singleRow.getSelectedcharts().isEmpty()) {
-                try {
-                    BarChartSerie serie = new BarChartSerie(singleRow, hideShowIcons);
-
-
-                    hexColors.add(ColorHelper.toColor(singleRow.getColor()));
-                    barChart.getData().add(serie.getSerie());
-                    tableData.add(serie.getTableEntry());
-
-                } catch (JEVisException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        if (chartDataModels != null && chartDataModels.size() > 0) {
-            unit = UnitManager.getInstance().format(chartDataModels.get(0).getUnit());
-            if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
-
-        }
-
-        barChart.applyCss();
-        applyColors();
-
-        barChart.setTitle(chartName);
-        barChart.getXAxis().setLabel(unit);
-//        setTimer();
-    }
-
-    @Override
     public void setDataModels(List<ChartDataModel> chartDataModels) {
         this.chartDataModels = chartDataModels;
     }
 
     @Override
-    public void setHideShowIcons(Boolean hideShowIcons) {
-        this.hideShowIcons = hideShowIcons;
+    public void setShowIcons(Boolean showIcons) {
+        this.hideShowIcons = showIcons;
     }
 
     @Override
@@ -309,7 +231,7 @@ public class BarChart implements Chart {
     }
 
     @Override
-    public void updateTableZoom(Long lowerBound, Long upperBound) {
+    public void updateTableZoom(double lowerBound, double upperBound) {
 
     }
 
@@ -342,8 +264,13 @@ public class BarChart implements Chart {
     }
 
     @Override
-    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
+    public de.gsi.chart.XYChart getChart() {
         return barChart;
+    }
+
+    @Override
+    public ChartType getChartType() {
+        return chartType;
     }
 
     @Override

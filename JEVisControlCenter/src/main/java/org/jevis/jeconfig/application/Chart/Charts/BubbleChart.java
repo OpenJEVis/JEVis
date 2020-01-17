@@ -18,7 +18,9 @@ import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.jeconfig.application.Chart.ChartElements.Bubble;
+import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
@@ -42,7 +44,7 @@ public class BubbleChart implements Chart {
     private final String chartName;
     private List<Color> hexColors = new ArrayList<>();
     private List<Integer> noOfBubbles = new ArrayList<>();
-    MultiAxisBubbleChart<Number, Number> chart;
+    MultiAxisBubbleChart chart;
     private Region chartRegion;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private final Map<Integer, Integer> modifiedX;
@@ -52,6 +54,7 @@ public class BubbleChart implements Chart {
     private Double nearest = 0d;
     private String xUnit;
     private String yUnit;
+    private ChartType chartType = ChartType.BUBBLE;
 
     public BubbleChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
         this.regressionType = analysisDataModel.getRegressionType();
@@ -61,7 +64,7 @@ public class BubbleChart implements Chart {
         this.chartId = chartId;
         this.chartName = chartName;
 
-        final NumberAxis xAxis = new NumberAxis();
+        final DateAxis xAxis = new DateAxis();
         final NumberAxis yAxis = new NumberAxis();
 
         List<JEVisSample> xList = new ArrayList<>();
@@ -205,7 +208,7 @@ public class BubbleChart implements Chart {
             arrayList.add(modifiedY.get(aInteger));
         });
 
-        chart = new MultiAxisBubbleChart<Number, Number>(xAxis, yAxis, null);
+        chart = new MultiAxisBubbleChart(xAxis, yAxis, null);
         if (calcRegression) {
             chart.setRegressionColor(0, hexColors.get(0));
             chart.setRegression(0, regressionType, polyRegressionDegree);
@@ -297,10 +300,10 @@ public class BubbleChart implements Chart {
         Point2D mouseCoordinates = null;
         if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
 
-        double x = ((MultiAxisBubbleChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
-
-        Double displayValue = ((NumberAxis) ((MultiAxisBubbleChart) getChart()).getXAxis()).getValueForDisplay(x).doubleValue();
-
+//        double x = ((MultiAxisBubbleChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
+//
+//        Double displayValue = ((NumberAxis) ((MultiAxisBubbleChart) getChart()).getXAxis()).getValueForDisplay(x).doubleValue();
+        Double displayValue = null;
         if (displayValue != null) {
             setValueForDisplay(valueForDisplay);
             double finalDisplayValue = displayValue;
@@ -344,7 +347,7 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public void updateTableZoom(Long lowerBound, Long upperBound) {
+    public void updateTableZoom(double lowerBound, double upperBound) {
 
     }
 
@@ -359,17 +362,12 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public void updateChart() {
-
-    }
-
-    @Override
     public void setDataModels(List<ChartDataModel> chartDataModels) {
 
     }
 
     @Override
-    public void setHideShowIcons(Boolean hideShowIcons) {
+    public void setShowIcons(Boolean showIcons) {
 
     }
 
@@ -443,8 +441,13 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
-        return chart;
+    public de.gsi.chart.XYChart getChart() {
+        return null;
+    }
+
+    @Override
+    public ChartType getChartType() {
+        return chartType;
     }
 
     @Override
