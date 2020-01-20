@@ -21,6 +21,7 @@ package org.jevis.jeconfig.sample;
 
 import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.AxisLabelOverlapPolicy;
+import de.gsi.chart.axes.AxisMode;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
 import de.gsi.chart.plugins.DataPointTooltip;
@@ -107,7 +108,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
 
                 final XYChart chart = new XYChart(xAxis, yAxis);
                 chart.legendVisibleProperty().set(false);
-                chart.getPlugins().add(new Zoomer());
+                chart.getPlugins().add(new Zoomer(AxisMode.X));
                 //            chart.getPlugins().add(new EditAxis());
 
                 DataPointTooltip dataPointTooltip = new DataPointTooltip();
@@ -172,7 +173,10 @@ public class SampleGraphExtension implements SampleEditorExtension {
     public void update() {
         Platform.runLater(() -> {
             if (_dataChanged) {
-                if (_samples != null && !_samples.isEmpty()) buildGui(_att, _samples);
+                if (_samples != null && !_samples.isEmpty()) {
+                    _view.setCenter(null);
+                    buildGui(_att, _samples);
+                }
                 _dataChanged = false;
             }
         });
