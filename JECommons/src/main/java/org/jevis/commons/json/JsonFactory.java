@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * ? old version not i use anymore ?
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class JsonFactory {
@@ -54,6 +54,7 @@ public class JsonFactory {
         json.setName(obj.getName());
         json.setId(obj.getID());
         json.setJevisClass(obj.getJEVisClass().getName());
+
 
         if (!obj.getParents().isEmpty()) {
             json.setParent(22l);

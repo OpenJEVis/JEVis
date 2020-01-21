@@ -97,9 +97,7 @@ public class ConfigManager {
         } else {
             dashboardObject = parent.buildObject(filename, dashboardClass);
             dashboardObject.commit();
-//            long newID=dashboardObject.getID();
             parent.getDataSource().reloadAttribute(dashboardObject);
-//            dashboardObject= parent.getDataSource().getObject(newID);
             dashboardPojo.setJevisObject(dashboardObject);
         }
 
@@ -268,6 +266,13 @@ public class ConfigManager {
             } catch (Exception ex) {
                 logger.error("Could not parse {}: {}", SHOW_GRID, ex);
             }
+
+            try {
+                dashboardPojo.setZoomFactor(jsonNode.get(ZOOM_FACTOR).asDouble(1.0d));
+            } catch (Exception ex) {
+                logger.error("Could not parse {}: {}", ZOOM_FACTOR, ex);
+            }
+
             JsonNode widgets = jsonNode.get(WIDGET_NODE);
 
             if (widgets.isArray()) {

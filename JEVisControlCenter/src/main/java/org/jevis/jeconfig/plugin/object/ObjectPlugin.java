@@ -428,7 +428,8 @@ public class ObjectPlugin implements Plugin {
                     TreeHelper.EventDelete(tree);
                     break;
                 case Constants.Plugin.Command.RENAME:
-                    TreeHelper.EventRename(tree, selectedObj.getValue().getJEVisObject());
+                    LocalNameDialog localNameDialog = new LocalNameDialog(selectedObj.getValue().getJEVisObject());
+                    localNameDialog.show();
                     break;
                 case Constants.Plugin.Command.COLLAPSE:
                     tree.getSelectionModel().getSelectedItems().forEach(o -> {

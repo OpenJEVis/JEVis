@@ -36,6 +36,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
 import org.jevis.jeconfig.dialog.JsonExportDialog;
+import org.jevis.jeconfig.dialog.LocalNameDialog;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -64,7 +65,8 @@ public class JEVisTreeContextMenu extends ContextMenu {
                 buildReload(),
                 new SeparatorMenuItem(),
                 buildDelete(),
-                buildRename(),
+                //buildRename(),
+                buildMenuLocalize(),
                 buildCopy(),
                 buildCut(),
                 buildPaste(),
@@ -207,6 +209,23 @@ public class JEVisTreeContextMenu extends ContextMenu {
         return menu;
     }
 
+    public MenuItem buildMenuLocalize(){
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.localename"), ResourceLoader.getImage("translate.png", 20, 20));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    LocalNameDialog localNameDialog = new LocalNameDialog(obj);
+                    localNameDialog.show();
+                } catch (Exception ex) {
+                    logger.fatal(ex);
+                }
+            }
+        });
+
+        return menu;
+    }
+
 
     public MenuItem buildMenuExport() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.export"), ResourceLoader.getImage("1401894975_Export.png", 20, 20));
@@ -276,6 +295,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
         return menu;
     }
 
+    /**
     private MenuItem buildRename() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.rename"), ResourceLoader.getImage("Rename.png", 20, 20));
         menu.setOnAction(new EventHandler<ActionEvent>() {
@@ -286,6 +306,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
         });
         return menu;
     }
+    **/
 
     private MenuItem buildReload() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.reload"), ResourceLoader.getImage("1476369770_Sync.png", 20, 20));

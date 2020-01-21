@@ -71,21 +71,14 @@ public class LanguageEditor implements AttributeEditor {
         });
     }
 
-    public ObservableList<Locale> getEnumList(JEVisAttribute att) {
+    /** Move to an common placed because is also used elsewhere **/
+    public static  ObservableList<Locale> getEnumList() {
         ObservableList<Locale> enumList = FXCollections.observableArrayList();
         try {
             String[] langs = Locale.getISOLanguages();
             for (String lang : langs) {
                 enumList.add(LocaleUtils.toLocale(lang));
             }
-
-//            Locale[] list = DateFormat.getAvailableLocales();
-//            for (Locale l : list) {
-//                if(langs.){
-//                    
-//                }
-//                enumList.add(l);
-//            }
 
         } catch (Exception ex) {
             logger.catching(ex);
@@ -105,7 +98,7 @@ public class LanguageEditor implements AttributeEditor {
 
     private void buildGUI() {
         ObservableList<Locale> enumList = FXCollections.observableArrayList();
-        enumList.addAll(getEnumList(_attribute));
+        enumList.addAll(getEnumList());
 
 //        ComboBox picker = new ComboBox(enumList);
         JFXComboBox picker = new JFXComboBox(enumList);

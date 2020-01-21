@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
+import org.jevis.commons.ws.json.JsonI18n;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.ws.sql.SQLDataSource;
@@ -242,7 +243,13 @@ public class ResourceObject {
                             return Response.status(Response.Status.UNAUTHORIZED).build();
                         }
                     } else {
-                        JsonObject newObj = this.ds.buildObject(json, parentObj.getId());
+
+                        String jsonstring=null;
+                        if(json.getI18n()!=null && !json.getI18n().isEmpty()){
+                           jsonstring = objectMapper.writeValueAsString(json.getI18n());
+                        }
+
+                        JsonObject newObj = this.ds.buildObject(json, parentObj.getId(),jsonstring);
                         ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_OBJECT, String.format("%s:%s", newObj.getId(), newObj.getName()));
                         return Response.ok(newObj).build();
                     }
@@ -294,15 +301,22 @@ public class ResourceObject {
             JsonObject json = objectMapper.readValue(object, JsonObject.class);
             JsonObject existingObj = this.ds.getObject(id);
             if (existingObj != null && this.ds.getUserManager().canWrite(json)) {
+                String jsonstring=null;
+                if(json.getI18n()!=null && !json.getI18n().isEmpty()){
+                    jsonstring = objectMapper.writeValueAsString(json.getI18n());
+                }
+
+                /** TODO: note to self, why did i do an if and no the boolean as var? **/
                 if (existingObj.getisPublic() != json.getisPublic()) {
                     ds.logUserAction(SQLDataSource.LOG_EVENT.UPDATE_OBJECT, String.format("%s:%s", existingObj.getId(), existingObj.getName()));
+
                     if (this.ds.getUserManager().isSysAdmin()) {
-                        return Response.ok(this.ds.updateObject(id, json.getName(), json.getisPublic())).build();
+                        return Response.ok(this.ds.updateObject(id, json.getName(), json.getisPublic(),jsonstring)).build();
                     } else {
-                        return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic())).build();
+                        return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic(),jsonstring)).build();
                     }
                 } else {
-                    return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic())).build();
+                    return Response.ok(this.ds.updateObject(id, json.getName(), existingObj.getisPublic(),jsonstring)).build();
                 }
             } else {
                 return Response.notModified().build();

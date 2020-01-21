@@ -42,6 +42,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 import java.text.DecimalFormat;
@@ -62,6 +63,7 @@ public class Statusbar extends ToolBar {
     public BooleanProperty connectedProperty = new SimpleBooleanProperty(true);
     private Label userName = new Label("");
     private Label onlineInfo = new Label("Online");
+    private Label versionLabel = new Label(I18n.getInstance().getString("statusbar.version"));
     private HBox conBox = new HBox();
     private ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
     private ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
@@ -172,8 +174,12 @@ public class Statusbar extends ToolBar {
 
         this.conBox.getChildren().setAll(this.connectIcon);
 
+        Label versionNumber = new Label(JEConfig.class.getPackage().getImplementationVersion());
+
         Pane spacer = new Pane();
         spacer.setMaxWidth(50);
+        Pane spacer2 = new Pane();
+        spacer.setMaxWidth(100);
         Region spacerLeft = new Region();
         HBox.setHgrow(spacerLeft, Priority.ALWAYS);
 
@@ -185,7 +191,7 @@ public class Statusbar extends ToolBar {
 
         progressbox.getChildren().addAll(loadStatus, progressBar);
         //TODO implement notification
-        root.getChildren().addAll(userIcon, this.userName, spacerLeft, progressbox, spacer, this.conBox, this.onlineInfo);
+        root.getChildren().addAll(userIcon, this.userName, spacerLeft, progressbox, spacer,versionLabel,versionNumber,spacer2, this.conBox, this.onlineInfo);
 
         String sinfo = "";
 

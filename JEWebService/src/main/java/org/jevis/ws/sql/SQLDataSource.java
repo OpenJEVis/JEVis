@@ -400,9 +400,9 @@ public class SQLDataSource {
         }
     }
 
-    public JsonObject updateObject(long id, String newname, boolean ispublic) throws JEVisException {
+    public JsonObject updateObject(long id, String newname, boolean ispublic, String i18n) throws JEVisException {
         logger.debug("updateObject");
-        return getObjectTable().updateObject(id, newname, ispublic);
+        return getObjectTable().updateObject(id, newname, ispublic,i18n);
     }
 
     public List<JsonObject> getObjects() throws JEVisException {
@@ -628,7 +628,7 @@ public class SQLDataSource {
      * @return
      * @throws JEVisException
      */
-    public JsonObject buildObject(JsonObject newObjecrequest, long parent) throws JEVisException {
+    public JsonObject buildObject(JsonObject newObjecrequest, long parent, String i18n) throws JEVisException {
         //        copyOwnerPermissions(parent, newObj.getId());
 //        JsonRelationship parentRelationship = new JsonRelationship();
 //        parentRelationship.setType(JEVisConstants.ObjectRelationship.PARENT);
@@ -636,7 +636,7 @@ public class SQLDataSource {
 //        parentRelationship.setTo(parent);
 //        setRelationships(parentRelationship);
 
-        return getObjectTable().insertObject(newObjecrequest.getName(), newObjecrequest.getJevisClass(), parent, newObjecrequest.getisPublic());
+        return getObjectTable().insertObject(newObjecrequest.getName(), newObjecrequest.getJevisClass(), parent, newObjecrequest.getisPublic(),i18n);
     }
 
     /**

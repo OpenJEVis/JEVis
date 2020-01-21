@@ -20,6 +20,7 @@
  */
 package org.jevis.rest;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
@@ -45,6 +46,7 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.Status;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * this Class handles all the JEVisSample related requests
@@ -420,6 +422,26 @@ public class ResourceVirtualSample {
             @Override
             public JEVisClass getJEVisClass() throws JEVisException {
                 return null;
+            }
+
+            @Override
+            public String getLocalName(String key) {
+                return getName();
+            }
+
+            @Override
+            public void setLocalName(String key, String name) {
+
+            }
+
+            @Override
+            public void setLocalNames(Map<String, String> translation) {
+
+            }
+
+            @Override
+            public Map<String, String> getLocalNameList() {
+                return new HashedMap();
             }
 
             @Override

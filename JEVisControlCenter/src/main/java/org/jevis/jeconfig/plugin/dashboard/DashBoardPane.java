@@ -43,6 +43,13 @@ public class DashBoardPane extends Pane {
     private boolean snapToGrid = false;
     private boolean gridIsVisible = false;
 
+    /** Dummy Pane fif no Dashboard is loaded **/
+    public DashBoardPane(){
+        jeVisDataSource=null;
+        control=null;
+        defaultBackground=null;
+    }
+
     public DashBoardPane(DashboardControl control) {
         super();
         this.defaultBackground = getBackground();
@@ -282,7 +289,7 @@ public class DashBoardPane extends Pane {
      * @param yGridInterval
      */
     public void createGrid(double xGridInterval, double yGridInterval) {
-        logger.error("createGrid: {},{}",xGridInterval,yGridInterval);
+        logger.debug("createGrid: {},{}",xGridInterval,yGridInterval);
         getChildren().removeAll(visibleGrid);
 
 

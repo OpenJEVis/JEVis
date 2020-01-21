@@ -20,10 +20,12 @@ package org.jevis.jeconfig.application.jevistree;
  * published at <http://www.OpenJEVis.org/>.
  */
 
+import org.apache.commons.collections.map.HashedMap;
 import org.jevis.api.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Fake Root
@@ -72,6 +74,26 @@ public class JEVisRootObject implements JEVisObject {
     @Override
     public void setName(String name) {
         _name = name;
+    }
+
+    @Override
+    public String getLocalName(String key) {
+        return getName();
+    }
+
+    @Override
+    public void setLocalName(String key, String name) {
+
+    }
+
+    @Override
+    public void setLocalNames(Map<String, String> translation) {
+
+    }
+
+    @Override
+    public Map<String, String> getLocalNameList() {
+        return new HashedMap();
     }
 
     @Override
