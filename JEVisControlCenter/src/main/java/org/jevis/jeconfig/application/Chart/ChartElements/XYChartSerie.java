@@ -49,7 +49,8 @@ public class XYChartSerie {
         this.yAxis = singleRow.getAxis();
         this.showIcons = showIcons;
         this.valueDataSet = new DoubleDataSet(singleRow.getTitle());
-        this.valueDataSet.setStyle("strokeColor=" + singleRow.getColor() + "; fillColor= " + singleRow.getColor() + ";");
+        Color color = ColorHelper.toColor(singleRow.getColor()).deriveColor(0, 1, 1, 0.9);
+        this.valueDataSet.setStyle("strokeColor=" + color + "; fillColor=" + color);
         this.noteDataSet = new DoubleDataSet(singleRow.getTitle());
         this.forecast = forecast;
 
@@ -147,7 +148,7 @@ public class XYChartSerie {
                 if (noteString != null && showIcons) {
                     noteDataSet.add(timestamp, currentValue);
                     noteDataSet.addDataLabel(noteIndex, noteString);
-                    noteDataSet.addDataStyle(noteIndex, "strokeColor=" + singleRow.getColor() + "; fillColor= " + singleRow.getColor() + ";strokeDashPattern=solid");
+                    noteDataSet.addDataStyle(noteIndex, "strokeColor=" + singleRow.getColor() + "; fillColor= " + singleRow.getColor() + ";strokeDashPattern=0");
                     noteIndex++;
                 }
 

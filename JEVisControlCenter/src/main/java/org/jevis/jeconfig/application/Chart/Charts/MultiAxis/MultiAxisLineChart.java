@@ -11,10 +11,10 @@ import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.css.StyleableBooleanProperty;
 import javafx.scene.Node;
+import javafx.scene.chart.Axis;
 import javafx.scene.shape.*;
 import javafx.scene.transform.Translate;
 import javafx.util.Duration;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.Axis;
 
 import java.util.*;
 

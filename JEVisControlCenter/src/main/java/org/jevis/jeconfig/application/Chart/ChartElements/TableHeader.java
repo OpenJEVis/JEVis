@@ -21,7 +21,6 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.tools.TableViewUtils;
-import org.jevis.jeconfig.plugin.charts.ChartView;
 import org.jevis.jeconfig.plugin.charts.TableViewContextMenuHelper;
 
 import java.util.Collections;
@@ -47,7 +46,7 @@ public class TableHeader extends TableView<TableEntry> {
                         "-fx-background-insets: -1.4,0,1;" +
                         "}");
         getStylesheets().add
-                (ChartView.class.getResource("/styles/TableViewNoScrollbar.css").toExternalForm());
+                (TableHeader.class.getResource("/styles/TableViewNoScrollbar.css").toExternalForm());
         setSortPolicy(param -> {
             Comparator<TableEntry> comparator = (t1, t2) -> getAlphanumComparator().compare(t1.getName(), t2.getName());
             FXCollections.sort(getItems(), comparator);

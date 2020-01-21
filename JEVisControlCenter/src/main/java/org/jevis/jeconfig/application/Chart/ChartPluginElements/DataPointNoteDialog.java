@@ -81,7 +81,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                 final double y = xyChart.getYAxis().getDisplayPosition(dataPoint.y);
                 final Point2D displayPoint = new Point2D(x, y);
                 dataPoint.distanceFromMouse = displayPoint.distance(mouseLocation);
-                if (displayPoint.distance(mouseLocation) <= 1000 && (nearestDataPoint == null
+                if (displayPoint.distance(mouseLocation) <= 10000 && (nearestDataPoint == null
                         || dataPoint.distanceFromMouse < nearestDataPoint.distanceFromMouse)) {
                     nearestDataPoint = dataPoint;
                 }

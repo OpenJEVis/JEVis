@@ -2,9 +2,7 @@ package org.jevis.jeconfig.application.Chart.Charts;
 
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -61,32 +59,13 @@ public class LogicalChart extends XYChart {
         return serie;
     }
 
-    @Override
-    public void addSeriesToChart() {
-        for (XYChartSerie xyChartSerie : xyChartSerieList) {
-            chart.getDatasets().add(xyChartSerie.getValueDataSet());
-            tableData.add(xyChartSerie.getTableEntry());
-        }
-    }
-
-    @Override
-    public void applyColors() {
-
-        for (int i = 0; i < getHexColors().size(); i++) {
-            Color currentColor = getHexColors().get(i);
-            String hexColor = ColorHelper.toRGBCode(currentColor);
-            String preIdent = ".default-color" + i;
-            Node node = getChart().lookup(preIdent + ".chart-series-area-fill");
-            Node nodew = getChart().lookup(preIdent + ".chart-series-area-line");
-
-            if (node != null) {
-                node.setStyle("-fx-fill: " + hexColor + ";");
-            }
-            if (nodew != null) {
-                nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
-            }
-        }
-    }
+//    @Override
+//    public void addSeriesToChart() {
+//        for (XYChartSerie xyChartSerie : xyChartSerieList) {
+//            chart.getDatasets().add(xyChartSerie.getValueDataSet());
+//            tableData.add(xyChartSerie.getTableEntry());
+//        }
+//    }
 
     @Override
     public void generateYAxis() {

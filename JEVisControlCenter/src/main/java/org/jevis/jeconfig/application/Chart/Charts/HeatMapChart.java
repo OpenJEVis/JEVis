@@ -27,8 +27,6 @@ import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
-import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.tools.Holidays;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -459,16 +457,6 @@ public class HeatMapChart implements Chart {
     @Override
     public void setChartSettings(ChartSettingsFunction function) {
 
-    }
-
-    @Override
-    public ChartPanManager getPanner() {
-        return null;
-    }
-
-    @Override
-    public JFXChartUtil getJfxChartUtil() {
-        return null;
     }
 
     private HeatMapXY getHeatMapXY(Period period, Period inputSampleRate) {

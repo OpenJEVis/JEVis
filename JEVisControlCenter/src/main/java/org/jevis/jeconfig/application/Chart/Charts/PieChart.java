@@ -27,8 +27,6 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartType;
-import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
-import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
@@ -46,9 +44,10 @@ public class PieChart implements Chart {
     private final Boolean showSum;
     private String chartName;
     private String unit;
+    private AnalysisDataModel analysisDataModel;
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
-    private List<org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart.Data> series = new ArrayList<>();
+    private List<javafx.scene.chart.PieChart.Data> series = new ArrayList<>();
     private PieChartExtended pieChart;
     private List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
@@ -59,13 +58,14 @@ public class PieChart implements Chart {
     private boolean legendMode = false;
     private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
         @Override
-        public void applySetting(org.jevis.jeconfig.application.Chart.Charts.jfx.Chart chart) {
+        public void applySetting(javafx.scene.chart.Chart chart) {
 
         }
     };
     private List<String> seriesNames = new ArrayList<>();
 
     public PieChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
+        this.analysisDataModel = analysisDataModel;
         this.chartDataModels = chartDataModels;
         this.showRawData = analysisDataModel.getShowRawData();
         this.showSum = analysisDataModel.getShowSum();
@@ -188,7 +188,7 @@ public class PieChart implements Chart {
                     + " " + currentUnitString
                     + " (" + nf.format(listPercentages.get(listTableEntryNames.indexOf(name)) * 100) + "%)";
 
-            org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart.Data data = new org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
+            javafx.scene.chart.PieChart.Data data = new javafx.scene.chart.PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
             series.add(data);
             seriesNames.add(name);
         }
@@ -223,7 +223,7 @@ public class PieChart implements Chart {
         caption.setTextFill(Color.DARKORANGE);
         caption.setStyle("-fx-font: 24 arial;");
 
-        for (final org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart.Data data : series) {
+        for (final javafx.scene.chart.PieChart.Data data : series) {
             data.getNode().addEventHandler(MouseEvent.MOUSE_PRESSED, //--> is null weil noch nicht da
                     new EventHandler<MouseEvent>() {
                         @Override
@@ -254,16 +254,6 @@ public class PieChart implements Chart {
     @Override
     public void setShowIcons(Boolean showIcons) {
         this.hideShowIcons = showIcons;
-    }
-
-    @Override
-    public ChartPanManager getPanner() {
-        return null;
-    }
-
-    @Override
-    public JFXChartUtil getJfxChartUtil() {
-        return null;
     }
 
     @Override
@@ -308,8 +298,8 @@ public class PieChart implements Chart {
 
     @Override
     public void updateTableZoom(double lowerBound, double upperBound) {
-        Double lb = lowerBound * 1000;
-        Double ub = upperBound * 1000;
+        Double lb = lowerBound * 1000d;
+        Double ub = upperBound * 1000d;
         DateTime start = new DateTime(lb.longValue());
         DateTime end = new DateTime(ub.longValue());
         if (chartDataModels != null) {
@@ -500,5 +490,4 @@ public class PieChart implements Chart {
     public void setLegendMode(boolean enable) {
         legendMode = enable;
     }
-
 }

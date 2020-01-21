@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -19,9 +20,6 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartType;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
-import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
-import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -51,7 +49,6 @@ public class BarChart implements Chart {
     private Region areaChartRegion;
     private boolean asDuration = false;
     private AtomicReference<ManipulationMode> manipulationMode;
-    private ChartPanManager panner;
     private DateTime nearest;
     private ChartType chartType = ChartType.BAR;
 
@@ -178,16 +175,6 @@ public class BarChart implements Chart {
     @Override
     public void setShowIcons(Boolean showIcons) {
         this.hideShowIcons = showIcons;
-    }
-
-    @Override
-    public ChartPanManager getPanner() {
-        return panner;
-    }
-
-    @Override
-    public JFXChartUtil getJfxChartUtil() {
-        return null;
     }
 
     @Override

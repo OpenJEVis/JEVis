@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.9.9</version>
+    <version>3.9.11</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -74,6 +74,11 @@
             <groupId>de.gsi.chart</groupId>
             <artifactId>chartfx-chart</artifactId>
             <version>8.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.0-alpha0</version>
         </dependency>
         <dependency>
             <groupId>org.jfxtras</groupId>

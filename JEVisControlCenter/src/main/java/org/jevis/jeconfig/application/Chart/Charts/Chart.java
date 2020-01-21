@@ -10,8 +10,6 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartType;
-import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
-import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -329,10 +327,6 @@ public interface Chart {
     void setShowIcons(Boolean showIcons);
 
     void setChartSettings(ChartSettingsFunction function);
-
-    ChartPanManager getPanner();
-
-    JFXChartUtil getJfxChartUtil();
 
     void setRegion(Region region);
 
