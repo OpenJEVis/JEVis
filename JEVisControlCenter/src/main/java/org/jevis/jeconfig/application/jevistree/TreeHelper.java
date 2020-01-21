@@ -1327,7 +1327,7 @@ public class TreeHelper {
 
     }
 
-
+    /**
     public static void EventRename(final JEVisTree tree, JEVisObject object) {
         logger.trace("EventRename");
 
@@ -1383,7 +1383,7 @@ public class TreeHelper {
         }
 
     }
-
+**/
     private final static Pattern lastIntPattern = Pattern.compile("[^0-9]+([0-9]+)$");
 
     public static void EventDrop(final JEVisTree tree, JEVisObject dragObj, JEVisObject targetParent, CopyObjectDialog.DefaultAction mode) {

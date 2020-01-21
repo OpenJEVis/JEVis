@@ -41,6 +41,7 @@ public class JsonObject {
     private List<JsonObject> objects;
     private List<JsonAttribute> attributes;
     private boolean isPublic = false;
+    private List<JsonI18n> i18n;
 
     public JsonObject() {
     }
@@ -83,6 +84,26 @@ public class JsonObject {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Set the localisation list.
+     *
+     * @param i18n
+     */
+    public void setI18n(List<JsonI18n> i18n){
+        this.i18n=i18n;
+    }
+
+    /**
+     * returns the localisation List
+     * @return
+     */
+    public List<JsonI18n> getI18n(){
+        if (i18n == null) {
+            i18n = new ArrayList<>();
+        }
+        return this.i18n;
     }
 
     /**
