@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -78,12 +79,21 @@ public class DashBordPlugIn implements Plugin {
         ChangeListener<Number> sizeListener = new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                DashBordPlugIn.this.dashboardControl.setRootSizeChanged(DashBordPlugIn.this.scrollPane.getWidth(), DashBordPlugIn.this.scrollPane.getHeight());
+                //DashBordPlugIn.this.dashboardControl.setRootSizeChanged(DashBordPlugIn.this.scrollPane.getWidth(), DashBordPlugIn.this.scrollPane.getHeight());
+
+                Size size = getPluginSize();
+                DashBordPlugIn.this.dashboardControl.setRootSizeChanged(size.getWidth(), size.getHeight());
             }
         };
         this.scrollPane.widthProperty().addListener(sizeListener);
         this.scrollPane.heightProperty().addListener(sizeListener);
 
+        //dashBoardPane.getChildren().add(new BorderPane());
+
+    }
+
+    public ScrollPane getScrollPane(){
+        return scrollPane;
     }
 
     public void showMessage(String message) {
@@ -100,10 +110,6 @@ public class DashBordPlugIn implements Plugin {
 
     }
 
-    public void setContentSize(double width, double height) {
-        logger.debug("DashBordPlugIn init.size: {}/{} {}/{} ", this.rootPane.getWidth(), this.rootPane.getHeight(), this.scrollPane.getWidth(), this.scrollPane.getHeight());
-
-    }
 
     public Size getPluginSize() {
         return new Size(rootPane.getHeight(), rootPane.getWidth());

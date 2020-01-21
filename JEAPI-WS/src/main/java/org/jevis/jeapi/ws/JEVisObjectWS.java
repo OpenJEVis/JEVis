@@ -48,7 +48,6 @@ public class JEVisObjectWS implements JEVisObject {
     public JEVisObjectWS(JEVisDataSourceWS ds, JsonObject json) {
         this.ds = ds;
         this.json = json;
-
     }
 
     public void update(JsonObject json) {

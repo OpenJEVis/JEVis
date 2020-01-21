@@ -62,6 +62,7 @@ public class Statusbar extends ToolBar {
     public BooleanProperty connectedProperty = new SimpleBooleanProperty(true);
     private Label userName = new Label("");
     private Label onlineInfo = new Label("Online");
+    private Label versionLabel = new Label(I18n.getInstance().getString("statusbar.version"));
     private HBox conBox = new HBox();
     private ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
     private ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);

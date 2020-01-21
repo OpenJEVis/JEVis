@@ -241,19 +241,11 @@ public class DashBoardToolbar extends ToolBar {
     }
 
     public void updateView(final DashboardPojo dashboardSettings) {
-        logger.error("updateDashboard: {}", dashboardSettings);
+        logger.debug("updateDashboard: {}", dashboardSettings);
 
         unlockButton.setSelected(this.dashboardControl.editableProperty.getValue());
         showGridButton.setSelected(this.dashboardControl.showGridProperty.getValue());
         snapGridButton.setSelected(this.dashboardControl.snapToGridProperty.getValue());
-//        snapGridButton.selectedProperty().setValue(this.dashboardControl.enableSnapToGridProperty.getValue());
-//        showGridButton.selectedProperty().setValue(this.dashboardControl.showGridProperty.getValue());
-
-
-//        navigator.setDisable(dashboardControl.editableProperty.getValue());
-//        snapGridButton.setDisable(dashboardControl.enableSnapToGridProperty.getValue());
-
-
         listZoomLevel.setValue(dashboardControl.getZoomFactory());
         toolBarIntervalSelector.updateView();
 
@@ -322,8 +314,9 @@ public class DashBoardToolbar extends ToolBar {
         }
     }
 
-    private JFXComboBox<Double> buildZoomLevelListView() {
+    public static JFXComboBox<Double> buildZoomLevelListView() {
         ObservableList<Double> zoomLevel = FXCollections.observableArrayList();
+
 
         zoomLevel.addAll(DashboardControl.fitToScreen, DashboardControl.fitToWidth, DashboardControl.fitToHeight
                 , 0.3d, 0.4d, 0.5d, 0.6d, 0.7d, 0.8d, 0.9d,
@@ -340,18 +333,20 @@ public class DashBoardToolbar extends ToolBar {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         super.updateItem(item, empty);
-//                        System.out.println("item: "+item+" empty:"+empty);
+                        //System.out.println("item: "+item+" empty:"+empty);
 
                         if (item != null) {
-                            if (item == DashboardControl.fitToScreen) {
-                                setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitscreen"));
-                            } else if (item == DashboardControl.fitToWidth) {
-                                setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitwidth"));
-                            } else if (item == DashboardControl.fitToHeight) {
-                                setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitheight"));
-                            } else {
-                                setText(df.format(Precision.round(item, 2)));
-                            }
+                            Platform.runLater(() -> {
+                                if (item == DashboardControl.fitToScreen) {
+                                    setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitscreen"));
+                                } else if (item == DashboardControl.fitToWidth) {
+                                    setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitwidth"));
+                                } else if (item == DashboardControl.fitToHeight) {
+                                    setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitheight"));
+                                } else {
+                                    setText(df.format(Precision.round(item, 2)));
+                                }
+                            });
                         }
                     }
                 };
@@ -364,6 +359,8 @@ public class DashBoardToolbar extends ToolBar {
         doubleComboBox.setButtonCell(cellFactory.call(null));
         doubleComboBox.setValue(1.0d);
 //        doubleComboBox.setPrefWidth(100d);
+
+
 
         return doubleComboBox;
     }

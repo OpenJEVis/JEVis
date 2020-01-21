@@ -94,7 +94,7 @@ public class ObjectTable {
      * @throws JEVisException
      */
     public JsonObject insertObject(String name, String jclass, long parent, boolean isPublic, String i18n) throws JEVisException {
-        String sql = String.format("insert into %s(%s, %s, %s, %s) values(?,?,?,?))", TABLE, COLUMN_NAME, COLUMN_CLASS, COLUMN_PUBLIC,COLUMN_I18N);
+        String sql = String.format("insert into %s(%s, %s, %s, %s) values(?,?,?,?)", TABLE, COLUMN_NAME, COLUMN_CLASS, COLUMN_PUBLIC,COLUMN_I18N);
 
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
