@@ -42,6 +42,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 import java.text.DecimalFormat;
@@ -173,8 +174,12 @@ public class Statusbar extends ToolBar {
 
         this.conBox.getChildren().setAll(this.connectIcon);
 
+        Label versionNumber = new Label(JEConfig.class.getPackage().getImplementationVersion());
+
         Pane spacer = new Pane();
         spacer.setMaxWidth(50);
+        Pane spacer2 = new Pane();
+        spacer.setMaxWidth(100);
         Region spacerLeft = new Region();
         HBox.setHgrow(spacerLeft, Priority.ALWAYS);
 
@@ -186,7 +191,7 @@ public class Statusbar extends ToolBar {
 
         progressbox.getChildren().addAll(loadStatus, progressBar);
         //TODO implement notification
-        root.getChildren().addAll(userIcon, this.userName, spacerLeft, progressbox, spacer, this.conBox, this.onlineInfo);
+        root.getChildren().addAll(userIcon, this.userName, spacerLeft, progressbox, spacer,versionLabel,versionNumber,spacer2, this.conBox, this.onlineInfo);
 
         String sinfo = "";
 
