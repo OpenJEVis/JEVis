@@ -2,16 +2,16 @@ package org.jevis.jeconfig.application.Chart.Charts;
 
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.ChartElements.*;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.ChartElements.Note;
+import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
+import org.jevis.jeconfig.application.Chart.ChartElements.XYLogicalChartSerie;
 import org.jevis.jeconfig.application.Chart.LogicalYAxisStringConverter;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -20,7 +20,6 @@ import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.util.List;
-import java.util.Objects;
 import java.util.TreeMap;
 
 public class LogicalChart extends XYChart {
@@ -32,7 +31,7 @@ public class LogicalChart extends XYChart {
 
     @Override
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
-        XYLogicalChartSerie serie = new XYLogicalChartSerie(singleRow, hideShowIcons);
+        XYLogicalChartSerie serie = new XYLogicalChartSerie(singleRow, showIcons);
         setMinValue(Math.min(minValue, serie.getMinValue()));
         setMaxValue(Math.max(maxValue, serie.getMaxValue()));
 
@@ -60,32 +59,13 @@ public class LogicalChart extends XYChart {
         return serie;
     }
 
-    @Override
-    public void addSeriesToChart() {
-        for (XYChartSerie xyChartSerie : xyChartSerieList) {
-            chart.getData().add(xyChartSerie.getSerie());
-            tableData.add(xyChartSerie.getTableEntry());
-        }
-    }
-
-    @Override
-    public void applyColors() {
-
-        for (int i = 0; i < getHexColors().size(); i++) {
-            Color currentColor = getHexColors().get(i);
-            String hexColor = ColorHelper.toRGBCode(currentColor);
-            String preIdent = ".default-color" + i;
-            Node node = getChart().lookup(preIdent + ".chart-series-area-fill");
-            Node nodew = getChart().lookup(preIdent + ".chart-series-area-line");
-
-            if (node != null) {
-                node.setStyle("-fx-fill: " + hexColor + ";");
-            }
-            if (nodew != null) {
-                nodew.setStyle("-fx-stroke: " + hexColor + "; -fx-stroke-width: 2px; ");
-            }
-        }
-    }
+//    @Override
+//    public void addSeriesToChart() {
+//        for (XYChartSerie xyChartSerie : xyChartSerieList) {
+//            chart.getDatasets().add(xyChartSerie.getValueDataSet());
+//            tableData.add(xyChartSerie.getTableEntry());
+//        }
+//    }
 
     @Override
     public void generateYAxis() {
@@ -105,9 +85,9 @@ public class LogicalChart extends XYChart {
         Double x = null;
         if (valueForDisplay == null) {
 
-            x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
-
-            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
+//            x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
+//
+//            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
 
         }
         if (valueForDisplay != null) {

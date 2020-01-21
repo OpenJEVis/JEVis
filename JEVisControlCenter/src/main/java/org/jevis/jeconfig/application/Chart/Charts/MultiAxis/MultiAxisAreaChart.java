@@ -13,8 +13,8 @@ import javafx.css.Styleable;
 import javafx.css.StyleableBooleanProperty;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.chart.Axis;
 import javafx.scene.shape.*;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.Axis;
 
 import java.util.*;
 

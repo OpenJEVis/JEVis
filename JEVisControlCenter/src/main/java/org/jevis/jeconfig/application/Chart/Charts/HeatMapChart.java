@@ -27,8 +27,6 @@ import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
-import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.tools.Holidays;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -56,6 +54,7 @@ public class HeatMapChart implements Chart {
     private double maxValue;
     private Map<MatrixXY, Double> matrixData = new HashMap<>();
     private String unit;
+    private org.jevis.jeconfig.application.Chart.ChartType chartType = org.jevis.jeconfig.application.Chart.ChartType.HEAT_MAP;
 
     public HeatMapChart(List<ChartDataModel> chartDataModels, Integer chartId, String chartTitle) {
         this.chartDataModels = chartDataModels;
@@ -361,7 +360,7 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public void updateTableZoom(Long lowerBound, Long upperBound) {
+    public void updateTableZoom(double lowerBound, double upperBound) {
 
     }
 
@@ -386,8 +385,13 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public org.jevis.jeconfig.application.Chart.Charts.jfx.Chart getChart() {
+    public de.gsi.chart.XYChart getChart() {
         return null;
+    }
+
+    @Override
+    public org.jevis.jeconfig.application.Chart.ChartType getChartType() {
+        return chartType;
     }
 
     @Override
@@ -441,33 +445,18 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public void updateChart() {
-        init();
-    }
-
-    @Override
     public void setDataModels(List<ChartDataModel> chartDataModels) {
         this.chartDataModels = chartDataModels;
     }
 
     @Override
-    public void setHideShowIcons(Boolean hideShowIcons) {
+    public void setShowIcons(Boolean showIcons) {
 
     }
 
     @Override
     public void setChartSettings(ChartSettingsFunction function) {
 
-    }
-
-    @Override
-    public ChartPanManager getPanner() {
-        return null;
-    }
-
-    @Override
-    public JFXChartUtil getJfxChartUtil() {
-        return null;
     }
 
     private HeatMapXY getHeatMapXY(Period period, Period inputSampleRate) {

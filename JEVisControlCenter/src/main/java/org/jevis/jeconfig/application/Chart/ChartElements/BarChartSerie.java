@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
+import de.gsi.dataset.DataSet;
+import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
@@ -12,7 +14,6 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.XYChart;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
@@ -23,7 +24,7 @@ import java.util.List;
 public class BarChartSerie {
     private static final Logger logger = LogManager.getLogger(BarChartSerie.class);
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-    private XYChart.Series<Number, String> serie = new XYChart.Series<>();
+    private DoubleDataSet dataSet = new DoubleDataSet("");
     private TableEntry tableEntry;
     private DateTime timeStampFromFirstSample = DateTime.now();
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
@@ -33,8 +34,8 @@ public class BarChartSerie {
         if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
 
         String tableEntryName = singleRow.getObject().getName();
-        serie.setName(tableEntryName);
-        serie.getData().clear();
+        dataSet.setName(tableEntryName);
+        dataSet.clearData();
         tableEntry = new TableEntry(tableEntryName);
         tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
         tableData.add(tableEntry);
@@ -70,16 +71,18 @@ public class BarChartSerie {
             dataName = singleRow.getObject().getName();
         }
 
-        XYChart.Data<Number, String> data = new XYChart.Data<>(result, dataName);
+//        XYChart.Data<Number, String> data = new XYChart.Data<>(result, dataName);
 
-        serie.getData().setAll(data);
+        dataSet.add(0, result);
+
+//        dataSet.getData().setAll(data);
 
         JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
 
     }
 
-    public XYChart.Series getSerie() {
-        return serie;
+    public DataSet getDataSet() {
+        return dataSet;
     }
 
     public TableEntry getTableEntry() {

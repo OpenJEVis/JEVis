@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
-import org.jevis.jeconfig.application.Chart.Charts.jfx.Chart;
+import javafx.scene.chart.Chart;
 
 @FunctionalInterface
 public interface ChartSettingsFunction {
