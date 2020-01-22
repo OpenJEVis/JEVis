@@ -661,6 +661,8 @@ public class GraphPluginView implements Plugin {
             if (dataModel.calcRegression()) {
                 Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
                 infoBox.setResizable(true);
+                infoBox.setTitle(I18n.getInstance().getString("dialog.regression.title"));
+                infoBox.setHeaderText(I18n.getInstance().getString("dialog.regression.headertext"));
                 TextArea textArea = new TextArea(allFormulas.toString());
                 textArea.setWrapText(true);
                 textArea.setPrefWidth(450);
@@ -762,29 +764,6 @@ public class GraphPluginView implements Plugin {
                             }
                         });
                     });
-                } else if (cv.getChartType().equals(ChartType.COLUMN)) {
-//                    MultiAxisBarChart columnChart = (MultiAxisBarChart) cv.getChartRegion();
-//                    try {
-//                        columnChart.getData().forEach(numberNumberSeries -> {
-//                            MultiAxisBarChart.Series columnChartSeries = (MultiAxisBarChart.Series) numberNumberSeries;
-//                            columnChartSeries.getData().forEach(data -> {
-//                                final StackPane node = (StackPane) ((MultiAxisBarChart.Data) data).getNode();
-//                                NumberFormat nf = NumberFormat.getInstance();
-//                                nf.setMinimumFractionDigits(2);
-//                                nf.setMaximumFractionDigits(2);
-//                                String valueString = nf.format(((MultiAxisBarChart.Data) data).getYValue());
-//                                final Text dataText = new Text(valueString + "");
-//
-//                                node.getChildren().add(dataText);
-//
-//                                Bounds bounds = node.getBoundsInParent();
-//                                dataText.setLayoutX(Math.round(bounds.getMinX() + bounds.getWidth() / 2 - dataText.prefWidth(-1) / 2));
-//                                dataText.setLayoutY(Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5));
-//                            });
-//                        });
-//                    } catch (Exception e) {
-//                        logger.error(e);
-//                    }
                 } else if (cv.getChartType().equals(ChartType.BAR)) {
                     javafx.scene.chart.BarChart barChart = (javafx.scene.chart.BarChart) cv.getRegion();
                     try {

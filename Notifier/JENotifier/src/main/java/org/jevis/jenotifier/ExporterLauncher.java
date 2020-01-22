@@ -5,7 +5,6 @@
  */
 package org.jevis.jenotifier;
 
-import com.google.inject.Injector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
@@ -31,7 +30,6 @@ import java.util.List;
 public class ExporterLauncher extends AbstractCliApp {
 
     private static final Logger logger = LogManager.getLogger(ExporterLauncher.class);
-    private static Injector injector;
     private static final String APP_INFO = "JENotifier";
     private final String APP_SERVICE_CLASS_NAME = "JENotifier";
     private final Command commands = new Command();
@@ -65,6 +63,9 @@ public class ExporterLauncher extends AbstractCliApp {
                 if (exporterObject.getJEVisClassName().equals(CSVExport.CLASS_NAME)) {
                     exporter = new CSVExport(jeNotifierConfig, exporterObject);
                     exportJobs.add(exporter);
+                    if (!plannedJobs.containsKey(exporterObject.getID())) {
+                        plannedJobs.put(exporterObject.getID(), "true");
+                    }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -163,7 +164,6 @@ public class ExporterLauncher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
-        System.out.println("runServiceHelp");
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
             try {
                 ds.clearCache();
@@ -188,7 +188,7 @@ public class ExporterLauncher extends AbstractCliApp {
 
                                 EmailNotificationDriver emailNotificationDriver = new EmailNotificationDriver();
                                 emailNotificationDriver.setNotificationDriverObject(eDriverObject);
-                                System.out.println("---------------------- user: " + emailNotificationDriver.getUser());
+                                logger.info("---------------------- user: " + emailNotificationDriver.getUser());
                                 this.jeNotifierConfig.setDefaultEmailNotificationDriver(emailNotificationDriver);
                             }
                         }
@@ -198,7 +198,7 @@ public class ExporterLauncher extends AbstractCliApp {
                 }
 
 
-                List<JEVisObject> reports = getEnabledExports();
+                List<JEVisObject> reports = getAllExports();
                 executeReports(reports);
 
                 logger.info("Queued all report objects, entering sleep mode for " + cycleTime + " ms.");
@@ -225,7 +225,7 @@ public class ExporterLauncher extends AbstractCliApp {
 
     }
 
-    private List<JEVisObject> getEnabledExports() {
+    private List<JEVisObject> getAllExports() {
         JEVisClass exportClass = null;
         List<JEVisObject> reportObjects = new ArrayList<>();
         try {
