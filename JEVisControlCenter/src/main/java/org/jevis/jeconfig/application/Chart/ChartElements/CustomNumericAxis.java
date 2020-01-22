@@ -13,7 +13,8 @@ public class CustomNumericAxis extends DefaultNumericAxis {
     protected AxisRange autoRange(final double minValue, double maxValue, final double length,
                                   final double labelSize) {
         double min = minValue > 0 && isForceZeroInRange() ? 0 : minValue;
-        maxValue *= 1.02;
+
+        maxValue *= 1.10;
 
         if (isLogAxis && minValue <= 0) {
             min = DefaultNumericAxis.DEFAULT_LOG_MIN_VALUE;
