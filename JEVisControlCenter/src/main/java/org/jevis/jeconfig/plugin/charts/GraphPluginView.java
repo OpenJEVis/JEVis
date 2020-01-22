@@ -445,7 +445,6 @@ public class GraphPluginView implements Plugin {
             }
         });
 
-        Long chartsPerScreen = dataModel.getChartsPerScreen();
         Long horizontalPies = dataModel.getHorizontalPies();
         Long horizontalTables = dataModel.getHorizontalTables();
         int countOfPies = (int) dataModel.getCharts().stream().filter(charts -> charts.getChartType() == ChartType.PIE).count();
@@ -458,8 +457,6 @@ public class GraphPluginView implements Plugin {
             double autoMinSizeLogical = 50;
 
             if (dataModel.getSelectedData() != null) {
-                double maxHeight = border.getHeight();
-                double totalPrefHeight = 0d;
 
                 List<HBox> pieFrames = new ArrayList<>();
                 List<HBox> tableFrames = new ArrayList<>();
@@ -474,8 +471,6 @@ public class GraphPluginView implements Plugin {
                 int noOfTable = 0;
                 int currentPieFrame = 0;
                 int currentTableFrame = 0;
-
-                boolean firstLogical = true;
 
                 for (ChartSettings chartSettings : dataModel.getCharts()) {
                     JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Create" + chartSettings.getChartType() + " chart");
@@ -525,16 +520,20 @@ public class GraphPluginView implements Plugin {
                             case PIE:
                             case HEAT_MAP:
                             case BUBBLE:
-                                bp.setCenter(chart.getRegion());
+                                if (chart != null) {
+                                    bp.setCenter(chart.getRegion());
+                                }
                                 break;
                             case LOGICAL:
                                 createLogicalCharts(bp, chartSettings);
                                 break;
                             default:
-                                bp.setCenter(chart.getChart());
+                                if (chart != null) {
+                                    bp.setCenter(chart.getChart());
+                                }
                                 break;
                         }
-                    } else {
+                    } else if (chart != null) {
                         ScrollPane scrollPane = new ScrollPane();
 
                         TableHeader tableHeader = new TableHeader(chartSettings.getChartType(), chart.getTableData());
@@ -549,7 +548,7 @@ public class GraphPluginView implements Plugin {
                     }
 
                     if (chartSettings.getChartType() != ChartType.PIE && chartSettings.getChartType() != ChartType.HEAT_MAP
-                            && chartSettings.getChartType() != ChartType.LOGICAL) {
+                            && chartSettings.getChartType() != ChartType.LOGICAL && chart != null) {
                         TableHeader tableHeader = new TableHeader(chartSettings.getChartType(), chart.getTableData());
                         tableHeader.maxWidthProperty().bind(bp.widthProperty());
                         if (chartSettings.getChartType() != ChartType.TABLE) {
@@ -566,15 +565,6 @@ public class GraphPluginView implements Plugin {
                     bp.setBottom(null);
 
                     DragResizerXY.makeResizable(bp);
-
-                    bp.heightProperty().addListener((observable, oldValue, newValue) -> {
-                        if (newValue != null && !newValue.equals(oldValue)) {
-                            try {
-                                chartSettings.setHeight(newValue.doubleValue());
-                            } catch (Exception e) {
-                            }
-                        }
-                    });
 
                     Separator sep = new Separator();
                     sep.setOrientation(Orientation.HORIZONTAL);
@@ -599,11 +589,8 @@ public class GraphPluginView implements Plugin {
                         noOfPie++;
 
                         if (noOfPie == horizontalPies || noOfPie == countOfPies) {
-                            int finalCurrentPieFrame = currentPieFrame;
-                            Platform.runLater(() -> {
-                                vBox.getChildren().add(pieFrames.get(finalCurrentPieFrame));
-                                vBox.getChildren().add(sep);
-                            });
+                            vBox.getChildren().add(pieFrames.get(currentPieFrame));
+                            vBox.getChildren().add(sep);
                             currentPieFrame++;
                         }
                     } else if (chartSettings.getChartType() == ChartType.TABLE) {
@@ -614,7 +601,7 @@ public class GraphPluginView implements Plugin {
                             tableFrames.add(hBox);
                         }
 
-                        HBox hBox = null;
+                        HBox hBox;
                         if (currentTableFrame < tableFrames.size()) {
                             hBox = tableFrames.get(currentTableFrame);
                         } else {
@@ -639,28 +626,22 @@ public class GraphPluginView implements Plugin {
 
                     JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Chart");
                 }
-
-                try {
-                    toolBarView.updateLayout();
-
-                    autoSize(autoMinSize.get(), maxHeight, chartsPerScreen, vBox);
-                    formatCharts();
-
-                    JEConfig.getStatusBar().finishProgressJob(GraphPluginView.JOB_NAME, "done");
-
-                    for (ChartSettings settings : dataModel.getCharts()) {
-                        if (settings.getChartType() == ChartType.HEAT_MAP) {
-                            Platform.runLater(this::formatCharts);
-                        }
-                    }
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-
             }
         });
 
         Platform.runLater(() -> {
+            toolBarView.updateLayout();
+
+            formatCharts();
+
+            JEConfig.getStatusBar().finishProgressJob(GraphPluginView.JOB_NAME, "done");
+
+            for (ChartSettings settings : dataModel.getCharts()) {
+                if (settings.getChartType() == ChartType.HEAT_MAP) {
+                    Platform.runLater(this::formatCharts);
+                }
+            }
+
 
             StringBuilder allFormulas = new StringBuilder();
             for (Chart chart : allCharts) {
