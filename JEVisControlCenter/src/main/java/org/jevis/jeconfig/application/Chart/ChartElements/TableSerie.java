@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
+import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
-import javafx.scene.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -13,7 +13,6 @@ import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -28,11 +27,11 @@ public class TableSerie extends XYChartSerie {
         timeStampFromFirstSample = DateTime.now();
         timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
         tableEntry = new TableEntry(getTableEntryName());
-        this.serie.setName(getTableEntryName());
+        this.valueDataSet.setName(getTableEntryName());
 
         List<JEVisSample> samples = singleRow.getSamples();
 
-        serie.getData().clear();
+        valueDataSet.clearData();
 
         int samplesSize = samples.size();
 
@@ -51,21 +50,11 @@ public class TableSerie extends XYChartSerie {
         }
 
         sampleMap = new TreeMap<>();
-        List<MultiAxisChart.Data<Number, Number>> dataList = new ArrayList<>();
+
         for (JEVisSample sample : samples) {
             try {
 
                 DateTime dateTime = sample.getTimestamp();
-                Long timestamp = dateTime.getMillis();
-
-                MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>();
-                data.setXValue(timestamp);
-                data.setYValue(0);
-                data.setExtraValue(yAxis);
-
-                data.setNode(null);
-
-                dataList.add(data);
 
                 sampleMap.put(dateTime, sample);
 
@@ -75,7 +64,6 @@ public class TableSerie extends XYChartSerie {
         }
 
         Platform.runLater(() -> {
-            serie.getData().setAll(dataList);
             JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
         });
 
@@ -84,13 +72,13 @@ public class TableSerie extends XYChartSerie {
     public void setDataNodeColor(MultiAxisChart.Data<Number, Number> data) {
     }
 
-    public Node generateNode(JEVisSample sample) throws JEVisException {
+    public String generateNote(JEVisSample sample) throws JEVisException {
         return null;
     }
 
 
-    public MultiAxisChart.Series getSerie() {
-        return serie;
+    public DoubleDataSet getValueDataSet() {
+        return valueDataSet;
     }
 
     public TableEntry getTableEntry() {

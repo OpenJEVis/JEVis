@@ -28,11 +28,8 @@ import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.control.RegressionBox;
@@ -152,15 +149,15 @@ public class ToolBarView {
     }
 
     private void resetZoom() {
-        graphPluginView.getCharts().forEach(chartView -> {
-            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
-            DateAxis dateValueAxis = (DateAxis) chart.getXAxis();
-            dateValueAxis.setAutoRanging(true);
-            ValueAxis valueAxis1 = (ValueAxis) chart.getY1Axis();
-            valueAxis1.setAutoRanging(true);
-            ValueAxis valueAxis2 = (ValueAxis) chart.getY2Axis();
-            valueAxis2.setAutoRanging(true);
-        });
+//        graphPluginView.getCharts().forEach(chartView -> {
+//            MultiAxisChart chart = (MultiAxisChart) chartView.getChart().getChart();
+//            DateAxis dateValueAxis = (DateAxis) chart.getXAxis();
+//            dateValueAxis.setAutoRanging(true);
+//            ValueAxis valueAxis1 = (ValueAxis) chart.getY1Axis();
+//            valueAxis1.setAutoRanging(true);
+//            ValueAxis valueAxis2 = (ValueAxis) chart.getY2Axis();
+//            valueAxis2.setAutoRanging(true);
+//        });
     }
 
     private void addSeriesRunningMean() {
@@ -225,7 +222,7 @@ public class ToolBarView {
     }
 
     private void hideShowIconsInGraph() {
-        model.setHideShowIcons(!model.getHideShowIcons());
+        model.setShowIcons(!model.getShowIcons());
     }
 
     private void autoResizeInGraph() {
@@ -651,7 +648,7 @@ public class ToolBarView {
         disableIcons = new ToggleButton("", JEConfig.getImage("1415304498_alert.png", iconSize, iconSize));
         Tooltip disableIconsTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.disableicons"));
         disableIcons.setTooltip(disableIconsTooltip);
-        disableIcons.setSelected(model.getHideShowIcons());
+        disableIcons.setSelected(model.getShowIcons());
         disableIcons.styleProperty().bind(
                 Bindings
                         .when(disableIcons.hoverProperty())

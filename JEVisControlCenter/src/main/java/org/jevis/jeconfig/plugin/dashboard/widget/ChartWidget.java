@@ -132,7 +132,7 @@ public class ChartWidget extends Widget {
             try {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 Background bgColorTrans = new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY));
-                setChartLabel((MultiAxisLineChart) this.lineChart.getChart(), this.config.getFontColor());
+//                setChartLabel((MultiAxisLineChart) this.lineChart.getChart(), this.config.getFontColor());
                 this.setBackground(bgColorTrans);
                 this.legend.setBackground(bgColorTrans);
 //            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -141,8 +141,8 @@ public class ChartWidget extends Widget {
                 this.borderPane.setBackground(bgColor);
                 this.borderPane.setPadding(new Insets(0, 0, 0, 25));
                 this.lineChart.applyColors();
-                MultiAxisLineChart chart = (MultiAxisLineChart) this.lineChart.getChart();
-                chart.getY2Axis().setVisible(false);
+//                MultiAxisLineChart chart = (MultiAxisLineChart) this.lineChart.getChart();
+//                chart.getY2Axis().setVisible(false);
             } catch (Exception ex) {
                 logger.error(ex);
             }

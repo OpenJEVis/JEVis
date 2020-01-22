@@ -79,7 +79,7 @@ public class AnalysisDataModel {
     private final GraphPluginView graphPluginView;
     private Set<ChartDataModel> selectedData = new HashSet<>();
     private List<ChartSettings> charts = new ArrayList<>();
-    private Boolean hideShowIcons = true;
+    private Boolean showIcons = true;
     private ManipulationMode addSeries = ManipulationMode.NONE;
     private Boolean autoResize = true;
     private JEVisDataSource ds;
@@ -185,7 +185,7 @@ public class AnalysisDataModel {
                     @Override
                     protected Void call() {
                         updateMessage(loading);
-                        graphPluginView.update(true);
+                        graphPluginView.update();
                         return null;
                     }
                 };
@@ -391,18 +391,18 @@ public class AnalysisDataModel {
         service.reset();
     }
 
-    public Boolean getHideShowIcons() {
-        return hideShowIcons;
+    public Boolean getShowIcons() {
+        return showIcons;
     }
 
-    public void setHideShowIcons(Boolean hideShowIcons) {
-        this.hideShowIcons = hideShowIcons;
+    public void setShowIcons(Boolean showIcons) {
+        this.showIcons = showIcons;
 
         update();
     }
 
     public void setHideShowIconsNO_EVENT(Boolean hideShowIcons) {
-        this.hideShowIcons = hideShowIcons;
+        this.showIcons = hideShowIcons;
     }
 
     public ManipulationMode getAddSeries() {

@@ -252,7 +252,7 @@ public class TreeHelper {
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
                                             if (!changedFrom.get() && !changedTo.get()) {
-                                                deleteAllSamples(item.getValue().getJEVisObject(),
+                                                deleteAllSamples(pForm, item.getValue().getJEVisObject(),
                                                         rawData.selectedProperty().get(),
                                                         cleanData.selectedProperty().get());
                                             } else if (changedFrom.get() && !changedTo.get()) {
@@ -264,7 +264,7 @@ public class TreeHelper {
                                                         timePickerFrom.valueProperty().get().getMinute(),
                                                         timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                deleteAllSamples(item.getValue().getJEVisObject(),
+                                                deleteAllSamples(pForm, item.getValue().getJEVisObject(),
                                                         dateTimeFrom,
                                                         null,
                                                         rawData.selectedProperty().get(),
@@ -278,7 +278,7 @@ public class TreeHelper {
                                                         timePickerTo.valueProperty().get().getMinute(),
                                                         timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                deleteAllSamples(item.getValue().getJEVisObject(),
+                                                deleteAllSamples(pForm, item.getValue().getJEVisObject(),
                                                         null,
                                                         dateTimeTo,
                                                         rawData.selectedProperty().get(),
@@ -300,7 +300,7 @@ public class TreeHelper {
                                                         timePickerTo.valueProperty().get().getMinute(),
                                                         timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                deleteAllSamples(item.getValue().getJEVisObject(),
+                                                deleteAllSamples(pForm, item.getValue().getJEVisObject(),
                                                         dateTimeFrom,
                                                         dateTimeTo,
                                                         rawData.selectedProperty().get(),
@@ -432,7 +432,7 @@ public class TreeHelper {
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
                                             if (!changedFrom.get() && !changedTo.get()) {
-                                                deleteAllCalculations(item.getValue().getJEVisObject(), null, null);
+                                                deleteAllCalculations(pForm, item.getValue().getJEVisObject(), null, null);
                                             } else if (changedFrom.get() && !changedTo.get()) {
                                                 DateTime dateTimeFrom = new DateTime(
                                                         datePickerFrom.valueProperty().get().getYear(),
@@ -442,7 +442,7 @@ public class TreeHelper {
                                                         timePickerFrom.valueProperty().get().getMinute(),
                                                         timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                deleteAllCalculations(item.getValue().getJEVisObject(),
+                                                deleteAllCalculations(pForm, item.getValue().getJEVisObject(),
                                                         dateTimeFrom,
                                                         null);
                                             } else if (!changedFrom.get() && changedTo.get()) {
@@ -454,7 +454,7 @@ public class TreeHelper {
                                                         timePickerTo.valueProperty().get().getMinute(),
                                                         timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                deleteAllCalculations(item.getValue().getJEVisObject(),
+                                                deleteAllCalculations(pForm, item.getValue().getJEVisObject(),
                                                         null,
                                                         dateTimeTo);
                                             } else {
@@ -474,7 +474,7 @@ public class TreeHelper {
                                                         timePickerTo.valueProperty().get().getMinute(),
                                                         timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                deleteAllCalculations(item.getValue().getJEVisObject(),
+                                                deleteAllCalculations(pForm, item.getValue().getJEVisObject(),
                                                         dateTimeFrom,
                                                         dateTimeTo);
                                             }
@@ -523,7 +523,7 @@ public class TreeHelper {
         }
     }
 
-    private static void deleteAllCalculations(JEVisObject jeVisObject, DateTime from, DateTime to) {
+    private static void deleteAllCalculations(ProgressForm pForm, JEVisObject jeVisObject, DateTime from, DateTime to) {
         JEVisClass calculationClass = null;
         JEVisClass outputClass = null;
         JEVisClass cleanDataClass = null;
@@ -581,7 +581,7 @@ public class TreeHelper {
             setEnabled(visObject, "Calculation", false);
         }
 
-        deleteSamplesInList(from, to, foundCalcTarget);
+        deleteSamplesInList(pForm, from, to, foundCalcTarget);
 
         List<JEVisObject> allCleanData = new ArrayList<>();
         for (JEVisObject data : foundCalcTarget) {
@@ -592,14 +592,14 @@ public class TreeHelper {
             }
         }
 
-        deleteSamplesInList(from, to, allCleanData);
+        deleteSamplesInList(pForm, from, to, allCleanData);
 
         for (JEVisObject object : calculationsToDisable) {
             setEnabled(object, "Calculation", true);
         }
     }
 
-    private static void deleteSamplesInList(DateTime from, DateTime to, List<JEVisObject> list) {
+    private static void deleteSamplesInList(ProgressForm pForm, DateTime from, DateTime to, List<JEVisObject> list) {
         for (JEVisObject object : list) {
             JEVisAttribute valueAtt = null;
             try {
@@ -610,30 +610,38 @@ public class TreeHelper {
             if (valueAtt != null) {
                 if (from == null && to == null) {
                     try {
+                        pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
                         valueAtt.deleteAllSample();
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }
                 } else if (from != null && to != null) {
                     try {
+                        pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
+                                + " from " + from.toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
                         valueAtt.deleteSamplesBetween(from, to);
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }
                 } else if (from != null) {
                     try {
+                        pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
+                                + " from " + from.toString("YYYY-MM-dd HH:mm:ss") + " to " + new DateTime().toString("YYYY-MM-dd HH:mm:ss"));
                         valueAtt.deleteSamplesBetween(from, new DateTime());
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }
                 } else {
                     try {
+                        pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
+                                + " from " + new DateTime(2001, 1, 1, 0, 0, 0).toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
                         valueAtt.deleteSamplesBetween(new DateTime(2001, 1, 1, 0, 0, 0), to);
                     } catch (JEVisException e) {
                         e.printStackTrace();
                     }
                 }
             }
+            pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID());
         }
     }
 
@@ -1055,24 +1063,25 @@ public class TreeHelper {
         }
     }
 
-    private static void deleteAllSamples(JEVisObject object, boolean rawData, boolean cleanData) {
+    private static void deleteAllSamples(ProgressForm pForm, JEVisObject object, boolean rawData, boolean cleanData) {
         try {
             JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
             if (value != null) {
                 if ((object.getJEVisClassName().equals("Clean Data") && cleanData)
                         || (object.getJEVisClassName().equals("Data") && rawData)) {
+                    pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
                     value.deleteAllSample();
                 }
             }
             for (JEVisObject child : object.getChildren()) {
-                deleteAllSamples(child, rawData, cleanData);
+                deleteAllSamples(pForm, child, rawData, cleanData);
             }
         } catch (JEVisException e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
         }
     }
 
-    private static void deleteAllSamples(JEVisObject object, DateTime from, DateTime to, boolean rawData, boolean cleanData) {
+    private static void deleteAllSamples(ProgressForm pForm, JEVisObject object, DateTime from, DateTime to, boolean rawData, boolean cleanData) {
         try {
             JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
             if (value != null) {
@@ -1091,11 +1100,13 @@ public class TreeHelper {
                     } else {
                         t = to;
                     }
+                    pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
+                            + " from " + f.toString("YYYY-MM-dd HH:mm:ss") + " to " + t.toString("YYYY-MM-dd HH:mm:ss"));
                     value.deleteSamplesBetween(f, t);
                 }
             }
             for (JEVisObject child : object.getChildren()) {
-                deleteAllSamples(child, from, to, rawData, cleanData);
+                deleteAllSamples(pForm, child, from, to, rawData, cleanData);
             }
         } catch (JEVisException e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());

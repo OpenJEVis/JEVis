@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
-import javafx.scene.Node;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
@@ -13,7 +12,7 @@ public class XYScatterChartSerie extends XYChartSerie {
     }
 
     @Override
-    public Node generateNode(JEVisSample sample) throws JEVisException {
+    public String generateNote(JEVisSample sample) throws JEVisException {
         return null;
     }
 

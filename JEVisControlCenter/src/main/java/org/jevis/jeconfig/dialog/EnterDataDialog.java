@@ -27,7 +27,6 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
-import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
@@ -152,12 +151,9 @@ public class EnterDataDialog {
 
         });
 
-        Label diffSwitchLabel = new Label(I18n.getInstance().getString("graph.dialog.note.text.diff"));
-        ToggleSwitchPlus diffSwitch = new ToggleSwitchPlus();
-
         Label dateLabel = new Label(I18n.getInstance().getString("graph.dialog.column.timestamp"));
         datePicker = new JFXDatePicker(LocalDate.now());
-        timePicker = new JFXTimePicker(LocalTime.now());
+        timePicker = new JFXTimePicker(LocalTime.of(0, 0, 0));
         datePicker.setPrefWidth(120d);
         timePicker.setPrefWidth(100d);
         timePicker.setMaxWidth(100d);

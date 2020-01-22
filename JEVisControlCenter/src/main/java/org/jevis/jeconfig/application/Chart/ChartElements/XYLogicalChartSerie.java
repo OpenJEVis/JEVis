@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
-import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -8,7 +7,6 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
@@ -30,14 +28,14 @@ public class XYLogicalChartSerie extends XYChartSerie {
         setMaxValue(-Double.MAX_VALUE);
 
         tableEntry = new TableEntry(getTableEntryName());
-        this.serie.setName(getTableEntryName());
+        this.valueDataSet.setName(getTableEntryName());
 
         tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
 
         List<JEVisSample> samples = singleRow.getSamples();
         List<JEVisSample> modifiedList = getModifiedList(samples);
 
-        serie.getData().clear();
+        valueDataSet.clearData();
 
 //        int samplesSize = samples.size();
 //        int seriesDataSize = serie.getData().size();
@@ -75,31 +73,31 @@ public class XYLogicalChartSerie extends XYChartSerie {
                 setMinValue(Math.min(minValue, value));
                 setMaxValue(Math.max(maxValue, value));
 
-                Long timestamp = dateTime.getMillis();
+                long timestamp = dateTime.getMillis();
 
 //                MultiAxisChart.Data<Number, Number> data = serie.getData().get(index);
-                MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>(timestamp, value);
-                data.setXValue(timestamp);
-                data.setYValue(value);
-                data.setExtraValue(yAxis);
-                data.setExtraValue(yAxis);
-
-                data.setNode(null);
-                Note note = new Note(sample,singleRow.getNoteSamples().get(sample.getTimestamp()));
-
-                if (note.getNote() != null && hideShowIcons) {
-                    note.getNote().setVisible(true);
-                    data.setNode(note.getNote());
-                } else {
-                    Rectangle rect = new Rectangle(0, 0);
-                    rect.setFill(ColorHelper.toColor(singleRow.getColor()));
-                    rect.setVisible(false);
-                    data.setNode(rect);
-                }
+//                MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>(timestamp, value);
+//                data.setXValue(timestamp);
+//                data.setYValue(value);
+//                data.setExtraValue(yAxis);
+//                data.setExtraValue(yAxis);
+//
+//                data.setNode(null);
+//                Note note = new Note(sample,singleRow.getNoteSamples().get(sample.getTimestamp()));
+//
+//                if (note.getNote() != null && hideShowIcons) {
+//                    note.getNote().setVisible(true);
+//                    data.setNode(note.getNote());
+//                } else {
+//                    Rectangle rect = new Rectangle(0, 0);
+//                    rect.setFill(ColorHelper.toColor(singleRow.getColor()));
+//                    rect.setVisible(false);
+//                    data.setNode(rect);
+//                }
 
 
                 sampleMap.put(sample.getTimestamp(), sample);
-                serie.getData().add(data);
+                valueDataSet.add(timestamp / 1000d, value);
 
             } catch (JEVisException e) {
 

@@ -5,12 +5,14 @@
  */
 package org.jevis.jeconfig.dialog;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
@@ -25,6 +27,7 @@ public class ProgressForm {
 
     private final Stage dialogStage;
     private final ProgressBar pb = new ProgressBar();
+    private final TextArea textArea = new TextArea();
 
     public ProgressForm(String text) {
         dialogStage = new Stage();
@@ -34,12 +37,15 @@ public class ProgressForm {
         dialogStage.initModality(Modality.APPLICATION_MODAL);
 
         // PROGRESS BAR
-        pb.setMinWidth(200);
+        pb.setMinWidth(250);
         final Label label = new Label();
         label.setText(text);
 
         pb.setProgress(-1F);
+        textArea.setVisible(false);
+        textArea.setPrefRowCount(0);
 
+        final VBox vb = new VBox();
         final HBox hb = new HBox();
         hb.setPadding(new Insets(4));
         hb.setSpacing(10);
@@ -47,7 +53,11 @@ public class ProgressForm {
         hb.setAlignment(Pos.CENTER);
         hb.getChildren().addAll(label, pb);
 
-        Scene scene = new Scene(hb);
+        vb.getChildren().addAll(hb, textArea);
+
+        VBox.setVgrow(textArea, Priority.ALWAYS);
+
+        Scene scene = new Scene(vb);
         dialogStage.setScene(scene);
     }
 
@@ -70,5 +80,25 @@ public class ProgressForm {
 
     public void setProgress(double progress) {
         pb.setProgress(progress);
+    }
+
+    public void addMessage(String message) {
+        String text = textArea.getText();
+
+        if (!textArea.isVisible()) {
+            Platform.runLater(() -> {
+                textArea.setVisible(true);
+                textArea.setPrefHeight(150);
+            });
+        }
+        if (text.length() > 0) {
+            text += System.getProperty("line.separator");
+        }
+        text += message;
+        String finalText = text;
+        Platform.runLater(() -> {
+            textArea.setText(finalText);
+            textArea.setScrollTop(Double.MAX_VALUE);
+        });
     }
 }

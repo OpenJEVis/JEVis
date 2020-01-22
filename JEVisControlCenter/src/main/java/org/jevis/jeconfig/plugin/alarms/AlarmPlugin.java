@@ -32,6 +32,8 @@ import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.Alarm;
 import org.jevis.commons.alarm.AlarmConfiguration;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.DateHelper;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonAlarm;
@@ -40,7 +42,10 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
+import org.jevis.jeconfig.plugin.AnalysisRequest;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 
 import java.lang.reflect.InvocationTargetException;
@@ -67,7 +72,7 @@ public class AlarmPlugin implements Plugin {
     private ComboBox<TimeFrame> timeFrameComboBox;
     private SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
     private ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
-    private ExecutorService executor = Executors.newFixedThreadPool(4);
+    private ExecutorService executor;
     private ToggleButton showCheckedAlarms = new ToggleButton(I18n.getInstance().getString("plugin.alarm.label.showchecked"));
 
     static {
@@ -111,6 +116,17 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
+    }
+
+    private void restartExecutor() {
+        try {
+            if (this.executor != null) {
+                this.executor.shutdownNow();
+            }
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+        this.executor = Executors.newFixedThreadPool(4);
     }
 
     public static void autoFitTable(TableView<AlarmRow> tableView) {
@@ -233,10 +249,23 @@ public class AlarmPlugin implements Plugin {
                                     text += parent.getName();
                                     break;
                                 }
+
+                                if (getTableRow() != null && getTableRow().getItem() != null) {
+                                    AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
+                                    DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
+                                    DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
+
+                                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                                    AnalysisRequest analysisRequest = new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
+
+                                    this.setOnMouseClicked(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
+                                }
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
                             setText(text);
+                            setTextFill(Color.BLUE);
+                            setUnderline(true);
                         }
                     }
                 };
@@ -840,8 +869,7 @@ public class AlarmPlugin implements Plugin {
 
 //        alarmRows.clear();
         tableView.getItems().clear();
-        executor.shutdownNow();
-        executor = Executors.newFixedThreadPool(4);
+        restartExecutor();
 
         autoFitTable(tableView);
 
@@ -849,10 +877,10 @@ public class AlarmPlugin implements Plugin {
         int size = alarms.size();
         JEConfig.getStatusBar().startProgressJob("AlarmConfigs", size, "Loading alarm configurations");
 
-        alarms.parallelStream().forEach(alarmConfiguration -> {
+        alarms.forEach(alarmConfiguration -> {
             Task<List<AlarmRow>> task = new Task<List<AlarmRow>>() {
                 @Override
-                protected List<AlarmRow> call() throws Exception {
+                protected List<AlarmRow> call() {
                     List<AlarmRow> list = new ArrayList<>();
                     try {
                         JEVisAttribute fileLog = alarmConfiguration.getFileLogAttribute();
@@ -892,6 +920,7 @@ public class AlarmPlugin implements Plugin {
                         "AlarmConfigs",
                         1,
                         "AlarmConfigs " + task.getTitle() + " done.");
+
                 tableView.getItems().addAll(task.getValue());
 
                 tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());

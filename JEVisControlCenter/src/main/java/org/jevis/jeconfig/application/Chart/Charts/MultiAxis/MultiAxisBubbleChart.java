@@ -16,6 +16,9 @@ import javafx.css.Styleable;
 import javafx.css.StyleableBooleanProperty;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
+import javafx.scene.chart.Axis;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.ValueAxis;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.LineTo;
@@ -25,9 +28,6 @@ import javafx.util.Duration;
 import org.apache.commons.math3.fitting.PolynomialCurveFitter;
 import org.apache.commons.math3.fitting.WeightedObservedPoint;
 import org.apache.commons.math3.fitting.WeightedObservedPoints;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.Axis;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.CategoryAxis;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
 
 import java.util.*;
 

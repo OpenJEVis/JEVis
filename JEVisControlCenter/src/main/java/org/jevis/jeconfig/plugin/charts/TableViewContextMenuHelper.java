@@ -123,7 +123,7 @@ public class TableViewContextMenuHelper {
 
     }
 
-    protected void showContextMenu() {
+    public void showContextMenu() {
         final Node buttonNode = findButtonNode();
 
         setFixedHeader();

@@ -76,14 +76,14 @@ public class Launcher extends AbstractCliApp {
 
                         DataSource dataSource = DataSourceFactory.getDataSource(object);
                         if (dataSource.isReady(object)) {
-                            logger.debug("DataSource {}:{} is ready.", object.getName(), object.getID());
+                            logger.info("DataSource {}:{} is ready.", object.getName(), object.getID());
                             runDataSource(object, dataSource, true);
                         } else {
-                            logger.debug("DataSource {}:{} is not ready.", object.getName(), object.getID());
+                            logger.info("DataSource {}:{} is not ready.", object.getName(), object.getID());
                             if (plannedJobs.containsKey(object.getID())) {
                                 String value = plannedJobs.get(object.getID());
                                 if (value.equals("manual")) {
-                                    logger.debug("DataSource {}:{} has active manual trigger.", object.getName(), object.getID());
+                                    logger.info("DataSource {}:{} has active manual trigger.", object.getName(), object.getID());
                                     runDataSource(object, dataSource, false);
                                     try {
                                         JEVisAttribute attribute = object.getAttribute(DataCollectorTypes.DataSource.MANUAL_TRIGGER);
@@ -102,14 +102,14 @@ public class Launcher extends AbstractCliApp {
 
                     }).get(maxTime, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
-                    logger.error("Job {}:{} interrupted. ", object.getName(), object.getID(), e);
+                    logger.error("Job {}:{} interrupted. ", object.getName(), object.getID());
                 } catch (ExecutionException e) {
-                    logger.error("Job {}:{} with error. ", object.getName(), object.getID(), e);
+                    logger.error("Job {}:{} with error. ", object.getName(), object.getID());
                 } catch (TimeoutException e) {
-                    logger.error("Job {}:{} timed out. ", object.getName(), object.getID(), e);
+                    logger.error("Job {}:{} timed out. ", object.getName(), object.getID());
                 }
             } else {
-                logger.error("Still processing DataSource " + object.getName() + ":" + object.getID());
+                logger.info("Still processing DataSource {}:{}", object.getName(), object.getID());
             }
         });
 
@@ -158,7 +158,6 @@ public class Launcher extends AbstractCliApp {
             ds.clearCache();
         }
     }
-
 
     @Override
     protected void addCommands() {

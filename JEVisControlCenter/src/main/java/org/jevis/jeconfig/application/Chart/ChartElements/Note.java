@@ -1,9 +1,5 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
-import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
-import javafx.scene.layout.AnchorPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -12,7 +8,6 @@ import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
-import org.jevis.jeconfig.tool.Layouts;
 
 import static org.jevis.commons.constants.NoteConstants.Calc.CALC_INFINITE;
 import static org.jevis.commons.constants.NoteConstants.Differential.COUNTER_OVERFLOW;
@@ -26,7 +21,7 @@ import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 public class Note {
 
     private static final Logger logger = LogManager.getLogger(Note.class);
-    private Node node = null;
+    //    private Node node = null;
     private String noteString = null;
 //    private static final Image warning = ResourceLoader.getImage("Warning-icon.png");
 //    private static final Image limit = ResourceLoader.getImage("rodentia-icons_dialog-warning.png");
@@ -38,8 +33,8 @@ public class Note {
         String note = sample.getNote();
         ObjectHandler objectHandler = new ObjectHandler(sample.getDataSource());
 
-        if(noteSample!=null && !note.contains(USER_NOTES)){
-            note+=","+USER_NOTES;
+        if (noteSample != null && !note.contains(USER_NOTES)) {
+            note += "," + USER_NOTES;
         }
 
 
@@ -152,7 +147,7 @@ public class Note {
                     noOfNotes++;
 
                     changed = true;
-                    toolTipString+=noteSample.getValueAsString();
+                    toolTipString += noteSample.getValueAsString();
 
                 } catch (Exception e) {
                 }
@@ -183,33 +178,33 @@ public class Note {
 //                    }
 //                };
                 this.noteString = sb.toString();
-                Label label = new Label(sb.toString());
-
-                //label.setBorder(new Border(new BorderStroke(Color.LIGHTBLUE,
-                //        BorderStrokeStyle.DASHED, CornerRadii.EMPTY, new BorderWidths(1))));
-
-                label.setStyle("-fx-background-color: #ffffff;");
-                //label.setStyle("-fx-background-color: transparent;");
-                //Pane hbox = new Pane();
-                AnchorPane hbox = new AnchorPane(){
-
-                };
-                hbox.setStyle("-fx-background-color: transparent;");
-
-                hbox.getChildren().add(label);
-                Layouts.setAnchor(label,1);
-                this.node = hbox;
-                if (!toolTipString.equals("")) {
-                    Tooltip tooltip = new Tooltip(toolTipString);
-                    label.setTooltip(tooltip);
-                }
+//                Label label = new Label(sb.toString());
+//
+//                //label.setBorder(new Border(new BorderStroke(Color.LIGHTBLUE,
+//                //        BorderStrokeStyle.DASHED, CornerRadii.EMPTY, new BorderWidths(1))));
+//
+//                label.setStyle("-fx-background-color: #ffffff;");
+//                //label.setStyle("-fx-background-color: transparent;");
+//                //Pane hbox = new Pane();
+//                AnchorPane hbox = new AnchorPane(){
+//
+//                };
+//                hbox.setStyle("-fx-background-color: transparent;");
+//
+//                hbox.getChildren().add(label);
+//                Layouts.setAnchor(label,1);
+//                this.node = hbox;
+//                if (!toolTipString.equals("")) {
+//                    Tooltip tooltip = new Tooltip(toolTipString);
+//                    label.setTooltip(tooltip);
+//                }
             }
         }
     }
 
-    public Node getNote() {
-        return node;
-    }
+//    public Node getNote() {
+//        return node;
+//    }
 
     public String getNoteAsString() {
         return noteString;

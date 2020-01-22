@@ -1,6 +1,8 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
+import de.gsi.dataset.DataSet;
+import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.paint.Color;
@@ -16,12 +18,10 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class ColumnChartSerie {
     private ChartDataModel singleRow;
     private Integer yAxis;
     private ObservableList<MultiAxisBarChart.Data<String, Number>> seriesData = FXCollections.observableArrayList();
-    private MultiAxisBarChart.Series<String, Number> serie = new MultiAxisBarChart.Series<>(seriesData);
+    private DoubleDataSet dataSet;
     private TableEntry tableEntry;
     private DateTime timeStampFromFirstSample = DateTime.now();
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
@@ -46,6 +46,7 @@ public class ColumnChartSerie {
         this.yAxis = singleRow.getAxis();
         this.hideShowIcons = hideShowIcons;
         this.forecast = forecast;
+        this.dataSet = new DoubleDataSet(singleRow.getTitle());
 
         generateSeriesFromSamples();
     }
@@ -54,22 +55,23 @@ public class ColumnChartSerie {
         timeStampFromFirstSample = DateTime.now();
         timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
         List<JEVisSample> samples = new ArrayList<>();
+
         if (!forecast) {
             this.tableEntry = new TableEntry(getTableEntryName());
-            this.serie.setName(getTableEntryName());
+            this.dataSet.setName(getTableEntryName());
             this.tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
 
             samples = singleRow.getSamples();
         } else {
             this.tableEntry = new TableEntry(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
-            this.serie.setName(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
+            this.dataSet.setName(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
             this.tableEntry.setColor(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
 
             samples = singleRow.getForecastSamples();
         }
 
         JEVisUnit unit = singleRow.getUnit();
-        serie.getData().clear();
+        dataSet.clearData();
 
         int samplesSize = samples.size();
 
@@ -104,12 +106,12 @@ public class ColumnChartSerie {
                 max = Math.max(max, currentValue);
                 sum += currentValue;
 
-                MultiAxisBarChart.Data<String, Number> data = new MultiAxisBarChart.Data<>();
-                data.setXValue(dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm")));
-                data.setYValue(currentValue);
-                data.setExtraValue(yAxis);
+//                MultiAxisBarChart.Data<String, Number> data = new MultiAxisBarChart.Data<>();
+//                data.setXValue(dateTime.toString(DateTimeFormat.forPattern("yyyy-MM-dd HH:mm")));
+//                data.setYValue(currentValue);
+//                data.setExtraValue(yAxis);
 
-                serie.getData().add(data);
+                dataSet.add(dateTime.getMillis() / 1000d, currentValue);
 
                 sampleMap.put(dateTime, sample);
 
@@ -174,8 +176,8 @@ public class ColumnChartSerie {
         }
     }
 
-    public MultiAxisChart.Series getSerie() {
-        return serie;
+    public DataSet getDataSet() {
+        return dataSet;
     }
 
     public TableEntry getTableEntry() {
