@@ -89,14 +89,14 @@ public class MultiChartZoomer extends ChartPlugin {
     /**
      * Default zoom-out mouse filter passing on right mouse button (only).
      */
-    public final Predicate<MouseEvent> defaultZoomOutMouseFilter = event -> MouseEventsHelper.isOnlySecondaryButtonDown(
-            event) && MouseEventsHelper.modifierKeysUp(event) && isMouseEventWithinCanvas(event);
+    public final Predicate<MouseEvent> defaultZoomOutMouseFilter = event -> MouseEventsHelper.isOnlyPrimaryButtonDown(
+            event) && MouseEventsHelper.modifierKeysUp(event) && isMouseEventWithinCanvas(event) && event.getClickCount() == 2;
     /**
      * Default zoom-origin mouse filter passing on right mouse button with {@link MouseEvent#isControlDown() control key
      * down}.
      */
-    public final Predicate<MouseEvent> defaultZoomOriginFilter = event -> MouseEventsHelper.isOnlySecondaryButtonDown(
-            event) && MouseEventsHelper.isOnlyCtrlModifierDown(event) && isMouseEventWithinCanvas(event);
+    public final Predicate<MouseEvent> defaultZoomOriginFilter = event -> MouseEventsHelper.isOnlyPrimaryButtonDown(
+            event) && MouseEventsHelper.isOnlyCtrlModifierDown(event) && isMouseEventWithinCanvas(event) && event.getClickCount() == 2;
     /**
      * Default zoom scroll filter with {@link MouseEvent#isControlDown() control key down}.
      */
