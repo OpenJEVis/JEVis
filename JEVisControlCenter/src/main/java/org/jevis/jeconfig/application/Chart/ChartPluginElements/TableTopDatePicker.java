@@ -78,7 +78,7 @@ public class TableTopDatePicker extends HBox {
                     }
                     if (correctTimestamp != null) {
                         selectionBox.getSelectionModel().select(correctTimestamp);
-                    } else {
+                    } else if (dates.size() > 0) {
                         selectionBox.getSelectionModel().select(dates.get(dates.size() - 1));
                     }
                 }

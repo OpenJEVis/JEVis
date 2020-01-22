@@ -22,7 +22,6 @@ package org.jevis.jeconfig.plugin.charts;
 import com.google.common.util.concurrent.AtomicDouble;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
-import de.gsi.chart.renderer.spi.LabelledMarkerRenderer;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
 import eu.hansolo.fx.charts.tools.Helper;
@@ -65,10 +64,7 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableHeader;
-import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
+import org.jevis.jeconfig.application.Chart.ChartElements.*;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDialog;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointTableViewPointer;
@@ -1158,8 +1154,9 @@ public class GraphPluginView implements Plugin {
 
     private void setupLabelRenderer(Chart cv) {
 
-        LabelledMarkerRenderer labelledMarkerRenderer = new LabelledMarkerRenderer();
         XYChart xyChart = (XYChart) cv;
+        CustomMarkerRenderer labelledMarkerRenderer = new CustomMarkerRenderer(xyChart.getXyChartSerieList());
+
         if (xyChart.getShowIcons()) {
             for (XYChartSerie xyChartSerie : xyChart.getXyChartSerieList()) {
                 labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
