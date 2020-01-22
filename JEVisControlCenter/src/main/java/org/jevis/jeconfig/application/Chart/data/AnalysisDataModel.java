@@ -1231,11 +1231,8 @@ public class AnalysisDataModel {
     public void setCustomWorkDay(boolean customWorkDay) {
         this.customWorkDay = customWorkDay;
         getSelectedData().forEach(chartDataModel -> chartDataModel.setCustomWorkDay(customWorkDay));
-        if (customWorkDay) {
-            update();
-        } else {
-            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
-        }
+
+        graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
     }
 
     public void setCustomWorkDayNO_EVENT(boolean customWorkDay) {

@@ -432,7 +432,7 @@ public class XYChart implements Chart {
 
                 DoubleDataSet set = new DoubleDataSet("regression");
                 Color darker = ColorHelper.toColor(xyChartSerie.getSingleRow().getColor()).darker();
-                set.setStyle("strokeColor=" + darker + "; fillColor= " + darker + ";strokeDashPattern=solid");
+                set.setStyle("strokeColor=" + darker + "; fillColor= " + darker + ";");
 
                 for (int i = 0; i < x.length; i++) {
                     set.add(x[i], trendLineObs.predict(i));
@@ -447,7 +447,7 @@ public class XYChart implements Chart {
                 }
 
                 Color darker = ColorHelper.toColor(xyChartSerie.getSingleRow().getColor()).darker();
-                set.setStyle("strokeColor=" + darker + "; fillColor= " + darker + ";strokeDashPattern=solid");
+                set.setStyle("strokeColor=" + darker + "; fillColor= " + darker + ";");
 
                 final double[] coefficient = fitter.fit(obs.toList());
 
