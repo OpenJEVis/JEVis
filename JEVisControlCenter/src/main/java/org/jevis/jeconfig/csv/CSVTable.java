@@ -206,7 +206,7 @@ public class CSVTable extends TableView<CSVLine> {
                                 }
 
                             } catch (Exception ex) {
-                                logger.error("error while building sample");
+                                logger.error("error while building sample",ex);
                                 hadErrors = true;
                                 setException(ex);
                             }
