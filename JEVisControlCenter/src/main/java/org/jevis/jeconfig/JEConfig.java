@@ -50,6 +50,7 @@ import org.jevis.jeconfig.application.login.FXLogin;
 import org.jevis.jeconfig.application.statusbar.Statusbar;
 import org.jevis.jeconfig.application.tools.Holidays;
 import org.jevis.jeconfig.dialog.HiddenConfig;
+import org.jevis.jeconfig.tool.PatchNotesPage;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
 
@@ -447,6 +448,10 @@ public class JEConfig extends Application {
                     } catch (URISyntaxException ex) {
                         logger.fatal(ex);
                     }
+
+                    PatchNotesPage patchNotesPage = new PatchNotesPage();
+                    patchNotesPage.show(primaryStage);
+
                     logger.info("Time to start: {}ms", ((new Date()).getTime() - start.getTime()));
                 });
 

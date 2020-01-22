@@ -232,6 +232,18 @@ public class TopMenu extends MenuBar {
                 prefWelcome.putBoolean("show", !prefWelcome.getBoolean("show", true));
             }
         });
+
+        final Preferences patchNotes = Preferences.userRoot().node("JEVis.JEConfig.patchNotes");
+        CheckMenuItem showPatchNotes = new CheckMenuItem(I18n.getInstance().getString("menu.options.patchnotes"));
+        showPatchNotes.setSelected(prefWelcome.getBoolean("show", true));
+        showPatchNotes.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                patchNotes.put("version", JEConfig.class.getPackage().getImplementationVersion());
+                patchNotes.putBoolean("show", !patchNotes.getBoolean("show", true));
+            }
+        });
+
         MenuItem changePassword = new MenuItem(I18n.getInstance().getString("menu.options.changepassword"));
         changePassword.setOnAction(event -> {
             PasswordDialog dia = new PasswordDialog();
@@ -268,7 +280,7 @@ public class TopMenu extends MenuBar {
             }
         });
 
-        options.getItems().addAll(changePassword, welcome, expertMode);
+        options.getItems().addAll(changePassword, welcome, showPatchNotes, expertMode);
 
         Menu help = new Menu(I18n.getInstance().getString("menu.help"));
 
