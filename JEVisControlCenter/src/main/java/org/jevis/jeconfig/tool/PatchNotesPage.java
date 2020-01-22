@@ -52,14 +52,24 @@ public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory = "------Version 3.9.12------\n" +
             "JECC - Release Notes\n" +
-            "JECC - Diagrams - Regression dialog needs to be revised\n" +
-            "JECC - Analysis - is it possible to deactivate the regression button if only plugins are displayed that do not support them?\n" +
-            "JECC - Analysis - Regression dialog -> Selection of the type remove fixes\n" +
+            "JECC - Charts - Regression dialog needs to be revised\n" +
+            "JECC - Charts - is it possible to deactivate the regression button if only plugins are displayed that do not support them?\n" +
+            "JECC - Charts - Regression dialog -> Selection of the type remove fixes\n" +
             "JECC - JENotifier Service indicates that it is deactivated even though it is on\n" +
             "JECC - Charts - \"Day of the week function\" does not always change the diagram\n" +
             "JECC - PasswordDialog - give fixed size and not resizable fixes\n" +
             "JECC - Charts - small performance fix\n" +
-            "JECC - Charts - colors are sometimes differing in table and chart fixes\n\n" +
+            "JECC - Charts - colors are sometimes differing in table and chart fixes\n" +
+            "JECC - charts - old style node markers\n" +
+            "JECC - Charts - Logic Chart - zoom not working\n" +
+            "JECC - Charts - Note Dialog to secondary mouse button\n" +
+            "JECC - Charts - The dialog \"Do you want to save the changes to the analysis\" appears although nothing has been changed\n" +
+            "JECC - Charts - change zoom origin / zoom out to double click primary\n" +
+            "JECC - Charts - disable value markers\n" +
+            "JECC - Charts - Load analysis dialog - Preview optional -> setting in top menu options\n" +
+            "JECC - Charts - Regression dialog needs to be revised\n" +
+            "JECC - Charts - regression type disabled, polynomial as standard\n" +
+            "JECC - Charts - Regression dialog -> remove the selection of the species\n\n" +
             "------Version 3.9.11------\n" +
             "JECC - Charts - BubbleChart - missing units in axis labels\n" +
             "JECC - Charts - migrate base libraries to chartsFX for significant perfomance improvement 30.000 -> 5.000.000 visible values\n" +
