@@ -41,6 +41,7 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.prefs.Preferences;
 
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
@@ -173,7 +174,14 @@ public class LoadAnalysisDialog {
                 analysisDataModel.setManipulationMode(ManipulationMode.NONE);
                 analysisDataModel.resetToolbarSettings();
                 AnalysisTimeFrame preview = new AnalysisTimeFrame(TimeFrame.PREVIEW);
-                analysisDataModel.setAnalysisTimeFrameForAllModels(preview);
+
+                final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
+                if (previewPref.getBoolean("enabled", true)) {
+                    analysisDataModel.setAnalysisTimeFrameForAllModels(preview);
+                } else {
+                    analysisDataModel.setAnalysisTimeFrameForAllModelsNO_EVENT(preview);
+                }
+
             }
         });
 

@@ -51,6 +51,7 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory = "------Version 3.9.12------\n" +
+            "JECC - Release Notes\n" +
             "JECC - Diagrams - Regression dialog needs to be revised\n" +
             "JECC - Analysis - is it possible to deactivate the regression button if only plugins are displayed that do not support them?\n" +
             "JECC - Analysis - Regression dialog -> Selection of the type remove fixes\n" +

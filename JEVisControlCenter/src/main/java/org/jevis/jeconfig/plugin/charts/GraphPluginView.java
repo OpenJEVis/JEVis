@@ -86,6 +86,7 @@ import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.prefs.Preferences;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -242,6 +243,10 @@ public class GraphPluginView implements Plugin {
             newAnalysis();
 
         } else if (dialog.getResponse() == Response.LOAD) {
+            final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
+            if (!previewPref.getBoolean("enabled", true)) {
+                dataModel.setAnalysisTimeFrameForAllModels(dataModel.getGlobalAnalysisTimeFrame());
+            }
 
 //            dataModel.setGlobalAnalysisTimeFrame(dataModel.getGlobalAnalysisTimeFrame());
 //            dataModel.updateSamples();

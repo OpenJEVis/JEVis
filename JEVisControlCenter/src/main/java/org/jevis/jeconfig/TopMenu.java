@@ -223,6 +223,17 @@ public class TopMenu extends MenuBar {
         Menu menuView = new Menu(I18n.getInstance().getString("menu.view"));
 
         Menu options = new Menu(I18n.getInstance().getString("menu.option"));
+
+        final Preferences preview = Preferences.userRoot().node("JEVis.JEConfig.preview");
+        CheckMenuItem enablePreview = new CheckMenuItem(I18n.getInstance().getString("menu.options.preview"));
+        enablePreview.setSelected(preview.getBoolean("enabled", true));
+        enablePreview.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                preview.putBoolean("enabled", !preview.getBoolean("enabled", true));
+            }
+        });
+
         final Preferences prefWelcome = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
         CheckMenuItem welcome = new CheckMenuItem(I18n.getInstance().getString("menu.options.welcome"));
         welcome.setSelected(prefWelcome.getBoolean("show", true));
@@ -280,7 +291,7 @@ public class TopMenu extends MenuBar {
             }
         });
 
-        options.getItems().addAll(changePassword, welcome, showPatchNotes, expertMode);
+        options.getItems().addAll(changePassword, enablePreview, welcome, showPatchNotes, expertMode);
 
         Menu help = new Menu(I18n.getInstance().getString("menu.help"));
 
