@@ -25,6 +25,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -36,13 +40,9 @@ import org.jevis.commons.ws.json.*;
 import org.joda.time.DateTime;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
+import java.io.*;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -279,6 +279,28 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return null;//TODO throw error
         }
 
+    }
+
+    /**
+     * Returns the installed version of the JEVisControlCenter on the server.
+     *
+     * @return Version of jecc. 0 if no version is set or unreachable.
+     */
+    public String getJEVisCCVersion(){
+        String resource = "/jecc/version";
+        String version ="0";
+        try {
+            //InputStream inputStream = this.con.getInputStreamRequest(resource);
+            StringBuffer stringBuffer= this.con.getRequest(resource);
+            version= stringBuffer.toString();
+
+        }catch (Exception ex){
+            logger.error(ex);
+            ex.printStackTrace();
+        }
+
+        logger.error("getJEVisCCVersion(): {}",version);
+        return version;
     }
 
     @Override
@@ -796,6 +818,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 this.host = opt.getOption(CommonOptions.DataSource.HOST.getKey()).getValue();
             }
         }
+
+        /** create dummy connection for request which need not user name password **/
+        this.con = new HTTPConnection(this.host,"","");
     }
 
     public JEVisObject buildObject(long parentID, String jclass, String name) throws JEVisException {

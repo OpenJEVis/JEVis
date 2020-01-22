@@ -25,6 +25,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -41,7 +42,10 @@ import javafx.util.Callback;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.PopOver;
+import org.controlsfx.control.action.Action;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
@@ -50,8 +54,11 @@ import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.datasource.DataSourceLoader;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeapi.ws.JEVisDataSourceWS;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.ParameterHelper;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
+import org.jevis.jeconfig.tool.Layouts;
 
 import java.awt.*;
 import java.io.IOException;
@@ -60,6 +67,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -110,6 +118,7 @@ public class FXLogin extends AnchorPane {
     private boolean useCSSFile = false;
     private ApplicationInfo app = new ApplicationInfo("FXLogin", "");
     private Locale selectedLocale = Locale.getDefault();
+    private NotificationPane notificationPane =  new NotificationPane();
 
 
     private FXLogin() {
@@ -591,9 +600,84 @@ public class FXLogin extends AnchorPane {
         AnchorPane.setRightAnchor(this.mainHBox, 0.0);
         AnchorPane.setLeftAnchor(this.mainHBox, 0.0);
         AnchorPane.setBottomAnchor(this.mainHBox, 0.0);
+        notificationPane.setContent(this.mainHBox);
 
-        getChildren().setAll(this.mainHBox);
+        AnchorPane root = new AnchorPane(notificationPane);
+        Layouts.setAnchor(notificationPane,0);
+        Layouts.setAnchor(root,0);
+        getChildren().setAll(root);
 
+    }
+
+    public void checkVersion(){
+        try {
+            System.out.println("Local: "+I18n.getInstance().getLocale());
+
+
+            String serverJECCVersion = ((JEVisDataSourceWS) _ds).getJEVisCCVersion();
+            if (serverJECCVersion != "0") {
+                DefaultArtifactVersion thisVersion = new DefaultArtifactVersion(JEConfig.class.getPackage().getImplementationVersion());
+                DefaultArtifactVersion serverVersion = new DefaultArtifactVersion(serverJECCVersion);
+                if (thisVersion.compareTo(serverVersion) < 0) {
+                    //notificationPane.setStyle("-fx-focus-color: transparent;");
+                    //notificationPane.getStyleClass().add(NotificationPane.STYLE_CLASS_DARK);
+
+                    ImageView image = new ImageView(new Image(FXLogin.class.getResourceAsStream("/icons/update.png" )));
+                    image.fitHeightProperty().set(32);
+                    image.fitWidthProperty().set(32);
+
+
+                    Action openWebAction = new Action(new Consumer<ActionEvent>() {
+                        @Override
+                        public void accept(ActionEvent actionEvent) {
+                            try {
+                                new ProcessBuilder("x-www-browser", getHost()).start();
+                            }catch (Exception ex){
+                                logger.error(ex);
+                            }
+                        }
+                    });
+                    openWebAction.setText(I18n.getInstance().getString("fxlogin.update.button"));
+
+                    Platform.runLater(() -> {
+                        notificationPane.show(
+                                String.format(I18n.getInstance().getString("fxlogin.update.message"),serverJECCVersion)
+                                ,image,openWebAction);
+                    });
+
+                    /**
+                    Notifications.create()
+                            .title("JEVis Control Center Update")
+                            .text("New version " + serverJECCVersion + " is available")
+                            .hideAfter(Duration.INDEFINITE)
+                            .showInformation();
+
+                     **/
+                } else {
+                    System.out.println("We are up to date");
+                }
+            } else {
+                System.out.println("version error");
+            }
+        }catch (Exception ex){
+            logger.error(ex);
+        }
+    }
+
+    private String getHost(){
+        for (JEVisOption opt : configuration) {
+            if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
+                try {
+                    URI uri = new URI(opt.getOption(CommonOptions.DataSource.HOST.getKey()).getValue());
+                    return uri.getScheme()+"://"+uri.getHost();
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
+
+                //return  opt.getOption(CommonOptions.DataSource.HOST.getKey()).getValue().split(":8000");
+            }
+        }
+        return "http://my-jevis.com";
     }
 
     /**

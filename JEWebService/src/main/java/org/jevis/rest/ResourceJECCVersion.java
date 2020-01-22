@@ -27,14 +27,13 @@ import javax.ws.rs.core.Response;
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-@Path("/api/rest/version")
-public class ResourceServiceVersion {
+@Path("/jecc/version")
+public class ResourceJECCVersion {
 
     @GET
     public Response get() {
-        String re = "1.9.0";
 
-        return Response.ok(re).build();
+        return Response.ok(Config.getJECCVersion()).build();
 
     }
 
