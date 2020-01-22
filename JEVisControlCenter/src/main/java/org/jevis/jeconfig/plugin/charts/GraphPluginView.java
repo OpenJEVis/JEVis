@@ -1086,7 +1086,6 @@ public class GraphPluginView implements Plugin {
                 case AREA:
                 case LINE:
                 case SCATTER:
-
                     setupNoteDialog(cv);
 
                     setupMouseMoved(cv, notActive);
@@ -1094,10 +1093,13 @@ public class GraphPluginView implements Plugin {
                     setupLinkedZoom(cv, notActive);
 
                     setupLabelRenderer(cv);
-
                     break;
                 case LOGICAL:
+                    setupNoteDialog(cv);
+
                     setupMouseMoved(cv, notActive);
+
+                    setupLinkedZoom(cv, notActive);
                     break;
                 case TABLE:
                     TableChart chart = (TableChart) cv;
