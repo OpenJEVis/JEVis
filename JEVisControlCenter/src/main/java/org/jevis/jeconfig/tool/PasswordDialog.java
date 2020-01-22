@@ -80,8 +80,8 @@ public class PasswordDialog {
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setWidth(350);
-        stage.setHeight(260);
+        stage.setWidth(400);
+        stage.setHeight(300);
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(false);
 
