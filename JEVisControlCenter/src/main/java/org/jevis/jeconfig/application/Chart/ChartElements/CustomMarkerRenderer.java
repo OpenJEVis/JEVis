@@ -72,18 +72,17 @@ public class CustomMarkerRenderer extends LabelledMarkerRenderer {
 
 
             final Text text = new Text(label);
-            Font font = Font.font("Helvetica", 18);
-            text.setFont(font);
+            text.setFont(Font.font("Helvetica", 18));
 
             final double textWidth = text.getLayoutBounds().getWidth();
-            final double textHeight = text.getLayoutBounds().getWidth();
+            final double textHeight = text.getLayoutBounds().getHeight();
 
-            double widthRect = textWidth;
+            double widthRect = textWidth + 6;
             double heightRect = textHeight;
             double xRect = screenX - widthRect / 2;
             double yRect = screenY - heightRect / 2;
 
-            gc.strokeRect(xRect, yRect, widthRect + 3, heightRect);
+            gc.strokeRect(xRect, yRect, widthRect, heightRect);
 //            gc.strokeLine(screenX, 0, screenX, height);
 
             if (Math.abs(screenX - lastLabel) > lastFontSize && !label.isEmpty()) {
