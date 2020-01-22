@@ -39,22 +39,20 @@ import java.util.TreeMap;
 public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
     private final ObservableList<TableEntry> tableData;
-    private final List<TreeMap<DateTime, JEVisSample>> sampleTreeMaps;
     private final SimpleObjectProperty<DateTime> valueForDisplay = new SimpleObjectProperty<>();
     private final org.jevis.jeconfig.application.Chart.Charts.XYChart currentChart;
     private final List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActiveCharts;
-    private List<Map<DateTime, JEVisSample>> noteMaps;
     private DateTime timestampFromFirstSample = null;
     private boolean asDuration = false;
     private final EventHandler<MouseEvent> mouseMoveHandler = this::updateTable;
     private final List<XYChartSerie> xyChartSerieList;
+    private final List<XYChartSerie> xyChartSerieList1;
 
     public DataPointTableViewPointer(org.jevis.jeconfig.application.Chart.Charts.Chart chart, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive) {
         this.currentChart = (org.jevis.jeconfig.application.Chart.Charts.XYChart) chart;
+        this.xyChartSerieList1 = currentChart.getXyChartSerieList();
         this.notActiveCharts = notActive;
         this.tableData = this.currentChart.getTableData();
-        this.sampleTreeMaps = this.currentChart.getValueTreeMaps();
-        this.noteMaps = this.currentChart.getNoteMaps();
         this.asDuration = this.currentChart.isAsDuration();
         this.xyChartSerieList = this.currentChart.getXyChartSerieList();
         this.timestampFromFirstSample = this.currentChart.getTimeStampOfFirstSample().get();
@@ -222,12 +220,11 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
         nf.setMinimumFractionDigits(2);
         nf.setMaximumFractionDigits(2);
 
-        tableData.forEach(tableEntry -> {
+        xyChartSerieList.forEach(xyChartSerie -> {
             try {
-                int i = tableData.indexOf(tableEntry);
-                XYChartSerie xyChartSerie = xyChartSerieList.get(i);
-                TreeMap<DateTime, JEVisSample> sampleTreeMap = sampleTreeMaps.get(i);
-                Map<DateTime, JEVisSample> noteMap = noteMaps.get(i);
+                TableEntry tableEntry = xyChartSerie.getTableEntry();
+                TreeMap<DateTime, JEVisSample> sampleTreeMap = xyChartSerie.getSampleMap();
+                Map<DateTime, JEVisSample> noteMap = xyChartSerie.getSingleRow().getNoteSamples();
 
                 DateTime dateTime = nearest;
                 if (currentChart instanceof LogicalChart) {

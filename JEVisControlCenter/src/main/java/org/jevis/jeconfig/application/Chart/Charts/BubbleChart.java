@@ -229,13 +229,13 @@ public class BubbleChart implements Chart {
             }
         }
 
-        xAxis.setLabel(xAxisTitle);
+        xAxis.setLabel(xAxisTitle + " [" + xUnit + "]");
         xAxis.setAutoRanging(false);
         xAxis.setLowerBound(Math.max(minX.get() - 30, 0d));
         xAxis.setUpperBound(maxX.get() + 30);
         xAxis.setTickUnit(30);
 
-        yAxis.setLabel(yAxisTitle);
+        yAxis.setLabel(yAxisTitle + " [" + yUnit + "]");
         yAxis.setAutoRanging(false);
         yAxis.setLowerBound(Math.max(minY.get(), 0d) * 0.75);
         yAxis.setUpperBound(maxY.get() * 1.25);
