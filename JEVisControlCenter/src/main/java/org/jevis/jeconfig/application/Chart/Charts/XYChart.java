@@ -109,8 +109,6 @@ public class XYChart implements Chart {
     };
     private WorkDays workDays = new WorkDays(null);
     private boolean hasSecondAxis = false;
-    private List<TreeMap<DateTime, JEVisSample>> valueTreeMaps;
-    private List<Map<DateTime, JEVisSample>> noteMaps;
     private StringBuilder regressionFormula = new StringBuilder();
 
     public XYChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> selectedModels, Integer chartId, String chartName) {
@@ -324,13 +322,6 @@ public class XYChart implements Chart {
         initializeZoom();
 
         Platform.runLater(() -> updateTable(null, timeStampOfFirstSample.get()));
-
-        valueTreeMaps = new ArrayList<>();
-        noteMaps = new ArrayList<>();
-        for (XYChartSerie xyChartSerie : xyChartSerieList) {
-            valueTreeMaps.add(xyChartSerie.getSampleMap());
-            noteMaps.add(xyChartSerie.getSingleRow().getNoteSamples());
-        }
     }
 
     public void addSeriesToChart() {
@@ -1108,14 +1099,6 @@ public class XYChart implements Chart {
 
     public boolean isAsDuration() {
         return asDuration;
-    }
-
-    public List<TreeMap<DateTime, JEVisSample>> getValueTreeMaps() {
-        return valueTreeMaps;
-    }
-
-    public List<Map<DateTime, JEVisSample>> getNoteMaps() {
-        return noteMaps;
     }
 
     public List<XYChartSerie> getXyChartSerieList() {
