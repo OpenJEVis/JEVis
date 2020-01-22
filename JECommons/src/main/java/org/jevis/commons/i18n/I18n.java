@@ -54,6 +54,9 @@ public class I18n {
                 logger.error("IO exception. Error while reading resource file.", e);
             }
         }
+
+        //set en as default
+        selectBundle(Locale.getDefault());
     }
 
     public List<Locale> getAvailableLang() {
