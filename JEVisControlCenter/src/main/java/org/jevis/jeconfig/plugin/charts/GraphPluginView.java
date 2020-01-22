@@ -998,9 +998,12 @@ public class GraphPluginView implements Plugin {
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
 
                     dataModel.isGlobalAnalysisTimeFrame(true);
-
                     dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
+                    Platform.runLater(() -> {
+                        toolBarView.setChanged(false);
+                        dataModel.setChanged(false);
+                    });
 
                 } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
 
