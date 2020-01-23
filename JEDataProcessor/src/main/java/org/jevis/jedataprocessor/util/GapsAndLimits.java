@@ -197,6 +197,7 @@ public class GapsAndLimits {
                     //logger.info("sum: " + averageValue + " listSize: " + listSamples.size());
                     averageValue = averageValue / listSamples.size();
                     return averageValue;
+                case DELETE:
                 default:
                     break;
             }
@@ -382,6 +383,37 @@ public class GapsAndLimits {
                         currentInterval.addTmpSample(sample);
                     }
                 }
+                break;
+        }
+    }
+
+    public void fillDelete() {
+        switch (gapsAndLimitsType) {
+            case GAPS_TYPE:
+                List<CleanInterval> tobeRemovedGaps = new ArrayList<>();
+                for (CleanInterval cleanInterval : intervals) {
+                    for (Gap currentGap : gapList) {
+                        for (CleanInterval cleanInterval1 : currentGap.getIntervals()) {
+                            if (cleanInterval.getDate().equals(cleanInterval1.getDate())) {
+                                tobeRemovedGaps.add(cleanInterval);
+                            }
+                        }
+                    }
+                }
+                intervals.removeAll(tobeRemovedGaps);
+                break;
+            case LIMITS_TYPE:
+                List<CleanInterval> tobeRemovedLimits = new ArrayList<>();
+                for (CleanInterval cleanInterval : intervals) {
+                    for (LimitBreak limitBreak : limitBreaksList) {
+                        for (CleanInterval cleanInterval1 : limitBreak.getIntervals()) {
+                            if (cleanInterval.getDate().equals(cleanInterval1.getDate())) {
+                                tobeRemovedLimits.add(cleanInterval);
+                            }
+                        }
+                    }
+                }
+                intervals.removeAll(tobeRemovedLimits);
                 break;
         }
     }

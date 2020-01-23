@@ -8,7 +8,8 @@ public enum GapFillingType {
     MINIMUM,
     MAXIMUM,
     MEDIAN,
-    AVERAGE;
+    AVERAGE,
+    DELETE;
 
     public static GapFillingType parse(String type) {
         if (type != null) {
@@ -28,6 +29,8 @@ public enum GapFillingType {
                     return MEDIAN;
                 case ("AVERAGE"):
                     return AVERAGE;
+                case ("DELETE"):
+                    return DELETE;
                 case ("NONE"):
                 default:
                     return NONE;
