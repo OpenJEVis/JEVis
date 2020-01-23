@@ -57,6 +57,7 @@ import java.util.prefs.Preferences;
 public class WelcomePage {
     private static final Logger logger = LogManager.getLogger(WelcomePage.class);
 
+
     private Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
     CheckBox remember = new CheckBox(I18n.getInstance().getString("welcome.dontshow"));
     private boolean isLoading = true;
@@ -70,7 +71,7 @@ public class WelcomePage {
         final Stage stage = new Stage();
 
         //TODO show it again if we habe a new version of the Config
-        if (!pref.getBoolean("show", true)) {
+        if (!pref.getBoolean("show", false)) {
             return;
         }
 

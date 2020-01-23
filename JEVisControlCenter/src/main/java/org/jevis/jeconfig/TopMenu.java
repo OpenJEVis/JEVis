@@ -240,7 +240,7 @@ public class TopMenu extends MenuBar {
         welcome.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                prefWelcome.putBoolean("show", !prefWelcome.getBoolean("show", true));
+                prefWelcome.putBoolean("show", !prefWelcome.getBoolean("show", false));
             }
         });
 
