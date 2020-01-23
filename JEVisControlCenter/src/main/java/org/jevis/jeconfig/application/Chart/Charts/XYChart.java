@@ -51,6 +51,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.text.NumberFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -202,11 +203,37 @@ public class XYChart implements Chart {
         }
 
         if (asDuration) {
-            this.dateAxis.setTimeAxis(false);
+            this.dateAxis.setTimeAxis(true);
+
+            CustomTimeFormatter axisLabelFormatter = new CustomTimeFormatter(this.dateAxis) {
+
+                @Override
+                public String toString(Number utcValueSeconds) {
+                    return labelCache.computeIfAbsent(utcValueSeconds, this::getStr);
+                }
+
+                private String getStr(final Number utcValueSeconds) {
+                    long longUTCSeconds = utcValueSeconds.longValue();
+                    int nanoSeconds = (int) ((utcValueSeconds.doubleValue() - longUTCSeconds) * 1e9);
+                    if (nanoSeconds < 0) { // Correctly Handle dates before EPOCH
+                        longUTCSeconds -= 1;
+                        nanoSeconds += (int) 1e9;
+                    }
+                    final LocalDateTime dateTime = LocalDateTime.ofEpochSecond(longUTCSeconds, nanoSeconds,
+                            getTimeZoneOffset());
+
+                    DateTime ts = new DateTime(dateTime.getYear(), dateTime.getMonthValue(), dateTime.getDayOfMonth(),
+                            dateTime.getHour(), dateTime.getMinute(), dateTime.getSecond());
+
+                    return (ts.getMillis() - timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h";
+                }
+            };
+            this.dateAxis.setAxisLabelFormatter(axisLabelFormatter);
+
         } else {
             this.dateAxis.setTimeAxis(true);
 
-            CustomTimeFormatter axisLabelFormatter = new CustomTimeFormatter(dateAxis);
+            CustomTimeFormatter axisLabelFormatter = new CustomTimeFormatter(this.dateAxis);
             Instant instant = Instant.now();
             ZoneId systemZone = ZoneId.systemDefault();
             ZoneOffset currentOffsetForMyZone = systemZone.getRules().getOffset(instant);
