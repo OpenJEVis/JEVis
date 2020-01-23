@@ -99,6 +99,8 @@ public class FillGapStep implements ProcessStep {
                             break;
                         case AVERAGE:
                             gal.fillAverage();
+                        case DELETE:
+                            gal.fillDelete();
                             break;
                         default:
                             break;
