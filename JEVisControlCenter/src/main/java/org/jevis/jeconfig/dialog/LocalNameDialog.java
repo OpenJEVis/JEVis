@@ -2,7 +2,10 @@ package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXComboBox;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
@@ -59,16 +62,32 @@ public class LocalNameDialog {
         dialog.setTitle(I18n.getInstance().getString("jevistree.dialog.translate.title"));
         dialog.setHeaderText(I18n.getInstance().getString("jevistree.dialog.translate.header"));
         dialog.setGraphic(ResourceLoader.getImage(ICON, 50, 50));
-        dialog.getDialogPane().setPrefWidth(700);
+        dialog.getDialogPane().setPrefWidth(500);
+        dialog.getDialogPane().setPrefHeight(300);
 
         /** build form **/
 
-        Label objNameLabel = new Label("Object Name");
+        Label objNameLabel = new Label(I18n.getInstance().getString("jevistree.dialog.new.name"));
         TextField objectNameTest = new TextField();
         objectNameTest.setText(object.getLocalName("default"));
         objectNameTest.textProperty().addListener((observable, oldValue, newValue) -> {
             newName=newValue;
         });
+        objectNameTest.focusedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue ov, Boolean t, Boolean t1) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (objectNameTest.isFocused() && !objectNameTest.getText().isEmpty()) {
+                            objectNameTest.selectAll();
+                        }
+                    }
+                });
+            }
+        });
+        Platform.runLater(() -> objectNameTest.requestFocus());
+
 
 
         object.getLocalNameList().forEach((s, s2) -> {
@@ -130,7 +149,7 @@ public class LocalNameDialog {
         });
 
         TableColumn lastNameCol = new TableColumn(I18n.getInstance().getString("jevistree.dialog.translate.table.name"));
-        lastNameCol.setPrefWidth(420);
+        lastNameCol.setPrefWidth(220);
         lastNameCol.setCellValueFactory(new PropertyValueFactory<TranslationRow,String>("name"));
         lastNameCol.setCellFactory(TextFieldTableCell.forTableColumn());
         lastNameCol.setEditable(true);
