@@ -2,7 +2,6 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
 import com.ibm.icu.text.DecimalFormat;
-import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
 import de.gsi.chart.renderer.LineStyle;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
 import de.gsi.chart.ui.geometry.Side;
@@ -207,11 +206,12 @@ public class XYChart implements Chart {
         } else {
             this.dateAxis.setTimeAxis(true);
 
-            DefaultTimeFormatter axisLabelFormatter = (DefaultTimeFormatter) this.dateAxis.getAxisLabelFormatter();
+            CustomTimeFormatter axisLabelFormatter = new CustomTimeFormatter(dateAxis);
             Instant instant = Instant.now();
             ZoneId systemZone = ZoneId.systemDefault();
             ZoneOffset currentOffsetForMyZone = systemZone.getRules().getOffset(instant);
             axisLabelFormatter.setTimeZoneOffset(currentOffsetForMyZone);
+            this.dateAxis.setAxisLabelFormatter(axisLabelFormatter);
         }
 
         List<ChartDataModel> sumModels = new ArrayList<>();
