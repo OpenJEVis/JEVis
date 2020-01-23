@@ -591,6 +591,12 @@ public class AnalysisDataModel {
         changed.set(true);
     }
 
+    public void setAnalysisTimeFrameForAllModelsNO_EVENT(AnalysisTimeFrame analysisTimeFrame) {
+
+        globalAnalysisTimeFrame = analysisTimeFrame;
+        isGlobalAnalysisTimeFrame(true);
+    }
+
     public void setAnalysisTimeFrameForModels(List<ChartDataModel> chartDataModels, DateHelper dateHelper, AnalysisTimeFrame analysisTimeFrame) {
         if (selectedData != null && !selectedData.isEmpty()) {
             isGlobalAnalysisTimeFrame(false);

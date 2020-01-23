@@ -36,8 +36,8 @@ public class LimitsStep implements ProcessStep {
     public void run(ResourceManager resourceManager) throws Exception {
         CleanDataObject cleanDataObject = resourceManager.getCleanDataObject();
 
-        if (!cleanDataObject.getIsPeriodAligned() || !cleanDataObject.getLimitsEnabled() || cleanDataObject.getLimitsConfig().isEmpty()) {
-            //no limits check when there is no alignment or disabled or no config
+        if (!cleanDataObject.getLimitsEnabled() || cleanDataObject.getLimitsConfig().isEmpty()) {
+            //no limits check when disabled or no config
             return;
         }
         List<CleanInterval> intervals = resourceManager.getIntervals();
@@ -132,6 +132,9 @@ public class LimitsStep implements ProcessStep {
                                     break;
                                 case AVERAGE:
                                     gal.fillAverage();
+                                    break;
+                                case DELETE:
+                                    gal.fillDelete();
                                     break;
                                 default:
                                     break;

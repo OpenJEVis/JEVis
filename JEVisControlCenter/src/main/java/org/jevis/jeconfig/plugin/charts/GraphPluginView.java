@@ -22,7 +22,6 @@ package org.jevis.jeconfig.plugin.charts;
 import com.google.common.util.concurrent.AtomicDouble;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
-import de.gsi.chart.renderer.spi.LabelledMarkerRenderer;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
 import eu.hansolo.fx.charts.tools.Helper;
@@ -35,11 +34,9 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -65,10 +62,7 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableHeader;
-import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
+import org.jevis.jeconfig.application.Chart.ChartElements.*;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDialog;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointTableViewPointer;
@@ -86,6 +80,7 @@ import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.prefs.Preferences;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -113,7 +108,7 @@ public class GraphPluginView implements Plugin {
     //this.chartView = new ChartView(dataModel);
     private VBox vBox = new VBox();
     private BorderPane border = new BorderPane(sp);
-    private Tooltip tp;
+    private Tooltip tp = new Tooltip("");
     private List<Chart> allCharts = new ArrayList<>();
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
@@ -242,6 +237,10 @@ public class GraphPluginView implements Plugin {
             newAnalysis();
 
         } else if (dialog.getResponse() == Response.LOAD) {
+            final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
+            if (!previewPref.getBoolean("enabled", true)) {
+                dataModel.setAnalysisTimeFrameForAllModels(dataModel.getGlobalAnalysisTimeFrame());
+            }
 
 //            dataModel.setGlobalAnalysisTimeFrame(dataModel.getGlobalAnalysisTimeFrame());
 //            dataModel.updateSamples();
@@ -848,8 +847,6 @@ public class GraphPluginView implements Plugin {
                             }
                         }
 
-                        tp = new Tooltip("");
-
                         HeatMapChart chart = (HeatMapChart) cv;
 
                         double width = matrixHeatMap.getMatrix().getWidth() - matrixHeatMap.getMatrix().getInsets().getLeft() - matrixHeatMap.getMatrix().getInsets().getRight();
@@ -867,23 +864,36 @@ public class GraphPluginView implements Plugin {
                             @Override
                             public void handle(MouseEvent t) {
                                 Node node = (Node) t.getSource();
-                                for (int y = 0; y < chart.getROWS(); y++) {
-                                    for (int x = 0; x < chart.getCOLS(); x++) {
-                                        if (Helper.isInRectangle(t.getX(), t.getY(), x * pixelWidth + spacer, y * pixelHeight + spacer, x * pixelWidth + spacerPlusPixelWidthMinusDoubleSpacer, y * pixelHeight + spacerPlusPixelHeightMinusDoubleSpacer)) {
-                                            Double value = null;
-                                            for (Map.Entry<MatrixXY, Double> entry : chart.getMatrixData().entrySet()) {
-                                                MatrixXY matrixXY = entry.getKey();
-                                                if (matrixXY.getY() == y && matrixXY.getX() == x) {
-                                                    value = entry.getValue();
-                                                    break;
+                                for (Node node1 : finalMatrixHeatMap.getMatrix().getChildren()) {
+                                    if (node1 instanceof Canvas) {
+                                        Canvas canvas = (Canvas) node1;
+                                        // listen to only events within the canvas
+                                        final Point2D mouseLoc = new Point2D(t.getScreenX(), t.getScreenY());
+                                        final Bounds screenBounds = canvas.localToScreen(canvas.getBoundsInLocal());
+
+                                        if (screenBounds.contains(mouseLoc)) {
+                                            for (int y = 0; y < chart.getROWS(); y++) {
+                                                for (int x = 0; x < chart.getCOLS(); x++) {
+                                                    if (Helper.isInRectangle(t.getX(), t.getY(), x * pixelWidth + spacer, y * pixelHeight + spacer, x * pixelWidth + spacerPlusPixelWidthMinusDoubleSpacer, y * pixelHeight + spacerPlusPixelHeightMinusDoubleSpacer)) {
+                                                        Double value = null;
+                                                        for (Map.Entry<MatrixXY, Double> entry : chart.getMatrixData().entrySet()) {
+                                                            MatrixXY matrixXY = entry.getKey();
+                                                            if (matrixXY.getY() == y && matrixXY.getX() == x) {
+                                                                value = entry.getValue();
+                                                                break;
+                                                            }
+                                                        }
+
+                                                        if (value != null) {
+                                                            Double finalValue = value;
+                                                            Platform.runLater(() -> tp.setText(finalValue.toString() + " " + chart.getUnit()));
+                                                            Platform.runLater(() -> tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY()));
+                                                        }
+                                                    }
                                                 }
                                             }
-
-                                            if (value != null) {
-                                                Double finalValue = value;
-                                                Platform.runLater(() -> tp.setText(finalValue.toString() + " " + chart.getUnit()));
-                                                Platform.runLater(() -> tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY()));
-                                            }
+                                        } else {
+                                            Platform.runLater(() -> tp.hide());
                                         }
                                     }
                                 }
@@ -993,9 +1003,12 @@ public class GraphPluginView implements Plugin {
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
 
                     dataModel.isGlobalAnalysisTimeFrame(true);
-
                     dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
+                    Platform.runLater(() -> {
+                        toolBarView.setChanged(false);
+                        dataModel.setChanged(false);
+                    });
 
                 } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
 
@@ -1078,7 +1091,6 @@ public class GraphPluginView implements Plugin {
                 case AREA:
                 case LINE:
                 case SCATTER:
-
                     setupNoteDialog(cv);
 
                     setupMouseMoved(cv, notActive);
@@ -1086,10 +1098,13 @@ public class GraphPluginView implements Plugin {
                     setupLinkedZoom(cv, notActive);
 
                     setupLabelRenderer(cv);
-
                     break;
                 case LOGICAL:
+                    setupNoteDialog(cv);
+
                     setupMouseMoved(cv, notActive);
+
+                    setupLinkedZoom(cv, notActive);
                     break;
                 case TABLE:
                     TableChart chart = (TableChart) cv;
@@ -1148,8 +1163,9 @@ public class GraphPluginView implements Plugin {
 
     private void setupLabelRenderer(Chart cv) {
 
-        LabelledMarkerRenderer labelledMarkerRenderer = new LabelledMarkerRenderer();
         XYChart xyChart = (XYChart) cv;
+        CustomMarkerRenderer labelledMarkerRenderer = new CustomMarkerRenderer(xyChart.getXyChartSerieList());
+
         if (xyChart.getShowIcons()) {
             for (XYChartSerie xyChartSerie : xyChart.getXyChartSerieList()) {
                 labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());

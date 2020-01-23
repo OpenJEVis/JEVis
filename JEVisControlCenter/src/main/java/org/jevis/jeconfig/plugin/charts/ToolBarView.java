@@ -45,6 +45,7 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.prefs.Preferences;
 
 /**
  * @author broder
@@ -218,8 +219,11 @@ public class ToolBarView {
             getGraphPluginView().handleRequest(Constants.Plugin.Command.NEW);
         } else if (dialog.getResponse() == Response.LOAD) {
 
+            final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
+            if (!previewPref.getBoolean("enabled", true)) {
+                model.setAnalysisTimeFrameForAllModels(model.getGlobalAnalysisTimeFrame());
+            }
         }
-
     }
 
     private void hideShowIconsInGraph() {
