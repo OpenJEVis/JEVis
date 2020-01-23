@@ -614,8 +614,11 @@ public class XYChart implements Chart {
     }
 
     public void generateYAxis() {
+        y1Axis.setForceZeroInRange(true);
         y1Axis.setAutoRanging(true);
+        y2Axis.setForceZeroInRange(true);
         y2Axis.setAutoRanging(true);
+
         DecimalStringConverter tickLabelFormatter1 = new DecimalStringConverter();
         tickLabelFormatter1.setPrecision(2);
         y1Axis.setTickLabelFormatter(tickLabelFormatter1);
