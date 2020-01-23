@@ -60,7 +60,7 @@ public class MeterPlugin implements Plugin {
     public static final String MEASUREMENT_INSTRUMENT_CLASS = "Measurement Instrument";
     private static final Logger logger = LogManager.getLogger(MeterPlugin.class);
     private static final double EDITOR_MAX_HEIGHT = 50;
-    private final int toolBarIconSize = 24;
+    private final int toolBarIconSize = 20;
     private final int tableIconSize = 18;
     public static String PLUGIN_NAME = "Meter Plugin";
     private static Method columnToFitMethod;

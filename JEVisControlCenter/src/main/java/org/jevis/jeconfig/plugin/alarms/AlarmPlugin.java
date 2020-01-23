@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.alarms;
 
+import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
@@ -66,14 +67,15 @@ public class AlarmPlugin implements Plugin {
     private final String title;
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
-    private final int iconSize = 24;
+    private final int iconSize = 20;
     private static Method columnToFitMethod;
     private DateHelper dateHelper = new DateHelper(DateHelper.TransformType.TODAY);
     private ComboBox<TimeFrame> timeFrameComboBox;
     private SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
     private ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
     private ExecutorService executor;
-    private ToggleButton showCheckedAlarms = new ToggleButton(I18n.getInstance().getString("plugin.alarm.label.showchecked"));
+    //private ToggleButton showCheckedAlarms = new ToggleButton(I18n.getInstance().getString("plugin.alarm.label.showchecked"));
+    private JFXCheckBox showCheckedAlarms = new JFXCheckBox(I18n.getInstance().getString("plugin.alarm.label.showchecked"));
 
     static {
         try {
