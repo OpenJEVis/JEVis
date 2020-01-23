@@ -61,7 +61,7 @@ public class ReportPlugin implements Plugin {
     private WebEngine engine = web.getEngine();
     private HBox hBox = new HBox();
     private TextField filterInput = new TextField();
-    private final int iconSize = 24;
+    private final int iconSize = 20;
 
     public ReportPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
