@@ -46,7 +46,7 @@ public interface CommonOptions {
         static final JEVisOption SCHEMA = OptionFactory.BuildOption(DataSource, "schema", "jevis", "MySQL Schema of the data source");
         static final JEVisOption USERNAME = OptionFactory.BuildOption(DataSource, "username", "jevis", "Username to the data source.");
         static final JEVisOption PASSWORD = OptionFactory.BuildOption(DataSource, "password", "jevistest", "Password to the data source");
-
+        static final JEVisOption SSLTRUST = OptionFactory.BuildOption(DataSource, "ssltrust", "system", "SSL certificates trust mode. ALLWAY if you wish to trust signed ssl certificates");
         static final JEVisOption CONNECTION = OptionFactory.BuildOption(DataSource, "connection", "jevistest", "Password to the data source");
 
     }

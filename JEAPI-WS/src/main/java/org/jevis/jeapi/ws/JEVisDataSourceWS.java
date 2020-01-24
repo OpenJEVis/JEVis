@@ -25,10 +25,16 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -39,6 +45,7 @@ import org.jevis.commons.utils.PrettyError;
 import org.jevis.commons.ws.json.*;
 import org.joda.time.DateTime;
 
+import javax.net.ssl.SSLHandshakeException;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
@@ -80,6 +87,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
+    private HTTPConnection.Trust sslTrustMode = HTTPConnection.Trust.SYSTEM;
+
     /**
      * fallback because some old client will call preload but we now a days do per default
      **/
@@ -95,7 +104,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         configureObjectMapper();
     }
 
-    private void configureObjectMapper(){
+    private void configureObjectMapper() {
         objectMapper.registerModule(new AfterburnerModule());
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
@@ -286,20 +295,20 @@ public class JEVisDataSourceWS implements JEVisDataSource {
      *
      * @return Version of jecc. 0 if no version is set or unreachable.
      */
-    public String getJEVisCCVersion(){
+    public String getJEVisCCVersion() {
         String resource = "/jecc/version";
-        String version ="0";
-        try {
-            //InputStream inputStream = this.con.getInputStreamRequest(resource);
-            StringBuffer stringBuffer= this.con.getRequest(resource);
-            version= stringBuffer.toString();
-
-        }catch (Exception ex){
+        String version = "0";
+        try {this.con.getInputStreamRequest(resource);
+            StringBuffer stringBuffer = this.con.getRequest(resource);
+            version = stringBuffer.toString();
+        } catch (SSLHandshakeException sslex) {
+            logger.error("SSl Exception: {}",sslex);
+        } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
         }
 
-        logger.error("getJEVisCCVersion(): {}",version);
+        logger.error("getJEVisCCVersion(): {}", version);
         return version;
     }
 
@@ -815,12 +824,23 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         this.config = config;
         for (JEVisOption opt : config) {
             if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
-                this.host = opt.getOption(CommonOptions.DataSource.HOST.getKey()).getValue();
+                try {
+                    this.host = opt.getOption(CommonOptions.DataSource.HOST.getKey()).getValue();
+
+                    String sslModeOpt = opt.getOption(CommonOptions.DataSource.SSLTRUST.getKey()).getValue();
+                    if (sslModeOpt != null && !sslModeOpt.isEmpty()) {
+                        this.sslTrustMode = HTTPConnection.Trust.valueOf(sslModeOpt.toUpperCase());
+                    } else {
+                        logger.error("No SSL-Trust-Mode set, using fefault: {}", sslTrustMode.toString());
+                    }
+                }catch (Exception ex){
+                    logger.error("Error while parsing option: {}",ex);
+                }
             }
         }
 
         /** create dummy connection for request which need not user name password **/
-        this.con = new HTTPConnection(this.host,"","");
+        this.con = new HTTPConnection(this.host, "", "", sslTrustMode);
     }
 
     public JEVisObject buildObject(long parentID, String jclass, String name) throws JEVisException {
@@ -1293,8 +1313,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public boolean confirmPassword(String username, String password) throws JEVisException {
-        HTTPConnection.trustAllCertificates();
-        HTTPConnection httpConnection = new HTTPConnection(this.host, username, password);
+        HTTPConnection httpConnection = new HTTPConnection(this.host, username, password,sslTrustMode);
+
 
         try {
             String resource
@@ -1313,11 +1333,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public boolean connect(String username, String password) throws JEVisException {
-        logger.debug("Connect with user {} to: {}", username, this.host);
+        logger.error("Connect with user {} to: {}", username, this.host);
 
-        //TODO implement config parameter to set trustAllCertificates
-        HTTPConnection.trustAllCertificates();
-        this.con = new HTTPConnection(this.host, username, password);
+        this.con = new HTTPConnection(this.host, username, password,sslTrustMode);
 
         try {
             String resource

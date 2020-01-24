@@ -182,7 +182,6 @@ public class DimpEX {
             gzos.finish();
             gzos.close();
 
-            logger.info("Done");
 
         } catch (IOException ex) {
             ex.printStackTrace();

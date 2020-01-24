@@ -103,8 +103,6 @@ public class JEVisTree extends TreeTableView {
                     db.setContent(content);
 //                        dragItem = jevisRow;
                     event.consume();
-                    logger.debug("done");
-//                        }
                 } catch (Exception ex) {
                     logger.error(ex);
                 }

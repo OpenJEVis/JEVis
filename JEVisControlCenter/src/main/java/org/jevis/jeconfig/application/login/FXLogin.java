@@ -611,9 +611,6 @@ public class FXLogin extends AnchorPane {
 
     public void checkVersion(){
         try {
-            System.out.println("Local: "+I18n.getInstance().getLocale());
-
-
             String serverJECCVersion = ((JEVisDataSourceWS) _ds).getJEVisCCVersion();
             if (serverJECCVersion != "0") {
                 DefaultArtifactVersion thisVersion = new DefaultArtifactVersion(JEConfig.class.getPackage().getImplementationVersion());
@@ -654,10 +651,10 @@ public class FXLogin extends AnchorPane {
 
                      **/
                 } else {
-                    System.out.println("We are up to date");
+                    logger.debug("We are up to date");
                 }
             } else {
-                System.out.println("version error");
+                logger.error("Could not fetch JEVisCC Server Version");
             }
         }catch (Exception ex){
             logger.error(ex);
