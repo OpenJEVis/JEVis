@@ -11,6 +11,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
+import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.report3.data.report.IntervalCalculator;
@@ -32,8 +33,8 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
     private static boolean isInit = false;
     private final SampleHandler samplesHandler;
     private JEVisObject reportObject = null;
-    private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
-    private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
+    private LocalTime workdayStart = null;
+    private LocalTime workdayEnd = null;
 
     @Inject
     public PeriodicIntervalCalc(SampleHandler samplesHandler) {
@@ -55,10 +56,17 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
 
     private void initializeIntervalMap(JEVisObject reportObject) {
         this.reportObject = reportObject;
+        WorkDays workDays = new WorkDays(reportObject);
+
         String scheduleString = samplesHandler.getLastSample(reportObject, "Schedule", Period.DAILY.toString());
         Period schedule = Period.valueOf(scheduleString.toUpperCase());
         String startRecordString = samplesHandler.getLastSample(reportObject, "Start Record", "");
         DateTime start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString);
+
+        if (schedule == Period.DAILY || schedule == Period.WEEKLY || schedule == Period.MONTHLY || schedule == Period.QUARTERLY || schedule == Period.YEARLY) {
+            if (workDays.getWorkdayStart() != null) workdayStart = workDays.getWorkdayStart();
+            if (workDays.getWorkdayEnd() != null) workdayEnd = workDays.getWorkdayEnd();
+        }
 
         org.jevis.commons.datetime.DateHelper dateHelper = null;
 
@@ -67,6 +75,17 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         for (PeriodMode mode : PeriodMode.values()) {
             DateTime startRecord = calcStartRecord(start, schedule, mode, dateHelper);
             DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
+
+            if (workdayStart != null && workdayEnd != null) {
+                startRecord = startRecord.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
+                endRecord = endRecord.withHourOfDay(workdayEnd.getHour()).withMinuteOfHour(workdayEnd.getMinute()).withSecondOfMinute(workdayEnd.getSecond()).withMillisOfSecond(999);
+
+                if (workdayStart.isAfter(workdayEnd)) {
+                    startRecord = startRecord.minusDays(1);
+                    endRecord = endRecord.minusDays(1);
+                }
+            }
+
             Interval interval = new Interval(startRecord, endRecord);
             intervalMap.put(mode, interval);
         }
