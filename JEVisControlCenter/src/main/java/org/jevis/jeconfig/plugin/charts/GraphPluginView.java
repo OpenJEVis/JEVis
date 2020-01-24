@@ -901,14 +901,6 @@ public class GraphPluginView implements Plugin {
                         });
                     }
                 }
-
-//                cv.getChart().applyColors();
-//
-//                cv.getChart().checkForY2Axis();
-//
-//                cv.getChart().applyBounds();
-//
-//                cv.getTableView().sort();
             }
         });
     }
@@ -928,11 +920,9 @@ public class GraphPluginView implements Plugin {
 
             if (chartsPerScreen != null && dataModel.getCharts().size() > 1) {
                 ObservableList<Node> children = vBox.getChildren();
-                int i = 0;
-                for (Node node : children) {
-                    if (node instanceof Separator) i++;
-                }
-                double height = border.getHeight() - (4.5 * i);
+                int noOfCharts = (int) children.stream().filter(node -> node instanceof Separator).count();
+
+                double height = border.getHeight() - (4.5 * noOfCharts);
 
                 for (Node node : children) {
                     if (node instanceof BorderPane) {

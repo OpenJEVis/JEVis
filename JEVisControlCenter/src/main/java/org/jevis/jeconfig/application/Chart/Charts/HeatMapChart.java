@@ -365,22 +365,7 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public void showNote(MouseEvent mouseEvent) {
-
-    }
-
-    @Override
     public void applyColors() {
-
-    }
-
-    @Override
-    public DateTime getValueForDisplay() {
-        return null;
-    }
-
-    @Override
-    public void setValueForDisplay(DateTime valueForDisplay) {
 
     }
 
@@ -405,23 +390,8 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public void checkForY2Axis() {
-
-    }
-
-    @Override
-    public void applyBounds() {
-
-    }
-
-    @Override
     public List<ChartDataModel> getChartDataModels() {
         return chartDataModels;
-    }
-
-    @Override
-    public void initializeZoom() {
-
     }
 
     @Override
@@ -432,31 +402,6 @@ public class HeatMapChart implements Chart {
     @Override
     public Period getPeriod() {
         return null;
-    }
-
-    @Override
-    public DateTime getStartDateTime() {
-        return null;
-    }
-
-    @Override
-    public DateTime getEndDateTime() {
-        return null;
-    }
-
-    @Override
-    public void setDataModels(List<ChartDataModel> chartDataModels) {
-        this.chartDataModels = chartDataModels;
-    }
-
-    @Override
-    public void setShowIcons(Boolean showIcons) {
-
-    }
-
-    @Override
-    public void setChartSettings(ChartSettingsFunction function) {
-
     }
 
     private HeatMapXY getHeatMapXY(Period period, Period inputSampleRate) {
