@@ -330,20 +330,33 @@ public class XYChart implements Chart {
         ErrorDataSetRenderer rendererY2 = new ErrorDataSetRenderer();
         ErrorDataSetRenderer trendLineRenderer = new ErrorDataSetRenderer();
         trendLineRenderer.setPolyLineStyle(LineStyle.NORMAL);
+        trendLineRenderer.setDrawMarker(false);
+        trendLineRenderer.setMarkerSize(0);
 
         switch (chartType) {
             case AREA:
-            case LOGICAL:
                 rendererY1.setPolyLineStyle(LineStyle.AREA);
                 rendererY1.setDrawMarker(false);
+                rendererY1.setMarkerSize(0);
                 rendererY2.setPolyLineStyle(LineStyle.AREA);
                 rendererY2.setDrawMarker(false);
+                rendererY2.setMarkerSize(0);
+                break;
+            case LOGICAL:
+                rendererY1.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
+                rendererY1.setDrawMarker(false);
+                rendererY1.setMarkerSize(0);
+                rendererY2.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
+                rendererY2.setDrawMarker(false);
+                rendererY2.setMarkerSize(0);
                 break;
             case LINE:
                 rendererY1.setPolyLineStyle(LineStyle.NORMAL);
                 rendererY1.setDrawMarker(false);
+                rendererY1.setMarkerSize(0);
                 rendererY2.setPolyLineStyle(LineStyle.NORMAL);
                 rendererY2.setDrawMarker(false);
+                rendererY2.setMarkerSize(0);
                 break;
             case BAR:
                 break;
@@ -351,9 +364,11 @@ public class XYChart implements Chart {
                 rendererY1.setPolyLineStyle(LineStyle.NONE);
                 rendererY1.setDrawBars(true);
                 rendererY1.setDrawMarker(false);
+                rendererY1.setMarkerSize(0);
                 rendererY2.setPolyLineStyle(LineStyle.NONE);
                 rendererY2.setDrawBars(true);
                 rendererY2.setDrawMarker(false);
+                rendererY2.setMarkerSize(0);
                 break;
             case BUBBLE:
                 break;
@@ -393,7 +408,7 @@ public class XYChart implements Chart {
         AlphanumComparator ac = new AlphanumComparator();
         tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
 
-        chart.getRenderers().addAll(rendererY1, rendererY2);
+        chart.getRenderers().setAll(rendererY1, rendererY2);
         chart.getToolBar().setVisible(false);
 
         if (calcRegression) {
