@@ -132,16 +132,6 @@ public class XYChartSerie {
 
                 Double timestamp = dateTime.getMillis() / 1000d;
 
-//                MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>();
-//                data.setXValue(timestamp);
-//                data.setYValue(currentValue);
-//                data.setExtraValue(yAxis);
-//
-//                data.setNode(null);
-//                data.setNode(generateNode(sample));
-//
-//                setDataNodeColor(data);
-
                 valueDataSet.add(timestamp, currentValue);
 
                 String noteString = generateNote(sample);

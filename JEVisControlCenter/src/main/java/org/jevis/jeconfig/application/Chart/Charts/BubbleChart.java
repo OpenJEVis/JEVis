@@ -307,7 +307,6 @@ public class BubbleChart implements Chart {
         }
 
         if (displayValue != null) {
-            setValueForDisplay(valueForDisplay);
             double finalDisplayValue = displayValue;
             NumberFormat nf = NumberFormat.getInstance();
             nf.setMinimumFractionDigits(2);
@@ -354,53 +353,13 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public DateTime getStartDateTime() {
-        return null;
-    }
-
-    @Override
-    public DateTime getEndDateTime() {
-        return null;
-    }
-
-    @Override
-    public void setDataModels(List<ChartDataModel> chartDataModels) {
-
-    }
-
-    @Override
-    public void setShowIcons(Boolean showIcons) {
-
-    }
-
-    @Override
-    public void setChartSettings(ChartSettingsFunction function) {
-        //TODO: implement me, see PieChart
-    }
-
-    @Override
     public void setRegion(Region region) {
-
-    }
-
-    @Override
-    public void checkForY2Axis() {
-
-    }
-
-    @Override
-    public void applyBounds() {
 
     }
 
     @Override
     public List<ChartDataModel> getChartDataModels() {
         return chartDataModels;
-    }
-
-    @Override
-    public void showNote(MouseEvent mouseEvent) {
-
     }
 
     @Override
@@ -423,16 +382,6 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public DateTime getValueForDisplay() {
-        return null;
-    }
-
-    @Override
-    public void setValueForDisplay(DateTime valueForDisplay) {
-
-    }
-
-    @Override
     public de.gsi.chart.XYChart getChart() {
         return null;
     }
@@ -445,11 +394,6 @@ public class BubbleChart implements Chart {
     @Override
     public Region getRegion() {
         return chart;
-    }
-
-    @Override
-    public void initializeZoom() {
-
     }
 
     @Override

@@ -212,12 +212,6 @@ public class PieChart implements Chart {
 
     }
 
-    @Override
-    public void setChartSettings(ChartSettingsFunction function) {
-        this.chartSettingsFunction = function;
-    }
-
-
     public void addToolTipText() {
         final Label caption = new Label("");
         caption.setTextFill(Color.DARKORANGE);
@@ -237,38 +231,8 @@ public class PieChart implements Chart {
     }
 
     @Override
-    public DateTime getStartDateTime() {
-        return chartDataModels.get(0).getSelectedStart();
-    }
-
-    @Override
-    public DateTime getEndDateTime() {
-        return chartDataModels.get(0).getSelectedEnd();
-    }
-
-    @Override
-    public void setDataModels(List<ChartDataModel> chartDataModels) {
-        this.chartDataModels = chartDataModels;
-    }
-
-    @Override
-    public void setShowIcons(Boolean showIcons) {
-        this.hideShowIcons = showIcons;
-    }
-
-    @Override
     public void setRegion(Region region) {
         pieChartRegion = region;
-    }
-
-    @Override
-    public void checkForY2Axis() {
-
-    }
-
-    @Override
-    public void applyBounds() {
-
     }
 
     @Override
@@ -396,11 +360,6 @@ public class PieChart implements Chart {
     }
 
     @Override
-    public void showNote(MouseEvent mouseEvent) {
-
-    }
-
-    @Override
     public void applyColors() {
 
         for (int i = 0; i < hexColors.size(); i++) {
@@ -445,16 +404,6 @@ public class PieChart implements Chart {
     }
 
     @Override
-    public DateTime getValueForDisplay() {
-        return null;
-    }
-
-    @Override
-    public void setValueForDisplay(DateTime valueForDisplay) {
-        this.valueForDisplay = valueForDisplay;
-    }
-
-    @Override
     public de.gsi.chart.Chart getChart() {
         return null;
     }
@@ -467,11 +416,6 @@ public class PieChart implements Chart {
     @Override
     public Region getRegion() {
         return pieChart;
-    }
-
-    @Override
-    public void initializeZoom() {
-
     }
 
     public String getUnit(JEVisUnit jeVisUnit) {

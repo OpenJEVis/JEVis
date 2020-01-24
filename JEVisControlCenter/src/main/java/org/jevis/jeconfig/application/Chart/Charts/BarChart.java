@@ -117,79 +117,10 @@ public class BarChart implements Chart {
         return period;
     }
 
-    @Override
-    public void setChartSettings(ChartSettingsFunction function) {
-        //TODO: implement me, see PieChart
-    }
-
-    @Override
-    public void initializeZoom() {
-//        panner = null;
-//
-//        getChart().setOnMouseMoved(mouseEvent -> {
-//            updateTable(mouseEvent, null);
-//        });
-//
-//        panner = new ChartPanManager((MultiAxisChart<?, ?>) getChart());
-//
-//        panner.setMouseFilter(mouseEvent -> {
-//            if (mouseEvent.getButton() != MouseButton.SECONDARY
-//                    && (mouseEvent.getButton() != MouseButton.PRIMARY
-//                    || !mouseEvent.isShortcutDown())) {
-//                mouseEvent.consume();
-//            }
-//        });
-//        panner.start();
-//
-//        JFXChartUtil jfxChartUtil = new JFXChartUtil();
-//        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
-//
-//            if (mouseEvent.getButton() != MouseButton.PRIMARY
-//                    || mouseEvent.isShortcutDown()) {
-//                mouseEvent.consume();
-//                if (mouseEvent.isControlDown()) {
-//                    showNote(mouseEvent);
-//                }
-//            }
-//        });
-//
-//        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
-
-    }
-
-    @Override
-    public DateTime getStartDateTime() {
-        return timeStampOfFirstSample.get();
-    }
-
-    @Override
-    public DateTime getEndDateTime() {
-        return timeStampOfLastSample.get();
-    }
-
-    @Override
-    public void setDataModels(List<ChartDataModel> chartDataModels) {
-        this.chartDataModels = chartDataModels;
-    }
-
-    @Override
-    public void setShowIcons(Boolean showIcons) {
-        this.hideShowIcons = showIcons;
-    }
 
     @Override
     public void setRegion(Region region) {
         barChartRegion = region;
-    }
-
-    @Override
-    public void checkForY2Axis() {
-
-    }
-
-    @Override
-    public void applyBounds() {
-
     }
 
     @Override
@@ -223,11 +154,6 @@ public class BarChart implements Chart {
     }
 
     @Override
-    public void showNote(MouseEvent mouseEvent) {
-
-    }
-
-    @Override
     public void applyColors() {
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
@@ -238,16 +164,6 @@ public class BarChart implements Chart {
                 node.setStyle("-fx-bar-fill: " + hexColor + ";");
             }
         }
-    }
-
-    @Override
-    public DateTime getValueForDisplay() {
-        return valueForDisplay;
-    }
-
-    @Override
-    public void setValueForDisplay(DateTime valueForDisplay) {
-        this.valueForDisplay = valueForDisplay;
     }
 
     @Override
