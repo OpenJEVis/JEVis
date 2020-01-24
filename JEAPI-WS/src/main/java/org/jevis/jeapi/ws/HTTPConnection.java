@@ -65,11 +65,21 @@ public class HTTPConnection {
     private final String username;
     private final String password;
     private int readTimeout = 88140;//mils
+    enum Trust
+    {
+        ALWAYS, SYSTEM;
+    }
+    private Trust trustmode=Trust.ALWAYS;
 
-    public HTTPConnection(String baseurl, String username, String password) {
+    public HTTPConnection(String baseurl, String username, String password, Trust trustMode) {
         this.baseURL = baseurl;
         this.username = username;
         this.password = password;
+        this.trustmode=trustMode;
+        if(trustMode==Trust.ALWAYS){
+            logger.error("Enable trust for self signed certificates");
+            HTTPConnection.trustAllCertificates();
+        }
     }
 
     public static StringBuffer getPayload(HttpURLConnection conn) throws IOException {
