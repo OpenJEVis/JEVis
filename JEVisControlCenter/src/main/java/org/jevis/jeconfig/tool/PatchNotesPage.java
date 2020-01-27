@@ -51,7 +51,15 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.13------\n" +
+            "------Version 3.9.14------\n" +
+                    "JECC - Charts - supporting opacity in hex color code\n" +
+                    "JECC - Charts - forecast doesn't use different color \n" +
+                    "JECC - Charts - disabled x-axis zoom slider\n" +
+                    "JECC - Charts - improved note marker\n" +
+                    "JECC - HeatMap - improved x-axis labeling\n" +
+                    "JECC - Logic Chart - opimized scaling\n" +
+                    "JECC - ChartDataModel - fixed null pointer in equals method\n\n" +
+                    "------Version 3.9.13------\n" +
                     "JECC - Improved startup time by  up to 6 seconds or more\n" +
                     "JECC - New start parameter \"--datasource.ssltrust=always\" to enable self signed certificates\n" +
                     "JECC - Layout changes for the renaming/translation dialog\n" +
@@ -80,28 +88,28 @@ public class PatchNotesPage {
                     "JECC - Charts - small performance fix\n" +
                     "JECC - Charts - colors are sometimes differing in table and chart fixes\n" +
                     "JECC - charts - old style node markers\n" +
-            "JECC - Charts - Logic Chart - zoom not working\n" +
-            "JECC - Charts - Note Dialog to secondary mouse button\n" +
-            "JECC - Charts - The dialog \"Do you want to save the changes to the analysis\" appears although nothing has been changed\n" +
-            "JECC - Charts - change zoom origin / zoom out to double click primary\n" +
-            "JECC - Charts - disable value markers\n" +
-            "JECC - Charts - Load analysis dialog - Preview optional -> setting in top menu options\n" +
-            "JECC - Charts - Regression dialog needs to be revised\n" +
-            "JECC - Charts - regression type disabled, polynomial as standard\n" +
-            "JECC - Charts - Regression dialog -> remove the selection of the species\n\n" +
-            "------Version 3.9.11------\n" +
-            "JECC - Charts - BubbleChart - missing units in axis labels\n" +
-            "JECC - Charts - migrate base libraries to chartsFX for significant perfomance improvement 30.000 -> 5.000.000 visible values\n" +
-            "JECC - Add version number to statusbar\n" +
-            "JECC - Dashboard - Dashboard links must have a different icon than analysis links bug\n" +
-            "JECC - Dashboard - The size display when loading dashboards should be adjustable on the dashboard\n" +
-            "JECC - SampleEditor - GraphExtension - date selection has no effect\n" +
-            "JECC - EnterDataDialog - changed title\n" +
-            "JECC - EnterDataDialog - changed start time to 00:00:00\n" +
-            "JECC - Alarm Plugin - fixed security exception\n" +
-            "\n" +
-            "JEDataCollector - improved logging\n" +
-            "JEVis - Add JEVisObject name localization - used in renaming dialog";
+                    "JECC - Charts - Logic Chart - zoom not working\n" +
+                    "JECC - Charts - Note Dialog to secondary mouse button\n" +
+                    "JECC - Charts - The dialog \"Do you want to save the changes to the analysis\" appears although nothing has been changed\n" +
+                    "JECC - Charts - change zoom origin / zoom out to double click primary\n" +
+                    "JECC - Charts - disable value markers\n" +
+                    "JECC - Charts - Load analysis dialog - Preview optional -> setting in top menu options\n" +
+                    "JECC - Charts - Regression dialog needs to be revised\n" +
+                    "JECC - Charts - regression type disabled, polynomial as standard\n" +
+                    "JECC - Charts - Regression dialog -> remove the selection of the species\n\n" +
+                    "------Version 3.9.11------\n" +
+                    "JECC - Charts - BubbleChart - missing units in axis labels\n" +
+                    "JECC - Charts - migrate base libraries to chartsFX for significant perfomance improvement 30.000 -> 5.000.000 visible values\n" +
+                    "JECC - Add version number to statusbar\n" +
+                    "JECC - Dashboard - Dashboard links must have a different icon than analysis links bug\n" +
+                    "JECC - Dashboard - The size display when loading dashboards should be adjustable on the dashboard\n" +
+                    "JECC - SampleEditor - GraphExtension - date selection has no effect\n" +
+                    "JECC - EnterDataDialog - changed title\n" +
+                    "JECC - EnterDataDialog - changed start time to 00:00:00\n" +
+                    "JECC - Alarm Plugin - fixed security exception\n" +
+                    "\n" +
+                    "JEDataCollector - improved logging\n" +
+                    "JEVis - Add JEVisObject name localization - used in renaming dialog";
     CheckBox remember = new CheckBox(I18n.getInstance().getString("welcome.dontshow"));
     private Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.patchNotes");
     private boolean isLoading = true;
