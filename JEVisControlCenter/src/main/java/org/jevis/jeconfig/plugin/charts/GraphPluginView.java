@@ -1186,6 +1186,7 @@ public class GraphPluginView implements Plugin {
     private void setupLinkedZoom(Chart ac, List<Chart> notActive) {
 
         MultiChartZoomer multiChartZoomer = new MultiChartZoomer(AxisMode.X, notActive, ac);
+        multiChartZoomer.setSliderVisible(false);
         ac.getChart().getPlugins().add(multiChartZoomer);
     }
 

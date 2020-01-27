@@ -126,7 +126,6 @@ public class SampleGraphExtension implements SampleEditorExtension {
                 ErrorDataSetRenderer renderer = new ErrorDataSetRenderer();
                 renderer.setPolyLineStyle(LineStyle.AREA);
                 renderer.setDrawMarker(false);
-                renderer.setMarkerSize(0);
                 renderer.getDatasets().add(dataSet);
 
                 chart.getRenderers().set(0, renderer);

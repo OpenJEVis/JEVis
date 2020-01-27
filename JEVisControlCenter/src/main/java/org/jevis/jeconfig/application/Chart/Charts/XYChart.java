@@ -337,26 +337,14 @@ public class XYChart implements Chart {
             case AREA:
                 rendererY1.setPolyLineStyle(LineStyle.AREA);
                 rendererY1.setDrawMarker(false);
-                rendererY1.setMarkerSize(0);
                 rendererY2.setPolyLineStyle(LineStyle.AREA);
                 rendererY2.setDrawMarker(false);
-                rendererY2.setMarkerSize(0);
                 break;
             case LOGICAL:
                 rendererY1.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
                 rendererY1.setDrawMarker(false);
-                rendererY1.setMarkerSize(0);
                 rendererY2.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
                 rendererY2.setDrawMarker(false);
-                rendererY2.setMarkerSize(0);
-                break;
-            case LINE:
-                rendererY1.setPolyLineStyle(LineStyle.NORMAL);
-                rendererY1.setDrawMarker(false);
-                rendererY1.setMarkerSize(0);
-                rendererY2.setPolyLineStyle(LineStyle.NORMAL);
-                rendererY2.setDrawMarker(false);
-                rendererY2.setMarkerSize(0);
                 break;
             case BAR:
                 break;
@@ -364,11 +352,9 @@ public class XYChart implements Chart {
                 rendererY1.setPolyLineStyle(LineStyle.NONE);
                 rendererY1.setDrawBars(true);
                 rendererY1.setDrawMarker(false);
-                rendererY1.setMarkerSize(0);
                 rendererY2.setPolyLineStyle(LineStyle.NONE);
                 rendererY2.setDrawBars(true);
                 rendererY2.setDrawMarker(false);
-                rendererY2.setMarkerSize(0);
                 break;
             case BUBBLE:
                 break;
@@ -381,6 +367,13 @@ public class XYChart implements Chart {
             case TABLE:
                 break;
             case HEAT_MAP:
+                break;
+            case LINE:
+            default:
+                rendererY1.setPolyLineStyle(LineStyle.NORMAL);
+                rendererY1.setDrawMarker(false);
+                rendererY2.setPolyLineStyle(LineStyle.NORMAL);
+                rendererY2.setDrawMarker(false);
                 break;
         }
 
@@ -705,7 +698,7 @@ public class XYChart implements Chart {
 //            dateAxis.setAsDuration(true);
 //            dateAxis.setFirstTS(timeStampOfFirstSample.get());
 //        }
-        dateAxis.setUnit("");
+        dateAxis.setName("");
 
         Period realPeriod = Period.minutes(15);
         if (chartDataModels != null && chartDataModels.size() > 0) {
@@ -735,7 +728,7 @@ public class XYChart implements Chart {
                 I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
                 dtfOutLegend.print(lastTS));
 
-        dateAxis.setName(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
+        dateAxis.setUnit(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
     }
 
     private Period removeWorkdayInterval(DateTime workStart, DateTime workEnd) {
