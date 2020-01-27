@@ -260,9 +260,9 @@ public class HeatMapChart implements Chart {
         bottomAxis.add(leftFreeSpace, 0, 0);
 
         int col = 1;
-        int div = 5;
+        int div = 4;
         if (xAxisList.size() < 10) {
-            div = 3;
+            div = 2;
         }
 
         for (DateTime dateTime : xAxisList) {
@@ -275,7 +275,13 @@ public class HeatMapChart implements Chart {
                 hBox.getChildren().addAll(rectangle);
                 bottomAxis.add(hBox, col, 0);
 
-                bottomAxis.add(ts, col, 1, 4, 1);
+                if ((xAxisList.indexOf(dateTime) == 0) || (xAxisList.indexOf(dateTime) + 1) % (div * 2) == 0) {
+                    if (xAxisList.indexOf(dateTime) == 0) {
+                        bottomAxis.add(ts, col, 1, 3, 1);
+                    } else {
+                        bottomAxis.add(ts, col - 1, 1, 3, 1);
+                    }
+                }
             } else {
                 HBox hBox = new HBox();
                 hBox.setAlignment(Pos.CENTER);
