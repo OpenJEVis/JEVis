@@ -330,19 +330,20 @@ public class XYChart implements Chart {
         ErrorDataSetRenderer rendererY2 = new ErrorDataSetRenderer();
         ErrorDataSetRenderer trendLineRenderer = new ErrorDataSetRenderer();
         trendLineRenderer.setPolyLineStyle(LineStyle.NORMAL);
+        trendLineRenderer.setDrawMarker(false);
+        trendLineRenderer.setMarkerSize(0);
 
         switch (chartType) {
             case AREA:
-            case LOGICAL:
                 rendererY1.setPolyLineStyle(LineStyle.AREA);
                 rendererY1.setDrawMarker(false);
                 rendererY2.setPolyLineStyle(LineStyle.AREA);
                 rendererY2.setDrawMarker(false);
                 break;
-            case LINE:
-                rendererY1.setPolyLineStyle(LineStyle.NORMAL);
+            case LOGICAL:
+                rendererY1.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
                 rendererY1.setDrawMarker(false);
-                rendererY2.setPolyLineStyle(LineStyle.NORMAL);
+                rendererY2.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
                 rendererY2.setDrawMarker(false);
                 break;
             case BAR:
@@ -366,6 +367,13 @@ public class XYChart implements Chart {
             case TABLE:
                 break;
             case HEAT_MAP:
+                break;
+            case LINE:
+            default:
+                rendererY1.setPolyLineStyle(LineStyle.NORMAL);
+                rendererY1.setDrawMarker(false);
+                rendererY2.setPolyLineStyle(LineStyle.NORMAL);
+                rendererY2.setDrawMarker(false);
                 break;
         }
 
@@ -393,7 +401,7 @@ public class XYChart implements Chart {
         AlphanumComparator ac = new AlphanumComparator();
         tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
 
-        chart.getRenderers().addAll(rendererY1, rendererY2);
+        chart.getRenderers().setAll(rendererY1, rendererY2);
         chart.getToolBar().setVisible(false);
 
         if (calcRegression) {
@@ -690,7 +698,7 @@ public class XYChart implements Chart {
 //            dateAxis.setAsDuration(true);
 //            dateAxis.setFirstTS(timeStampOfFirstSample.get());
 //        }
-        dateAxis.setUnit("");
+        dateAxis.setName("");
 
         Period realPeriod = Period.minutes(15);
         if (chartDataModels != null && chartDataModels.size() > 0) {
@@ -720,7 +728,7 @@ public class XYChart implements Chart {
                 I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
                 dtfOutLegend.print(lastTS));
 
-        dateAxis.setName(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
+        dateAxis.setUnit(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
     }
 
     private Period removeWorkdayInterval(DateTime workStart, DateTime workEnd) {

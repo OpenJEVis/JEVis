@@ -27,26 +27,16 @@ public class XYLogicalChartSerie extends XYChartSerie {
         setMinValue(Double.MAX_VALUE);
         setMaxValue(-Double.MAX_VALUE);
 
-        tableEntry = new TableEntry(getTableEntryName());
+        this.tableEntry = new TableEntry(getTableEntryName());
         this.valueDataSet.setName(getTableEntryName());
+        this.valueDataSet.setStyle("strokeColor=" + singleRow.getColor() + "; fillColor= " + singleRow.getColor() + ";strokeDashPattern=0");
 
-        tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
+        this.tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
 
         List<JEVisSample> samples = singleRow.getSamples();
         List<JEVisSample> modifiedList = getModifiedList(samples);
 
-        valueDataSet.clearData();
-
-//        int samplesSize = samples.size();
-//        int seriesDataSize = serie.getData().size();
-//
-//        if (samplesSize < seriesDataSize) {
-//            serie.getData().subList(samplesSize, seriesDataSize).clear();
-//        } else if (samplesSize > seriesDataSize) {
-//            for (int i = seriesDataSize; i < samplesSize; i++) {
-//                serie.getData().add(new MultiAxisChart.Data<>());
-//            }
-//        }
+        this.valueDataSet.clearData();
 
         if (modifiedList.size() > 0) {
             try {

@@ -49,14 +49,6 @@ public class LogicalChart extends XYChart {
         return serie;
     }
 
-//    @Override
-//    public void addSeriesToChart() {
-//        for (XYChartSerie xyChartSerie : xyChartSerieList) {
-//            chart.getDatasets().add(xyChartSerie.getValueDataSet());
-//            tableData.add(xyChartSerie.getTableEntry());
-//        }
-//    }
-
     @Override
     public void generateYAxis() {
         y1Axis.setAnimated(false);
@@ -72,5 +64,6 @@ public class LogicalChart extends XYChart {
         tickLabelFormatter1.setPrecision(0);
         y1Axis.setTickLabelFormatter(tickLabelFormatter1);
         y1Axis.setTickUnit(1d);
+        y1Axis.setMinorTickVisible(false);
     }
 }

@@ -7,11 +7,14 @@ public class ColorHelper {
         return Color.web(color);
     }
 
-    public static String toRGBCode(Color color) {
-        return String.format("#%02x%02x%02x",
-                (int) (color.getRed() * 255),
-                (int) (color.getGreen() * 255),
-                (int) (color.getBlue() * 255));
+    private static String format(double val) {
+        String in = Integer.toHexString((int) Math.round(val * 255));
+        return in.length() == 1 ? "0" + in : in;
+    }
+
+    public static String toRGBCode(Color value) {
+        return "#" + (format(value.getRed()) + format(value.getGreen()) + format(value.getBlue()) + format(value.getOpacity()))
+                .toUpperCase();
     }
 
     public static String colorToBrighter(String colorString) {

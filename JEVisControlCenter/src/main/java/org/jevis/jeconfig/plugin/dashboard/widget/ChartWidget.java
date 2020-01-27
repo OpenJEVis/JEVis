@@ -17,6 +17,8 @@ import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
@@ -32,6 +34,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -109,7 +112,11 @@ public class ChartWidget extends Widget {
                 /**
                  * LineChart does not support updateData so we need to create an new one every time;
                  */
-                this.lineChart = new LineChart(new AnalysisDataModel(getDataSource(), null), this.sampleHandler.getDataModel(), 0, "");
+                AnalysisDataModel model = new AnalysisDataModel(getDataSource(), null);
+                ChartSettings chartSettings = new ChartSettings(0, "");
+                chartSettings.setChartType(ChartType.LINE);
+                model.setCharts(Collections.singletonList(chartSettings));
+                this.lineChart = new LineChart(model, this.sampleHandler.getDataModel(), 0, "");
 
                 this.borderPane.setCenter(this.lineChart.getChart());
                 updateConfig();/** workaround because we make a new chart everytime**/

@@ -13,5 +13,4 @@ public class LineChart extends XYChart {
     public LineChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
         super(analysisDataModel, chartDataModels, chartId, chartName);
     }
-
 }

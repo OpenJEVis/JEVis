@@ -180,6 +180,9 @@ public class DataModelDataHandler {
 
                         chartDataModel.setManipulationMode(dataPointNode.getManipulationMode());
                         chartDataModel.setAggregationPeriod(dataPointNode.getAggregationPeriod());
+                        List<Integer> integerList = new ArrayList<>();
+                        integerList.add(0);
+                        chartDataModel.setSelectedCharts(integerList);
                         chartDataModel.setAxis(0);
 
                         if (dataPointNode.getColor() != null) {
