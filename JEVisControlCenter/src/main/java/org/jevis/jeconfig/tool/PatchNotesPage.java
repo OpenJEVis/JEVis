@@ -121,6 +121,7 @@ public class PatchNotesPage {
     public void show(Stage owner) {
 
         final Stage stage = new Stage();
+        remember.setSelected(true);
 
         //TODO show it again if we habe a new version of the Config
         if (!pref.getBoolean("show", true)) {
