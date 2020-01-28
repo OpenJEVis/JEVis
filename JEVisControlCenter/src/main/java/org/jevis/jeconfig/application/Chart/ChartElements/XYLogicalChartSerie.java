@@ -27,26 +27,16 @@ public class XYLogicalChartSerie extends XYChartSerie {
         setMinValue(Double.MAX_VALUE);
         setMaxValue(-Double.MAX_VALUE);
 
-        tableEntry = new TableEntry(getTableEntryName());
+        this.tableEntry = new TableEntry(getTableEntryName());
         this.valueDataSet.setName(getTableEntryName());
+        this.valueDataSet.setStyle("strokeColor=" + singleRow.getColor() + "; fillColor= " + singleRow.getColor() + ";strokeDashPattern=0");
 
-        tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
+        this.tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
 
         List<JEVisSample> samples = singleRow.getSamples();
         List<JEVisSample> modifiedList = getModifiedList(samples);
 
-        valueDataSet.clearData();
-
-//        int samplesSize = samples.size();
-//        int seriesDataSize = serie.getData().size();
-//
-//        if (samplesSize < seriesDataSize) {
-//            serie.getData().subList(samplesSize, seriesDataSize).clear();
-//        } else if (samplesSize > seriesDataSize) {
-//            for (int i = seriesDataSize; i < samplesSize; i++) {
-//                serie.getData().add(new MultiAxisChart.Data<>());
-//            }
-//        }
+        this.valueDataSet.clearData();
 
         if (modifiedList.size() > 0) {
             try {
@@ -63,6 +53,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
         }
 
         sampleMap = new TreeMap<>();
+        int noteIndex = 0;
         for (JEVisSample sample : modifiedList) {
             try {
 //                int index = samples.indexOf(sample);
@@ -75,29 +66,16 @@ public class XYLogicalChartSerie extends XYChartSerie {
 
                 long timestamp = dateTime.getMillis();
 
-//                MultiAxisChart.Data<Number, Number> data = serie.getData().get(index);
-//                MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>(timestamp, value);
-//                data.setXValue(timestamp);
-//                data.setYValue(value);
-//                data.setExtraValue(yAxis);
-//                data.setExtraValue(yAxis);
-//
-//                data.setNode(null);
-//                Note note = new Note(sample,singleRow.getNoteSamples().get(sample.getTimestamp()));
-//
-//                if (note.getNote() != null && hideShowIcons) {
-//                    note.getNote().setVisible(true);
-//                    data.setNode(note.getNote());
-//                } else {
-//                    Rectangle rect = new Rectangle(0, 0);
-//                    rect.setFill(ColorHelper.toColor(singleRow.getColor()));
-//                    rect.setVisible(false);
-//                    data.setNode(rect);
-//                }
-
-
                 sampleMap.put(sample.getTimestamp(), sample);
                 valueDataSet.add(timestamp / 1000d, value);
+
+                String noteString = generateNote(sample);
+                if (noteString != null && showIcons) {
+                    noteDataSet.add(timestamp, value);
+                    noteDataSet.addDataLabel(noteIndex, noteString);
+                    noteDataSet.addDataStyle(noteIndex, "strokeColor=" + singleRow.getColor() + "; fillColor= " + singleRow.getColor() + ";strokeDashPattern=0");
+                    noteIndex++;
+                }
 
             } catch (JEVisException e) {
 

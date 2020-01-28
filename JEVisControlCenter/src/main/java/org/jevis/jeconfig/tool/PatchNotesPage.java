@@ -50,39 +50,66 @@ import java.util.prefs.Preferences;
  */
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
-    private final String versionHistory = "------Version 3.9.12------\n" +
-            "JECC - Release Notes\n" +
-            "JECC - Charts - Regression dialog needs to be revised\n" +
-            "JECC - Charts - is it possible to deactivate the regression button if only plugins are displayed that do not support them?\n" +
-            "JECC - Charts - Regression dialog -> Selection of the type remove fixes\n" +
-            "JECC - JENotifier Service indicates that it is deactivated even though it is on\n" +
-            "JECC - Charts - \"Day of the week function\" does not always change the diagram\n" +
-            "JECC - PasswordDialog - give fixed size and not resizable fixes\n" +
-            "JECC - Charts - small performance fix\n" +
-            "JECC - Charts - colors are sometimes differing in table and chart fixes\n" +
-            "JECC - charts - old style node markers\n" +
-            "JECC - Charts - Logic Chart - zoom not working\n" +
-            "JECC - Charts - Note Dialog to secondary mouse button\n" +
-            "JECC - Charts - The dialog \"Do you want to save the changes to the analysis\" appears although nothing has been changed\n" +
-            "JECC - Charts - change zoom origin / zoom out to double click primary\n" +
-            "JECC - Charts - disable value markers\n" +
-            "JECC - Charts - Load analysis dialog - Preview optional -> setting in top menu options\n" +
-            "JECC - Charts - Regression dialog needs to be revised\n" +
-            "JECC - Charts - regression type disabled, polynomial as standard\n" +
-            "JECC - Charts - Regression dialog -> remove the selection of the species\n\n" +
-            "------Version 3.9.11------\n" +
-            "JECC - Charts - BubbleChart - missing units in axis labels\n" +
-            "JECC - Charts - migrate base libraries to chartsFX for significant perfomance improvement 30.000 -> 5.000.000 visible values\n" +
-            "JECC - Add version number to statusbar\n" +
-            "JECC - Dashboard - Dashboard links must have a different icon than analysis links bug\n" +
-            "JECC - Dashboard - The size display when loading dashboards should be adjustable on the dashboard\n" +
-            "JECC - SampleEditor - GraphExtension - date selection has no effect\n" +
-            "JECC - EnterDataDialog - changed title\n" +
-            "JECC - EnterDataDialog - changed start time to 00:00:00\n" +
-            "JECC - Alarm Plugin - fixed security exception\n" +
-            "\n" +
-            "JEDataCollector - improved logging\n" +
-            "JEVis - Add JEVisObject name localization - used in renaming dialog";
+    private final String versionHistory =
+            "------Version 3.9.14------\n" +
+                    "JECC - Charts - supporting opacity in hex color code\n" +
+                    "JECC - Charts - forecast doesn't use different color \n" +
+                    "JECC - Charts - disabled x-axis zoom slider\n" +
+                    "JECC - Charts - improved note marker\n" +
+                    "JECC - HeatMap - improved x-axis labeling\n" +
+                    "JECC - Logic Chart - opimized scaling\n" +
+                    "JECC - ChartDataModel - fixed null pointer in equals method\n\n" +
+                    "------Version 3.9.13------\n" +
+                    "JECC - Improved startup time by  up to 6 seconds or more\n" +
+                    "JECC - New start parameter \"--datasource.ssltrust=always\" to enable self signed certificates\n" +
+                    "JECC - Layout changes for the renaming/translation dialog\n" +
+                    "JECC - Welcome Page is now disabled by default\n" +
+                    "JECC - Minor toolbar layout changes\n" +
+                    "JECC - GapFillingEditor - added delete option\n" +
+                    "JECC - Charts - LogicalChart - y-axis is not working as intended \n" +
+                    "JECC - Charts - sorted charts don't show correct time axis values\n" +
+                    "JECC - Charts - HeatMap - tooltip sometimes doesn't clear up \n" +
+                    "JECC - Charts - y-axes force zero in range\n" +
+                    "JECC - Charts - DateAxis - time formatter formats in english when using german localization fixes #1559\n" +
+                    "\n" +
+                    "JEReport - custom workdays lead to not ready for aggregated data rows if end date is before start date\n" +
+                    "\n" +
+                    "JEDataProcessor - added support for deleting limit exceeding values\n" +
+                    "\n" +
+                    "JECC - Update Alarm Directory to not unique to allow alarm substructure\n\n" +
+                    "------Version 3.9.12------\n" +
+                    "JECC - Release Notes\n" +
+                    "JECC - Charts - Regression dialog needs to be revised\n" +
+                    "JECC - Charts - is it possible to deactivate the regression button if only plugins are displayed that do not support them?\n" +
+                    "JECC - Charts - Regression dialog -> Selection of the type remove fixes\n" +
+                    "JECC - JENotifier Service indicates that it is deactivated even though it is on\n" +
+                    "JECC - Charts - \"Day of the week function\" does not always change the diagram\n" +
+                    "JECC - PasswordDialog - give fixed size and not resizable fixes\n" +
+                    "JECC - Charts - small performance fix\n" +
+                    "JECC - Charts - colors are sometimes differing in table and chart fixes\n" +
+                    "JECC - charts - old style node markers\n" +
+                    "JECC - Charts - Logic Chart - zoom not working\n" +
+                    "JECC - Charts - Note Dialog to secondary mouse button\n" +
+                    "JECC - Charts - The dialog \"Do you want to save the changes to the analysis\" appears although nothing has been changed\n" +
+                    "JECC - Charts - change zoom origin / zoom out to double click primary\n" +
+                    "JECC - Charts - disable value markers\n" +
+                    "JECC - Charts - Load analysis dialog - Preview optional -> setting in top menu options\n" +
+                    "JECC - Charts - Regression dialog needs to be revised\n" +
+                    "JECC - Charts - regression type disabled, polynomial as standard\n" +
+                    "JECC - Charts - Regression dialog -> remove the selection of the species\n\n" +
+                    "------Version 3.9.11------\n" +
+                    "JECC - Charts - BubbleChart - missing units in axis labels\n" +
+                    "JECC - Charts - migrate base libraries to chartsFX for significant perfomance improvement 30.000 -> 5.000.000 visible values\n" +
+                    "JECC - Add version number to statusbar\n" +
+                    "JECC - Dashboard - Dashboard links must have a different icon than analysis links bug\n" +
+                    "JECC - Dashboard - The size display when loading dashboards should be adjustable on the dashboard\n" +
+                    "JECC - SampleEditor - GraphExtension - date selection has no effect\n" +
+                    "JECC - EnterDataDialog - changed title\n" +
+                    "JECC - EnterDataDialog - changed start time to 00:00:00\n" +
+                    "JECC - Alarm Plugin - fixed security exception\n" +
+                    "\n" +
+                    "JEDataCollector - improved logging\n" +
+                    "JEVis - Add JEVisObject name localization - used in renaming dialog";
     CheckBox remember = new CheckBox(I18n.getInstance().getString("welcome.dontshow"));
     private Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.patchNotes");
     private boolean isLoading = true;
@@ -94,6 +121,7 @@ public class PatchNotesPage {
     public void show(Stage owner) {
 
         final Stage stage = new Stage();
+        remember.setSelected(true);
 
         //TODO show it again if we habe a new version of the Config
         if (!pref.getBoolean("show", true)) {

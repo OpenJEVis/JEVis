@@ -11,7 +11,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
-import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -41,9 +40,7 @@ import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.*;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.dialog.NoteDialog;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
@@ -71,7 +68,6 @@ public class XYChart implements Chart {
     private final Integer chartId;
     Boolean showIcons;
     CustomNumericAxis y1Axis = new CustomNumericAxis();
-    //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
     private List<Color> hexColors = new ArrayList<>();
     ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     DateTime now = DateTime.now();
@@ -89,7 +85,6 @@ public class XYChart implements Chart {
     private List<String> unitY1 = new ArrayList<>();
     private List<String> unitY2 = new ArrayList<>();
     List<XYChartSerie> xyChartSerieList = new ArrayList<>();
-    private DateTime valueForDisplay;
     private Region areaChartRegion;
     private Period period;
     private ManipulationMode addSeriesOfType;
@@ -97,12 +92,6 @@ public class XYChart implements Chart {
     private AtomicReference<ManipulationMode> manipulationMode;
     private Boolean[] changedBoth;
     private DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
-    private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
-        @Override
-        public void applySetting(javafx.scene.chart.Chart chart) {
-
-        }
-    };
     private WorkDays workDays = new WorkDays(null);
     private boolean hasSecondAxis = false;
     private StringBuilder regressionFormula = new StringBuilder();
@@ -181,11 +170,6 @@ public class XYChart implements Chart {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    }
-
-                    if (calcRegression) {
-//                        chart.setRegressionColor(singleRow.getAxis(), ColorHelper.toColor(singleRow.getColor()));
-//                        chart.setRegression(singleRow.getAxis(), regressionType, polyRegressionDegree);
                     }
 
                     if (showSum && sumModelY1 == null) {
@@ -336,35 +320,30 @@ public class XYChart implements Chart {
         getChart().setTitle(getUpdatedChartName());
 
         getChart().setLegendVisible(false);
-        //((javafx.scene.chart.XYChart)getChart()).setCreateSymbols(true);
-
-//        chartSettingsFunction.applySetting(getChart());
-
-        applyColors();
-
-        initializeZoom();
 
         Platform.runLater(() -> updateTable(null, timeStampOfFirstSample.get()));
     }
 
     public void addSeriesToChart() {
         ErrorDataSetRenderer rendererY1 = new ErrorDataSetRenderer();
+
         ErrorDataSetRenderer rendererY2 = new ErrorDataSetRenderer();
         ErrorDataSetRenderer trendLineRenderer = new ErrorDataSetRenderer();
         trendLineRenderer.setPolyLineStyle(LineStyle.NORMAL);
+        trendLineRenderer.setDrawMarker(false);
+        trendLineRenderer.setMarkerSize(0);
 
         switch (chartType) {
             case AREA:
-            case LOGICAL:
                 rendererY1.setPolyLineStyle(LineStyle.AREA);
                 rendererY1.setDrawMarker(false);
                 rendererY2.setPolyLineStyle(LineStyle.AREA);
                 rendererY2.setDrawMarker(false);
                 break;
-            case LINE:
-                rendererY1.setPolyLineStyle(LineStyle.NORMAL);
+            case LOGICAL:
+                rendererY1.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
                 rendererY1.setDrawMarker(false);
-                rendererY2.setPolyLineStyle(LineStyle.NORMAL);
+                rendererY2.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
                 rendererY2.setDrawMarker(false);
                 break;
             case BAR:
@@ -372,8 +351,10 @@ public class XYChart implements Chart {
             case COLUMN:
                 rendererY1.setPolyLineStyle(LineStyle.NONE);
                 rendererY1.setDrawBars(true);
+                rendererY1.setDrawMarker(false);
                 rendererY2.setPolyLineStyle(LineStyle.NONE);
                 rendererY2.setDrawBars(true);
+                rendererY2.setDrawMarker(false);
                 break;
             case BUBBLE:
                 break;
@@ -386,6 +367,13 @@ public class XYChart implements Chart {
             case TABLE:
                 break;
             case HEAT_MAP:
+                break;
+            case LINE:
+            default:
+                rendererY1.setPolyLineStyle(LineStyle.NORMAL);
+                rendererY1.setDrawMarker(false);
+                rendererY2.setPolyLineStyle(LineStyle.NORMAL);
+                rendererY2.setDrawMarker(false);
                 break;
         }
 
@@ -413,7 +401,7 @@ public class XYChart implements Chart {
         AlphanumComparator ac = new AlphanumComparator();
         tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
 
-        chart.getRenderers().addAll(rendererY1, rendererY2);
+        chart.getRenderers().setAll(rendererY1, rendererY2);
         chart.getToolBar().setVisible(false);
 
         if (calcRegression) {
@@ -634,12 +622,6 @@ public class XYChart implements Chart {
         getChart().setTitle(getUpdatedChartName());
     }
 
-
-    @Override
-    public void setChartSettings(ChartSettingsFunction function) {
-        chartSettingsFunction = function;
-    }
-
     public void generateYAxis() {
         y1Axis.setForceZeroInRange(true);
         y1Axis.setAutoRanging(true);
@@ -716,7 +698,7 @@ public class XYChart implements Chart {
 //            dateAxis.setAsDuration(true);
 //            dateAxis.setFirstTS(timeStampOfFirstSample.get());
 //        }
-        dateAxis.setUnit("");
+        dateAxis.setName("");
 
         Period realPeriod = Period.minutes(15);
         if (chartDataModels != null && chartDataModels.size() > 0) {
@@ -746,7 +728,7 @@ public class XYChart implements Chart {
                 I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
                 dtfOutLegend.print(lastTS));
 
-        dateAxis.setName(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
+        dateAxis.setUnit(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
     }
 
     private Period removeWorkdayInterval(DateTime workStart, DateTime workEnd) {
@@ -762,10 +744,6 @@ public class XYChart implements Chart {
     }
 
     @Override
-    public void initializeZoom() {
-    }
-
-    @Override
     public void setRegion(Region region) {
         areaChartRegion = region;
     }
@@ -778,16 +756,6 @@ public class XYChart implements Chart {
     @Override
     public Period getPeriod() {
         return period;
-    }
-
-    @Override
-    public DateTime getStartDateTime() {
-        return timeStampOfFirstSample.get();
-    }
-
-    @Override
-    public DateTime getEndDateTime() {
-        return timeStampOfLastSample.get();
     }
 
     String getUpdatedChartName() {
@@ -827,16 +795,6 @@ public class XYChart implements Chart {
     }
 
     @Override
-    public void setDataModels(List<ChartDataModel> chartDataModels) {
-        this.chartDataModels = chartDataModels;
-    }
-
-    @Override
-    public void setShowIcons(Boolean showIcons) {
-        this.showIcons = showIcons;
-    }
-
-    @Override
     public String getChartName() {
         return chartName;
     }
@@ -859,7 +817,6 @@ public class XYChart implements Chart {
 
         }
         if (valueForDisplay != null) {
-            setValueForDisplay(valueForDisplay);
             DateTime finalValueForDisplay = valueForDisplay;
             NumberFormat nf = NumberFormat.getInstance();
             nf.setMinimumFractionDigits(2);
@@ -989,70 +946,10 @@ public class XYChart implements Chart {
     }
 
     @Override
-    public void showNote(MouseEvent mouseEvent) {
-        if (manipulationMode.get().equals(ManipulationMode.NONE)) {
-
-            Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-//            double x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(mouseCoordinates).getX();
-
-            Map<String, RowNote> map = new HashMap<>();
-            DateTime valueForDisplay = null;
-//            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
-
-            for (XYChartSerie serie : xyChartSerieList) {
-                try {
-                    DateTime nearest = serie.getSampleMap().lowerKey(valueForDisplay);
-
-                    if (nearest != null) {
-
-                        JEVisSample nearestSample = serie.getSampleMap().get(nearest);
-
-                        String title = "";
-                        title += serie.getSingleRow().getObject().getName();
-
-                        JEVisObject dataObject;
-                        if (serie.getSingleRow().getDataProcessor() != null)
-                            dataObject = serie.getSingleRow().getDataProcessor();
-                        else dataObject = serie.getSingleRow().getObject();
-
-                        String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
-                        String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
-
-                        RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getUnit(), serie.getSingleRow().getScaleFactor());
-
-                        map.put(title, rowNote);
-                    }
-                } catch (Exception ex) {
-                    logger.error("Error: could not get note", ex);
-                }
-            }
-
-            NoteDialog nd = new NoteDialog(map);
-
-            nd.showAndWait().ifPresent(response -> {
-                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                    saveUserEntries(nd.getNoteMap());
-                }
-            });
-        }
-    }
-
-
-    @Override
     public void applyColors() {
 //        ObservableList<Color> colors = FXCollections.observableArrayList(hexColors);
 //        DefaultRenderColorScheme.strokeColorProperty().setValue(colors);
 
-    }
-
-    @Override
-    public DateTime getValueForDisplay() {
-        return valueForDisplay;
-    }
-
-    @Override
-    public void setValueForDisplay(DateTime valueForDisplay) {
-        this.valueForDisplay = valueForDisplay;
     }
 
     @Override
@@ -1072,30 +969,6 @@ public class XYChart implements Chart {
     @Override
     public Region getRegion() {
         return areaChartRegion;
-    }
-
-    @Override
-    public void checkForY2Axis() {
-        try {
-            boolean hasY2Axis = false;
-            for (XYChartSerie serie : xyChartSerieList) {
-                if (serie.getyAxis() == 1) {
-                    hasY2Axis = true;
-                    break;
-                }
-            }
-
-            if (!hasY2Axis) y2Axis.setVisible(false);
-            else y2Axis.setVisible(true);
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
-    }
-
-    @Override
-    public void applyBounds() {
-//        dateAxis.setUpperBound((double) chartDataModels.get(0).getSelectedEnd().getMillis());
-//        dateAxis.setLowerBound((double) chartDataModels.get(0).getSelectedStart().getMillis());
     }
 
     @Override

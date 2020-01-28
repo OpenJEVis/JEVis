@@ -260,9 +260,9 @@ public class HeatMapChart implements Chart {
         bottomAxis.add(leftFreeSpace, 0, 0);
 
         int col = 1;
-        int div = 5;
+        int div = 4;
         if (xAxisList.size() < 10) {
-            div = 3;
+            div = 2;
         }
 
         for (DateTime dateTime : xAxisList) {
@@ -275,7 +275,13 @@ public class HeatMapChart implements Chart {
                 hBox.getChildren().addAll(rectangle);
                 bottomAxis.add(hBox, col, 0);
 
-                bottomAxis.add(ts, col, 1, 4, 1);
+                if ((xAxisList.indexOf(dateTime) == 0) || (xAxisList.indexOf(dateTime) + 1) % (div * 2) == 0) {
+                    if (xAxisList.indexOf(dateTime) == 0) {
+                        bottomAxis.add(ts, col, 1, 3, 1);
+                    } else {
+                        bottomAxis.add(ts, col - 1, 1, 3, 1);
+                    }
+                }
             } else {
                 HBox hBox = new HBox();
                 hBox.setAlignment(Pos.CENTER);
@@ -365,22 +371,7 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public void showNote(MouseEvent mouseEvent) {
-
-    }
-
-    @Override
     public void applyColors() {
-
-    }
-
-    @Override
-    public DateTime getValueForDisplay() {
-        return null;
-    }
-
-    @Override
-    public void setValueForDisplay(DateTime valueForDisplay) {
 
     }
 
@@ -405,23 +396,8 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public void checkForY2Axis() {
-
-    }
-
-    @Override
-    public void applyBounds() {
-
-    }
-
-    @Override
     public List<ChartDataModel> getChartDataModels() {
         return chartDataModels;
-    }
-
-    @Override
-    public void initializeZoom() {
-
     }
 
     @Override
@@ -432,31 +408,6 @@ public class HeatMapChart implements Chart {
     @Override
     public Period getPeriod() {
         return null;
-    }
-
-    @Override
-    public DateTime getStartDateTime() {
-        return null;
-    }
-
-    @Override
-    public DateTime getEndDateTime() {
-        return null;
-    }
-
-    @Override
-    public void setDataModels(List<ChartDataModel> chartDataModels) {
-        this.chartDataModels = chartDataModels;
-    }
-
-    @Override
-    public void setShowIcons(Boolean showIcons) {
-
-    }
-
-    @Override
-    public void setChartSettings(ChartSettingsFunction function) {
-
     }
 
     private HeatMapXY getHeatMapXY(Period period, Period inputSampleRate) {

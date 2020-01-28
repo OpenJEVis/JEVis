@@ -511,9 +511,6 @@ public class GraphPluginView implements Plugin {
                         }
                     }
 
-                    bp.setMinHeight(autoMinSize.get());
-                    bp.setPrefHeight(autoMinSize.get() + (dataSize * dataSizeOffset));
-
                     if (chartSettings.getChartType() != ChartType.TABLE) {
                         switch (chartSettings.getChartType()) {
                             case PIE:
@@ -521,6 +518,8 @@ public class GraphPluginView implements Plugin {
                             case BUBBLE:
                                 if (chart != null) {
                                     bp.setCenter(chart.getRegion());
+                                    bp.setMinHeight(autoMinSize.get());
+                                    bp.setPrefHeight(autoMinSize.get() + (dataSize * dataSizeOffset));
                                 }
                                 break;
                             case LOGICAL:
@@ -529,6 +528,8 @@ public class GraphPluginView implements Plugin {
                             default:
                                 if (chart != null) {
                                     bp.setCenter(chart.getChart());
+                                    bp.setMinHeight(autoMinSize.get());
+                                    bp.setPrefHeight(autoMinSize.get() + (dataSize * dataSizeOffset));
                                 }
                                 break;
                         }
@@ -799,9 +800,20 @@ public class GraphPluginView implements Plugin {
                     }
 
                     if (matrixHeatMap != null) {
+                        HeatMapChart chart = (HeatMapChart) cv;
+
                         double pixelHeight = matrixHeatMap.getMatrix().getPixelHeight();
                         double pixelWidth = matrixHeatMap.getMatrix().getPixelWidth();
                         double spacerSizeFactor = matrixHeatMap.getMatrix().getSpacerSizeFactor();
+                        double width = matrixHeatMap.getMatrix().getWidth() - matrixHeatMap.getMatrix().getInsets().getLeft() - matrixHeatMap.getMatrix().getInsets().getRight();
+                        double height = matrixHeatMap.getMatrix().getHeight() - matrixHeatMap.getMatrix().getInsets().getTop() - matrixHeatMap.getMatrix().getInsets().getBottom();
+                        double pixelSize = Math.min((width / chart.getCOLS()), (height / chart.getROWS()));
+                        double spacer = pixelSize * spacerSizeFactor;
+                        double pixelWidthMinusDoubleSpacer = pixelWidth - spacer * 2;
+                        double pixelHeightMinusDoubleSpacer = pixelHeight - spacer * 2;
+
+                        double spacerPlusPixelWidthMinusDoubleSpacer = spacer + pixelWidthMinusDoubleSpacer;
+                        double spacerPlusPixelHeightMinusDoubleSpacer = spacer + pixelHeightMinusDoubleSpacer;
 
                         double leftAxisWidth = 0;
                         for (Node node : spVer.getChildren()) {
@@ -817,7 +829,7 @@ public class GraphPluginView implements Plugin {
                                         }
                                         for (Node node2 : leftAxis.getChildren()) {
                                             if (node2 instanceof Label) {
-                                                ((Label) node2).setPrefHeight(pixelHeight - (spacerSizeFactor * 2));
+                                                ((Label) node2).setPrefHeight(pixelHeightMinusDoubleSpacer);
                                             }
                                         }
                                     }
@@ -846,18 +858,6 @@ public class GraphPluginView implements Plugin {
                                 }
                             }
                         }
-
-                        HeatMapChart chart = (HeatMapChart) cv;
-
-                        double width = matrixHeatMap.getMatrix().getWidth() - matrixHeatMap.getMatrix().getInsets().getLeft() - matrixHeatMap.getMatrix().getInsets().getRight();
-                        double height = matrixHeatMap.getMatrix().getHeight() - matrixHeatMap.getMatrix().getInsets().getTop() - matrixHeatMap.getMatrix().getInsets().getBottom();
-                        double pixelSize = Math.min((width / chart.getCOLS()), (height / chart.getROWS()));
-                        double spacer = pixelSize * spacerSizeFactor;
-                        double pixelWidthMinusDoubleSpacer = pixelWidth - spacer * 2;
-                        double pixelHeightMinusDoubleSpacer = pixelHeight - spacer * 2;
-
-                        double spacerPlusPixelWidthMinusDoubleSpacer = spacer + pixelWidthMinusDoubleSpacer;
-                        double spacerPlusPixelHeightMinusDoubleSpacer = spacer + pixelHeightMinusDoubleSpacer;
 
                         MatrixPane<MatrixChartItem> finalMatrixHeatMap = matrixHeatMap;
                         matrixHeatMap.setOnMouseMoved(new EventHandler<MouseEvent>() {
@@ -901,14 +901,6 @@ public class GraphPluginView implements Plugin {
                         });
                     }
                 }
-
-//                cv.getChart().applyColors();
-//
-//                cv.getChart().checkForY2Axis();
-//
-//                cv.getChart().applyBounds();
-//
-//                cv.getTableView().sort();
             }
         });
     }
@@ -928,15 +920,31 @@ public class GraphPluginView implements Plugin {
 
             if (chartsPerScreen != null && dataModel.getCharts().size() > 1) {
                 ObservableList<Node> children = vBox.getChildren();
-                int i = 0;
-                for (Node node : children) {
-                    if (node instanceof Separator) i++;
-                }
-                double height = border.getHeight() - (4.5 * i);
+                int noOfCharts = (int) children.stream().filter(node -> node instanceof Separator).count();
+
+                double height = border.getHeight() - (4.5 * noOfCharts);
 
                 for (Node node : children) {
                     if (node instanceof BorderPane) {
-                        ((BorderPane) node).setPrefHeight((height) / chartsPerScreen);
+                        boolean isLogical = false;
+
+                        for (Node node1 : ((BorderPane) node).getChildren()) {
+                            if (node1 instanceof VBox) {
+                                isLogical = true;
+
+                                for (Node node2 : ((VBox) node1).getChildren()) {
+                                    if (node2 instanceof de.gsi.chart.XYChart) {
+                                        ((de.gsi.chart.XYChart) node2).setMaxHeight((height) / (chartsPerScreen * 3));
+                                    }
+                                }
+
+                                break;
+                            }
+                        }
+
+                        if (!isLogical) {
+                            ((BorderPane) node).setPrefHeight((height) / chartsPerScreen);
+                        }
                     } else if (node instanceof HBox) {
                         ((HBox) node).setPrefHeight((height) / chartsPerScreen);
                     }
@@ -1196,6 +1204,7 @@ public class GraphPluginView implements Plugin {
     private void setupLinkedZoom(Chart ac, List<Chart> notActive) {
 
         MultiChartZoomer multiChartZoomer = new MultiChartZoomer(AxisMode.X, notActive, ac);
+        multiChartZoomer.setSliderVisible(false);
         ac.getChart().getPlugins().add(multiChartZoomer);
     }
 
@@ -1214,7 +1223,7 @@ public class GraphPluginView implements Plugin {
 
     private void createLogicalCharts(BorderPane bp, ChartSettings chartSettings) {
         List<LogicalChart> subCharts = new ArrayList<>();
-        VBox vbox = new VBox();
+        VBox vboxSubs = new VBox();
 
         for (ChartDataModel singleRow : dataModel.getSelectedData()) {
             for (int i : singleRow.getSelectedcharts()) {
@@ -1228,7 +1237,7 @@ public class GraphPluginView implements Plugin {
         AlphanumComparator ac = new AlphanumComparator();
 
         subCharts.sort((o1, o2) -> ac.compare(o1.getChartDataModels().get(0).getTitle(), o2.getChartDataModels().get(0).getTitle()));
-        subCharts.forEach(subChart -> vbox.getChildren().add(subChart.getChart()));
+        subCharts.forEach(subChart -> vboxSubs.getChildren().add(subChart.getChart()));
 
         ObservableList<TableEntry> allEntries = FXCollections.observableArrayList();
         Double minValue = Double.MAX_VALUE;
@@ -1264,7 +1273,7 @@ public class GraphPluginView implements Plugin {
             }
         }
 
-        bp.setCenter(vbox);
+        bp.setCenter(vboxSubs);
         allCharts.addAll(subCharts);
     }
 

@@ -104,7 +104,7 @@ public class ChartDataModel {
     }
 
     public Map<DateTime, JEVisSample> getNoteSamples() {
-        if(userNoteMap!=null){
+        if (userNoteMap != null) {
             return userNoteMap;
         }
 
@@ -128,7 +128,7 @@ public class ChartDataModel {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        userNoteMap=noteSample;
+        userNoteMap = noteSample;
         return noteSample;
     }
 
@@ -209,7 +209,6 @@ public class ChartDataModel {
                     } catch (Exception ex) {
                         logger.error(ex);
                     }
-
 
 
                     return new ArrayList<JEVisSample>();
@@ -718,8 +717,14 @@ public class ChartDataModel {
     }
 
     public boolean equals(ChartDataModel obj) {
-        return this.getObject().getID().equals(obj.getObject().getID())
-                && this.getDataProcessor().getID().equals(obj.getDataProcessor().getID());
+        if (this.getDataProcessor() != null && obj.getDataProcessor() != null) {
+            return this.getObject().getID().equals(obj.getObject().getID())
+                    && this.getDataProcessor().getID().equals(obj.getDataProcessor().getID());
+        } else if (this.getDataProcessor() == null && obj.getDataProcessor() == null) {
+            return this.getObject().getID().equals(obj.getObject().getID());
+        } else {
+            return false;
+        }
     }
 
     public boolean isCustomWorkDay() {

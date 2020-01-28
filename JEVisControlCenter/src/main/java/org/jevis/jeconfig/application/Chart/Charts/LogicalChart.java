@@ -1,26 +1,16 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
-import javafx.application.Platform;
-import javafx.geometry.Point2D;
-import javafx.scene.input.MouseEvent;
+import de.gsi.chart.utils.DecimalStringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
-import org.jevis.jeconfig.application.Chart.ChartElements.Note;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYLogicalChartSerie;
-import org.jevis.jeconfig.application.Chart.LogicalYAxisStringConverter;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
-import java.text.NumberFormat;
 import java.util.List;
-import java.util.TreeMap;
 
 public class LogicalChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(LogicalChart.class);
@@ -59,75 +49,21 @@ public class LogicalChart extends XYChart {
         return serie;
     }
 
-//    @Override
-//    public void addSeriesToChart() {
-//        for (XYChartSerie xyChartSerie : xyChartSerieList) {
-//            chart.getDatasets().add(xyChartSerie.getValueDataSet());
-//            tableData.add(xyChartSerie.getTableEntry());
-//        }
-//    }
-
     @Override
     public void generateYAxis() {
-        super.generateYAxis();
+        y1Axis.setAnimated(false);
+        y1Axis.setForceZeroInRange(true);
+        y1Axis.setAutoRanging(false);
 
-//      y1Axis.setLowerBound(0d);
-//      y1Axis.setUpperBound(1d);
+        y1Axis.setMin(0);
+        y1Axis.setMax(getMaxValue() + 1);
+        y1Axis.setName("");
+        y1Axis.setUnit("/");
+
+        DecimalStringConverter tickLabelFormatter1 = new DecimalStringConverter();
+        tickLabelFormatter1.setPrecision(0);
+        y1Axis.setTickLabelFormatter(tickLabelFormatter1);
         y1Axis.setTickUnit(1d);
         y1Axis.setMinorTickVisible(false);
-        y1Axis.setTickLabelFormatter(new LogicalYAxisStringConverter());
-    }
-
-    @Override
-    public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
-        Point2D mouseCoordinates = null;
-        if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-        Double x = null;
-        if (valueForDisplay == null) {
-
-//            x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
-//
-//            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
-
-        }
-        if (valueForDisplay != null) {
-            setValueForDisplay(valueForDisplay);
-            DateTime finalValueForDisplay = valueForDisplay;
-            NumberFormat nf = NumberFormat.getInstance();
-            nf.setMinimumFractionDigits(0);
-            nf.setMaximumFractionDigits(0);
-
-            xyChartSerieList.parallelStream().forEach(serie -> {
-                try {
-
-                    TableEntry tableEntry = serie.getTableEntry();
-                    TreeMap<DateTime, JEVisSample> sampleTreeMap = serie.getSampleMap();
-
-                    DateTime nearest = sampleTreeMap.lowerKey(finalValueForDisplay);
-
-                    JEVisSample sample = sampleTreeMap.get(nearest);
-                    Double valueAsDouble = sample.getValueAsDouble();
-                    Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
-                    String formattedDouble = nf.format(valueAsDouble);
-
-                    if (!asDuration) {
-                        Platform.runLater(() -> tableEntry.setDate(nearest
-                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss"))));
-                    } else {
-                        Platform.runLater(() -> tableEntry.setDate((nearest.getMillis() -
-                                timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h"));
-                    }
-                    Platform.runLater(() -> tableEntry.setNote(formattedNote.getNoteAsString()));
-                    String unit = serie.getUnit();
-
-                    if (!sample.getNote().contains("Zeros")) {
-                        Platform.runLater(() -> tableEntry.setValue(formattedDouble + " " + unit));
-                    } else Platform.runLater(() -> tableEntry.setValue("- " + unit));
-
-                } catch (Exception ex) {
-                }
-
-            });
-        }
     }
 }
