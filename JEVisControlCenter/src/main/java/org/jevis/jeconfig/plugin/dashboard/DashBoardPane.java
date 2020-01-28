@@ -6,9 +6,10 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
@@ -16,7 +17,6 @@ import javafx.scene.transform.Scale;
 import javafx.stage.Popup;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.controlsfx.control.NotificationPane;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
@@ -24,8 +24,10 @@ import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.Layouts;
 import org.jevis.jeconfig.tool.ScrollPanes;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 
 public class DashBoardPane extends Pane {
 
