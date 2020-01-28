@@ -35,6 +35,7 @@ import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
+import org.jevis.jeconfig.taskmanager.TaskWindow;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -84,6 +85,7 @@ public class DashboardControl {
     public static double fitToHeight = 97;
     private Image backgroundImage;
     private Timer timer;
+    private boolean firstDashboard = true;
 
 
     public DashboardControl(DashBordPlugIn plugin) {
@@ -91,10 +93,13 @@ public class DashboardControl {
         this.dashBordPlugIn = plugin;
         this.jevisDataSource = plugin.getDataSource();
 
+        //TaskWindow taskWindow = new TaskWindow(runningUpdateTaskList);
+
         widgetNavigator = new WidgetNavigator(this);
         initTimeFrameFactory();
         this.activeDashboard = this.configManager.createEmptyDashboard();
         this.activeTimeFrame = this.timeFrames.day();
+
 
     }
 
@@ -140,7 +145,7 @@ public class DashboardControl {
 
         /** init default states **/
         this.activeDashboard = this.configManager.createEmptyDashboard();
-        this.activeTimeFrame = this.timeFrames.day();
+        //this.activeTimeFrame = this.timeFrames.day();
         setZoomFactor(1);
     }
 
@@ -224,6 +229,7 @@ public class DashboardControl {
 
 
     public void setRootSizeChanged(double width, double height) {
+        //System.out.println("-- setRootSizeChanged: w"+width+"  h:"+height);
         setZoomFactor(zoomFactor);
     }
 
@@ -279,8 +285,23 @@ public class DashboardControl {
             toolBar.updateZoomLevelView(fitToHeight);
         } else if (zoomFactor == fitToWidth) {
             //setZoomFactor(relWidthDiff);
+            System.out.println("PootH: "+parentSize.getHeight()+" dpH"+dashboardPane.getHeight());
+//            if(dashboardPane.getHeight()>parentSize.getHeight()){
+//                dashboardPane.setMaxHeight(parentSize.getHeight());
+//                dashBordPlugIn.set
+//            }
+
+
             dashboardPane.setZoom(relWidthDiff);
+            System.out.println("2PootH: "+parentSize.getHeight()+" dpH"+dashboardPane.getHeight());
             toolBar.updateZoomLevelView(fitToWidth);
+            Platform.runLater(()->{
+                dashboardPane.setPrefSize(
+                        Math.max(dashboardPane.getBoundsInParent().getMaxX(), dashBordPlugIn.getScrollPane().getViewportBounds().getWidth()),
+                        Math.max(dashboardPane.getBoundsInParent().getMaxY(), dashBordPlugIn.getScrollPane().getViewportBounds().getHeight())
+
+                );
+            });
         } else { /** Normal Zoom **/
             dashboardPane.setZoom(zoomFactor);
             toolBar.updateZoomLevelView(zoomFactor);
@@ -374,6 +395,7 @@ public class DashboardControl {
             } else {
                 try {
                     this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
+                    firstDashboard=false;
                 } catch (Exception ex) {
                     dashBordPlugIn.showMessage(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
                 }
@@ -420,12 +442,17 @@ public class DashboardControl {
 
 //            this.dashBordPlugIn.getDashBoardToolbar().updateView(this.activeDashboard);
 
-            if (activeDashboard.getTimeFrame() != null) {
-                this.activeTimeFrame = activeDashboard.getTimeFrame();
+            if(!firstDashboard){
+                /** the user wants to have the same time frame if the switches dashboards ...**/
+                setInterval(getInterval());
+            }else{
+                if (activeDashboard.getTimeFrame() != null) {
+                    this.activeTimeFrame = activeDashboard.getTimeFrame();
+                }
+                setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
             }
+            firstDashboard=false;
 
-
-            setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
             firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
             toolBar.updateView(activeDashboard);
 

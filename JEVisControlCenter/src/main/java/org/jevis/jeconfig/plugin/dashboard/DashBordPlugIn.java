@@ -8,12 +8,12 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
+import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,6 +48,7 @@ public class DashBordPlugIn implements Plugin {
     private final DashBoardPane dashBoardPane;
     private final DashBoardToolbar toolBar;
     private ScrollPane scrollPane = new ScrollPane();
+    private Group workaround = new Group();
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
         logger.debug("init DashBordPlugIn");
@@ -61,7 +62,8 @@ public class DashBordPlugIn implements Plugin {
         this.toolBar = new DashBoardToolbar(this.dashboardControl);
         this.dashBoardPane = new DashBoardPane(this.dashboardControl);
         this.dashboardControl.setDashboardPane(dashBoardPane);
-        this.scrollPane.setContent(this.dashBoardPane);
+        workaround.getChildren().add(dashBoardPane);
+        this.scrollPane.setContent(workaround);
 
         Layouts.setAnchor(this.scrollPane, 0d);
         Layouts.setAnchor(this.rootPane, 0d);
@@ -87,8 +89,20 @@ public class DashBordPlugIn implements Plugin {
         };
         this.scrollPane.widthProperty().addListener(sizeListener);
         this.scrollPane.heightProperty().addListener(sizeListener);
-
+        scrollPane.setPannable(true);
+        //scrollPane.setMinViewportHeight(500);
         //dashBoardPane.getChildren().add(new BorderPane());
+
+        scrollPane.viewportBoundsProperty().addListener(
+                new ChangeListener<Bounds>() {
+                    @Override public void changed(ObservableValue<? extends Bounds> observableValue, Bounds oldBounds, Bounds newBounds) {
+
+                        /*nodeContainer.setPrefSize(
+                                Math.max(node.getBoundsInParent().getMaxX(), newBounds.getWidth()),
+                                Math.max(node.getBoundsInParent().getMaxY(), newBounds.getHeight())
+                        );*/
+                    }
+                });
 
     }
 
@@ -110,6 +124,11 @@ public class DashBordPlugIn implements Plugin {
 
     }
 
+
+    public void setPluginSize(double height, double width){
+        scrollPane.setMinWidth(width);
+        scrollPane.setMinHeight(height);
+    }
 
     public Size getPluginSize() {
         return new Size(rootPane.getHeight(), rootPane.getWidth());
