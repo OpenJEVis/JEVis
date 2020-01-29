@@ -41,6 +41,7 @@ import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import javax.imageio.ImageIO;
+import javax.validation.constraints.Null;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
@@ -79,13 +80,21 @@ public class DashboardControl {
     private String firstLoadedConfigHash = null;
     private WidgetNavigator widgetNavigator;
     private boolean fitToParent = false;
+    public static double MAX_ZOOM = 3;
+    public static double MIN_ZOOM = -0.2;
     public static double zoomSteps = 0.05d;
     public static double fitToScreen = 99;
     public static double fitToWidth = 98;
     public static double fitToHeight = 97;
     private Image backgroundImage;
     private Timer timer;
+
+    /**
+     * we want to keep some changes when switching dashboard, this are the workaround variables
+     **/
     private boolean firstDashboard = true;
+    private TimeFrameFactory previusActiveTimeFrame = null;
+    private Interval previusActiveInterval = null;
 
 
     public DashboardControl(DashBordPlugIn plugin) {
@@ -145,7 +154,7 @@ public class DashboardControl {
 
         /** init default states **/
         this.activeDashboard = this.configManager.createEmptyDashboard();
-        //this.activeTimeFrame = this.timeFrames.day();
+        this.activeTimeFrame = this.timeFrames.day();
         setZoomFactor(1);
     }
 
@@ -155,8 +164,8 @@ public class DashboardControl {
         ChangeListener<Number> sizeListener = new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                Size rootSize =dashBordPlugIn.getPluginSize();
-                setRootSizeChanged(rootSize.getWidth(),rootSize.getHeight());
+                Size rootSize = dashBordPlugIn.getPluginSize();
+                setRootSizeChanged(rootSize.getWidth(), rootSize.getHeight());
                 //setRootSizeChanged(dashBordPlugIn.getScrollPane().getWidth(), dashBordPlugIn.getScrollPane().getHeight());
             }
         };
@@ -217,6 +226,8 @@ public class DashboardControl {
             } else if (!this.dashboardObjects.isEmpty()) {
                 selectDashboard(this.dashboardObjects.get(0));
             }
+
+            firstDashboard = false;
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -247,65 +258,57 @@ public class DashboardControl {
     }
 
     public void zoomIn() {
-        if (this.zoomFactor < 3) {
-            this.zoomFactor = this.zoomFactor + zoomSteps;
-        }
-//        this.zoomFactor = this.zoomFactor + zoomSteps;
-        this.dashBordPlugIn.getDashBoardPane().setZoom(this.zoomFactor);
-        toolBar.updateZoomLevelView(Precision.round(zoomFactor, 2));
+        setZoomFactor(zoomFactor + zoomSteps);
     }
 
     public void zoomOut() {
-        if (this.zoomFactor > -0.2) {
-            this.zoomFactor = this.zoomFactor - zoomSteps;
-        }
-        this.dashBordPlugIn.getDashBoardPane().setZoom(this.zoomFactor);
-        toolBar.updateZoomLevelView(Precision.round(zoomFactor, 2));
+        setZoomFactor(zoomFactor - zoomSteps);
     }
 
-    public void setZoom(double defaultZoom) {
-        this.defaultZoom = defaultZoom;
-        this.activeDashboard.setZoomFactor(defaultZoom);
-    }
 
     public void setZoomFactor(double zoom) {
+        /** check if the zoomMode is fine **/
+        if (zoom != fitToScreen && zoom != fitToHeight && zoom != fitToWidth) {
+            zoom = Precision.round(zoom,2);
+            if (this.zoomFactor < MIN_ZOOM) {
+                zoom = MIN_ZOOM;
+            } else if (zoom>90) { /** fix zoomFactor(to-screen etc) beginn at 90 **/
+                zoom = MAX_ZOOM;
+            } else if (zoom > MAX_ZOOM) {
+                zoom = MAX_ZOOM;
+            }
+        }
+
         this.zoomFactor = zoom;
         Size parentSize = dashBordPlugIn.getPluginSize();
         double relWidthDiff = parentSize.getWidth() / dashboardPane.getWidth();
         double relHeightDiff = parentSize.getHeight() / dashboardPane.getHeight();
 
-        //System.out.println("##### setZoomFactor: zoom:"+zoom+" pH:"+dashboardPane.getHeight()+" pW:"+dashboardPane.getWidth()+" relWidthDiff:"+relWidthDiff+" relHeightDiff:"+relHeightDiff);
+
+//        if(dashboardPane.getHeight()<dashboardPane.getBoundsInParent().getHeight() || dashboardPane.getWidth()<dashboardPane.getBoundsInParent().getWidth()){
+//            Size size= new Size( dashboardPane.getBoundsInParent().getHeight(),dashboardPane.getBoundsInParent().getWidth());
+//            dashboardPane.setSize(size);
+//        }
+
 
         if (zoomFactor == fitToScreen) {
             dashboardPane.setScale(relWidthDiff, relHeightDiff);
             toolBar.updateZoomLevelView(fitToScreen);
         } else if (zoomFactor == fitToHeight) {
-            //setZoomFactor(relHeightDiff);
             dashboardPane.setZoom(relHeightDiff);
             toolBar.updateZoomLevelView(fitToHeight);
         } else if (zoomFactor == fitToWidth) {
-            //setZoomFactor(relWidthDiff);
-            System.out.println("PootH: "+parentSize.getHeight()+" dpH"+dashboardPane.getHeight());
-//            if(dashboardPane.getHeight()>parentSize.getHeight()){
-//                dashboardPane.setMaxHeight(parentSize.getHeight());
-//                dashBordPlugIn.set
-//            }
-
-
             dashboardPane.setZoom(relWidthDiff);
-            System.out.println("2PootH: "+parentSize.getHeight()+" dpH"+dashboardPane.getHeight());
-            toolBar.updateZoomLevelView(fitToWidth);
-            Platform.runLater(()->{
-                dashboardPane.setPrefSize(
-                        Math.max(dashboardPane.getBoundsInParent().getMaxX(), dashBordPlugIn.getScrollPane().getViewportBounds().getWidth()),
-                        Math.max(dashboardPane.getBoundsInParent().getMaxY(), dashBordPlugIn.getScrollPane().getViewportBounds().getHeight())
-
-                );
-            });
-        } else { /** Normal Zoom **/
+        } else { /** manual Zoom **/
             dashboardPane.setZoom(zoomFactor);
             toolBar.updateZoomLevelView(zoomFactor);
         }
+
+        Pane zoomPane = dashBordPlugIn.getZoomPane();
+
+        zoomPane.setMaxSize(dashboardPane.getBoundsInParent().getWidth(), dashboardPane.getBoundsInParent().getHeight());
+        zoomPane.setPrefSize(dashboardPane.getBoundsInParent().getWidth(), dashboardPane.getBoundsInParent().getHeight());
+        zoomPane.setMinSize(dashboardPane.getBoundsInParent().getWidth(), dashboardPane.getBoundsInParent().getHeight());
 
     }
 
@@ -355,7 +358,7 @@ public class DashboardControl {
      * @param object
      */
     public void selectDashboard(JEVisObject object) {
-        logger.debug("selectDashboard: {}", object);
+        logger.error("selectDashboard: {}", object);
         try {
             /** check if the last dashboard was saved and if not ask user **/
             if (firstLoadedConfigHash != null) {
@@ -373,7 +376,7 @@ public class DashboardControl {
                     });
                 }
             }
-            firstLoadedConfigHash = null;
+            this.firstLoadedConfigHash = null;
             this.editableProperty.setValue(false);
             this.snapToGridProperty.setValue(true);
             this.backgroundImage = null;
@@ -392,10 +395,9 @@ public class DashboardControl {
                 pluginSize.setHeight(pluginSize.getHeight() - 10);
                 pluginSize.setWidth(pluginSize.getWidth() - 10);
                 this.activeDashboard.setSize(pluginSize);
-            } else {
+            } else { /** load existing Dashboard**/
                 try {
                     this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
-                    firstDashboard=false;
                 } catch (Exception ex) {
                     dashBordPlugIn.showMessage(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
                 }
@@ -410,23 +412,23 @@ public class DashboardControl {
 
             updateBackground();
 
-            /** async Loading of the background image **/
+            /** async loading of the background image **/
             if (this.activeDashboard.getDashboardObject() != null) {
                 this.configManager.getBackgroundImage(this.activeDashboard.getDashboardObject()).addListener((observable, oldValue, newValue) -> {
                     if (newValue != null) {
                         backgroundImage = newValue;
-//                    this.dashBordPlugIn.getDashBoardPane().setBackgroundImage(newValue);
                         updateBackground();
                     }
                 });
             }
 
-
+            /** add widgets to dashboard**/
             this.widgetList.forEach(widget -> {
                 this.dashBordPlugIn.getDashBoardPane().addWidget(widget);
             });
 
 
+            /** inti configuration of widgets **/
             this.widgetList.forEach(widget -> {
                 try {
                     widget.updateConfig();
@@ -439,27 +441,53 @@ public class DashboardControl {
 //            this.widgetList.forEach(widget -> {
 //                addWidgetUpdateTask(widget, this.getInterval());
 //            });
-
 //            this.dashBordPlugIn.getDashBoardToolbar().updateView(this.activeDashboard);
 
-            if(!firstDashboard){
-                /** the user wants to have the same time frame if the switches dashboards ...**/
-                setInterval(getInterval());
-            }else{
-                if (activeDashboard.getTimeFrame() != null) {
-                    this.activeTimeFrame = activeDashboard.getTimeFrame();
-                }
+//            if(!firstDashboard){
+//
+//                setInterval(getInterval());
+//            }else{
+//                if (activeDashboard.getTimeFrame() != null) {
+//
+//                }
+//
+//            }
+//            firstDashboard=false;
+
+            /** the user wants to have the same time frame if the switches dashboards ...**/
+//            if(previusActiveTimeFrame!= null){
+//                this.activeTimeFrame = previusActiveTimeFrame;
+//            }else{
+//                this.activeTimeFrame = activeDashboard.getTimeFrame();
+//            }
+
+
+            /** the user wants to have the same time frame if the switches dashboards ...**/
+//            if(previusActiveInterval != null){
+//                setInterval(previusActiveInterval);
+//            }else{
+//                setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
+//            }
+
+
+            if (activeTimeFrame == null) {
+                this.activeTimeFrame = activeDashboard.getTimeFrame();
+
+            }
+            if (activeInterval != null) {
+                setInterval(activeInterval);
+            } else {
                 setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
             }
-            firstDashboard=false;
+
+            setActiveTimeFrame(activeTimeFrame);
 
             firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
             toolBar.updateView(activeDashboard);
 
-            Platform.runLater(()->{
+            Platform.runLater(() -> {
                 setZoomFactor(activeDashboard.getZoomFactor());
             });
-
 
 
         } catch (Exception ex) {
@@ -575,7 +603,7 @@ public class DashboardControl {
 
     public void setInterval(Interval interval) {
         try {
-            logger.debug("SetInterval to: {}", interval);
+            logger.error("SetInterval to: {}", interval);
             this.activeInterval = interval;
             activeIntervalProperty.setValue(activeInterval);//workaround
             rundataUpdateTasks(false);
