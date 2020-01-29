@@ -3,10 +3,10 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXButton;
+import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.chart.PieChart;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
@@ -23,6 +23,7 @@ import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
@@ -40,7 +41,7 @@ import java.util.Optional;
 
 public class ChartWidget extends Widget {
 
-    private static final Logger logger = LogManager.getLogger(PieChart.class);
+    private static final Logger logger = LogManager.getLogger(ChartWidget.class);
     public static String WIDGET_ID = "Chart";
 
     private LineChart lineChart;
@@ -50,8 +51,6 @@ public class ChartWidget extends Widget {
     private ObjectMapper mapper = new ObjectMapper();
     private BorderPane borderPane = new BorderPane();
     private Interval lastInterval = null;
-
-    private boolean autoAggregation = true;
 
     public ChartWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -147,11 +146,21 @@ public class ChartWidget extends Widget {
 //            lineChart.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Inset
                 this.borderPane.setBackground(bgColor);
                 this.borderPane.setPadding(new Insets(0, 0, 0, 25));
-                this.lineChart.applyColors();
+
+                lineChart.getChart().setBackground(bgColorTrans);
+
+                this.lineChart.getChart().getAxes().forEach(axis -> {
+                    if(axis instanceof DefaultNumericAxis){
+                        DefaultNumericAxis defaultNumericAxis = (DefaultNumericAxis)axis;
+                        defaultNumericAxis.getAxisLabel().setVisible(false);
+                    }
+                });
 //                MultiAxisLineChart chart = (MultiAxisLineChart) this.lineChart.getChart();
 //                chart.getY2Axis().setVisible(false);
             } catch (Exception ex) {
+
                 logger.error(ex);
+                ex.printStackTrace();
             }
         });
     }
@@ -215,6 +224,8 @@ public class ChartWidget extends Widget {
         this.borderPane.setBottom(bottomBorderPane);
         setGraphic(this.borderPane);
 
+        /** Dummy chart **/
+        this.lineChart = new LineChart(new AnalysisDataModel(getDataSource(),new GraphPluginView(getDataSource(),"dummy")) , this.sampleHandler.getDataModel(), 0, "");
 
     }
 

@@ -253,7 +253,6 @@ public class LayoutmanagerPlugin implements Plugin {
 //            final TreeItem<JEVisTreeRow> selectedObj = (TreeItem<JEVisTreeRow>) tree.getSelectionModel().getSelectedItem();
             switch (cmdType) {
                 case 99:
-                    System.out.println("Start Play");
                     if (!thread.isAlive()) {
                         thread.start();
                     } else {

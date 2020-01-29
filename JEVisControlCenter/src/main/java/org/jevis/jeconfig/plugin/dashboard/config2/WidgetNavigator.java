@@ -1,7 +1,6 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
 import com.jfoenix.controls.JFXComboBox;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -219,7 +218,6 @@ public class WidgetNavigator {
         listZoomLevel.valueProperty().addListener((observable, oldValue, newValue) -> {
             try {
                control.setDefaultZoom(newValue);
-                System.out.println("new zoom: "+newValue);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

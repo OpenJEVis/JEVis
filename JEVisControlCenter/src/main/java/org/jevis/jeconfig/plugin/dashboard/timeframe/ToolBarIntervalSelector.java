@@ -90,6 +90,7 @@ public class ToolBarIntervalSelector extends HBox {
     }
 
     public void updateView(){
+        logger.debug("updateView: timeframe: '{}', interval: '{}' date: '{}'",controller.getActiveTimeFrame(),controller.getInterval(),controller.getInterval().getEnd());
         disableEventListener=true;
 
         timeFactoryBox.selectValue(controller.getActiveTimeFrame());

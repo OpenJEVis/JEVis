@@ -240,7 +240,7 @@ public class DashBoardPane extends Pane {
     }
 
 
-    private void setSize(Size newValue) {
+    public void setSize(Size newValue) {
         logger.debug("setSize: {}/{}", newValue.getWidth(), newValue.getHeight());
         this.setMaxWidth(newValue.getWidth());
         this.setMinWidth(newValue.getWidth());

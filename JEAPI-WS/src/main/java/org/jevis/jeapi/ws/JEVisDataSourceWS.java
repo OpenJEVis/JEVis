@@ -320,8 +320,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     private void updateObject(JsonObject jsonObj) {
-        Long id = jsonObj.getId();
-        this.objectCache.remove(id);
+//        Long id = jsonObj.getId();
+//        this.objectCache.remove(id);
 
         JEVisObjectWS newObject = new JEVisObjectWS(this, jsonObj);
         this.objectCache.put(newObject.getID(), newObject);
@@ -332,7 +332,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     public void getObjectsWS() {
         logger.trace("Get ALL ObjectsWS");
         //TODO: throw excption?! so the other function can handel it?
-
+        Benchmark benchmark = new Benchmark();
         String resource = HTTPConnection.API_PATH_V1
                 + REQUEST.OBJECTS.PATH
                 + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS + "false"
@@ -350,14 +350,16 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.error("IO exception. Error getting all objects. ", ex);
         }
 
+        benchmark.printBechmark("reading object input stream done");
         logger.debug("JsonObject.count: {}", jsonObjects.size());
-        jsonObjects.parallelStream().forEach(jsonObject -> {
+        jsonObjects.forEach(jsonObject -> {
             try {
                 updateObject(jsonObject);
             } catch (Exception ex) {
                 logger.error("Error while parsing object: {}", ex.getMessage());
             }
         });
+        benchmark.printBechmark("updateing object cache done for "+jsonObjects.size()+" objects");
     }
 
     @Override
