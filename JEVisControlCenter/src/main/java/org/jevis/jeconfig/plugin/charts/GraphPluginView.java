@@ -1147,11 +1147,15 @@ public class GraphPluginView implements Plugin {
                     dataModel.isGlobalAnalysisTimeFrame(true);
                     dataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisTimeFrame);
                     toolBarView.getPickerCombo().updateCellFactory();
-                    handleRequest(Constants.Plugin.Command.RELOAD);
+                    dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
+
+                    Platform.runLater(() -> {
+                        toolBarView.setChanged(false);
+                        dataModel.setChanged(false);
+                    });
 
                 }
 
-                toolBarView.setChanged(true);
                 toolBarView.setDisableToolBarIcons(false);
             }
 
