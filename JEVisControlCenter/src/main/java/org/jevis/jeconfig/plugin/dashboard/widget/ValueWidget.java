@@ -2,6 +2,9 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.AtomicDouble;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -14,6 +17,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
@@ -111,7 +115,27 @@ public class ValueWidget extends Widget implements DataModelWidget {
 //                    total.set(results.get(results.size() - 1).getValueAsDouble());
                     displayedSample.setValue(total.get());
                     Platform.runLater(() -> {
-                        this.label.setText((this.nf.format(total.get())) + " " + unit);
+                        Timeline timeline = new Timeline();
+                        DoubleProperty timeSeconds = new SimpleDoubleProperty(0);
+                        //timeSeconds.set(total.get());
+
+                        //this.label.textProperty().bind(timeSeconds.asString());
+                        timeSeconds.addListener((observable, oldValue, newValue) -> {
+                            //System.out.println("------New value: "+newValue);
+                            Platform.runLater(() -> {
+                                this.label.setText((this.nf.format(newValue)) + " " + unit);
+                            });
+
+                        });
+                        timeline = new Timeline();
+
+                        Duration startValue = Duration.seconds(total.doubleValue()*0.8);//Duration.seconds(15 + 1);
+                        timeline.setRate(total.doubleValue()/0.1);
+                        timeline.getKeyFrames().add(
+                                new KeyFrame(startValue, new KeyValue(timeSeconds, total.doubleValue())));
+                        timeline.playFromStart();
+
+                        //this.label.setText((this.nf.format(total.get())) + " " + unit);
                     });
                     checkLimit();
                 } else {

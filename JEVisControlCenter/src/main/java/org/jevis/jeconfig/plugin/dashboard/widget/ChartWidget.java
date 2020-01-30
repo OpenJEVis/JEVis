@@ -147,14 +147,19 @@ public class ChartWidget extends Widget {
                 this.borderPane.setBackground(bgColor);
                 this.borderPane.setPadding(new Insets(0, 0, 0, 25));
 
-                lineChart.getChart().setBackground(bgColorTrans);
+                try {
+                    lineChart.getChart().setBackground(bgColorTrans);
+                    this.lineChart.getChart().getAxes().forEach(axis -> {
+                        if(axis instanceof DefaultNumericAxis){
+                            DefaultNumericAxis defaultNumericAxis = (DefaultNumericAxis)axis;
+                            defaultNumericAxis.getAxisLabel().setVisible(false);
+                        }
+                    });
+                }catch (Exception ex){
+                    logger.error(ex);
+                }
 
-                this.lineChart.getChart().getAxes().forEach(axis -> {
-                    if(axis instanceof DefaultNumericAxis){
-                        DefaultNumericAxis defaultNumericAxis = (DefaultNumericAxis)axis;
-                        defaultNumericAxis.getAxisLabel().setVisible(false);
-                    }
-                });
+
 //                MultiAxisLineChart chart = (MultiAxisLineChart) this.lineChart.getChart();
 //                chart.getY2Axis().setVisible(false);
             } catch (Exception ex) {
