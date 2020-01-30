@@ -44,14 +44,30 @@ import org.jevis.jeconfig.JEConfig;
 import java.util.prefs.Preferences;
 
 /**
- * The WelcomePage is an dialog to show an URL as an welcome for the user.#
+ * The PatchNotesPage is an dialog to show recent release changes for the user.#
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.14------\n" +
+            "------Version 3.9.15------\n" +
+                    "JECC - Charts - y-axis formatting with locale format\n" +
+                    "JECC - Charts - openObject destroys regular analyses\n" +
+                    "JECC - Charts - Heatmap - improved mouse precision\n" +
+                    "JECC - Charts - Heatmap - Timeframes greater then months are not working right\n" +
+                    "JECC - Charts - HeatMap - axes dont scale correctly\n" +
+                    "JECC - Charts - disable mouse wheel zooom\n" +
+                    "JECC - Dashboard - Behaviour concerning timeframes on changing dashboard\n" +
+                    "JECC - Dashboard - missing parts when zooming\n" +
+                    "JECC - Dashboard - Fixed the Dashboard zomm level list view.\n" +
+                    "JECC - AlarmPlugin - fixed null pointer for no alarms in loaded timeframe\n" +
+                    "JECC - ReportPlugin - remove site from single site users\n" +
+                    "\n" +
+                    "JEDataProcessor - multiplier datetime check only greater not equals\n" +
+                    "\n" +
+                    "JEReport - fixed some problem with custom workdays\n\n" +
+                    "------Version 3.9.14------\n" +
                     "JECC - Charts - supporting opacity in hex color code\n" +
                     "JECC - Charts - forecast doesn't use different color \n" +
                     "JECC - Charts - disabled x-axis zoom slider\n" +
