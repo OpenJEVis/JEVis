@@ -269,51 +269,6 @@ public class HeatMapChart implements Chart {
         GridPane bottomAxis = new GridPane();
         bottomAxis.setHgap(0);
         bottomAxis.setMinHeight(30d);
-        Region leftFreeSpace = new Region();
-        bottomAxis.add(leftFreeSpace, 0, 0);
-
-        int col = 1;
-        int div = 4;
-        if (xAxisList.size() < 10) {
-            div = 2;
-        }
-
-        for (DateTime dateTime : xAxisList) {
-            Label ts = new Label(dateTime.toString(X_FORMAT));
-
-            if ((xAxisList.indexOf(dateTime) == 0) || (xAxisList.indexOf(dateTime) + 1) % div == 0) {
-                HBox hBox = new HBox();
-                hBox.setAlignment(Pos.CENTER);
-                Rectangle rectangle = new Rectangle(2, 10);
-                hBox.getChildren().setAll(rectangle);
-                bottomAxis.add(hBox, col, 0);
-
-                if ((xAxisList.indexOf(dateTime) == 0) || (xAxisList.indexOf(dateTime) + 1) % (div * 2) == 0) {
-                    if (xAxisList.indexOf(dateTime) == 0) {
-                        bottomAxis.add(ts, col, 1, 3, 1);
-                    } else {
-                        bottomAxis.add(ts, col - 1, 1, 3, 1);
-                    }
-                }
-            } else {
-                HBox hBox = new HBox();
-                hBox.setAlignment(Pos.CENTER);
-                Rectangle rectangle = new Rectangle(1, 7);
-                hBox.getChildren().addAll(rectangle);
-                bottomAxis.add(hBox, col, 0);
-            }
-
-            if (xAxisList.indexOf(dateTime) < xAxisList.size() - 1) {
-                Region separator = new Region();
-                separator.setPrefWidth(0.05);
-                bottomAxis.add(separator, col, 0);
-            }
-
-            col++;
-        }
-
-        Region rightFreeSpace = new Region();
-        bottomAxis.add(rightFreeSpace, col, 0);
 
         HBox legend = new HBox();
         legend.setPadding(new Insets(8));
