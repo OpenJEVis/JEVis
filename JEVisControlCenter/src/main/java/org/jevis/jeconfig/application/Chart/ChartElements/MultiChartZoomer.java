@@ -1149,7 +1149,7 @@ public class MultiChartZoomer extends ChartPlugin {
         registerInputEventHandler(MouseEvent.MOUSE_RELEASED, zoomInEndHandler);
         registerInputEventHandler(MouseEvent.MOUSE_CLICKED, zoomOutHandler);
         registerInputEventHandler(MouseEvent.MOUSE_CLICKED, zoomOriginHandler);
-        registerInputEventHandler(ScrollEvent.SCROLL, zoomScrollHandler);
+//        registerInputEventHandler(ScrollEvent.SCROLL, zoomScrollHandler);
         registerInputEventHandler(MouseEvent.MOUSE_PRESSED, panStartHandler);
         registerInputEventHandler(MouseEvent.MOUSE_DRAGGED, panDragHandler);
         registerInputEventHandler(MouseEvent.MOUSE_RELEASED, panEndHandler);

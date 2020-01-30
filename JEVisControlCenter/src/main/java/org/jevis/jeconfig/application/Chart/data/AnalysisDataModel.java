@@ -37,7 +37,6 @@ import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.Constants;
-import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
@@ -170,14 +169,7 @@ public class AnalysisDataModel {
 
     public void update() {
         final String loading = I18n.getInstance().getString("graph.progress.message");
-        try {
-            double totalJob = selectedData.stream().mapToDouble(model -> (long) model.getSelectedcharts().size()).sum()
-                    + (charts.size() * 2);
 
-            JEConfig.getStatusBar().startProgressJob(GraphPluginView.JOB_NAME, totalJob, "Start Update");
-        } catch (Exception ex) {
-
-        }
         Service<Void> service = new Service<Void>() {
             @Override
             protected Task<Void> createTask() {

@@ -895,13 +895,16 @@ public class AlarmPlugin implements Plugin {
                                         JEVisObject object = ds.getObject(jsonAlarm.getObject());
                                         JEVisAttribute attribute = object.getAttribute(jsonAlarm.getAttribute());
                                         DateTime dateTime = new DateTime(jsonAlarm.getTimeStamp());
-                                        JEVisSample sample = attribute.getSamples(dateTime, dateTime).get(0);
+                                        List<JEVisSample> samples = attribute.getSamples(dateTime, dateTime);
+                                        if (!samples.isEmpty()) {
+                                            JEVisSample sample = samples.get(0);
 
-                                        Alarm alarm = new Alarm(object, attribute, sample, dateTime, jsonAlarm.getIsValue(), jsonAlarm.getOperator(), jsonAlarm.getShouldBeValue(), jsonAlarm.getAlarmType(), jsonAlarm.getLogValue());
+                                            Alarm alarm = new Alarm(object, attribute, sample, dateTime, jsonAlarm.getIsValue(), jsonAlarm.getOperator(), jsonAlarm.getShouldBeValue(), jsonAlarm.getAlarmType(), jsonAlarm.getLogValue());
 
-                                        AlarmRow alarmRow = new AlarmRow(alarm.getTimeStamp(), alarmConfiguration, alarm);
+                                            AlarmRow alarmRow = new AlarmRow(alarm.getTimeStamp(), alarmConfiguration, alarm);
 
-                                        list.add(alarmRow);
+                                            list.add(alarmRow);
+                                        }
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();

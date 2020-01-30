@@ -46,7 +46,7 @@ public class ScalingStep implements ProcessStep {
 
             logger.info("[{}] scale with multiplier {} and offset {} starting at: {}", calcAttribute.getCleanObject().getID(), multiplierDouble, offset, timeStampOfMultiplier);
             for (CleanInterval currentInt : intervals) {
-                if (currentInt.getDate().isAfter(timeStampOfMultiplier) && ((nextTimeStampOfMultiplier == null) || currentInt.getDate().isBefore(nextTimeStampOfMultiplier))) {
+                if (currentInt.getDate().equals(timeStampOfMultiplier) || currentInt.getDate().isAfter(timeStampOfMultiplier) && ((nextTimeStampOfMultiplier == null) || currentInt.getDate().isBefore(nextTimeStampOfMultiplier))) {
                     BigDecimal multi = new BigDecimal(multiplierDouble.toString());
                     for (JEVisSample sample : currentInt.getTmpSamples()) {
                         Double rawValue = sample.getValueAsDouble();

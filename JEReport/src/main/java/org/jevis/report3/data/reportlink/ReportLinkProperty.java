@@ -339,6 +339,12 @@ public class ReportLinkProperty implements ReportData {
 
     @Override
     public LinkStatus getReportLinkStatus(DateTime end) {
+
+        DateTime endRecord = end;
+        if (workdayStart.isAfter(workdayEnd)) {
+            endRecord = endRecord.minusDays(1);
+        }
+
         boolean optional = false;
         try {
             if (linkObject.getAttribute("Optional") != null && linkObject.getAttribute("Optional").getLatestSample() != null) {
@@ -361,7 +367,7 @@ public class ReportLinkProperty implements ReportData {
                         if (att != null) {
                             JEVisSample latestSample = att.getLatestSample();
                             if (latestSample != null) {
-                                if (latestSample.getTimestamp().isAfter(end)) {
+                                if (latestSample.getTimestamp().isAfter(endRecord)) {
                                     return new LinkStatus(true, "ok");
                                 } else {
                                     return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());

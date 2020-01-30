@@ -5,7 +5,6 @@ import com.ibm.icu.text.DecimalFormat;
 import de.gsi.chart.renderer.LineStyle;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
 import de.gsi.chart.ui.geometry.Side;
-import de.gsi.chart.utils.DecimalStringConverter;
 import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -628,14 +627,12 @@ public class XYChart implements Chart {
         y2Axis.setForceZeroInRange(true);
         y2Axis.setAutoRanging(true);
 
-        DecimalStringConverter tickLabelFormatter1 = new DecimalStringConverter();
-        tickLabelFormatter1.setPrecision(2);
+        CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2);
         y1Axis.setTickLabelFormatter(tickLabelFormatter1);
         y1Axis.setAnimated(false);
         y1Axis.setName("");
 
-        DecimalStringConverter tickLabelFormatter2 = new DecimalStringConverter();
-        tickLabelFormatter2.setPrecision(2);
+        CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(2);
         y2Axis.setTickLabelFormatter(tickLabelFormatter2);
         y2Axis.setAnimated(false);
         y2Axis.setSide(Side.RIGHT);
