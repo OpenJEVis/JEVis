@@ -828,11 +828,6 @@ public class GraphPluginView implements Plugin {
                         double height = matrixHeatMap.getMatrix().getHeight() - matrixHeatMap.getMatrix().getInsets().getTop() - matrixHeatMap.getMatrix().getInsets().getBottom();
                         double pixelSize = Math.min((width / chart.getCOLS()), (height / chart.getROWS()));
                         double spacer = pixelSize * spacerSizeFactor;
-                        double pixelWidthMinusDoubleSpacer = pixelWidth - spacer * 2;
-                        double pixelHeightMinusDoubleSpacer = pixelHeight - spacer * 2;
-
-                        double spacerPlusPixelWidthMinusDoubleSpacer = spacer + pixelWidthMinusDoubleSpacer;
-                        double spacerPlusPixelHeightMinusDoubleSpacer = spacer + pixelHeightMinusDoubleSpacer;
 
                         double leftAxisWidth = 0;
                         double rightAxisWidth = 0;
@@ -929,6 +924,19 @@ public class GraphPluginView implements Plugin {
                                         // listen to only events within the canvas
                                         final Point2D mouseLoc = new Point2D(t.getScreenX(), t.getScreenY());
                                         final Bounds screenBounds = canvas.localToScreen(canvas.getBoundsInLocal());
+
+                                        double pixelHeight = finalMatrixHeatMap.getMatrix().getPixelHeight();
+                                        double pixelWidth = finalMatrixHeatMap.getMatrix().getPixelWidth();
+                                        double spacerSizeFactor = finalMatrixHeatMap.getMatrix().getSpacerSizeFactor();
+                                        double width = finalMatrixHeatMap.getMatrix().getWidth() - finalMatrixHeatMap.getMatrix().getInsets().getLeft() - finalMatrixHeatMap.getMatrix().getInsets().getRight();
+                                        double height = finalMatrixHeatMap.getMatrix().getHeight() - finalMatrixHeatMap.getMatrix().getInsets().getTop() - finalMatrixHeatMap.getMatrix().getInsets().getBottom();
+                                        double pixelSize = Math.min((width / chart.getCOLS()), (height / chart.getROWS()));
+                                        double spacer = pixelSize * spacerSizeFactor;
+                                        double pixelWidthMinusDoubleSpacer = pixelWidth - spacer * 2;
+                                        double pixelHeightMinusDoubleSpacer = pixelHeight - spacer * 2;
+
+                                        double spacerPlusPixelWidthMinusDoubleSpacer = spacer + pixelWidthMinusDoubleSpacer;
+                                        double spacerPlusPixelHeightMinusDoubleSpacer = spacer + pixelHeightMinusDoubleSpacer;
 
                                         if (screenBounds.contains(mouseLoc)) {
                                             for (int y = 0; y < chart.getROWS(); y++) {
