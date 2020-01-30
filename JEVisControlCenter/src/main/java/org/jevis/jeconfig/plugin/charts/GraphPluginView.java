@@ -841,33 +841,42 @@ public class GraphPluginView implements Plugin {
                                 for (Node node1 : spHor.getChildren()) {
                                     if (node1 instanceof GridPane) {
                                         GridPane axis = (GridPane) node1;
-                                        if (isLeftAxis) {
-                                            leftAxisWidth = axis.getWidth();
-                                            isLeftAxis = false;
-                                        } else {
-                                            rightAxisWidth = axis.getWidth();
-                                        }
+
                                         for (Node node2 : axis.getChildren()) {
                                             if (node2 instanceof Label) {
                                                 boolean isOk = false;
-                                                double size = pixelHeight - 2;
+                                                double newHeight = pixelHeight - 2;
                                                 Font font = ((Label) node2).getFont();
-                                                if (size < 13) {
+                                                if (newHeight < 13) {
                                                     final Label test = new Label(((Label) node2).getText());
                                                     test.setFont(font);
                                                     while (!isOk) {
                                                         double height1 = test.getLayoutBounds().getHeight();
                                                         if (height1 > pixelHeight - 2) {
-                                                            size = size - 0.05;
-                                                            test.setFont(new Font(font.getName(), size));
+                                                            newHeight = newHeight - 0.05;
+                                                            test.setFont(new Font(font.getName(), newHeight));
                                                         } else {
                                                             isOk = true;
                                                         }
                                                     }
                                                 }
 
-                                                ((Label) node2).setFont(new Font(font.getName(), size));
+                                                if (newHeight < 12) {
+                                                    ((Label) node2).setFont(new Font(font.getName(), newHeight));
+                                                }
+
                                                 ((Label) node2).setPrefHeight(pixelHeight);
+
+                                                final Label test = new Label(((Label) node2).getText());
+                                                test.setFont(((Label) node2).getFont());
+                                                double newWidth = test.getLayoutBounds().getWidth();
+
+                                                if (isLeftAxis) {
+                                                    leftAxisWidth = Math.max(newWidth, axis.getLayoutBounds().getWidth());
+                                                    isLeftAxis = false;
+                                                } else {
+                                                    rightAxisWidth = Math.max(newWidth, axis.getLayoutBounds().getWidth());
+                                                }
                                             }
                                         }
                                     }
