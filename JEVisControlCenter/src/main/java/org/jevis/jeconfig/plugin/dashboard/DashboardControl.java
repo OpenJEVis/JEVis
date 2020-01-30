@@ -290,22 +290,18 @@ public class DashboardControl {
 //            dashboardPane.setSize(size);
 //        }
 
-
         if (zoomFactor == fitToScreen) {
             dashboardPane.setScale(relWidthDiff, relHeightDiff);
-            toolBar.updateZoomLevelView(fitToScreen);
         } else if (zoomFactor == fitToHeight) {
             dashboardPane.setZoom(relHeightDiff);
-            toolBar.updateZoomLevelView(fitToHeight);
         } else if (zoomFactor == fitToWidth) {
             dashboardPane.setZoom(relWidthDiff);
         } else { /** manual Zoom **/
             dashboardPane.setZoom(zoomFactor);
-            toolBar.updateZoomLevelView(zoomFactor);
         }
+        toolBar.updateZoomLevelView(zoomFactor);
 
         Pane zoomPane = dashBordPlugIn.getZoomPane();
-
         zoomPane.setMaxSize(dashboardPane.getBoundsInParent().getWidth(), dashboardPane.getBoundsInParent().getHeight());
         zoomPane.setPrefSize(dashboardPane.getBoundsInParent().getWidth(), dashboardPane.getBoundsInParent().getHeight());
         zoomPane.setMinSize(dashboardPane.getBoundsInParent().getWidth(), dashboardPane.getBoundsInParent().getHeight());
@@ -398,6 +394,7 @@ public class DashboardControl {
             } else { /** load existing Dashboard**/
                 try {
                     this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
+                    System.out.println("zomm in json: "+activeDashboard.getZoomFactor());
                 } catch (Exception ex) {
                     dashBordPlugIn.showMessage(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
                 }
@@ -483,10 +480,11 @@ public class DashboardControl {
             setActiveTimeFrame(activeTimeFrame);
 
             firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
-            toolBar.updateView(activeDashboard);
+
 
             Platform.runLater(() -> {
                 setZoomFactor(activeDashboard.getZoomFactor());
+                toolBar.updateView(activeDashboard);
             });
 
 
@@ -708,9 +706,31 @@ public class DashboardControl {
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
+
+//                try{
+//                    Task updateTask = new Task() {
+//                        @Override
+//                        protected Object call() throws Exception {
+//                            try {
+//                                System.out.println("---Update Zoom");
+//
+//
+//                            } catch (Exception ex) {
+//                                ex.printStackTrace();
+//                            }
+//                            return null;
+//                        }
+//                    };
+//
+//
+////        processMonitor.addTask(updateTask);
+//                    DashboardControl.this.runningUpdateTaskList.add(updateTask);
+//                    DashboardControl.this.executor.execute(updateTask);
+//                }catch (Exception ex){
+//                    logger.error("Erro in zoomTask: {}",ex);
+//                }
             }
         };
-
 
         if (reStartUpdateDeamon) {
             this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(reStartUpdateDeamon);
@@ -721,6 +741,7 @@ public class DashboardControl {
         }
 
     }
+
 
 
     private void addWidgetUpdateTask(Widget widget, Interval interval) {

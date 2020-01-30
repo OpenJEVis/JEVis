@@ -22,6 +22,7 @@ package org.jevis.jeconfig;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.CacheHint;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -34,12 +35,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
-import org.controlsfx.control.Notifications;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
@@ -357,6 +355,8 @@ public class JEConfig extends Application {
 
         Scene scene = new Scene(jeconfigRoot);
         primaryStage.setScene(scene);
+        jeconfigRoot.setCache(true);
+        jeconfigRoot.setCacheHint(CacheHint.SPEED);
 
         Date start = new Date();
         final FXLogin login = new FXLogin(primaryStage, getParameters(), PROGRAM_INFO);

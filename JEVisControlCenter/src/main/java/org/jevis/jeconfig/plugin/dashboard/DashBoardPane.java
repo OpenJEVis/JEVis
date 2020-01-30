@@ -191,16 +191,19 @@ public class DashBoardPane extends Pane {
     }
 
     public void setScale(double x, double y) {
-        this.scale.setY(y);
-        this.scale.setX(x);
+        logger.debug("Set Zoom: x:{} y:{}", x,y);
+        Platform.runLater(() -> {
+            getTransforms().removeAll( this.scale);
+            this.scale.setY(y);
+            this.scale.setX(x);
+            getTransforms().addAll(this.scale);
+        });
     }
 
+
+
     public void setZoom(double zoom) {
-        logger.debug("Set Zoom: {}", zoom);
-        this.scale.setX(zoom);
-        this.scale.setY(zoom);
-//        getTransforms().add(this.scale);
-//        requestLayout();
+        setScale(zoom,zoom);
     }
 
 
