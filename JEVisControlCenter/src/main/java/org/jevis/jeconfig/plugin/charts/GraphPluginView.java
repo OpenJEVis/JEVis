@@ -1121,7 +1121,7 @@ public class GraphPluginView implements Plugin {
                     ChartSettings chartSettings = new ChartSettings(chartDataModel.getObject().getName());
                     chartSettings.setId(0);
                     chartSettings.setChartType(ChartType.AREA);
-                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.PREVIEW);
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     analysisTimeFrame.setStart(analysisRequest.getStartDate());
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
                     chartSettings.setAnalysisTimeFrame(analysisTimeFrame);
@@ -1147,7 +1147,7 @@ public class GraphPluginView implements Plugin {
                     dataModel.isGlobalAnalysisTimeFrame(true);
                     dataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisTimeFrame);
                     toolBarView.getPickerCombo().updateCellFactory();
-                    dataModel.update();
+                    handleRequest(Constants.Plugin.Command.RELOAD);
 
                 }
 
