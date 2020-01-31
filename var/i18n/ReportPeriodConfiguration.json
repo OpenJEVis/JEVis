@@ -488,8 +488,8 @@
         "enumID" : null,
         "descriptions" : null,
         "names" : {
-          "de" : "Aktulle",
-          "en" : "Current"
+          "de": "Aktuelle",
+          "en": "Current"
         }
       },
       "ALL" : {
