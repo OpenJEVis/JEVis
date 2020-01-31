@@ -104,19 +104,6 @@ public class DashBordPlugIn implements Plugin {
         scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        //scrollPane.setPannable(true);
-        //scrollPane.setMinViewportHeight(500);
-        //dashBoardPane.getChildren().add(new BorderPane());
-
-
-//        dashBoardPane.boundsInParentProperty().addListener((observable, oldValue, newValue) -> {
-//            System.out.println("boundsInParentProperty: "+newValue);
-//            Platform.runLater(() -> {
-//                zooomPane.setMaxSize(newValue.getWidth(),newValue.getHeight());
-//                zooomPane.setPrefSize(newValue.getWidth(),newValue.getHeight());
-//                zooomPane.setMinSize(newValue.getWidth(),newValue.getHeight());
-//            });
-//        });
     }
 
     public Pane getZoomPane(){

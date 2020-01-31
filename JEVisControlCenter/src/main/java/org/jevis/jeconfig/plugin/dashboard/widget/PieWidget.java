@@ -40,7 +40,6 @@ import java.util.Optional;
 public class PieWidget extends Widget {
     private static final Logger logger = LogManager.getLogger(PieWidget.class);
     public static String WIDGET_ID = "Pie";
-    //    private PieChart chart;
     private PieChart chart = new PieChart();
     private NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
@@ -142,12 +141,13 @@ public class PieWidget extends Widget {
                     logger.debug("Empty Samples for: {}", this.config.getTitle());
                     value = 0;
                     textValue = "n.a.  " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + this.nf.format(0) + "%";
-                    showAlertOverview(true, "");
+//                    showAlertOverview(true, "");
                 }
 
 
                 legendItemList.add(this.legend.buildLegendItem(
-                        dataName, ColorHelper.toColor(chartDataModel.getColor()), this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject()));
+                        dataName, ColorHelper.toColor(chartDataModel.getColor()), this.config.getFontColor(), this.config.getFontSize(),
+                        chartDataModel.getObject(),hasNoData,I18n.getInstance().getString("plugin.dashboard.alert.nodata")));
 
                 if (!hasNoData) {
                     PieChart.Data pieData = new PieChart.Data(textValue, value);
