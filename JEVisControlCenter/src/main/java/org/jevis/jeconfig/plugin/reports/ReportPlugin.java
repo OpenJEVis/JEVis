@@ -48,6 +48,7 @@ public class ReportPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(ReportPlugin.class);
     public static String PLUGIN_NAME = "Report Plugin";
     public static String REPORT_CLASS = "Report";
+    public static String REPORT_DIR_CLASS = "Report Directory";
     private final JEVisDataSource ds;
     private final String title;
     private final BorderPane borderPane = new BorderPane();
@@ -62,6 +63,7 @@ public class ReportPlugin implements Plugin {
     private HBox hBox = new HBox();
     private TextField filterInput = new TextField();
     private final int iconSize = 20;
+    private boolean multipleDirectories;
 
     public ReportPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -509,9 +511,13 @@ public class ReportPlugin implements Plugin {
                                 setDisable(false);
                             }
 
-                            String prefix = objectRelations.getObjectPath(obj);
+                            if (!getMultipleDirectories())
+                                setText(obj.getName());
+                            else {
+                                String prefix = objectRelations.getObjectPath(obj);
 
-                            setText(prefix + obj.getName());
+                                setText(prefix + obj.getName());
+                            }
                         }
 
                     }
@@ -525,9 +531,15 @@ public class ReportPlugin implements Plugin {
     private List<JEVisObject> getAllReports() {
         List<JEVisObject> list = new ArrayList<>();
         JEVisClass reportClass = null;
+        JEVisClass reportDirClass = null;
         try {
             reportClass = ds.getJEVisClass(REPORT_CLASS);
             list = ds.getObjects(reportClass, true);
+
+            reportDirClass = ds.getJEVisClass(REPORT_DIR_CLASS);
+            if (ds.getObjects(reportDirClass, true).size() > 1) {
+                setMultipleDirectories(true);
+            }
         } catch (JEVisException e) {
             e.printStackTrace();
         }
@@ -558,5 +570,13 @@ public class ReportPlugin implements Plugin {
     @Override
     public int getPrefTapPos() {
         return 3;
+    }
+
+    public boolean getMultipleDirectories() {
+        return multipleDirectories;
+    }
+
+    public void setMultipleDirectories(boolean multipleDirectories) {
+        this.multipleDirectories = multipleDirectories;
     }
 }

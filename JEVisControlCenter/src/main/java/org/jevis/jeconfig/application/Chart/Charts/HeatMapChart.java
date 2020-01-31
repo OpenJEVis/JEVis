@@ -12,6 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -36,6 +37,7 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HeatMapChart implements Chart {
 
@@ -55,6 +57,8 @@ public class HeatMapChart implements Chart {
     private Map<MatrixXY, Double> matrixData = new HashMap<>();
     private String unit;
     private org.jevis.jeconfig.application.Chart.ChartType chartType = org.jevis.jeconfig.application.Chart.ChartType.HEAT_MAP;
+    private List<DateTime> xAxisList;
+    private List<DateTime> yAxisList;
 
     public HeatMapChart(List<ChartDataModel> chartDataModels, Integer chartId, String chartTitle) {
         this.chartDataModels = chartDataModels;
@@ -111,8 +115,8 @@ public class HeatMapChart implements Chart {
 
         double minValue = Double.MAX_VALUE;
         double maxValue = -Double.MAX_VALUE;
-        List<DateTime> yAxisList = new ArrayList<>();
-        List<DateTime> xAxisList = new ArrayList<>();
+        yAxisList = new ArrayList<>();
+        xAxisList = new ArrayList<>();
 
         boolean isCustomStart = false;
         if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
@@ -170,11 +174,20 @@ public class HeatMapChart implements Chart {
             }
         }
 
+        try {
+            DateTime lastTs = samples.get(samples.size() - 1).getTimestamp();
+            yAxisList.removeAll(yAxisList.stream().filter(dateTime -> dateTime.isAfter(lastTs)).collect(Collectors.toList()));
+            ROWS = (long) yAxisList.size();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
         this.maxValue = maxValue;
 
         MatrixItemSeries<MatrixChartItem> matrixItemSeries1 = new MatrixItemSeries<>(matrixData1, ChartType.MATRIX_HEATMAP);
 
         MatrixPane<MatrixChartItem> matrixHeatMap = new MatrixPane<>(matrixItemSeries1);
+        matrixHeatMap.setMaxHeight(8192);
         matrixHeatMap.setColorMapping(ColorMapping.GREEN_YELLOW_RED);
         matrixHeatMap.getMatrix().setUseSpacer(false);
         matrixHeatMap.getMatrix().setColsAndRows(COLS.intValue(), ROWS.intValue());
@@ -253,54 +266,9 @@ public class HeatMapChart implements Chart {
         spHor.getChildren().setAll(leftAxis, matrixHeatMap, rightAxis);
         HBox.setHgrow(matrixHeatMap, Priority.ALWAYS);
 
-
         GridPane bottomAxis = new GridPane();
+        bottomAxis.setHgap(0);
         bottomAxis.setMinHeight(30d);
-        Region leftFreeSpace = new Region();
-        bottomAxis.add(leftFreeSpace, 0, 0);
-
-        int col = 1;
-        int div = 4;
-        if (xAxisList.size() < 10) {
-            div = 2;
-        }
-
-        for (DateTime dateTime : xAxisList) {
-            Label ts = new Label(dateTime.toString(X_FORMAT));
-
-            if ((xAxisList.indexOf(dateTime) == 0) || (xAxisList.indexOf(dateTime) + 1) % div == 0) {
-                HBox hBox = new HBox();
-                hBox.setAlignment(Pos.CENTER);
-                Rectangle rectangle = new Rectangle(2, 10);
-                hBox.getChildren().addAll(rectangle);
-                bottomAxis.add(hBox, col, 0);
-
-                if ((xAxisList.indexOf(dateTime) == 0) || (xAxisList.indexOf(dateTime) + 1) % (div * 2) == 0) {
-                    if (xAxisList.indexOf(dateTime) == 0) {
-                        bottomAxis.add(ts, col, 1, 3, 1);
-                    } else {
-                        bottomAxis.add(ts, col - 1, 1, 3, 1);
-                    }
-                }
-            } else {
-                HBox hBox = new HBox();
-                hBox.setAlignment(Pos.CENTER);
-                Rectangle rectangle = new Rectangle(1, 7);
-                hBox.getChildren().addAll(rectangle);
-                bottomAxis.add(hBox, col, 0);
-            }
-
-            if (xAxisList.indexOf(dateTime) < xAxisList.size() - 1) {
-                Region separator = new Region();
-                separator.setPrefWidth(0.05);
-                bottomAxis.add(separator, col, 0);
-            }
-
-            col++;
-        }
-
-        Region rightFreeSpace = new Region();
-        bottomAxis.add(rightFreeSpace, col, 0);
 
         HBox legend = new HBox();
         legend.setPadding(new Insets(8));
@@ -326,7 +294,12 @@ public class HeatMapChart implements Chart {
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
         VBox.setVgrow(spHor, Priority.ALWAYS);
 
-        setRegion(spVer);
+        ScrollPane sp = new ScrollPane(spVer);
+        sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        sp.setFitToWidth(true);
+        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        setRegion(sp);
     }
 
     public final Double getValueAt(final LinearGradient GRADIENT, Color color) {
@@ -423,7 +396,7 @@ public class HeatMapChart implements Chart {
             int months = period.getMonths();
             Period newPeriod = period.minusYears(years).minusMonths(months);
             y = newPeriod.toStandardDays().getDays();
-            y += (years * 365.25) + (months * 30.25);
+            y += (years * 365.25) + (months * 31);
             y_Format = "yyyy-MM";
             if (inputSampleRate.equals(Period.minutes(15))) {
                 x = 31;
@@ -438,7 +411,7 @@ public class HeatMapChart implements Chart {
             int months = period.getMonths();
             Period newPeriod = period.minusYears(1).minusMonths(months);
             y = newPeriod.toStandardDays().getDays();
-            y += months * 30.25;
+            y += months * 31;
             y_Format = "yyyy-MM";
             if (inputSampleRate.equals(Period.minutes(15))) {
                 x = 31;
@@ -453,7 +426,7 @@ public class HeatMapChart implements Chart {
             int months = period.getMonths();
             Period newPeriod = period.minusMonths(months);
             y = newPeriod.toStandardDays().getDays() + 1;
-            y += months * 30.25;
+            y += months * 31;
             y_Format = "yyyy-MM-dd";
             if (inputSampleRate.equals(Period.minutes(15))) {
                 x = 24 * 4;
@@ -553,5 +526,25 @@ public class HeatMapChart implements Chart {
 
     public String getUnit() {
         return unit;
+    }
+
+    public List<DateTime> getxAxisList() {
+        return xAxisList;
+    }
+
+    public String getX_FORMAT() {
+        return X_FORMAT;
+    }
+
+    public String getY_FORMAT() {
+        return Y_FORMAT;
+    }
+
+    public String getY2_FORMAT() {
+        return Y2_FORMAT;
+    }
+
+    public List<DateTime> getyAxisList() {
+        return yAxisList;
     }
 }

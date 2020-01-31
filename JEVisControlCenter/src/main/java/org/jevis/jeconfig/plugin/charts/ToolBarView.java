@@ -108,9 +108,9 @@ public class ToolBarView {
                         changed = false;
                         getGraphPluginView().handleRequest(Constants.Plugin.Command.SAVE);
                     }
-                    model.setTemporary(false);
                 });
             }
+            model.setTemporary(false);
             model.setCurrentAnalysis(newValue);
             model.resetToolbarSettings();
             model.setGlobalAnalysisTimeFrame(model.getGlobalAnalysisTimeFrame());

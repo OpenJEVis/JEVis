@@ -79,11 +79,6 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
             if (workdayStart != null && workdayEnd != null) {
                 startRecord = startRecord.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
                 endRecord = endRecord.withHourOfDay(workdayEnd.getHour()).withMinuteOfHour(workdayEnd.getMinute()).withSecondOfMinute(workdayEnd.getSecond()).withMillisOfSecond(999);
-
-                if (workdayStart.isAfter(workdayEnd)) {
-                    startRecord = startRecord.minusDays(1);
-                    endRecord = endRecord.minusDays(1);
-                }
             }
 
             Interval interval = new Interval(startRecord, endRecord);
