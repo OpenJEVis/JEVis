@@ -394,7 +394,6 @@ public class DashboardControl {
             } else { /** load existing Dashboard**/
                 try {
                     this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
-                    System.out.println("zomm in json: "+activeDashboard.getZoomFactor());
                 } catch (Exception ex) {
                     dashBordPlugIn.showMessage(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
                 }

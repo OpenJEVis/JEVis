@@ -103,7 +103,7 @@ public abstract class Widget extends Region {
         makeDragDropOverlay();
         makeWindowForm();
         makeLoadingOverlay();
-        makeAlartOverlay();
+        makeAlertOverlay();
 
 //        this.getChildren().add(this.contentRoot);
 //        this.getChildren().add(this.editPane);
@@ -227,7 +227,7 @@ public abstract class Widget extends Region {
 
     }
 
-    private void makeAlartOverlay() {
+    private void makeAlertOverlay() {
         this.alertPane.setVisible(false);
         label.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         ImageView alert = JEConfig.getImage("Warning-icon.png", 16d, 16d);
