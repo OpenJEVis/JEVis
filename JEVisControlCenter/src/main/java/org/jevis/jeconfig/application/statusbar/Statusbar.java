@@ -91,6 +91,7 @@ public class Statusbar extends ToolBar {
 
     public void startProgressJob(String jobID, double totalJobs, String message) {
         jobList.put(jobID, new Job(totalJobs, 0));
+        logger.error("Job done: [{}] {}: {}",jobID,totalJobs,message);
         setProgressBar(totalJobs, 0, message);
     }
 
@@ -105,6 +106,7 @@ public class Statusbar extends ToolBar {
         Job job = jobList.get(jobID);
         if (job != null) {
             job.done += jobsDone;
+
             setProgressBar(job.total, job.done, message);
         }
     }

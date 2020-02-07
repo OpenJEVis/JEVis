@@ -19,40 +19,32 @@
  */
 package org.jevis.jeconfig.sample;
 
-import com.jfoenix.controls.JFXDatePicker;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.controlsfx.dialog.ProgressDialog;
-import org.jevis.api.*;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
-import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.commons.dataprocessing.SampleGenerator;
-import org.jevis.commons.datetime.WorkDays;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisConstants;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ProcessorBox;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.TimeZoneBox;
 import org.jevis.jeconfig.dialog.DialogHeader;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,26 +57,18 @@ import java.util.List;
 public class SampleEditor {
     private static final Logger logger = LogManager.getLogger(SampleEditor.class);
     public static String ICON = "1415314386_Graph.png";
-    private final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
+
     private final List<SampleEditorExtension> extensions = new ArrayList<>();
     private List<JEVisSample> samples = new ArrayList<>();
     private JEVisAttribute _attribute;
     private List<JEVisObject> _dataProcessors = new ArrayList<>();
-    private AggregationPeriod _period = AggregationPeriod.NONE;
     private Response response = Response.CANCEL;
     private BooleanProperty disableEditing = new SimpleBooleanProperty(false);
-    private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
-    private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
+    Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("attribute.editor.title"));//new Separator(Orientation.HORIZONTAL),
 
-    private JFXDatePicker startDate = new JFXDatePicker();
-    private JFXDatePicker endDate = new JFXDatePicker();
     private int lastDataSettings = 0;
-
-    //    private DateTime _from;
-//    private DateTime _until;
-    private boolean initial = true;
     private SampleEditorExtension activExtensions;
-    private DateTimeZone dateTimeZone = DateTimeZone.getDefault();
+
 
     /**
      * @param owner
@@ -111,7 +95,7 @@ public class SampleEditor {
 
         final Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setWidth(740);
+        stage.setWidth(950);
         stage.setHeight(800);
         stage.setMaxWidth(2000);
         stage.initStyle(StageStyle.UTILITY);
@@ -122,109 +106,20 @@ public class SampleEditor {
             stage.setWidth(screen.getBounds().getHeight());
         }
 
-        HBox buttonPanel = new HBox();
-
-        ok.setDefaultButton(true);
-
-        Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
-        cancel.setCancelButton(true);
-
-        Region spacer = new Region();
-        spacer.setMaxWidth(2000);
-
-        Label startLabel = new Label(I18n.getInstance().getString("attribute.editor.from"));
 
 
-        startDate.setMaxWidth(120);
-        endDate.setMaxWidth(120);
-
-
-        Label endLabel = new Label(I18n.getInstance().getString("attribute.editor.until"));
-        if (attribute.hasSample()) {
-            try {
-                DateTime from = attribute.getTimestampFromLastSample().minusDays(1);
-                DateTime until = attribute.getTimestampFromLastSample().plusDays(1);
-
-                startDate.valueProperty().set(LocalDate.of(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth()));
-                endDate.valueProperty().set(LocalDate.of(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth()));
-
-                WorkDays wd = new WorkDays(attribute.getObject());
-                if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
-                if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
-        }
-
-        Node preClean = buildProcessorBox();
-
-        TimeZoneBox timeZoneBox = new TimeZoneBox();
-
-        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", 17, 17));
-        Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
-        reload.setTooltip(reloadTooltip);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
-
-        reload.setOnAction(event -> {
-
-            final String loading = I18n.getInstance().getString("plugin.alarms.reload.progress.message");
-            Service<Void> service = new Service<Void>() {
-                @Override
-                protected Task<Void> createTask() {
-                    return new Task<Void>() {
-                        @Override
-                        protected Void call() {
-                            updateMessage(loading);
-                            try {
-                                _attribute.getDataSource().reloadAttribute(_attribute);
-                                Platform.runLater(() -> updateSamples(startDate, endDate));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            return null;
-                        }
-                    };
-                }
-            };
-            ProgressDialog pd = new ProgressDialog(service);
-            pd.setHeaderText(I18n.getInstance().getString("plugin.reports.reload.progress.header"));
-            pd.setTitle(I18n.getInstance().getString("plugin.reports.reload.progress.title"));
-            pd.getDialogPane().setContent(null);
-
-            service.start();
-
-        });
-
-        Region spacer2 = new Region();
-        HBox.setHgrow(spacer2, Priority.ALWAYS);
-
-        HBox bottomBox = new HBox(timeZoneBox, spacer2, reload);
+        HBox bottomBox = new HBox();
         bottomBox.setPadding(new Insets(10));
-        timeZoneBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            dateTimeZone = newValue;
-            updateSamples(startDate, endDate);
-        });
 
-        Label timeRangeL = new Label(I18n.getInstance().getString("attribute.editor.timerange"));
-        timeRangeL.setStyle("-fx-font-weight: bold");
-        GridPane timeSpan = new GridPane();
-        timeSpan.setHgap(5);
-        timeSpan.setVgap(2);
-        timeSpan.add(timeRangeL, 0, 0, 2, 1); // column=1 row=0
-        timeSpan.add(startLabel, 0, 1, 1, 1); // column=1 row=0
-        timeSpan.add(endLabel, 0, 2, 1, 1); // column=1 row=0
 
-        timeSpan.add(startDate, 1, 1, 1, 1); // column=1 row=0
-        timeSpan.add(endDate, 1, 2, 1, 1); // column=1 row=0
 
-        buttonPanel.getChildren().addAll(timeSpan, preClean, spacer, ok, cancel);
-        buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
-        buttonPanel.setPadding(new Insets(10));
-        buttonPanel.setSpacing(15);//10
-        buttonPanel.setMaxHeight(25);
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox.setHgrow(ok, Priority.NEVER);
-        HBox.setHgrow(cancel, Priority.NEVER);
+
+        /** ------------------------------------------- Processor -------------------------------------------------**/
+
+
+        Button config = new Button();
+        config.setGraphic(JEConfig.getImage("Service Manager.png", 16, 16));
+
 
         SampleTableExtension sampleTableExtension = new SampleTableExtension(attribute, stage);
         extensions.add(sampleTableExtension);
@@ -259,24 +154,58 @@ public class SampleEditor {
             });
         });
 
+
+        ControlPane controlPane = new ControlPane(_attribute);
+
+
         final TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
         tabPane.getTabs().addAll(tabs);
 
-        Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("attribute.editor.title"));//new Separator(Orientation.HORIZONTAL),
 
-        root.getChildren().addAll(header, tabPane, new Separator(Orientation.HORIZONTAL), buttonPanel, bottomBox);
+        root.getChildren().addAll(header, tabPane, new Separator(Orientation.HORIZONTAL), controlPane);
         VBox.setVgrow(tabPane, Priority.ALWAYS);
-        VBox.setVgrow(buttonPanel, Priority.NEVER);
+        VBox.setVgrow(controlPane, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
 
-        ok.setOnAction(t -> {
+        controlPane.setOnOK(t -> {
             stage.close();
             for (SampleEditorExtension ex : extensions) {
                 ex.sendOKAction();
             }
         });
+
+        controlPane.setOnCancel(t -> {
+            stage.close();
+            response = Response.CANCEL;
+            stage.close();
+
+        });
+
+        controlPane.setOnTimeRangeChange(event -> {
+            System.out.println("----------1");
+            List<JEVisSample> samples =  controlPane.getSamples();
+            System.out.println("----------2");
+            for (SampleEditorExtension extension : extensions) {
+                Platform.runLater(() -> {
+                    try {
+                        System.out.println("----------2a");
+                        extension.setDateTimeZone(controlPane.getDateTimeZone());
+                        extension.setSamples(controlPane.getAttribute(),samples);
+                    } catch (Exception excp) {
+                        logger.error(extension);
+                    }
+                });
+            }
+            System.out.println("----------3");
+            if (activExtensions != null) {
+                activExtensions.update();
+            }
+            System.out.println("----------4");
+        });
+
+
 
         tabPane.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
             for (SampleEditorExtension ex : extensions) {
@@ -288,33 +217,7 @@ public class SampleEditor {
             }
         });
 
-        startDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-//            _from = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 0, 0);
-//            updateSamples(startDate, _until);
-            updateSamples(startDate, endDate);
-        });
-        endDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-//            _until = new DateTime(newValue.getYear(), newValue.getMonth().getValue(), newValue.getDayOfMonth(), 23, 59, 59, 999);
-//            updateSamples(_from, _until);
-            updateSamples(startDate, endDate);
-        });
-
-        cancel.setOnAction(t -> {
-            stage.close();
-            response = Response.CANCEL;
-            stage.close();
-
-        });
-
-
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                if (startDate != null && endDate != null) {
-                    updateSamples(startDate, endDate);
-                }
-            }
-        });
+        controlPane.initTimeRange(attribute.getTimestampFromLastSample().minus(Period.days(7)),attribute.getTimestampFromLastSample());
 
         stage.showAndWait();
 
@@ -325,124 +228,7 @@ public class SampleEditor {
         disableEditing.setValue(true);
     }
 
-    private Node buildProcessorBox() {
 
-        JEVisObject rawDataParent = _attribute.getObject();
-        try {
-            rawDataParent = getRawDataParent(_attribute.getObject());
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
-
-        ProcessorBox processorBox = new ProcessorBox(rawDataParent, _attribute.getObject());
-        processorBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                _attribute = newValue.getAttribute("Value");
-                updateSamples(startDate, endDate);
-            } catch (Exception ex) {
-                logger.fatal(ex);
-            }
-        });
-
-        AggregationBox aggregationBox = new AggregationBox(AggregationPeriod.NONE);
-        aggregationBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            _period = newValue;
-            updateSamples(startDate, endDate);
-        });
-
-        processorBox.setMinWidth(150);
-        aggregationBox.setMinWidth(150);
-
-        Label header = new Label(I18n.getInstance().getString("attribute.editor.dataprocessing"));
-        header.setStyle("-fx-font-weight: bold");
-        Label dataProcessor = new Label(I18n.getInstance().getString("attribute.editor.processor"));
-        Label aggregation = new Label(I18n.getInstance().getString("attribute.editor.aggregate"));
-
-        Button config = new Button();
-        config.setGraphic(JEConfig.getImage("Service Manager.png", 16, 16));
-
-        GridPane grid = new GridPane();
-        grid.setHgap(5);
-        grid.setVgap(2);
-        grid.add(header, 0, 0, 2, 1); // column=1 row=0
-        grid.add(aggregation, 0, 2, 1, 1); // column=1 row=0
-        grid.add(aggregationBox, 1, 2, 1, 1); // column=1 row=0
-        grid.add(dataProcessor, 0, 3, 1, 1);
-        grid.add(processorBox, 1, 3, 1, 1);
-
-        return grid;
-    }
-
-    private JEVisObject getRawDataParent(JEVisObject object) throws JEVisException {
-        if (object.getJEVisClassName().equals("Data") || !object.getJEVisClassName().equals("Clean Data")) {
-            return object;
-        } else {
-            return getRawDataParent(object.getParents().get(0));
-        }
-    }
-
-    private void updateSamples(JFXDatePicker startDate, JFXDatePicker endDate) {
-
-        if (startDate != null && endDate != null && startDate.getValue() != null && endDate.getValue() != null) {
-            updateSamples(
-                    new DateTime(startDate.getValue().getYear(), startDate.getValue().getMonth().getValue(), startDate.getValue().getDayOfMonth(),
-                            0, 0).withZone(dateTimeZone),
-                    new DateTime(endDate.getValue().getYear(), endDate.getValue().getMonth().getValue(), endDate.getValue().getDayOfMonth(),
-                            23, 59, 59, 999).withZone(dateTimeZone));
-        }
-    }
-
-    private int getLastDataSettings(final JEVisAttribute _attribute, final DateTimeZone dateTimeZone, final DateTime from, final DateTime until, AggregationPeriod period) {
-        return _attribute.hashCode() * dateTimeZone.hashCode() * from.hashCode() * until.hashCode() * period.hashCode();
-    }
-
-    /**
-     * @param from
-     * @param until
-     */
-    private void updateSamples(final DateTime from, final DateTime until) {
-
-        try {
-
-            if (lastDataSettings != getLastDataSettings(_attribute, dateTimeZone, from, until, _period)) {
-                DateTime _from = new DateTime(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth(),
-                        workdayStart.getHour(), workdayStart.getMinute(), workdayStart.getSecond(), workdayStart.getNano());
-                DateTime _until = new DateTime(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth(),
-                        workdayEnd.getHour(), workdayEnd.getMinute(), workdayEnd.getSecond(), workdayEnd.getNano() / 1000000);
-
-                if (workdayStart.isAfter(workdayEnd)) {
-                    _from = _from.minusDays(1);
-                }
-
-                SampleGenerator sg = new SampleGenerator(_attribute.getDataSource(), _attribute.getObject(), _attribute, _from, _until, ManipulationMode.NONE, _period);
-
-                samples = sg.getAggregatedSamples();
-
-                for (SampleEditorExtension extension : extensions) {
-                    Platform.runLater(() -> {
-                        try {
-                            extension.setDateTimeZone(dateTimeZone);
-                            extension.setSamples(_attribute, samples);
-//                        extension.update();
-                        } catch (Exception excp) {
-                            logger.error(extension);
-                        }
-                    });
-
-                }
-            }
-
-            if (activExtensions != null) {
-                activExtensions.update();
-            }
-
-            lastDataSettings = getLastDataSettings(_attribute, dateTimeZone, from, until, _period);
-
-        } catch (Exception ex) {
-            logger.error(ex);
-            ex.printStackTrace();
-        }
-    }
 
 
     public enum Response {

@@ -76,6 +76,12 @@ public class AlarmPlugin implements Plugin {
     private ExecutorService executor;
     //private ToggleButton showCheckedAlarms = new ToggleButton(I18n.getInstance().getString("plugin.alarm.label.showchecked"));
     private JFXCheckBox showCheckedAlarms = new JFXCheckBox(I18n.getInstance().getString("plugin.alarm.label.showchecked"));
+    private Comparator<AlarmRow> alarmRowComparator = new Comparator<AlarmRow>() {
+        @Override
+        public int compare(AlarmRow o1, AlarmRow o2) {
+            return Comparator.comparing(AlarmRow::getTimeStamp).reversed().compare(o1,o2);
+        }
+    };
 
     static {
         try {
@@ -100,6 +106,9 @@ public class AlarmPlugin implements Plugin {
         Label label = new Label(I18n.getInstance().getString("plugin.alarms.noalarms"));
         label.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         this.tableView.setPlaceholder(label);
+
+        tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+        tableView.setStyle("-fx-background-color: white;");
 
 //        this.tableView.setItems(alarmRows);
 
@@ -155,6 +164,10 @@ public class AlarmPlugin implements Plugin {
         dateColumn.setSortable(true);
 //        dateColumn.setPrefWidth(160);
         dateColumn.setMinWidth(100);
+        dateColumn.setSortType(TableColumn.SortType.DESCENDING);
+//        dateColumn.setComparator((o1, o2) -> o1.compareTo(o2));
+
+
 
         dateColumn.setCellValueFactory(param -> {
             if (param != null && param.getValue() != null && param.getValue().getTimeStamp() != null)
@@ -550,6 +563,12 @@ public class AlarmPlugin implements Plugin {
         });
 
         tableView.getColumns().setAll(dateColumn, configNameColumn, objectNameColumn, isValueColumn, operatorColumn, shouldBeValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn);
+        Platform.runLater(() -> {
+            tableView.getSortOrder().clear();
+            tableView.getSortOrder().addAll(dateColumn);
+        });
+
+
     }
 
     private String getAlarm(Integer item) {
@@ -871,6 +890,7 @@ public class AlarmPlugin implements Plugin {
 
 //        alarmRows.clear();
         tableView.getItems().clear();
+
         restartExecutor();
 
         autoFitTable(tableView);
@@ -926,15 +946,16 @@ public class AlarmPlugin implements Plugin {
                         1,
                         "AlarmConfigs " + task.getTitle() + " done.");
 
-                tableView.getItems().addAll(task.getValue());
+                Platform.runLater(() -> {
+                    tableView.getItems().addAll(task.getValue());
+//                    tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
+//                    autoFitTable(tableView);
+//                    if (task.getValue().isEmpty()) {
+//                        tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+//                        tableView.setStyle("-fx-background-color: white;");
+//                    }
+                });
 
-                tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
-                autoFitTable(tableView);
-
-                if (task.getValue().isEmpty()) {
-                    tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-                    tableView.setStyle("-fx-background-color: white;");
-                }
             });
 
             executor.submit(task);
@@ -974,6 +995,19 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
+        Platform.runLater(() -> {
+            autoFitTable(tableView);
+//            if (task.getValue().isEmpty()) {
+//                tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+//                tableView.setStyle("-fx-background-color: white;");
+//            }
+            tableView.getSortOrder().clear();
+            tableView.getSortOrder().addAll(tableView.getColumns().get(0));
+
+
+        });
+
+
     }
 
     @Override
