@@ -93,6 +93,7 @@ public class JEConfig extends Application {
     private static Statusbar statusBar = new Statusbar();
     private static ExecutorService taskExecutor = Executors.newFixedThreadPool(10);
     private TopMenu menu;
+    public static Date startDate= new Date();
 
     public static boolean getExpert() {
         final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
@@ -368,6 +369,7 @@ public class JEConfig extends Application {
 
         login.getLoginStatus().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                startDate= new Date();
                 logger.debug("Start JEVis Control Center");
                 _mainDS = login.getDataSource();
                 checkVersion(_mainDS);
