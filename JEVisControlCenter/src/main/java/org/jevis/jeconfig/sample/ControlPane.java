@@ -182,7 +182,7 @@ public class ControlPane extends GridPane {
     private void init() {
         if (attribute.hasSample()) {
             try {
-                logger.error("init from: '{}' until: '{}'", attribute.getTimestampFromFirstSample(), attribute.getTimestampFromLastSample());
+                logger.debug("init from: '{}' until: '{}'", attribute.getTimestampFromFirstSample(), attribute.getTimestampFromLastSample());
 
                 from = attribute.getTimestampFromLastSample().minusDays(7);
                 until = attribute.getTimestampFromLastSample().plusDays(1);
@@ -205,7 +205,7 @@ public class ControlPane extends GridPane {
         updateing.set(true);
         if (from != null && until != null) {
             try {
-                logger.error("updateView from: '{}' until: '{}'", from, until);
+                logger.debug("updateView from: '{}' until: '{}'", from, until);
 
                 startDate.valueProperty().set(LocalDate.of(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth()));
                 endDate.valueProperty().set(LocalDate.of(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth()));
@@ -258,25 +258,21 @@ public class ControlPane extends GridPane {
      * @param event
      */
     private void timeChanged(ActionEvent event) {
-        logger.error("timeChanged: "+event+" updateing: "+updateing.get());
+        logger.debug("timeChanged: {},updateing: {}",event,updateing.get());
         if (!updateing.get()) {
-            logger.error("Is not updating: "+timeChangeEvent);
+            logger.debug("Is not updating: {}",timeChangeEvent);
 
             if (timeChangeEvent != null) timeChangeEvent.handle(event);
 
             updateView();
         }{
-            logger.error("Is updating");
+            logger.debug("Is updating");
         }
     }
 
     public List<JEVisSample> getSamples() {
         List<JEVisSample> sampleList = new ArrayList<>();
         try {
-
-
-
-
 
             FutureTask<List<JEVisSample>> futureTask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
                 @Override

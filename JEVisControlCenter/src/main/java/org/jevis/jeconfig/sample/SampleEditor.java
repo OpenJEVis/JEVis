@@ -43,6 +43,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.DialogHeader;
+import org.jevis.jeconfig.tool.ScreenSize;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
@@ -59,14 +60,11 @@ public class SampleEditor {
     public static String ICON = "1415314386_Graph.png";
 
     private final List<SampleEditorExtension> extensions = new ArrayList<>();
-    private List<JEVisSample> samples = new ArrayList<>();
     private JEVisAttribute _attribute;
-    private List<JEVisObject> _dataProcessors = new ArrayList<>();
     private Response response = Response.CANCEL;
     private BooleanProperty disableEditing = new SimpleBooleanProperty(false);
     Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("attribute.editor.title"));//new Separator(Orientation.HORIZONTAL),
 
-    private int lastDataSettings = 0;
     private SampleEditorExtension activExtensions;
 
 
@@ -95,16 +93,11 @@ public class SampleEditor {
 
         final Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setWidth(950);
-        stage.setHeight(800);
-        stage.setMaxWidth(2000);
+        stage.setWidth(ScreenSize.fitScreenHeight(800));
+        stage.setHeight(ScreenSize.fitScreenHeight(800));
+        stage.setMaxWidth(ScreenSize.fitScreenHeight(1500));
         stage.initStyle(StageStyle.UTILITY);
-        stage.setResizable(false);
-
-        Screen screen = Screen.getPrimary();
-        if (screen.getBounds().getHeight() < 740) {
-            stage.setWidth(screen.getBounds().getHeight());
-        }
+        stage.setResizable(true);
 
 
 
@@ -184,13 +177,10 @@ public class SampleEditor {
         });
 
         controlPane.setOnTimeRangeChange(event -> {
-            System.out.println("----------1");
             List<JEVisSample> samples =  controlPane.getSamples();
-            System.out.println("----------2");
             for (SampleEditorExtension extension : extensions) {
                 Platform.runLater(() -> {
                     try {
-                        System.out.println("----------2a");
                         extension.setDateTimeZone(controlPane.getDateTimeZone());
                         extension.setSamples(controlPane.getAttribute(),samples);
                     } catch (Exception excp) {
@@ -198,11 +188,9 @@ public class SampleEditor {
                     }
                 });
             }
-            System.out.println("----------3");
             if (activExtensions != null) {
                 activExtensions.update();
             }
-            System.out.println("----------4");
         });
 
 
