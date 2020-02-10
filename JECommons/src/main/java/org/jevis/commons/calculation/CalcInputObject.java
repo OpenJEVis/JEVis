@@ -7,9 +7,7 @@ package org.jevis.commons.calculation;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.SampleGenerator;
@@ -19,6 +17,10 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 
 /**
  * @author broder
@@ -66,10 +68,28 @@ public class CalcInputObject {
         } catch (JEVisException e) {
             logger.error("Could not reload attribute. ", e);
         }
+
+        JEVisObject correspondingUserDataObject = null;
+        boolean foundUserDataObject = false;
+        final JEVisClass userDataClass;
+        try {
+            userDataClass = valueAttribute.getDataSource().getJEVisClass("User Data");
+            for (JEVisObject parent : valueAttribute.getObject().getParents()) {
+                for (JEVisObject child : parent.getChildren()) {
+                    if (child.getJEVisClass().equals(userDataClass)) {
+                        correspondingUserDataObject = child;
+                        foundUserDataObject = true;
+                        break;
+                    }
+                }
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
         switch (inputType) {
             case PERIODIC:
                 //todo try to make it better for incomplete periods (aggregation)
-
                 returnSamples = valueAttribute.getSamples(startTime, endTime);
                 break;
             case STATIC:
@@ -84,6 +104,33 @@ public class CalcInputObject {
                 returnSamples = valueAttribute.getAllSamples();
                 break;
         }
+
+        if (foundUserDataObject) {
+            try {
+                SortedMap<DateTime, JEVisSample> map = new TreeMap<>();
+                for (JEVisSample jeVisSample : returnSamples) {
+                    map.put(jeVisSample.getTimestamp(), jeVisSample);
+                }
+
+                JEVisAttribute userDataValueAttribute = correspondingUserDataObject.getAttribute("Value");
+                List<JEVisSample> userValues = userDataValueAttribute.getSamples(startTime, endTime);
+
+                for (JEVisSample userValue : userValues) {
+                    String note = map.get(userValue.getTimestamp()).getNote();
+                    VirtualSample virtualSample = new VirtualSample(userValue.getTimestamp(), userValue.getValueAsDouble());
+                    virtualSample.setNote(note + "," + USER_VALUE);
+                    virtualSample.setAttribute(map.get(userValue.getTimestamp()).getAttribute());
+
+                    map.remove(userValue.getTimestamp());
+                    map.put(virtualSample.getTimestamp(), virtualSample);
+                }
+
+                returnSamples = new ArrayList<>(map.values());
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+        }
+
         this.samples = returnSamples;
 
     }
