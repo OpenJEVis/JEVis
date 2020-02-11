@@ -47,6 +47,7 @@ import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -91,6 +92,7 @@ public class Statusbar extends ToolBar {
 
     public void startProgressJob(String jobID, double totalJobs, String message) {
         jobList.put(jobID, new Job(totalJobs, 0));
+        logger.error("Job done: [{}] {}: {}", jobID, totalJobs, message);
         setProgressBar(totalJobs, 0, message);
     }
 
@@ -105,6 +107,7 @@ public class Statusbar extends ToolBar {
         Job job = jobList.get(jobID);
         if (job != null) {
             job.done += jobsDone;
+
             setProgressBar(job.total, job.done, message);
         }
     }
@@ -175,6 +178,14 @@ public class Statusbar extends ToolBar {
         this.conBox.getChildren().setAll(this.connectIcon);
 
         Label versionNumber = new Label(JEConfig.class.getPackage().getImplementationVersion());
+        versionNumber.widthProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue != newValue) {
+                try{
+                Tooltip tooltip = new Tooltip( ((new Date()).getTime()- JEConfig.startDate.getTime())+"ms");
+                versionNumber.setTooltip(tooltip);
+                }catch (Exception ex){}
+            }
+        });
 
         Pane spacer = new Pane();
         spacer.setMaxWidth(50);
@@ -191,7 +202,7 @@ public class Statusbar extends ToolBar {
 
         progressbox.getChildren().addAll(loadStatus, progressBar);
         //TODO implement notification
-        root.getChildren().addAll(userIcon, this.userName, spacerLeft, progressbox, spacer,versionLabel,versionNumber,spacer2, this.conBox, this.onlineInfo);
+        root.getChildren().addAll(userIcon, this.userName, spacerLeft, progressbox, spacer, versionLabel, versionNumber, spacer2, this.conBox, this.onlineInfo);
 
         String sinfo = "";
 

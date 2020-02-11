@@ -30,6 +30,7 @@ import de.gsi.chart.renderer.LineStyle;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
 import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import org.apache.logging.log4j.LogManager;
@@ -66,6 +67,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
     private void buildGui(JEVisAttribute attribute, List<JEVisSample> samples) {
 
         BorderPane bp = new BorderPane();
+        bp.setPadding(new Insets(10));
         bp.setStyle("-fx-background-color: transparent");
 
         try {
