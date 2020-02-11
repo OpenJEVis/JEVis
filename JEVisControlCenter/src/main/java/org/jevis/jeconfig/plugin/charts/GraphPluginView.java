@@ -459,6 +459,9 @@ public class GraphPluginView implements Plugin {
         }
 
         allCharts.clear();
+        zoomed = false;
+        setxAxisLowerBound(null);
+        setxAxisUpperBound(null);
 
         Platform.runLater(() -> {
             vBox.getChildren().clear();
@@ -1299,7 +1302,7 @@ public class GraphPluginView implements Plugin {
 
     private void setupLinkedZoom(Chart ac, List<Chart> notActive) {
 
-        MultiChartZoomer multiChartZoomer = new MultiChartZoomer(AxisMode.X, notActive, ac);
+        MultiChartZoomer multiChartZoomer = new MultiChartZoomer(this, AxisMode.X, notActive, ac);
         multiChartZoomer.setSliderVisible(false);
         ac.getChart().getPlugins().add(multiChartZoomer);
     }
@@ -1385,7 +1388,19 @@ public class GraphPluginView implements Plugin {
         return xAxisUpperBound;
     }
 
+    public void setxAxisLowerBound(Double xAxisLowerBound) {
+        this.xAxisLowerBound = xAxisLowerBound;
+    }
+
+    public void setxAxisUpperBound(Double xAxisUpperBound) {
+        this.xAxisUpperBound = xAxisUpperBound;
+    }
+
     public boolean isZoomed() {
         return zoomed;
+    }
+
+    public void setZoomed(boolean zoomed) {
+        this.zoomed = zoomed;
     }
 }

@@ -75,6 +75,7 @@ public class XYChart implements Chart {
     CustomNumericAxis y2Axis = new CustomNumericAxis();
     DefaultDateAxis dateAxis;
     de.gsi.chart.Chart chart;
+    private AnalysisDataModel analysisDataModel;
     List<ChartDataModel> chartDataModels;
     private ChartType chartType = ChartType.LINE;
     Double minValue = Double.MAX_VALUE;
@@ -96,6 +97,7 @@ public class XYChart implements Chart {
     private StringBuilder regressionFormula = new StringBuilder();
 
     public XYChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> selectedModels, Integer chartId, String chartName) {
+        this.analysisDataModel = analysisDataModel;
         this.chartDataModels = selectedModels;
         this.dateAxis = new DefaultDateAxis();
 
@@ -152,9 +154,12 @@ public class XYChart implements Chart {
                         newModel.setSamples(null);
                         newModel.setUnit(null);
                         newModel.setColor(ColorHelper.toRGBCode(ColorHelper.toColor(newModel.getColor()).darker()));
+                        newModel.setTitle(newModel.getTitle() + " - " + I18n.getInstance().getString("graph.processing.raw"));
 
                         singleRow.setAxis(0);
                         newModel.setAxis(1);
+
+                        analysisDataModel.getSelectedData().add(newModel);
                         xyChartSerieList.add(generateSerie(changedBoth, newModel));
                     }
 
@@ -295,6 +300,7 @@ public class XYChart implements Chart {
 
                     try {
                         if (hasData) {
+                            analysisDataModel.getSelectedData().add(sumModel);
                             xyChartSerieList.add(generateSerie(changedBoth, sumModel));
                         }
                     } catch (JEVisException e) {

@@ -640,6 +640,7 @@ public class ChartDataModel {
         newModel.setTimeFactor(this.getTimeFactor());
         newModel.setScaleFactor(this.getScaleFactor());
         newModel.setCustomWorkDay(this.isCustomWorkDay());
+        newModel.setSomethingChanged(false);
 
         return newModel;
     }

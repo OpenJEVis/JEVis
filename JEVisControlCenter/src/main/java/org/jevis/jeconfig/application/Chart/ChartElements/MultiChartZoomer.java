@@ -38,6 +38,7 @@ import javafx.util.Duration;
 import org.controlsfx.control.RangeSlider;
 import org.controlsfx.glyphfont.Glyph;
 import org.jevis.jeconfig.application.Chart.Charts.PieChart;
+import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -217,6 +218,7 @@ public class MultiChartZoomer extends ChartPlugin {
         }
 
     };
+    private GraphPluginView graphPluginView;
 
     /**
      * Creates a new instance of Zoomer with animation disabled and with {@link #axisModeProperty() zoomMode}
@@ -232,7 +234,7 @@ public class MultiChartZoomer extends ChartPlugin {
      * @param zoomMode initial value of {@link #axisModeProperty() zoomMode} property
      */
     public MultiChartZoomer(final AxisMode zoomMode) {
-        this(zoomMode, new ArrayList<>(), null, false);
+        this(null, zoomMode, new ArrayList<>(), null, false);
     }
 
     /**
@@ -240,8 +242,8 @@ public class MultiChartZoomer extends ChartPlugin {
      *
      * @param zoomMode initial value of {@link #axisModeProperty() zoomMode} property
      */
-    public MultiChartZoomer(final AxisMode zoomMode, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive, org.jevis.jeconfig.application.Chart.Charts.Chart currentChart) {
-        this(zoomMode, notActive, currentChart, false);
+    public MultiChartZoomer(final GraphPluginView graphPluginView, final AxisMode zoomMode, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive, org.jevis.jeconfig.application.Chart.Charts.Chart currentChart) {
+        this(graphPluginView, zoomMode, notActive, currentChart, false);
     }
 
     /**
@@ -250,8 +252,9 @@ public class MultiChartZoomer extends ChartPlugin {
      * @param zoomMode initial value of {@link #axisModeProperty() axisMode} property
      * @param animated initial value of {@link #animatedProperty() animated} property
      */
-    public MultiChartZoomer(final AxisMode zoomMode, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive, org.jevis.jeconfig.application.Chart.Charts.Chart currentChart, final boolean animated) {
+    public MultiChartZoomer(final GraphPluginView graphPluginView, final AxisMode zoomMode, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive, org.jevis.jeconfig.application.Chart.Charts.Chart currentChart, final boolean animated) {
         super();
+        setGraphPluginView(graphPluginView);
         setAxisMode(zoomMode);
         setCurrentChart(currentChart);
         setNotActive(notActive);
@@ -291,7 +294,7 @@ public class MultiChartZoomer extends ChartPlugin {
      * @param animated initial value of {@link #animatedProperty() animated} property
      */
     public MultiChartZoomer(final boolean animated) {
-        this(AxisMode.XY, new ArrayList<>(), null, animated);
+        this(null, AxisMode.XY, new ArrayList<>(), null, animated);
     }
 
     /**
@@ -1216,6 +1219,13 @@ public class MultiChartZoomer extends ChartPlugin {
         }
         zoomStartPoint = zoomEndPoint = null;
         uninstallCursor();
+        getGraphPluginView().setZoomed(true);
+
+        double min = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMin();
+        double max = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMax();
+        graphPluginView.setxAxisLowerBound(min);
+        graphPluginView.setxAxisUpperBound(max);
+
 
         if (!followUpZoom) {
             notActive.forEach(chart -> {
@@ -1275,6 +1285,8 @@ public class MultiChartZoomer extends ChartPlugin {
         double max = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMax();
 
         currentChart.updateTableZoom(min, max);
+        graphPluginView.setxAxisLowerBound(min);
+        graphPluginView.setxAxisUpperBound(max);
 
         if (!followUpZoom && currentChart != null) {
             notActive.forEach(chart -> {
@@ -1318,6 +1330,14 @@ public class MultiChartZoomer extends ChartPlugin {
 
     public void setFollowUpZoom(boolean followUpZoom) {
         this.followUpZoom = followUpZoom;
+    }
+
+    public GraphPluginView getGraphPluginView() {
+        return graphPluginView;
+    }
+
+    public void setGraphPluginView(GraphPluginView graphPluginView) {
+        this.graphPluginView = graphPluginView;
     }
 
     /**
