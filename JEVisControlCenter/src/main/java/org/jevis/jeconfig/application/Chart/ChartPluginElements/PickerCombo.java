@@ -180,8 +180,8 @@ public class PickerCombo {
         endTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
         if (chartDataModels != null && !chartDataModels.isEmpty()) {
-            if (analysisDataModel != null && !analysisDataModel.getCharts().isEmpty()) {
-                analysisDataModel.getCharts().forEach(chartSettings -> {
+            if (analysisDataModel != null && !analysisDataModel.getCharts().getListSettings().isEmpty()) {
+                analysisDataModel.getCharts().getListSettings().forEach(chartSettings -> {
                     for (ChartDataModel model : chartDataModels) {
                         if (model.getSelectedcharts().contains(chartSettings.getId())) {
                             presetDateBox.getSelectionModel().select(chartSettings.getAnalysisTimeFrame().getTimeFrame());
@@ -204,7 +204,7 @@ public class PickerCombo {
                 setPicker(start, end);
 
             } else {
-                analysisDataModel.getCharts().forEach(chartSettings -> {
+                analysisDataModel.getCharts().getListSettings().forEach(chartSettings -> {
                     for (ChartDataModel model : analysisDataModel.getSelectedData()) {
                         if (model.getSelectedcharts().contains(chartSettings.getId())) {
                             presetDateBox.getSelectionModel().select(chartSettings.getAnalysisTimeFrame().getTimeFrame());

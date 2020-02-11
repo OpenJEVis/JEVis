@@ -1,12 +1,12 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes;
 
-import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.tools.DisabledItemsComboBox;
 
 public class ChartTypeComboBox extends DisabledItemsComboBox {
 
-    public ChartTypeComboBox(ChartSettings currentChartSetting) {
+    public ChartTypeComboBox(ChartSetting currentChartSetting) {
         super(ChartType.getlistNamesChartTypes());
 
         //I18n.getInstance().getString("plugin.graph.charttype.scatter.name"),

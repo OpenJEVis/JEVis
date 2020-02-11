@@ -1,64 +1,29 @@
 package org.jevis.jeconfig.application.Chart;
 
-import static org.jevis.jeconfig.application.Chart.ChartType.AREA;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChartSettings {
 
-    private Integer id;
-    private String name;
-    private ChartType chartType;
-    private Double height;
+    private List<ChartSetting> listSettings = new ArrayList<>();
+    private Boolean isAutoSize = true;
 
-    private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
-
-    public ChartSettings(String name) {
-        this.name = name;
-        this.chartType = AREA;
+    public ChartSettings() {
     }
 
-    public ChartSettings(Integer id, String name) {
-        this.id = id;
-        this.name = name;
-        this.chartType = AREA;
+    public List<ChartSetting> getListSettings() {
+        return listSettings;
     }
 
-    public Integer getId() {
-        return id;
+    public void setListSettings(List<ChartSetting> listSettings) {
+        this.listSettings = listSettings;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public Boolean getAutoSize() {
+        return isAutoSize;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Double getHeight() {
-        return height;
-    }
-
-    public void setHeight(Double height) {
-        this.height = height;
-    }
-
-    public ChartType getChartType() {
-        return chartType;
-    }
-
-    public void setChartType(ChartType chartType) {
-        this.chartType = chartType;
-    }
-
-    public AnalysisTimeFrame getAnalysisTimeFrame() {
-        return analysisTimeFrame;
-    }
-
-    public void setAnalysisTimeFrame(AnalysisTimeFrame analysisTimeFrame) {
-        this.analysisTimeFrame = analysisTimeFrame;
+    public void setAutoSize(Boolean autoSize) {
+        isAutoSize = autoSize;
     }
 }
