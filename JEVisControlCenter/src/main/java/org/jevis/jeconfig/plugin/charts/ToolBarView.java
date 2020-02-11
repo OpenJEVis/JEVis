@@ -29,7 +29,7 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
@@ -386,9 +386,9 @@ public class ToolBarView {
             Separator sep4 = new Separator();
 
             boolean isRegressionPossible = false;
-            for (ChartSettings chartSettings : model.getCharts()) {
-                if (chartSettings.getChartType() != ChartType.TABLE && chartSettings.getChartType() != ChartType.HEAT_MAP
-                        && chartSettings.getChartType() != ChartType.BAR && chartSettings.getChartType() != ChartType.PIE)
+            for (ChartSetting chartSetting : model.getCharts().getListSettings()) {
+                if (chartSetting.getChartType() != ChartType.TABLE && chartSetting.getChartType() != ChartType.HEAT_MAP
+                        && chartSetting.getChartType() != ChartType.BAR && chartSetting.getChartType() != ChartType.PIE)
                     isRegressionPossible = true;
             }
 

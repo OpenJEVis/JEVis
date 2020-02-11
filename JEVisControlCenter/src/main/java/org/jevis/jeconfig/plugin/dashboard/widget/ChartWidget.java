@@ -16,7 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
@@ -111,14 +111,14 @@ public class ChartWidget extends Widget {
                  * LineChart does not support updateData so we need to create an new one every time;
                  */
                 AnalysisDataModel model = new AnalysisDataModel(getDataSource(), null);
-                ChartSettings chartSettings = new ChartSettings(0, "");
-                chartSettings.setChartType(ChartType.LINE);
-                model.setCharts(Collections.singletonList(chartSettings));
+                ChartSetting chartSetting = new ChartSetting(0, "");
+                chartSetting.setChartType(ChartType.LINE);
+                model.getCharts().setListSettings(Collections.singletonList(chartSetting));
                 this.borderPane.setCenter(null);
                 this.lineChart = new LineChart(model, this.sampleHandler.getDataModel(), 0, "");
                 Size configSize = getConfig().getSize();
-                lineChart.getChart().setPrefSize(configSize.getWidth(),configSize.getHeight()-20);
-                lineChart.getChart().setMaxHeight(configSize.getHeight()-20);/** workaround for the legend overlap **/
+                lineChart.getChart().setPrefSize(configSize.getWidth(), configSize.getHeight() - 20);
+                lineChart.getChart().setMaxHeight(configSize.getHeight() - 20);/** workaround for the legend overlap **/
                 this.borderPane.setCenter(this.lineChart.getChart());
                 updateConfig();/** workaround because we make a new chart every time**/
             } catch (Exception ex) {

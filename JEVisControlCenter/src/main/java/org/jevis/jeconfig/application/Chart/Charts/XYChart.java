@@ -35,7 +35,7 @@ import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeapi.ws.JEVisObjectWS;
 import org.jevis.jeconfig.application.Chart.ChartElements.*;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.*;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
@@ -113,9 +113,9 @@ public class XYChart implements Chart {
             hasSecondAxis = true;
         }
 
-        for (ChartSettings chartSettings : analysisDataModel.getCharts()) {
-            if (chartId.equals(chartSettings.getId())) {
-                this.chartType = chartSettings.getChartType();
+        for (ChartSetting chartSetting : analysisDataModel.getCharts().getListSettings()) {
+            if (chartId.equals(chartSetting.getId())) {
+                this.chartType = chartSetting.getChartType();
                 break;
             }
         }

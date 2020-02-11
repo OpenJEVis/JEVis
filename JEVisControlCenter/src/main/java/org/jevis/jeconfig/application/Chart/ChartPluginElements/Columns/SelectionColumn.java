@@ -17,7 +17,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
@@ -73,9 +73,9 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     public void buildColumn() {
 
         AtomicReference<String> chartName = new AtomicReference<>();
-        ChartSettings currentChartSetting = new ChartSettings("");
+        ChartSetting currentChartSetting = new ChartSetting("");
 
-        for (ChartSettings set : getData().getCharts()) {
+        for (ChartSetting set : getData().getCharts().getListSettings()) {
             if (set.getId().equals(getChartId())) {
                 currentChartSetting = set;
                 break;

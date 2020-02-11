@@ -16,7 +16,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.*;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
@@ -85,8 +85,8 @@ public class ChartPluginTree implements TreePlugin {
         image.fitWidthProperty().set(20);
 
         Button addChart = new Button(I18n.getInstance().getString("graph.table.addchart"), image);
-        if (getData().getCharts().isEmpty()) {
-            data.getCharts().add(new ChartSettings(0, chartTitle));
+        if (getData().getCharts().getListSettings().isEmpty()) {
+            data.getCharts().getListSettings().add(new ChartSetting(0, chartTitle));
         }
 
         colorColumn = new ColorColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.color"));
@@ -95,9 +95,9 @@ public class ChartPluginTree implements TreePlugin {
         List<TreeTableColumn<JEVisTreeRow, Boolean>> selectionColumns = new ArrayList<TreeTableColumn<JEVisTreeRow, Boolean>>();
 
         addChart.setOnAction(event -> {
-            if (data.getCharts().size() < getMaxChartsFromService()) {
+            if (data.getCharts().getListSettings().size() < getMaxChartsFromService()) {
                 List<String> oldNames = new ArrayList<>();
-                for (ChartSettings set : data.getCharts()) {
+                for (ChartSetting set : data.getCharts().getListSettings()) {
                     oldNames.add(set.getName());
                 }
 
@@ -118,12 +118,12 @@ public class ChartPluginTree implements TreePlugin {
                 }
 
                 int id = 0;
-                for (ChartSettings set : data.getCharts()) {
+                for (ChartSetting set : data.getCharts().getListSettings()) {
                     id = Math.max(id, set.getId());
                     id++;
                 }
 
-                data.getCharts().add(new ChartSettings(id, newName));
+                data.getCharts().getListSettings().add(new ChartSetting(id, newName));
                 addedChartProperty().setValue(Boolean.TRUE);
 
                 SelectionColumn selectColumn = new SelectionColumn(jeVisTree, dataSource, colorColumn, id, selectionColumns, column);
@@ -134,8 +134,8 @@ public class ChartPluginTree implements TreePlugin {
 
         column.setGraphic(addChart);
 
-        for (int i = 0; i < getData().getCharts().size(); i++) {
-            SelectionColumn selectColumn = new SelectionColumn(jeVisTree, dataSource, colorColumn, getData().getCharts().get(i).getId(), selectionColumns, column);
+        for (int i = 0; i < getData().getCharts().getListSettings().size(); i++) {
+            SelectionColumn selectColumn = new SelectionColumn(jeVisTree, dataSource, colorColumn, getData().getCharts().getListSettings().get(i).getId(), selectionColumns, column);
             selectColumn.setGraphDataModel(data);
             selectionColumns.add(selectColumn.getSelectionColumn());
         }

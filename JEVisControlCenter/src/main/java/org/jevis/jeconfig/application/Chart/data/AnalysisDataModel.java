@@ -31,18 +31,16 @@ import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonAnalysisDataRow;
 import org.jevis.commons.json.JsonChartDataModel;
+import org.jevis.commons.json.JsonChartSetting;
 import org.jevis.commons.json.JsonChartSettings;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.Constants;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
+import org.jevis.jeconfig.application.Chart.*;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
-import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
-import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
@@ -77,14 +75,13 @@ public class AnalysisDataModel {
     private final ObjectRelations objectRelations;
     private final GraphPluginView graphPluginView;
     private Set<ChartDataModel> selectedData = new HashSet<>();
-    private List<ChartSettings> charts = new ArrayList<>();
+    private ChartSettings charts = new ChartSettings();
     private Boolean showIcons = true;
     private ManipulationMode addSeries = ManipulationMode.NONE;
-    private Boolean autoResize = true;
     private JEVisDataSource ds;
     private ObservableList<JEVisObject> observableListAnalyses = FXCollections.observableArrayList();
     private JsonChartDataModel listAnalysisModel = new JsonChartDataModel();
-    private List<JsonChartSettings> listChartsSettings = new ArrayList<>();
+    private JsonChartSettings jsonChartSettings = new JsonChartSettings();
     private boolean customWorkDay = true;
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
@@ -131,7 +128,7 @@ public class AnalysisDataModel {
 
                 if (getCurrentAnalysis() != null && !getTemporary()) {
                     selectedData = new HashSet<>();
-                    charts = new ArrayList<>();
+                    charts = new ChartSettings();
                     getSelectedData();
                 } else if (getTemporary()) {
                     setGlobalAnalysisTimeFrame(getSelectedData());
@@ -202,8 +199,8 @@ public class AnalysisDataModel {
         });
     }
 
-    public List<ChartSettings> getCharts() {
-        if (charts == null || charts.isEmpty()) updateCharts();
+    public ChartSettings getCharts() {
+        if (charts == null || charts.getListSettings().isEmpty()) updateCharts();
 
 //        if (selectedData != null && !selectedData.isEmpty() && listAnalysisModel != null) {
 //
@@ -221,12 +218,12 @@ public class AnalysisDataModel {
         return charts;
     }
 
-    public void setCharts(List<ChartSettings> charts) {
+    public void setCharts(ChartSettings charts) {
         this.charts = charts;
     }
 
     private void updateCharts() {
-        if (charts == null || charts.isEmpty()) {
+        if (charts == null || charts.getListSettings().isEmpty()) {
             try {
                 if (getCurrentAnalysis() != null) {
                     if (Objects.nonNull(getCurrentAnalysis().getAttribute(CHARTS_ATTRIBUTE_NAME))) {
@@ -235,12 +232,11 @@ public class AnalysisDataModel {
                             String str = getCurrentAnalysis().getAttribute(CHARTS_ATTRIBUTE_NAME).getLatestSample().getValueAsString();
                             try {
                                 if (str.startsWith("[")) {
-                                    listChartsSettings = Arrays.asList(objectMapper.readValue(str, JsonChartSettings[].class));
-
+                                    jsonChartSettings = new JsonChartSettings();
+                                    jsonChartSettings.setListSettings(Arrays.asList(objectMapper.readValue(str, JsonChartSetting[].class)));
 
                                 } else {
-                                    listChartsSettings = new ArrayList<>();
-                                    listChartsSettings.add(objectMapper.readValue(str, JsonChartSettings.class));
+                                    jsonChartSettings = objectMapper.readValue(str, JsonChartSettings.class);
                                 }
                             } catch (Exception e) {
                                 logger.error("Error: could not read chart settings", e);
@@ -311,12 +307,18 @@ public class AnalysisDataModel {
                 logger.error("Error: could not get analysis model", e);
             }
 
-            List<ChartSettings> chartSettings = new ArrayList<>();
+            ChartSettings chartSettings = new ChartSettings();
 
-            if (listChartsSettings != null && !listChartsSettings.isEmpty()) {
+            if (this.jsonChartSettings != null && !this.jsonChartSettings.getListSettings().isEmpty()) {
                 boolean needsIds = false;
-                for (JsonChartSettings settings : listChartsSettings) {
-                    ChartSettings newSettings = new ChartSettings("");
+
+                if (jsonChartSettings.getAutoSize() != null) {
+                    chartSettings.setAutoSize(Boolean.parseBoolean(jsonChartSettings.getAutoSize()));
+                    setAutoResizeNO_EVENT(chartSettings.getAutoSize());
+                }
+
+                for (JsonChartSetting settings : this.jsonChartSettings.getListSettings()) {
+                    ChartSetting newSettings = new ChartSetting("");
                     if (settings.getId() != null) {
                         newSettings.setId(Integer.parseInt(settings.getId()));
                     } else {
@@ -330,28 +332,19 @@ public class AnalysisDataModel {
                         newSettings.setHeight(Double.parseDouble(settings.getHeight()));
                     }
 
-                    chartSettings.add(newSettings);
+                    chartSettings.getListSettings().add(newSettings);
                 }
 
                 if (needsIds) {
                     AlphanumComparator ac = new AlphanumComparator();
-                    chartSettings.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
-                    for (ChartSettings set : chartSettings) set.setId(chartSettings.indexOf(set));
+                    chartSettings.getListSettings().sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+                    for (ChartSetting set : chartSettings.getListSettings())
+                        set.setId(chartSettings.getListSettings().indexOf(set));
                 }
 
                 charts = chartSettings;
             }
         }
-    }
-
-    public ChartSettings getChartSetting(String name) {
-        for (ChartSettings cset : getCharts()) {
-            if (cset.getName().equals(name)) {
-                return cset;
-            }
-        }
-        return null;
-
     }
 
     private Service<Void> service = new Service<Void>() {
@@ -408,19 +401,19 @@ public class AnalysisDataModel {
     }
 
     public Boolean getAutoResize() {
-        return autoResize;
+        return charts.getAutoSize();
     }
 
     public void setAutoResize(Boolean resize) {
-        this.autoResize = resize;
+        this.charts.setAutoSize(resize);
 
-        if (autoResize.equals(Boolean.TRUE)) {
+        if (charts.getAutoSize().equals(Boolean.TRUE)) {
             update();
         }
     }
 
     public void setAutoResizeNO_EVENT(Boolean resize) {
-        this.autoResize = resize;
+        this.charts.setAutoSize(resize);
     }
 
     public Boolean getShowSum() {
@@ -813,7 +806,7 @@ public class AnalysisDataModel {
         try {
 //            ds.reloadAttributes();
 
-            if (charts == null || charts.isEmpty()) {
+            if (charts == null || charts.getListSettings().isEmpty()) {
                 updateCharts();
             }
             if (getCurrentAnalysis() != null) {
@@ -930,7 +923,7 @@ public class AnalysisDataModel {
                 tempList.sort((o1, o2) -> ac.compare(o1, o2));
 
                 for (String str : tempList) {
-                    for (ChartSettings set : charts) {
+                    for (ChartSetting set : charts.getListSettings()) {
                         if (set.getName().equals(str))
                             idList.add(set.getId());
                     }
@@ -1032,8 +1025,8 @@ public class AnalysisDataModel {
 
     public void setGlobalAnalysisTimeFrame(Set<ChartDataModel> selectedData) {
         List<ChartDataModel> chartDataModels = new ArrayList<>();
-        for (ChartSettings chartSettings : charts) {
-            chartSettings.setAnalysisTimeFrame(globalAnalysisTimeFrame);
+        for (ChartSetting chartSetting : charts.getListSettings()) {
+            chartSetting.setAnalysisTimeFrame(globalAnalysisTimeFrame);
         }
 
         selectedData.forEach(chartDataModel -> {

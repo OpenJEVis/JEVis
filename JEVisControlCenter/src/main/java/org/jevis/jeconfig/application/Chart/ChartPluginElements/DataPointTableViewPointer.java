@@ -10,8 +10,6 @@ import de.gsi.chart.axes.Axis;
 import de.gsi.chart.plugins.AbstractDataFormattingPlugin;
 import de.gsi.dataset.DataSet;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
@@ -38,30 +36,29 @@ import java.util.TreeMap;
 
 public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
-    private final ObservableList<TableEntry> tableData;
-    private final SimpleObjectProperty<DateTime> valueForDisplay = new SimpleObjectProperty<>();
     private final org.jevis.jeconfig.application.Chart.Charts.XYChart currentChart;
     private final List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActiveCharts;
     private DateTime timestampFromFirstSample = null;
     private boolean asDuration = false;
-    private final EventHandler<MouseEvent> mouseMoveHandler = this::updateTable;
+    boolean plotArea = true;
     private final List<XYChartSerie> xyChartSerieList;
-    private final List<XYChartSerie> xyChartSerieList1;
 
     public DataPointTableViewPointer(org.jevis.jeconfig.application.Chart.Charts.Chart chart, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive) {
         this.currentChart = (org.jevis.jeconfig.application.Chart.Charts.XYChart) chart;
-        this.xyChartSerieList1 = currentChart.getXyChartSerieList();
         this.notActiveCharts = notActive;
-        this.tableData = this.currentChart.getTableData();
         this.asDuration = this.currentChart.isAsDuration();
         this.xyChartSerieList = this.currentChart.getXyChartSerieList();
         this.timestampFromFirstSample = this.currentChart.getTimeStampOfFirstSample().get();
 
+        EventHandler<MouseEvent> mouseMoveHandler = event -> {
+            plotArea = true;
+            updateTable(event);
+        };
         registerInputEventHandler(MouseEvent.MOUSE_MOVED, mouseMoveHandler);
-    }
-
-    public SimpleObjectProperty<DateTime> valueForDisplayProperty() {
-        return valueForDisplay;
+        this.currentChart.getChart().setOnMouseMoved(event -> {
+            plotArea = false;
+            updateTable(event);
+        });
     }
 
     private DataPoint findDataPoint(final MouseEvent event, final Bounds plotAreaBounds) {
@@ -178,8 +175,13 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
 
     private void updateTable(final MouseEvent event) {
-        final Bounds plotAreaBounds = getChart().getPlotArea().getBoundsInLocal();
-        final DataPoint dataPoint = findDataPoint(event, plotAreaBounds);
+        final Bounds areaBounds;
+        if (plotArea)
+            areaBounds = getChart().getPlotArea().getBoundsInLocal();
+        else {
+            areaBounds = getChart().getBoundsInLocal();
+        }
+        final DataPoint dataPoint = findDataPoint(event, areaBounds);
 
         if (dataPoint != null) {
             Double v = dataPoint.getX() * 1000d;

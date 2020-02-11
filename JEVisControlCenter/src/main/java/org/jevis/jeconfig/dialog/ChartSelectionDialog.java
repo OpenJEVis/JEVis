@@ -46,7 +46,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -152,7 +152,7 @@ public class ChartSelectionDialog {
 
         tabPaneCharts.getTabs().add(getCommonTab());
 
-        for (ChartSettings settings : data.getCharts()) {
+        for (ChartSetting settings : data.getCharts().getListSettings()) {
             tabPaneCharts.getTabs().add(createChartTab(settings));
         }
 
@@ -199,7 +199,7 @@ public class ChartSelectionDialog {
             List<UserSelection> listUS = new ArrayList<>();
             for (ChartDataModel cdm : data.getSelectedData()) {
                 for (int i : cdm.getSelectedcharts()) {
-                    for (ChartSettings set : data.getCharts()) {
+                    for (ChartSetting set : data.getCharts().getListSettings()) {
                         if (set.getId() == i)
                             listUS.add(new UserSelection(UserSelection.SelectionType.Object, cdm.getObject()));
                     }
@@ -229,7 +229,7 @@ public class ChartSelectionDialog {
             if (newValue) {
                 tabPaneCharts.getTabs().clear();
                 tabPaneCharts.getTabs().add(getCommonTab());
-                for (ChartSettings settings : data.getCharts()) {
+                for (ChartSetting settings : data.getCharts().getListSettings()) {
                     tabPaneCharts.getTabs().add(createChartTab(settings));
                 }
             }
@@ -243,16 +243,16 @@ public class ChartSelectionDialog {
     }
 
     private void removeEmptyCharts() {
-        List<ChartSettings> toBeRemoved = new ArrayList<>();
+        List<ChartSetting> toBeRemoved = new ArrayList<>();
 
-        data.getCharts().forEach(chartSettings -> {
+        data.getCharts().getListSettings().forEach(chartSettings -> {
             boolean hasData = data.getSelectedData().stream().anyMatch(model -> model.getSelectedcharts().contains(chartSettings.getId()));
             if (!hasData) {
                 toBeRemoved.add(chartSettings);
             }
         });
 
-        data.getCharts().removeAll(toBeRemoved);
+        data.getCharts().getListSettings().removeAll(toBeRemoved);
     }
 
     private Tab getCommonTab() {
@@ -310,7 +310,7 @@ public class ChartSelectionDialog {
         if (!listUS.isEmpty()) tree.openUserSelection(listUS);
     }
 
-    private Tab createChartTab(ChartSettings cset) {
+    private Tab createChartTab(ChartSetting cset) {
         Tab newTab = new Tab(cset.getId().toString());
         newTab.setClosable(false);
         ScrollPane scrollPane = new ScrollPane();

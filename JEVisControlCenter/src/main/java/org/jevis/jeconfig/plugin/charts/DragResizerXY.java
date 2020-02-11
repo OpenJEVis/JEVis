@@ -1,8 +1,14 @@
 package org.jevis.jeconfig.plugin.charts;
 
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
+import javafx.util.Duration;
 
 /**
  * {@link DragResizerXY} can be used to add mouse listeners to a {@link Region}
@@ -46,10 +52,30 @@ public class DragResizerXY {
     public static void makeResizable(Region region) {
         final DragResizerXY resizer = new DragResizerXY(region);
 
-        region.setOnMousePressed(event -> resizer.mousePressed(event));
-        region.setOnMouseDragged(event -> resizer.mouseDragged(event));
-        region.setOnMouseMoved(event -> resizer.mouseOver(event));
-        region.setOnMouseReleased(event -> resizer.mouseReleased(event));
+        region.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                resizer.mousePressed(event);
+            }
+        });
+        region.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                resizer.mouseDragged(event);
+            }
+        });
+        region.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                resizer.mouseOver(event);
+            }
+        });
+        region.setOnMouseReleased(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                resizer.mouseReleased(event);
+            }
+        });
     }
 
     protected void mouseReleased(MouseEvent event) {
@@ -73,7 +99,7 @@ public class DragResizerXY {
     }
 
 
-    //had to use 2 variables for the control, tried without, had unexpected behaviour (going big was ok, going small nope.)
+    //had to use 2 variables for the controll, tried without, had unexpected behaviour (going big was ok, going small nope.)
     protected boolean isInDraggableZone(MouseEvent event) {
         draggableZoneY = event.getY() > (region.getHeight() - RESIZE_MARGIN);
         draggableZoneX = event.getX() > (region.getWidth() - RESIZE_MARGIN);
@@ -86,23 +112,31 @@ public class DragResizerXY {
         }
 
         if (draggableZoneY) {
-            double mouseY = event.getY();
+            double mousey = event.getY();
 
-            double newHeight = region.getPrefHeight() + (mouseY - y);
+            double newHeight = region.getMinHeight() + (mousey - y);
 
-            region.setPrefHeight(newHeight);
+            Timeline timeline = new Timeline(
+                    new KeyFrame(Duration.millis(1),
+                            new KeyValue(region.minHeightProperty(), newHeight, Interpolator.EASE_BOTH))
+            );
+            timeline.play();
 
-            y = mouseY;
+            y = mousey;
         }
 
         if (draggableZoneX) {
-            double mouseX = event.getX();
+            double mousex = event.getX();
 
-            double newWidth = region.getMinWidth() + (mouseX - x);
+            double newWidth = region.getMinWidth() + (mousex - x);
 
-            region.setMinWidth(newWidth);
+            Timeline timeline = new Timeline(
+                    new KeyFrame(Duration.millis(1),
+                            new KeyValue(region.minWidthProperty(), newWidth, Interpolator.EASE_BOTH))
+            );
+            timeline.play();
 
-            x = mouseX;
+            x = mousex;
 
         }
 
@@ -121,7 +155,7 @@ public class DragResizerXY {
         // setting a min height that is smaller than the current height will
         // have no effect
         if (!initMinHeight) {
-            region.setPrefHeight(region.getHeight());
+            region.setMinHeight(region.getHeight());
             initMinHeight = true;
         }
 
