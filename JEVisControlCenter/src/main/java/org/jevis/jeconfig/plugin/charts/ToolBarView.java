@@ -446,8 +446,8 @@ public class ToolBarView {
                 ge = new GraphExportCSV(
                         ds,
                         model,
-                        new DateTime(graphPluginView.getxAxisLowerBound().longValue()),
-                        new DateTime(graphPluginView.getxAxisUpperBound().longValue()));
+                        new DateTime(graphPluginView.getxAxisLowerBound().longValue() * 1000),
+                        new DateTime(graphPluginView.getxAxisUpperBound().longValue() * 1000));
             } else {
                 ge = new GraphExportCSV(
                         ds,
