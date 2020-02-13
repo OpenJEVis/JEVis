@@ -6,7 +6,6 @@ package org.jevis.report3.data.report.schedule;
  * and open the template in the editor.
  */
 import org.jevis.api.JEVisObject;
-import org.jevis.commons.report.PeriodMode;
 import org.jevis.report3.data.report.IntervalCalculator;
 import org.joda.time.Interval;
 
@@ -21,7 +20,7 @@ public class ScheduleIntervalCalc implements IntervalCalculator {
 
 
     @Override
-    public Interval getInterval(PeriodMode modus) {
+    public Interval getInterval(String periodMode) {
         return interval;
     }
 

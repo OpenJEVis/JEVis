@@ -16,6 +16,7 @@ public class ReportPeriodBox extends ComboBox<PeriodMode> {
         final String keyCurrent = I18n.getInstance().getString("plugin.object.report.dialog.period.current");
         final String keyLast = I18n.getInstance().getString("plugin.object.report.dialog.period.last");
         final String keyAll = I18n.getInstance().getString("plugin.object.report.dialog.period.all");
+        final String keyFixed = I18n.getInstance().getString("plugin.object.report.dialog.period.fixed");
 
         setItems(FXCollections.observableArrayList(PeriodMode.values()));
 
@@ -30,12 +31,19 @@ public class ReportPeriodBox extends ComboBox<PeriodMode> {
                             setText("");
                         } else {
                             String text = "";
-                            if (aggregationPeriod.equals(PeriodMode.CURRENT)) {
-                                text = keyCurrent;
-                            } else if (aggregationPeriod.equals(PeriodMode.LAST)) {
-                                text = keyLast;
-                            } else if (aggregationPeriod.equals(PeriodMode.ALL)) {
-                                text = keyAll;
+                            switch (aggregationPeriod) {
+                                case CURRENT:
+                                    text = keyCurrent;
+                                    break;
+                                case LAST:
+                                    text = keyLast;
+                                    break;
+                                case ALL:
+                                    text = keyAll;
+                                    break;
+                                case FIXED:
+                                    text = keyFixed;
+                                    break;
                             }
 
                             setText(text);

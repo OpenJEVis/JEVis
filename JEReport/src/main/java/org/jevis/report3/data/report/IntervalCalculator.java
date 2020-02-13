@@ -6,18 +6,14 @@
 package org.jevis.report3.data.report;
 
 import org.jevis.api.JEVisObject;
-import org.jevis.commons.report.PeriodMode;
 import org.joda.time.Interval;
 
 /**
- *
  * @author broder
  */
 public interface IntervalCalculator {
 
     void buildIntervals(JEVisObject reportObject);
 
-    Interval getInterval(PeriodMode periodMode);
-
-
+    Interval getInterval(String periodMode);
 }

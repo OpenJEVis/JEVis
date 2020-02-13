@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.datetime.WorkDays;
@@ -29,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PeriodicIntervalCalc implements IntervalCalculator {
 
     private static final Logger logger = LogManager.getLogger(PeriodicIntervalCalc.class);
-    private static final Map<PeriodMode, Interval> intervalMap = new ConcurrentHashMap<>();
+    private static final Map<String, Interval> intervalMap = new ConcurrentHashMap<>();
     private static boolean isInit = false;
     private final SampleHandler samplesHandler;
     private JEVisObject reportObject = null;
@@ -42,8 +43,8 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
     }
 
     @Override
-    public Interval getInterval(PeriodMode modus) {
-        return intervalMap.get(modus);
+    public Interval getInterval(String period) {
+        return intervalMap.get(period);
     }
 
     public synchronized boolean getIsInit() {
@@ -73,7 +74,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         dateHelper = PeriodHelper.getDateHelper(reportObject, schedule, dateHelper, start);
 
         for (PeriodMode mode : PeriodMode.values()) {
-            DateTime startRecord = calcStartRecord(start, schedule, mode, dateHelper);
+            DateTime startRecord = calcStartRecord(start, schedule, mode, FixedPeriod.NONE, dateHelper);
             DateTime endRecord = PeriodHelper.calcEndRecord(startRecord, schedule, dateHelper);
 
             if (workdayStart != null && workdayEnd != null) {
@@ -82,21 +83,74 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
             }
 
             Interval interval = new Interval(startRecord, endRecord);
-            intervalMap.put(mode, interval);
+            intervalMap.put(mode.toString().toUpperCase(), interval);
+        }
+
+        for (FixedPeriod fixedPeriod : FixedPeriod.values()) {
+            DateTime startRecord = calcStartRecord(start, schedule, PeriodMode.FIXED, fixedPeriod, dateHelper);
+            DateTime endRecord = new DateTime();
+
+            if (workdayStart != null && workdayEnd != null) {
+                startRecord = startRecord.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
+                endRecord = endRecord.withHourOfDay(workdayEnd.getHour()).withMinuteOfHour(workdayEnd.getMinute()).withSecondOfMinute(workdayEnd.getSecond()).withMillisOfSecond(999);
+            }
+
+            Interval interval = new Interval(startRecord, endRecord);
+            String name = PeriodMode.FIXED + "_" + fixedPeriod.toString().toUpperCase();
+            intervalMap.put(name, interval);
         }
 
         logger.info("Initialized Interval Map. Created " + intervalMap.size() + " entries.");
     }
 
-    private DateTime calcStartRecord(DateTime startRecord, Period schedule, PeriodMode modus, org.jevis.commons.datetime.DateHelper dateHelper) {
+    private DateTime calcStartRecord(DateTime startRecord, Period schedule, PeriodMode periodMode, FixedPeriod fixedPeriod, org.jevis.commons.datetime.DateHelper dateHelper) {
         DateTime resultStartRecord = startRecord;
-        switch (modus) {
+        switch (periodMode) {
             case LAST:
                 resultStartRecord = PeriodHelper.getPriorStartRecord(startRecord, schedule, dateHelper);
                 break;
             case ALL:
                 resultStartRecord = samplesHandler.getTimestampFromFirstSample(reportObject, "Start Record");
                 break;
+            case FIXED:
+                switch (fixedPeriod) {
+                    case QUARTER_HOUR:
+                        resultStartRecord = startRecord.withSecondOfMinute(0).withMillisOfSecond(0);
+                        break;
+                    case HOUR:
+                        resultStartRecord = startRecord.withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        break;
+                    case DAY:
+                        resultStartRecord = startRecord.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        break;
+                    case WEEK:
+                        resultStartRecord = startRecord.withDayOfWeek(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        break;
+                    case MONTH:
+                        resultStartRecord = startRecord.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        break;
+                    case QUARTER:
+                        if (startRecord.getMonthOfYear() <= 3) {
+                            resultStartRecord = startRecord.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        } else if (startRecord.getMonthOfYear() <= 6) {
+                            resultStartRecord = startRecord.withMonthOfYear(4).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        } else if (startRecord.getMonthOfYear() <= 9) {
+                            resultStartRecord = startRecord.withMonthOfYear(7).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        } else if (startRecord.getMonthOfYear() <= 12) {
+                            resultStartRecord = startRecord.withMonthOfYear(10).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        }
+                        break;
+                    case YEAR:
+                        resultStartRecord = startRecord.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        break;
+                    case THREEYEARS:
+                        resultStartRecord = startRecord.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusYears(2);
+                        break;
+                    case NONE:
+                    default:
+                        break;
+                }
+            case CURRENT:
             default:
                 break;
         }

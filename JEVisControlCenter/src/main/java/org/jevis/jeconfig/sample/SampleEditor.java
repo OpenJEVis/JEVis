@@ -33,12 +33,14 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
@@ -194,7 +196,6 @@ public class SampleEditor {
         });
 
 
-
         tabPane.getSelectionModel().selectedItemProperty().addListener((ov, t, t1) -> {
             for (SampleEditorExtension ex : extensions) {
                 if (ex.getTitle().equals(t1.getText())) {
@@ -205,7 +206,9 @@ public class SampleEditor {
             }
         });
 
-        controlPane.initTimeRange(attribute.getTimestampFromLastSample().minus(Period.days(7)),attribute.getTimestampFromLastSample());
+        if (attribute.hasSample()) {
+            controlPane.initTimeRange(attribute.getTimestampFromLastSample().minus(Period.days(7)), attribute.getTimestampFromLastSample());
+        }
 
         stage.showAndWait();
 
