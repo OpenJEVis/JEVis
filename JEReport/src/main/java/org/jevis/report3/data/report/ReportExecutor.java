@@ -66,7 +66,7 @@ public class ReportExecutor {
 
         intervalCalculator.buildIntervals(reportObject);
 
-        DateTime end = intervalCalculator.getInterval(PeriodMode.CURRENT).getEnd();
+        DateTime end = intervalCalculator.getInterval(PeriodMode.CURRENT.toString().toUpperCase()).getEnd();
 
         if (!precondition.isPreconditionReached(reportObject)) {
 

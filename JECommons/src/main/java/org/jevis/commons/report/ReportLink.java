@@ -1,5 +1,9 @@
 package org.jevis.commons.report;
 
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.FixedPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
+
 public class ReportLink {
     private String name;
     private Long jEVisID;
@@ -58,7 +62,7 @@ public class ReportLink {
     }
 
     public ReportLink clone() {
-        ReportLink clonedReportLink = new ReportLink("", null, false, "", new ReportAttribute("Value", new ReportPeriodConfiguration("NONE", PeriodMode.CURRENT)));
+        ReportLink clonedReportLink = new ReportLink("", null, false, "", new ReportAttribute("Value", new ReportPeriodConfiguration(AggregationPeriod.NONE, ManipulationMode.NONE, PeriodMode.CURRENT, FixedPeriod.NONE)));
         clonedReportLink.setName(this.getName());
         clonedReportLink.setTemplateVariableName(this.getTemplateVariableName());
         clonedReportLink.setjEVisID(this.getjEVisID());

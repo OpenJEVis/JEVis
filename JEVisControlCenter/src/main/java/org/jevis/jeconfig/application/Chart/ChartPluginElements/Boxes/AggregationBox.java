@@ -15,6 +15,7 @@ public class AggregationBox extends ComboBox<AggregationPeriod> {
 
     public AggregationBox(AggregationPeriod period) {
         final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
+        final String keyQuarterHourly = I18n.getInstance().getString("plugin.graph.interval.quarterhourly");
         final String keyHourly = I18n.getInstance().getString("plugin.graph.interval.hourly");
         final String keyDaily = I18n.getInstance().getString("plugin.graph.interval.daily");
         final String keyWeekly = I18n.getInstance().getString("plugin.graph.interval.weekly");
@@ -38,6 +39,9 @@ public class AggregationBox extends ComboBox<AggregationPeriod> {
                             switch (aggregationPeriod) {
                                 case NONE:
                                     text = keyPreset;
+                                    break;
+                                case QUARTER_HOURLY:
+                                    text = keyQuarterHourly;
                                     break;
                                 case HOURLY:
                                     text = keyHourly;

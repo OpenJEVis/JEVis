@@ -7,7 +7,7 @@ package org.jevis.report3;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jodconverter.JodConverter;
+import org.jodconverter.LocalConverter;
 import org.jodconverter.office.InstalledOfficeManagerHolder;
 import org.jodconverter.office.LocalOfficeManager;
 import org.jodconverter.office.OfficeException;
@@ -56,7 +56,7 @@ public class PdfConverter {
         InstalledOfficeManagerHolder.setInstance(officeManager);
         try {
             officeManager.start();
-            JodConverter
+            LocalConverter.make()
                     .convert(xlsFile)
                     .to(pdfFile)
                     .execute();
