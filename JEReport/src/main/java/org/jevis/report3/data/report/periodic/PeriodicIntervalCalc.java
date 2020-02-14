@@ -87,17 +87,22 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         }
 
         for (FixedPeriod fixedPeriod : FixedPeriod.values()) {
-            DateTime startRecord = calcStartRecord(start, schedule, PeriodMode.FIXED, fixedPeriod, dateHelper);
+            DateTime startRecordFixed = calcStartRecord(start, schedule, PeriodMode.FIXED, fixedPeriod, dateHelper);
+            DateTime startRecordFixedToReportEnd = calcStartRecord(start, schedule, PeriodMode.FIXED_TO_REPORT_END, fixedPeriod, dateHelper);
             DateTime endRecord = new DateTime();
 
             if (workdayStart != null && workdayEnd != null) {
-                startRecord = startRecord.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
+                startRecordFixed = startRecordFixed.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
+                startRecordFixedToReportEnd = startRecordFixed.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
                 endRecord = endRecord.withHourOfDay(workdayEnd.getHour()).withMinuteOfHour(workdayEnd.getMinute()).withSecondOfMinute(workdayEnd.getSecond()).withMillisOfSecond(999);
             }
 
-            Interval interval = new Interval(startRecord, endRecord);
-            String name = PeriodMode.FIXED + "_" + fixedPeriod.toString().toUpperCase();
-            intervalMap.put(name, interval);
+            Interval intervalFixed = new Interval(startRecordFixed, endRecord);
+            Interval intervalFixedToReportEnd = new Interval(startRecordFixedToReportEnd, endRecord);
+            String nameFixed = PeriodMode.FIXED + "_" + fixedPeriod.toString().toUpperCase();
+            String nameFixedToReportEnd = PeriodMode.FIXED_TO_REPORT_END + "_" + fixedPeriod.toString().toUpperCase();
+            intervalMap.put(nameFixed, intervalFixed);
+            intervalMap.put(nameFixedToReportEnd, intervalFixedToReportEnd);
         }
 
         logger.info("Initialized Interval Map. Created " + intervalMap.size() + " entries.");
@@ -145,6 +150,36 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                         break;
                     case THREEYEARS:
                         resultStartRecord = startRecord.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusYears(2);
+                        break;
+                    case NONE:
+                    default:
+                        break;
+                }
+            case FIXED_TO_REPORT_END:
+                switch (fixedPeriod) {
+                    case QUARTER_HOUR:
+                        resultStartRecord = startRecord.minusMinutes(15);
+                        break;
+                    case HOUR:
+                        resultStartRecord = startRecord.minusHours(1);
+                        break;
+                    case DAY:
+                        resultStartRecord = startRecord.minusDays(1);
+                        break;
+                    case WEEK:
+                        resultStartRecord = startRecord.minusWeeks(1);
+                        break;
+                    case MONTH:
+                        resultStartRecord = startRecord.minusMonths(1);
+                        break;
+                    case QUARTER:
+                        resultStartRecord = startRecord.minusMonths(3);
+                        break;
+                    case YEAR:
+                        resultStartRecord = startRecord.minusYears(1);
+                        break;
+                    case THREEYEARS:
+                        resultStartRecord = startRecord.minusYears(3);
                         break;
                     case NONE:
                     default:

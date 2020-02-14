@@ -224,12 +224,17 @@ public class ReportLinkProperty implements ReportData {
                                     String modeName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.PERIOD).getLatestSample().getValueAsString();
                                     mode = PeriodMode.valueOf(modeName.toUpperCase());
 
-                                    if (mode != PeriodMode.FIXED) {
+                                    if (mode != PeriodMode.FIXED && mode != PeriodMode.FIXED_TO_REPORT_END) {
                                         interval = intervalCalc.getInterval(mode.toString().toUpperCase());
                                     } else {
                                         String fixedPeriodName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.FIXED_PERIOD).getLatestSample().getValueAsString();
                                         FixedPeriod fixedPeriod = FixedPeriod.valueOf(fixedPeriodName.toUpperCase());
-                                        String name = PeriodMode.FIXED.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
+                                        String name;
+                                        if (mode == PeriodMode.FIXED) {
+                                            name = PeriodMode.FIXED.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
+                                        } else {
+                                            name = PeriodMode.FIXED_TO_REPORT_END.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
+                                        }
 
                                         interval = intervalCalc.getInterval(name);
                                     }
