@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2014-2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -28,13 +28,13 @@ import javafx.scene.control.TreeView;
 import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 
 import javax.measure.unit.Unit;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Locale;
 
 /**
  * TreeView to display JEVIsUnits in JEConfig
@@ -43,7 +43,7 @@ import java.util.Locale;
  */
 public class UnitTree extends TreeView<UnitObject> {
 
-//    private UnitEditor _editor = new UnitEditor();
+    //    private UnitEditor _editor = new UnitEditor();
     private JEVisDataSource _ds;
 
     private HashMap<String, TreeItem<UnitObject>> itemCache;
@@ -89,14 +89,15 @@ public class UnitTree extends TreeView<UnitObject> {
                         @Override
                         protected void updateItem(UnitObject item, boolean emty) {
                             super.updateItem(item, emty); //To change body of generated methods, choose Tools | Templates.
+
+                            setText(null);
+                            setGraphic(null);
+
                             if (!emty) {
                                 UnitGraphic gc = getObjectGraphic(item);
 //                                setText(item);
                                 setGraphic(gc.getGraphic());
 
-                            } else {
-                                setText(null);
-                                setGraphic(null);
                             }
                         }
 
@@ -215,20 +216,35 @@ public class UnitTree extends TreeView<UnitObject> {
 //        List<JEVisUnit> usedAdditionalUnits = new ArrayList<>();
         itemChildren.put(item, list);
 
+        final String customName = I18n.getInstance().getString("units.custom");
+
         if (item.getValue().getType() == UnitObject.Type.FakeRoot) {
+//            TreeItem<UnitObject> u1 = buildItem(new UnitObject(Dimension.AMOUNT_OF_SUBSTANCE, I18n.getInstance().getString("units.quantities.amountofsubstance")));
+//            TreeItem<UnitObject> u2 = buildItem(new UnitObject(Dimension.ELECTRIC_CURRENT, I18n.getInstance().getString("units.quantities.electriccurrent")));
+//            TreeItem<UnitObject> u3 = buildItem(new UnitObject(Dimension.LENGTH, I18n.getInstance().getString("units.quantities.length")));
+//            TreeItem<UnitObject> u4 = buildItem(new UnitObject(Dimension.MASS, I18n.getInstance().getString("units.quantities.mass")));
+//            TreeItem<UnitObject> u5 = buildItem(new UnitObject(Dimension.TEMPERATURE, I18n.getInstance().getString("units.quantities.temperature")));
+//            TreeItem<UnitObject> u6 = buildItem(new UnitObject(Dimension.TIME, I18n.getInstance().getString("units.quantities.time")));
+//            TreeItem<UnitObject> u7 = buildItem(new UnitObject(Dimension.NONE, I18n.getInstance().getString("units.quantities.none")));
+//
+//            //Quantity for all the rest Unit with are not comatible to anyting
+//
+//
+//            list.addAll(u1, u2, u3, u4, u5, u6, u7, customItem);
+
             for (JEVisUnit child : UnitManager.getInstance().getQuantitiesJunit()) {
 //                logger.info("---add quanti: " + child);
-                UnitObject quant = new UnitObject(UnitObject.Type.Quantity, child, UnitManager.getInstance().getQuantitiesName(child, Locale.ENGLISH));
+                UnitObject quant = new UnitObject(UnitObject.Type.Quantity, child, UnitManager.getInstance().getQuantitiesName(child, I18n.getInstance().getLocale()));
                 TreeItem<UnitObject> newItem = buildItem(quant);
                 list.add(newItem);
             }
-            //Quantity for all the rest Unit with are not comatible to anyting
-            UnitObject custom = new UnitObject(UnitObject.Type.Quantity, new JEVisUnitImp(Unit.ONE), "Custom");
+
+            UnitObject custom = new UnitObject(UnitObject.Type.Quantity, new JEVisUnitImp(Unit.ONE), customName);
             TreeItem<UnitObject> customItem = buildItem(custom);
             list.add(customItem);
 
         } else if (item.getValue().getType() == UnitObject.Type.Quantity) {
-            if (item.getValue().getID().equals("Custom")) {
+            if (item.getValue().getID().equals(customName)) {
                 for (JEVisUnit child : UnitManager.getInstance().getCustomUnits()) {
                     UnitObject customUnit = new UnitObject(UnitObject.Type.NonSIUnit, child, item.getValue().getID() + child.toString());
                     TreeItem<UnitObject> newItem = buildItem(customUnit);
@@ -255,7 +271,6 @@ public class UnitTree extends TreeView<UnitObject> {
                     UnitObject quant = new UnitObject(UnitObject.Type.NonSIUnit, child, item.getValue().getID() + child.toString());
                     TreeItem<UnitObject> newItem = buildItem(quant);
                     list.add(newItem);
-
                 }
             }
         } else if (item.getValue().getType() == UnitObject.Type.NonSIUnit || item.getValue().getType() == UnitObject.Type.SIUnit) {

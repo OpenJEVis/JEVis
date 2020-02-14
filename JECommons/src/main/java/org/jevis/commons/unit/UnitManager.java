@@ -22,10 +22,12 @@ package org.jevis.commons.unit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.i18n.I18n;
 import org.jscience.economics.money.Currency;
 import org.jscience.economics.money.Money;
 
 import javax.measure.MetricPrefix;
+import javax.measure.Prefix;
 import javax.measure.quantity.*;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
@@ -44,7 +46,7 @@ public class UnitManager {
     private static final Logger logger = LogManager.getLogger(UnitManager.class);
 
     private final static UnitManager unitManager = new UnitManager();
-    private List<Unit> prefixes;
+    private List<Unit<Quantity>> prefixes;
     private List<String> prefixes2;
     private List<Unit> quantities;
     private List<JEVisUnit> _quantitiesJunit;
@@ -151,7 +153,7 @@ public class UnitManager {
      * @param prefix
      * @return
      */
-    public MetricPrefix getPrefix(JEVisUnit.Prefix prefix) {
+    public Prefix getPrefix(JEVisUnit.Prefix prefix) {
         switch (prefix) {
             case ATTO:
                 return ATTO;
@@ -193,7 +195,7 @@ public class UnitManager {
                 return ZETTA;
             case NONE:
             default:
-                return null;
+                return CustomPrefix.NONE;
         }
     }
 
@@ -203,7 +205,7 @@ public class UnitManager {
      * @param prefix
      * @return
      */
-    public MetricPrefix getPrefix(String prefix) {
+    public Prefix getPrefix(String prefix) {
         prefix = prefix.toUpperCase();
         switch (prefix) {
             case "ATTO":
@@ -244,60 +246,69 @@ public class UnitManager {
                 return ZEPTO;
             case "ZETTA":
                 return ZETTA;
+            case "NONE":
+            case "":
             default:
-                return null;
+                return CustomPrefix.NONE;
         }
     }
 
-    public JEVisUnit.Prefix getPrefix(MetricPrefix prefix) {
+    public JEVisUnit.Prefix getPrefix(Prefix prefix) {
         if (prefix != null) {
-            switch (prefix) {
-                case ATTO:
-                    return JEVisUnit.Prefix.ATTO;
-                case CENTI:
-                    return JEVisUnit.Prefix.CENTI;
-                case DECI:
-                    return JEVisUnit.Prefix.DECI;
-                case DEKA:
-                    return JEVisUnit.Prefix.DEKA;
-                case EXA:
-                    return JEVisUnit.Prefix.EXA;
-                case FEMTO:
-                    return JEVisUnit.Prefix.FEMTO;
-                case GIGA:
-                    return JEVisUnit.Prefix.GIGA;
-                case HECTO:
-                    return JEVisUnit.Prefix.HECTO;
-                case KILO:
-                    return JEVisUnit.Prefix.KILO;
-                case MEGA:
-                    return JEVisUnit.Prefix.MEGA;
-                case MICRO:
-                    return JEVisUnit.Prefix.MICRO;
-                case MILLI:
-                    return JEVisUnit.Prefix.MILLI;
-                case NANO:
-                    return JEVisUnit.Prefix.NANO;
-                case PETA:
-                    return JEVisUnit.Prefix.PETA;
-                case PICO:
-                    return JEVisUnit.Prefix.PICO;
-                case TERA:
-                    return JEVisUnit.Prefix.TERA;
-                case YOCTO:
-                    return JEVisUnit.Prefix.YOCTO;
-                case ZEPTO:
-                    return JEVisUnit.Prefix.ZEPTO;
-                case ZETTA:
-                    return JEVisUnit.Prefix.ZETTA;
-                case YOTTA:
-                    return JEVisUnit.Prefix.YOTTA;
-                default:
+            if (prefix instanceof MetricPrefix) {
+                final MetricPrefix p = (MetricPrefix) prefix;
+
+                switch (p) {
+                    case ATTO:
+                        return JEVisUnit.Prefix.ATTO;
+                    case CENTI:
+                        return JEVisUnit.Prefix.CENTI;
+                    case DECI:
+                        return JEVisUnit.Prefix.DECI;
+                    case DEKA:
+                        return JEVisUnit.Prefix.DEKA;
+                    case EXA:
+                        return JEVisUnit.Prefix.EXA;
+                    case FEMTO:
+                        return JEVisUnit.Prefix.FEMTO;
+                    case GIGA:
+                        return JEVisUnit.Prefix.GIGA;
+                    case HECTO:
+                        return JEVisUnit.Prefix.HECTO;
+                    case KILO:
+                        return JEVisUnit.Prefix.KILO;
+                    case MEGA:
+                        return JEVisUnit.Prefix.MEGA;
+                    case MICRO:
+                        return JEVisUnit.Prefix.MICRO;
+                    case MILLI:
+                        return JEVisUnit.Prefix.MILLI;
+                    case NANO:
+                        return JEVisUnit.Prefix.NANO;
+                    case PETA:
+                        return JEVisUnit.Prefix.PETA;
+                    case PICO:
+                        return JEVisUnit.Prefix.PICO;
+                    case TERA:
+                        return JEVisUnit.Prefix.TERA;
+                    case YOCTO:
+                        return JEVisUnit.Prefix.YOCTO;
+                    case ZEPTO:
+                        return JEVisUnit.Prefix.ZEPTO;
+                    case ZETTA:
+                        return JEVisUnit.Prefix.ZETTA;
+                    case YOTTA:
+                        return JEVisUnit.Prefix.YOTTA;
+                }
+            } else if (prefix instanceof CustomPrefix) {
+                final CustomPrefix p = (CustomPrefix) prefix;
+
+                if (p == CustomPrefix.NONE) {
                     return JEVisUnit.Prefix.NONE;
+                }
             }
-        } else {
-            return JEVisUnit.Prefix.NONE;
         }
+        return JEVisUnit.Prefix.NONE;
     }
 
     public JEVisUnit.Prefix getJEVisUnitPrefix(String prefix) {
@@ -343,12 +354,10 @@ public class UnitManager {
                     return JEVisUnit.Prefix.ZETTA;
                 case "YOTTA":
                     return JEVisUnit.Prefix.YOTTA;
-                default:
-                    return JEVisUnit.Prefix.NONE;
             }
-        } else {
-            return JEVisUnit.Prefix.NONE;
         }
+
+        return JEVisUnit.Prefix.NONE;
     }
 
     /**
@@ -756,51 +765,51 @@ public class UnitManager {
         }
         dimNames = new HashMap<>();
 
-        dimNames.put(Money.BASE_UNIT, "Currency");
+        dimNames.put(Money.BASE_UNIT, I18n.getInstance().getString("units.quantities.currency"));
 
-        dimNames.put(Acceleration.UNIT, "Acceleration");
-        dimNames.put(AngularVelocity.UNIT, "Angular Velocity");
-        dimNames.put(AmountOfSubstance.UNIT, "Amount Of Substance");
-        dimNames.put(Angle.UNIT, "Angle");
-        dimNames.put(AngularAcceleration.UNIT, "Angular Acceleration");
-        dimNames.put(Area.UNIT, "Area");
-        dimNames.put(CatalyticActivity.UNIT, "Catalytic Activity");
-        dimNames.put(DataAmount.UNIT, "Data Amount");
-        dimNames.put(DataRate.UNIT, "Data Rate");
-        dimNames.put(Dimensionless.UNIT, "Dimensionless");
-        dimNames.put(Duration.UNIT, "Duration");
-        dimNames.put(DynamicViscosity.UNIT, "DynamicViscosity");
-        dimNames.put(ElectricCapacitance.UNIT, "Electric Capacitance");
-        dimNames.put(ElectricConductance.UNIT, "Electric Conductance");
-        dimNames.put(ElectricCharge.UNIT, "Electric Charge");
-        dimNames.put(ElectricCurrent.UNIT, "Electric Current");
-        dimNames.put(ElectricInductance.UNIT, "Electric Inductance");
-        dimNames.put(ElectricPotential.UNIT, "Electric Potential");
-        dimNames.put(ElectricResistance.UNIT, "Electric Resistance");
-        dimNames.put(Energy.UNIT, "Energy");
-        dimNames.put(Force.UNIT, "Force");
-        dimNames.put(Frequency.UNIT, "Frequency");
-        dimNames.put(Illuminance.UNIT, "Illuminance");
-        dimNames.put(KinematicViscosity.UNIT, "Kinematic Viscosity");
-        dimNames.put(Length.UNIT, "Length");
-        dimNames.put(LuminousFlux.UNIT, "Luminous Flux");
-        dimNames.put(LuminousIntensity.UNIT, "Luminous Intensity");
-        dimNames.put(Mass.UNIT, "Mass");
-        dimNames.put(MagneticFlux.UNIT, "Magnetic Flux");
-        dimNames.put(MagneticFluxDensity.UNIT, "Magnetic Flux Density");
-        dimNames.put(MassFlowRate.UNIT, "Mass Flow Rate");
-        dimNames.put(Power.UNIT, "Power");
-        dimNames.put(Pressure.UNIT, "Pressure");
-        dimNames.put(RadiationDoseAbsorbed.UNIT, "Radiation Dose Absorbed");
-        dimNames.put(RadiationDoseEffective.UNIT, "Radiation Dose Effective");
-        dimNames.put(RadioactiveActivity.UNIT, "Radioactive Activity");
-        dimNames.put(SolidAngle.UNIT, "Solid Angle");
-        dimNames.put(Temperature.UNIT, "Temperature");
-        dimNames.put(Torque.UNIT, "Torque");
-        dimNames.put(Velocity.UNIT, "Velocity");
-        dimNames.put(Volume.UNIT, "Volume");
-        dimNames.put(VolumetricDensity.UNIT, "Volumetric Density");
-        dimNames.put(VolumetricFlowRate.UNIT, "Volumetric Flow Rate");
+        dimNames.put(Acceleration.UNIT, I18n.getInstance().getString("units.quantities.acceleration"));
+        dimNames.put(AngularVelocity.UNIT, I18n.getInstance().getString("units.quantities.angularvelocity"));
+        dimNames.put(AmountOfSubstance.UNIT, I18n.getInstance().getString("units.quantities.amountofsubstance"));
+        dimNames.put(Angle.UNIT, I18n.getInstance().getString("units.quantities.angle"));
+        dimNames.put(AngularAcceleration.UNIT, I18n.getInstance().getString("units.quantities.angularacceleration"));
+        dimNames.put(Area.UNIT, I18n.getInstance().getString("units.quantities.area"));
+        dimNames.put(CatalyticActivity.UNIT, I18n.getInstance().getString("units.quantities.catalyticactivity"));
+        dimNames.put(DataAmount.UNIT, I18n.getInstance().getString("units.quantities.dataamount"));
+        dimNames.put(DataRate.UNIT, I18n.getInstance().getString("units.quantities.datarate"));
+        dimNames.put(Dimensionless.UNIT, I18n.getInstance().getString("units.quantities.dimensionless"));
+        dimNames.put(Duration.UNIT, I18n.getInstance().getString("units.quantities.duration"));
+        dimNames.put(DynamicViscosity.UNIT, I18n.getInstance().getString("units.quantities.dynamicviscosity"));
+        dimNames.put(ElectricCapacitance.UNIT, I18n.getInstance().getString("units.quantities.electriccapacitance"));
+        dimNames.put(ElectricConductance.UNIT, I18n.getInstance().getString("units.quantities.electricconductance"));
+        dimNames.put(ElectricCharge.UNIT, I18n.getInstance().getString("units.quantities.electriccharge"));
+        dimNames.put(ElectricCurrent.UNIT, I18n.getInstance().getString("units.quantities.electriccurrent"));
+        dimNames.put(ElectricInductance.UNIT, I18n.getInstance().getString("units.quantities.electricinductance"));
+        dimNames.put(ElectricPotential.UNIT, I18n.getInstance().getString("units.quantities.electricpotential"));
+        dimNames.put(ElectricResistance.UNIT, I18n.getInstance().getString("units.quantities.electricresistance"));
+        dimNames.put(Energy.UNIT, I18n.getInstance().getString("units.quantities.energy"));
+        dimNames.put(Force.UNIT, I18n.getInstance().getString("units.quantities.force"));
+        dimNames.put(Frequency.UNIT, I18n.getInstance().getString("units.quantities.frequency"));
+        dimNames.put(Illuminance.UNIT, I18n.getInstance().getString("units.quantities.illuminance"));
+        dimNames.put(KinematicViscosity.UNIT, I18n.getInstance().getString("units.quantities.kinematicviscosity"));
+        dimNames.put(Length.UNIT, I18n.getInstance().getString("units.quantities.length"));
+        dimNames.put(LuminousFlux.UNIT, I18n.getInstance().getString("units.quantities.luminousflux"));
+        dimNames.put(LuminousIntensity.UNIT, I18n.getInstance().getString("units.quantities.luminousintensity"));
+        dimNames.put(Mass.UNIT, I18n.getInstance().getString("units.quantities.mass"));
+        dimNames.put(MagneticFlux.UNIT, I18n.getInstance().getString("units.quantities.magneticflux"));
+        dimNames.put(MagneticFluxDensity.UNIT, I18n.getInstance().getString("units.quantities.magneticfluxdensity"));
+        dimNames.put(MassFlowRate.UNIT, I18n.getInstance().getString("units.quantities.massflowrate"));
+        dimNames.put(Power.UNIT, I18n.getInstance().getString("units.quantities.power"));
+        dimNames.put(Pressure.UNIT, I18n.getInstance().getString("units.quantities.pressure"));
+        dimNames.put(RadiationDoseAbsorbed.UNIT, I18n.getInstance().getString("units.quantities.radiationdoseabsorbed"));
+        dimNames.put(RadiationDoseEffective.UNIT, I18n.getInstance().getString("units.quantities.radiationdoseeffective"));
+        dimNames.put(RadioactiveActivity.UNIT, I18n.getInstance().getString("units.quantities.radioactiveactivity"));
+        dimNames.put(SolidAngle.UNIT, I18n.getInstance().getString("units.quantities.solidangle"));
+        dimNames.put(Temperature.UNIT, I18n.getInstance().getString("units.quantities.temperature"));
+        dimNames.put(Torque.UNIT, I18n.getInstance().getString("units.quantities.torque"));
+        dimNames.put(Velocity.UNIT, I18n.getInstance().getString("units.quantities.velocity"));
+        dimNames.put(Volume.UNIT, I18n.getInstance().getString("units.quantities.volume"));
+        dimNames.put(VolumetricDensity.UNIT, I18n.getInstance().getString("units.quantities.volumetricdensity"));
+        dimNames.put(VolumetricFlowRate.UNIT, I18n.getInstance().getString("units.quantities.volumetricflowrate"));
 
         return dimNames;
     }
@@ -828,162 +837,160 @@ public class UnitManager {
         }
         names = new HashMap<>();
 
-
-        names.put(SI.AMPERE, "Ampere");
-        names.put(SI.BECQUEREL, "Becquerel");
-        names.put(SI.BIT, "Bit");
-        names.put(SI.CANDELA, "Candela");
-        names.put(SI.CELSIUS, "Celsius");
-        names.put(SI.CENTIMETER, "Centimeter");
-        names.put(SI.CENTIMETRE, "Centimetre");
-        names.put(SI.COULOMB, "Coulomb");
-        names.put(SI.CUBIC_METRE, "Cubic Metre");
-        names.put(SI.FARAD, "Farad");
-        names.put(SI.GRAM, "Gram");
-        names.put(SI.GRAY, "Gray");
-        names.put(SI.HENRY, "Henry");
-        names.put(SI.HERTZ, "Hertz");
-        names.put(SI.JOULE, "Joule");
-        names.put(SI.KATAL, "Katal");
-        names.put(SI.KELVIN, "Kelvin");
-        names.put(SI.KILOGRAM, "Kilogram");
-        names.put(SI.KILOMETER, "Kilometer");
-        names.put(SI.LUMEN, "Lumen");
-        names.put(SI.LUX, "Lux");
-        names.put(SI.METER, "Meter");
-        names.put(SI.METERS_PER_SECOND, "Meters Per Second");
-        names.put(SI.METERS_PER_SQUARE_SECOND, "Meters Per Square Second");
-        names.put(SI.MILLIMETRE, "Millimetre");
-        names.put(SI.MOLE, "Mole");
-        names.put(SI.NEWTON, "Newton");
-        names.put(SI.OHM, "Ohm");
-        names.put(SI.PASCAL, "Pascal");
-        names.put(SI.RADIAN, "Radian");
-        names.put(SI.SECOND, "Second");
-        names.put(SI.SIEMENS, "Siemens");
-        names.put(SI.SIEVERT, "Sievert");
-        names.put(SI.SQUARE_METRE, "Square Metre");
-        names.put(SI.STERADIAN, "Steradian");
-        names.put(SI.TESLA, "Tesla");
-        names.put(SI.VOLT, "Volt");
-        names.put(SI.WATT, "Watt");
-        names.put(SI.WEBER, "Weber");
-        //---- NON SI
-        names.put(NonSI.ANGSTROM, "Angstrom");
-        names.put(NonSI.ARE, "Are");
-        names.put(NonSI.ASTRONOMICAL_UNIT, "Astronomical Unit");
-        names.put(NonSI.ATMOSPHERE, "Atmosphere");
-        names.put(NonSI.ATOM, "Atom");
-        names.put(NonSI.ATOMIC_MASS, "Atomic Mass");
-        names.put(NonSI.BAR, "Bar");
-        names.put(NonSI.BYTE, "Byte");
-        names.put(NonSI.C, "C");
-        names.put(NonSI.CENTIRADIAN, "Centiradian");
-        names.put(NonSI.COMPUTER_POINT, "Computer Point");
-        names.put(NonSI.CUBIC_INCH, "Cubic_Inch");
-        names.put(NonSI.CURIE, "Curie");
-        names.put(NonSI.DAY, "Day");
-        names.put(NonSI.DAY_SIDEREAL, "Day_Sidereal");
-        names.put(NonSI.DECIBEL, "Decibel");
-        names.put(NonSI.DEGREE_ANGLE, "Degree Angle");
-        names.put(NonSI.DYNE, "Dyne");
-        names.put(NonSI.E, "E");
-        names.put(NonSI.ELECTRON_MASS, "Electron Mass");
-        names.put(NonSI.ELECTRON_VOLT, "Electron Volt");
-        names.put(NonSI.ERG, "Erg");
-        names.put(NonSI.FAHRENHEIT, "Fahrenheit");
-        names.put(NonSI.FARADAY, "Faraday");
-        names.put(NonSI.FOOT, "Foot");
-        names.put(NonSI.FOOT_SURVEY_US, "Foot Survey Us");
-        names.put(NonSI.FRANKLIN, "Franklin");
-        names.put(NonSI.G, "G");
-        names.put(NonSI.GALLON_DRY_US, "Gallon Dry Us");
-        names.put(NonSI.GALLON_LIQUID_US, "Gallon Liquid US");
-        names.put(NonSI.GALLON_UK, "Gallon UK");
-        names.put(NonSI.GAUSS, "Gauss");
-        names.put(NonSI.GILBERT, "Gilbert");
-        names.put(NonSI.GRADE, "Grade");
-        names.put(NonSI.HECTARE, "Hectare");
-        names.put(NonSI.HORSEPOWER, "Horsepower");
-        names.put(NonSI.HOUR, "Hour");
-        names.put(NonSI.INCH, "Inch");
-        names.put(NonSI.INCH_OF_MERCURY, "Inch Of Mercury");
-        names.put(NonSI.KILOGRAM_FORCE, "Kilogram Force");
-        names.put(NonSI.KILOMETERS_PER_HOUR, "Kilometers Per Hour");
-        names.put(NonSI.KNOT, "Knot");
-        names.put(NonSI.LAMBERT, "Lambert");
-        names.put(NonSI.LIGHT_YEAR, "Light Year");
-        names.put(NonSI.LITER, "Liter");
-        names.put(NonSI.LITRE, "Litre");
-        names.put(NonSI.MACH, "Mach");
-        names.put(NonSI.MAXWELL, "Maxwell");
-        names.put(NonSI.METRIC_TON, "Metric Ton");
-        names.put(NonSI.MILE, "Mile");
-        names.put(NonSI.MILES_PER_HOUR, "Miles Per Hour");
-        names.put(NonSI.MILLIMETER_OF_MERCURY, "Millimeter Of Mercury");
-        names.put(NonSI.MINUTE, "Minute");
-        names.put(NonSI.MINUTE_ANGLE, "Minute Angle");
-        names.put(NonSI.MONTH, "Month");
-        names.put(NonSI.NAUTICAL_MILE, "Nautical Mile");
-        names.put(NonSI.OCTET, "Octet");
-        names.put(NonSI.OUNCE, "Ounce");
-        names.put(NonSI.OUNCE_LIQUID_UK, "Ounce Liquid UK");
-        names.put(NonSI.PARSEC, "Parsec");
-        names.put(NonSI.PERCENT, "Percent");
-        names.put(NonSI.PIXEL, "Pixel");
-        names.put(NonSI.POINT, "Point");
-        names.put(NonSI.POISE, "Poise");
-        names.put(NonSI.POUND, "Pound");
-        names.put(NonSI.POUND_FORCE, "Pound_Force");
-        names.put(NonSI.RAD, "Rad");
-        names.put(NonSI.RANKINE, "Rankine");
-        names.put(NonSI.REM, "Rem");
-        names.put(NonSI.REVOLUTION, "Revolution");
-        names.put(NonSI.ROENTGEN, "Roentgen");
-        names.put(NonSI.RUTHERFORD, "Rutherford");
-        names.put(NonSI.SECOND_ANGLE, "Second Angle");
-        names.put(NonSI.SPHERE, "Sphere");
-        names.put(NonSI.STOKE, "Stoke");
-        names.put(NonSI.TON_UK, "Ton UK");
-        names.put(NonSI.TON_US, "Ton US");
-        names.put(NonSI.WEEK, "Week");
-        names.put(NonSI.YARD, "Yard");
-        names.put(NonSI.YEAR, "Year");
-        names.put(NonSI.YEAR_CALENDAR, "Year Calendar");
-        names.put(NonSI.YEAR_SIDEREAL, "Year Sidereal");
+        names.put(SI.AMPERE, I18n.getInstance().getString("units.name.Ampere"));
+        names.put(SI.BECQUEREL, I18n.getInstance().getString("units.name.Becquerel"));
+        names.put(SI.BIT, I18n.getInstance().getString("units.name.Bit"));
+        names.put(SI.CANDELA, I18n.getInstance().getString("units.name.Candela"));
+        names.put(SI.CELSIUS, I18n.getInstance().getString("units.name.Celsius"));
+        names.put(SI.CENTIMETER, I18n.getInstance().getString("units.name.Centimeter"));
+        names.put(SI.CENTIMETRE, I18n.getInstance().getString("units.name.Centimetre"));
+        names.put(SI.COULOMB, I18n.getInstance().getString("units.name.Coulomb"));
+        names.put(SI.CUBIC_METRE, I18n.getInstance().getString("units.name.CubicMetre"));
+        names.put(SI.FARAD, I18n.getInstance().getString("units.name.Farad"));
+        names.put(SI.GRAM, I18n.getInstance().getString("units.name.Gram"));
+        names.put(SI.GRAY, I18n.getInstance().getString("units.name.Gray"));
+        names.put(SI.HENRY, I18n.getInstance().getString("units.name.Henry"));
+        names.put(SI.HERTZ, I18n.getInstance().getString("units.name.Hertz"));
+        names.put(SI.JOULE, I18n.getInstance().getString("units.name.Joule"));
+        names.put(SI.KATAL, I18n.getInstance().getString("units.name.Katal"));
+        names.put(SI.KELVIN, I18n.getInstance().getString("units.name.Kelvin"));
+        names.put(SI.KILOGRAM, I18n.getInstance().getString("units.name.Kilogram"));
+        names.put(SI.KILOMETER, I18n.getInstance().getString("units.name.Kilometer"));
+        names.put(SI.LUMEN, I18n.getInstance().getString("units.name.Lumen"));
+        names.put(SI.LUX, I18n.getInstance().getString("units.name.Lux"));
+        names.put(SI.METER, I18n.getInstance().getString("units.name.Meter"));
+        names.put(SI.METERS_PER_SECOND, I18n.getInstance().getString("units.name.MetersPerSecond"));
+        names.put(SI.METERS_PER_SQUARE_SECOND, I18n.getInstance().getString("units.name.MetersPerSquareSecond"));
+        names.put(SI.MILLIMETRE, I18n.getInstance().getString("units.name.Millimetre"));
+        names.put(SI.MOLE, I18n.getInstance().getString("units.name.Mole"));
+        names.put(SI.NEWTON, I18n.getInstance().getString("units.name.Newton"));
+        names.put(SI.OHM, I18n.getInstance().getString("units.name.Ohm"));
+        names.put(SI.PASCAL, I18n.getInstance().getString("units.name.Pascal"));
+        names.put(SI.RADIAN, I18n.getInstance().getString("units.name.Radian"));
+        names.put(SI.SECOND, I18n.getInstance().getString("units.name.Second"));
+        names.put(SI.SIEMENS, I18n.getInstance().getString("units.name.Siemens"));
+        names.put(SI.SIEVERT, I18n.getInstance().getString("units.name.Sievert"));
+        names.put(SI.SQUARE_METRE, I18n.getInstance().getString("units.name.SquareMetre"));
+        names.put(SI.STERADIAN, I18n.getInstance().getString("units.name.Steradian"));
+        names.put(SI.TESLA, I18n.getInstance().getString("units.name.Tesla"));
+        names.put(SI.VOLT, I18n.getInstance().getString("units.name.Volt"));
+        names.put(SI.WATT, I18n.getInstance().getString("units.name.Watt"));
+        names.put(SI.WEBER, I18n.getInstance().getString("units.name.Weber"));
+//----NONSI
+        names.put(NonSI.ANGSTROM, I18n.getInstance().getString("units.name.Angstrom"));
+        names.put(NonSI.ARE, I18n.getInstance().getString("units.name.Are"));
+        names.put(NonSI.ASTRONOMICAL_UNIT, I18n.getInstance().getString("units.name.AstronomicalUnit"));
+        names.put(NonSI.ATMOSPHERE, I18n.getInstance().getString("units.name.Atmosphere"));
+        names.put(NonSI.ATOM, I18n.getInstance().getString("units.name.Atom"));
+        names.put(NonSI.ATOMIC_MASS, I18n.getInstance().getString("units.name.AtomicMass"));
+        names.put(NonSI.BAR, I18n.getInstance().getString("units.name.Bar"));
+        names.put(NonSI.BYTE, I18n.getInstance().getString("units.name.Byte"));
+        names.put(NonSI.C, I18n.getInstance().getString("units.name.C"));
+        names.put(NonSI.CENTIRADIAN, I18n.getInstance().getString("units.name.Centiradian"));
+        names.put(NonSI.COMPUTER_POINT, I18n.getInstance().getString("units.name.ComputerPoint"));
+        names.put(NonSI.CUBIC_INCH, I18n.getInstance().getString("units.name.CubicInch"));
+        names.put(NonSI.CURIE, I18n.getInstance().getString("units.name.Curie"));
+        names.put(NonSI.DAY, I18n.getInstance().getString("units.name.Day"));
+        names.put(NonSI.DAY_SIDEREAL, I18n.getInstance().getString("units.name.Day_Sidereal"));
+        names.put(NonSI.DECIBEL, I18n.getInstance().getString("units.name.Decibel"));
+        names.put(NonSI.DEGREE_ANGLE, I18n.getInstance().getString("units.name.DegreeAngle"));
+        names.put(NonSI.DYNE, I18n.getInstance().getString("units.name.Dyne"));
+        names.put(NonSI.E, I18n.getInstance().getString("units.name.E"));
+        names.put(NonSI.ELECTRON_MASS, I18n.getInstance().getString("units.name.ElectronMass"));
+        names.put(NonSI.ELECTRON_VOLT, I18n.getInstance().getString("units.name.ElectronVolt"));
+        names.put(NonSI.ERG, I18n.getInstance().getString("units.name.Erg"));
+        names.put(NonSI.FAHRENHEIT, I18n.getInstance().getString("units.name.Fahrenheit"));
+        names.put(NonSI.FARADAY, I18n.getInstance().getString("units.name.Faraday"));
+        names.put(NonSI.FOOT, I18n.getInstance().getString("units.name.Foot"));
+        names.put(NonSI.FOOT_SURVEY_US, I18n.getInstance().getString("units.name.FootSurveyUs"));
+        names.put(NonSI.FRANKLIN, I18n.getInstance().getString("units.name.Franklin"));
+        names.put(NonSI.G, I18n.getInstance().getString("units.name.G"));
+        names.put(NonSI.GALLON_DRY_US, I18n.getInstance().getString("units.name.GallonDryUs"));
+        names.put(NonSI.GALLON_LIQUID_US, I18n.getInstance().getString("units.name.GallonLiquidUS"));
+        names.put(NonSI.GALLON_UK, I18n.getInstance().getString("units.name.GallonUK"));
+        names.put(NonSI.GAUSS, I18n.getInstance().getString("units.name.Gauss"));
+        names.put(NonSI.GILBERT, I18n.getInstance().getString("units.name.Gilbert"));
+        names.put(NonSI.GRADE, I18n.getInstance().getString("units.name.Grade"));
+        names.put(NonSI.HECTARE, I18n.getInstance().getString("units.name.Hectare"));
+        names.put(NonSI.HORSEPOWER, I18n.getInstance().getString("units.name.Horsepower"));
+        names.put(NonSI.HOUR, I18n.getInstance().getString("units.name.Hour"));
+        names.put(NonSI.INCH, I18n.getInstance().getString("units.name.Inch"));
+        names.put(NonSI.INCH_OF_MERCURY, I18n.getInstance().getString("units.name.InchOfMercury"));
+        names.put(NonSI.KILOGRAM_FORCE, I18n.getInstance().getString("units.name.KilogramForce"));
+        names.put(NonSI.KILOMETERS_PER_HOUR, I18n.getInstance().getString("units.name.KilometersPerHour"));
+        names.put(NonSI.KNOT, I18n.getInstance().getString("units.name.Knot"));
+        names.put(NonSI.LAMBERT, I18n.getInstance().getString("units.name.Lambert"));
+        names.put(NonSI.LIGHT_YEAR, I18n.getInstance().getString("units.name.LightYear"));
+        names.put(NonSI.LITER, I18n.getInstance().getString("units.name.Liter"));
+        names.put(NonSI.LITRE, I18n.getInstance().getString("units.name.Litre"));
+        names.put(NonSI.MACH, I18n.getInstance().getString("units.name.Mach"));
+        names.put(NonSI.MAXWELL, I18n.getInstance().getString("units.name.Maxwell"));
+        names.put(NonSI.METRIC_TON, I18n.getInstance().getString("units.name.MetricTon"));
+        names.put(NonSI.MILE, I18n.getInstance().getString("units.name.Mile"));
+        names.put(NonSI.MILES_PER_HOUR, I18n.getInstance().getString("units.name.MilesPerHour"));
+        names.put(NonSI.MILLIMETER_OF_MERCURY, I18n.getInstance().getString("units.name.MillimeterOfMercury"));
+        names.put(NonSI.MINUTE, I18n.getInstance().getString("units.name.Minute"));
+        names.put(NonSI.MINUTE_ANGLE, I18n.getInstance().getString("units.name.MinuteAngle"));
+        names.put(NonSI.MONTH, I18n.getInstance().getString("units.name.Month"));
+        names.put(NonSI.NAUTICAL_MILE, I18n.getInstance().getString("units.name.NauticalMile"));
+        names.put(NonSI.OCTET, I18n.getInstance().getString("units.name.Octet"));
+        names.put(NonSI.OUNCE, I18n.getInstance().getString("units.name.Ounce"));
+        names.put(NonSI.OUNCE_LIQUID_UK, I18n.getInstance().getString("units.name.OunceLiquidUK"));
+        names.put(NonSI.PARSEC, I18n.getInstance().getString("units.name.Parsec"));
+        names.put(NonSI.PERCENT, I18n.getInstance().getString("units.name.Percent"));
+        names.put(NonSI.PIXEL, I18n.getInstance().getString("units.name.Pixel"));
+        names.put(NonSI.POINT, I18n.getInstance().getString("units.name.Point"));
+        names.put(NonSI.POISE, I18n.getInstance().getString("units.name.Poise"));
+        names.put(NonSI.POUND, I18n.getInstance().getString("units.name.Pound"));
+        names.put(NonSI.POUND_FORCE, I18n.getInstance().getString("units.name.PoundForce"));
+        names.put(NonSI.RAD, I18n.getInstance().getString("units.name.Rad"));
+        names.put(NonSI.RANKINE, I18n.getInstance().getString("units.name.Rankine"));
+        names.put(NonSI.REM, I18n.getInstance().getString("units.name.Rem"));
+        names.put(NonSI.REVOLUTION, I18n.getInstance().getString("units.name.Revolution"));
+        names.put(NonSI.ROENTGEN, I18n.getInstance().getString("units.name.Roentgen"));
+        names.put(NonSI.RUTHERFORD, I18n.getInstance().getString("units.name.Rutherford"));
+        names.put(NonSI.SECOND_ANGLE, I18n.getInstance().getString("units.name.SecondAngle"));
+        names.put(NonSI.SPHERE, I18n.getInstance().getString("units.name.Sphere"));
+        names.put(NonSI.STOKE, I18n.getInstance().getString("units.name.Stoke"));
+        names.put(NonSI.TON_UK, I18n.getInstance().getString("units.name.TonUK"));
+        names.put(NonSI.TON_US, I18n.getInstance().getString("units.name.TonUS"));
+        names.put(NonSI.WEEK, I18n.getInstance().getString("units.name.Week"));
+        names.put(NonSI.YARD, I18n.getInstance().getString("units.name.Yard"));
+        names.put(NonSI.YEAR, I18n.getInstance().getString("units.name.Year"));
+        names.put(NonSI.YEAR_CALENDAR, I18n.getInstance().getString("units.name.YearCalendar"));
+        names.put(NonSI.YEAR_SIDEREAL, I18n.getInstance().getString("units.name.YearSidereal"));
         //Prefix
 
-        names.put(SI.ZETTA(Unit.ONE), "Zetta");
-        names.put(SI.EXA(Unit.ONE), "Exa");
-        names.put(SI.PETA(Unit.ONE), "Peta");
-        names.put(SI.TERA(Unit.ONE), "Tera");
-        names.put(SI.GIGA(Unit.ONE), "Giga");
-        names.put(SI.MEGA(Unit.ONE), "Mega");
-        names.put(SI.KILO(Unit.ONE), "Kilo");
-        names.put(SI.HECTO(Unit.ONE), "Hecto");
-        names.put(SI.DEKA(Unit.ONE), "Deka");
-        names.put(SI.DECI(Unit.ONE), "Deci");
-        names.put(SI.CENTI(Unit.ONE), "Centi");
-        names.put(SI.MILLI(Unit.ONE), "Milli");
-        names.put(SI.MICRO(Unit.ONE), "Micro");
-        names.put(SI.NANO(Unit.ONE), "Nano");
-        names.put(SI.PICO(Unit.ONE), "Pico");
-        names.put(SI.FEMTO(Unit.ONE), "Femto");
-        names.put(SI.ATTO(Unit.ONE), "Atto");
-        names.put(SI.ZEPTO(Unit.ONE), "Zepto");
-        names.put(SI.ATTO(Unit.ONE), "Atto");
-        names.put(SI.YOCTO(Unit.ONE), "Yocto");
+        names.put(SI.ZETTA(Unit.ONE), I18n.getInstance().getString("units.name.Zetta"));
+        names.put(SI.EXA(Unit.ONE), I18n.getInstance().getString("units.name.Exa"));
+        names.put(SI.PETA(Unit.ONE), I18n.getInstance().getString("units.name.Peta"));
+        names.put(SI.TERA(Unit.ONE), I18n.getInstance().getString("units.name.Tera"));
+        names.put(SI.GIGA(Unit.ONE), I18n.getInstance().getString("units.name.Giga"));
+        names.put(SI.MEGA(Unit.ONE), I18n.getInstance().getString("units.name.Mega"));
+        names.put(SI.KILO(Unit.ONE), I18n.getInstance().getString("units.name.Kilo"));
+        names.put(SI.HECTO(Unit.ONE), I18n.getInstance().getString("units.name.Hecto"));
+        names.put(SI.DEKA(Unit.ONE), I18n.getInstance().getString("units.name.Deka"));
+        names.put(SI.DECI(Unit.ONE), I18n.getInstance().getString("units.name.Deci"));
+        names.put(SI.CENTI(Unit.ONE), I18n.getInstance().getString("units.name.Centi"));
+        names.put(SI.MILLI(Unit.ONE), I18n.getInstance().getString("units.name.Milli"));
+        names.put(SI.MICRO(Unit.ONE), I18n.getInstance().getString("units.name.Micro"));
+        names.put(SI.NANO(Unit.ONE), I18n.getInstance().getString("units.name.Nano"));
+        names.put(SI.PICO(Unit.ONE), I18n.getInstance().getString("units.name.Pico"));
+        names.put(SI.FEMTO(Unit.ONE), I18n.getInstance().getString("units.name.Femto"));
+        names.put(SI.ATTO(Unit.ONE), I18n.getInstance().getString("units.name.Atto"));
+        names.put(SI.ZEPTO(Unit.ONE), I18n.getInstance().getString("units.name.Zepto"));
+        names.put(SI.YOCTO(Unit.ONE), I18n.getInstance().getString("units.name.Yocto"));
 
         //money does not work with the rest of the system. The API will store € but cannot parse it again....
         // we have to use Currency + alt symbol :(
-        names.put(Money.BASE_UNIT.alternate("€"), "Euro");
-        names.put(Money.BASE_UNIT.alternate("£"), "Pound");
-        names.put(Money.BASE_UNIT.alternate("$"), "US-Dollar");
-        names.put(Money.BASE_UNIT.alternate("£"), "Yen");
-        names.put(Money.BASE_UNIT.alternate("¥"), "Yuan");
-        names.put(Money.BASE_UNIT.alternate("₦"), "Naira");
-        names.put(Money.BASE_UNIT.alternate("元"), "Renminbi");
-        names.put(Money.BASE_UNIT.alternate("₹"), "Rupee");
+        names.put(Money.BASE_UNIT.alternate("€"), I18n.getInstance().getString("units.currency.name.Euro"));
+        names.put(Money.BASE_UNIT.alternate("£"), I18n.getInstance().getString("units.currency.name.Pound"));
+        names.put(Money.BASE_UNIT.alternate("$"), I18n.getInstance().getString("units.currency.name.US-Dollar"));
+        names.put(Money.BASE_UNIT.alternate("£"), I18n.getInstance().getString("units.currency.name.Yen"));
+        names.put(Money.BASE_UNIT.alternate("¥"), I18n.getInstance().getString("units.currency.name.Yuan"));
+        names.put(Money.BASE_UNIT.alternate("₦"), I18n.getInstance().getString("units.currency.name.Naira"));
+        names.put(Money.BASE_UNIT.alternate("元"), I18n.getInstance().getString("units.currency.name.Renminbi"));
+        names.put(Money.BASE_UNIT.alternate("₹"), I18n.getInstance().getString("units.currency.name.Rupee"));
         ///--additonal
 
 //        name.put
@@ -1032,7 +1039,7 @@ public class UnitManager {
 
     }
 
-    public String getQuantitiesName(Unit unit, Locale locale) {
+    public String getQuantitiesName(Unit<Quantity> unit, Locale locale) {
 
         String name = getNameMapQuantities().get(unit.getStandardUnit());
         if (name != null && !name.isEmpty()) {
@@ -1048,7 +1055,9 @@ public class UnitManager {
         List<JEVisUnit> units = new ArrayList<>();
 
         for (JEVisUnit other : getNonSIJEVisUnits()) {
-            if (unit.isCompatible(other)) {
+            if (other.getUnit().getStandardUnit().isCompatible(unit.getUnit().getStandardUnit()) && !other.equals(unit)) {
+
+//            if (unit.isCompatible(other)) {
                 units.add(other);
             }
         }
@@ -1056,7 +1065,7 @@ public class UnitManager {
         return units;
     }
 
-    public List<Unit> getCompatibleNonSIUnit(Unit unit) {
+    public List<Unit> getCompatibleNonSIUnit(Unit<Quantity> unit) {
         List<Unit> units = new ArrayList<Unit>();
 
         for (Unit other : getNonSIUnits()) {
@@ -1068,7 +1077,7 @@ public class UnitManager {
         return units;
     }
 
-    public List<Unit> getCompatibleQuantityUnit(Unit unit) {
+    public List<Unit> getCompatibleQuantityUnit(Unit<Quantity> unit) {
         List<Unit> units = new ArrayList<Unit>();
 
         for (Unit other : getQuantities()) {
@@ -1084,7 +1093,10 @@ public class UnitManager {
         List<JEVisUnit> units = new ArrayList<>();
 
         for (JEVisUnit other : getSIJEVisUnits()) {
-            if (unit.isCompatible(other) && !other.equals(unit)) {
+//            if (unit.isCompatible(other) && !other.equals(unit)) {
+//                units.add(other);
+//            }
+            if (other.getUnit().getStandardUnit().isCompatible(unit.getUnit().getStandardUnit()) && !other.equals(unit)) {
                 units.add(other);
             }
         }
@@ -1097,7 +1109,8 @@ public class UnitManager {
 
         for (JEVisUnit other : getAdditionalJEVisUnits()) {
 //            System.out.print(other + " ? ...");
-            if (unit.isCompatible(other) && !other.equals(unit)) {
+//            if (unit.isCompatible(other) && !other.equals(unit)) {
+            if (other.getUnit().getStandardUnit().isCompatible(unit.getUnit().getStandardUnit()) && !other.equals(unit)) {
 //                logger.info("is");
                 units.add(other);
             }
@@ -1107,7 +1120,7 @@ public class UnitManager {
         return units;
     }
 
-    public List<Unit> getCompatibleSIUnit(Unit unit) {
+    public List<Unit> getCompatibleSIUnit(Unit<Quantity> unit) {
         List<Unit> units = new ArrayList<Unit>();
 
         for (Unit other : getSIUnits()) {
@@ -1119,7 +1132,7 @@ public class UnitManager {
         return units;
     }
 
-    public List<Unit> getCompatibleAdditionalUnit(Unit unit) {
+    public List<Unit> getCompatibleAdditionalUnit(Unit<Quantity> unit) {
         List<Unit> units = new ArrayList<Unit>();
 //        logger.info("Found add units for: " + unit);
 
