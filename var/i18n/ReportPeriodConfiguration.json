@@ -286,6 +286,17 @@
             "uk": "Фіксований період",
             "th": "ช่วงเวลาคงที่"
           }
+        },
+        "FIXED_TO_REPORT_END": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Periode bis Berichtsende",
+            "en": "Period to report end",
+            "ru": "Период до конца отчета",
+            "uk": "Період до кінця звіту",
+            "th": "ระยะเวลาจนถึงจุดสิ้นสุดของรายงาน"
+          }
         }
       }
     },

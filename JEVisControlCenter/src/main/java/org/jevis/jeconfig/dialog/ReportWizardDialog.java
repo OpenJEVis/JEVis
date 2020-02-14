@@ -639,9 +639,9 @@ public class ReportWizardDialog {
 
                 Platform.runLater(() -> updateName(reportLink));
 
-                if (newValue == PeriodMode.FIXED) {
+                if (newValue == PeriodMode.FIXED || newValue == PeriodMode.FIXED_TO_REPORT_END) {
                     Platform.runLater(() -> gridPane.add(fixedPeriodComboBox, 9, currentRow));
-                } else if (oldValue == PeriodMode.FIXED) {
+                } else if (oldValue == PeriodMode.FIXED || oldValue == PeriodMode.FIXED_TO_REPORT_END) {
 
                     ReportFixedPeriodBox box = null;
                     for (Node node : gridPane.getChildren()) {
