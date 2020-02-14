@@ -23,11 +23,33 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 
+import javax.measure.unit.Dimension;
+
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class UnitObject {
+
+    private Dimension _dim;
+
+    public UnitObject(Dimension dimension, String id) {
+        _dim = dimension;
+        _type = Type.DIMENSION;
+        _id = id;
+    }
+
+    private JEVisUnit _unit;
+
+    public UnitObject(Type type, JEVisUnit unit, String id) {
+        _unit = unit;
+        _dim = unit.getUnit().getDimension();
+        _type = type;
+        _id = id;
+    }
+
+    private Type _type;
+    private String _id;
+    private String _name;
 
     public String getName() {
 
@@ -39,21 +61,11 @@ public class UnitObject {
                     return UnitManager.getInstance().getQuantitiesName(_unit, I18n.getInstance().getLocale()) + " - "
                             + UnitManager.getInstance().getUnitName(_unit, I18n.getInstance().getLocale()) + " [ " + _unit.toString() + " ]";
                 }
-
+            case DIMENSION:
+                return _id;
             default:
                 return UnitManager.getInstance().getUnitName(_unit, I18n.getInstance().getLocale()) + " [ " + _unit.toString() + " ]";
         }
-    }
-
-    private JEVisUnit _unit;
-    private Type _type;
-    private String _id;
-    private String _name;
-
-    public UnitObject(Type type, JEVisUnit unit, String id) {
-        _unit = unit;
-        _type = type;
-        _id = id;
     }
 
     public String getID() {
@@ -61,9 +73,8 @@ public class UnitObject {
 
     }
 
-    public enum Type {
-
-        Quantity, SIUnit, AltSymbol, FakeRoot, NonSIUnit
+    public Dimension getDimension() {
+        return _dim;
     }
 
     public Type getType() {
@@ -74,4 +85,8 @@ public class UnitObject {
         return _unit;
     }
 
+    public enum Type {
+
+        Quantity, SIUnit, AltSymbol, FakeRoot, NonSIUnit, DIMENSION
+    }
 }

@@ -125,9 +125,13 @@ public class JEVisUnitImp implements JEVisUnit {
     }
 
     private String getPrefixFromUnit(Unit unit) {
-        if (unit.toString().length() > 1) {
-            String sub = unit.toString().substring(0, 1);
+        String unitString = unit.toString();
+        if (unitString.length() > 1) {
+            if (unitString.equals("m²") || unitString.equals("m³") || unitString.equals("min")) return "";
+
+            String sub = unitString.substring(0, 1);
             MetricPrefix prefixFromShort = UnitManager.getInstance().getPrefixFromShort(sub);
+
             if (prefixFromShort != null) {
                 return prefixFromShort.toString();
             } else return "";
@@ -153,7 +157,7 @@ public class JEVisUnitImp implements JEVisUnit {
 
     @Override
     public void setPrefix(Prefix prefix) {
-        this.prefix = UnitManager.getInstance().getPrefix(prefix).toString();
+        this.prefix = prefix.toString();
     }
 
     @Override
@@ -186,15 +190,18 @@ public class JEVisUnitImp implements JEVisUnit {
     public double convertTo(JEVisUnit unit, double number) {
         //TODo check if unit is compatible
         try {
-            Unit targetUnit = UnitManager.getInstance().getUnitWithPrefix(unit.getUnit(), UnitManager.getInstance().getPrefix(this.prefix));
-            Unit sourceUnit = UnitManager.getInstance().getUnitWithPrefix(this.unit, UnitManager.getInstance().getPrefix(this.prefix));
+            if (UnitManager.getInstance().getPrefix(this.prefix) instanceof MetricPrefix) {
+                MetricPrefix metricPrefix = (MetricPrefix) UnitManager.getInstance().getPrefix(this.prefix);
+                Unit targetUnit = UnitManager.getInstance().getUnitWithPrefix(unit.getUnit(), metricPrefix);
+                Unit sourceUnit = UnitManager.getInstance().getUnitWithPrefix(this.unit, metricPrefix);
 
-            UnitConverter uc = sourceUnit.getConverterTo(targetUnit);
-            return uc.convert(number);
+                UnitConverter uc = sourceUnit.getConverterTo(targetUnit);
+                return uc.convert(number);
+            }
         } catch (Exception ex) {
             throw new ConversionException("Unit error: " + ex.getMessage());
         }
-
+        return number;
     }
 
     @Override
