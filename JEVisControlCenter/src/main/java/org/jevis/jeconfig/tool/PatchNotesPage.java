@@ -51,7 +51,29 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.15------\n" +
+            "------Version 3.9.16------\n" +
+                    "JECC - fixed translation in Report Wizard\n" +
+                    "JECC - CleanDataExtension - fixed wrong value type for value offset\n" +
+                    "JECC - CleanDataExtension - added localization for double values\n" +
+                    "JECC - Unit Selection Tree - translation\n" +
+                    "JECC - Units Selection - m², m³ or min are recognized as milli prefix\n" +
+                    "JECC - Charts - CSV-Export should be able to export \"on-the-fly\" data like sum\n" +
+                    "JECC - Charts - mouse listener only on plotarea -> impossible to select last datapoint\n" +
+                    "JECC - Charts - Saving new Analyses doesn't work\n" +
+                    "JECC - Dashboard - Additional layout changes\n" +
+                    "JECC - Improved sample editor layout\n" +
+                    "JECC - Dashboard - Removed non existing setBackground function call\n" +
+                    "JECC - Dashboard - Data Alert in Legend\n" +
+                    "JECC - Dashboard - Chart Background Colors\n" +
+                    "JECC - Add start time debug function\n" +
+                    "\n" +
+                    "JECalc - support user corrected values from user data objects for calculation input\n" +
+                    "\n" +
+                    "JEReport - add support for value intervals from endrecord time backwards\n" +
+                    "JEReport - option for continous periods with fixed start\n" +
+                    "\n" +
+                    "Classes - ReportPeriodConfiguration - fixed translation errors\n\n" +
+                    "------Version 3.9.15------\n" +
                     "JECC - Charts - y-axis formatting with locale format\n" +
                     "JECC - Charts - openObject destroys regular analyses\n" +
                     "JECC - Charts - Heatmap - improved mouse precision\n" +
