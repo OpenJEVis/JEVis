@@ -44,6 +44,7 @@ public class ReportPeriodBox extends ComboBox<PeriodMode> {
                                     break;
                                 case FIXED:
                                     text = keyFixed;
+                                    break;
                                 case FIXED_TO_REPORT_END:
                                     text = keyFixedReportStart;
                                     break;
