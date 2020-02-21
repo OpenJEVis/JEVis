@@ -301,11 +301,6 @@ public class DashboardControl {
         }
         toolBar.updateZoomLevelView(zoomFactor);
 
-        Pane zoomPane = dashBordPlugIn.getZoomPane();
-        zoomPane.setMaxSize(dashboardPane.getBoundsInParent().getWidth(), dashboardPane.getBoundsInParent().getHeight());
-        zoomPane.setPrefSize(dashboardPane.getBoundsInParent().getWidth(), dashboardPane.getBoundsInParent().getHeight());
-        zoomPane.setMinSize(dashboardPane.getBoundsInParent().getWidth(), dashboardPane.getBoundsInParent().getHeight());
-
     }
 
     public double getZoomFactory() {
