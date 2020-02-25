@@ -119,12 +119,14 @@ public class DashboadLinkWidget extends Widget {
                 this.anchorPane.setBackground(bgColor);
                 this.setBorder(null);
 
-                if (dataModelNode.getDashboardObject() != null) {
+                if (dataModelNode.getDashboardObject() != null && getDataSource().getObject(dataModelNode.getDashboardObject())!=null) {
                     try {
                         linkedDashboardObj = getDataSource().getObject(dataModelNode.getDashboardObject());
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
+                }else{
+                    logger.warn("can not find linked object");
                 }
 
                 this.layout();
