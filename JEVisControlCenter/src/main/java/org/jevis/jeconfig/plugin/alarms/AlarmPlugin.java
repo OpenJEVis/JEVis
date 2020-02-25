@@ -79,7 +79,7 @@ public class AlarmPlugin implements Plugin {
     private Comparator<AlarmRow> alarmRowComparator = new Comparator<AlarmRow>() {
         @Override
         public int compare(AlarmRow o1, AlarmRow o2) {
-            return Comparator.comparing(AlarmRow::getTimeStamp).reversed().compare(o1,o2);
+            return Comparator.comparing(AlarmRow::getTimeStamp).reversed().compare(o1, o2);
         }
     };
 
@@ -166,7 +166,6 @@ public class AlarmPlugin implements Plugin {
         dateColumn.setMinWidth(100);
         dateColumn.setSortType(TableColumn.SortType.DESCENDING);
 //        dateColumn.setComparator((o1, o2) -> o1.compareTo(o2));
-
 
 
         dateColumn.setCellValueFactory(param -> {
@@ -267,20 +266,24 @@ public class AlarmPlugin implements Plugin {
 
                                 if (getTableRow() != null && getTableRow().getItem() != null) {
                                     AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
-                                    DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
-                                    DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
 
-                                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
-                                    AnalysisRequest analysisRequest = new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
+                                    if (alarmRow.getAlarmConfiguration().isLinkEnabled()) {
+                                        DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
+                                        DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
 
-                                    this.setOnMouseClicked(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
+                                        AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                                        AnalysisRequest analysisRequest = new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
+
+                                        this.setOnMouseClicked(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
+
+                                        setTextFill(Color.BLUE);
+                                        setUnderline(true);
+                                    }
                                 }
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
                             setText(text);
-                            setTextFill(Color.BLUE);
-                            setUnderline(true);
                         }
                     }
                 };

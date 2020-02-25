@@ -22,6 +22,7 @@ public class AlarmConfiguration {
     private static final String TIME_STAMP = "Time Stamp";
     private static final String LOG = "Log";
     private final String ENABLED_NAME = "Enabled";
+    private final String ENABLED_LINK = "Enabled Link";
     private final String ALARM_SCOPE = "Alarm Scope";
     private final String ALARM_PERIOD = "Alarm Period";
     private final String ALARM_OBJECTS = "Alarm Objects";
@@ -30,6 +31,7 @@ public class AlarmConfiguration {
     private final JEVisObject object;
     private final JEVisDataSource ds;
     private Boolean enabled;
+    private Boolean linkEnabled;
     private Boolean checked;
     private SampleHandler sampleHandler;
     private Long id;
@@ -52,6 +54,13 @@ public class AlarmConfiguration {
             enabled = sampleHandler.getLastSample(getObject(), ENABLED_NAME, false);
         }
         return enabled;
+    }
+
+    public Boolean isLinkEnabled() {
+        if (linkEnabled == null) {
+            linkEnabled = sampleHandler.getLastSample(getObject(), ENABLED_LINK, false);
+        }
+        return linkEnabled;
     }
 
     public JEVisAttribute getCheckedAttribute() {
