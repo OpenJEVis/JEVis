@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.alarms;
 
-import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXDatePicker;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
@@ -58,6 +57,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class AlarmPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(AlarmPlugin.class);
@@ -73,13 +73,14 @@ public class AlarmPlugin implements Plugin {
     private ComboBox<TimeFrame> timeFrameComboBox;
     private SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
     private ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
+    private final ObservableList<Task<List<AlarmRow>>> runningUpdateTaskList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
     private ExecutorService executor;
-    //private ToggleButton showCheckedAlarms = new ToggleButton(I18n.getInstance().getString("plugin.alarm.label.showchecked"));
-    private JFXCheckBox showCheckedAlarms = new JFXCheckBox(I18n.getInstance().getString("plugin.alarm.label.showchecked"));
+    int showCheckedAlarms = 0;
+
     private Comparator<AlarmRow> alarmRowComparator = new Comparator<AlarmRow>() {
         @Override
         public int compare(AlarmRow o1, AlarmRow o2) {
-            return Comparator.comparing(AlarmRow::getTimeStamp).reversed().compare(o1,o2);
+            return Comparator.comparing(AlarmRow::getTimeStamp).reversed().compare(o1, o2);
         }
     };
 
@@ -132,7 +133,14 @@ public class AlarmPlugin implements Plugin {
     private void restartExecutor() {
         try {
             if (this.executor != null) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setContentText(I18n.getInstance().getString("plugin.alarms.info.wait"));
+                alert.show();
+                this.runningUpdateTaskList.forEach(Task::cancel);
+                this.runningUpdateTaskList.clear();
                 this.executor.shutdownNow();
+                this.executor.awaitTermination(360, TimeUnit.SECONDS);
+                alert.close();
             }
         } catch (Exception ex) {
             logger.error(ex);
@@ -166,7 +174,6 @@ public class AlarmPlugin implements Plugin {
         dateColumn.setMinWidth(100);
         dateColumn.setSortType(TableColumn.SortType.DESCENDING);
 //        dateColumn.setComparator((o1, o2) -> o1.compareTo(o2));
-
 
 
         dateColumn.setCellValueFactory(param -> {
@@ -267,20 +274,24 @@ public class AlarmPlugin implements Plugin {
 
                                 if (getTableRow() != null && getTableRow().getItem() != null) {
                                     AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
-                                    DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
-                                    DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
 
-                                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
-                                    AnalysisRequest analysisRequest = new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
+                                    if (alarmRow.getAlarmConfiguration().isLinkEnabled()) {
+                                        DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
+                                        DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
 
-                                    this.setOnMouseClicked(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
+                                        AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
+                                        AnalysisRequest analysisRequest = new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
+
+                                        this.setOnMouseClicked(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
+
+                                        setTextFill(Color.BLUE);
+                                        setUnderline(true);
+                                    }
                                 }
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
                             setText(text);
-                            setTextFill(Color.BLUE);
-                            setUnderline(true);
                         }
                     }
                 };
@@ -660,25 +671,21 @@ public class AlarmPlugin implements Plugin {
         startDatePicker.setPrefWidth(120d);
         endDatePicker.setPrefWidth(120d);
 
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(showCheckedAlarms);
-        showCheckedAlarms.styleProperty().bind(
-                Bindings
-                        .when(showCheckedAlarms.hoverProperty())
-                        .then(
-                                new SimpleStringProperty("-fx-background-insets: 1 1 1;"))
-                        .otherwise(Bindings
-                                .when(showCheckedAlarms.selectedProperty())
-                                .then("-fx-background-insets: 1 1 1;")
-                                .otherwise(
-                                        new SimpleStringProperty("-fx-background-color: transparent;-fx-background-insets: 0 0 0;"))));
+        ComboBox<String> viewComboBox = new ComboBox<>();
+        String showOnlyUncheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showunchecked");
+        String showOnlyCheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showchecked");
+        String showAllAlarms = I18n.getInstance().getString("plugin.alarm.label.showall");
+        viewComboBox.getItems().addAll(showOnlyUncheckedAlarms, showOnlyCheckedAlarms, showAllAlarms);
+        viewComboBox.getSelectionModel().selectFirst();
 
-        showCheckedAlarms.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != oldValue) {
+        viewComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                showCheckedAlarms = newValue.intValue();
                 updateList(start, end);
             }
         });
 
-        toolBar.getItems().setAll(reload, sep1, timeFrameComboBox, sep2, startDatePicker, endDatePicker, sep3, showCheckedAlarms);
+        toolBar.getItems().setAll(reload, sep1, timeFrameComboBox, sep2, startDatePicker, endDatePicker, sep3, viewComboBox);
     }
 
     private ComboBox<TimeFrame> getTimeFrameComboBox() {
@@ -888,10 +895,8 @@ public class AlarmPlugin implements Plugin {
 
     private void updateList(DateTime start, DateTime end) {
 
-//        alarmRows.clear();
-        tableView.getItems().clear();
-
         restartExecutor();
+        tableView.getItems().clear();
 
         autoFitTable(tableView);
 
@@ -958,7 +963,8 @@ public class AlarmPlugin implements Plugin {
 
             });
 
-            executor.submit(task);
+            this.runningUpdateTaskList.add(task);
+            executor.execute(task);
         });
     }
 
@@ -970,9 +976,12 @@ public class AlarmPlugin implements Plugin {
             List<JEVisObject> allObjects = ds.getObjects(alarmConfigClass, true);
             for (JEVisObject object : allObjects) {
                 AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, object);
-                if (!alarmConfiguration.isChecked()) {
+
+                if (showCheckedAlarms == 0 && !alarmConfiguration.isChecked()) {
                     list.add(alarmConfiguration);
-                } else if (alarmConfiguration.isChecked() && showCheckedAlarms.isSelected()) {
+                } else if (showCheckedAlarms == 1 && alarmConfiguration.isChecked()) {
+                    list.add(alarmConfiguration);
+                } else if (showCheckedAlarms == 2) {
                     list.add(alarmConfiguration);
                 }
             }

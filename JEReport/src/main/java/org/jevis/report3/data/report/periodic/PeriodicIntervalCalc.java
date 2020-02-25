@@ -89,7 +89,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         for (FixedPeriod fixedPeriod : FixedPeriod.values()) {
             DateTime startRecordFixed = calcStartRecord(start, schedule, PeriodMode.FIXED, fixedPeriod, dateHelper);
             DateTime startRecordFixedToReportEnd = calcStartRecord(start, schedule, PeriodMode.FIXED_TO_REPORT_END, fixedPeriod, dateHelper);
-            DateTime endRecord = new DateTime();
+            DateTime endRecord = getEndForFixed(schedule, start);
 
             if (workdayStart != null && workdayEnd != null) {
                 startRecordFixed = startRecordFixed.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
@@ -106,6 +106,31 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         }
 
         logger.info("Initialized Interval Map. Created " + intervalMap.size() + " entries.");
+    }
+
+    private DateTime getEndForFixed(Period schedule, DateTime start) {
+        switch (schedule) {
+            case MINUTELY:
+                return start.plusMinutes(1);
+            case QUARTER_HOURLY:
+                return start.plusMinutes(15);
+            case HOURLY:
+                return start.plusHours(1);
+            case DAILY:
+                return start.plusDays(1);
+            case WEEKLY:
+                return start.plusWeeks(1);
+            case MONTHLY:
+                return start.plusMonths(1);
+            case QUARTERLY:
+                return start.plusMonths(3);
+            case YEARLY:
+                return start.plusYears(1);
+            case NONE:
+            case CUSTOM:
+            default:
+                return start;
+        }
     }
 
     private DateTime calcStartRecord(DateTime startRecord, Period schedule, PeriodMode periodMode, FixedPeriod fixedPeriod, org.jevis.commons.datetime.DateHelper dateHelper) {
