@@ -49,10 +49,10 @@ public class DashBordPlugIn implements Plugin {
     private static double scrollBarSize = 18;
 
     /**
-     * pane which gets the zoomed size of the dashboard so the layout of the scrollpane is ok
+     * pane which gets the zoomed size of the dashboard so the layout of the ScrollPane is ok
      * Group() is not working because of Chart problems
-      */
-    private Pane zooomPane = new Pane();
+     */
+    private Pane zoomPane = new Pane();
 
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
@@ -73,10 +73,12 @@ public class DashBordPlugIn implements Plugin {
 //        this.scrollPane.setContent(dashBoardPane);
 
 
-        zooomPane.getChildren().add(dashBoardPane);
-        this.scrollPane.setContent(zooomPane);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(true);
+        zoomPane.getChildren().add(dashBoardPane);
+        this.scrollPane.setContent(zoomPane);
 
-        Layouts.setAnchor(this.zooomPane, 0d);
+        Layouts.setAnchor(this.zoomPane, 0d);
         Layouts.setAnchor(this.scrollPane, 0d);
         Layouts.setAnchor(this.rootPane, 0d);
 
@@ -93,8 +95,6 @@ public class DashBordPlugIn implements Plugin {
         ChangeListener<Number> sizeListener = new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                //DashBordPlugIn.this.dashboardControl.setRootSizeChanged(DashBordPlugIn.this.scrollPane.getWidth(), DashBordPlugIn.this.scrollPane.getHeight());
-
                 Size size = getPluginSize();
                 DashBordPlugIn.this.dashboardControl.setRootSizeChanged(size.getWidth(), size.getHeight());
             }
@@ -104,15 +104,23 @@ public class DashBordPlugIn implements Plugin {
         scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
+
+        dashBoardPane.boundsInParentProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                /** Minus 10pix to account for the common use case of shadows **/
+                Layouts.setSize(zoomPane,dashBoardPane.getBoundsInParent().getWidth()-10,dashBoardPane.getBoundsInParent().getHeight()-10);
+            });
+        });
+
+
     }
 
-    public Pane getZoomPane(){
-        return zooomPane;
+    public Pane getZoomPane() {
+        return zoomPane;
     }
 
 
-
-    public ScrollPane getScrollPane(){
+    public ScrollPane getScrollPane() {
         return scrollPane;
     }
 
@@ -130,13 +138,13 @@ public class DashBordPlugIn implements Plugin {
     }
 
 
-    public void setPluginSize(double height, double width){
+    public void setPluginSize(double height, double width) {
         scrollPane.setMinWidth(width);
         scrollPane.setMinHeight(height);
     }
 
     public Size getPluginSize() {
-        return new Size(rootPane.getHeight()-scrollBarSize, rootPane.getWidth()-scrollBarSize);
+        return new Size(rootPane.getHeight() - scrollBarSize, rootPane.getWidth() - scrollBarSize);
     }
 
     public DashBoardToolbar getDashBoardToolbar() {

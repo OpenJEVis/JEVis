@@ -628,7 +628,11 @@ public class FXLogin extends AnchorPane {
                         @Override
                         public void accept(ActionEvent actionEvent) {
                             try {
-                                new ProcessBuilder("x-www-browser", getHost()).start();
+                                if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                                    Desktop.getDesktop().browse(new URI(getHost()));
+                                }else{
+                                    new ProcessBuilder("x-www-browser", getHost()).start();
+                                }
                             }catch (Exception ex){
                                 logger.error(ex);
                             }
