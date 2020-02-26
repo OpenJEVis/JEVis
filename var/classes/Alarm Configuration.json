@@ -20,7 +20,7 @@
       "jevisClass": "Alarm Configuration"
     },
     {
-      "name": "Enabled Link",
+      "name": "Disable Link",
       "primitiveType": 4,
       "guiType": "Check Box",
       "guiposition": 0,

@@ -275,7 +275,7 @@ public class AlarmPlugin implements Plugin {
                                 if (getTableRow() != null && getTableRow().getItem() != null) {
                                     AlarmRow alarmRow = (AlarmRow) getTableRow().getItem();
 
-                                    if (alarmRow.getAlarmConfiguration().isLinkEnabled()) {
+                                    if (!alarmRow.getAlarmConfiguration().isLinkEnabled()) {
                                         DateTime start = alarmRow.getAlarm().getTimeStamp().minusHours(12);
                                         DateTime end = alarmRow.getAlarm().getTimeStamp().plusHours(12);
 
@@ -953,12 +953,8 @@ public class AlarmPlugin implements Plugin {
 
                 Platform.runLater(() -> {
                     tableView.getItems().addAll(task.getValue());
-//                    tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
-//                    autoFitTable(tableView);
-//                    if (task.getValue().isEmpty()) {
-//                        tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-//                        tableView.setStyle("-fx-background-color: white;");
-//                    }
+                    tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed());
+                    autoFitTable(tableView);
                 });
 
             });
