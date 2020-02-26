@@ -16,6 +16,7 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -136,11 +137,16 @@ public class AlarmPlugin implements Plugin {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setContentText(I18n.getInstance().getString("plugin.alarms.info.wait"));
                 alert.show();
-                this.runningUpdateTaskList.forEach(Task::cancel);
+                JEConfig.getStatusBar().startProgressJob("stoppingAlarms", runningUpdateTaskList.size() + 1, "Stopping alarm threads");
+                for (Task<List<AlarmRow>> listTask : this.runningUpdateTaskList) {
+                    listTask.cancel();
+                    JEConfig.getStatusBar().progressProgressJob("stoppingAlarms", 1, "cancelled job " + listTask);
+                }
                 this.runningUpdateTaskList.clear();
                 this.executor.shutdownNow();
                 this.executor.awaitTermination(360, TimeUnit.SECONDS);
                 alert.close();
+                JEConfig.getStatusBar().finishProgressJob("stoppingAlarms", "stopped all jobs");
             }
         } catch (Exception ex) {
             logger.error(ex);
@@ -283,6 +289,13 @@ public class AlarmPlugin implements Plugin {
                                         AnalysisRequest analysisRequest = new AnalysisRequest(item, AggregationPeriod.NONE, ManipulationMode.NONE, analysisTimeFrame, start, end);
 
                                         this.setOnMouseClicked(event -> JEConfig.openObjectInPlugin(GraphPluginView.PLUGIN_NAME, analysisRequest));
+                                        this.hoverProperty().addListener((observable, oldValue, newValue) -> {
+                                            if (newValue) {
+                                                this.getScene().setCursor(Cursor.HAND);
+                                            } else {
+                                                this.getScene().setCursor(Cursor.DEFAULT);
+                                            }
+                                        });
 
                                         setTextFill(Color.BLUE);
                                         setUnderline(true);
@@ -676,7 +689,7 @@ public class AlarmPlugin implements Plugin {
         String showOnlyCheckedAlarms = I18n.getInstance().getString("plugin.alarm.label.showchecked");
         String showAllAlarms = I18n.getInstance().getString("plugin.alarm.label.showall");
         viewComboBox.getItems().addAll(showOnlyUncheckedAlarms, showOnlyCheckedAlarms, showAllAlarms);
-        viewComboBox.getSelectionModel().selectFirst();
+        viewComboBox.getSelectionModel().select(showCheckedAlarms);
 
         viewComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
