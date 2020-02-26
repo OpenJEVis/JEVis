@@ -629,9 +629,11 @@ public class XYChart implements Chart {
 
     public void generateYAxis() {
         y1Axis.setForceZeroInRange(true);
+        y1Axis.setAutoGrowRanging(true);
         y1Axis.setAutoRanging(true);
         y2Axis.setForceZeroInRange(true);
         y2Axis.setAutoRanging(true);
+        y2Axis.setAutoGrowRanging(true);
 
         CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2);
         y1Axis.setTickLabelFormatter(tickLabelFormatter1);

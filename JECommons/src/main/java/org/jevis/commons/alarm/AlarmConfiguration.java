@@ -22,7 +22,7 @@ public class AlarmConfiguration {
     private static final String TIME_STAMP = "Time Stamp";
     private static final String LOG = "Log";
     private final String ENABLED_NAME = "Enabled";
-    private final String ENABLED_LINK = "Enabled Link";
+    private final String ENABLED_LINK = "Disable Link";
     private final String ALARM_SCOPE = "Alarm Scope";
     private final String ALARM_PERIOD = "Alarm Period";
     private final String ALARM_OBJECTS = "Alarm Objects";

@@ -33,20 +33,20 @@
       }
     },
     {
-      "type": "Enabled Link",
+      "type": "Disable Link",
       "descriptions": {
-        "de": "Aktiviert den Link zu der verknüpften Datenreihe im Alarm Plugin.",
-        "ru": "Активирует ссылку на связанный ряд данных в плагине тревоги",
-        "uk": "Активує посилання на зв'язані серії даних у плагіні тривоги",
-        "th": "เปิดใช้งานลิงก์ไปยังชุดข้อมูลที่เชื่อมโยงในปลั๊กอินเตือนภัย",
-        "en": "Activates the link to the data row in the alarm plugin"
+        "de": "Deaktiviert den Link zu der verknüpften Datenreihe im Alarm Plugin.",
+        "ru": "Деактивирует ссылку на связанный ряд данных в плагине тревоги.",
+        "uk": "Деактивує посилання на зв'язані серії даних у плагіні тривоги.",
+        "th": "เลิกใช้งานลิงก์ไปยังชุดข้อมูลที่เชื่อมโยงในปลั๊กอินเตือนภัย",
+        "en": "Deactivates the link to the data row in the alarm plugin"
       },
       "names": {
-        "de": "Plugin Link",
-        "ru": "Ссылка на плагин",
-        "th": "ลิงก์ปลั๊กอิน",
-        "uk": "Посилання на плагін",
-        "en": "Plugin Link"
+        "de": "Deaktiviert Plugin Link",
+        "ru": "Деактивирует ссылку на плагин",
+        "th": "ปิดใช้งานลิงก์ปลั๊กอิน",
+        "uk": "Деактивує посилання на плагін",
+        "en": "Disable Plugin Link"
       }
     },
     {
