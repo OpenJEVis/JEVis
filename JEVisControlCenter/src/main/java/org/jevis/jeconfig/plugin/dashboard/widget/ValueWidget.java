@@ -14,6 +14,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
@@ -180,6 +181,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 logger.debug("checkLimit: {}", config.getUuid());
 //                this.label.setText(this.labelText.getValue());
                 Color fontColor = this.config.getFontColor();
+                this.label.setFont(new Font(this.config.getFontSize()));
 
                 if (limit != null) {
                     this.label.setTextFill(limit.getExceedsLimitColor(fontColor, displayedSample.get()));
