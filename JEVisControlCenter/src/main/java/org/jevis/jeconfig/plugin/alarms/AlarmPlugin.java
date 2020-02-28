@@ -918,12 +918,13 @@ public class AlarmPlugin implements Plugin {
         JEConfig.getStatusBar().startProgressJob("AlarmConfigs", size, "Loading alarm configurations");
 
         alarms.forEach(alarmConfiguration -> {
+            final AlarmConfiguration ac = alarmConfiguration;
             Task<List<AlarmRow>> task = new Task<List<AlarmRow>>() {
                 @Override
                 protected List<AlarmRow> call() {
                     List<AlarmRow> list = new ArrayList<>();
                     try {
-                        JEVisAttribute fileLog = alarmConfiguration.getFileLogAttribute();
+                        JEVisAttribute fileLog = ac.getFileLogAttribute();
 
                         if (fileLog.hasSample()) {
                             for (JEVisSample jeVisSample : fileLog.getSamples(start, end)) {
@@ -939,7 +940,7 @@ public class AlarmPlugin implements Plugin {
 
                                             Alarm alarm = new Alarm(object, attribute, sample, dateTime, jsonAlarm.getIsValue(), jsonAlarm.getOperator(), jsonAlarm.getShouldBeValue(), jsonAlarm.getAlarmType(), jsonAlarm.getLogValue());
 
-                                            AlarmRow alarmRow = new AlarmRow(alarm.getTimeStamp(), alarmConfiguration, alarm);
+                                            AlarmRow alarmRow = new AlarmRow(alarm.getTimeStamp(), ac, alarm);
 
                                             list.add(alarmRow);
                                         }
@@ -985,6 +986,7 @@ public class AlarmPlugin implements Plugin {
             List<JEVisObject> allObjects = ds.getObjects(alarmConfigClass, true);
             for (JEVisObject object : allObjects) {
                 AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, object);
+                Boolean linkEnabled = alarmConfiguration.isLinkEnabled();
 
                 if (showCheckedAlarms == 0 && !alarmConfiguration.isChecked()) {
                     list.add(alarmConfiguration);
