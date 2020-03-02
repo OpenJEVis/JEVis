@@ -74,7 +74,7 @@ public class AlarmPlugin implements Plugin {
     private ComboBox<TimeFrame> timeFrameComboBox;
     private SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
     private ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
-    private final ObservableList<Task<List<AlarmRow>>> runningUpdateTaskList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
+    private final List<Task<List<AlarmRow>>> runningUpdateTaskList = new ArrayList<>();
     private ExecutorService executor;
     int showCheckedAlarms = 0;
 
@@ -917,7 +917,7 @@ public class AlarmPlugin implements Plugin {
         int size = alarms.size();
         JEConfig.getStatusBar().startProgressJob("AlarmConfigs", size, "Loading alarm configurations");
 
-        alarms.forEach(alarmConfiguration -> {
+        for (AlarmConfiguration alarmConfiguration : alarms) {
             final AlarmConfiguration ac = alarmConfiguration;
             Task<List<AlarmRow>> task = new Task<List<AlarmRow>>() {
                 @Override
@@ -974,8 +974,9 @@ public class AlarmPlugin implements Plugin {
             });
 
             this.runningUpdateTaskList.add(task);
-            executor.execute(task);
-        });
+        }
+
+        this.runningUpdateTaskList.parallelStream().forEach(listTask -> executor.submit(listTask));
     }
 
     private List<AlarmConfiguration> getAllAlarmConfigs() {
