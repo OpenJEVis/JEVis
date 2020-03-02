@@ -51,7 +51,11 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.17------\n" +
+            "------Version 3.9.18------\n" +
+                    "JECC - Dashboard - \"Math.\" button did not work\n" +
+                    "JECC - Dashboard - Font size in value widget has no effect \n" +
+                    "JECC - AlarmPlugin - sometimes link is not disabled\n\n" +
+                    "------Version 3.9.17------\n" +
                     "JECC - Charts - y-axis should autoscale when zooming\n" +
                     "JECC - AlarmPlugin - link should be shown with change in mouse cursor\n" +
                     "JECC - AlarmPlugin - change checkbox for what to show to more distinct control\n" +
