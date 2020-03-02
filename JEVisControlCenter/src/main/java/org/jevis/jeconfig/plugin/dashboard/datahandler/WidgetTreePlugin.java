@@ -657,6 +657,7 @@ public class WidgetTreePlugin implements TreePlugin {
         column.setCellValueFactory(param -> {
 //            DataPointNode dataPoint = (DataPointNode) param.getValue().getValue().getDataObject(DATA_MODEL_NODE, null);
             DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
+
             if (dataPoint != null && (dataPoint.getCalculationID() != null && dataPoint.getCalculationID() > 0l)) {
 //                System.out.println("ENPI: " + dataPoint.getCalculationID());
                 return new SimpleBooleanProperty(true);
@@ -689,10 +690,12 @@ public class WidgetTreePlugin implements TreePlugin {
                                         if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
 
                                             if (box.isSelected()) {
+                                                //System.out.println("b1: "+WidgetTreePlugin.this.targetCalcMap.containsKey(getDataPointNode(getTreeTableRow()).getObjectID()));
                                                 if (WidgetTreePlugin.this.targetCalcMap.containsKey(getDataPointNode(getTreeTableRow()).getObjectID())) {
-                                                    getDataPointNode(getTreeTableRow()).setCleanObjectID(WidgetTreePlugin.this.targetCalcMap.get(getDataPointNode(getTreeTableRow()).getObjectID()));
-                                                } else {
-//                                                    System.out.println("----> keine calc id gefunden");
+                                                     getDataPointNode(getTreeTableRow()).setCalculationID(WidgetTreePlugin.this.targetCalcMap.get(getDataPointNode(getTreeTableRow()).getObjectID()));
+
+                                                    //System.out.println("set for: "+getDataPointNode(getTreeTableRow()));
+                                                    //System.out.println("calcID: "+WidgetTreePlugin.this.targetCalcMap.get(getDataPointNode(getTreeTableRow()).getObjectID()));
                                                 }
 
                                             } else {
@@ -728,15 +731,19 @@ public class WidgetTreePlugin implements TreePlugin {
 
         for (JEVisObject calculationObj : this.jeVisTree.getJEVisDataSource().getObjects(calculation, true)) {
             try {
-                List<JEVisObject> output = calculationObj.getChildren(outputClass, true);
+                List<JEVisObject> outputs = calculationObj.getChildren(outputClass, true);
 
-                if (output != null && !output.isEmpty()) {
-                    JEVisAttribute tartgetAttribute = output.get(0).getAttribute("Attribute Target");
-                    TargetHelper th = new TargetHelper(this.jeVisTree.getJEVisDataSource(), tartgetAttribute);
-
-                    if (th != null && th.getObject() != null && !th.getObject().isEmpty()) {
-                        calcAndResult.put(th.getObject().get(0).getID(), calculationObj.getID());
+                if (outputs != null && !outputs.isEmpty()) {
+                   // System.out.println("output: "+outputs);
+                    for(JEVisObject output:outputs){
+                        JEVisAttribute tartgetAttribute = output.getAttribute("Output");
+                        TargetHelper th = new TargetHelper(this.jeVisTree.getJEVisDataSource(), tartgetAttribute);
+                        if (th != null && th.getObject() != null && !th.getObject().isEmpty()) {
+                            calcAndResult.put(th.getObject().get(0).getID(), calculationObj.getID());
+                            //System.out.println("Add "+output);
+                        }
                     }
+
 
                 }
             } catch (Exception ex) {
