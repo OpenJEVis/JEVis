@@ -698,7 +698,7 @@ public class AlarmPlugin implements Plugin {
             }
         });
 
-        toolBar.getItems().setAll(reload, sep1, timeFrameComboBox, sep2, startDatePicker, endDatePicker, sep3, viewComboBox);
+        toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, sep3, viewComboBox);
     }
 
     private ComboBox<TimeFrame> getTimeFrameComboBox() {
@@ -988,7 +988,7 @@ public class AlarmPlugin implements Plugin {
             for (JEVisObject object : allObjects) {
                 AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, object);
                 Boolean linkEnabled = alarmConfiguration.isLinkEnabled();
-              
+
                 if (showCheckedAlarms == 0 && !alarmConfiguration.isChecked()) {
                     list.add(alarmConfiguration);
                 } else if (showCheckedAlarms == 1 && alarmConfiguration.isChecked()) {

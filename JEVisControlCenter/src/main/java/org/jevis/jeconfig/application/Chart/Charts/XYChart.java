@@ -670,8 +670,9 @@ public class XYChart implements Chart {
                 unitY2.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
             } else if (unitY1.isEmpty()) {
                 unitY1.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
+            } else if (unitY2.isEmpty()) {
+                unitY2.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
             }
-
         }
 
         StringBuilder allUnitsY1 = new StringBuilder();
