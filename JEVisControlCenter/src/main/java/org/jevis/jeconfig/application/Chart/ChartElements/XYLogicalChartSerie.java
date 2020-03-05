@@ -81,7 +81,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
 
             }
         }
-        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
     }
 
     private List<JEVisSample> getModifiedList(List<JEVisSample> samples) throws JEVisException {

@@ -23,6 +23,7 @@ import java.util.List;
 
 public class BarChartSerie {
     private static final Logger logger = LogManager.getLogger(BarChartSerie.class);
+    public final String FINISHED_SERIE;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private DoubleDataSet dataSet = new DoubleDataSet("");
     private TableEntry tableEntry;
@@ -30,6 +31,7 @@ public class BarChartSerie {
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
 
     public BarChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
+        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + singleRow.getTitle();
         String unit = UnitManager.getInstance().format(singleRow.getUnit());
         if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
 
@@ -77,7 +79,7 @@ public class BarChartSerie {
 
 //        dataSet.getData().setAll(data);
 
-        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
 
     }
 

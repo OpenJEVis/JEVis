@@ -453,7 +453,7 @@ public class GraphPluginView implements Plugin {
             double totalJob = dataModel.getSelectedData().stream().mapToDouble(model -> (long) model.getSelectedcharts().size()).sum()
                     + (dataModel.getCharts().getListSettings().size() * 2);
 
-            JEConfig.getStatusBar().startProgressJob(GraphPluginView.JOB_NAME, totalJob, "Start Update");
+            JEConfig.getStatusBar().startProgressJob(GraphPluginView.JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
         } catch (Exception ex) {
 
         }
@@ -525,7 +525,7 @@ public class GraphPluginView implements Plugin {
 
                     Chart chart = null;
                     if (chartSetting.getChartType() != ChartType.LOGICAL) {
-                        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Create" + chartSetting.getChartType() + " chart");
+                        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, I18n.getInstance().getString("plugin.graph.message.createchart") + " " + chartSetting.getChartType());
                         chart = getChart(chartSetting, null);
                         allCharts.add(chart);
                     } else {
@@ -670,7 +670,7 @@ public class GraphPluginView implements Plugin {
                         vBox.getChildren().add(sep);
                     }
 
-                    JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Chart");
+                    JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, I18n.getInstance().getString("plugin.graph.message.finishedchart") + " ");
                 }
             }
         });
@@ -678,7 +678,7 @@ public class GraphPluginView implements Plugin {
         Platform.runLater(() -> {
             toolBarView.updateLayout();
 
-            JEConfig.getStatusBar().finishProgressJob(GraphPluginView.JOB_NAME, "done");
+            JEConfig.getStatusBar().finishProgressJob(GraphPluginView.JOB_NAME, I18n.getInstance().getString("plugin.graph.message.finishedupdate"));
 
             StringBuilder allFormulas = new StringBuilder();
             for (Chart chart : allCharts) {

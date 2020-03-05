@@ -32,6 +32,7 @@ import java.util.TreeMap;
 public class XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
     private final boolean forecast;
+    public final String FINISHED_SERIE;
     Integer yAxis;
     DoubleDataSet valueDataSet;
     DoubleDataSet noteDataSet;
@@ -46,6 +47,7 @@ public class XYChartSerie {
 
     public XYChartSerie(ChartDataModel singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
         this.singleRow = singleRow;
+        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + singleRow.getTitle();
         this.yAxis = singleRow.getAxis();
         this.showIcons = showIcons;
         this.valueDataSet = new DoubleDataSet(singleRow.getTitle());
@@ -150,7 +152,7 @@ public class XYChartSerie {
             sum = max;
         }
 
-        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
 
         updateTableEntry(samples, unit, min, max, avg, sum, zeroCount);
     }
