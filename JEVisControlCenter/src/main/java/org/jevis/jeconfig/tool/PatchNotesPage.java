@@ -51,7 +51,18 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.18------\n" +
+            "------Version 3.9.19------\n" +
+                    "JECC - AlarmPlugin - Added button to confirm all alarms\n" +
+                    "JECC - AlarmPlugin - fixed some threading issues\n" +
+                    "JECC - AlarmPlugin - relocated reload button\n" +
+                    "JECC - Dashboard - fixed translation of dashboard timefactory\n" +
+                    "JECC - Statusbar - finalized message support\n" +
+                    "JECC - Statusbar - added message translations\n" +
+                    "\n" +
+                    "JECommons - fixed some issues with SampleHandler\n" +
+                    "\n" +
+                    "JEReport - added logging output for report name + id for missing data\n\n" +
+                    "------Version 3.9.18------\n" +
                     "JECC - Dashboard - \"Math.\" button did not work\n" +
                     "JECC - Dashboard - Font size in value widget has no effect \n" +
                     "JECC - AlarmPlugin - sometimes link is not disabled\n\n" +
