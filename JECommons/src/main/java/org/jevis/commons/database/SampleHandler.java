@@ -149,61 +149,55 @@ public class SampleHandler {
     private String getValue(JEVisSample lastSample, String defaultValue) {
         try {
             return lastSample.getValueAsString();
-        } catch (JEVisException e) {
-            e.printStackTrace();
-            logger.error(e);
+        } catch (Exception e) {
+            logger.error("Error when getting String value from sample {}.", lastSample, e);
         }
-        return null;
+        return defaultValue;
     }
 
     private Boolean getValue(JEVisSample lastSample, Boolean defaultValue) {
         try {
             return lastSample.getValueAsBoolean();
-        } catch (JEVisException e) {
-            e.printStackTrace();
-            logger.error(e);
+        } catch (Exception e) {
+            logger.error("Error when getting Boolean value from sample {}.", lastSample, e);
         }
-        return false;
+        return defaultValue;
     }
 
     private Double getValue(JEVisSample lastSample, Double defaultValue) {
         try {
             return lastSample.getValueAsDouble();
-        } catch (JEVisException e) {
-            e.printStackTrace();
-            logger.error(e);
+        } catch (Exception e) {
+            logger.error("Error when getting Double value from sample {}.", lastSample, e);
         }
-        return null;
+        return defaultValue;
     }
 
     private Long getValue(JEVisSample lastSample, Long defaultValue) {
         try {
             return lastSample.getValueAsLong();
-        } catch (JEVisException e) {
-            e.printStackTrace();
-            logger.error(e);
+        } catch (Exception e) {
+            logger.error("Error when getting Long value from sample {}.", lastSample, e);
         }
-        return null;
+        return defaultValue;
     }
 
     private Object getValue(JEVisSample lastSample, Object defaultValue) {
         try {
             return lastSample.getValue();
-        } catch (JEVisException e) {
-            e.printStackTrace();
-            logger.error(e);
+        } catch (Exception e) {
+            logger.error("Error when getting Object value from sample {}.", lastSample, e);
         }
-        return null;
+        return defaultValue;
     }
 
     private JEVisFile getValue(JEVisSample lastSample, JEVisFile defaultValue) {
         try {
             return lastSample.getValueAsFile();
-        } catch (JEVisException e) {
-            e.printStackTrace();
-            logger.error(e);
+        } catch (Exception e) {
+            logger.error("Error when getting JEVisFile value from sample {}.", lastSample, e);
         }
-        return null;
+        return defaultValue;
     }
 
     public DateTime getTimeStampFromLastSample(JEVisObject object, String attributeName) {

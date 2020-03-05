@@ -117,7 +117,7 @@ public class ReportWizardDialog {
                             final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
 
                             pForm.activateProgressBar();
-                            JEConfig.getStatusBar().startProgressJob("reportlinks", getReportLinkList().size() + 1, "creating report links");
+                            JEConfig.getStatusBar().startProgressJob("reportlinks", getReportLinkList().size() + 1, I18n.getInstance().getString("plugin.object.report.message.creatinglinks") + " ");
 
                             getReportLinkList().parallelStream().forEach(rl -> {
                                 executorService.submit(() -> {
@@ -168,7 +168,7 @@ public class ReportWizardDialog {
                                         }
 
                                         completed.put(rl, true);
-                                        JEConfig.getStatusBar().progressProgressJob("reportlinks", 1, "finished report link: " + rl.getName());
+                                        JEConfig.getStatusBar().progressProgressJob("reportlinks", 1, I18n.getInstance().getString("plugin.object.report.message.finishedlink") + " " + rl.getName());
 
                                         if (completed.size() == getReportLinkList().size()) {
                                             try {
@@ -182,11 +182,11 @@ public class ReportWizardDialog {
                                                 JEVisSample templateSample = templateAttribute.buildSample(new DateTime(), template);
                                                 templateSample.commit();
 
-                                                JEConfig.getStatusBar().progressProgressJob("reportlinks", 1, "finished creating template.");
+                                                JEConfig.getStatusBar().progressProgressJob("reportlinks", 1, I18n.getInstance().getString("plugin.object.report.message.finishedtemplate"));
 
                                                 Platform.runLater(() -> {
                                                     pForm.getDialogStage().close();
-                                                    JEConfig.getStatusBar().finishProgressJob("reportlinks", "finished process.");
+                                                    JEConfig.getStatusBar().finishProgressJob("reportlinks", I18n.getInstance().getString("plugin.object.report.message.finishedprocess"));
                                                 });
                                             } catch (IOException e) {
                                                 e.printStackTrace();
