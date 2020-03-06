@@ -1,9 +1,12 @@
 package org.jevis.commons.alarm;
 
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.datetime.Period;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 
@@ -105,15 +108,23 @@ public class AlarmConfiguration {
 
     public void setChecked(Boolean checked) {
         try {
-            JEVisAttribute checkedAttribute = object.getAttribute(ALARM_CHECKED);
-            if (checkedAttribute != null) {
-                JEVisSample sample = checkedAttribute.buildSample(new DateTime(), checked);
-                if (checked) {
-                    sample.setNote("Checked by " + ds.getCurrentUser().getAccountName());
-                } else {
-                    sample.setNote("Unchecked by " + ds.getCurrentUser().getAccountName());
+            if (ds.getCurrentUser().canWrite(object.getID())) {
+                JEVisAttribute checkedAttribute = object.getAttribute(ALARM_CHECKED);
+                if (checkedAttribute != null) {
+                    JEVisSample sample = checkedAttribute.buildSample(new DateTime(), checked);
+                    if (checked) {
+                        sample.setNote("Checked by " + ds.getCurrentUser().getAccountName());
+                    } else {
+                        sample.setNote("Unchecked by " + ds.getCurrentUser().getAccountName());
+                    }
+                    sample.commit();
                 }
-                sample.commit();
+            } else {
+                Platform.runLater(() -> {
+                    Alert alert1 = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                    alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                    alert1.showAndWait();
+                });
             }
         } catch (Exception e) {
             logger.error("Could not set checked attribute for object {}:{}", object.getName(), object.getID(), e);
