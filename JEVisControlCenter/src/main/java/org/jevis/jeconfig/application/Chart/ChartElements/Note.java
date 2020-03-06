@@ -4,6 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.alarm.Alarm;
+import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
@@ -21,15 +23,9 @@ import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 public class Note {
 
     private static final Logger logger = LogManager.getLogger(Note.class);
-    //    private Node node = null;
     private String noteString = null;
-//    private static final Image warning = ResourceLoader.getImage("Warning-icon.png");
-//    private static final Image limit = ResourceLoader.getImage("rodentia-icons_dialog-warning.png");
-//    private static final Image exception = ResourceLoader.getImage("rodentia-icons_process-stop.png");
-//    private static final Image infinity = ResourceLoader.getImage("32423523543543_error_div0.png");
 
-    public Note(JEVisSample sample, JEVisSample noteSample) throws JEVisException {
-//        DateTime timeStamp = sample.getTimestamp();
+    public Note(JEVisSample sample, JEVisSample noteSample, Alarm alarm) throws JEVisException {
         String note = sample.getNote();
         ObjectHandler objectHandler = new ObjectHandler(sample.getDataSource());
 
@@ -37,6 +33,9 @@ public class Note {
             note += "," + USER_NOTES;
         }
 
+        if (alarm != null) {
+            note += "," + alarm.getAlarmType();
+        }
 
         if (note != null) {
 
@@ -165,48 +164,41 @@ public class Note {
                 }
             }
 
+            if (note.contains(AlarmType.DYNAMIC.toString())) {
+                try {
+                    if (noOfNotes > 0) sb.append(", ");
+                    sb.append(I18n.getInstance().getString("plugin.graph.chart.note.dynamic"));
+                    noOfNotes++;
+
+                    changed = true;
+
+                    toolTipString += I18n.getInstance().getString("plugin.alarm.table.translation.dynamic");
+                } catch (Exception e) {
+                }
+            }
+
+            if (note.contains(AlarmType.STATIC.toString())) {
+                try {
+                    if (noOfNotes > 0) sb.append(", ");
+                    sb.append(I18n.getInstance().getString("plugin.graph.chart.note.static"));
+                    noOfNotes++;
+
+                    changed = true;
+
+                    toolTipString += I18n.getInstance().getString("plugin.alarm.table.translation.static");
+                } catch (Exception e) {
+                }
+            }
+
+
             if (changed) {
-//                Pane hbox = new Pane() {
-//                    @Override
-//                    protected void setWidth(double value) {
-//                        //
-//                    }
-//
-//                    @Override
-//                    protected void setHeight(double value) {
-//                        //
-//                    }
-//                };
                 this.noteString = sb.toString();
-//                Label label = new Label(sb.toString());
-//
-//                //label.setBorder(new Border(new BorderStroke(Color.LIGHTBLUE,
-//                //        BorderStrokeStyle.DASHED, CornerRadii.EMPTY, new BorderWidths(1))));
-//
-//                label.setStyle("-fx-background-color: #ffffff;");
-//                //label.setStyle("-fx-background-color: transparent;");
-//                //Pane hbox = new Pane();
-//                AnchorPane hbox = new AnchorPane(){
-//
-//                };
-//                hbox.setStyle("-fx-background-color: transparent;");
-//
-//                hbox.getChildren().add(label);
-//                Layouts.setAnchor(label,1);
-//                this.node = hbox;
-//                if (!toolTipString.equals("")) {
-//                    Tooltip tooltip = new Tooltip(toolTipString);
-//                    label.setTooltip(tooltip);
-//                }
             }
         }
     }
 
-//    public Node getNote() {
-//        return node;
-//    }
-
     public String getNoteAsString() {
         return noteString;
     }
+
 }

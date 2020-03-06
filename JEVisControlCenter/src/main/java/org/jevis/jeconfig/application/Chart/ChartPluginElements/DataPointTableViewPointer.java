@@ -19,6 +19,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.alarm.Alarm;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
@@ -227,6 +228,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                 TableEntry tableEntry = xyChartSerie.getTableEntry();
                 TreeMap<DateTime, JEVisSample> sampleTreeMap = xyChartSerie.getSampleMap();
                 Map<DateTime, JEVisSample> noteMap = xyChartSerie.getSingleRow().getNoteSamples();
+                Map<DateTime, Alarm> alarmMap = xyChartSerie.getSingleRow().getAlarms();
 
                 DateTime dateTime = nearest;
                 if (currentChart instanceof LogicalChart) {
@@ -236,7 +238,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
                 JEVisSample sample = sampleTreeMap.get(finalDateTime);
 
-                Note formattedNote = new Note(sample, noteMap.get(sample.getTimestamp()));
+                Note formattedNote = new Note(sample, noteMap.get(sample.getTimestamp()), alarmMap.get(sample.getTimestamp()));
 
                 if (!asDuration) {
                     Platform.runLater(() -> {

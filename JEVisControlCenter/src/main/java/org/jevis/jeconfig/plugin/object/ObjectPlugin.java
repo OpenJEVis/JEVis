@@ -33,6 +33,10 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -233,6 +237,17 @@ public class ObjectPlugin implements Plugin {
         Finder finder = new Finder(tree);
         SearchFilterBar searchBar = new SearchFilterBar(tree, allObjects, finder);
         tree.setSearchFilterBar(searchBar);
+
+        final KeyCombination replaceCombination = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
+        tree.addEventHandler(KeyEvent.KEY_PRESSED, t -> {
+            if (replaceCombination.match(t)) {
+
+                searchBar.enableReplaceMode();
+
+                tree.getSearchFilterBar().requestCursor();
+                t.consume();
+            }
+        });
 
         treeLoadingPane.setContent(left);
         editorLoadingPane.setContent(_editor.getView());

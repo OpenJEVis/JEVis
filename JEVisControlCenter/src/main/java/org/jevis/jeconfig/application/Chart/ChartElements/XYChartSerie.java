@@ -116,13 +116,9 @@ public class XYChartSerie {
                 DateTime dateTime = sample.getTimestamp();
                 Double currentValue = sample.getValueAsDouble();
 
-                if (!sample.getNote().contains("Zeros")) {
-                    min = Math.min(min, currentValue);
-                    max = Math.max(max, currentValue);
-                    sum += currentValue;
-                } else {
-                    zeroCount++;
-                }
+                min = Math.min(min, currentValue);
+                max = Math.max(max, currentValue);
+                sum += currentValue;
 
                 Double timestamp = dateTime.getMillis() / 1000d;
 
@@ -286,7 +282,7 @@ public class XYChartSerie {
     }
 
     public String generateNote(JEVisSample sample) throws JEVisException {
-        Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()));
+        Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()), singleRow.getAlarms().get(sample.getTimestamp()));
 
         return note.getNoteAsString();
 //        if (note.getNote() != null && hideShowIcons) {
