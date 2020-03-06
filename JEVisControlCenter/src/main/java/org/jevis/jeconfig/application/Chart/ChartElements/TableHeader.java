@@ -8,6 +8,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Background;
@@ -43,21 +44,17 @@ public class TableHeader extends TableView<TableEntry> {
                         "-fx-background-color: transparent, -fx-box-border, -fx-control-inner-background; " +
                         "-fx-background-insets: -1.4,0,1;" +
                         "}");
-        getStylesheets().add
-                (TableHeader.class.getResource("/styles/TableViewNoScrollbar.css").toExternalForm());
+        if (chartType != ChartType.TABLE) {
+            getStylesheets().add(TableHeader.class.getResource("/styles/TableViewNoScrollbar.css").toExternalForm());
+            setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
+        } else {
+            setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        }
 
         tableData.sort((o1, o2) -> getAlphanumComparator().compare(o1.getName(), o2.getName()));
-//        setSortPolicy(param -> {
-//            Comparator<TableEntry> comparator = (t1, t2) -> getAlphanumComparator().compare(t1.getName(), t2.getName());
-//            FXCollections.sort(getItems(), comparator);
-//            return true;
-//        });
 
-        setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 
-        /** Disabled because of out TableViewNoScrollbar.css
-
-         /**
+        /**
          * Table Column 0
          */
         colorCol = buildColorColumn();
@@ -70,6 +67,23 @@ public class TableHeader extends TableView<TableEntry> {
          */
         nameCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
         nameCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
+
+        nameCol.setCellFactory(new Callback<TableColumn<TableEntry, String>, TableCell<TableEntry, String>>() {
+            @Override
+            public TableCell<TableEntry, String> call(TableColumn<TableEntry, String> param) {
+                return new TableCell<TableEntry, String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        super.setText(item);
+                        super.setGraphic(null);
+
+                        this.setTooltip(new Tooltip(item));
+                    }
+                };
+            }
+        });
         nameCol.setSortable(true);
         nameCol.setPrefWidth(500);
         nameCol.setMinWidth(100);
