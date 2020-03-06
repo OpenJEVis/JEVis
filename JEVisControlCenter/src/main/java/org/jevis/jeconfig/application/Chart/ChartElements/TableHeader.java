@@ -3,7 +3,6 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.TableCell;
@@ -24,7 +23,6 @@ import org.jevis.jeconfig.application.tools.TableViewUtils;
 import org.jevis.jeconfig.plugin.charts.TableViewContextMenuHelper;
 
 import java.util.Collections;
-import java.util.Comparator;
 
 public class TableHeader extends TableView<TableEntry> {
     private final double VALUE_COLUMNS_PREF_SIZE = 200;
@@ -47,11 +45,13 @@ public class TableHeader extends TableView<TableEntry> {
                         "}");
         getStylesheets().add
                 (TableHeader.class.getResource("/styles/TableViewNoScrollbar.css").toExternalForm());
-        setSortPolicy(param -> {
-            Comparator<TableEntry> comparator = (t1, t2) -> getAlphanumComparator().compare(t1.getName(), t2.getName());
-            FXCollections.sort(getItems(), comparator);
-            return true;
-        });
+
+        tableData.sort((o1, o2) -> getAlphanumComparator().compare(o1.getName(), o2.getName()));
+//        setSortPolicy(param -> {
+//            Comparator<TableEntry> comparator = (t1, t2) -> getAlphanumComparator().compare(t1.getName(), t2.getName());
+//            FXCollections.sort(getItems(), comparator);
+//            return true;
+//        });
 
         setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
 
@@ -70,7 +70,7 @@ public class TableHeader extends TableView<TableEntry> {
          */
         nameCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.name"));
         nameCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("name"));
-        nameCol.setSortable(false);
+        nameCol.setSortable(true);
         nameCol.setPrefWidth(500);
         nameCol.setMinWidth(100);
 
@@ -145,7 +145,7 @@ public class TableHeader extends TableView<TableEntry> {
                 TableColumn<TableEntry, String> value = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.value"));
                 value.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("value"));
                 value.setStyle("-fx-alignment: CENTER-RIGHT");
-                value.setSortable(false);
+                value.setSortable(true);
 
                 value.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
                 value.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
@@ -176,7 +176,7 @@ public class TableHeader extends TableView<TableEntry> {
                 TableColumn<TableEntry, String> minCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.min"));
                 minCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("min"));
                 minCol.setStyle("-fx-alignment: CENTER-RIGHT");
-                minCol.setSortable(false);
+                minCol.setSortable(true);
                 minCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
                 minCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
@@ -186,7 +186,7 @@ public class TableHeader extends TableView<TableEntry> {
                 TableColumn<TableEntry, String> maxCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.max"));
                 maxCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("max"));
                 maxCol.setStyle("-fx-alignment: CENTER-RIGHT");
-                maxCol.setSortable(false);
+                maxCol.setSortable(true);
                 maxCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
                 maxCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
@@ -196,7 +196,7 @@ public class TableHeader extends TableView<TableEntry> {
                 TableColumn<TableEntry, String> avgCol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.avg"));
                 avgCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("avg"));
                 avgCol.setStyle("-fx-alignment: CENTER-RIGHT");
-                avgCol.setSortable(false);
+                avgCol.setSortable(true);
                 avgCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
                 avgCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
@@ -206,7 +206,7 @@ public class TableHeader extends TableView<TableEntry> {
                 TableColumn<TableEntry, String> enPICol = new TableColumn<TableEntry, String>(I18n.getInstance().getString("plugin.graph.table.enpi"));
                 enPICol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("enpi"));
                 enPICol.setStyle("-fx-alignment: CENTER-RIGHT");
-                enPICol.setSortable(false);
+                enPICol.setSortable(true);
                 enPICol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
                 enPICol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
                 enPICol.setVisible(false);
@@ -217,7 +217,7 @@ public class TableHeader extends TableView<TableEntry> {
                 TableColumn<TableEntry, String> sumCol = new TableColumn<>(I18n.getInstance().getString("plugin.graph.table.sum"));
                 sumCol.setCellValueFactory(new PropertyValueFactory<TableEntry, String>("sum"));
                 sumCol.setStyle("-fx-alignment: CENTER-RIGHT");
-                sumCol.setSortable(false);
+                sumCol.setSortable(true);
                 sumCol.setPrefWidth(VALUE_COLUMNS_PREF_SIZE);
                 sumCol.setMinWidth(VALUE_COLUMNS_MIN_SIZE);
 
