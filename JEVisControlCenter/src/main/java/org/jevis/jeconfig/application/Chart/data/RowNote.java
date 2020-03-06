@@ -2,6 +2,8 @@ package org.jevis.jeconfig.application.Chart.data;
 
 import javafx.beans.property.SimpleStringProperty;
 import org.jevis.api.*;
+import org.jevis.commons.alarm.Alarm;
+import org.jevis.commons.alarm.AlarmType;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
@@ -21,10 +23,11 @@ public class RowNote {
     private SimpleStringProperty userNote;
     private SimpleStringProperty userValue;
     private SimpleStringProperty userValueUnit;
+    private Alarm alarm;
     private Boolean changed = false;
     private JEVisSample sample;
 
-    public RowNote(JEVisObject dataObject, JEVisSample sample, JEVisSample userNoteSample, String name, String userNote, String userValue, String userValueUnit, Double scaleFactor) {
+    public RowNote(JEVisObject dataObject, JEVisSample sample, JEVisSample userNoteSample, String name, String userNote, String userValue, String userValueUnit, Double scaleFactor, Alarm alarm) {
         this.name = new SimpleStringProperty(name);
         this.userNote = new SimpleStringProperty(userNote);
         this.userValue = new SimpleStringProperty(userValue);
@@ -32,6 +35,7 @@ public class RowNote {
         this.dataObject = dataObject;
         this.scaleFactor = scaleFactor;
         this.sample = sample;
+        this.alarm = alarm;
 
         StringBuilder formattedNote = new StringBuilder();
         NumberFormat nf = NumberFormat.getInstance(JEConfig.getConfig().getLocale());
@@ -47,26 +51,13 @@ public class RowNote {
                 }
             }
 
+            if (alarm != null) {
+                note += "," + alarm.getAlarmType();
+            }
+
         } catch (JEVisException e) {
 
         }
-
-//        if (note.contains(NoteConstants.Alignment.ALIGNMENT_YES)) {
-//            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.alignedtrue"));
-//            formattedNote.append(System.getProperty("line.separator"));
-//        } else if (note.contains(NoteConstants.Alignment.ALIGNMENT_NO)) {
-//            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.alignedfalse"));
-//            formattedNote.append(System.getProperty("line.separator"));
-//        }
-
-//        if (note.contains(NoteConstants.Differential.DIFFERENTIAL_ON)) {
-//            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.diff"));
-//            formattedNote.append(System.getProperty("line.separator"));
-//        }
-//        if (note.contains(NoteConstants.Scaling.SCALING_ON)) {
-//            formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.scale"));
-//            formattedNote.append(System.getProperty("line.separator"));
-//        }
 
         if (note.contains(NoteConstants.Limits.LIMIT_STEP1)) {
             formattedNote.append(I18n.getInstance().getString("graph.dialog.note.text.limit1"));
@@ -260,28 +251,14 @@ public class RowNote {
         }
 
         try {
-            JEVisClass cleanDataClass = sample.getDataSource().getJEVisClass("Clean Data");
-            JEVisObject object = sample.getAttribute().getObject();
-            if (object.getJEVisClass().equals(cleanDataClass)) {
-                JEVisAttribute log = object.getAttribute("Alarm Log");
-                if (log != null) {
-                    List<JEVisSample> logSamples = log.getSamples(sample.getTimestamp(), sample.getTimestamp());
-                    if (logSamples != null && !logSamples.isEmpty()) {
-
-                        Double valueAsDouble = logSamples.get(0).getValueAsDouble();
-                        if (valueAsDouble.equals(1d)) {
-                            formattedNote.append("Alarm normal");
-                            formattedNote.append(System.getProperty("line.separator"));
-                        } else if (valueAsDouble.equals(2d)) {
-                            formattedNote.append("Alarm silent");
-                            formattedNote.append(System.getProperty("line.separator"));
-                        } else if (valueAsDouble.equals(4d)) {
-                            formattedNote.append("Alarm standby");
-                            formattedNote.append(System.getProperty("line.separator"));
-                        }
-
-                    }
-                }
+            if (alarm != null && (note.contains(AlarmType.DYNAMIC.toString()) || note.contains(AlarmType.STATIC.toString()))) {
+                formattedNote.append(alarm.getTranslatedTypeName());
+                formattedNote.append(System.getProperty("line.separator"));
+                formattedNote.append(I18n.getInstance().getString("alarms.table.captions.currentvalue")).append(": ").append(alarm.getIsValue());
+                formattedNote.append(System.getProperty("line.separator"));
+                formattedNote.append(alarm.getOperator());
+                formattedNote.append(System.getProperty("line.separator"));
+                formattedNote.append(I18n.getInstance().getString("alarms.table.captions.setvalue")).append(": ").append(alarm.getSetValue());
             }
         } catch (Exception e) {
         }

@@ -843,7 +843,7 @@ public class XYChart implements Chart {
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
 
-                    Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
+                    Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()), serie.getSingleRow().getAlarms().get(sample.getTimestamp()));
 
                     DateTime finalNearest = nearest;
                     if (!asDuration) {
