@@ -53,7 +53,7 @@ public class LoadAnalysisDialog {
     private Stage stage;
     private AnalysisDataModel analysisDataModel;
     private PickerCombo pickerCombo;
-    private ComboBox<TimeFrame> presetDateBox;
+    private ComboBox<AnalysisTimeFrame> presetDateBox;
     private JFXDatePicker pickerDateStart;
     private JFXTimePicker pickerTimeStart;
     private JFXDatePicker pickerDateEnd;
@@ -187,7 +187,7 @@ public class LoadAnalysisDialog {
 
         presetDateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
-                switch (newValue) {
+                switch (newValue.getTimeFrame()) {
                     //Custom
                     case CUSTOM:
                         break;
@@ -405,7 +405,7 @@ public class LoadAnalysisDialog {
             }
             analysisDataModel.setAggregationPeriod(aggregationBox.getSelectionModel().getSelectedItem());
             analysisDataModel.setManipulationMode(mathBox.getSelectionModel().getSelectedItem());
-            AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(presetDateBox.getSelectionModel().getSelectedItem());
+            AnalysisTimeFrame analysisTimeFrame = presetDateBox.getSelectionModel().getSelectedItem();
             if (presetDateBox.getSelectionModel().getSelectedItem().equals(TimeFrame.CUSTOM_START_END)) {
                 for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
                     if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == comboBoxCustomPeriods.getSelectionModel().getSelectedIndex()) {
@@ -610,7 +610,7 @@ public class LoadAnalysisDialog {
     private void updateGridLayout() {
         Platform.runLater(() -> {
 
-            pickerCombo = new PickerCombo(analysisDataModel, null);
+            pickerCombo = new PickerCombo(analysisDataModel, null, false);
             pickerCombo.updateCellFactory();
             presetDateBox = pickerCombo.getPresetDateBox();
             pickerDateStart = pickerCombo.getStartDatePicker();
