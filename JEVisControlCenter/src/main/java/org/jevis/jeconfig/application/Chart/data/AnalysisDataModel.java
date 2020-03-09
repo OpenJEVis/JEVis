@@ -1035,6 +1035,7 @@ public class AnalysisDataModel {
         });
 
         if (!globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.PREVIEW)
+                && !globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CURRENT)
                 && !globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM)
                 && !globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
             DateHelper dateHelper = new DateHelper();
@@ -1048,6 +1049,19 @@ public class AnalysisDataModel {
         } else if (globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.PREVIEW)) {
             checkForPreviewData(chartDataModels, globalAnalysisTimeFrame);
             selectedData.forEach(chartDataModel -> setChartDataModelStartAndEnd(chartDataModel, globalAnalysisTimeFrame.getStart(), globalAnalysisTimeFrame.getEnd()));
+        } else if (globalAnalysisTimeFrame.getTimeFrame().equals(TimeFrame.CURRENT)) {
+            for (ChartDataModel chartDataModel : selectedData) {
+                try {
+                    JEVisAttribute valueAttribute = chartDataModel.getAttribute();
+                    if (valueAttribute != null && valueAttribute.hasSample()) {
+                        Period period = valueAttribute.getInputSampleRate();
+                        DateTime timestamp = valueAttribute.getLatestSample().getTimestamp();
+                        setChartDataModelStartAndEnd(chartDataModel, timestamp.minus(period), timestamp);
+                    }
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+            }
         } else {
             selectedData.forEach(chartDataModel -> setChartDataModelStartAndEnd(chartDataModel, globalAnalysisTimeFrame.getStart(), globalAnalysisTimeFrame.getEnd()));
         }

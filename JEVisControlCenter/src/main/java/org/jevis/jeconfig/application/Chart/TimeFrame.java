@@ -4,6 +4,7 @@ import org.jevis.commons.datetime.DateHelper;
 
 public enum TimeFrame {
     CUSTOM,
+    CURRENT,
     TODAY,
     YESTERDAY,
     LAST_7_DAYS,
@@ -21,6 +22,8 @@ public enum TimeFrame {
         switch (timeFrame) {
             case CUSTOM:
                 return DateHelper.TransformType.CUSTOM;
+            case CURRENT:
+                return DateHelper.TransformType.CURRENT;
             case TODAY:
                 return DateHelper.TransformType.TODAY;
             case YESTERDAY:

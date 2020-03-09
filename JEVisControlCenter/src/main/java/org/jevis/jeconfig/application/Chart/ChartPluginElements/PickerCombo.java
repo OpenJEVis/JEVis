@@ -85,6 +85,7 @@ public class PickerCombo {
         });
 
         final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
+        final String current = I18n.getInstance().getString("plugin.graph.changedate.buttoncurrent");
         final String today = I18n.getInstance().getString("plugin.graph.changedate.buttontoday");
         final String yesterday = I18n.getInstance().getString("plugin.graph.changedate.buttonyesterday");
         final String last7Days = I18n.getInstance().getString("plugin.graph.changedate.buttonlast7days");
@@ -128,6 +129,11 @@ public class PickerCombo {
                             switch (analysisTimeFrame.getTimeFrame()) {
                                 case CUSTOM:
                                     text = custom;
+                                    setTextFill(Color.BLACK);
+                                    setDisable(false);
+                                    break;
+                                case CURRENT:
+                                    text = current;
                                     setTextFill(Color.BLACK);
                                     setDisable(false);
                                     break;
@@ -594,9 +600,13 @@ public class PickerCombo {
             //Custom
             case CUSTOM:
                 break;
+            //current
+            case CURRENT:
+                dateHelper.setType(DateHelper.TransformType.CURRENT);
+                setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
+                break;
             //today
             case TODAY:
-
                 dateHelper.setType(DateHelper.TransformType.TODAY);
                 setPicker(dateHelper.getStartDate(), dateHelper.getEndDate());
                 break;

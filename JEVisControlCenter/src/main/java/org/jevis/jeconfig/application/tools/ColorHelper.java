@@ -32,4 +32,21 @@ public class ColorHelper {
 
         return String.format("#%02x%02x%02x", red, green, blue);
     }
+
+    public static Color getHighlightColor(Color color) {
+        double[] c = new double[3];
+        c[0] = color.getRed();
+        c[1] = color.getGreen();
+        c[2] = color.getBlue();
+
+        for (int i = 0; i < c.length; i++) {
+            if (c[i] <= 0.03928) c[i] = c[i] / 12.92;
+            else c[i] = Math.pow(((c[i] + 0.055) / 1.055), 2.4);
+        }
+
+        double l = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+
+        if (l > 0.179) return Color.web("#000000");
+        else return Color.web("#ffffff");
+    }
 }

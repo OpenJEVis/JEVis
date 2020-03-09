@@ -192,6 +192,14 @@ public class LoadAnalysisDialog {
                     case CUSTOM:
                         break;
                     //today
+                    case CURRENT:
+                        dateHelper.setType(DateHelper.TransformType.CURRENT);
+                        analysisDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.CURRENT));
+                        analysisDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
+                        analysisDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
+                        updateGridLayout();
+                        break;
+                    //today
                     case TODAY:
                         dateHelper.setType(DateHelper.TransformType.TODAY);
                         analysisDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.TODAY));
