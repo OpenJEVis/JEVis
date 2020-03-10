@@ -1,10 +1,9 @@
 package org.jevis.jeconfig.application.Chart.ChartElements;
 
 
-import de.gsi.dataset.DataSet;
-import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.chart.XYChart;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -23,21 +22,18 @@ import java.util.List;
 
 public class BarChartSerie {
     private static final Logger logger = LogManager.getLogger(BarChartSerie.class);
-    public final String FINISHED_SERIE;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-    private DoubleDataSet dataSet = new DoubleDataSet("");
+
     private TableEntry tableEntry;
     private DateTime timeStampFromFirstSample = DateTime.now();
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
+    private final XYChart.Data<Number, String> data;
 
-    public BarChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
-        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + singleRow.getTitle();
+    public BarChartSerie(ChartDataModel singleRow, Boolean lastValue) throws JEVisException {
         String unit = UnitManager.getInstance().format(singleRow.getUnit());
         if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
 
         String tableEntryName = singleRow.getObject().getName();
-        dataSet.setName(tableEntryName);
-        dataSet.clearData();
         tableEntry = new TableEntry(tableEntryName);
         tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
         tableData.add(tableEntry);
@@ -47,10 +43,16 @@ public class BarChartSerie {
 
         double result = 0;
         long count = 0;
-        for (JEVisSample sample : samples) {
-            Double value = sample.getValueAsDouble();
-            result += value;
-            count++;
+
+        if (!lastValue) {
+            for (JEVisSample sample : samples) {
+                Double value = sample.getValueAsDouble();
+                result += value;
+                count++;
+            }
+        } else {
+            result = samples.get(samples.size() - 1).getValueAsDouble();
+            count = 1;
         }
 
         QuantityUnits qu = new QuantityUnits();
@@ -73,18 +75,14 @@ public class BarChartSerie {
             dataName = singleRow.getObject().getName();
         }
 
-//        XYChart.Data<Number, String> data = new XYChart.Data<>(result, dataName);
+        data = new XYChart.Data<>(result, dataName);
 
-        dataSet.add(0, result);
-
-//        dataSet.getData().setAll(data);
-
-        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
 
     }
 
-    public DataSet getDataSet() {
-        return dataSet;
+    public XYChart.Data<Number, String> getData() {
+        return data;
     }
 
     public TableEntry getTableEntry() {

@@ -352,6 +352,12 @@ public class XYChart implements Chart {
                 rendererY2.setDrawMarker(false);
                 break;
             case BAR:
+                rendererY1.setPolyLineStyle(LineStyle.NONE);
+                rendererY1.setDrawBars(true);
+                rendererY1.setDrawMarker(false);
+                rendererY2.setPolyLineStyle(LineStyle.NONE);
+                rendererY2.setDrawBars(true);
+                rendererY2.setDrawMarker(false);
                 break;
             case COLUMN:
                 rendererY1.setPolyLineStyle(LineStyle.NONE);
