@@ -115,7 +115,7 @@ public class ChartWidget extends Widget {
                 chartSetting.setChartType(ChartType.LINE);
                 model.getCharts().setListSettings(Collections.singletonList(chartSetting));
                 this.borderPane.setCenter(null);
-                this.lineChart = new LineChart(model, this.sampleHandler.getDataModel(), 0, "");
+                this.lineChart = new LineChart(model, this.sampleHandler.getDataModel(), chartSetting);
                 Size configSize = getConfig().getSize();
                 lineChart.getChart().setPrefSize(configSize.getWidth(), configSize.getHeight() - 20);
                 lineChart.getChart().setMaxHeight(configSize.getHeight() - 20);/** workaround for the legend overlap **/
@@ -128,7 +128,6 @@ public class ChartWidget extends Widget {
             showProgressIndicator(false);
         });
     }
-
 
 
     @Override
@@ -151,14 +150,14 @@ public class ChartWidget extends Widget {
                         //lineChart.getChart().getPlotBackground().setBackground(bgColor);
                         //lineChart.setBackGround(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
                         String cssBGColor = ColorHelper.toRGBCode(Color.TRANSPARENT);
-                        lineChart.getChart().getPlotBackground().setStyle("-fx-background-color: "+cssBGColor+";");
+                        lineChart.getChart().getPlotBackground().setStyle("-fx-background-color: " + cssBGColor + ";");
 
-                        lineChart.getChart().setStyle("-fx-background-color: "+cssBGColor+";");
+                        lineChart.getChart().setStyle("-fx-background-color: " + cssBGColor + ";");
                         this.lineChart.getChart().getAxes().forEach(axis -> {
                             if (axis instanceof DefaultNumericAxis) {
                                 DefaultNumericAxis defaultNumericAxis = (DefaultNumericAxis) axis;
                                 defaultNumericAxis.getAxisLabel().setVisible(false);
-                                defaultNumericAxis.setStyle("-fx-text-color: "+ColorHelper.toRGBCode(this.config.getFontColor())+";");
+                                defaultNumericAxis.setStyle("-fx-text-color: " + ColorHelper.toRGBCode(this.config.getFontColor()) + ";");
                             }
                         });
 
@@ -224,7 +223,6 @@ public class ChartWidget extends Widget {
         this.borderPane.setBottom(bottomBorderPane);
         this.borderPane.setBottom(this.legend);
         setGraphic(this.borderPane);
-
 
 
         /** Dummy chart **/

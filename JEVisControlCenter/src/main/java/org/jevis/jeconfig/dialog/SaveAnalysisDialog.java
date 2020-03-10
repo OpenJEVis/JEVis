@@ -257,6 +257,7 @@ public class SaveAnalysisDialog {
                 if (cset.getId() != null) set.setId(cset.getId().toString());
                 if (cset.getName() != null) set.setName(cset.getName());
                 if (cset.getChartType() != null) set.setChartType(cset.getChartType().toString());
+                if (cset.getColorMapping() != null) set.setColorMapping(cset.getColorMapping().toString());
                 if (cset.getHeight() != null) set.setHeight(cset.getHeight().toString());
 
                 JsonChartTimeFrame jctf = new JsonChartTimeFrame();

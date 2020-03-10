@@ -35,6 +35,7 @@ public class JsonChartSetting {
     private String name;
     private String chartType;
     private String height;
+    private String colorMapping;
     private JsonChartTimeFrame analysisTimeFrame;
 
     public JsonChartSetting() {
@@ -74,6 +75,15 @@ public class JsonChartSetting {
 
     public void setHeight(String height) {
         this.height = height;
+    }
+
+    @XmlElement(name = "colorMapping")
+    public String getColorMapping() {
+        return colorMapping;
+    }
+
+    public void setColorMapping(String colorMapping) {
+        this.colorMapping = colorMapping;
     }
 
     @XmlElement(name = "analysisTimeFrame")

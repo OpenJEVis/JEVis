@@ -19,6 +19,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
@@ -54,12 +55,12 @@ public class BarChart implements Chart {
     private AtomicReference<ManipulationMode> manipulationMode;
     private DateTime nearest;
 
-    public BarChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
+    public BarChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
         this.analysisDataModel = analysisDataModel;
         this.chartDataModels = chartDataModels;
         this.hideShowIcons = analysisDataModel.getShowIcons();
-        this.chartId = chartId;
-        this.chartName = chartName;
+        this.chartId = chartSetting.getId();
+        this.chartName = chartSetting.getName();
         init();
     }
 

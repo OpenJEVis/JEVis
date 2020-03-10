@@ -9,6 +9,7 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 
@@ -19,8 +20,8 @@ public class TableChart extends XYChart {
     private ChartDataModel singleRow;
     private TableTopDatePicker tableTopDatePicker;
 
-    public TableChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
-        super(analysisDataModel, chartDataModels, chartId, chartName);
+    public TableChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
+        super(analysisDataModel, chartDataModels, chartSetting);
 
         tableTopDatePicker = new TableTopDatePicker(singleRow);
         tableTopDatePicker.setAlignment(Pos.CENTER);
