@@ -13,6 +13,7 @@ import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.WidgetTreePlugin;
 import org.jevis.jeconfig.plugin.dashboard.widget.GenericConfigNode;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
+import org.jevis.jeconfig.tool.ScreenSize;
 
 public class WidgetConfigDialog extends Alert {
 
@@ -36,7 +37,7 @@ public class WidgetConfigDialog extends Alert {
 
         BorderPane borderPane = new BorderPane();
         borderPane.setCenter(this.tabPane);
-        borderPane.setPrefWidth(780d);
+        borderPane.setPrefWidth(ScreenSize.fitScreenWidth(1280));
         borderPane.setPrefHeight(650d);
 
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
