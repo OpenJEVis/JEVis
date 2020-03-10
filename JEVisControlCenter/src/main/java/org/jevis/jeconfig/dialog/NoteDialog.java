@@ -24,6 +24,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.text.NumberFormat;
 import java.util.Map;
 
 public class NoteDialog extends Dialog<ButtonType> {
@@ -103,6 +104,7 @@ public class NoteDialog extends Dialog<ButtonType> {
                             setGraphic(null);
                         } else {
                             RowNote rowNote = (RowNote) getTableRow().getItem();
+
                             TextArea textArea = new TextArea(rowNote.getUserNote());
 
                             Button expand = new Button(null);
@@ -146,6 +148,25 @@ public class NoteDialog extends Dialog<ButtonType> {
             }
         });
 
+        NumberFormat nf = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
+        nf.setMinimumFractionDigits(2);
+        nf.setMaximumFractionDigits(2);
+
+        TableColumn<RowNote, String> columnValue = new TableColumn<>(I18n.getInstance().getString("alarms.table.captions.currentvalue"));
+        columnValue.setSortable(false);
+        columnValue.setEditable(true);
+        columnValue.setMinWidth(50);
+        columnValue.setCellValueFactory(param -> {
+            try {
+                String userValue = nf.format(param.getValue().getSample().getValueAsDouble());
+                return new ReadOnlyObjectWrapper<>(userValue);
+            } catch (Exception e) {
+                return new ReadOnlyObjectWrapper<>("-");
+            }
+        });
+
+        columnValue.setStyle("-fx-alignment: CENTER;");
+
         TableColumn<RowNote, String> columnUserData = new TableColumn<>(I18n.getInstance().getString("graph.dialog.column.uservalue"));
         columnUserData.setSortable(false);
         columnUserData.setEditable(true);
@@ -154,7 +175,6 @@ public class NoteDialog extends Dialog<ButtonType> {
             String userValue = param.getValue().getUserValue();
             return new ReadOnlyObjectWrapper<>(userValue);
         });
-
 
         columnUserData.setCellFactory(new Callback<TableColumn<RowNote, String>, TableCell<RowNote, String>>() {
             @Override
@@ -225,7 +245,7 @@ public class NoteDialog extends Dialog<ButtonType> {
         });
 
         TableView<RowNote> tv = new TableView<>();
-        tv.getColumns().setAll(columnName, columnTimeStamp, columnNote, columnUserNote, columnUserData);
+        tv.getColumns().setAll(columnName, columnTimeStamp, columnNote, columnUserNote, columnValue, columnUserData);
         tv.setItems(observableList);
 
         hbox.getChildren().add(tv);

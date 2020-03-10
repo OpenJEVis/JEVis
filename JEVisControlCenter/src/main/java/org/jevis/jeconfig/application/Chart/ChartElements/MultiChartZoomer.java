@@ -5,12 +5,15 @@ import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
 import de.gsi.chart.axes.spi.Axes;
+import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import de.gsi.chart.plugins.ChartPlugin;
 import de.gsi.chart.plugins.MouseEventsHelper;
 import de.gsi.chart.plugins.Panner;
 import de.gsi.chart.plugins.Zoomer;
 import de.gsi.chart.ui.ObservableDeque;
 import de.gsi.chart.ui.geometry.Side;
+import de.gsi.dataset.DataSet;
+import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -884,18 +887,16 @@ public class MultiChartZoomer extends ChartPlugin {
             double dataMax;
             if (axis.getSide().isVertical()) {
                 dataMin = axis.getValueForDisplay(minPlotCoordinate.getY());
-                dataMax = axis.getValueForDisplay(maxPlotCoordinate.getY());
+
+                dataMax = getMaxYFromZoomWindow(axis, minX, maxX, maxPlotCoordinate.getY()) * 1.1;
+//                dataMax = axis.getValueForDisplay(maxPlotCoordinate.getY());
+
             } else {
                 dataMin = axis.getValueForDisplay(minPlotCoordinate.getX());
                 dataMax = axis.getValueForDisplay(maxPlotCoordinate.getX());
             }
             switch (getAxisMode()) {
-                case X:
-                    if (axis.getSide().isHorizontal()) {
-                        axisStateMap.put(axis,
-                                new ZoomState(dataMin, dataMax, axis.isAutoRanging(), axis.isAutoGrowRanging()));
-                    }
-                    break;
+
                 case Y:
                     if (axis.getSide().isVertical()) {
                         axisStateMap.put(axis,
@@ -903,6 +904,8 @@ public class MultiChartZoomer extends ChartPlugin {
                     }
                     break;
                 case XY:
+                case X:
+
                 default:
                     axisStateMap.put(axis, new ZoomState(dataMin, dataMax, axis.isAutoRanging(), axis.isAutoGrowRanging()));
                     break;
@@ -911,6 +914,47 @@ public class MultiChartZoomer extends ChartPlugin {
         }
 
         return axisStateMap;
+    }
+
+    private double getMaxYFromZoomWindow(Axis axis, double minX, double maxX, double y) {
+        double max = 0;
+        Axis xAxis = null;
+        DefaultNumericAxis yAxis = (DefaultNumericAxis) axis;
+        Side side = yAxis.getSide();
+        for (Axis axis1 : getChart().getAxes()) {
+            if (axis1.getSide() == Side.BOTTOM) {
+                xAxis = axis1;
+            }
+        }
+
+        ObservableList<DataSet> datasets = null;
+        if (side == Side.LEFT) {
+            datasets = getChart().getRenderers().get(0).getDatasets();
+        } else if (side == Side.RIGHT) {
+            datasets = getChart().getRenderers().get(1).getDatasets();
+        }
+
+        if (xAxis != null && datasets != null) {
+            double minXX = xAxis.getValueForDisplay(minX);
+            double maxXX = xAxis.getValueForDisplay(maxX);
+
+            for (DataSet dataSet : datasets) {
+                if (dataSet instanceof DoubleDataSet) {
+                    DoubleDataSet ds = (DoubleDataSet) dataSet;
+                    for (int i = 0; i < ds.getDataCount(); i++) {
+                        double x = ds.getX(i);
+                        if (x >= minXX && x <= maxXX) {
+                            max = Math.max(max, ds.getY(i));
+                        }
+                    }
+                }
+            }
+        }
+        if (max > 0) {
+            return max;
+        } else {
+            return axis.getValueForDisplay(y);
+        }
     }
 
     private void installDragCursor() {
@@ -1060,7 +1104,8 @@ public class MultiChartZoomer extends ChartPlugin {
 
         Axis axis = zoomStateEntry.getKey();
         if (isZoomIn && ((axis.getSide().isHorizontal() && getAxisMode().allowsX())
-                || (axis.getSide().isVertical() && getAxisMode().allowsY()))) {
+//                || (axis.getSide().isVertical() && getAxisMode().allowsY()))) {
+                || (axis.getSide().isVertical()))) {
             // perform only zoom-in if axis is horizontal (or vertical) and corresponding horizontal (or vertical)
             // zooming is allowed
             axis.setAutoRanging(false);
@@ -1122,12 +1167,8 @@ public class MultiChartZoomer extends ChartPlugin {
         ConcurrentHashMap<Axis, ZoomState> axisStateMap = new ConcurrentHashMap<>();
         for (Axis axis : getChart().getAxes()) {
             switch (getAxisMode()) {
-                case X:
-                    if (axis.getSide().isHorizontal()) {
-                        axisStateMap.put(axis, new ZoomState(axis.getMin(), axis.getMax(), axis.isAutoRanging(),
-                                axis.isAutoGrowRanging())); // NOPMD necessary in-loop instantiation
-                    }
-                    break;
+//                    if (axis.getSide().isHorizontal()) {
+//                    }
                 case Y:
                     if (axis.getSide().isVertical()) {
                         axisStateMap.put(axis, new ZoomState(axis.getMin(), axis.getMax(), axis.isAutoRanging(),
@@ -1135,6 +1176,7 @@ public class MultiChartZoomer extends ChartPlugin {
                     }
                     break;
                 case XY:
+                case X:
                 default:
                     axisStateMap.put(axis,
                             new ZoomState(axis.getMin(), axis.getMax(), axis.isAutoRanging(), axis.isAutoGrowRanging())); // NOPMD necessary in-loop instantiation

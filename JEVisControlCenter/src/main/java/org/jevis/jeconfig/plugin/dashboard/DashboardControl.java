@@ -11,7 +11,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -35,19 +34,16 @@ import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
-import org.jevis.jeconfig.taskmanager.TaskWindow;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import javax.imageio.ImageIO;
-import javax.validation.constraints.Null;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class DashboardControl {
 
@@ -689,7 +685,7 @@ public class DashboardControl {
                 logger.debug("Starting Update");
                 JEConfig.getStatusBar().startProgressJob("Dashboard"
                         , DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count()
-                        , "Start Dashboard update");
+                        , I18n.getInstance().getString("plugin.dashboard.message.startupdate"));
                 try {
 //                    totalUpdateJobs.setValue(DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count());
                     for (Widget widget : DashboardControl.this.widgetList) {
@@ -745,7 +741,7 @@ public class DashboardControl {
         }
 
 
-        Task updateTask = new Task() {
+        Task<Object> updateTask = new Task<Object>() {
             @Override
             protected Object call() throws Exception {
                 try {
@@ -759,7 +755,7 @@ public class DashboardControl {
                     ex.printStackTrace();
                 } finally {
                     JEConfig.getStatusBar().progressProgressJob("Dashboard", 1
-                            , "Done Widget: " + widget.getConfig().getUuid());
+                            , I18n.getInstance().getString("plugin.dashboard.message.finishedwidget") + " " + widget.getConfig().getUuid());
                 }
                 return null;
             }

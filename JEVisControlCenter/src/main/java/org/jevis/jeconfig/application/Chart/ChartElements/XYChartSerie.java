@@ -32,6 +32,7 @@ import java.util.TreeMap;
 public class XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
     private final boolean forecast;
+    public final String FINISHED_SERIE;
     Integer yAxis;
     DoubleDataSet valueDataSet;
     DoubleDataSet noteDataSet;
@@ -46,6 +47,7 @@ public class XYChartSerie {
 
     public XYChartSerie(ChartDataModel singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
         this.singleRow = singleRow;
+        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + singleRow.getTitle();
         this.yAxis = singleRow.getAxis();
         this.showIcons = showIcons;
         this.valueDataSet = new DoubleDataSet(singleRow.getTitle());
@@ -114,13 +116,9 @@ public class XYChartSerie {
                 DateTime dateTime = sample.getTimestamp();
                 Double currentValue = sample.getValueAsDouble();
 
-                if (!sample.getNote().contains("Zeros")) {
-                    min = Math.min(min, currentValue);
-                    max = Math.max(max, currentValue);
-                    sum += currentValue;
-                } else {
-                    zeroCount++;
-                }
+                min = Math.min(min, currentValue);
+                max = Math.max(max, currentValue);
+                sum += currentValue;
 
                 Double timestamp = dateTime.getMillis() / 1000d;
 
@@ -150,7 +148,7 @@ public class XYChartSerie {
             sum = max;
         }
 
-        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
 
         updateTableEntry(samples, unit, min, max, avg, sum, zeroCount);
     }
@@ -284,7 +282,7 @@ public class XYChartSerie {
     }
 
     public String generateNote(JEVisSample sample) throws JEVisException {
-        Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()));
+        Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()), singleRow.getAlarms().get(sample.getTimestamp()));
 
         return note.getNoteAsString();
 //        if (note.getNote() != null && hideShowIcons) {

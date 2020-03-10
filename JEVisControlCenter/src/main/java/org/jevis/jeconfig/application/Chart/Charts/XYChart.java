@@ -352,6 +352,12 @@ public class XYChart implements Chart {
                 rendererY2.setDrawMarker(false);
                 break;
             case BAR:
+                rendererY1.setPolyLineStyle(LineStyle.NONE);
+                rendererY1.setDrawBars(true);
+                rendererY1.setDrawMarker(false);
+                rendererY2.setPolyLineStyle(LineStyle.NONE);
+                rendererY2.setDrawBars(true);
+                rendererY2.setDrawMarker(false);
                 break;
             case COLUMN:
                 rendererY1.setPolyLineStyle(LineStyle.NONE);
@@ -629,9 +635,11 @@ public class XYChart implements Chart {
 
     public void generateYAxis() {
         y1Axis.setForceZeroInRange(true);
+        y1Axis.setAutoGrowRanging(true);
         y1Axis.setAutoRanging(true);
         y2Axis.setForceZeroInRange(true);
         y2Axis.setAutoRanging(true);
+        y2Axis.setAutoGrowRanging(true);
 
         CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2);
         y1Axis.setTickLabelFormatter(tickLabelFormatter1);
@@ -668,8 +676,9 @@ public class XYChart implements Chart {
                 unitY2.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
             } else if (unitY1.isEmpty()) {
                 unitY1.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
+            } else if (unitY2.isEmpty()) {
+                unitY2.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
             }
-
         }
 
         StringBuilder allUnitsY1 = new StringBuilder();
@@ -840,7 +849,7 @@ public class XYChart implements Chart {
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
 
-                    Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
+                    Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()), serie.getSingleRow().getAlarms().get(sample.getTimestamp()));
 
                     DateTime finalNearest = nearest;
                     if (!asDuration) {

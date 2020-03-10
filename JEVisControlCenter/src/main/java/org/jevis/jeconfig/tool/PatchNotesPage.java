@@ -51,7 +51,33 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.16------\n" +
+            "------Version 3.9.19------\n" +
+                    "JECC - AlarmPlugin - Added button to confirm all alarms\n" +
+                    "JECC - AlarmPlugin - fixed some threading issues\n" +
+                    "JECC - AlarmPlugin - relocated reload button\n" +
+                    "JECC - Dashboard - fixed translation of dashboard timefactory\n" +
+                    "JECC - Statusbar - finalized message support\n" +
+                    "JECC - Statusbar - added message translations\n" +
+                    "\n" +
+                    "JECommons - fixed some issues with SampleHandler\n" +
+                    "\n" +
+                    "JEReport - added logging output for report name + id for missing data\n\n" +
+                    "------Version 3.9.18------\n" +
+                    "JECC - Dashboard - \"Math.\" button did not work\n" +
+                    "JECC - Dashboard - Font size in value widget has no effect \n" +
+                    "JECC - AlarmPlugin - sometimes link is not disabled\n\n" +
+                    "------Version 3.9.17------\n" +
+                    "JECC - Charts - y-axis should autoscale when zooming\n" +
+                    "JECC - AlarmPlugin - link should be shown with change in mouse cursor\n" +
+                    "JECC - AlarmPlugin - change checkbox for what to show to more distinct control\n" +
+                    "JECC - AlarmPlugin - changing date range or what to show while loading doesnt clear all alarm rows\n" +
+                    "JECC - AlarmPlugin - make link to data rows configurable\n" +
+                    "JECC - ReportWizard - creating new fixed to report period end creates wrong manipulation attribute value\n" +
+                    "JECC - Dashboard - zoom to size does not allays work\n" +
+                    "JECC - New Version Link not working under Windows\n" +
+                    "\n" +
+                    "JEReport - ManipulationMode - fixed wrong parsing of sorted data\n\n" +
+                    "------Version 3.9.16------\n" +
                     "JECC - fixed translation in Report Wizard\n" +
                     "JECC - CleanDataExtension - fixed wrong value type for value offset\n" +
                     "JECC - CleanDataExtension - added localization for double values\n" +

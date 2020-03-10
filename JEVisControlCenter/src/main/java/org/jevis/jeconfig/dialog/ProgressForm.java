@@ -43,7 +43,6 @@ public class ProgressForm {
 
         pb.setProgress(-1F);
         textArea.setVisible(false);
-        textArea.setPrefRowCount(0);
 
         final VBox vb = new VBox();
         final HBox hb = new HBox();
@@ -88,6 +87,7 @@ public class ProgressForm {
         if (!textArea.isVisible()) {
             Platform.runLater(() -> {
                 textArea.setVisible(true);
+                textArea.setMinHeight(150);
                 textArea.setPrefHeight(150);
             });
         }

@@ -64,7 +64,7 @@ public class TableSerie extends XYChartSerie {
         }
 
         Platform.runLater(() -> {
-            JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
+            JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
         });
 
     }

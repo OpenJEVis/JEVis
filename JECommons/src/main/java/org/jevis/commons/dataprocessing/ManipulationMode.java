@@ -8,7 +8,11 @@ public enum ManipulationMode {
         String[] modeArray = modeName.split("_");
         String mode = NONE.name();
         if (modeArray.length == 2) {
-            mode = modeArray[1];
+            if (modeArray[0].equals("RUNNING") || modeArray[0].equals("SORTED")) {
+                mode = modeName;
+            } else {
+                mode = modeArray[1];
+            }
         } else if (modeArray.length == 3) {
             mode = modeArray[1] + "_" + modeArray[2];
         }

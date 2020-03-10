@@ -30,6 +30,7 @@ import java.util.TreeMap;
 
 public class ColumnChartSerie {
     private static final Logger logger = LogManager.getLogger(ColumnChartSerie.class);
+    public final String FINISHED_SERIE;
     private final Boolean hideShowIcons;
     private boolean forecast;
     private ChartDataModel singleRow;
@@ -42,6 +43,7 @@ public class ColumnChartSerie {
     private TreeMap<DateTime, JEVisSample> sampleMap;
 
     public ColumnChartSerie(ChartDataModel singleRow, Boolean hideShowIcons, boolean forecast) throws JEVisException {
+        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + singleRow.getTitle();
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
         this.hideShowIcons = hideShowIcons;
@@ -166,7 +168,7 @@ public class ColumnChartSerie {
             }
         }
 
-        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
     }
 
     public void setDataNodeColor(MultiAxisBarChart.Data<String, Number> data) {

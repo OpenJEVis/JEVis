@@ -43,11 +43,11 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
-import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
@@ -327,8 +327,8 @@ public class ChartSelectionDialog {
             if (chartDataModel.getSelectedcharts().contains(cset.getId())) correspondingDataModels.add(chartDataModel);
         });
 
-        PickerCombo pickerCombo = new PickerCombo(data, correspondingDataModels);
-        final ComboBox<TimeFrame> presetDateBox = pickerCombo.getPresetDateBox();
+        PickerCombo pickerCombo = new PickerCombo(data, correspondingDataModels, false);
+        final ComboBox<AnalysisTimeFrame> presetDateBox = pickerCombo.getPresetDateBox();
         final JFXDatePicker pickerDateStart = pickerCombo.getStartDatePicker();
         final JFXTimePicker pickerTimeStart = pickerCombo.getStartTimePicker();
         final JFXDatePicker pickerDateEnd = pickerCombo.getEndDatePicker();

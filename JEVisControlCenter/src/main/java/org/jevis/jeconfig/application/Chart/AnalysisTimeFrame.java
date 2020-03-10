@@ -7,6 +7,7 @@ public class AnalysisTimeFrame {
     private TimeFrame timeFrame = TimeFrame.TODAY;
 
     private long id = 0l;
+    private String name = "";
     private DateTime start = DateTime.now();
     private DateTime end = DateTime.now();
 
@@ -17,9 +18,10 @@ public class AnalysisTimeFrame {
         this.timeFrame = timeFrame;
     }
 
-    public AnalysisTimeFrame(TimeFrame timeFrame, long id) {
+    public AnalysisTimeFrame(TimeFrame timeFrame, long id, String name) {
         this.timeFrame = timeFrame;
         this.id = id;
+        this.name = name;
     }
 
     public TimeFrame getTimeFrame() {
@@ -54,6 +56,14 @@ public class AnalysisTimeFrame {
         this.end = end;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public TimeFrame parseTimeFrameFromString(String s) {
         switch (s) {
             case "custom":
@@ -85,7 +95,11 @@ public class AnalysisTimeFrame {
     @Override
     public boolean equals(Object analysisTimeFrame) {
         if (analysisTimeFrame instanceof AnalysisTimeFrame) {
-            return this.getTimeFrame().equals(((AnalysisTimeFrame) analysisTimeFrame).getTimeFrame());
+            if (this.getTimeFrame() != TimeFrame.CUSTOM_START_END && ((AnalysisTimeFrame) analysisTimeFrame).getTimeFrame() != TimeFrame.CUSTOM_START_END) {
+                return this.getTimeFrame().equals(((AnalysisTimeFrame) analysisTimeFrame).getTimeFrame());
+            } else {
+                return this.getId() == ((AnalysisTimeFrame) analysisTimeFrame).getId();
+            }
         } else return false;
     }
 }

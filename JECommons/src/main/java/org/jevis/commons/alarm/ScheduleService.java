@@ -3,10 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jealarm;
+package org.jevis.commons.alarm;
 
-import org.jevis.commons.alarm.UsageSchedule;
-import org.jevis.commons.alarm.UsageScheduleType;
 import org.joda.time.DateTime;
 
 import java.util.List;

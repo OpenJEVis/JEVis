@@ -52,6 +52,9 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
+import org.jevis.jeconfig.application.jevistree.methods.CalculationMethods;
+import org.jevis.jeconfig.application.jevistree.methods.CommonMethods;
+import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
@@ -65,7 +68,10 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.format.FormatStyle;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 
@@ -252,7 +258,7 @@ public class TreeHelper {
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
                                             if (!changedFrom.get() && !changedTo.get()) {
-                                                deleteAllSamples(pForm, item.getValue().getJEVisObject(),
+                                                DataMethods.deleteAllSamples(pForm, item.getValue().getJEVisObject(),
                                                         rawData.selectedProperty().get(),
                                                         cleanData.selectedProperty().get());
                                             } else if (changedFrom.get() && !changedTo.get()) {
@@ -264,7 +270,7 @@ public class TreeHelper {
                                                         timePickerFrom.valueProperty().get().getMinute(),
                                                         timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                deleteAllSamples(pForm, item.getValue().getJEVisObject(),
+                                                DataMethods.deleteAllSamples(pForm, item.getValue().getJEVisObject(),
                                                         dateTimeFrom,
                                                         null,
                                                         rawData.selectedProperty().get(),
@@ -278,7 +284,7 @@ public class TreeHelper {
                                                         timePickerTo.valueProperty().get().getMinute(),
                                                         timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                deleteAllSamples(pForm, item.getValue().getJEVisObject(),
+                                                DataMethods.deleteAllSamples(pForm, item.getValue().getJEVisObject(),
                                                         null,
                                                         dateTimeTo,
                                                         rawData.selectedProperty().get(),
@@ -300,7 +306,7 @@ public class TreeHelper {
                                                         timePickerTo.valueProperty().get().getMinute(),
                                                         timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                deleteAllSamples(pForm, item.getValue().getJEVisObject(),
+                                                DataMethods.deleteAllSamples(pForm, item.getValue().getJEVisObject(),
                                                         dateTimeFrom,
                                                         dateTimeTo,
                                                         rawData.selectedProperty().get(),
@@ -432,7 +438,7 @@ public class TreeHelper {
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
                                             if (!changedFrom.get() && !changedTo.get()) {
-                                                deleteAllCalculations(pForm, item.getValue().getJEVisObject(), null, null);
+                                                CalculationMethods.deleteAllCalculations(pForm, item.getValue().getJEVisObject(), null, null);
                                             } else if (changedFrom.get() && !changedTo.get()) {
                                                 DateTime dateTimeFrom = new DateTime(
                                                         datePickerFrom.valueProperty().get().getYear(),
@@ -442,7 +448,7 @@ public class TreeHelper {
                                                         timePickerFrom.valueProperty().get().getMinute(),
                                                         timePickerFrom.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                deleteAllCalculations(pForm, item.getValue().getJEVisObject(),
+                                                CalculationMethods.deleteAllCalculations(pForm, item.getValue().getJEVisObject(),
                                                         dateTimeFrom,
                                                         null);
                                             } else if (!changedFrom.get() && changedTo.get()) {
@@ -454,7 +460,7 @@ public class TreeHelper {
                                                         timePickerTo.valueProperty().get().getMinute(),
                                                         timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                deleteAllCalculations(pForm, item.getValue().getJEVisObject(),
+                                                CalculationMethods.deleteAllCalculations(pForm, item.getValue().getJEVisObject(),
                                                         null,
                                                         dateTimeTo);
                                             } else {
@@ -474,7 +480,7 @@ public class TreeHelper {
                                                         timePickerTo.valueProperty().get().getMinute(),
                                                         timePickerTo.valueProperty().get().getSecond(), DateTimeZone.getDefault());
 
-                                                deleteAllCalculations(pForm, item.getValue().getJEVisObject(),
+                                                CalculationMethods.deleteAllCalculations(pForm, item.getValue().getJEVisObject(),
                                                         dateTimeFrom,
                                                         dateTimeTo);
                                             }
@@ -523,138 +529,6 @@ public class TreeHelper {
         }
     }
 
-    private static void deleteAllCalculations(ProgressForm pForm, JEVisObject jeVisObject, DateTime from, DateTime to) {
-        JEVisClass calculationClass = null;
-        JEVisClass outputClass = null;
-        JEVisClass cleanDataClass = null;
-        JEVisClass rawDataClass = null;
-        try {
-            calculationClass = jeVisObject.getDataSource().getJEVisClass("Calculation");
-            outputClass = jeVisObject.getDataSource().getJEVisClass("Output");
-            rawDataClass = jeVisObject.getDataSource().getJEVisClass("Data");
-            cleanDataClass = jeVisObject.getDataSource().getJEVisClass("Clean Data");
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
-
-        List<JEVisObject> rawData = new ArrayList<>();
-        try {
-            rawData = getAllRawDataRec(jeVisObject, rawDataClass);
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
-
-        List<JEVisObject> allCalculations = new ArrayList<>();
-        try {
-            allCalculations = jeVisObject.getDataSource().getObjects(calculationClass, false);
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
-
-        List<JEVisObject> allTargets = new ArrayList<>();
-        Map<JEVisObject, JEVisObject> targetAndCalc = new HashMap<>();
-        for (JEVisObject calcObject : allCalculations) {
-            try {
-                for (JEVisObject output : calcObject.getChildren(outputClass, false)) {
-                    JEVisAttribute attribute = output.getAttribute("Output");
-                    if (attribute != null && attribute.hasSample()) {
-                        TargetHelper th = new TargetHelper(jeVisObject.getDataSource(), attribute);
-                        allTargets.addAll(th.getObject());
-                        targetAndCalc.put(th.getObject().get(0), calcObject);
-                    }
-                }
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-        }
-
-        List<JEVisObject> foundCalcTarget = new ArrayList<>();
-        List<JEVisObject> calculationsToDisable = new ArrayList<>();
-        for (JEVisObject target : allTargets) {
-            if (rawData.contains(target)) {
-                foundCalcTarget.add(target);
-                calculationsToDisable.add(targetAndCalc.get(target));
-            }
-        }
-
-        for (JEVisObject visObject : calculationsToDisable) {
-            setEnabled(visObject, "Calculation", false);
-        }
-
-        deleteSamplesInList(pForm, from, to, foundCalcTarget);
-
-        List<JEVisObject> allCleanData = new ArrayList<>();
-        for (JEVisObject data : foundCalcTarget) {
-            try {
-                allCleanData.addAll(data.getChildren(cleanDataClass, false));
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-        }
-
-        deleteSamplesInList(pForm, from, to, allCleanData);
-
-        for (JEVisObject object : calculationsToDisable) {
-            setEnabled(object, "Calculation", true);
-        }
-    }
-
-    private static void deleteSamplesInList(ProgressForm pForm, DateTime from, DateTime to, List<JEVisObject> list) {
-        for (JEVisObject object : list) {
-            JEVisAttribute valueAtt = null;
-            try {
-                valueAtt = object.getAttribute("Value");
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-            if (valueAtt != null) {
-                if (from == null && to == null) {
-                    try {
-                        pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
-                        valueAtt.deleteAllSample();
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
-                    }
-                } else if (from != null && to != null) {
-                    try {
-                        pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
-                                + " from " + from.toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
-                        valueAtt.deleteSamplesBetween(from, to);
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
-                    }
-                } else if (from != null) {
-                    try {
-                        pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
-                                + " from " + from.toString("YYYY-MM-dd HH:mm:ss") + " to " + new DateTime().toString("YYYY-MM-dd HH:mm:ss"));
-                        valueAtt.deleteSamplesBetween(from, new DateTime());
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    try {
-                        pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
-                                + " from " + new DateTime(2001, 1, 1, 0, 0, 0).toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
-                        valueAtt.deleteSamplesBetween(new DateTime(2001, 1, 1, 0, 0, 0), to);
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID());
-        }
-    }
-
-    private static List<JEVisObject> getAllRawDataRec(JEVisObject parent, JEVisClass rawDataClass) throws JEVisException {
-        List<JEVisObject> list = new ArrayList<>();
-        if (parent.getJEVisClass().equals(rawDataClass)) {
-            list.add(parent);
-        }
-        for (JEVisObject child : parent.getChildren()) {
-            list.addAll(getAllRawDataRec(child, rawDataClass));
-        }
-        return list;
-    }
 
     public static void EventCreateMultiplierAndDifferential(JEVisTree tree) {
         logger.debug("EventCreateMultiplierAndDifferential");
@@ -712,7 +586,7 @@ public class TreeHelper {
                                     @Override
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            setAllMultiplierAndDifferential(item.getValue().getJEVisObject(), multiplierValue, differentialValue, dateTime);
+                                            DataMethods.setAllMultiplierAndDifferential(item.getValue().getJEVisObject(), multiplierValue, differentialValue, dateTime);
                                         }
 
                                         return null;
@@ -792,7 +666,7 @@ public class TreeHelper {
                     gp.add(l_SampleRate, 0, 5);
 
                     final JEVisDataSource ds = items.get(0).getValue().getJEVisObject().getDataSource();
-                    final JEVisObject object = getFirstCleanObject(items.get(0).getValue().getJEVisObject());
+                    final JEVisObject object = DataMethods.getFirstCleanObject(items.get(0).getValue().getJEVisObject());
 
                     JEVisAttribute valueAtt = object.getAttribute("Value");
 
@@ -822,7 +696,7 @@ public class TreeHelper {
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
                                             try {
-                                                setUnitAndPeriod(items.get(0).getValue().getJEVisObject(), unit, unitUI, period, periodUI);
+                                                DataMethods.setUnitAndPeriod(items.get(0).getValue().getJEVisObject(), unit, unitUI, period, periodUI);
                                             } catch (JEVisException e) {
                                                 e.printStackTrace();
                                             }
@@ -869,37 +743,6 @@ public class TreeHelper {
         } catch (JEVisException e) {
             logger.error("Could not get JEVis data source.", e);
         }
-    }
-
-    private static void setUnitAndPeriod(JEVisObject jeVisObject, boolean isUnit, UnitSelectUI unit, boolean isPeriod, SamplingRateUI rate) throws JEVisException {
-        if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
-            JEVisAttribute valueAtt = jeVisObject.getAttribute("Value");
-            if (isUnit) {
-                valueAtt.setDisplayUnit(unit.getUnit());
-                valueAtt.setInputUnit(unit.getUnit());
-            }
-
-            if (isPeriod) {
-                valueAtt.setDisplaySampleRate(rate.samplingRateProperty().getValue());
-                valueAtt.setInputSampleRate(rate.samplingRateProperty().getValue());
-            }
-            valueAtt.commit();
-        }
-
-        for (JEVisObject jeVisObject1 : jeVisObject.getChildren()) {
-            setUnitAndPeriod(jeVisObject1, isUnit, unit, isPeriod, rate);
-        }
-    }
-
-    private static JEVisObject getFirstCleanObject(JEVisObject jeVisObject) throws JEVisException {
-        for (JEVisObject object : jeVisObject.getChildren()) {
-            if (object.getJEVisClassName().equals("Data") || object.getJEVisClassName().equals("Clean data")) {
-                return object;
-            } else {
-                return getFirstCleanObject(object);
-            }
-        }
-        return jeVisObject;
     }
 
     public static void EventSetLimitsRecursive(JEVisTree tree) {
@@ -971,7 +814,7 @@ public class TreeHelper {
                                     @Override
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            setLimits(item.getValue().getJEVisObject(), list);
+                                            DataMethods.setLimits(item.getValue().getJEVisObject(), list);
                                         }
 
                                         return null;
@@ -1014,102 +857,6 @@ public class TreeHelper {
             }
         } catch (JEVisException e) {
             logger.error("Could not get JEVis data source.", e);
-        }
-    }
-
-    private static void setLimits(JEVisObject jeVisObject, List<JsonLimitsConfig> list) {
-        try {
-            if (jeVisObject.getJEVisClassName().equals("Clean Data")) {
-                JEVisAttribute limitsAttribute = jeVisObject.getAttribute(CleanDataObject.AttributeName.LIMITS_CONFIGURATION.getAttributeName());
-                JEVisAttribute limitsEnabledAttribute = jeVisObject.getAttribute(CleanDataObject.AttributeName.LIMITS_ENABLED.getAttributeName());
-                if (limitsAttribute != null && limitsEnabledAttribute != null) {
-                    limitsEnabledAttribute.addSamples(Collections.singletonList(limitsEnabledAttribute.buildSample(new DateTime(), true)));
-                    limitsAttribute.addSamples(Collections.singletonList(limitsAttribute.buildSample(new DateTime(), list.toString())));
-                }
-            }
-            for (JEVisObject child : jeVisObject.getChildren()) {
-                setLimits(child, list);
-            }
-        } catch (JEVisException e) {
-            logger.error("Could not delete value samples for {}:{}", jeVisObject.getName(), jeVisObject.getID());
-        }
-    }
-
-    private static void setAllMultiplierAndDifferential(JEVisObject jeVisObject, BigDecimal multiplierValue, Boolean differentialValue, DateTime dateTime) {
-        try {
-            if (jeVisObject.getJEVisClassName().equals("Clean Data")) {
-                JEVisAttribute multiplierAttribute = jeVisObject.getAttribute(CleanDataObject.AttributeName.MULTIPLIER.getAttributeName());
-                JEVisAttribute differentialAttribute = jeVisObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
-                if (multiplierAttribute != null && differentialAttribute != null) {
-                    List<JEVisSample> previousMultiplierSamples = multiplierAttribute.getSamples(dateTime, dateTime);
-                    if (previousMultiplierSamples.size() > 0) {
-                        multiplierAttribute.deleteSamplesBetween(dateTime, dateTime);
-                    }
-                    multiplierAttribute.addSamples(Collections.singletonList(multiplierAttribute.buildSample(dateTime, multiplierValue.doubleValue())));
-
-                    List<JEVisSample> previousDifferentialSamples = differentialAttribute.getSamples(dateTime, dateTime);
-                    if (previousDifferentialSamples.size() > 0) {
-                        differentialAttribute.deleteSamplesBetween(dateTime, dateTime);
-                    }
-                    differentialAttribute.addSamples(Collections.singletonList(differentialAttribute.buildSample(dateTime, differentialValue)));
-                }
-
-            }
-            for (JEVisObject child : jeVisObject.getChildren()) {
-                setAllMultiplierAndDifferential(child, multiplierValue, differentialValue, dateTime);
-            }
-        } catch (JEVisException e) {
-            logger.error("Could not delete value samples for {}:{}", jeVisObject.getName(), jeVisObject.getID());
-        }
-    }
-
-    private static void deleteAllSamples(ProgressForm pForm, JEVisObject object, boolean rawData, boolean cleanData) {
-        try {
-            JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
-            if (value != null) {
-                if ((object.getJEVisClassName().equals("Clean Data") && cleanData)
-                        || (object.getJEVisClassName().equals("Data") && rawData)) {
-                    pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
-                    value.deleteAllSample();
-                }
-            }
-            for (JEVisObject child : object.getChildren()) {
-                deleteAllSamples(pForm, child, rawData, cleanData);
-            }
-        } catch (JEVisException e) {
-            logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
-        }
-    }
-
-    private static void deleteAllSamples(ProgressForm pForm, JEVisObject object, DateTime from, DateTime to, boolean rawData, boolean cleanData) {
-        try {
-            JEVisAttribute value = object.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
-            if (value != null) {
-                if ((object.getJEVisClassName().equals("Clean Data") && cleanData)
-                        || (object.getJEVisClassName().equals("Data") && rawData)) {
-                    DateTime f = null;
-                    if (from == null) {
-                        f = new DateTime(2001, 1, 1, 0, 0, 0);
-                    } else {
-                        f = from;
-                    }
-
-                    DateTime t = null;
-                    if (to == null) {
-                        t = new DateTime();
-                    } else {
-                        t = to;
-                    }
-                    pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
-                            + " from " + f.toString("YYYY-MM-dd HH:mm:ss") + " to " + t.toString("YYYY-MM-dd HH:mm:ss"));
-                    value.deleteSamplesBetween(f, t);
-                }
-            }
-            for (JEVisObject child : object.getChildren()) {
-                deleteAllSamples(pForm, child, from, to, rawData, cleanData);
-            }
-        } catch (JEVisException e) {
-            logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
         }
     }
 
@@ -1674,7 +1421,6 @@ public class TreeHelper {
         }
     }
 
-
     public static void createCalcInput(JEVisObject calcObject, JEVisAttribute currentTarget) throws
             JEVisException {
         logger.info("Event Create new Input");
@@ -1818,7 +1564,7 @@ public class TreeHelper {
                                     @Override
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            setEnabled(item.getValue().getJEVisObject(), jeVisClassComboBox.getSelectionModel().getSelectedItem(), b);
+                                            CommonMethods.setEnabled(item.getValue().getJEVisObject(), jeVisClassComboBox.getSelectionModel().getSelectedItem(), b);
                                         }
 
                                         return null;
@@ -1861,23 +1607,6 @@ public class TreeHelper {
             }
         } catch (JEVisException e) {
             logger.error("Could not get JEVis data source.", e);
-        }
-    }
-
-    private static void setEnabled(JEVisObject object, String selectedClass, boolean b) {
-        try {
-            JEVisAttribute enabled = object.getAttribute("Enabled");
-            if (enabled != null) {
-                if (object.getJEVisClassName().equals(selectedClass) || selectedClass.equals("All")) {
-                    JEVisSample sample = enabled.buildSample(new DateTime(), b);
-                    sample.commit();
-                }
-            }
-            for (JEVisObject child : object.getChildren()) {
-                setEnabled(child, selectedClass, b);
-            }
-        } catch (JEVisException e) {
-            logger.error("Could not set enabled for {}:{}", object.getName(), object.getID());
         }
     }
 

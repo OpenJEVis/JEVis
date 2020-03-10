@@ -188,7 +188,7 @@ public class GraphPluginView implements Plugin {
                 autoSize(autoMinSize.get(), maxHeight, chartsPerScreen, vBox);
 
                 for (ChartSetting settings : dataModel.getCharts().getListSettings()) {
-                    if (settings.getChartType() == ChartType.HEAT_MAP) {
+                    if (settings.getChartType() == ChartType.HEAT_MAP || settings.getChartType() == ChartType.BUBBLE || settings.getChartType() == ChartType.BAR) {
                         Platform.runLater(this::formatCharts);
                     }
                 }
@@ -453,7 +453,7 @@ public class GraphPluginView implements Plugin {
             double totalJob = dataModel.getSelectedData().stream().mapToDouble(model -> (long) model.getSelectedcharts().size()).sum()
                     + (dataModel.getCharts().getListSettings().size() * 2);
 
-            JEConfig.getStatusBar().startProgressJob(GraphPluginView.JOB_NAME, totalJob, "Start Update");
+            JEConfig.getStatusBar().startProgressJob(GraphPluginView.JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
         } catch (Exception ex) {
 
         }
@@ -525,7 +525,7 @@ public class GraphPluginView implements Plugin {
 
                     Chart chart = null;
                     if (chartSetting.getChartType() != ChartType.LOGICAL) {
-                        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Create" + chartSetting.getChartType() + " chart");
+                        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, I18n.getInstance().getString("plugin.graph.message.createchart") + " " + chartSetting.getChartType());
                         chart = getChart(chartSetting, null);
                         allCharts.add(chart);
                     } else {
@@ -542,6 +542,7 @@ public class GraphPluginView implements Plugin {
 
                     if (chartSetting.getChartType() != ChartType.TABLE) {
                         switch (chartSetting.getChartType()) {
+                            case BAR:
                             case PIE:
                             case HEAT_MAP:
                             case BUBBLE:
@@ -670,7 +671,7 @@ public class GraphPluginView implements Plugin {
                         vBox.getChildren().add(sep);
                     }
 
-                    JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Chart");
+                    JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, I18n.getInstance().getString("plugin.graph.message.finishedchart") + " ");
                 }
             }
         });
@@ -678,7 +679,7 @@ public class GraphPluginView implements Plugin {
         Platform.runLater(() -> {
             toolBarView.updateLayout();
 
-            JEConfig.getStatusBar().finishProgressJob(GraphPluginView.JOB_NAME, "done");
+            JEConfig.getStatusBar().finishProgressJob(GraphPluginView.JOB_NAME, I18n.getInstance().getString("plugin.graph.message.finishedupdate"));
 
             StringBuilder allFormulas = new StringBuilder();
             for (Chart chart : allCharts) {
@@ -730,7 +731,7 @@ public class GraphPluginView implements Plugin {
             case LINE:
                 return new LineChart(dataModel, chartDataModels, chart.getId(), chart.getName());
             case BAR:
-                return new BarChart(chartDataModels, dataModel.getShowIcons(), chart.getId(), chart.getName());
+                return new BarChart(dataModel, chartDataModels, chart.getId(), chart.getName());
             case COLUMN:
                 return new ColumnChart(dataModel, chartDataModels, chart.getId(), chart.getName());
             case BUBBLE:
@@ -750,254 +751,256 @@ public class GraphPluginView implements Plugin {
     }
 
     private void formatCharts() {
-        Platform.runLater(() -> {
-            for (Chart cv : allCharts) {
-                if (cv.getChartType().equals(ChartType.BUBBLE)) {
-                    MultiAxisBubbleChart bubbleChart = (MultiAxisBubbleChart) cv.getRegion();
-                    String yUnit = ((BubbleChart) cv).getyUnit();
+        for (Chart cv : allCharts) {
+            if (cv.getChartType().equals(ChartType.BUBBLE)) {
+                MultiAxisBubbleChart bubbleChart = (MultiAxisBubbleChart) cv.getRegion();
+                String yUnit = ((BubbleChart) cv).getyUnit();
 
-                    bubbleChart.getData().forEach(numberNumberSeries -> {
-                        MultiAxisBubbleChart.Series bubbleChartSeries = (MultiAxisBubbleChart.Series) numberNumberSeries;
-                        bubbleChartSeries.getData().forEach(numberNumberData -> {
-                            Node bubble = ((MultiAxisBubbleChart.Data) numberNumberData).getNode();
-                            if (bubble instanceof StackPane) {
-                                StackPane stackPane = (StackPane) bubble;
-                                if (stackPane.getShape() != null && stackPane.getShape() instanceof Circle) {
-                                    Circle circle = (Circle) stackPane.getShape();
-                                    DoubleProperty fontSize = new SimpleDoubleProperty(20);
+                bubbleChart.getData().forEach(numberNumberSeries -> {
+                    MultiAxisBubbleChart.Series bubbleChartSeries = (MultiAxisBubbleChart.Series) numberNumberSeries;
+                    bubbleChartSeries.getData().forEach(numberNumberData -> {
+                        Node bubble = ((MultiAxisBubbleChart.Data) numberNumberData).getNode();
+                        if (bubble instanceof StackPane) {
+                            StackPane stackPane = (StackPane) bubble;
+                            if (stackPane.getShape() != null && stackPane.getShape() instanceof Circle) {
+                                Circle circle = (Circle) stackPane.getShape();
+                                DoubleProperty fontSize = new SimpleDoubleProperty(20);
 
-                                    NumberFormat nf = NumberFormat.getInstance();
-                                    nf.setMinimumFractionDigits(0);
-                                    nf.setMaximumFractionDigits(0);
-                                    String countValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getExtraValue());
-                                    nf.setMinimumFractionDigits(2);
-                                    nf.setMaximumFractionDigits(2);
-                                    String yValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getYValue());
+                                NumberFormat nf = NumberFormat.getInstance();
+                                nf.setMinimumFractionDigits(0);
+                                nf.setMaximumFractionDigits(0);
+                                String countValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getExtraValue());
+                                nf.setMinimumFractionDigits(2);
+                                nf.setMaximumFractionDigits(2);
+                                String yValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getYValue());
 
-                                    Label labelCount = new Label(countValue);
-                                    Tooltip tooltipYValue = new Tooltip(yValue + " " + yUnit);
-                                    labelCount.setAlignment(Pos.CENTER);
-                                    labelCount.setBackground(
-                                            new Background(
-                                                    new BackgroundFill(Color.WHITE, new CornerRadii(5), new Insets(1, 1, 1, 1))
-                                            )
-                                    );
+                                Label labelCount = new Label(countValue);
+                                Tooltip tooltipYValue = new Tooltip(yValue + " " + yUnit);
+                                labelCount.setAlignment(Pos.CENTER);
+                                labelCount.setBackground(
+                                        new Background(
+                                                new BackgroundFill(Color.WHITE, new CornerRadii(5), new Insets(1, 1, 1, 1))
+                                        )
+                                );
 
-                                    labelCount.setMinWidth((countValue.length() + 1) * 20d);
+                                labelCount.setMinWidth((countValue.length() + 1) * 20d);
 
 //                                    if (circle.radiusProperty().get() / 5 > 18d) {
 //                                        fontSize.bind(Bindings.divide(circle.radiusProperty(), 5));
 //                                        labelCount.minWidthProperty().bind(Bindings.divide(circle.radiusProperty(), 5).add(4));
 //                                    } else {
-                                    fontSize.set(16d);
+                                fontSize.set(16d);
 //                                    }
 
-                                    labelCount.styleProperty().bind(Bindings.concat("-fx-font-size:", fontSize.asString(), ";"));
+                                labelCount.styleProperty().bind(Bindings.concat("-fx-font-size:", fontSize.asString(), ";"));
 //                                    label.styleProperty().bind(Bindings.concat("-fx-font-size:", 20d, ";"));
-                                    Tooltip.install(bubble, tooltipYValue);
-                                    stackPane.getChildren().setAll(labelCount);
-                                }
-                                bubble.setOnMouseClicked(event -> bubble.toFront());
+                                Tooltip.install(bubble, tooltipYValue);
+                                stackPane.getChildren().setAll(labelCount);
                             }
+                            bubble.setOnMouseClicked(event -> bubble.toFront());
+                        }
+                    });
+                });
+            } else if (cv.getChartType().equals(ChartType.BAR)) {
+                javafx.scene.chart.BarChart barChart = (javafx.scene.chart.BarChart) cv.getRegion();
+                try {
+                    barChart.getData().forEach(numberNumberSeries -> {
+                        javafx.scene.chart.BarChart.Series barChartSeries = (javafx.scene.chart.BarChart.Series) numberNumberSeries;
+                        barChartSeries.getData().forEach(data -> {
+                            int index = barChartSeries.getData().indexOf(data);
+                            final StackPane node = (StackPane) ((javafx.scene.chart.BarChart.Data) data).getNode();
+                            NumberFormat nf = NumberFormat.getInstance();
+                            nf.setMinimumFractionDigits(2);
+                            nf.setMaximumFractionDigits(2);
+                            String valueString = nf.format(((javafx.scene.chart.BarChart.Data) data).getXValue());
+                            final Text dataText = new Text(valueString + "");
+                            dataText.setPickOnBounds(false);
+                            dataText.setFont(new Font(12));
+                            dataText.setFill(ColorHelper.getHighlightColor(ColorHelper.toColor(cv.getChartDataModels().get(index).getColor())));
+
+                            node.getChildren().add(dataText);
+
+                            Bounds bounds = node.getBoundsInParent();
+                            dataText.setLayoutX(Math.round(bounds.getMinX() + bounds.getWidth() + 4));
+                            dataText.setLayoutY(Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5));
                         });
                     });
-                } else if (cv.getChartType().equals(ChartType.BAR)) {
-                    javafx.scene.chart.BarChart barChart = (javafx.scene.chart.BarChart) cv.getRegion();
-                    try {
-                        barChart.getData().forEach(numberNumberSeries -> {
-                            javafx.scene.chart.BarChart.Series barChartSeries = (javafx.scene.chart.BarChart.Series) numberNumberSeries;
-                            barChartSeries.getData().forEach(data -> {
-                                final StackPane node = (StackPane) ((javafx.scene.chart.BarChart.Data) data).getNode();
-                                NumberFormat nf = NumberFormat.getInstance();
-                                nf.setMinimumFractionDigits(2);
-                                nf.setMaximumFractionDigits(2);
-                                String valueString = nf.format(((javafx.scene.chart.BarChart.Data) data).getXValue());
-                                final Text dataText = new Text(valueString + "");
-                                dataText.setPickOnBounds(false);
-                                dataText.setFont(new Font(12));
+                } catch (Exception e) {
+                    logger.error(e);
+                }
 
-                                node.getChildren().add(dataText);
-
-                                Bounds bounds = node.getBoundsInParent();
-                                dataText.setLayoutX(Math.round(bounds.getMinX() + bounds.getWidth() + 4));
-                                dataText.setLayoutY(Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5));
-                            });
-                        });
-                    } catch (Exception e) {
-                        logger.error(e);
+                cv.applyColors();
+            } else if (cv.getChartType().equals(ChartType.HEAT_MAP)) {
+                ScrollPane sp = (ScrollPane) cv.getRegion();
+                VBox spVer = (VBox) sp.getContent();
+                MatrixPane<MatrixChartItem> matrixHeatMap = null;
+                for (Node node : spVer.getChildren()) {
+                    if (node instanceof HBox) {
+                        HBox spHor = (HBox) node;
+                        matrixHeatMap = spHor.getChildren().stream().filter(node1 -> node1 instanceof MatrixPane).findFirst().map(node1 -> (MatrixPane<MatrixChartItem>) node1).orElse(matrixHeatMap);
                     }
-                } else if (cv.getChartType().equals(ChartType.HEAT_MAP)) {
-                    ScrollPane sp = (ScrollPane) cv.getRegion();
-                    VBox spVer = (VBox) sp.getContent();
-                    MatrixPane<MatrixChartItem> matrixHeatMap = null;
+                }
+
+                if (matrixHeatMap != null) {
+                    HeatMapChart chart = (HeatMapChart) cv;
+
+                    double pixelHeight = matrixHeatMap.getMatrix().getPixelHeight();
+                    double pixelWidth = matrixHeatMap.getMatrix().getPixelWidth();
+                    double spacerSizeFactor = matrixHeatMap.getMatrix().getSpacerSizeFactor();
+                    double width = matrixHeatMap.getMatrix().getWidth() - matrixHeatMap.getMatrix().getInsets().getLeft() - matrixHeatMap.getMatrix().getInsets().getRight();
+                    double height = matrixHeatMap.getMatrix().getHeight() - matrixHeatMap.getMatrix().getInsets().getTop() - matrixHeatMap.getMatrix().getInsets().getBottom();
+                    double pixelSize = Math.min((width / chart.getCOLS()), (height / chart.getROWS()));
+                    double spacer = pixelSize * spacerSizeFactor;
+
+                    double leftAxisWidth = 0;
+                    double rightAxisWidth = 0;
+                    int bottomAxisIndex = 0;
+                    Canvas bottomXAxis = null;
+
                     for (Node node : spVer.getChildren()) {
                         if (node instanceof HBox) {
                             HBox spHor = (HBox) node;
-                            matrixHeatMap = spHor.getChildren().stream().filter(node1 -> node1 instanceof MatrixPane).findFirst().map(node1 -> (MatrixPane<MatrixChartItem>) node1).orElse(matrixHeatMap);
-                        }
-                    }
+                            boolean isLeftAxis = true;
+                            for (Node node1 : spHor.getChildren()) {
+                                if (node1 instanceof GridPane) {
+                                    GridPane axis = (GridPane) node1;
 
-                    if (matrixHeatMap != null) {
-                        HeatMapChart chart = (HeatMapChart) cv;
-
-                        double pixelHeight = matrixHeatMap.getMatrix().getPixelHeight();
-                        double pixelWidth = matrixHeatMap.getMatrix().getPixelWidth();
-                        double spacerSizeFactor = matrixHeatMap.getMatrix().getSpacerSizeFactor();
-                        double width = matrixHeatMap.getMatrix().getWidth() - matrixHeatMap.getMatrix().getInsets().getLeft() - matrixHeatMap.getMatrix().getInsets().getRight();
-                        double height = matrixHeatMap.getMatrix().getHeight() - matrixHeatMap.getMatrix().getInsets().getTop() - matrixHeatMap.getMatrix().getInsets().getBottom();
-                        double pixelSize = Math.min((width / chart.getCOLS()), (height / chart.getROWS()));
-                        double spacer = pixelSize * spacerSizeFactor;
-
-                        double leftAxisWidth = 0;
-                        double rightAxisWidth = 0;
-                        int bottomAxisIndex = 0;
-                        Canvas bottomXAxis = null;
-
-                        for (Node node : spVer.getChildren()) {
-                            if (node instanceof HBox) {
-                                HBox spHor = (HBox) node;
-                                boolean isLeftAxis = true;
-                                for (Node node1 : spHor.getChildren()) {
-                                    if (node1 instanceof GridPane) {
-                                        GridPane axis = (GridPane) node1;
-
-                                        for (Node node2 : axis.getChildren()) {
-                                            if (node2 instanceof Label) {
-                                                boolean isOk = false;
-                                                double newHeight = pixelHeight - 2;
-                                                Font font = ((Label) node2).getFont();
-                                                if (newHeight < 13) {
-                                                    final Label test = new Label(((Label) node2).getText());
-                                                    test.setFont(font);
-                                                    while (!isOk) {
-                                                        double height1 = test.getLayoutBounds().getHeight();
-                                                        if (height1 > pixelHeight - 2) {
-                                                            newHeight = newHeight - 0.05;
-                                                            test.setFont(new Font(font.getName(), newHeight));
-                                                        } else {
-                                                            isOk = true;
-                                                        }
-                                                    }
-                                                }
-
-                                                if (newHeight < 12) {
-                                                    ((Label) node2).setFont(new Font(font.getName(), newHeight));
-                                                }
-
-                                                ((Label) node2).setPrefHeight(pixelHeight);
-
+                                    for (Node node2 : axis.getChildren()) {
+                                        if (node2 instanceof Label) {
+                                            boolean isOk = false;
+                                            double newHeight = pixelHeight - 2;
+                                            Font font = ((Label) node2).getFont();
+                                            if (newHeight < 13) {
                                                 final Label test = new Label(((Label) node2).getText());
-                                                test.setFont(((Label) node2).getFont());
-                                                double newWidth = test.getLayoutBounds().getWidth();
-
-                                                if (isLeftAxis) {
-                                                    leftAxisWidth = Math.max(newWidth, axis.getLayoutBounds().getWidth());
-                                                    isLeftAxis = false;
-                                                } else {
-                                                    rightAxisWidth = Math.max(newWidth, axis.getLayoutBounds().getWidth());
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                            } else if (node instanceof GridPane || node instanceof Canvas) {
-
-                                List<DateTime> xAxisList = chart.getxAxisList();
-                                String X_FORMAT = chart.getX_FORMAT();
-
-                                bottomXAxis = new Canvas(leftAxisWidth + width + rightAxisWidth, 30);
-                                GraphicsContext gc = bottomXAxis.getGraphicsContext2D();
-                                double x = leftAxisWidth + 4 + spacer + pixelWidth / 2;
-
-                                for (DateTime dateTime : xAxisList) {
-                                    String ts = dateTime.toString(X_FORMAT);
-                                    Text text = new Text(ts);
-                                    Font helvetica = Font.font("Helvetica", 12);
-                                    text.setFont(helvetica);
-
-                                    final double textWidth = text.getLayoutBounds().getWidth();
-                                    final double textHeight = text.getLayoutBounds().getHeight();
-
-                                    gc.setFont(helvetica);
-
-                                    if (dateTime.getMinuteOfHour() == 0) {
-
-                                        gc.fillRect(x, 0, 2, 10);
-                                        gc.fillText(ts, x - textWidth / 2, 10 + textHeight + 2);
-
-                                    } else if (dateTime.getMinuteOfHour() % 15 == 0) {
-                                        gc.fillRect(x, 0, 1, 7);
-                                    }
-
-                                    x += pixelWidth;
-                                }
-
-                                bottomAxisIndex = spVer.getChildren().indexOf(node);
-                            }
-                        }
-
-                        if (bottomXAxis != null) {
-                            spVer.getChildren().set(bottomAxisIndex, bottomXAxis);
-                        }
-
-                        MatrixPane<MatrixChartItem> finalMatrixHeatMap = matrixHeatMap;
-                        matrixHeatMap.setOnMouseMoved(new EventHandler<MouseEvent>() {
-                            @Override
-                            public void handle(MouseEvent t) {
-                                Node node = (Node) t.getSource();
-                                for (Node node1 : finalMatrixHeatMap.getMatrix().getChildren()) {
-                                    if (node1 instanceof Canvas) {
-                                        Canvas canvas = (Canvas) node1;
-                                        // listen to only events within the canvas
-                                        final Point2D mouseLoc = new Point2D(t.getScreenX(), t.getScreenY());
-                                        final Bounds screenBounds = canvas.localToScreen(canvas.getBoundsInLocal());
-
-                                        double pixelHeight = finalMatrixHeatMap.getMatrix().getPixelHeight();
-                                        double pixelWidth = finalMatrixHeatMap.getMatrix().getPixelWidth();
-                                        double spacerSizeFactor = finalMatrixHeatMap.getMatrix().getSpacerSizeFactor();
-                                        double width = finalMatrixHeatMap.getMatrix().getWidth() - finalMatrixHeatMap.getMatrix().getInsets().getLeft() - finalMatrixHeatMap.getMatrix().getInsets().getRight();
-                                        double height = finalMatrixHeatMap.getMatrix().getHeight() - finalMatrixHeatMap.getMatrix().getInsets().getTop() - finalMatrixHeatMap.getMatrix().getInsets().getBottom();
-                                        double pixelSize = Math.min((width / chart.getCOLS()), (height / chart.getROWS()));
-                                        double spacer = pixelSize * spacerSizeFactor;
-                                        double pixelWidthMinusDoubleSpacer = pixelWidth - spacer * 2;
-                                        double pixelHeightMinusDoubleSpacer = pixelHeight - spacer * 2;
-
-                                        double spacerPlusPixelWidthMinusDoubleSpacer = spacer + pixelWidthMinusDoubleSpacer;
-                                        double spacerPlusPixelHeightMinusDoubleSpacer = spacer + pixelHeightMinusDoubleSpacer;
-
-                                        if (screenBounds.contains(mouseLoc)) {
-                                            for (int y = 0; y < chart.getROWS(); y++) {
-                                                for (int x = 0; x < chart.getCOLS(); x++) {
-                                                    if (Helper.isInRectangle(t.getX(), t.getY(), x * pixelWidth + spacer, y * pixelHeight + spacer, x * pixelWidth + spacerPlusPixelWidthMinusDoubleSpacer, y * pixelHeight + spacerPlusPixelHeightMinusDoubleSpacer)) {
-                                                        Double value = null;
-                                                        for (Map.Entry<MatrixXY, Double> entry : chart.getMatrixData().entrySet()) {
-                                                            MatrixXY matrixXY = entry.getKey();
-                                                            if (matrixXY.getY() == y && matrixXY.getX() == x) {
-                                                                value = entry.getValue();
-                                                                break;
-                                                            }
-                                                        }
-
-                                                        if (value != null) {
-                                                            Double finalValue = value;
-                                                            Platform.runLater(() -> tp.setText(finalValue.toString() + " " + chart.getUnit()));
-                                                            Platform.runLater(() -> tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY()));
-                                                        }
+                                                test.setFont(font);
+                                                while (!isOk) {
+                                                    double height1 = test.getLayoutBounds().getHeight();
+                                                    if (height1 > pixelHeight - 2) {
+                                                        newHeight = newHeight - 0.05;
+                                                        test.setFont(new Font(font.getName(), newHeight));
+                                                    } else {
+                                                        isOk = true;
                                                     }
                                                 }
                                             }
-                                        } else {
-                                            Platform.runLater(() -> tp.hide());
+
+                                            if (newHeight < 12) {
+                                                ((Label) node2).setFont(new Font(font.getName(), newHeight));
+                                            }
+
+                                            ((Label) node2).setPrefHeight(pixelHeight);
+
+                                            final Label test = new Label(((Label) node2).getText());
+                                            test.setFont(((Label) node2).getFont());
+                                            double newWidth = test.getLayoutBounds().getWidth();
+
+                                            if (isLeftAxis) {
+                                                leftAxisWidth = Math.max(newWidth, axis.getLayoutBounds().getWidth());
+                                                isLeftAxis = false;
+                                            } else {
+                                                rightAxisWidth = Math.max(newWidth, axis.getLayoutBounds().getWidth());
+                                            }
                                         }
                                     }
                                 }
                             }
-                        });
+
+                        } else if (node instanceof GridPane || node instanceof Canvas) {
+
+                            List<DateTime> xAxisList = chart.getxAxisList();
+                            String X_FORMAT = chart.getX_FORMAT();
+
+                            bottomXAxis = new Canvas(leftAxisWidth + width + rightAxisWidth, 30);
+                            GraphicsContext gc = bottomXAxis.getGraphicsContext2D();
+                            double x = leftAxisWidth + 4 + spacer + pixelWidth / 2;
+
+                            for (DateTime dateTime : xAxisList) {
+                                String ts = dateTime.toString(X_FORMAT);
+                                Text text = new Text(ts);
+                                Font helvetica = Font.font("Helvetica", 12);
+                                text.setFont(helvetica);
+
+                                final double textWidth = text.getLayoutBounds().getWidth();
+                                final double textHeight = text.getLayoutBounds().getHeight();
+
+                                gc.setFont(helvetica);
+
+                                if (dateTime.getMinuteOfHour() == 0) {
+
+                                    gc.fillRect(x, 0, 2, 10);
+                                    gc.fillText(ts, x - textWidth / 2, 10 + textHeight + 2);
+
+                                } else if (dateTime.getMinuteOfHour() % 15 == 0) {
+                                    gc.fillRect(x, 0, 1, 7);
+                                }
+
+                                x += pixelWidth;
+                            }
+
+                            bottomAxisIndex = spVer.getChildren().indexOf(node);
+                        }
                     }
+
+                    if (bottomXAxis != null) {
+                        spVer.getChildren().set(bottomAxisIndex, bottomXAxis);
+                    }
+
+                    MatrixPane<MatrixChartItem> finalMatrixHeatMap = matrixHeatMap;
+                    matrixHeatMap.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent t) {
+                            Node node = (Node) t.getSource();
+                            for (Node node1 : finalMatrixHeatMap.getMatrix().getChildren()) {
+                                if (node1 instanceof Canvas) {
+                                    Canvas canvas = (Canvas) node1;
+                                    // listen to only events within the canvas
+                                    final Point2D mouseLoc = new Point2D(t.getScreenX(), t.getScreenY());
+                                    final Bounds screenBounds = canvas.localToScreen(canvas.getBoundsInLocal());
+
+                                    double pixelHeight = finalMatrixHeatMap.getMatrix().getPixelHeight();
+                                    double pixelWidth = finalMatrixHeatMap.getMatrix().getPixelWidth();
+                                    double spacerSizeFactor = finalMatrixHeatMap.getMatrix().getSpacerSizeFactor();
+                                    double width = finalMatrixHeatMap.getMatrix().getWidth() - finalMatrixHeatMap.getMatrix().getInsets().getLeft() - finalMatrixHeatMap.getMatrix().getInsets().getRight();
+                                    double height = finalMatrixHeatMap.getMatrix().getHeight() - finalMatrixHeatMap.getMatrix().getInsets().getTop() - finalMatrixHeatMap.getMatrix().getInsets().getBottom();
+                                    double pixelSize = Math.min((width / chart.getCOLS()), (height / chart.getROWS()));
+                                    double spacer = pixelSize * spacerSizeFactor;
+                                    double pixelWidthMinusDoubleSpacer = pixelWidth - spacer * 2;
+                                    double pixelHeightMinusDoubleSpacer = pixelHeight - spacer * 2;
+
+                                    double spacerPlusPixelWidthMinusDoubleSpacer = spacer + pixelWidthMinusDoubleSpacer;
+                                    double spacerPlusPixelHeightMinusDoubleSpacer = spacer + pixelHeightMinusDoubleSpacer;
+
+                                    if (screenBounds.contains(mouseLoc)) {
+                                        for (int y = 0; y < chart.getROWS(); y++) {
+                                            for (int x = 0; x < chart.getCOLS(); x++) {
+                                                if (Helper.isInRectangle(t.getX(), t.getY(), x * pixelWidth + spacer, y * pixelHeight + spacer, x * pixelWidth + spacerPlusPixelWidthMinusDoubleSpacer, y * pixelHeight + spacerPlusPixelHeightMinusDoubleSpacer)) {
+                                                    Double value = null;
+                                                    for (Map.Entry<MatrixXY, Double> entry : chart.getMatrixData().entrySet()) {
+                                                        MatrixXY matrixXY = entry.getKey();
+                                                        if (matrixXY.getY() == y && matrixXY.getX() == x) {
+                                                            value = entry.getValue();
+                                                            break;
+                                                        }
+                                                    }
+
+                                                    if (value != null) {
+                                                        Double finalValue = value;
+                                                        Platform.runLater(() -> tp.setText(finalValue.toString() + " " + chart.getUnit()));
+                                                        Platform.runLater(() -> tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY()));
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        Platform.runLater(() -> tp.hide());
+                                    }
+                                }
+                            }
+                        }
+                    });
                 }
             }
-        });
+        }
     }
 
     private void autoSize(Double autoMinSize, double maxHeight, Long chartsPerScreen, VBox vBox) {
