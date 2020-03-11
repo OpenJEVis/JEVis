@@ -1028,7 +1028,9 @@ public class AnalysisDataModel {
                     JEVisUnit unit = new JEVisUnitImp(objectMapper.readValue(mdl.getUnit(), JsonUnit.class));
                     newData.setObject(obj);
 
-                    newData.setColor(mdl.getColor());
+                    if (mdl.getColor() != null) {
+                        newData.setColor(mdl.getColor());
+                    }
                     newData.setTitle(mdl.getName());
                     if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
                     newData.getAttribute();

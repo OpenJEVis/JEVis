@@ -53,10 +53,10 @@ public class ChartDataModel {
     private boolean hasForecastData = false;
     private double timeFactor = 1.0;
     private Double scaleFactor = 1d;
-    private double min;
-    private double max;
-    private double avg;
-    private Double sum;
+    private double min = 0d;
+    private double max = 0d;
+    private double avg = 0d;
+    private Double sum = 0d;
     private Map<DateTime, JEVisSample> userNoteMap;
     private Map<DateTime, Alarm> alarmMap;
     private boolean customWorkDay = true;

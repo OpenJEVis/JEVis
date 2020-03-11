@@ -183,30 +183,29 @@ public class AlarmConfiguration {
     }
 
     public Period getAlarmPeriod() {
-        if (alarmPeriod == null) {
-            try {
-                JEVisAttribute periodAtt = object.getAttribute(ALARM_PERIOD);
-                if (periodAtt != null) {
-                    JEVisSample latestSample = periodAtt.getLatestSample();
-                    if (latestSample != null) {
-                        String alarmPeriodString = latestSample.getValueAsString();
-                        if (alarmPeriodString.equals(Period.MINUTELY.toString())) alarmPeriod = Period.MINUTELY;
-                        else if (alarmPeriodString.equals(Period.QUARTER_HOURLY.toString()))
-                            alarmPeriod = Period.QUARTER_HOURLY;
-                        else if (alarmPeriodString.equals(Period.HOURLY.toString())) alarmPeriod = Period.HOURLY;
-                        else if (alarmPeriodString.equals(Period.DAILY.toString())) alarmPeriod = Period.DAILY;
-                        else if (alarmPeriodString.equals(Period.WEEKLY.toString())) alarmPeriod = Period.WEEKLY;
-                        else if (alarmPeriodString.equals(Period.MONTHLY.toString())) alarmPeriod = Period.MONTHLY;
-                        else if (alarmPeriodString.equals(Period.QUARTERLY.toString())) alarmPeriod = Period.QUARTERLY;
-                        else if (alarmPeriodString.equals(Period.YEARLY.toString())) alarmPeriod = Period.YEARLY;
-                        else if (alarmPeriodString.equals(Period.CUSTOM.toString())) alarmPeriod = Period.CUSTOM;
-                        else alarmPeriod = Period.NONE;
-                    }
+        try {
+            JEVisAttribute periodAtt = object.getAttribute(ALARM_PERIOD);
+            if (periodAtt != null) {
+                JEVisSample latestSample = periodAtt.getLatestSample();
+                if (latestSample != null) {
+                    String alarmPeriodString = latestSample.getValueAsString();
+                    if (alarmPeriodString.equals(Period.MINUTELY.toString())) alarmPeriod = Period.MINUTELY;
+                    else if (alarmPeriodString.equals(Period.QUARTER_HOURLY.toString()))
+                        alarmPeriod = Period.QUARTER_HOURLY;
+                    else if (alarmPeriodString.equals(Period.HOURLY.toString())) alarmPeriod = Period.HOURLY;
+                    else if (alarmPeriodString.equals(Period.DAILY.toString())) alarmPeriod = Period.DAILY;
+                    else if (alarmPeriodString.equals(Period.WEEKLY.toString())) alarmPeriod = Period.WEEKLY;
+                    else if (alarmPeriodString.equals(Period.MONTHLY.toString())) alarmPeriod = Period.MONTHLY;
+                    else if (alarmPeriodString.equals(Period.QUARTERLY.toString())) alarmPeriod = Period.QUARTERLY;
+                    else if (alarmPeriodString.equals(Period.YEARLY.toString())) alarmPeriod = Period.YEARLY;
+                    else if (alarmPeriodString.equals(Period.CUSTOM.toString())) alarmPeriod = Period.CUSTOM;
+                    else alarmPeriod = Period.NONE;
                 }
-            } catch (JEVisException e) {
-                e.printStackTrace();
             }
+        } catch (JEVisException e) {
+            e.printStackTrace();
         }
+
         return alarmPeriod;
     }
 
