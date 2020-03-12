@@ -13,6 +13,7 @@ public class DataPointNode {
     private AggregationPeriod aggregationPeriod;
     private Color color;
     private boolean absolute;
+    private String unit;
 
     public boolean isAbsolute() {
         return this.absolute;
@@ -73,6 +74,14 @@ public class DataPointNode {
         this.aggregationPeriod = aggregationPeriod;
     }
 
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
     public Long getCleanObjectID() {
         return this.cleanObjectID;
     }
@@ -100,6 +109,7 @@ public class DataPointNode {
                 ", color=" + this.color +
                 ", absolute=" + this.absolute +
                 ", enpi=" + this.enpi +
+                ", unit=" + this.unit +
                 ", calculationID=" + this.calculationID +
                 '}';
     }

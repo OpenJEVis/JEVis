@@ -11,6 +11,7 @@ import javax.measure.unit.Unit;
 public class ChartUnits {
 
     public static JEVisUnit parseUnit(String unit) {
+
         JEVisUnit result = null;
         Unit _mg = SI.GRAM.divide(1000);
         Unit _g = SI.GRAM;
@@ -111,6 +112,8 @@ public class ChartUnits {
         final JEVisUnit kcal = new JEVisUnitImp(_one);
         kcal.setLabel("kcal");
 
+        final JEVisUnit one = new JEVisUnitImp(_one);
+
         final JEVisUnit eur = new JEVisUnitImp(_eur);
         final JEVisUnit usd = new JEVisUnitImp(_usd);
         final JEVisUnit gbp = new JEVisUnitImp(_gbp);
@@ -121,137 +124,139 @@ public class ChartUnits {
         final JEVisUnit krw = new JEVisUnitImp(_krw);
         final JEVisUnit twd = new JEVisUnitImp(_twd);
 
-        switch (unit) {
-            case "mg":
-                result = mg;
-                break;
-            case "g":
-                result = g;
-                break;
-            case "kg":
-                result = kg;
-                break;
-            case "kkg":
-                result = kkg;
-                break;
-            case "t":
-                result = t;
-                break;
-            case "W":
-                result = W;
-                break;
-            case "kW":
-                result = kW;
-                break;
-            case "MW":
-                result = MW;
-                break;
-            case "GW":
-                result = GW;
-                break;
-            case "Wh":
-                result = Wh;
-                break;
-            case "kWh":
-                result = kWh;
-                break;
-            case "MWh":
-                result = MWh;
-                break;
-            case "GWh":
-                result = GWh;
-                break;
-            case "m³":
-                result = m3;
-                break;
-            case "Nm³":
-                result = Nm3;
-                break;
-            case "L":
-                result = l;
-                break;
-            case "L/s":
-                result = literPerSecond;
-                break;
-            case "L/min":
-                result = literPerMinute;
-                break;
-            case "L/h":
-                result = literPerHour;
-                break;
-            case "m³/s":
-                result = cubicMeterPerSecond;
-                break;
-            case "m³/min":
-                result = cubicMeterPerMinute;
-                break;
-            case "m³/h":
-                result = cubicMeterPerHour;
-                break;
-            case "bar":
-                result = bar;
-                break;
-            case "va":
-                result = va;
-                break;
-            case "kva":
-                result = kva;
-                break;
-            case "var":
-                result = var;
-                break;
-            case "kvar":
-                result = kvar;
-                break;
-            case "vah":
-                result = vah;
-                break;
-            case "kvah":
-                result = kvah;
-                break;
-            case "varh":
-                result = varh;
-                break;
-            case "kvarh":
-                result = kvarh;
-                break;
-            case "cal":
-                result = cal;
-                break;
-            case "kcal":
-                result = kcal;
-                break;
-            case ("EUR"):
-                result = eur;
-                break;
-            case ("USD"):
-                result = usd;
-                break;
-            case ("GBP"):
-                result = gbp;
-                break;
-            case ("JPY"):
-                result = jpy;
-                break;
-            case ("AUD"):
-                result = aud;
-                break;
-            case ("CAD"):
-                result = cad;
-                break;
-            case ("CNY"):
-                result = cny;
-                break;
-            case ("KRW"):
-                result = krw;
-                break;
-            case ("TWD"):
-                result = twd;
-                break;
-            default:
-                break;
-        }
-        return result;
+        if (unit != null) {
+            switch (unit) {
+                case "mg":
+                    result = mg;
+                    break;
+                case "g":
+                    result = g;
+                    break;
+                case "kg":
+                    result = kg;
+                    break;
+                case "kkg":
+                    result = kkg;
+                    break;
+                case "t":
+                    result = t;
+                    break;
+                case "W":
+                    result = W;
+                    break;
+                case "kW":
+                    result = kW;
+                    break;
+                case "MW":
+                    result = MW;
+                    break;
+                case "GW":
+                    result = GW;
+                    break;
+                case "Wh":
+                    result = Wh;
+                    break;
+                case "kWh":
+                    result = kWh;
+                    break;
+                case "MWh":
+                    result = MWh;
+                    break;
+                case "GWh":
+                    result = GWh;
+                    break;
+                case "m³":
+                    result = m3;
+                    break;
+                case "Nm³":
+                    result = Nm3;
+                    break;
+                case "L":
+                    result = l;
+                    break;
+                case "L/s":
+                    result = literPerSecond;
+                    break;
+                case "L/min":
+                    result = literPerMinute;
+                    break;
+                case "L/h":
+                    result = literPerHour;
+                    break;
+                case "m³/s":
+                    result = cubicMeterPerSecond;
+                    break;
+                case "m³/min":
+                    result = cubicMeterPerMinute;
+                    break;
+                case "m³/h":
+                    result = cubicMeterPerHour;
+                    break;
+                case "bar":
+                    result = bar;
+                    break;
+                case "va":
+                    result = va;
+                    break;
+                case "kva":
+                    result = kva;
+                    break;
+                case "var":
+                    result = var;
+                    break;
+                case "kvar":
+                    result = kvar;
+                    break;
+                case "vah":
+                    result = vah;
+                    break;
+                case "kvah":
+                    result = kvah;
+                    break;
+                case "varh":
+                    result = varh;
+                    break;
+                case "kvarh":
+                    result = kvarh;
+                    break;
+                case "cal":
+                    result = cal;
+                    break;
+                case "kcal":
+                    result = kcal;
+                    break;
+                case ("EUR"):
+                    result = eur;
+                    break;
+                case ("USD"):
+                    result = usd;
+                    break;
+                case ("GBP"):
+                    result = gbp;
+                    break;
+                case ("JPY"):
+                    result = jpy;
+                    break;
+                case ("AUD"):
+                    result = aud;
+                    break;
+                case ("CAD"):
+                    result = cad;
+                    break;
+                case ("CNY"):
+                    result = cny;
+                    break;
+                case ("KRW"):
+                    result = krw;
+                    break;
+                case ("TWD"):
+                    result = twd;
+                    break;
+                default:
+                    break;
+            }
+            return result;
+        } else return one;
     }
 
     public Double timeFactor() {

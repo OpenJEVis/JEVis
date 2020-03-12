@@ -546,7 +546,11 @@ public class ChartDataModel {
     }
 
     public String getTitle() {
-        return title;
+        if (title != null && !title.equals("")) {
+            return title;
+        } else {
+            return getObject().getName();
+        }
     }
 
     public void setTitle(String title) {
