@@ -7,6 +7,7 @@ package org.jevis.jeconfig.application.Chart.data;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.hansolo.fx.charts.tools.ColorMapping;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -52,6 +53,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static eu.hansolo.fx.charts.tools.ColorMapping.*;
 
 /**
  * @author broder
@@ -328,6 +331,10 @@ public class AnalysisDataModel {
                     newSettings.setName(settings.getName());
                     newSettings.setChartType(ChartType.parseChartType(settings.getChartType()));
 
+                    if (settings.getColorMapping() != null) {
+                        newSettings.setColorMapping(parseColorMapping(settings.getColorMapping()));
+                    } else newSettings.setColorMapping(ColorMapping.GREEN_YELLOW_RED);
+
                     if (settings.getHeight() != null) {
                         newSettings.setHeight(Double.parseDouble(settings.getHeight()));
                     }
@@ -345,6 +352,59 @@ public class AnalysisDataModel {
                 charts = chartSettings;
             }
         }
+    }
+
+    private ColorMapping parseColorMapping(String colorMappingString) {
+        ColorMapping colorMapping = ColorMapping.GREEN_YELLOW_RED;
+        switch (colorMappingString) {
+            case "LIME_YELLOW_RED":
+                colorMapping = LIME_YELLOW_RED;
+                break;
+            case "BLUE_CYAN_GREEN_YELLOW_RED":
+                colorMapping = BLUE_CYAN_GREEN_YELLOW_RED;
+                break;
+            case "INFRARED_1":
+                colorMapping = INFRARED_1;
+                break;
+            case "INFRARED_2":
+                colorMapping = INFRARED_2;
+                break;
+            case "INFRARED_3":
+                colorMapping = INFRARED_3;
+                break;
+            case "INFRARED_4":
+                colorMapping = INFRARED_4;
+                break;
+            case "BLUE_GREEN_RED":
+                colorMapping = BLUE_GREEN_RED;
+                break;
+            case "BLUE_BLACK_RED":
+                colorMapping = BLUE_BLACK_RED;
+                break;
+            case "BLUE_YELLOW_RED":
+                colorMapping = BLUE_YELLOW_RED;
+                break;
+            case "BLUE_TRANSPARENT_RED":
+                colorMapping = BLUE_TRANSPARENT_RED;
+                break;
+            case "GREEN_BLACK_RED":
+                colorMapping = GREEN_BLACK_RED;
+                break;
+            case "GREEN_YELLOW_RED":
+                colorMapping = GREEN_YELLOW_RED;
+                break;
+            case "RAINBOW":
+                colorMapping = RAINBOW;
+                break;
+            case "BLACK_WHITE":
+                colorMapping = BLACK_WHITE;
+                break;
+            case "WHITE_BLACK":
+                colorMapping = WHITE_BLACK;
+                break;
+        }
+
+        return colorMapping;
     }
 
     private Service<Void> service = new Service<Void>() {
@@ -968,7 +1028,9 @@ public class AnalysisDataModel {
                     JEVisUnit unit = new JEVisUnitImp(objectMapper.readValue(mdl.getUnit(), JsonUnit.class));
                     newData.setObject(obj);
 
-                    newData.setColor(mdl.getColor());
+                    if (mdl.getColor() != null) {
+                        newData.setColor(mdl.getColor());
+                    }
                     newData.setTitle(mdl.getName());
                     if (mdl.getDataProcessorObject() != null) newData.setDataProcessor(obj_dp);
                     newData.getAttribute();

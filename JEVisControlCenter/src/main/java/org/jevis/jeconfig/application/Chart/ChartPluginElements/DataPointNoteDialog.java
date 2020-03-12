@@ -220,20 +220,20 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
             nd.showAndWait().ifPresent(response -> {
                 if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                    saveUserEntries(nd.getNoteMap());
+                    if (saveUserEntries(nd.getNoteMap())) {
+                        Dialog<ButtonType> wantToReload = new Dialog<>();
+                        wantToReload.setTitle(I18n.getInstance().getString("plugin.graph.dialog.reload.title"));
+                        final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.reload.ok"), ButtonBar.ButtonData.YES);
+                        final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.reload.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-                    Dialog<ButtonType> wantToReload = new Dialog<>();
-                    wantToReload.setTitle(I18n.getInstance().getString("plugin.graph.dialog.reload.title"));
-                    final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.reload.ok"), ButtonBar.ButtonData.YES);
-                    final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.reload.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-
-                    wantToReload.setContentText(I18n.getInstance().getString("plugin.graph.dialog.reload.message"));
-                    wantToReload.getDialogPane().getButtonTypes().addAll(ok, cancel);
-                    Platform.runLater(() -> wantToReload.showAndWait().ifPresent(response2 -> {
-                        if (response2.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
-                            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
-                        }
-                    }));
+                        wantToReload.setContentText(I18n.getInstance().getString("plugin.graph.dialog.reload.message"));
+                        wantToReload.getDialogPane().getButtonTypes().addAll(ok, cancel);
+                        Platform.runLater(() -> wantToReload.showAndWait().ifPresent(response2 -> {
+                            if (response2.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
+                                graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+                            }
+                        }));
+                    }
                 }
             });
         }
@@ -315,9 +315,11 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
         return userNote;
     }
 
-    private void saveUserEntries(Map<String, RowNote> noteMap) {
+    private boolean saveUserEntries(Map<String, RowNote> noteMap) {
+        boolean savedValues = false;
         for (Map.Entry<String, RowNote> entry : noteMap.entrySet()) {
             if (entry.getValue().getChanged()) {
+                savedValues = true;
                 try {
                     JEVisObject obj = entry.getValue().getDataObject();
                     JEVisUser currentUser = obj.getDataSource().getCurrentUser();
@@ -504,6 +506,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                 }
             }
         }
+        return savedValues;
     }
 
     protected class DataPoint {

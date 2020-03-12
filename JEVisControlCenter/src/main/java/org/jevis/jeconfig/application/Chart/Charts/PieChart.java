@@ -26,6 +26,7 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -64,14 +65,14 @@ public class PieChart implements Chart {
     };
     private List<String> seriesNames = new ArrayList<>();
 
-    public PieChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
+    public PieChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
         this.analysisDataModel = analysisDataModel;
         this.chartDataModels = chartDataModels;
         this.showRawData = analysisDataModel.getShowRawData();
         this.showSum = analysisDataModel.getShowSum();
         this.hideShowIcons = analysisDataModel.getShowIcons();
-        this.chartName = chartName;
-        this.chartId = chartId;
+        this.chartName = chartSetting.getName();
+        this.chartId = chartSetting.getId();
         init();
     }
 

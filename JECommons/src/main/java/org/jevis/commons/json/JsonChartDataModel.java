@@ -23,7 +23,7 @@ public class JsonChartDataModel {
     @Override
     public String toString() {
         try {
-            return JsonTools.prettyObjectMapper().writeValueAsString(this);
+            return JsonTools.objectMapper().writeValueAsString(this);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }

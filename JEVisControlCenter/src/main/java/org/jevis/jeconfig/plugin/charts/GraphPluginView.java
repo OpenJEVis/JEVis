@@ -727,26 +727,26 @@ public class GraphPluginView implements Plugin {
 
         switch (chart.getChartType()) {
             case LOGICAL:
-                return new LogicalChart(dataModel, chartDataModels, chart.getId(), chart.getName());
+                return new LogicalChart(dataModel, chartDataModels, chart);
             case LINE:
-                return new LineChart(dataModel, chartDataModels, chart.getId(), chart.getName());
+                return new LineChart(dataModel, chartDataModels, chart);
             case BAR:
-                return new BarChart(dataModel, chartDataModels, chart.getId(), chart.getName());
+                return new BarChart(dataModel, chartDataModels, chart);
             case COLUMN:
-                return new ColumnChart(dataModel, chartDataModels, chart.getId(), chart.getName());
+                return new ColumnChart(dataModel, chartDataModels, chart);
             case BUBBLE:
-                return new BubbleChart(dataModel, chartDataModels, chart.getId(), chart.getName());
+                return new BubbleChart(dataModel, chartDataModels, chart);
             case SCATTER:
-                return new ScatterChart(dataModel, chartDataModels, chart.getId(), chart.getName());
+                return new ScatterChart(dataModel, chartDataModels, chart);
             case PIE:
-                return new PieChart(dataModel, chartDataModels, chart.getId(), chart.getName());
+                return new PieChart(dataModel, chartDataModels, chart);
             case TABLE:
-                return new TableChart(dataModel, chartDataModels, chart.getId(), chart.getName());
+                return new TableChart(dataModel, chartDataModels, chart);
             case HEAT_MAP:
-                return new HeatMapChart(chartDataModels, chart.getId(), chart.getName());
+                return new HeatMapChart(chartDataModels, chart);
             case AREA:
             default:
-                return new AreaChart(dataModel, chartDataModels, chart.getId(), chart.getName());
+                return new AreaChart(dataModel, chartDataModels, chart);
         }
     }
 

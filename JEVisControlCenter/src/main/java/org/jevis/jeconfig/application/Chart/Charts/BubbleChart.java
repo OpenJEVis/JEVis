@@ -20,6 +20,7 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.jeconfig.application.Chart.ChartElements.Bubble;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
@@ -53,13 +54,13 @@ public class BubbleChart implements Chart {
     private String yUnit;
     private ChartType chartType = ChartType.BUBBLE;
 
-    public BubbleChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
+    public BubbleChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
         this.regressionType = analysisDataModel.getRegressionType();
         this.calcRegression = analysisDataModel.calcRegression();
         this.polyRegressionDegree = analysisDataModel.getPolyRegressionDegree();
         this.chartDataModels = chartDataModels;
-        this.chartId = chartId;
-        this.chartName = chartName;
+        this.chartId = chartSetting.getId();
+        this.chartName = chartSetting.getName();
 
         final NumberAxis xAxis = new NumberAxis();
         final NumberAxis yAxis = new NumberAxis();

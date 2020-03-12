@@ -1,5 +1,7 @@
 package org.jevis.jeconfig.application.Chart;
 
+import eu.hansolo.fx.charts.tools.ColorMapping;
+
 import static org.jevis.jeconfig.application.Chart.ChartType.AREA;
 
 public class ChartSetting {
@@ -8,6 +10,7 @@ public class ChartSetting {
     private String name;
     private ChartType chartType;
     private Double height;
+    private ColorMapping colorMapping;
 
     private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
 
@@ -52,6 +55,14 @@ public class ChartSetting {
 
     public void setChartType(ChartType chartType) {
         this.chartType = chartType;
+    }
+
+    public ColorMapping getColorMapping() {
+        return colorMapping;
+    }
+
+    public void setColorMapping(ColorMapping colorMapping) {
+        this.colorMapping = colorMapping;
     }
 
     public AnalysisTimeFrame getAnalysisTimeFrame() {

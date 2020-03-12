@@ -28,6 +28,7 @@ import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.tools.Holidays;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -43,6 +44,7 @@ public class HeatMapChart implements Chart {
 
     private final Integer chartId;
     private final WorkDays workDays;
+    private final ColorMapping colorMapping;
     private List<ChartDataModel> chartDataModels;
     private String chartTitle;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -60,10 +62,11 @@ public class HeatMapChart implements Chart {
     private List<DateTime> xAxisList;
     private List<DateTime> yAxisList;
 
-    public HeatMapChart(List<ChartDataModel> chartDataModels, Integer chartId, String chartTitle) {
+    public HeatMapChart(List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
         this.chartDataModels = chartDataModels;
-        this.chartId = chartId;
-        this.chartTitle = chartTitle;
+        this.chartId = chartSetting.getId();
+        this.chartTitle = chartSetting.getName();
+        this.colorMapping = chartSetting.getColorMapping();
         this.ROWS = 24L;
         this.COLS = 4L;
         this.workDays = new WorkDays(chartDataModels.get(0).getObject());
@@ -188,7 +191,7 @@ public class HeatMapChart implements Chart {
 
         MatrixPane<MatrixChartItem> matrixHeatMap = new MatrixPane<>(matrixItemSeries1);
         matrixHeatMap.setMaxHeight(8192);
-        matrixHeatMap.setColorMapping(ColorMapping.GREEN_YELLOW_RED);
+        matrixHeatMap.setColorMapping(colorMapping);
         matrixHeatMap.getMatrix().setUseSpacer(false);
         matrixHeatMap.getMatrix().setColsAndRows(COLS.intValue(), ROWS.intValue());
 

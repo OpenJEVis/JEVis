@@ -96,7 +96,7 @@ public class XYChart implements Chart {
     private boolean hasSecondAxis = false;
     private StringBuilder regressionFormula = new StringBuilder();
 
-    public XYChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> selectedModels, Integer chartId, String chartName) {
+    public XYChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> selectedModels, ChartSetting chartSetting) {
         this.analysisDataModel = analysisDataModel;
         this.chartDataModels = selectedModels;
         this.dateAxis = new DefaultDateAxis();
@@ -108,18 +108,12 @@ public class XYChart implements Chart {
         this.showIcons = analysisDataModel.getShowIcons();
         this.calcRegression = analysisDataModel.calcRegression();
         this.polyRegressionDegree = analysisDataModel.getPolyRegressionDegree();
-        this.chartId = chartId;
-        this.chartName = chartName;
+        this.chartId = chartSetting.getId();
+        this.chartName = chartSetting.getName();
+        this.chartType = chartSetting.getChartType();
         this.addSeriesOfType = analysisDataModel.getAddSeries();
         if (selectedModels.stream().anyMatch(chartDataModel -> chartDataModel.getAxis() == 1)) {
             hasSecondAxis = true;
-        }
-
-        for (ChartSetting chartSetting : analysisDataModel.getCharts().getListSettings()) {
-            if (chartId.equals(chartSetting.getId())) {
-                this.chartType = chartSetting.getChartType();
-                break;
-            }
         }
 
         if (!chartDataModels.isEmpty()) {
