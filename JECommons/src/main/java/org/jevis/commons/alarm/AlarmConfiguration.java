@@ -144,25 +144,25 @@ public class AlarmConfiguration {
     }
 
     public AlarmScope getAlarmScope() {
-        if (alarmScope == null) {
-            try {
-                JEVisAttribute scopeAtt = object.getAttribute(ALARM_SCOPE);
-                if (scopeAtt != null) {
-                    JEVisSample latestSample = scopeAtt.getLatestSample();
-                    if (latestSample != null) {
-                        String scope = latestSample.getValueAsString();
-                        if (scope.equals(AlarmScope.COMPLETE.toString())) alarmScope = AlarmScope.COMPLETE;
-                        else if (scope.equals(AlarmScope.SELECTED.toString())) alarmScope = AlarmScope.SELECTED;
-                        else if (scope.equals(AlarmScope.WITHOUT_SELECTED.toString()))
-                            alarmScope = AlarmScope.WITHOUT_SELECTED;
-                        else alarmScope = AlarmScope.NONE;
-                    }
 
+        try {
+            JEVisAttribute scopeAtt = object.getAttribute(ALARM_SCOPE);
+            if (scopeAtt != null) {
+                JEVisSample latestSample = scopeAtt.getLatestSample();
+                if (latestSample != null) {
+                    String scope = latestSample.getValueAsString();
+                    if (scope.equals(AlarmScope.COMPLETE.toString())) alarmScope = AlarmScope.COMPLETE;
+                    else if (scope.equals(AlarmScope.SELECTED.toString())) alarmScope = AlarmScope.SELECTED;
+                    else if (scope.equals(AlarmScope.WITHOUT_SELECTED.toString()))
+                        alarmScope = AlarmScope.WITHOUT_SELECTED;
+                    else alarmScope = AlarmScope.NONE;
                 }
-            } catch (JEVisException e) {
-                e.printStackTrace();
+
             }
+        } catch (JEVisException e) {
+            e.printStackTrace();
         }
+
         return alarmScope;
     }
 
