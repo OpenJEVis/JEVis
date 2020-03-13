@@ -223,14 +223,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                Runnable task = () -> {
-                    widgetConfigDialog.commitSettings();
-                    updateConfig(getConfig());
-                    updateData(lastInterval);
-                };
-                control.getExecutor().submit(task);
-
-
+                widgetConfigDialog.commitSettings();
+                control.updateWidget(this);
             } catch (Exception ex) {
                 logger.error(ex);
             }

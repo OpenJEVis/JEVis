@@ -19,7 +19,7 @@ public class Widgets {
             put(TableWidget.WIDGET_ID, TableWidget.class.getName());
             put(LinkerWidget.WIDGET_ID, LinkerWidget.class.getName());
             put(TitleWidget.WIDGET_ID, TitleWidget.class.getName());
-            //put(ValueWidget.WIDGET_ID, ValueWidget.class.getName());
+            put(ValueWidget.WIDGET_ID, ValueWidget.class.getName());
             put(ValueEditWidget.WIDGET_ID, ValueEditWidget.class.getName());
             put(DashboadLinkWidget.WIDGET_ID, DashboadLinkWidget.class.getName());
 
@@ -33,7 +33,7 @@ public class Widgets {
         widgetList.add(new PieWidget(control, config));
         widgetList.add(new TitleWidget(control, config));
         widgetList.add(new ChartWidget(control, config));
-        //widgetList.add(new ValueWidget(control, config));
+        widgetList.add(new ValueWidget(control, config));
         widgetList.add(new ValueEditWidget(control, config));
         widgetList.add(new TableWidget(control, config));
         widgetList.add(new WebPieWidget(control, config));

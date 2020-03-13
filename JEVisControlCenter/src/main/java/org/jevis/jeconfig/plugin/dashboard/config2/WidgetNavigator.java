@@ -122,7 +122,8 @@ public class WidgetNavigator {
         TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
         ObservableList<TimeFrameFactory> timeFrames = FXCollections.observableArrayList(control.getAllTimeFrames().getAll());
         timeFactoryBox.getItems().addAll(timeFrames);
-        timeFactoryBox.selectValue(control.getActiveTimeFrame());
+        timeFactoryBox.selectValue(control.getActiveDashboard().getTimeFrame());
+        //timeFactoryBox.selectValue(control.getActiveTimeFrame());
 
         Button backgroundButton = new Button("", JEConfig.getImage("if_32_171485.png", this.iconSize, this.iconSize));
         Button removeBGIcon = new Button("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", this.iconSize, this.iconSize));

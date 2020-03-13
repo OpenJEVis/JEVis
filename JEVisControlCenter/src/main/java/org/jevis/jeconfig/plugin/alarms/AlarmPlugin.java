@@ -15,6 +15,8 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -55,12 +57,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.Future;
 
 public class AlarmPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(AlarmPlugin.class);
@@ -77,9 +75,10 @@ public class AlarmPlugin implements Plugin {
     private SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
     private ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
     private final List<Task<List<AlarmRow>>> runningUpdateTaskList = new ArrayList<>();
-    private ExecutorService executor = Executors.newFixedThreadPool(4);
     int showCheckedAlarms = 0;
     private boolean init = false;
+    private List<Future<?>> futures = new ArrayList<>();
+    private Image taskImage = JEConfig.getImage("alarm_icon.png");
 
     private Comparator<AlarmRow> alarmRowComparator = new Comparator<AlarmRow>() {
         @Override
@@ -135,7 +134,7 @@ public class AlarmPlugin implements Plugin {
                     columnToFitMethod.invoke(tableView.getSkin(), column, -1);
                 }
             } catch (IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
+                logger.error("columnToFitMethod error",e);
             }
         }
 //            }
@@ -145,56 +144,23 @@ public class AlarmPlugin implements Plugin {
     public AlarmPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
-        this.borderPane.setCenter(this.tableView);
-        Label label = new Label(I18n.getInstance().getString("plugin.alarms.noalarms"));
-        label.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        this.tableView.setPlaceholder(label);
-
-        this.tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        this.tableView.setStyle("-fx-background-color: white;");
-
-//        this.tableView.setItems(alarmRows);
-
-        this.numberFormat.setMinimumFractionDigits(2);
-        this.numberFormat.setMaximumFractionDigits(2);
-
-        this.startDatePicker.setPrefWidth(120d);
-        this.endDatePicker.setPrefWidth(120d);
-
-        createColumns();
-
-        this.activeAlarms.addListener((MapChangeListener<? super DateTime, ? super Boolean>) change -> {
-            if (this.activeAlarms.isEmpty()) {
-                this.hasAlarms.set(false);
-            } else {
-                this.hasAlarms.set(true);
-            }
-        });
-
-        this.timeFrameComboBox.getSelectionModel().select(TimeFrame.PREVIEW);
     }
 
     private void restartExecutor() {
         try {
-            if (this.executor != null) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setContentText(I18n.getInstance().getString("plugin.alarms.info.wait"));
                 alert.show();
                 JEConfig.getStatusBar().startProgressJob("stoppingAlarms", runningUpdateTaskList.size() + 1, I18n.getInstance().getString("plugin.alarms.message.stoppingthreads"));
-                for (Task<List<AlarmRow>> listTask : this.runningUpdateTaskList) {
-                    listTask.cancel();
-                    JEConfig.getStatusBar().progressProgressJob("stoppingAlarms", 1, I18n.getInstance().getString("plugin.alarms.message.cancelled") + " " + listTask);
-                }
+
+                JEConfig.getStatusBar().stopTasks(AlarmPlugin.class.getName());
                 this.runningUpdateTaskList.clear();
-                this.executor.shutdownNow();
-                this.executor.awaitTermination(360, TimeUnit.SECONDS);
-                alert.close();
                 JEConfig.getStatusBar().finishProgressJob("stoppingAlarms", I18n.getInstance().getString("plugin.alarms.message.stoppedall"));
-            }
+
+                alert.close();
         } catch (Exception ex) {
             logger.error(ex);
         }
-        this.executor = Executors.newFixedThreadPool(4);
     }
 
     private String getAlarm(Integer item) {
@@ -952,39 +918,86 @@ public class AlarmPlugin implements Plugin {
         tableView.getItems().clear();
 
         autoFitTable(tableView);
-
         List<AlarmConfiguration> alarms = getAllAlarmConfigs();
-        int size = alarms.size();
-        JEConfig.getStatusBar().startProgressJob("AlarmConfigs", size, I18n.getInstance().getString("plugin.alarms.message.loadingconfigs"));
+        JEConfig.getStatusBar().startProgressJob("AlarmConfigs", alarms.size(), I18n.getInstance().getString("plugin.alarms.message.loadingconfigs"));
 
         alarms.forEach(alarmConfiguration -> {
             Task<List<AlarmRow>> task = new Task<List<AlarmRow>>() {
+
                 @Override
                 protected List<AlarmRow> call() {
                     List<AlarmRow> list = new ArrayList<>();
                     try {
+                        Platform.runLater(() -> this.updateTitle("Loading Alarm '"+alarmConfiguration.getName()+"'"));                        ;
                         JEVisAttribute fileLog = alarmConfiguration.getFileLogAttribute();
-
                         list.addAll(getAlarmRow(fileLog, alarmConfiguration));
+                        this.succeeded();
                     } catch (Exception e) {
                         e.printStackTrace();
+                        this.failed();
                     } finally {
+                        this.done();
                         Platform.runLater(() -> tableView.getItems().addAll(list));
-                        Platform.runLater(() -> tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed()));
-                        Platform.runLater(() -> autoFitTable(tableView));
+                        //Platform.runLater(() -> tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed()));
+                        //Platform.runLater(() -> autoFitTable(tableView));
+
+                        /**
+                         * Sort only every 5 rows and at the end. Sorting cost a lot of ram and cpu.
+                         * My test show an 40% lower ram profile for a big dataset.
+                         */
+                        if (tableView.getItems().size() % 5 == 0) {
+                            Platform.runLater(() -> tableView.sort());
+                            Platform.runLater(() -> autoFitTable(tableView));
+                        }
+
                         JEConfig.getStatusBar().progressProgressJob(
                                 "AlarmConfigs",
                                 1,
                                 I18n.getInstance().getString("plugin.alarms.message.finishedalarmconfig") + " " + alarmConfiguration.getName());
-
                     }
+
                     return list;
                 }
             };
+            //JEConfig.getStatusBar().addTask(task,JEConfig.getImage("alarm_icon.png"));//,
+            JEConfig.getStatusBar().addTask(AlarmPlugin.class.getName(),task,taskImage,true);//,
 
-            this.runningUpdateTaskList.add(task);
-            this.executor.execute(task);
+
+
+            /** check if all Jobs are done/failed to set statusbar **/
+            EventHandler<WorkerStateEvent> doneEvent = event -> {
+                if(allJobsDone(futures)){
+                    JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
+                    Platform.runLater(() -> tableView.sort());
+                    Platform.runLater(() -> autoFitTable(tableView));
+
+                }
+            };
+            task.setOnSucceeded(doneEvent);
+            task.setOnFailed(doneEvent);
+
+            //this.runningUpdateTaskList.add(task);
+            //this.executor.execute(task);
         });
+
+        /**
+       futures = runningUpdateTaskList.stream()
+                .map(r -> executor.submit(r))
+                .collect(Collectors.toList());
+         **/
+    }
+
+    private synchronized boolean allJobsDone( List<Future<?>> futures){
+        boolean allDone=true;
+        Iterator<Future<?>> itr = futures.iterator();
+        while (itr.hasNext()) {
+            if (!itr.next().isDone()){
+                allDone=false;
+            }
+        }
+
+        return allDone;
+
     }
 
     private List<AlarmRow> getAlarmRow(JEVisAttribute fileLog, AlarmConfiguration alarmConfiguration) throws JEVisException, IOException {
@@ -1051,6 +1064,36 @@ public class AlarmPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
+
+        this.borderPane.setCenter(this.tableView);
+        Label label = new Label(I18n.getInstance().getString("plugin.alarms.noalarms"));
+        label.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+        this.tableView.setPlaceholder(label);
+
+        this.tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+        this.tableView.setStyle("-fx-background-color: white;");
+
+//        this.tableView.setItems(alarmRows);
+
+        this.numberFormat.setMinimumFractionDigits(2);
+        this.numberFormat.setMaximumFractionDigits(2);
+
+        this.startDatePicker.setPrefWidth(120d);
+        this.endDatePicker.setPrefWidth(120d);
+
+        createColumns();
+
+        this.activeAlarms.addListener((MapChangeListener<? super DateTime, ? super Boolean>) change -> {
+            if (this.activeAlarms.isEmpty()) {
+                this.hasAlarms.set(false);
+            } else {
+                this.hasAlarms.set(true);
+            }
+        });
+
+        this.timeFrameComboBox.getSelectionModel().select(TimeFrame.PREVIEW);
+
+
         Platform.runLater(() -> autoFitTable(tableView));
     }
 

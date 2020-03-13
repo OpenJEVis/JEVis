@@ -19,6 +19,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
@@ -41,7 +42,7 @@ import java.util.Optional;
 public class ValueEditWidget extends Widget implements DataModelWidget {
 
     private static final Logger logger = LogManager.getLogger(ValueEditWidget.class);
-    public static String WIDGET_ID = "Value";
+    public static String WIDGET_ID = "Value Editor";
     private final TextField labelValue = new TextField();
     private final Label labelTimeStamp = new Label();
     private NumberFormat nf = NumberFormat.getInstance();
@@ -52,11 +53,10 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     private Interval lastInterval = null;
     private EnterDataDialog enterDataDialog=null;
     private Button addButton = new Button("",JEConfig.getImage("AddValue.png",34,34));
-    private static DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH-mm");
+    private static DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     private boolean forceLastValue=true;
     private JEVisSample lastSample=null;
 
-    public static String LIMIT_NODE_NAME = "limit";
 
     public ValueEditWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -204,12 +204,8 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                Runnable task = () -> {
-                    widgetConfigDialog.commitSettings();
-                    updateConfig(getConfig());
-                    updateData(lastInterval);
-                };
-                control.getExecutor().submit(task);
+                widgetConfigDialog.commitSettings();
+                control.updateWidget(this);
 
 
             } catch (Exception ex) {
@@ -233,10 +229,15 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
 
                 //this.labelValue.setStyle("-fx-text-inner-color: "+this.config.getFontColor()+";");
 
+                Color oldFont = ColorHelper.getHighlightColor(this.config.getBackgroundColor());
                 this.labelTimeStamp.setBackground(bgColor);
-                this.labelTimeStamp.setTextFill(Color.GREY);
+                //this.labelTimeStamp.setTextFill(Color.GREY);
+                this.labelTimeStamp.setTextFill(oldFont);
                 this.labelTimeStamp.setContentDisplay(ContentDisplay.LEFT);
-                Font oldFont = labelTimeStamp.getFont();
+                //Font oldFont = labelTimeStamp.getFont();
+
+
+
                 labelTimeStamp.setFont(new Font(labelValue.getFont().getSize() * 0.7));
 
                 if(sampleHandler!=null && sampleHandler.getDataModel()!=null && !sampleHandler.getDataModel().isEmpty()){
@@ -271,13 +272,12 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
 
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
         this.sampleHandler.setMultiSelect(false);
-
         enterDataDialog = new EnterDataDialog(getDataSource());
-
-        logger.debug("Value.init() [{}] {}", config.getUuid(), this.config.getConfigNode(LIMIT_NODE_NAME));
-
-        //this.labelValue.setPadding(new Insets(0, 8, 0, 8));
-
+        enterDataDialog.getNewSampleProperty().addListener((observable, oldValue, newValue) -> {
+            //control.updateWidget(this);
+            System.out.println("update sample:"+newValue);
+            this.updateData(lastInterval);
+        });
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(8));
@@ -285,48 +285,17 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         gridPane.addRow(1, labelValue);
 
         GridPane.setHgrow(labelValue, Priority.ALWAYS);
-        //gridPane.add(addButton,2,0,1,2);
         setGraphic(gridPane);
 
 
-        enterDataDialog = new EnterDataDialog(getDataSource());
 
         labelValue.setOnMouseClicked(event -> {
             System.out.println("event: " + event);
             if (event.getButton() == MouseButton.PRIMARY) {
                 enterDataDialog.showPopup(labelTimeStamp);
             }
-            System.out.println("label klick");
-            //Bounds boundsInScreen = labelValue.localToScreen(labelValue.getBoundsInLocal());
-            //enterDataDialog.show(label);
-            //popup.show(label);
-            //popup.show(label,boundsInScreen.getMinX(),boundsInScreen.getMinY());
-
 
         });
-        /**
-        labelValue.setOnMouseClicked(event -> {
-            System.out.println("event3: " + event);
-            if (event.getButton() == MouseButton.PRIMARY) {
-                enterDataDialog.showPopup(gridPane);
-            }
-        });
-
-        gridPane.setOnMouseClicked(event -> {
-            System.out.println("event2: " + event);
-            if (event.getButton() == MouseButton.PRIMARY) {
-                enterDataDialog.showPopup(gridPane);
-            }
-
-        });
-
-        labelTimeStamp.setOnMouseClicked(event -> {
-            enterDataDialog.showPopup(gridPane);
-            if (event.isPrimaryButtonDown()) {
-
-            }
-        });
-        +**/
 
     }
 
@@ -342,13 +311,6 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         ObjectNode dashBoardNode = super.createDefaultNode();
         dashBoardNode
                 .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
-
-
-        if (limit != null) {
-            dashBoardNode
-                    .set(LIMIT_NODE_NAME, limit.toJSON());
-        }
-
 
         return dashBoardNode;
     }

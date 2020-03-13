@@ -9,7 +9,9 @@ import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -75,7 +77,10 @@ public class EnterDataDialog {
     private JEVisSample initSample= null;
     private boolean targetEdible = true;
     private JEVisAttribute target=null;
-
+    private ObjectProperty<JEVisSample> newSampleProperty = new SimpleObjectProperty<>();
+    private Label unitField = new Label();
+    private Label lastTSLabel  = new Label();
+    private Label lastValueLabel  = new Label();
 
 
     public EnterDataDialog(JEVisDataSource dataSource) {
@@ -142,6 +147,10 @@ public class EnterDataDialog {
 
     }
 
+    public ObjectProperty<JEVisSample> getNewSampleProperty(){
+        return newSampleProperty;
+    }
+
     public void setSample(JEVisSample sample){
         initSample=sample;
     }
@@ -163,11 +172,9 @@ public class EnterDataDialog {
 
 
         Label idLabel = new Label(I18n.getInstance().getString("plugin.graph.export.text.id"));
-        Label lastValueLabel = new Label();
-        Label lastTSLabel = new Label();
         Label valueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
         Label unitLabel = new Label(I18n.getInstance().getString("graph.table.unit"));
-        Label unitField = new Label();
+
         Label unitFieldLastV = new Label();
         TextField doubleField = new TextField();
         TextField searchIdField = new TextField();
@@ -269,8 +276,8 @@ public class EnterDataDialog {
             if (initSample != null && showValuePrompt) {
 
                 doubleField.setPromptText(initSample.getValue().toString());
-                loadLastValue(unitField, lastTSLabel, lastValueLabel);
-
+                //oadLastValue(unitField, lastTSLabel, lastValueLabel);
+                loadLastValue();
                 //doubleField.setText(initSample.getValue().toString());
             }
         }catch ( Exception ex){
@@ -330,7 +337,8 @@ public class EnterDataDialog {
                 treeButton.setText(selectedObject.getName());
                 searchIdField.setText(selectedObject.getID().toString());
 
-                loadLastValue(unitField, lastTSLabel, lastValueLabel);
+                //loadLastValue(unitField, lastTSLabel, lastValueLabel);
+                loadLastValue();
             }
 
         });
@@ -340,7 +348,8 @@ public class EnterDataDialog {
         treeButton.setDisable(!targetEdible);
         searchIdField.setDisable(!targetEdible);
         if(selectedObject!=null){
-            searchIdField.setText(selectedObject.getID().toString());
+            //searchIdField.setText(selectedObject.getID().toString());
+            searchIdField.setText("["+selectedObject.getID().toString()+"] "+selectedObject.getName());
         }
 
 
@@ -402,7 +411,7 @@ public class EnterDataDialog {
                                     CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject, new ObjectHandler(ds));
                                     limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
                                 }
-                            } catch (JEVisException e) {
+                            } catch (Exception e) {
                                 logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
                             }
                             DateTime ts = new DateTime(
@@ -533,7 +542,7 @@ public class EnterDataDialog {
                         warning.setResizable(true);
                         warning.showAndWait();
                     }
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error("Could not get current User", e);
                 }
             }
@@ -554,45 +563,20 @@ public class EnterDataDialog {
         gridPane.addRow(0,idLabel,searchIdField,treeButton);
         gridPane.addRow(1,dateLabel,datePicker,timePicker);
         gridPane.addRow(2,valueLabel,doubleField,unitField);
-        //gridPane.addRow(2,valueLabel,doubleField,toggleSamples);
-        gridPane.addRow(3,new Label("Last Value"),lastValueLabel,unitFieldLastV);
-        //gridPane.addRow(4,extendableSearchPane);
+        gridPane.add(new Label("Last Value"), 0, 3,1,1);
+        gridPane.add(lastValueLabel, 1, 3,2,1);
+
+       // gridPane.addRow(3,,lastValueLabel,unitFieldLastV);
 
         gridPane.add(sep, 0, 4,3,1);
         gridPane.add(buttonBox, 0, 5,3,1);
 
 
         ColumnConstraints col1 = new ColumnConstraints();
-        //col1.setPercentWidth(50);
         ColumnConstraints col2 = new ColumnConstraints(120);
-        //col2.setPercentWidth(50);
         ColumnConstraints col3 = new ColumnConstraints(80);
-        //col3.setPercentWidth(25);
         gridPane.getColumnConstraints().addAll(col1,col2,col3);
 
-        /**
-        int row = 0;
-        gridPane.add(idLabel, 0, row);
-//        gridPane.add(diffSwitchLabel, 2, row);
-        gridPane.add(dateLabel, 3, row, 2, 1);
-        gridPane.add(valueLabel, 5, row);
-        gridPane.add(unitLabel, 6, row);
-        row++;
-        gridPane.add(searchIdField, 0, row);
-        gridPane.add(treeButton, 1, row, 2, 1);
-//        gridPane.add(diffSwitch, 2, row);
-        gridPane.add(datePicker, 3, row);
-        gridPane.add(timePicker, 4, row);
-        gridPane.add(doubleField, 5, row);
-        gridPane.add(unitField, 6, row);
-        row++;
-        gridPane.add(sep, 0, row, 7, 1);
-        row++;
-        gridPane.add(lastTSLabel, 1, row);
-        gridPane.add(lastValueLabel, 2, row);
-        gridPane.add(cancel, 5, row);
-        gridPane.add(confirm, 6, row);
-         **/
 
 
         GridPane.setHgrow(treeButton, Priority.ALWAYS);
@@ -629,13 +613,17 @@ public class EnterDataDialog {
                 Alert ok = new Alert(Alert.AlertType.INFORMATION, message);
                 ok.setResizable(true);
                 ok.showAndWait();
+
+                newSampleProperty.setValue(sample);
+                loadLastValue();
+
             } catch (JEVisException e) {
                 logger.error("Could not commit sample {}", sample, e);
             }
         }
     }
 
-    private void loadLastValue(Label unitField, Label lastTSLabel, Label lastValueLabel) {
+    private void loadLastValue() {
         if (selectedObject != null) {
             JEVisAttribute valueAttribute = null;
             String unitString = "";
@@ -669,18 +657,19 @@ public class EnterDataDialog {
                             Platform.runLater(() -> {
                                 lastTSLabel.setText(finalLastTS.toString("yyyy-MM-dd HH:mm") + " : ");
 
-                                lastValueLabel.setText(finalLastTS.toString("yyyy-MM-dd HH:mm") +" "+numberFormat.format(finalLastValue));
+
                                 /**
                                 if (!finalUnitString.equals("")) {
-                                    lastValueLabel.setText(numberFormat.format(finalLastValue) + " " + finalUnitString);
-                                } else {
-                                    lastValueLabel.setText(numberFormat.format(finalLastValue));
+                                    valueString+=" "+finalUnitString;
                                 }
+                                lastValueLabel.setText(valueString);
                                  **/
+                                String valueString = numberFormat.format(finalLastValue)+finalUnitString+" @ "+ finalLastTS.toString("yyyy-MM-dd HH:mm");
+                                lastValueLabel.setText(valueString);
                             });
                         }
                     }
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error("Could not get last sample.", e);
                 }
         }
