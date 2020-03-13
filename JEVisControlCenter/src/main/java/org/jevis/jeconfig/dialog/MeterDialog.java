@@ -4,10 +4,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
@@ -27,8 +24,8 @@ import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NewMeterDialog {
-    private static final Logger logger = LogManager.getLogger(NewMeterDialog.class);
+public class MeterDialog {
+    private static final Logger logger = LogManager.getLogger(MeterDialog.class);
     private final JEVisClass jeVisClass;
     private List<JEVisClass> possibleParents = new ArrayList<>();
     private JEVisDataSource ds;
@@ -37,8 +34,9 @@ public class NewMeterDialog {
     private GridPane gp;
     private JEVisObject newObject;
     private List<AttributeEditor> attributeEditors = new ArrayList<>();
+    private String name;
 
-    public NewMeterDialog(JEVisDataSource ds, JEVisClass jeVisClass) {
+    public MeterDialog(JEVisDataSource ds, JEVisClass jeVisClass) {
         this.ds = ds;
         this.jeVisClass = jeVisClass;
 
@@ -68,7 +66,7 @@ public class NewMeterDialog {
         possibleParents.remove(jeVisClass);
     }
 
-    public Response show() {
+    public Response showNewWindow() {
         response = Response.CANCEL;
 
         if (stage != null) {
@@ -101,14 +99,24 @@ public class NewMeterDialog {
         Scene scene = new Scene(vBox);
         stage.setScene(scene);
 
-        Label parentLabel = new Label("Parent: ");
-        parentLabel.setAlignment(Pos.CENTER_LEFT);
+        Label parentLabel = new Label(I18n.getInstance().getString("jevis.types.parent"));
+        VBox parentVBox = new VBox(parentLabel);
+        parentVBox.setAlignment(Pos.CENTER);
 
         Button treeButton = new Button(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),
                 JEConfig.getImage("folders_explorer.png", 18, 18));
 
-        HBox targetBox = new HBox(parentLabel, treeButton);
+        Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
+        VBox nameVBox = new VBox(nameLabel);
+        nameVBox.setAlignment(Pos.CENTER);
+        TextField nameField = new TextField();
+
+        Region targetSpace = new Region();
+        targetSpace.setPrefWidth(20);
+
+        HBox targetBox = new HBox(parentVBox, treeButton, targetSpace, nameVBox, nameField);
+        targetBox.setSpacing(4);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -159,6 +167,13 @@ public class NewMeterDialog {
                 }
 
                 treeButton.setText(newObject.getName());
+                nameField.setText(newObject.getName());
+
+                nameField.textProperty().addListener((observable, oldValue, newValue) -> {
+                    if (!newValue.equals(oldValue)) {
+                        name = newValue;
+                    }
+                });
 
                 updateGrid();
             }
@@ -176,6 +191,13 @@ public class NewMeterDialog {
                 }
             }
 
+            try {
+                newObject.setName(name);
+                newObject.commit();
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+
             response = Response.OK;
             stage.close();
         });
@@ -183,11 +205,108 @@ public class NewMeterDialog {
         cancel.setOnAction(event -> {
             response = Response.CANCEL;
             stage.close();
+            if (newObject != null) {
+                try {
+                    ds.deleteObject(newObject.getID());
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        stage.showAndWait();
+
+        return response;
+    }
+
+    public Response showReplaceWindow(JEVisObject selectedMeter) {
+        response = Response.CANCEL;
+
+        if (stage != null) {
+            stage.close();
+            stage = null;
+        }
+
+        stage = new Stage();
+
+        stage.setTitle(I18n.getInstance().getString("graph.selection.title"));
+
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.UTILITY);
+        stage.initOwner(JEConfig.getStage());
+
+        double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
+        stage.setWidth(maxScreenWidth * 0.85);
+
+        stage.setHeight(768);
+        stage.setResizable(true);
+
+        VBox vBox = new VBox();
+        vBox.setPadding(new Insets(12));
+        vBox.setSpacing(4);
+
+        gp = new GridPane();
+        gp.setHgap(12);
+        gp.setVgap(12);
+
+        Scene scene = new Scene(vBox);
+        stage.setScene(scene);
+
+        Label nameLabel = new Label(I18n.getInstance().getString("newobject.name"));
+        VBox nameVBox = new VBox(nameLabel);
+        nameVBox.setAlignment(Pos.CENTER);
+        TextField nameField = new TextField(selectedMeter.getName());
+
+        HBox targetBox = new HBox(nameVBox, nameField);
+        targetBox.setSpacing(4);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        Button ok = new Button(I18n.getInstance().getString("jevistree.dialog.new.ok"));
+        HBox.setHgrow(ok, Priority.NEVER);
+        Button cancel = new Button(I18n.getInstance().getString("jevistree.dialog.new.cancel"));
+        HBox.setHgrow(cancel, Priority.NEVER);
+
+        Separator sep1 = new Separator(Orientation.HORIZONTAL);
+
+        HBox buttonRow = new HBox(spacer, cancel, ok);
+        buttonRow.setPadding(new Insets(4));
+        buttonRow.setSpacing(10);
+
+        VBox.setVgrow(targetBox, Priority.NEVER);
+        VBox.setVgrow(gp, Priority.ALWAYS);
+        VBox.setVgrow(buttonRow, Priority.NEVER);
+        vBox.setFillWidth(true);
+        vBox.getChildren().setAll(DialogHeader.getDialogHeader("measurement_instrument.png", I18n.getInstance().getString("plugin.meters.title")), targetBox, gp, sep1, buttonRow);
+
+        newObject = selectedMeter;
+        updateGrid();
+
+        ok.setOnAction(event -> {
+            for (AttributeEditor attributeEditor : attributeEditors) {
+                if (attributeEditor.hasChanged()) {
+                    try {
+                        attributeEditor.commit();
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             try {
-                ds.deleteObject(newObject.getID());
+                newObject.setName(name);
+                newObject.commit();
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
+
+            response = Response.OK;
+            stage.close();
+        });
+
+        cancel.setOnAction(event -> {
+            response = Response.CANCEL;
+            stage.close();
         });
 
         stage.showAndWait();
@@ -205,29 +324,39 @@ public class NewMeterDialog {
                 List<JEVisAttribute> attributes = newObject.getAttributes();
                 for (JEVisAttribute attribute : attributes) {
                     int index = attributes.indexOf(attribute);
-                    if (index % 2 == 0) {
+
+                    if (index == 2 || (index > 2 && index % 2 == 0)) {
+                        column = 0;
                         row++;
                     }
 
-                    if (column % 3 == 0) {
-                        column = 0;
-                    } else {
-                        column++;
-                    }
-
                     Label typeName = new Label(I18nWS.getInstance().getTypeName(attribute.getType()));
+                    VBox typeBox = new VBox(typeName);
+                    typeBox.setAlignment(Pos.CENTER);
+
                     AttributeEditor attributeEditor = GenericAttributeExtension.getEditor(attribute.getType(), attribute);
                     attributeEditor.setReadOnly(false);
                     attributeEditors.add(attributeEditor);
+                    VBox editorBox = new VBox(attributeEditor.getEditor());
+                    editorBox.setAlignment(Pos.CENTER);
 
-                    gp.add(typeName, column, row);
+                    if (column < 2) {
+                        gp.add(typeBox, column, row);
+                    } else {
+                        gp.add(typeBox, column + 1, row);
+                    }
                     column++;
-                    gp.add(attributeEditor.getEditor(), column, row);
+
+                    if (column < 2) {
+                        gp.add(editorBox, column, row);
+                    } else {
+                        gp.add(editorBox, column + 1, row);
+                    }
+                    column++;
                 }
 
-
                 Separator separator = new Separator(Orientation.VERTICAL);
-                gp.add(separator, 2, 0, 1, row);
+                gp.add(separator, 2, 0, 1, row + 1);
 
             } catch (JEVisException e) {
                 e.printStackTrace();
