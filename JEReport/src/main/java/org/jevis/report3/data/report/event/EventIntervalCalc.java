@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.database.SampleHandler;
-import org.jevis.commons.report.PeriodMode;
 import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportConfiguration;
 import org.joda.time.DateTime;
@@ -37,7 +36,7 @@ public class EventIntervalCalc implements IntervalCalculator {
     }
 
     @Override
-    public Interval getInterval(PeriodMode modus) {
+    public Interval getInterval(String periodMode) {
         return interval;
     }
 

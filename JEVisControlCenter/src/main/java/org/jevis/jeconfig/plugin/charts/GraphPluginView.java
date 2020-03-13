@@ -20,6 +20,7 @@
 package org.jevis.jeconfig.plugin.charts;
 
 import com.google.common.util.concurrent.AtomicDouble;
+import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
 import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
@@ -30,13 +31,13 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -61,18 +62,14 @@ import org.jevis.jeapi.ws.JEVisObjectWS;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
-import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
-import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableHeader;
+import org.jevis.jeconfig.application.Chart.*;
+import org.jevis.jeconfig.application.Chart.ChartElements.*;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDialog;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointTableViewPointer;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
-import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.*;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
-import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.*;
@@ -81,6 +78,7 @@ import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.prefs.Preferences;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -108,7 +106,7 @@ public class GraphPluginView implements Plugin {
     //this.chartView = new ChartView(dataModel);
     private VBox vBox = new VBox();
     private BorderPane border = new BorderPane(sp);
-    private Tooltip tp;
+    private Tooltip tp = new Tooltip("");
     private List<Chart> allCharts = new ArrayList<>();
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
@@ -135,23 +133,67 @@ public class GraphPluginView implements Plugin {
          */
         border.heightProperty().addListener((observable, oldValue, newValue) -> {
             if (!oldValue.equals(0.0) && dataModel.getSelectedData() != null && !dataModel.getSelectedData().isEmpty()) {
-                Platform.runLater(() -> update());
-//                for (ChartView cv : charts) {
-//                    Platform.runLater(cv::updateColumnCaptionWidths);
-//                }
+                boolean hasHeatMap = false;
+                for (Chart chart : allCharts) {
+                    if (chart.getChartType() == ChartType.HEAT_MAP) {
+                        hasHeatMap = true;
+                    }
+                }
+                if (!hasHeatMap) {
+                    Platform.runLater(this::autoSize);
+                } else {
+                    update();
+                }
             }
         });
         border.widthProperty().addListener((observable, oldValue, newValue) -> {
             if (!oldValue.equals(0.0) && dataModel.getSelectedData() != null && !dataModel.getSelectedData().isEmpty()) {
-                Platform.runLater(() -> update());
-//                for (ChartView cv : charts) {
-//                    Platform.runLater(cv::updateColumnCaptionWidths);
-//                }
+                boolean hasHeatMap = false;
+                for (Chart chart : allCharts) {
+                    if (chart.getChartType() == ChartType.HEAT_MAP) {
+                        hasHeatMap = true;
+                    }
+                }
+                if (!hasHeatMap) {
+                    Platform.runLater(this::autoSize);
+                } else {
+                    update();
+                }
             }
         });
 
         border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2 + "; -fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
 
+    }
+
+    private void autoSize() {
+        Long chartsPerScreen = dataModel.getChartsPerScreen();
+
+        Platform.runLater(() -> {
+            AtomicDouble autoMinSize = new AtomicDouble(0);
+            double autoMinSizeNormal = 220;
+            double autoMinSizeLogical = 50;
+
+            if (dataModel.getSelectedData() != null) {
+                double maxHeight = border.getHeight();
+
+                for (ChartSetting chartSetting : dataModel.getCharts().getListSettings()) {
+                    if (chartSetting.getChartType().equals(ChartType.LOGICAL)) {
+                        autoMinSize.set(autoMinSizeLogical);
+                    } else {
+                        autoMinSize.set(autoMinSizeNormal);
+                    }
+                }
+
+                autoSize(autoMinSize.get(), maxHeight, chartsPerScreen, vBox);
+
+                for (ChartSetting settings : dataModel.getCharts().getListSettings()) {
+                    if (settings.getChartType() == ChartType.HEAT_MAP || settings.getChartType() == ChartType.BUBBLE || settings.getChartType() == ChartType.BAR) {
+                        Platform.runLater(this::formatCharts);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -212,6 +254,10 @@ public class GraphPluginView implements Plugin {
             newAnalysis();
 
         } else if (dialog.getResponse() == Response.LOAD) {
+            final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
+            if (!previewPref.getBoolean("enabled", true)) {
+                dataModel.setAnalysisTimeFrameForAllModels(dataModel.getGlobalAnalysisTimeFrame());
+            }
 
 //            dataModel.setGlobalAnalysisTimeFrame(dataModel.getGlobalAnalysisTimeFrame());
 //            dataModel.updateSamples();
@@ -356,7 +402,7 @@ public class GraphPluginView implements Plugin {
                     AnalysisTimeFrame currentTimeframe = dataModel.getGlobalAnalysisTimeFrame();
                     dataModel.setCurrentAnalysis(null);
                     dataModel.setCurrentAnalysis(currentAnalysis);
-                    dataModel.setCharts(new ArrayList<>());
+                    dataModel.setCharts(new ChartSettings());
                     dataModel.updateSelectedData();
 
                     dataModel.setManipulationMode(currentManipulationMode);
@@ -402,33 +448,49 @@ public class GraphPluginView implements Plugin {
     }
 
     public void update() {
+
+        try {
+            double totalJob = dataModel.getSelectedData().stream().mapToDouble(model -> (long) model.getSelectedcharts().size()).sum()
+                    + (dataModel.getCharts().getListSettings().size() * 2);
+
+            JEConfig.getStatusBar().startProgressJob(GraphPluginView.JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
+        } catch (Exception ex) {
+
+        }
+
+        allCharts.clear();
+        zoomed = false;
+        setxAxisLowerBound(null);
+        setxAxisUpperBound(null);
+
         Platform.runLater(() -> {
-            allCharts.clear();
             vBox.getChildren().clear();
             sp.setContent(vBox);
             try {
                 tp.hide();
             } catch (Exception ignored) {
             }
+        });
 
-            JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "");
+        Long horizontalPies = dataModel.getHorizontalPies();
+        Long horizontalTables = dataModel.getHorizontalTables();
+        int countOfPies = (int) dataModel.getCharts().getListSettings().stream().filter(charts -> charts.getChartType() == ChartType.PIE).count();
+        int countOfTables = (int) dataModel.getCharts().getListSettings().stream().filter(charts -> charts.getChartType() == ChartType.TABLE).count();
+
+        Platform.runLater(() -> {
 
             AtomicDouble autoMinSize = new AtomicDouble(0);
             double autoMinSizeNormal = 220;
             double autoMinSizeLogical = 50;
 
             if (dataModel.getSelectedData() != null) {
-                double maxHeight = border.getHeight();
-                double totalPrefHeight = 0d;
-                Long chartsPerScreen = dataModel.getChartsPerScreen();
-                Long horizontalPies = dataModel.getHorizontalPies();
-                Long horizontalTables = dataModel.getHorizontalTables();
+
                 List<HBox> pieFrames = new ArrayList<>();
                 List<HBox> tableFrames = new ArrayList<>();
 
                 AlphanumComparator ac = new AlphanumComparator();
                 try {
-                    dataModel.getCharts().sort((s1, s2) -> ac.compare(s1.getName(), s2.getName()));
+                    dataModel.getCharts().getListSettings().sort((s1, s2) -> ac.compare(s1.getName(), s2.getName()));
                 } catch (Exception e) {
                 }
 
@@ -436,14 +498,9 @@ public class GraphPluginView implements Plugin {
                 int noOfTable = 0;
                 int currentPieFrame = 0;
                 int currentTableFrame = 0;
-                int countOfPies = (int) dataModel.getCharts().stream().filter(charts -> charts.getChartType() == ChartType.PIE).count();
-                int countOfTables = (int) dataModel.getCharts().stream().filter(charts -> charts.getChartType() == ChartType.TABLE).count();
-                boolean firstLogical = true;
 
-                //dataModel.getSelectedData();
-
-                for (ChartSettings chartSettings : dataModel.getCharts()) {
-                    if (chartSettings.getChartType().equals(ChartType.LOGICAL)) {
+                for (ChartSetting chartSetting : dataModel.getCharts().getListSettings()) {
+                    if (chartSetting.getChartType().equals(ChartType.LOGICAL)) {
                         autoMinSize.set(autoMinSizeLogical);
                     } else {
                         autoMinSize.set(autoMinSizeNormal);
@@ -451,55 +508,73 @@ public class GraphPluginView implements Plugin {
 
                     BorderPane bp = new BorderPane();
                     bp.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
+                    bp.setBorder(new Border(new BorderStroke(Color.TRANSPARENT,
+                            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(4))));
 
-                    bp.setMinHeight(autoMinSize.get());
+//                    bp.setMinHeight(autoMinSize.get());
 
                     bp.setMaxWidth(sp.getMaxWidth());
 
-                    if (!chartSettings.getChartType().equals(ChartType.LOGICAL) || firstLogical) {
-                        if (chartSettings.getChartType() == ChartType.LOGICAL && firstLogical) {
-                            firstLogical = false;
-                        }
-                        /**
-                         * Add offset for every data object because of the table legend
-                         * Every row has about 25 pixel with the default font
-                         */
-                        int dataSizeOffset = 30;
-                        /** Calculate maxsize based on the amount of Data **/
-                        int dataSize = 0;
-                        if (firstLogical) dataSize = 4;
+                    /**
+                     * Add offset for every data object because of the table legend
+                     * Every row has about 25 pixel with the default font
+                     */
+                    int dataSizeOffset = 30;
+                    /** Calculate maxsize based on the amount of Data **/
+                    int dataSize = 0;
 
-                        /** hier werden von allen Charts die daten geupdatet ?? **/
-                        for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
-                            for (int i : chartDataModel.getSelectedcharts()) {
-                                if (i == chartSettings.getId()) {
-                                    dataSize++;
-                                }
-                            }
-
-                        }
-
-                        bp.setMinHeight(autoMinSize.get());
-                        bp.setPrefHeight(autoMinSize.get() + (dataSize * dataSizeOffset));
-
-
+                    Chart chart = null;
+                    if (chartSetting.getChartType() != ChartType.LOGICAL) {
+                        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, I18n.getInstance().getString("plugin.graph.message.createchart") + " " + chartSetting.getChartType());
+                        chart = getChart(chartSetting, null);
+                        allCharts.add(chart);
                     } else {
-                        bp.setPrefHeight(autoMinSize.get() + 70);
+                        dataSize = 4;
                     }
 
-                    Chart chart = getChart(chartSettings);
-                    allCharts.add(chart);
-                    if (!chartSettings.getChartType().equals(ChartType.TABLE)) {
-                        if (chartSettings.getChartType().equals(ChartType.PIE) || chartSettings.getChartType().equals(ChartType.HEAT_MAP)
-                                || chartSettings.getChartType().equals(ChartType.BUBBLE)) {
-                            bp.setCenter(chart.getRegion());
-                        } else {
-                            bp.setCenter(chart.getChart());
+                    for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
+                        for (int i : chartDataModel.getSelectedcharts()) {
+                            if (i == chartSetting.getId()) {
+                                dataSize++;
+                            }
                         }
-                    } else {
+                    }
+
+                    if (chartSetting.getChartType() != ChartType.TABLE) {
+                        switch (chartSetting.getChartType()) {
+                            case BAR:
+                            case PIE:
+                            case HEAT_MAP:
+                            case BUBBLE:
+                                if (chart != null) {
+                                    bp.setCenter(chart.getRegion());
+//                                    bp.setMinHeight(autoMinSize.get());
+                                    if (!dataModel.getCharts().getAutoSize()) {
+                                        bp.setPrefHeight(chartSetting.getHeight());
+                                    } else {
+                                        bp.setPrefHeight(autoMinSize.get() + (dataSize * dataSizeOffset));
+                                    }
+                                }
+                                break;
+                            case LOGICAL:
+                                createLogicalCharts(bp, chartSetting);
+                                break;
+                            default:
+                                if (chart != null) {
+                                    bp.setCenter(chart.getChart());
+//                                    bp.setMinHeight(autoMinSize.get());
+                                    if (!dataModel.getCharts().getAutoSize()) {
+                                        bp.setPrefHeight(chartSetting.getHeight());
+                                    } else {
+                                        bp.setPrefHeight(autoMinSize.get() + (dataSize * dataSizeOffset));
+                                    }
+                                }
+                                break;
+                        }
+                    } else if (chart != null) {
                         ScrollPane scrollPane = new ScrollPane();
 
-                        TableHeader tableHeader = new TableHeader(chartSettings.getChartType(), chart.getTableData());
+                        TableHeader tableHeader = new TableHeader(chartSetting.getChartType(), chart.getTableData());
                         tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
                         scrollPane.setContent(tableHeader);
@@ -510,17 +585,18 @@ public class GraphPluginView implements Plugin {
                         bp.setCenter(scrollPane);
                     }
 
-                    if (chartSettings.getChartType() != ChartType.PIE && chartSettings.getChartType() != ChartType.HEAT_MAP) {
-                        TableHeader tableHeader = new TableHeader(chartSettings.getChartType(), chart.getTableData());
+                    if (chartSetting.getChartType() != ChartType.PIE && chartSetting.getChartType() != ChartType.HEAT_MAP
+                            && chartSetting.getChartType() != ChartType.LOGICAL && chart != null) {
+                        TableHeader tableHeader = new TableHeader(chartSetting.getChartType(), chart.getTableData());
                         tableHeader.maxWidthProperty().bind(bp.widthProperty());
-                        if (!chartSettings.getChartType().equals(ChartType.TABLE)) {
+                        if (chartSetting.getChartType() != ChartType.TABLE) {
                             bp.setTop(tableHeader);
                         } else {
                             TableChart tableChart = (TableChart) chart;
 
                             bp.setTop(tableChart.getTopPicker());
                         }
-                    } else {
+                    } else if (chartSetting.getChartType() != ChartType.LOGICAL) {
                         bp.setTop(null);
                     }
 
@@ -531,7 +607,7 @@ public class GraphPluginView implements Plugin {
                     bp.heightProperty().addListener((observable, oldValue, newValue) -> {
                         if (newValue != null && !newValue.equals(oldValue)) {
                             try {
-                                chartSettings.setHeight(newValue.doubleValue());
+                                chartSetting.setHeight(newValue.doubleValue());
                             } catch (Exception e) {
                             }
                         }
@@ -539,7 +615,7 @@ public class GraphPluginView implements Plugin {
 
                     Separator sep = new Separator();
                     sep.setOrientation(Orientation.HORIZONTAL);
-                    if (chartSettings.getChartType() == ChartType.PIE) {
+                    if (chartSetting.getChartType() == ChartType.PIE) {
 
                         if (pieFrames.isEmpty()) {
                             HBox hBox = new HBox();
@@ -560,15 +636,11 @@ public class GraphPluginView implements Plugin {
                         noOfPie++;
 
                         if (noOfPie == horizontalPies || noOfPie == countOfPies) {
-                            int finalCurrentPieFrame = currentPieFrame;
-                            Platform.runLater(() -> {
-                                vBox.getChildren().add(pieFrames.get(finalCurrentPieFrame));
-                                vBox.getChildren().add(sep);
-                                JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Chart");
-                            });
+                            vBox.getChildren().add(pieFrames.get(currentPieFrame));
+                            vBox.getChildren().add(sep);
                             currentPieFrame++;
                         }
-                    } else if (chartSettings.getChartType() == ChartType.TABLE) {
+                    } else if (chartSetting.getChartType() == ChartType.TABLE) {
 
                         if (tableFrames.isEmpty()) {
                             HBox hBox = new HBox();
@@ -576,7 +648,7 @@ public class GraphPluginView implements Plugin {
                             tableFrames.add(hBox);
                         }
 
-                        HBox hBox = null;
+                        HBox hBox;
                         if (currentTableFrame < tableFrames.size()) {
                             hBox = tableFrames.get(currentTableFrame);
                         } else {
@@ -592,305 +664,343 @@ public class GraphPluginView implements Plugin {
                             int finalCurrentTableFrame = currentTableFrame;
                             vBox.getChildren().add(tableFrames.get(finalCurrentTableFrame));
                             vBox.getChildren().add(sep);
-                            JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Chart");
                             currentTableFrame++;
                         }
                     } else {
                         vBox.getChildren().add(bp);
                         vBox.getChildren().add(sep);
-                        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Chart");
                     }
+
+                    JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, I18n.getInstance().getString("plugin.graph.message.finishedchart") + " ");
                 }
-
-                try {
-                    toolBarView.updateLayout();
-
-                    autoSize(autoMinSize.get(), maxHeight, chartsPerScreen, vBox);
-                    formatCharts();
-
-                    JEConfig.getStatusBar().finishProgressJob(GraphPluginView.JOB_NAME, "done");
-
-                    for (ChartSettings settings : dataModel.getCharts()) {
-                        if (settings.getChartType() == ChartType.HEAT_MAP) {
-                            Platform.runLater(this::formatCharts);
-                        }
-                    }
-                } catch (Exception ex) {
-                    logger.error(ex);
-                }
-
             }
+        });
 
+        Platform.runLater(() -> {
+            toolBarView.updateLayout();
+
+            JEConfig.getStatusBar().finishProgressJob(GraphPluginView.JOB_NAME, I18n.getInstance().getString("plugin.graph.message.finishedupdate"));
+
+            StringBuilder allFormulas = new StringBuilder();
             for (Chart chart : allCharts) {
                 List<Chart> notActive = new ArrayList<>(allCharts);
                 notActive.remove(chart);
                 ChartType chartType = chart.getChartType();
 
                 setupListener(chart, notActive, chartType);
+
+                if (chart instanceof XYChart && dataModel.calcRegression()) {
+                    allFormulas.append(((XYChart) chart).getRegressionFormula().toString());
+                }
+            }
+
+            Platform.runLater(this::autoSize);
+
+            if (dataModel.calcRegression()) {
+                Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
+                infoBox.setResizable(true);
+                infoBox.setTitle(I18n.getInstance().getString("dialog.regression.title"));
+                infoBox.setHeaderText(I18n.getInstance().getString("dialog.regression.headertext"));
+                TextArea textArea = new TextArea(allFormulas.toString());
+                textArea.setWrapText(true);
+                textArea.setPrefWidth(450);
+                textArea.setPrefHeight(200);
+                infoBox.getDialogPane().setContent(textArea);
+                infoBox.show();
             }
         });
     }
 
-    private Chart getChart(ChartSettings chart) {
+    private Chart getChart(ChartSetting chart, List<ChartDataModel> chartDataModels) {
 
-        List<ChartDataModel> chartDataModels = new ArrayList<>();
+        if (chartDataModels == null) {
+            chartDataModels = new ArrayList<>();
 
-        for (ChartDataModel singleRow : dataModel.getSelectedData()) {
-            for (int i : singleRow.getSelectedcharts()) {
-                if (i == chart.getId()) {
-                    chartDataModels.add(singleRow);
+            for (ChartDataModel singleRow : dataModel.getSelectedData()) {
+                for (int i : singleRow.getSelectedcharts()) {
+                    if (i == chart.getId()) {
+                        chartDataModels.add(singleRow);
+                    }
                 }
             }
         }
-        Chart output = null;
+
         switch (chart.getChartType()) {
             case LOGICAL:
-                output = new LogicalChart(dataModel, chartDataModels, chart.getId(), chart.getName());
-                break;
+                return new LogicalChart(dataModel, chartDataModels, chart);
             case LINE:
-                output = new LineChart(dataModel, chartDataModels, chart.getId(), chart.getName());
-                break;
+                return new LineChart(dataModel, chartDataModels, chart);
             case BAR:
-                output = new BarChart(chartDataModels, dataModel.getShowIcons(), chart.getId(), chart.getName());
-                break;
+                return new BarChart(dataModel, chartDataModels, chart);
             case COLUMN:
-                output = new ColumnChart(dataModel, chartDataModels, chart.getId(), chart.getName());
-                break;
+                return new ColumnChart(dataModel, chartDataModels, chart);
             case BUBBLE:
-                output = new BubbleChart(dataModel, chartDataModels, chart.getId(), chart.getName());
-                break;
+                return new BubbleChart(dataModel, chartDataModels, chart);
             case SCATTER:
-                output = new ScatterChart(dataModel, chartDataModels, chart.getId(), chart.getName());
-                break;
+                return new ScatterChart(dataModel, chartDataModels, chart);
             case PIE:
-                output = new PieChart(dataModel, chartDataModels, chart.getId(), chart.getName());
-                break;
+                return new PieChart(dataModel, chartDataModels, chart);
             case TABLE:
-                output = new TableChart(dataModel, chartDataModels, chart.getId(), chart.getName());
-                break;
+                return new TableChart(dataModel, chartDataModels, chart);
             case HEAT_MAP:
-                output = new HeatMapChart(chartDataModels, chart.getId(), chart.getName());
-                break;
+                return new HeatMapChart(chartDataModels, chart);
             case AREA:
             default:
-                output = new AreaChart(dataModel, chartDataModels, chart.getId(), chart.getName());
-                break;
+                return new AreaChart(dataModel, chartDataModels, chart);
         }
-        return output;
     }
 
     private void formatCharts() {
-        Platform.runLater(() -> {
-            for (Chart cv : allCharts) {
-                if (cv.getChartType().equals(ChartType.BUBBLE)) {
-                    MultiAxisBubbleChart bubbleChart = (MultiAxisBubbleChart) cv.getRegion();
-                    String yUnit = ((BubbleChart) cv).getyUnit();
+        for (Chart cv : allCharts) {
+            if (cv.getChartType().equals(ChartType.BUBBLE)) {
+                MultiAxisBubbleChart bubbleChart = (MultiAxisBubbleChart) cv.getRegion();
+                String yUnit = ((BubbleChart) cv).getyUnit();
 
-                    bubbleChart.getData().forEach(numberNumberSeries -> {
-                        MultiAxisBubbleChart.Series bubbleChartSeries = (MultiAxisBubbleChart.Series) numberNumberSeries;
-                        bubbleChartSeries.getData().forEach(numberNumberData -> {
-                            Node bubble = ((MultiAxisBubbleChart.Data) numberNumberData).getNode();
-                            if (bubble instanceof StackPane) {
-                                StackPane stackPane = (StackPane) bubble;
-                                if (stackPane.getShape() != null && stackPane.getShape() instanceof Circle) {
-                                    Circle circle = (Circle) stackPane.getShape();
-                                    DoubleProperty fontSize = new SimpleDoubleProperty(20);
+                bubbleChart.getData().forEach(numberNumberSeries -> {
+                    MultiAxisBubbleChart.Series bubbleChartSeries = (MultiAxisBubbleChart.Series) numberNumberSeries;
+                    bubbleChartSeries.getData().forEach(numberNumberData -> {
+                        Node bubble = ((MultiAxisBubbleChart.Data) numberNumberData).getNode();
+                        if (bubble instanceof StackPane) {
+                            StackPane stackPane = (StackPane) bubble;
+                            if (stackPane.getShape() != null && stackPane.getShape() instanceof Circle) {
+                                Circle circle = (Circle) stackPane.getShape();
+                                DoubleProperty fontSize = new SimpleDoubleProperty(20);
 
-                                    NumberFormat nf = NumberFormat.getInstance();
-                                    nf.setMinimumFractionDigits(0);
-                                    nf.setMaximumFractionDigits(0);
-                                    String countValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getExtraValue());
-                                    nf.setMinimumFractionDigits(2);
-                                    nf.setMaximumFractionDigits(2);
-                                    String yValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getYValue());
+                                NumberFormat nf = NumberFormat.getInstance();
+                                nf.setMinimumFractionDigits(0);
+                                nf.setMaximumFractionDigits(0);
+                                String countValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getExtraValue());
+                                nf.setMinimumFractionDigits(2);
+                                nf.setMaximumFractionDigits(2);
+                                String yValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getYValue());
 
-                                    Label labelCount = new Label(countValue);
-                                    Tooltip tooltipYValue = new Tooltip(yValue + " " + yUnit);
-                                    labelCount.setAlignment(Pos.CENTER);
-                                    labelCount.setBackground(
-                                            new Background(
-                                                    new BackgroundFill(Color.WHITE, new CornerRadii(5), new Insets(1, 1, 1, 1))
-                                            )
-                                    );
+                                Label labelCount = new Label(countValue);
+                                Tooltip tooltipYValue = new Tooltip(yValue + " " + yUnit);
+                                labelCount.setAlignment(Pos.CENTER);
+                                labelCount.setBackground(
+                                        new Background(
+                                                new BackgroundFill(Color.WHITE, new CornerRadii(5), new Insets(1, 1, 1, 1))
+                                        )
+                                );
 
-                                    labelCount.setMinWidth((countValue.length() + 1) * 20d);
+                                labelCount.setMinWidth((countValue.length() + 1) * 20d);
 
 //                                    if (circle.radiusProperty().get() / 5 > 18d) {
 //                                        fontSize.bind(Bindings.divide(circle.radiusProperty(), 5));
 //                                        labelCount.minWidthProperty().bind(Bindings.divide(circle.radiusProperty(), 5).add(4));
 //                                    } else {
-                                    fontSize.set(16d);
+                                fontSize.set(16d);
 //                                    }
 
-                                    labelCount.styleProperty().bind(Bindings.concat("-fx-font-size:", fontSize.asString(), ";"));
+                                labelCount.styleProperty().bind(Bindings.concat("-fx-font-size:", fontSize.asString(), ";"));
 //                                    label.styleProperty().bind(Bindings.concat("-fx-font-size:", 20d, ";"));
-                                    Tooltip.install(bubble, tooltipYValue);
-                                    stackPane.getChildren().setAll(labelCount);
-                                }
-                                bubble.setOnMouseClicked(event -> bubble.toFront());
+                                Tooltip.install(bubble, tooltipYValue);
+                                stackPane.getChildren().setAll(labelCount);
                             }
+                            bubble.setOnMouseClicked(event -> bubble.toFront());
+                        }
+                    });
+                });
+            } else if (cv.getChartType().equals(ChartType.BAR)) {
+                javafx.scene.chart.BarChart barChart = (javafx.scene.chart.BarChart) cv.getRegion();
+                try {
+                    barChart.getData().forEach(numberNumberSeries -> {
+                        javafx.scene.chart.BarChart.Series barChartSeries = (javafx.scene.chart.BarChart.Series) numberNumberSeries;
+                        barChartSeries.getData().forEach(data -> {
+                            int index = barChartSeries.getData().indexOf(data);
+                            final StackPane node = (StackPane) ((javafx.scene.chart.BarChart.Data) data).getNode();
+                            NumberFormat nf = NumberFormat.getInstance();
+                            nf.setMinimumFractionDigits(2);
+                            nf.setMaximumFractionDigits(2);
+                            String valueString = nf.format(((javafx.scene.chart.BarChart.Data) data).getXValue());
+                            final Text dataText = new Text(valueString + "");
+                            dataText.setPickOnBounds(false);
+                            dataText.setFont(new Font(12));
+                            dataText.setFill(ColorHelper.getHighlightColor(ColorHelper.toColor(cv.getChartDataModels().get(index).getColor())));
+
+                            node.getChildren().add(dataText);
+
+                            Bounds bounds = node.getBoundsInParent();
+                            dataText.setLayoutX(Math.round(bounds.getMinX() + bounds.getWidth() + 4));
+                            dataText.setLayoutY(Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5));
                         });
                     });
-                } else if (cv.getChartType().equals(ChartType.COLUMN)) {
-//                    MultiAxisBarChart columnChart = (MultiAxisBarChart) cv.getChartRegion();
-//                    try {
-//                        columnChart.getData().forEach(numberNumberSeries -> {
-//                            MultiAxisBarChart.Series columnChartSeries = (MultiAxisBarChart.Series) numberNumberSeries;
-//                            columnChartSeries.getData().forEach(data -> {
-//                                final StackPane node = (StackPane) ((MultiAxisBarChart.Data) data).getNode();
-//                                NumberFormat nf = NumberFormat.getInstance();
-//                                nf.setMinimumFractionDigits(2);
-//                                nf.setMaximumFractionDigits(2);
-//                                String valueString = nf.format(((MultiAxisBarChart.Data) data).getYValue());
-//                                final Text dataText = new Text(valueString + "");
-//
-//                                node.getChildren().add(dataText);
-//
-//                                Bounds bounds = node.getBoundsInParent();
-//                                dataText.setLayoutX(Math.round(bounds.getMinX() + bounds.getWidth() / 2 - dataText.prefWidth(-1) / 2));
-//                                dataText.setLayoutY(Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5));
-//                            });
-//                        });
-//                    } catch (Exception e) {
-//                        logger.error(e);
-//                    }
-                } else if (cv.getChartType().equals(ChartType.BAR)) {
-                    org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart barChart = (org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart) cv.getRegion();
-                    try {
-                        barChart.getData().forEach(numberNumberSeries -> {
-                            org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart.Series barChartSeries = (org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart.Series) numberNumberSeries;
-                            barChartSeries.getData().forEach(data -> {
-                                final StackPane node = (StackPane) ((org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart.Data) data).getNode();
-                                NumberFormat nf = NumberFormat.getInstance();
-                                nf.setMinimumFractionDigits(2);
-                                nf.setMaximumFractionDigits(2);
-                                String valueString = nf.format(((org.jevis.jeconfig.application.Chart.Charts.jfx.BarChart.Data) data).getXValue());
-                                final Text dataText = new Text(valueString + "");
-                                dataText.setPickOnBounds(false);
-                                dataText.setFont(new Font(12));
+                } catch (Exception e) {
+                    logger.error(e);
+                }
 
-                                node.getChildren().add(dataText);
-
-                                Bounds bounds = node.getBoundsInParent();
-                                dataText.setLayoutX(Math.round(bounds.getMinX() + bounds.getWidth() + 4));
-                                dataText.setLayoutY(Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5));
-                            });
-                        });
-                    } catch (Exception e) {
-                        logger.error(e);
-                    }
-                } else if (cv.getChartType().equals(ChartType.HEAT_MAP)) {
-                    VBox spVer = (VBox) cv.getRegion();
-                    MatrixPane<MatrixChartItem> matrixHeatMap = null;
-                    for (Node node : spVer.getChildren()) {
-                        if (node instanceof HBox) {
-                            HBox spHor = (HBox) node;
-                            matrixHeatMap = spHor.getChildren().stream().filter(node1 -> node1 instanceof MatrixPane).findFirst().map(node1 -> (MatrixPane<MatrixChartItem>) node1).orElse(matrixHeatMap);
-                        }
-                    }
-
-                    if (matrixHeatMap != null) {
-                        double pixelHeight = matrixHeatMap.getMatrix().getPixelHeight();
-                        double pixelWidth = matrixHeatMap.getMatrix().getPixelWidth();
-                        double spacerSizeFactor = matrixHeatMap.getMatrix().getSpacerSizeFactor();
-
-                        double leftAxisWidth = 0;
-                        for (Node node : spVer.getChildren()) {
-                            if (node instanceof HBox) {
-                                HBox spHor = (HBox) node;
-                                boolean isLeftAxis = true;
-                                for (Node node1 : spHor.getChildren()) {
-                                    if (node1 instanceof GridPane) {
-                                        GridPane leftAxis = (GridPane) node1;
-                                        if (isLeftAxis) {
-                                            leftAxisWidth = leftAxis.getWidth();
-                                            isLeftAxis = false;
-                                        }
-                                        for (Node node2 : leftAxis.getChildren()) {
-                                            if (node2 instanceof Label) {
-                                                ((Label) node2).setPrefHeight(pixelHeight - (spacerSizeFactor * 2));
-                                            }
-                                        }
-                                    }
-                                }
-                            } else if (node instanceof GridPane) {
-                                GridPane bottomAxis = (GridPane) node;
-                                Node found = null;
-                                for (Node node11 : bottomAxis.getChildren()) {
-                                    if (node11 instanceof Region) {
-                                        found = node11;
-                                        break;
-                                    }
-                                }
-                                Region firstFreeSpace = (Region) found;
-                                if (firstFreeSpace != null) {
-                                    firstFreeSpace.setPrefWidth(leftAxisWidth + 4);
-                                }
-
-                                for (Node node1 : bottomAxis.getChildren()) {
-                                    if (node1 instanceof HBox) {
-                                        HBox hBox = ((HBox) node1);
-                                        if (GridPane.getRowIndex(hBox) == 0) {
-                                            hBox.setPrefWidth(pixelWidth - (spacerSizeFactor * 2));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        tp = new Tooltip("");
-
-                        HeatMapChart chart = (HeatMapChart) cv;
-
-                        double width = matrixHeatMap.getMatrix().getWidth() - matrixHeatMap.getMatrix().getInsets().getLeft() - matrixHeatMap.getMatrix().getInsets().getRight();
-                        double height = matrixHeatMap.getMatrix().getHeight() - matrixHeatMap.getMatrix().getInsets().getTop() - matrixHeatMap.getMatrix().getInsets().getBottom();
-                        double pixelSize = Math.min((width / chart.getCOLS()), (height / chart.getROWS()));
-                        double spacer = pixelSize * spacerSizeFactor;
-                        double pixelWidthMinusDoubleSpacer = pixelWidth - spacer * 2;
-                        double pixelHeightMinusDoubleSpacer = pixelHeight - spacer * 2;
-
-                        double spacerPlusPixelWidthMinusDoubleSpacer = spacer + pixelWidthMinusDoubleSpacer;
-                        double spacerPlusPixelHeightMinusDoubleSpacer = spacer + pixelHeightMinusDoubleSpacer;
-
-                        MatrixPane<MatrixChartItem> finalMatrixHeatMap = matrixHeatMap;
-                        matrixHeatMap.setOnMouseMoved(new EventHandler<MouseEvent>() {
-                            @Override
-                            public void handle(MouseEvent t) {
-                                Node node = (Node) t.getSource();
-                                for (int y = 0; y < chart.getROWS(); y++) {
-                                    for (int x = 0; x < chart.getCOLS(); x++) {
-                                        if (Helper.isInRectangle(t.getX(), t.getY(), x * pixelWidth + spacer, y * pixelHeight + spacer, x * pixelWidth + spacerPlusPixelWidthMinusDoubleSpacer, y * pixelHeight + spacerPlusPixelHeightMinusDoubleSpacer)) {
-                                            Double value = null;
-                                            for (Map.Entry<MatrixXY, Double> entry : chart.getMatrixData().entrySet()) {
-                                                MatrixXY matrixXY = entry.getKey();
-                                                if (matrixXY.getY() == y && matrixXY.getX() == x) {
-                                                    value = entry.getValue();
-                                                    break;
-                                                }
-                                            }
-
-                                            if (value != null) {
-                                                Double finalValue = value;
-                                                Platform.runLater(() -> tp.setText(finalValue.toString() + " " + chart.getUnit()));
-                                                Platform.runLater(() -> tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY()));
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        });
+                cv.applyColors();
+            } else if (cv.getChartType().equals(ChartType.HEAT_MAP)) {
+                ScrollPane sp = (ScrollPane) cv.getRegion();
+                VBox spVer = (VBox) sp.getContent();
+                MatrixPane<MatrixChartItem> matrixHeatMap = null;
+                for (Node node : spVer.getChildren()) {
+                    if (node instanceof HBox) {
+                        HBox spHor = (HBox) node;
+                        matrixHeatMap = spHor.getChildren().stream().filter(node1 -> node1 instanceof MatrixPane).findFirst().map(node1 -> (MatrixPane<MatrixChartItem>) node1).orElse(matrixHeatMap);
                     }
                 }
 
-//                cv.getChart().applyColors();
-//
-//                cv.getChart().checkForY2Axis();
-//
-//                cv.getChart().applyBounds();
-//
-//                cv.getTableView().sort();
+                if (matrixHeatMap != null) {
+                    HeatMapChart chart = (HeatMapChart) cv;
+
+                    double pixelHeight = matrixHeatMap.getMatrix().getPixelHeight();
+                    double pixelWidth = matrixHeatMap.getMatrix().getPixelWidth();
+                    double spacerSizeFactor = matrixHeatMap.getMatrix().getSpacerSizeFactor();
+                    double width = matrixHeatMap.getMatrix().getWidth() - matrixHeatMap.getMatrix().getInsets().getLeft() - matrixHeatMap.getMatrix().getInsets().getRight();
+                    double height = matrixHeatMap.getMatrix().getHeight() - matrixHeatMap.getMatrix().getInsets().getTop() - matrixHeatMap.getMatrix().getInsets().getBottom();
+                    double pixelSize = Math.min((width / chart.getCOLS()), (height / chart.getROWS()));
+                    double spacer = pixelSize * spacerSizeFactor;
+
+                    double leftAxisWidth = 0;
+                    double rightAxisWidth = 0;
+                    int bottomAxisIndex = 0;
+                    Canvas bottomXAxis = null;
+
+                    for (Node node : spVer.getChildren()) {
+                        if (node instanceof HBox) {
+                            HBox spHor = (HBox) node;
+                            boolean isLeftAxis = true;
+                            for (Node node1 : spHor.getChildren()) {
+                                if (node1 instanceof GridPane) {
+                                    GridPane axis = (GridPane) node1;
+
+                                    for (Node node2 : axis.getChildren()) {
+                                        if (node2 instanceof Label) {
+                                            boolean isOk = false;
+                                            double newHeight = pixelHeight - 2;
+                                            Font font = ((Label) node2).getFont();
+                                            if (newHeight < 13) {
+                                                final Label test = new Label(((Label) node2).getText());
+                                                test.setFont(font);
+                                                while (!isOk) {
+                                                    double height1 = test.getLayoutBounds().getHeight();
+                                                    if (height1 > pixelHeight - 2) {
+                                                        newHeight = newHeight - 0.05;
+                                                        test.setFont(new Font(font.getName(), newHeight));
+                                                    } else {
+                                                        isOk = true;
+                                                    }
+                                                }
+                                            }
+
+                                            if (newHeight < 12) {
+                                                ((Label) node2).setFont(new Font(font.getName(), newHeight));
+                                            }
+
+                                            ((Label) node2).setPrefHeight(pixelHeight);
+
+                                            final Label test = new Label(((Label) node2).getText());
+                                            test.setFont(((Label) node2).getFont());
+                                            double newWidth = test.getLayoutBounds().getWidth();
+
+                                            if (isLeftAxis) {
+                                                leftAxisWidth = Math.max(newWidth, axis.getLayoutBounds().getWidth());
+                                                isLeftAxis = false;
+                                            } else {
+                                                rightAxisWidth = Math.max(newWidth, axis.getLayoutBounds().getWidth());
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        } else if (node instanceof GridPane || node instanceof Canvas) {
+
+                            List<DateTime> xAxisList = chart.getxAxisList();
+                            String X_FORMAT = chart.getX_FORMAT();
+
+                            bottomXAxis = new Canvas(leftAxisWidth + width + rightAxisWidth, 30);
+                            GraphicsContext gc = bottomXAxis.getGraphicsContext2D();
+                            double x = leftAxisWidth + 4 + spacer + pixelWidth / 2;
+
+                            for (DateTime dateTime : xAxisList) {
+                                String ts = dateTime.toString(X_FORMAT);
+                                Text text = new Text(ts);
+                                Font helvetica = Font.font("Helvetica", 12);
+                                text.setFont(helvetica);
+
+                                final double textWidth = text.getLayoutBounds().getWidth();
+                                final double textHeight = text.getLayoutBounds().getHeight();
+
+                                gc.setFont(helvetica);
+
+                                if (dateTime.getMinuteOfHour() == 0) {
+
+                                    gc.fillRect(x, 0, 2, 10);
+                                    gc.fillText(ts, x - textWidth / 2, 10 + textHeight + 2);
+
+                                } else if (dateTime.getMinuteOfHour() % 15 == 0) {
+                                    gc.fillRect(x, 0, 1, 7);
+                                }
+
+                                x += pixelWidth;
+                            }
+
+                            bottomAxisIndex = spVer.getChildren().indexOf(node);
+                        }
+                    }
+
+                    if (bottomXAxis != null) {
+                        spVer.getChildren().set(bottomAxisIndex, bottomXAxis);
+                    }
+
+                    MatrixPane<MatrixChartItem> finalMatrixHeatMap = matrixHeatMap;
+                    matrixHeatMap.setOnMouseMoved(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(MouseEvent t) {
+                            Node node = (Node) t.getSource();
+                            for (Node node1 : finalMatrixHeatMap.getMatrix().getChildren()) {
+                                if (node1 instanceof Canvas) {
+                                    Canvas canvas = (Canvas) node1;
+                                    // listen to only events within the canvas
+                                    final Point2D mouseLoc = new Point2D(t.getScreenX(), t.getScreenY());
+                                    final Bounds screenBounds = canvas.localToScreen(canvas.getBoundsInLocal());
+
+                                    double pixelHeight = finalMatrixHeatMap.getMatrix().getPixelHeight();
+                                    double pixelWidth = finalMatrixHeatMap.getMatrix().getPixelWidth();
+                                    double spacerSizeFactor = finalMatrixHeatMap.getMatrix().getSpacerSizeFactor();
+                                    double width = finalMatrixHeatMap.getMatrix().getWidth() - finalMatrixHeatMap.getMatrix().getInsets().getLeft() - finalMatrixHeatMap.getMatrix().getInsets().getRight();
+                                    double height = finalMatrixHeatMap.getMatrix().getHeight() - finalMatrixHeatMap.getMatrix().getInsets().getTop() - finalMatrixHeatMap.getMatrix().getInsets().getBottom();
+                                    double pixelSize = Math.min((width / chart.getCOLS()), (height / chart.getROWS()));
+                                    double spacer = pixelSize * spacerSizeFactor;
+                                    double pixelWidthMinusDoubleSpacer = pixelWidth - spacer * 2;
+                                    double pixelHeightMinusDoubleSpacer = pixelHeight - spacer * 2;
+
+                                    double spacerPlusPixelWidthMinusDoubleSpacer = spacer + pixelWidthMinusDoubleSpacer;
+                                    double spacerPlusPixelHeightMinusDoubleSpacer = spacer + pixelHeightMinusDoubleSpacer;
+
+                                    if (screenBounds.contains(mouseLoc)) {
+                                        for (int y = 0; y < chart.getROWS(); y++) {
+                                            for (int x = 0; x < chart.getCOLS(); x++) {
+                                                if (Helper.isInRectangle(t.getX(), t.getY(), x * pixelWidth + spacer, y * pixelHeight + spacer, x * pixelWidth + spacerPlusPixelWidthMinusDoubleSpacer, y * pixelHeight + spacerPlusPixelHeightMinusDoubleSpacer)) {
+                                                    Double value = null;
+                                                    for (Map.Entry<MatrixXY, Double> entry : chart.getMatrixData().entrySet()) {
+                                                        MatrixXY matrixXY = entry.getKey();
+                                                        if (matrixXY.getY() == y && matrixXY.getX() == x) {
+                                                            value = entry.getValue();
+                                                            break;
+                                                        }
+                                                    }
+
+                                                    if (value != null) {
+                                                        Double finalValue = value;
+                                                        Platform.runLater(() -> tp.setText(finalValue.toString() + " " + chart.getUnit()));
+                                                        Platform.runLater(() -> tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY()));
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        Platform.runLater(() -> tp.hide());
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
             }
-        });
+        }
     }
 
     private void autoSize(Double autoMinSize, double maxHeight, Long chartsPerScreen, VBox vBox) {
@@ -898,60 +1008,76 @@ public class GraphPluginView implements Plugin {
          * If auto size is on or if its only one chart scale the chart to maximize screen size
          */
 
-        if (!hasLogicalCharts()) {
-            if (dataModel.getCharts().size() == 1 || dataModel.getAutoResize()) {
+//        if (!hasLogicalCharts()) {
+        if (dataModel.getCharts().getListSettings().size() == 1 || dataModel.getAutoResize()) {
+            /**
+             * If all children take more space then the maximum available size
+             * set all on min size. after this the free space will be reallocate
+             */
+            totalPrefHeight = calculationTotalPrefSize(vBox);
+
+            if (chartsPerScreen != null && dataModel.getCharts().getListSettings().size() > 1) {
+                ObservableList<Node> children = vBox.getChildren();
+                int noOfCharts = (int) children.stream().filter(node -> node instanceof Separator).count();
+
+                double height = border.getHeight() - (4.5 * noOfCharts);
+
+                for (Node node : children) {
+                    if (node instanceof BorderPane) {
+                        boolean isLogical = false;
+
+                        for (Node node1 : ((BorderPane) node).getChildren()) {
+                            if (node1 instanceof VBox) {
+                                isLogical = true;
+
+                                for (Node node2 : ((VBox) node1).getChildren()) {
+                                    if (node2 instanceof de.gsi.chart.XYChart) {
+                                        ((de.gsi.chart.XYChart) node2).setMaxHeight((height) / (chartsPerScreen * 3));
+                                    }
+                                }
+
+                                break;
+                            }
+                        }
+
+                        if (!isLogical) {
+                            ((BorderPane) node).setPrefHeight((height) / chartsPerScreen);
+                        }
+                    } else if (node instanceof HBox) {
+                        ((HBox) node).setPrefHeight((height) / chartsPerScreen);
+                    }
+                }
+            } else {
+                if (totalPrefHeight > maxHeight) {
+                    for (Node node : vBox.getChildren()) {
+                        if (node instanceof BorderPane) {
+                            ((BorderPane) node).setPrefHeight(autoMinSize);
+                        } else if (node instanceof HBox) {
+                            ((HBox) node).setPrefHeight(autoMinSize);
+                        }
+                    }
+                }
+
                 /**
-                 * If all children take more space then the maximum available size
-                 * set all on min size. after this the free space will be reallocate
+                 * Recalculate total prefsize
                  */
                 totalPrefHeight = calculationTotalPrefSize(vBox);
 
-                if (chartsPerScreen != null && dataModel.getCharts().size() > 1) {
-                    ObservableList<Node> children = vBox.getChildren();
-                    int i = 0;
-                    for (Node node : children) {
-                        if (node instanceof Separator) i++;
-                    }
-                    double height = border.getHeight() - (4.5 * i);
-
-                    for (Node node : children) {
-                        if (node instanceof BorderPane) {
-                            ((BorderPane) node).setPrefHeight((height) / chartsPerScreen);
-                        } else if (node instanceof HBox) {
-                            ((HBox) node).setPrefHeight((height) / chartsPerScreen);
+                /**
+                 * Reallocate free space equal to all children
+                 */
+                if (totalPrefHeight < maxHeight) {
+                    /** size/2 because there is an separator for every chart **/
+                    final double freeSpacePart = (maxHeight - totalPrefHeight) / (vBox.getChildren().size() / 2);
+                    for (Node node : vBox.getChildren()) {
+                        if (node instanceof Pane) {
+                            ((Pane) node).setPrefHeight(((Pane) node).getPrefHeight() + freeSpacePart);
                         }
-                    }
-                } else {
-                    if (totalPrefHeight > maxHeight) {
-                        for (Node node : vBox.getChildren()) {
-                            if (node instanceof BorderPane) {
-                                ((BorderPane) node).setPrefHeight(autoMinSize);
-                            } else if (node instanceof HBox) {
-                                ((HBox) node).setPrefHeight(autoMinSize);
-                            }
-                        }
-                    }
-
-                    /**
-                     * Recalculate total prefsize
-                     */
-                    totalPrefHeight = calculationTotalPrefSize(vBox);
-
-                    /**
-                     * Reallocate free space equal to all children
-                     */
-                    if (totalPrefHeight < maxHeight) {
-                        /** size/2 because there is an separator for every chart **/
-                        final double freeSpacePart = (maxHeight - totalPrefHeight) / (vBox.getChildren().size() / 2);
-                        vBox.getChildren().forEach(node -> {
-                            if (node instanceof Pane) {
-                                ((Pane) node).setPrefHeight(((Pane) node).getPrefHeight() + freeSpacePart);
-                            }
-                        });
                     }
                 }
             }
         }
+//        }
 
         Platform.runLater(vBox::toFront);
     }
@@ -965,7 +1091,7 @@ public class GraphPluginView implements Plugin {
                 /**
                  * clear old model
                  */
-                dataModel.setCharts(new ArrayList<>());
+                dataModel.setCharts(new ChartSettings());
                 dataModel.setData(new HashSet<>());
 
                 AnalysisRequest analysisRequest = (AnalysisRequest) object;
@@ -973,7 +1099,7 @@ public class GraphPluginView implements Plugin {
                 if (jeVisObject.getJEVisClassName().equals("Analysis")) {
 
                     dataModel.setCurrentAnalysis(analysisRequest.getObject());
-                    dataModel.setCharts(new ArrayList<>());
+                    dataModel.setCharts(new ChartSettings());
                     dataModel.updateSelectedData();
 
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
@@ -983,9 +1109,12 @@ public class GraphPluginView implements Plugin {
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
 
                     dataModel.isGlobalAnalysisTimeFrame(true);
-
                     dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
+                    Platform.runLater(() -> {
+                        toolBarView.setChanged(false);
+                        dataModel.setChanged(false);
+                    });
 
                 } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
 
@@ -1011,15 +1140,15 @@ public class GraphPluginView implements Plugin {
                     Set<ChartDataModel> chartDataModels = new HashSet<>();
                     chartDataModels.add(chartDataModel);
 
-                    ChartSettings chartSettings = new ChartSettings(chartDataModel.getObject().getName());
-                    chartSettings.setId(0);
-                    chartSettings.setChartType(ChartType.AREA);
-                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.PREVIEW);
+                    ChartSetting chartSetting = new ChartSetting(chartDataModel.getObject().getName());
+                    chartSetting.setId(0);
+                    chartSetting.setChartType(ChartType.AREA);
+                    AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     analysisTimeFrame.setStart(analysisRequest.getStartDate());
                     analysisTimeFrame.setEnd(analysisRequest.getEndDate());
-                    chartSettings.setAnalysisTimeFrame(analysisTimeFrame);
-                    List<ChartSettings> chartSettingsList = new ArrayList<>();
-                    chartSettingsList.add(chartSettings);
+                    chartSetting.setAnalysisTimeFrame(analysisTimeFrame);
+                    List<ChartSetting> chartSettingList = new ArrayList<>();
+                    chartSettingList.add(chartSetting);
 
                     org.jevis.commons.ws.json.JsonObject newJsonObject = new JsonObject();
                     newJsonObject.setName("Temp");
@@ -1033,18 +1162,22 @@ public class GraphPluginView implements Plugin {
                     };
                     dataModel.setTemporary(true);
                     dataModel.setCurrentAnalysisNOEVENT(newObject);
-                    dataModel.setCharts(chartSettingsList);
+                    dataModel.getCharts().setListSettings(chartSettingList);
                     dataModel.setData(chartDataModels);
                     dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
                     dataModel.isGlobalAnalysisTimeFrame(true);
                     dataModel.setGlobalAnalysisTimeFrameNOEVENT(analysisTimeFrame);
                     toolBarView.getPickerCombo().updateCellFactory();
-                    dataModel.update();
+                    dataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
+
+                    Platform.runLater(() -> {
+                        toolBarView.setChanged(false);
+                        dataModel.setChanged(false);
+                    });
 
                 }
 
-                toolBarView.setChanged(true);
                 toolBarView.setDisableToolBarIcons(false);
             }
 
@@ -1068,17 +1201,20 @@ public class GraphPluginView implements Plugin {
                 case AREA:
                 case LINE:
                 case SCATTER:
-
                     setupNoteDialog(cv);
 
                     setupMouseMoved(cv, notActive);
 
                     setupLinkedZoom(cv, notActive);
 
-                    setupDoubleClick(cv, notActive);
+                    setupLabelRenderer(cv);
                     break;
                 case LOGICAL:
+                    setupNoteDialog(cv);
+
                     setupMouseMoved(cv, notActive);
+
+                    setupLinkedZoom(cv, notActive);
                     break;
                 case TABLE:
                     TableChart chart = (TableChart) cv;
@@ -1135,6 +1271,20 @@ public class GraphPluginView implements Plugin {
         }
     }
 
+    private void setupLabelRenderer(Chart cv) {
+
+        XYChart xyChart = (XYChart) cv;
+        CustomMarkerRenderer labelledMarkerRenderer = new CustomMarkerRenderer(xyChart.getXyChartSerieList());
+
+        if (xyChart.getShowIcons()) {
+            for (XYChartSerie xyChartSerie : xyChart.getXyChartSerieList()) {
+                labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
+            }
+
+            cv.getChart().getRenderers().add(labelledMarkerRenderer);
+        }
+    }
+
     private void setupMouseMovedBubble(Chart cv) {
         MultiAxisBubbleChart bubbleChart = (MultiAxisBubbleChart) cv.getRegion();
         bubbleChart.setOnMouseMoved(event -> {
@@ -1149,104 +1299,15 @@ public class GraphPluginView implements Plugin {
 
     private void setupMouseMoved(Chart cv, List<Chart> notActive) {
 
-        XYChart xyChart = (XYChart) cv;
-
-        DataPointTableViewPointer dataPointTableViewPointer = new DataPointTableViewPointer(xyChart.getTableData(), xyChart.getValueTreeMaps(),
-                xyChart.getNoteMaps(), xyChart.isAsDuration(), xyChart.getTimeStampOfFirstSample().get());
+        DataPointTableViewPointer dataPointTableViewPointer = new DataPointTableViewPointer(cv, notActive);
         cv.getChart().getPlugins().add(dataPointTableViewPointer);
-
-        dataPointTableViewPointer.valueForDisplayProperty().addListener((observable, oldValue, newValue) -> {
-            notActive.forEach(chart -> {
-                if (!chart.getChartType().equals(ChartType.PIE)
-                        && !chart.getChartType().equals(ChartType.BAR)
-                        && !chart.getChartType().equals(ChartType.BUBBLE)
-                        && !chart.getChartType().equals(ChartType.TABLE)) {
-                    chart.getChart().getPlugins().forEach(chartPlugin -> {
-                        if (chartPlugin instanceof DataPointTableViewPointer) {
-                            ((DataPointTableViewPointer) chartPlugin).updateTable(newValue);
-                        }
-                    });
-                } else if (chart.getChartType().equals(ChartType.TABLE)) {
-
-                    TableChart tableChart = (TableChart) chart;
-                    tableChart.updateTable(null, cv.getValueForDisplay());
-                    tableChart.setBlockDatePickerEvent(true);
-                    TableTopDatePicker tableTopDatePicker = tableChart.getTableTopDatePicker();
-                    ComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
-                    Platform.runLater(() -> {
-                        datePicker.getSelectionModel().select(newValue);
-                        tableChart.setBlockDatePickerEvent(false);
-                    });
-                }
-            });
-        });
     }
 
     private void setupLinkedZoom(Chart ac, List<Chart> notActive) {
 
-        MultiChartZoomer multiChartZoomer = new MultiChartZoomer(AxisMode.X, notActive, ac);
+        MultiChartZoomer multiChartZoomer = new MultiChartZoomer(this, AxisMode.X, notActive, ac);
+        multiChartZoomer.setSliderVisible(false);
         ac.getChart().getPlugins().add(multiChartZoomer);
-
-//        ac.getChart().getPlugins().forEach(chartPlugin -> {
-//            if (chartPlugin instanceof MultiChartZoomer) {
-//                MultiChartZoomer zoomer = (MultiChartZoomer) chartPlugin;
-//                zoomer.zoomedInProperty().addListener((observable, oldValue, newValue) -> {
-//                    if (newValue) {
-//                        double valueForDisplayLeft = ((XYChart) ac).getDateAxis().getValueForDisplay(zoomer.getZoomRectangle().getX());
-//                        DateTime start = new DateTime((long) (valueForDisplayLeft * 1000));
-//                        double x2 = zoomer.getZoomRectangle().getX() + zoomer.getZoomRectangle().getWidth();
-//                        double valueForDisplayRight = ((XYChart) ac).getDateAxis().getValueForDisplay(x2);
-//                        DateTime end = new DateTime((long) (valueForDisplayRight * 1000));
-//
-//                        ac.updateTableZoom(valueForDisplayLeft, valueForDisplayRight);
-//
-//                        notActive.forEach(na -> {
-//                            double displayPositionLeftX = ((XYChart) na).getDateAxis().getDisplayPosition(valueForDisplayLeft);
-//                            double displayPositionRightX = ((XYChart) na).getDateAxis().getDisplayPosition(valueForDisplayRight);
-//                            double width = displayPositionRightX - displayPositionLeftX;
-//                            na.updateTableZoom(valueForDisplayLeft, valueForDisplayRight);
-//
-//                            na.getChart().getPlugins().forEach(naChartPlugin -> {
-//                                if (naChartPlugin instanceof MultiChartZoomer) {
-//                                    MultiChartZoomer zoomer1 = (MultiChartZoomer) naChartPlugin;
-//                                    zoomer1.getZoomRectangle().setX(displayPositionLeftX);
-//                                    zoomer1.getZoomRectangle().setY(zoomer.getZoomRectangle().getY());
-//                                    zoomer1.getZoomRectangle().setHeight(zoomer.getZoomRectangle().getHeight());
-//                                    zoomer1.getZoomRectangle().setWidth(width);
-//                                    zoomer1.getZoomRectangle().setArcHeight(zoomer.getZoomRectangle().getArcHeight());
-//                                    zoomer1.getZoomRectangle().setArcWidth(zoomer.getZoomRectangle().getArcWidth());
-//                                    zoomer1.zoomFromOtherChart();
-//                                }
-//                            });
-//                        });
-//                    }
-//                });
-//            }
-//        });
-    }
-
-    private void setupDoubleClick(Chart cv, List<Chart> notActive) {
-//        cv.getChart().getPlugins().forEach(chartPlugin -> {
-//            if (chartPlugin instanceof MultiChartZoomer) {
-//                MultiChartZoomer zoomer = (MultiChartZoomer) chartPlugin;
-//                zoomer.zoomedOutProperty().addListener((observable, oldValue, newValue) -> {
-//                    if (newValue) {
-//                        double valueForDisplayLeft = ((XYChart) cv).getDateAxis().getValueForDisplay(zoomer.getZoomRectangle().getX());
-//                        double valueForDisplayRight = ((XYChart) cv).getDateAxis().getValueForDisplay(zoomer.getZoomRectangle().getX() + zoomer.getZoomRectangle().getWidth());
-//                        cv.updateTableZoom(valueForDisplayLeft, valueForDisplayRight);
-//                        notActive.forEach(na -> {
-//                            na.updateTableZoom(valueForDisplayLeft, valueForDisplayRight);
-//                            na.getChart().getPlugins().forEach(naChartPlugin -> {
-//                                if (naChartPlugin instanceof MultiChartZoomer) {
-//                                    MultiChartZoomer zoomer1 = (MultiChartZoomer) naChartPlugin;
-//                                    zoomer1.zoomOut();
-//                                }
-//                            });
-//                        });
-//                    }
-//                });
-//            }
-//        });
     }
 
     private double calculationTotalPrefSize(Pane pane) {
@@ -1262,86 +1323,60 @@ public class GraphPluginView implements Plugin {
         return totalPrefHight;
     }
 
-    private boolean dataModelHasLogicalCharts() {
-        boolean hasLogicalCharts = false;
-        for (ChartSettings chartSettings : dataModel.getCharts()) {
-            if (chartSettings.getChartType().equals(ChartType.LOGICAL)) {
-                hasLogicalCharts = true;
-                break;
-            }
-        }
-        return hasLogicalCharts;
-    }
+    private void createLogicalCharts(BorderPane bp, ChartSetting chartSetting) {
+        List<LogicalChart> subCharts = new ArrayList<>();
+        VBox vboxSubs = new VBox();
 
-    private boolean hasLogicalCharts() {
-        boolean hasLogicalCharts = false;
-        for (ChartSettings chartSettings : dataModel.getCharts()) {
-            if (chartSettings.getChartType().equals(ChartType.LOGICAL)) {
-                hasLogicalCharts = true;
-                break;
-            }
-        }
-        return hasLogicalCharts;
-    }
-
-    private void createLogicalChart(ChartSettings chart, int chartID, ChartType type) {
-        List<ChartView> subCharts = new ArrayList<>();
         for (ChartDataModel singleRow : dataModel.getSelectedData()) {
             for (int i : singleRow.getSelectedcharts()) {
-                if (i == chart.getId()) {
-                    ChartView subView = new ChartView(dataModel);
-                    subView.setSingleRow(singleRow);
-                    subCharts.add(subView);
+                if (i == chartSetting.getId()) {
+                    Chart subView = getChart(chartSetting, Collections.singletonList(singleRow));
+                    LogicalChart logicalChart = (LogicalChart) subView;
+                    subCharts.add(logicalChart);
                 }
             }
         }
         AlphanumComparator ac = new AlphanumComparator();
-        subCharts.sort((o1, o2) -> ac.compare(o1.getSingleRow().getObject().getName(), o2.getSingleRow().getObject().getName()));
 
-        boolean firstChart = true;
-        ObservableList<TableEntry> allEntries = null;
+        subCharts.sort((o1, o2) -> ac.compare(o1.getChartDataModels().get(0).getTitle(), o2.getChartDataModels().get(0).getTitle()));
+        subCharts.forEach(subChart -> vboxSubs.getChildren().add(subChart.getChart()));
+
+        ObservableList<TableEntry> allEntries = FXCollections.observableArrayList();
         Double minValue = Double.MAX_VALUE;
         Double maxValue = -Double.MAX_VALUE;
-        for (ChartView chartView : subCharts) {
-            if (firstChart) {
-                chartView.setFirstLogical(true);
-                chartView.setShowTable(true);
-            } else {
-                chartView.setShowTable(false);
+
+        for (LogicalChart logicalChart : subCharts) {
+            if (subCharts.indexOf(logicalChart) > 0) {
+                logicalChart.getChart().setTitle(null);
             }
+            allEntries.addAll(logicalChart.getTableData());
 
-            chartView.drawAreaChart(chartID, chartView.getSingleRow(), type); /** this one takes the most loading time **/
-//            chartView.getSingleRow().calcMinAndMax();
-//            double min = ((LogicalChart) chartView.getChart()).getMinValue();
-//            double max = ((LogicalChart) chartView.getChart()).getMaxValue();
-//            minValue = Math.min(minValue, min);
-//            maxValue = Math.max(maxValue, max);
-
-//            if (firstChart) {
-//                allEntries = chartView.getChart().getTableData();
-//            } else {
-//                chartView.getChart().getChart().setTitle("");
-//                allEntries.addAll(chartView.getChart().getTableData());
-//            }
-
-            firstChart = false;
+            logicalChart.getChartDataModels().get(0).setColor(ColorHelper.toRGBCode(ColorColumn.color_list[subCharts.indexOf(logicalChart)]));
+            logicalChart.getChartDataModels().get(0).calcMinAndMax();
+            double min = logicalChart.getMinValue();
+            double max = logicalChart.getMaxValue();
+            minValue = Math.min(minValue, min);
+            maxValue = Math.max(maxValue, max);
         }
 
-//        if (!minValue.equals(Double.MAX_VALUE) && !maxValue.equals(-Double.MAX_VALUE)) {
-//            for (ChartView chartView : subCharts) {
-//                ((MultiAxisChart) chartView.getChart().getChart()).getY1Axis().setAutoRanging(false);
-//                ((MultiAxisChart) chartView.getChart().getChart()).getY2Axis().setAutoRanging(false);
-//                ((NumberAxis) ((MultiAxisChart) chartView.getChart().getChart()).getY1Axis()).setLowerBound(minValue);
-//                ((NumberAxis) ((MultiAxisChart) chartView.getChart().getChart()).getY1Axis()).setUpperBound(maxValue);
-//                ((NumberAxis) ((MultiAxisChart) chartView.getChart().getChart()).getY2Axis()).setLowerBound(minValue);
-//                ((NumberAxis) ((MultiAxisChart) chartView.getChart().getChart()).getY2Axis()).setUpperBound(maxValue);
-//                ((MultiAxisChart) chartView.getChart().getChart()).getY1Axis().layout();
-//                ((MultiAxisChart) chartView.getChart().getChart()).getY2Axis().layout();
-//                chartView.getChart().getChart().layout();
-//            }
-//        }
+        allEntries.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+        TableHeader tableHeader = new TableHeader(ChartType.LOGICAL, allEntries);
+        bp.setTop(tableHeader);
 
-//        charts.addAll(subCharts);
+        if (!minValue.equals(Double.MAX_VALUE) && !maxValue.equals(-Double.MAX_VALUE)) {
+            for (LogicalChart logicalChart : subCharts) {
+                for (Axis axis : logicalChart.getChart().getAxes()) {
+                    if (axis.getSide().isVertical()) {
+                        axis.setAutoRanging(false);
+                    } else {
+                        axis.set(minValue, maxValue);
+                    }
+                }
+            }
+        }
+
+        bp.setCenter(vboxSubs);
+        allCharts.addAll(subCharts);
     }
 
     public VBox getvBox() {
@@ -1356,7 +1391,19 @@ public class GraphPluginView implements Plugin {
         return xAxisUpperBound;
     }
 
+    public void setxAxisLowerBound(Double xAxisLowerBound) {
+        this.xAxisLowerBound = xAxisLowerBound;
+    }
+
+    public void setxAxisUpperBound(Double xAxisUpperBound) {
+        this.xAxisUpperBound = xAxisUpperBound;
+    }
+
     public boolean isZoomed() {
         return zoomed;
+    }
+
+    public void setZoomed(boolean zoomed) {
+        this.zoomed = zoomed;
     }
 }

@@ -19,6 +19,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.config.DataModelNode;
@@ -86,8 +87,8 @@ public class DataModelDataHandler {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         TabPane tabPane = new TabPane();
         getDataModel().forEach(chartDataModel -> {
-            SampleTable sampleTable = new SampleTable(chartDataModel.getAttribute(), DateTimeZone.getDefault(),chartDataModel.getSamples());
-            Tab tab = new Tab(chartDataModel.getObject().getName()+":"+chartDataModel.getAttribute().getName(),sampleTable);
+            SampleTable sampleTable = new SampleTable(chartDataModel.getAttribute(), DateTimeZone.getDefault(), chartDataModel.getSamples());
+            Tab tab = new Tab(chartDataModel.getObject().getName() + ":" + chartDataModel.getAttribute().getName(), sampleTable);
             tabPane.getTabs().add(tab);
         });
         alert.setGraphic(null);
@@ -180,6 +181,9 @@ public class DataModelDataHandler {
 
                         chartDataModel.setManipulationMode(dataPointNode.getManipulationMode());
                         chartDataModel.setAggregationPeriod(dataPointNode.getAggregationPeriod());
+                        List<Integer> integerList = new ArrayList<>();
+                        integerList.add(0);
+                        chartDataModel.setSelectedCharts(integerList);
                         chartDataModel.setAxis(0);
 
                         if (dataPointNode.getColor() != null) {
@@ -188,6 +192,9 @@ public class DataModelDataHandler {
                             chartDataModel.setColor(ColorHelper.toRGBCode(Color.LIGHTBLUE));
                         }
 
+                        if (dataPointNode.getUnit() != null) {
+                            chartDataModel.setUnit(ChartUnits.parseUnit(dataPointNode.getUnit()));
+                        }
 
                         this.chartDataModels.add(chartDataModel);
                         this.attributeMap.put(generateValueKey(jeVisAttribute), jeVisAttribute);
@@ -352,6 +359,10 @@ public class DataModelDataHandler {
                 dataNode.put("aggregationPeriod", dataPointNode.getAggregationPeriod().toString());
                 dataNode.put("manipulationMode", dataPointNode.getManipulationMode().toString());
                 dataNode.put("absolute", dataPointNode.isAbsolute());
+
+                if (dataPointNode.getUnit() != null) {
+                    dataNode.put("unit", dataPointNode.getUnit());
+                }
 
                 dataNode.put("enpi", dataPointNode.getCleanObjectID() != null);
                 if (dataPointNode.getCleanObjectID() != null) {

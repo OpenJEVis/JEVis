@@ -65,11 +65,21 @@ public class HTTPConnection {
     private final String username;
     private final String password;
     private int readTimeout = 88140;//mils
+    enum Trust
+    {
+        ALWAYS, SYSTEM;
+    }
+    private Trust trustmode=Trust.ALWAYS;
 
-    public HTTPConnection(String baseurl, String username, String password) {
+    public HTTPConnection(String baseurl, String username, String password, Trust trustMode) {
         this.baseURL = baseurl;
         this.username = username;
         this.password = password;
+        this.trustmode=trustMode;
+        if(trustMode==Trust.ALWAYS){
+            logger.error("Enable trust for self signed certificates");
+            HTTPConnection.trustAllCertificates();
+        }
     }
 
     public static StringBuffer getPayload(HttpURLConnection conn) throws IOException {
@@ -278,8 +288,8 @@ public class HTTPConnection {
             }
 
             BufferedReader in = new BufferedReader(streamReader);
-           // BufferedReader in = new BufferedReader(
-           //         new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
+            // BufferedReader in = new BufferedReader(
+            //         new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
             String inputLine;
             StringBuffer response = new StringBuffer();
 
@@ -295,7 +305,7 @@ public class HTTPConnection {
             logger.trace("HTTP request closed after: " + ((new Date()).getTime() - start.getTime()) + " msec");
             return response;
         } else {
-            logger.error("Error getResponseCode: {} for '{}'",responseCode ,resource);
+            logger.error("Error getResponseCode: {} for '{}'", responseCode, resource);
             throw new JEVisException("[" + responseCode + "] ", responseCode);
 
 //            return null;
@@ -307,24 +317,19 @@ public class HTTPConnection {
         Date start = new Date();
         //replace spaces
         resource = resource.replaceAll("\\s+", "%20");
-//        logger.trace("after replcae: {}", resource);
-        URL url = new URL(this.baseURL + "/" + resource);
 
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-        conn.setRequestProperty("Accept-Charset", "UTF-8");
-        conn.setRequestProperty("User-Agent", "JEAPI-WS");
-        addAuth(conn, this.username, this.password);
 
-        logger.debug("HTTP request {}", conn.getURL());
+        URL url = new URL(this.baseURL + resource);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+        con.setDoOutput(true);
 
-        conn.connect();
-        int responseCode = conn.getResponseCode();
-
-        if (responseCode == HttpURLConnection.HTTP_OK) {
+        if (con.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            logger.debug("Code is not OK return null");
+            return null;
+        } else {
             BufferedReader in = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+                    new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
             String inputLine;
             StringBuffer response = new StringBuffer();
 
@@ -335,15 +340,10 @@ public class HTTPConnection {
                 response.append(inputLine);
             }
             in.close();
-//            logger.trace("Payload: {}", response);
-
             logger.trace("HTTP request closed after: " + ((new Date()).getTime() - start.getTime()) + " msec");
-            return response;
-        } else {
-            logger.trace("Code is not OK return null");
-            return null;
-        }
 
+            return response;
+        }
     }
 
     /**

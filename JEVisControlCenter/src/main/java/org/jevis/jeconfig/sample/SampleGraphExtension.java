@@ -21,6 +21,7 @@ package org.jevis.jeconfig.sample;
 
 import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.AxisLabelOverlapPolicy;
+import de.gsi.chart.axes.AxisMode;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
 import de.gsi.chart.plugins.DataPointTooltip;
@@ -29,6 +30,7 @@ import de.gsi.chart.renderer.LineStyle;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
 import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import org.apache.logging.log4j.LogManager;
@@ -65,6 +67,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
     private void buildGui(JEVisAttribute attribute, List<JEVisSample> samples) {
 
         BorderPane bp = new BorderPane();
+        bp.setPadding(new Insets(10));
         bp.setStyle("-fx-background-color: transparent");
 
         try {
@@ -107,7 +110,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
 
                 final XYChart chart = new XYChart(xAxis, yAxis);
                 chart.legendVisibleProperty().set(false);
-                chart.getPlugins().add(new Zoomer());
+                chart.getPlugins().add(new Zoomer(AxisMode.X));
                 //            chart.getPlugins().add(new EditAxis());
 
                 DataPointTooltip dataPointTooltip = new DataPointTooltip();
@@ -124,9 +127,10 @@ public class SampleGraphExtension implements SampleEditorExtension {
 
                 ErrorDataSetRenderer renderer = new ErrorDataSetRenderer();
                 renderer.setPolyLineStyle(LineStyle.AREA);
+                renderer.setDrawMarker(false);
                 renderer.getDatasets().add(dataSet);
 
-                chart.getRenderers().add(renderer);
+                chart.getRenderers().set(0, renderer);
 
                 bp.setCenter(chart);
                 _view.setCenter(bp);
@@ -172,7 +176,10 @@ public class SampleGraphExtension implements SampleEditorExtension {
     public void update() {
         Platform.runLater(() -> {
             if (_dataChanged) {
-                if (_samples != null && !_samples.isEmpty()) buildGui(_att, _samples);
+                if (_samples != null && !_samples.isEmpty()) {
+                    _view.setCenter(null);
+                    buildGui(_att, _samples);
+                }
                 _dataChanged = false;
             }
         });

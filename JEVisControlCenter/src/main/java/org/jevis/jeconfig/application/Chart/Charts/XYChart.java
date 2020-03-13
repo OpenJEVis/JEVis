@@ -1,20 +1,20 @@
 
 package org.jevis.jeconfig.application.Chart.Charts;
 
-import de.gsi.chart.axes.spi.DefaultNumericAxis;
-import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
+import com.ibm.icu.text.DecimalFormat;
 import de.gsi.chart.renderer.LineStyle;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
-import de.gsi.chart.renderer.spi.LabelledMarkerRenderer;
-import de.gsi.chart.utils.DecimalStringConverter;
+import de.gsi.chart.ui.geometry.Side;
+import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
-import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import org.apache.commons.math3.fitting.PolynomialCurveFitter;
+import org.apache.commons.math3.fitting.WeightedObservedPoints;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
@@ -23,7 +23,6 @@ import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.ObjectHandler;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.VirtualSample;
@@ -31,30 +30,24 @@ import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
 import org.jevis.jeapi.ws.JEVisObjectWS;
-import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
-import org.jevis.jeconfig.application.Chart.ChartElements.Note;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
-import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
+import org.jevis.jeconfig.application.Chart.ChartElements.*;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
-import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
-import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.*;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.RowNote;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.dialog.NoteDialog;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.threeten.extra.Days;
 
 import java.text.NumberFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -73,16 +66,16 @@ public class XYChart implements Chart {
     private final Boolean showL1L2;
     private final Integer chartId;
     Boolean showIcons;
-    DefaultNumericAxis y1Axis = new DefaultNumericAxis();
-    //ObservableList<MultiAxisAreaChart.Series<Number, Number>> series = FXCollections.observableArrayList();
+    CustomNumericAxis y1Axis = new CustomNumericAxis();
     private List<Color> hexColors = new ArrayList<>();
     ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     DateTime now = DateTime.now();
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(now);
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
-    DefaultNumericAxis y2Axis = new DefaultNumericAxis();
-    DefaultNumericAxis dateAxis;
+    CustomNumericAxis y2Axis = new CustomNumericAxis();
+    DefaultDateAxis dateAxis;
     de.gsi.chart.Chart chart;
+    private AnalysisDataModel analysisDataModel;
     List<ChartDataModel> chartDataModels;
     private ChartType chartType = ChartType.LINE;
     Double minValue = Double.MAX_VALUE;
@@ -92,7 +85,6 @@ public class XYChart implements Chart {
     private List<String> unitY1 = new ArrayList<>();
     private List<String> unitY2 = new ArrayList<>();
     List<XYChartSerie> xyChartSerieList = new ArrayList<>();
-    private DateTime valueForDisplay;
     private Region areaChartRegion;
     private Period period;
     private ManipulationMode addSeriesOfType;
@@ -100,29 +92,14 @@ public class XYChart implements Chart {
     private AtomicReference<ManipulationMode> manipulationMode;
     private Boolean[] changedBoth;
     private DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
-    private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
-        @Override
-        public void applySetting(org.jevis.jeconfig.application.Chart.Charts.jfx.Chart chart) {
-
-        }
-    };
     private WorkDays workDays = new WorkDays(null);
-    private ChartPanManager panner;
-    private JFXChartUtil jfxChartUtil;
     private boolean hasSecondAxis = false;
-    private List<TreeMap<DateTime, JEVisSample>> valueTreeMaps;
-    private List<Map<DateTime, JEVisSample>> noteMaps;
+    private StringBuilder regressionFormula = new StringBuilder();
 
-    public XYChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> selectedModels, Integer chartId, String chartName) {
+    public XYChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> selectedModels, ChartSetting chartSetting) {
+        this.analysisDataModel = analysisDataModel;
         this.chartDataModels = selectedModels;
-        this.dateAxis = new DefaultNumericAxis();
-        this.dateAxis.setTimeAxis(true);
-
-        DefaultTimeFormatter axisLabelFormatter = (DefaultTimeFormatter) this.dateAxis.getAxisLabelFormatter();
-        Instant instant = Instant.now();
-        ZoneId systemZone = ZoneId.systemDefault();
-        ZoneOffset currentOffsetForMyZone = systemZone.getRules().getOffset(instant);
-        axisLabelFormatter.setTimeZoneOffset(currentOffsetForMyZone);
+        this.dateAxis = new DefaultDateAxis();
 
         this.showRawData = analysisDataModel.getShowRawData();
         this.showSum = analysisDataModel.getShowSum();
@@ -131,14 +108,13 @@ public class XYChart implements Chart {
         this.showIcons = analysisDataModel.getShowIcons();
         this.calcRegression = analysisDataModel.calcRegression();
         this.polyRegressionDegree = analysisDataModel.getPolyRegressionDegree();
-        this.chartId = chartId;
-        this.chartName = chartName;
+        this.chartId = chartSetting.getId();
+        this.chartName = chartSetting.getName();
+        this.chartType = chartSetting.getChartType();
         this.addSeriesOfType = analysisDataModel.getAddSeries();
         if (selectedModels.stream().anyMatch(chartDataModel -> chartDataModel.getAxis() == 1)) {
             hasSecondAxis = true;
         }
-
-        this.chartType = analysisDataModel.getCharts().stream().filter(chartSettings -> chartId.equals(chartSettings.getId())).findFirst().map(ChartSettings::getChartType).orElse(chartType);
 
         if (!chartDataModels.isEmpty()) {
             workDays = new WorkDays(chartDataModels.get(0).getObject());
@@ -172,9 +148,12 @@ public class XYChart implements Chart {
                         newModel.setSamples(null);
                         newModel.setUnit(null);
                         newModel.setColor(ColorHelper.toRGBCode(ColorHelper.toColor(newModel.getColor()).darker()));
+                        newModel.setTitle(newModel.getTitle() + " - " + I18n.getInstance().getString("graph.processing.raw"));
 
                         singleRow.setAxis(0);
                         newModel.setAxis(1);
+
+                        analysisDataModel.getSelectedData().add(newModel);
                         xyChartSerieList.add(generateSerie(changedBoth, newModel));
                     }
 
@@ -191,46 +170,6 @@ public class XYChart implements Chart {
                         }
                     }
 
-                    if (calcRegression) {
-//                        chart.setRegressionColor(singleRow.getAxis(), ColorHelper.toColor(singleRow.getColor()));
-//                        chart.setRegression(singleRow.getAxis(), regressionType, polyRegressionDegree);
-                    }
-
-                    if (showL1L2 && singleRow.getDataProcessor() != null) {
-                        CleanDataObject cleanDataObject = new CleanDataObject(singleRow.getDataProcessor(), new ObjectHandler(singleRow.getObject().getDataSource()));
-                        singleRow.updateScaleFactor();
-                        Double scaleFactor = singleRow.getScaleFactor();
-                        if (cleanDataObject.getLimitsEnabled()) {
-                            List<JsonLimitsConfig> limitsConfigs = cleanDataObject.getLimitsConfig();
-                            for (int i = 0; i < limitsConfigs.size(); i++) {
-                                JsonLimitsConfig limitsConfig = limitsConfigs.get(i);
-                                String max = limitsConfig.getMax();
-                                if (max != null && !max.equals("")) {
-                                    Double value = Double.parseDouble(max) * scaleFactor;
-                                    List<Double> list = Arrays.asList(25d, 20d, 5d, 20d);
-                                    ObservableList<Double> doubles = FXCollections.observableList(list);
-//                                    if (i == 0) {
-//                                        chart.setLimitLine("L1 MAX", value, ColorHelper.toColor(singleRow.getColor()).brighter(), singleRow.getAxis(), doubles);
-//                                    } else {
-//                                        chart.setLimitLine("L2 MAX", value, ColorHelper.toColor(singleRow.getColor()).darker(), singleRow.getAxis(), doubles);
-//                                    }
-                                }
-
-                                String min = limitsConfig.getMin();
-                                if (min != null && !min.equals("")) {
-                                    Double value = Double.parseDouble(min) * scaleFactor;
-                                    List<Double> list = Arrays.asList(2d, 21d);
-                                    ObservableList<Double> doubles = FXCollections.observableList(list);
-//                                    if (i == 0) {
-//                                        chart.setLimitLine("L1 MIN", value, ColorHelper.toColor(singleRow.getColor()).brighter(), singleRow.getAxis(), doubles);
-//                                    } else {
-//                                        chart.setLimitLine("L2 MIN", value, ColorHelper.toColor(singleRow.getColor()).darker(), singleRow.getAxis(), doubles);
-//                                    }
-                                }
-                            }
-                        }
-                    }
-
                     if (showSum && sumModelY1 == null) {
                         sumModelY1 = singleRow.clone();
                     }
@@ -243,6 +182,45 @@ public class XYChart implements Chart {
                     logger.error("Error: Cant create series for data rows: ", e);
                 }
             }
+        }
+
+        if (asDuration) {
+            this.dateAxis.setTimeAxis(true);
+
+            CustomTimeFormatter axisLabelFormatter = new CustomTimeFormatter(this.dateAxis) {
+
+                @Override
+                public String toString(Number utcValueSeconds) {
+                    return labelCache.computeIfAbsent(utcValueSeconds, this::getStr);
+                }
+
+                private String getStr(final Number utcValueSeconds) {
+                    long longUTCSeconds = utcValueSeconds.longValue();
+                    int nanoSeconds = (int) ((utcValueSeconds.doubleValue() - longUTCSeconds) * 1e9);
+                    if (nanoSeconds < 0) { // Correctly Handle dates before EPOCH
+                        longUTCSeconds -= 1;
+                        nanoSeconds += (int) 1e9;
+                    }
+                    final LocalDateTime dateTime = LocalDateTime.ofEpochSecond(longUTCSeconds, nanoSeconds,
+                            getTimeZoneOffset());
+
+                    DateTime ts = new DateTime(dateTime.getYear(), dateTime.getMonthValue(), dateTime.getDayOfMonth(),
+                            dateTime.getHour(), dateTime.getMinute(), dateTime.getSecond());
+
+                    return (ts.getMillis() - timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h";
+                }
+            };
+            this.dateAxis.setAxisLabelFormatter(axisLabelFormatter);
+
+        } else {
+            this.dateAxis.setTimeAxis(true);
+
+            CustomTimeFormatter axisLabelFormatter = new CustomTimeFormatter(this.dateAxis);
+            Instant instant = Instant.now();
+            ZoneId systemZone = ZoneId.systemDefault();
+            ZoneOffset currentOffsetForMyZone = systemZone.getRules().getOffset(instant);
+            axisLabelFormatter.setTimeZoneOffset(currentOffsetForMyZone);
+            this.dateAxis.setAxisLabelFormatter(axisLabelFormatter);
         }
 
         List<ChartDataModel> sumModels = new ArrayList<>();
@@ -316,6 +294,7 @@ public class XYChart implements Chart {
 
                     try {
                         if (hasData) {
+                            analysisDataModel.getSelectedData().add(sumModel);
                             xyChartSerieList.add(generateSerie(changedBoth, sumModel));
                         }
                     } catch (JEVisException e) {
@@ -329,11 +308,6 @@ public class XYChart implements Chart {
 
         addSeriesToChart();
 
-        if (asDuration) {
-//            dateAxis.setFirstTS(timeStampOfFirstSample.get());
-//            dateAxis.setAsDuration(true);
-        }
-
         generateXAxis(changedBoth);
 
         generateYAxis();
@@ -345,53 +319,66 @@ public class XYChart implements Chart {
         getChart().setTitle(getUpdatedChartName());
 
         getChart().setLegendVisible(false);
-        //((javafx.scene.chart.XYChart)getChart()).setCreateSymbols(true);
-
-//        chartSettingsFunction.applySetting(getChart());
-
-        applyColors();
-
-        initializeZoom();
 
         Platform.runLater(() -> updateTable(null, timeStampOfFirstSample.get()));
-
-        valueTreeMaps = new ArrayList<>();
-        noteMaps = new ArrayList<>();
-        for (XYChartSerie xyChartSerie : xyChartSerieList) {
-            valueTreeMaps.add(xyChartSerie.getSampleMap());
-            noteMaps.add(xyChartSerie.getSingleRow().getNoteSamples());
-        }
     }
 
     public void addSeriesToChart() {
         ErrorDataSetRenderer rendererY1 = new ErrorDataSetRenderer();
+
         ErrorDataSetRenderer rendererY2 = new ErrorDataSetRenderer();
-        LabelledMarkerRenderer labelledMarkerRenderer = new LabelledMarkerRenderer();
+        ErrorDataSetRenderer trendLineRenderer = new ErrorDataSetRenderer();
+        trendLineRenderer.setPolyLineStyle(LineStyle.NORMAL);
+        trendLineRenderer.setDrawMarker(false);
+        trendLineRenderer.setMarkerSize(0);
 
         switch (chartType) {
             case AREA:
                 rendererY1.setPolyLineStyle(LineStyle.AREA);
+                rendererY1.setDrawMarker(false);
                 rendererY2.setPolyLineStyle(LineStyle.AREA);
+                rendererY2.setDrawMarker(false);
                 break;
             case LOGICAL:
-                break;
-            case LINE:
-                rendererY1.setPolyLineStyle(LineStyle.NORMAL);
-                rendererY2.setPolyLineStyle(LineStyle.NORMAL);
+                rendererY1.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
+                rendererY1.setDrawMarker(false);
+                rendererY2.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
+                rendererY2.setDrawMarker(false);
                 break;
             case BAR:
+                rendererY1.setPolyLineStyle(LineStyle.NONE);
+                rendererY1.setDrawBars(true);
+                rendererY1.setDrawMarker(false);
+                rendererY2.setPolyLineStyle(LineStyle.NONE);
+                rendererY2.setDrawBars(true);
+                rendererY2.setDrawMarker(false);
                 break;
             case COLUMN:
+                rendererY1.setPolyLineStyle(LineStyle.NONE);
+                rendererY1.setDrawBars(true);
+                rendererY1.setDrawMarker(false);
+                rendererY2.setPolyLineStyle(LineStyle.NONE);
+                rendererY2.setDrawBars(true);
+                rendererY2.setDrawMarker(false);
                 break;
             case BUBBLE:
                 break;
             case SCATTER:
+                rendererY1.setPolyLineStyle(LineStyle.NONE);
+                rendererY2.setPolyLineStyle(LineStyle.NONE);
                 break;
             case PIE:
                 break;
             case TABLE:
                 break;
             case HEAT_MAP:
+                break;
+            case LINE:
+            default:
+                rendererY1.setPolyLineStyle(LineStyle.NORMAL);
+                rendererY1.setDrawMarker(false);
+                rendererY2.setPolyLineStyle(LineStyle.NORMAL);
+                rendererY2.setDrawMarker(false);
                 break;
         }
 
@@ -400,23 +387,177 @@ public class XYChart implements Chart {
 
             if (showSum && index < xyChartSerieList.size() - 2) {
                 rendererY1.getDatasets().add(xyChartSerie.getValueDataSet());
+                rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
+                trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             } else if (!hasSecondAxis || xyChartSerie.getyAxis() == 0) {
                 rendererY1.getDatasets().add(xyChartSerie.getValueDataSet());
+                rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
+                trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             } else {
+                rendererY2.getAxes().add(y2Axis);
                 rendererY2.getDatasets().add(xyChartSerie.getValueDataSet());
+                rendererY2.getDatasets().addAll(drawL1L2(xyChartSerie));
+                trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             }
 
-            if (showIcons) {
-                labelledMarkerRenderer.getDatasets().add(xyChartSerie.getNoteDataSet());
+            tableData.add(xyChartSerie.getTableEntry());
+        }
+
+        AlphanumComparator ac = new AlphanumComparator();
+        tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+
+        chart.getRenderers().setAll(rendererY1, rendererY2);
+        chart.getToolBar().setVisible(false);
+
+        if (calcRegression) {
+            chart.getRenderers().add(trendLineRenderer);
+        }
+    }
+
+    private List<DoubleDataSet> drawRegression(XYChartSerie xyChartSerie) {
+        List<DoubleDataSet> list = new ArrayList<>();
+
+        if (calcRegression) {
+            DoubleDataSet input = xyChartSerie.getValueDataSet();
+
+            TrendLine trendLineObs = null;
+            PolynomialCurveFitter fitter = null;
+
+            switch (regressionType) {
+                case NONE:
+                    break;
+                case POLY:
+                    fitter = PolynomialCurveFitter.create(polyRegressionDegree);
+                    break;
+                case EXP:
+                    trendLineObs = new ExpTrendLine();
+                    break;
+                case LOG:
+                    trendLineObs = new LogTrendLine();
+                    break;
+                case POW:
+                    trendLineObs = new PowerTrendLine();
+                    break;
             }
 
-            Platform.runLater(() -> tableData.add(xyChartSerie.getTableEntry()));
+            if (trendLineObs != null) {
+                double[] x = new double[input.getDataCount()];
+                double[] y = new double[input.getDataCount()];
+
+                for (int i = 0; i < input.getDataCount(); i++) {
+                    x[i] = input.getX(i);
+                    y[i] = input.getY(i);
+                }
+
+                trendLineObs.setValues(y, x);
+
+                DoubleDataSet set = new DoubleDataSet("regression");
+                Color darker = ColorHelper.toColor(xyChartSerie.getSingleRow().getColor()).darker();
+                set.setStyle("strokeColor=" + darker + "; fillColor= " + darker + ";");
+
+                for (int i = 0; i < x.length; i++) {
+                    set.add(x[i], trendLineObs.predict(i));
+                }
+
+                list.add(set);
+            } else if (fitter != null) {
+                DoubleDataSet set = new DoubleDataSet("regression");
+                final WeightedObservedPoints obs = new WeightedObservedPoints();
+                for (int i = 0; i < input.getDataCount(); i++) {
+                    obs.add(input.getX(i), input.getY(i));
+                }
+
+                Color darker = ColorHelper.toColor(xyChartSerie.getSingleRow().getColor()).darker();
+                set.setStyle("strokeColor=" + darker + "; fillColor= " + darker + ";");
+
+                final double[] coefficient = fitter.fit(obs.toList());
+
+                for (int i = 0; i < input.getDataCount(); i++) {
+
+                    double result = 0d;
+                    for (int power = coefficient.length - 1; power >= 0; power--) {
+                        result += coefficient[power] * (Math.pow(input.getX(i), power));
+                    }
+
+                    set.add(input.getX(i), result);
+                }
+
+                regressionFormula.append(xyChartSerie.getSingleRow().getTitle());
+                regressionFormula.append(System.getProperty("line.separator"));
+                regressionFormula.append("f(x) = ");
+                DecimalFormat formatter = new DecimalFormat();
+                formatter.setMaximumSignificantDigits(4);
+                formatter.setSignificantDigitsUsed(true);
+
+                for (int p = coefficient.length - 1; p >= 0; p--) {
+                    if (p > 0) {
+                        regressionFormula.append(" ");
+                    }
+
+                    if (p > 0) {
+                        regressionFormula.append(formatter.format(coefficient[p]));
+                    } else {
+                        regressionFormula.append(formatter.format(coefficient[p]));
+                    }
+
+                    if (p > 0) {
+                        if (p > 1) {
+                            regressionFormula.append(" * x^");
+                            regressionFormula.append(p);
+                        } else {
+                            regressionFormula.append(" * x");
+                        }
+                        regressionFormula.append(" + ");
+                    }
+                }
+                regressionFormula.append(System.getProperty("line.separator"));
+
+                list.add(set);
+            }
         }
 
-        chart.getRenderers().addAll(rendererY1, rendererY2);
-        if (showIcons) {
-            chart.getRenderers().add(labelledMarkerRenderer);
+        return list;
+    }
+
+    public List<DoubleDataSet> drawL1L2(XYChartSerie xyChartSerie) {
+        List<DoubleDataSet> list = new ArrayList<>();
+        try {
+            if (showL1L2 && xyChartSerie.getSingleRow().getDataProcessor() != null) {
+                CleanDataObject cleanDataObject = new CleanDataObject(xyChartSerie.getSingleRow().getDataProcessor(), new ObjectHandler(xyChartSerie.getSingleRow().getObject().getDataSource()));
+                xyChartSerie.getSingleRow().updateScaleFactor();
+                Double scaleFactor = xyChartSerie.getSingleRow().getScaleFactor();
+                if (cleanDataObject.getLimitsEnabled()) {
+                    List<JsonLimitsConfig> limitsConfigs = cleanDataObject.getLimitsConfig();
+                    for (int i = 0; i < limitsConfigs.size(); i++) {
+                        JsonLimitsConfig limitsConfig = limitsConfigs.get(i);
+                        String max = limitsConfig.getMax();
+                        if (max != null && !max.equals("")) {
+                            double maxValue = Double.parseDouble(max) * scaleFactor;
+                            DoubleDataSet doubles = new DoubleDataSet("max");
+                            doubles.add(xyChartSerie.getValueDataSet().getX(0), maxValue);
+                            doubles.add(xyChartSerie.getValueDataSet().getX(xyChartSerie.getValueDataSet().getDataCount() - 1), maxValue);
+                            Color brighter = ColorHelper.toColor(xyChartSerie.getSingleRow().getColor()).brighter();
+                            doubles.setStyle("strokeColor=" + brighter + "; fillColor= " + brighter + ";strokeDashPattern=25, 20, 5, 20");
+                            list.add(doubles);
+                        }
+
+                        String min = limitsConfig.getMin();
+                        if (min != null && !min.equals("")) {
+                            double minValue = Double.parseDouble(min) * scaleFactor;
+                            DoubleDataSet doubles = new DoubleDataSet("min");
+                            doubles.add(xyChartSerie.getValueDataSet().getX(0), minValue);
+                            doubles.add(xyChartSerie.getValueDataSet().getX(xyChartSerie.getValueDataSet().getDataCount() - 1), minValue);
+                            Color brighter = ColorHelper.toColor(xyChartSerie.getSingleRow().getColor()).brighter();
+                            doubles.setStyle("strokeColor=" + brighter + "; fillColor= " + brighter + ";strokeDashPattern=25, 20, 5, 20");
+                            list.add(doubles);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Could not create data sets for l1/l2.", e);
         }
+        return list;
     }
 
     public void initializeChart() {
@@ -486,22 +627,24 @@ public class XYChart implements Chart {
         getChart().setTitle(getUpdatedChartName());
     }
 
-
-    @Override
-    public void setChartSettings(ChartSettingsFunction function) {
-        chartSettingsFunction = function;
-    }
-
     public void generateYAxis() {
+        y1Axis.setForceZeroInRange(true);
+        y1Axis.setAutoGrowRanging(true);
         y1Axis.setAutoRanging(true);
+        y2Axis.setForceZeroInRange(true);
         y2Axis.setAutoRanging(true);
-        DecimalStringConverter tickLabelFormatter1 = new DecimalStringConverter();
-        tickLabelFormatter1.setPrecision(2);
-        y1Axis.setTickLabelFormatter(tickLabelFormatter1);
+        y2Axis.setAutoGrowRanging(true);
 
-        DecimalStringConverter tickLabelFormatter2 = new DecimalStringConverter();
-        tickLabelFormatter2.setPrecision(2);
+        CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2);
+        y1Axis.setTickLabelFormatter(tickLabelFormatter1);
+        y1Axis.setAnimated(false);
+        y1Axis.setName("");
+
+        CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(2);
         y2Axis.setTickLabelFormatter(tickLabelFormatter2);
+        y2Axis.setAnimated(false);
+        y2Axis.setSide(Side.RIGHT);
+        y2Axis.setName("");
 
         for (XYChartSerie serie : xyChartSerieList) {
             if (serie.getUnit() != null) {
@@ -527,8 +670,9 @@ public class XYChart implements Chart {
                 unitY2.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
             } else if (unitY1.isEmpty()) {
                 unitY1.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
+            } else if (unitY2.isEmpty()) {
+                unitY2.add(I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit"));
             }
-
         }
 
         StringBuilder allUnitsY1 = new StringBuilder();
@@ -543,8 +687,8 @@ public class XYChart implements Chart {
             else allUnitsY2.append(", ").append(s);
         }
 
-        if (!unitY1.isEmpty()) y1Axis.setName(allUnitsY1.toString());
-        if (!unitY2.isEmpty()) y2Axis.setName(allUnitsY2.toString());
+        if (!unitY1.isEmpty()) y1Axis.setUnit(allUnitsY1.toString());
+        if (!unitY2.isEmpty()) y2Axis.setUnit(allUnitsY2.toString());
 
     }
 
@@ -560,6 +704,7 @@ public class XYChart implements Chart {
 //            dateAxis.setAsDuration(true);
 //            dateAxis.setFirstTS(timeStampOfFirstSample.get());
 //        }
+        dateAxis.setName("");
 
         Period realPeriod = Period.minutes(15);
         if (chartDataModels != null && chartDataModels.size() > 0) {
@@ -582,86 +727,6 @@ public class XYChart implements Chart {
         updateXAxisLabel(timeStampOfFirstSample.get(), timeStampOfLastSample.get());
     }
 
-    public void setTickUnitFromPeriod(DateAxis dateAxis) {
-        double millisMinor = 60000;
-        double millisMajor = 900000;
-        String format = "";
-
-        AggregationPeriod period = chartDataModels.get(0).getAggregationPeriod();
-        AggregationPeriod durationPeriod = AggregationPeriod.NONE;
-        Long millisDuration = timeStampOfLastSample.get().getMillis() - timeStampOfFirstSample.get().getMillis();
-        if (millisDuration >= Period.days(1).toStandardDuration().getMillis() * (365.25 - Days.of(60).getAmount())) {
-            durationPeriod = AggregationPeriod.MONTHLY;
-        } else if (millisDuration >= Period.days(1).toStandardDuration().getMillis() * 30.4375) {
-            durationPeriod = AggregationPeriod.WEEKLY;
-        } else if (millisDuration >= Period.days(4).toStandardDuration().getMillis()) {
-            durationPeriod = AggregationPeriod.DAILY;
-        } else if (millisDuration >= Period.hours(8).toStandardDuration().getMillis()) {
-            durationPeriod = AggregationPeriod.HOURLY;
-        }
-
-
-        if (durationPeriod == period) {
-        } else if (durationPeriod == AggregationPeriod.NONE) {
-            period = durationPeriod;
-        } else if (durationPeriod == AggregationPeriod.HOURLY && period == AggregationPeriod.NONE) {
-            period = AggregationPeriod.HOURLY;
-        } else if (durationPeriod == AggregationPeriod.DAILY &&
-                (period == AggregationPeriod.NONE || period == AggregationPeriod.HOURLY)) {
-            period = AggregationPeriod.DAILY;
-        } else if (durationPeriod == AggregationPeriod.WEEKLY &&
-                (period == AggregationPeriod.NONE || period == AggregationPeriod.HOURLY || period == AggregationPeriod.DAILY)) {
-            period = AggregationPeriod.WEEKLY;
-        } else if (durationPeriod == AggregationPeriod.MONTHLY &&
-                (period == AggregationPeriod.NONE || period == AggregationPeriod.HOURLY || period == AggregationPeriod.DAILY || period == AggregationPeriod.WEEKLY)) {
-            period = AggregationPeriod.MONTHLY;
-        }
-
-
-        switch (period) {
-            case NONE:
-                millisMinor = (double) Period.minutes(1).toStandardDuration().getMillis();
-                millisMajor = (double) Period.minutes(15).toStandardDuration().getMillis();
-                format = "EEE, " + DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
-                break;
-            case HOURLY:
-                millisMinor = (double) Period.minutes(15).toStandardDuration().getMillis();
-                millisMajor = (double) Period.hours(1).toStandardDuration().getMillis();
-                format = "EEE, " + DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
-                break;
-            case DAILY:
-                millisMinor = (double) Period.hours(1).toStandardDuration().getMillis();
-                millisMajor = (double) Period.days(1).toStandardDuration().getMillis();
-                format = "EEE, " + DateTimeFormat.patternForStyle("M-", I18n.getInstance().getLocale());
-                break;
-            case WEEKLY:
-                System.out.println("Wekk ....");
-                millisMinor = (double) Period.days(1).toStandardDuration().getMillis();
-                millisMajor = (double) Period.weeks(1).toStandardDuration().getMillis();
-                format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
-                break;
-            case MONTHLY:
-                millisMinor = (double) Period.weeks(1).toStandardDuration().getMillis();
-                millisMajor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
-                format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
-                break;
-            case QUARTERLY:
-                millisMinor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
-                millisMajor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 4;
-                format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
-                break;
-            case YEARLY:
-                millisMinor = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
-                millisMajor = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
-                format = "EEE, " + DateTimeFormat.patternForStyle("L-", I18n.getInstance().getLocale());
-                break;
-        }
-
-        dateAxis.setMinorTickUnit(millisMinor);
-        dateAxis.setTickUnit(millisMajor);
-        dateAxis.setCurrentFormatterProperty(format);
-    }
-
     public void updateXAxisLabel(DateTime firstTS, DateTime lastTS) {
 
         String overall = String.format("%s %s %s",
@@ -669,7 +734,7 @@ public class XYChart implements Chart {
                 I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
                 dtfOutLegend.print(lastTS));
 
-        dateAxis.setName(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
+        dateAxis.setUnit(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
     }
 
     private Period removeWorkdayInterval(DateTime workStart, DateTime workEnd) {
@@ -685,36 +750,6 @@ public class XYChart implements Chart {
     }
 
     @Override
-    public void initializeZoom() {
-//        panner = null;
-//
-//        getChart().setOnMouseMoved(mouseEvent -> {
-//            updateTable(mouseEvent, null);
-//        });
-//
-//        panner = new ChartPanManager((MultiAxisChart<?, ?>) getChart());
-//
-//        panner.setMouseFilter(mouseEvent -> {
-//            if (mouseEvent.getButton() != MouseButton.SECONDARY
-//                    && (mouseEvent.getButton() != MouseButton.PRIMARY
-//                    || !mouseEvent.isShortcutDown())) {
-//                mouseEvent.consume();
-//            }
-//        });
-//        panner.start();
-//
-//        jfxChartUtil = new JFXChartUtil(chartDataModels.get(0).getSelectedStart().getMillis(), chartDataModels.get(0).getSelectedEnd().getMillis());
-//
-//        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
-
-    }
-
-    @Override
-    public JFXChartUtil getJfxChartUtil() {
-        return jfxChartUtil;
-    }
-
-    @Override
     public void setRegion(Region region) {
         areaChartRegion = region;
     }
@@ -727,16 +762,6 @@ public class XYChart implements Chart {
     @Override
     public Period getPeriod() {
         return period;
-    }
-
-    @Override
-    public DateTime getStartDateTime() {
-        return timeStampOfFirstSample.get();
-    }
-
-    @Override
-    public DateTime getEndDateTime() {
-        return timeStampOfLastSample.get();
     }
 
     String getUpdatedChartName() {
@@ -776,16 +801,6 @@ public class XYChart implements Chart {
     }
 
     @Override
-    public void setDataModels(List<ChartDataModel> chartDataModels) {
-        this.chartDataModels = chartDataModels;
-    }
-
-    @Override
-    public void setShowIcons(Boolean showIcons) {
-        this.showIcons = showIcons;
-    }
-
-    @Override
     public String getChartName() {
         return chartName;
     }
@@ -808,7 +823,6 @@ public class XYChart implements Chart {
 
         }
         if (valueForDisplay != null) {
-            setValueForDisplay(valueForDisplay);
             DateTime finalValueForDisplay = valueForDisplay;
             NumberFormat nf = NumberFormat.getInstance();
             nf.setMinimumFractionDigits(2);
@@ -829,7 +843,7 @@ public class XYChart implements Chart {
 
                     JEVisSample sample = sampleTreeMap.get(nearest);
 
-                    Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()));
+                    Note formattedNote = new Note(sample, serie.getSingleRow().getNoteSamples().get(sample.getTimestamp()), serie.getSingleRow().getAlarms().get(sample.getTimestamp()));
 
                     DateTime finalNearest = nearest;
                     if (!asDuration) {
@@ -897,7 +911,7 @@ public class XYChart implements Chart {
                 JEVisUnit unit = serie.getSingleRow().getUnit();
 
                 for (JEVisSample smp : samples) {
-                    if ((smp.getTimestamp().equals(lower) || smp.getTimestamp().isAfter(lower)) && smp.getTimestamp().isBefore(upper)) {
+                    if ((smp.getTimestamp().equals(lower) || smp.getTimestamp().isAfter(lower)) && (smp.getTimestamp().isBefore(upper) || smp.getTimestamp().equals(upper))) {
 
                         newList.add(smp);
                         Double currentValue = smp.getValueAsDouble();
@@ -938,70 +952,10 @@ public class XYChart implements Chart {
     }
 
     @Override
-    public void showNote(MouseEvent mouseEvent) {
-        if (manipulationMode.get().equals(ManipulationMode.NONE)) {
-
-            Point2D mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-//            double x = ((MultiAxisChart) getChart()).getXAxis().sceneToLocal(mouseCoordinates).getX();
-
-            Map<String, RowNote> map = new HashMap<>();
-            DateTime valueForDisplay = null;
-//            valueForDisplay = ((DateAxis) ((MultiAxisChart) getChart()).getXAxis()).getDateTimeForDisplay(x);
-
-            for (XYChartSerie serie : xyChartSerieList) {
-                try {
-                    DateTime nearest = serie.getSampleMap().lowerKey(valueForDisplay);
-
-                    if (nearest != null) {
-
-                        JEVisSample nearestSample = serie.getSampleMap().get(nearest);
-
-                        String title = "";
-                        title += serie.getSingleRow().getObject().getName();
-
-                        JEVisObject dataObject;
-                        if (serie.getSingleRow().getDataProcessor() != null)
-                            dataObject = serie.getSingleRow().getDataProcessor();
-                        else dataObject = serie.getSingleRow().getObject();
-
-                        String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
-                        String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
-
-                        RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getUnit(), serie.getSingleRow().getScaleFactor());
-
-                        map.put(title, rowNote);
-                    }
-                } catch (Exception ex) {
-                    logger.error("Error: could not get note", ex);
-                }
-            }
-
-            NoteDialog nd = new NoteDialog(map);
-
-            nd.showAndWait().ifPresent(response -> {
-                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                    saveUserEntries(nd.getNoteMap());
-                }
-            });
-        }
-    }
-
-
-    @Override
     public void applyColors() {
 //        ObservableList<Color> colors = FXCollections.observableArrayList(hexColors);
 //        DefaultRenderColorScheme.strokeColorProperty().setValue(colors);
 
-    }
-
-    @Override
-    public DateTime getValueForDisplay() {
-        return valueForDisplay;
-    }
-
-    @Override
-    public void setValueForDisplay(DateTime valueForDisplay) {
-        this.valueForDisplay = valueForDisplay;
     }
 
     @Override
@@ -1024,37 +978,8 @@ public class XYChart implements Chart {
     }
 
     @Override
-    public void checkForY2Axis() {
-        try {
-            boolean hasY2Axis = false;
-            for (XYChartSerie serie : xyChartSerieList) {
-                if (serie.getyAxis() == 1) {
-                    hasY2Axis = true;
-                    break;
-                }
-            }
-
-            if (!hasY2Axis) y2Axis.setVisible(false);
-            else y2Axis.setVisible(true);
-        } catch (Exception ex) {
-            logger.error(ex);
-        }
-    }
-
-    @Override
-    public void applyBounds() {
-//        dateAxis.setUpperBound((double) chartDataModels.get(0).getSelectedEnd().getMillis());
-//        dateAxis.setLowerBound((double) chartDataModels.get(0).getSelectedStart().getMillis());
-    }
-
-    @Override
     public List<ChartDataModel> getChartDataModels() {
         return chartDataModels;
-    }
-
-    @Override
-    public ChartPanManager getPanner() {
-        return panner;
     }
 
     public Double getMinValue() {
@@ -1089,27 +1014,27 @@ public class XYChart implements Chart {
         return asDuration;
     }
 
-    public List<TreeMap<DateTime, JEVisSample>> getValueTreeMaps() {
-        return valueTreeMaps;
-    }
-
-    public List<Map<DateTime, JEVisSample>> getNoteMaps() {
-        return noteMaps;
-    }
-
     public List<XYChartSerie> getXyChartSerieList() {
         return xyChartSerieList;
     }
 
-    public DefaultNumericAxis getY1Axis() {
+    public CustomNumericAxis getY1Axis() {
         return y1Axis;
     }
 
-    public DefaultNumericAxis getY2Axis() {
+    public CustomNumericAxis getY2Axis() {
         return y2Axis;
     }
 
-    public DefaultNumericAxis getDateAxis() {
+    public DefaultDateAxis getDateAxis() {
         return dateAxis;
+    }
+
+    public Boolean getShowIcons() {
+        return showIcons;
+    }
+
+    public StringBuilder getRegressionFormula() {
+        return regressionFormula;
     }
 }

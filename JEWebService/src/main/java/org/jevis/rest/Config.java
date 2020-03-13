@@ -69,6 +69,7 @@ public class Config {
     private static File _fileDir;
     private static File _classDir;
     private static File _freemarkerDir;
+    private static String _jeccVersion="0";
     private static ConcurrentHashMap<String, JsonJEVisClass> _classCache = new ConcurrentHashMap<>();
 
 
@@ -188,6 +189,8 @@ public class Config {
                     _keyFile = getParameter(config, "webservice.keystore", homeDir + "/etc/keystore.jks");
                     _keyFilePW = getParameter(config, "webservice.keystorepw", "jevispw");
 
+                    _jeccVersion = getParameter(config, "webservice.jeccversion", "jevispw");
+
 
                     _i18nDir = new File(getParameter(config, "webservice.i18ndir", homeDir + "/jevis/var/i18n/").replaceAll("%$", ""));
                     _fileDir = new File(getParameter(config, "webservice.filedir", homeDir + "/jevis/var/files/").replaceAll("%$", ""));
@@ -213,6 +216,14 @@ public class Config {
             logger.fatal("Unable to read config", ex);
 //            Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public static String getJECCVersion() {
+        return _jeccVersion;
+    }
+
+    public static void setJECCVersion(String jeccVersion) {
+        Config._jeccVersion = _jeccVersion;
     }
 
     public static String getRigestrationAPIKey() {

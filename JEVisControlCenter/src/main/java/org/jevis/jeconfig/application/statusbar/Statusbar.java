@@ -23,12 +23,10 @@ package org.jevis.jeconfig.application.statusbar;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -42,10 +40,12 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
 import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -62,6 +62,7 @@ public class Statusbar extends ToolBar {
     public BooleanProperty connectedProperty = new SimpleBooleanProperty(true);
     private Label userName = new Label("");
     private Label onlineInfo = new Label("Online");
+    private Label versionLabel = new Label(I18n.getInstance().getString("statusbar.version"));
     private HBox conBox = new HBox();
     private ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
     private ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
@@ -70,6 +71,7 @@ public class Statusbar extends ToolBar {
     private int retryCount = 0;
     private ProgressBar progressBar = new ProgressBar();
     private HBox progressbox = new HBox();
+    private Label messageBox = new Label();
 
     private class Job {
         public double total = 0;
@@ -90,6 +92,7 @@ public class Statusbar extends ToolBar {
     public void startProgressJob(String jobID, double totalJobs, String message) {
         jobList.put(jobID, new Job(totalJobs, 0));
         setProgressBar(totalJobs, 0, message);
+        Platform.runLater(() -> messageBox.setText(message));
     }
 
     /**
@@ -103,7 +106,9 @@ public class Statusbar extends ToolBar {
         Job job = jobList.get(jobID);
         if (job != null) {
             job.done += jobsDone;
+
             setProgressBar(job.total, job.done, message);
+            Platform.runLater(() -> messageBox.setText(message));
         }
     }
 
@@ -120,6 +125,7 @@ public class Statusbar extends ToolBar {
         if (job != null) {
             job.done = job.total;
             setProgressBar(job.total, job.total, message);
+            Platform.runLater(() -> messageBox.setText(""));
         } else {
             setProgressBar(1, 1, message);
         }
@@ -130,6 +136,7 @@ public class Statusbar extends ToolBar {
         if (totalJobs < 0) {
             Platform.runLater(() -> {
                 progressBar.setProgress(-1);
+                messageBox.setText("");
             });
             return;
         }
@@ -151,8 +158,10 @@ public class Statusbar extends ToolBar {
 //                System.out.println("Start Animation");
 //                ft.play();
                 progressbox.setVisible(false);
+                messageBox.setVisible(false);
             } else {
                 progressbox.setVisible(true);
+                messageBox.setVisible(true);
             }
 
         });
@@ -172,20 +181,35 @@ public class Statusbar extends ToolBar {
 
         this.conBox.getChildren().setAll(this.connectIcon);
 
+        Label versionNumber = new Label(JEConfig.class.getPackage().getImplementationVersion());
+        versionNumber.widthProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue != newValue) {
+                try {
+                    Tooltip tooltip = new Tooltip(((new Date()).getTime() - JEConfig.startDate.getTime()) + "ms");
+                    versionNumber.setTooltip(tooltip);
+                } catch (Exception ex) {
+                }
+            }
+        });
+
         Pane spacer = new Pane();
         spacer.setMaxWidth(50);
+        Pane spacer2 = new Pane();
+        spacer.setMaxWidth(100);
         Region spacerLeft = new Region();
         HBox.setHgrow(spacerLeft, Priority.ALWAYS);
-
         HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(this.messageBox, Priority.ALWAYS);
         HBox.setHgrow(this.onlineInfo, Priority.NEVER);
         HBox.setHgrow(this.userName, Priority.NEVER);
 
-        Label loadStatus = new Label(I18n.getInstance().getString("statusbar.loading"));
+        Label loadStatus = new Label(" " + I18n.getInstance().getString("statusbar.loading"));
 
-        progressbox.getChildren().addAll(loadStatus, progressBar);
+        Separator sep1 = new Separator(Orientation.VERTICAL);
+
+        progressbox.getChildren().setAll(messageBox, sep1, loadStatus, progressBar);
         //TODO implement notification
-        root.getChildren().addAll(userIcon, this.userName, spacerLeft, progressbox, spacer, this.conBox, this.onlineInfo);
+        root.getChildren().setAll(userIcon, this.userName, spacerLeft, progressbox, spacer, versionLabel, versionNumber, spacer2, this.conBox, this.onlineInfo);
 
         String sinfo = "";
 

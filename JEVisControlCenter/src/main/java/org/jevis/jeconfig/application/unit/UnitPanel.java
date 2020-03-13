@@ -34,9 +34,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.unit.CustomPrefix;
 import org.jevis.commons.unit.UnitManager;
 
 import javax.measure.MetricPrefix;
+import javax.measure.Prefix;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -60,13 +65,16 @@ public class UnitPanel extends GridPane {
 
         final JEVisUnit.Prefix prefix = unit.getPrefix();
 
-        ComboBox<MetricPrefix> prefixBox = new ComboBox(FXCollections.observableArrayList(MetricPrefix.values()));
+        List<Prefix> list = new ArrayList<>();
+        list.add(CustomPrefix.NONE);
+        Collections.addAll(list, MetricPrefix.values());
+        ComboBox<Prefix> prefixBox = new ComboBox(FXCollections.observableArrayList(list));
         prefixBox.setMaxWidth(520);
 //        prefixBox.getSelectionModel().select("");//toto get elsewhere?!
 
-        prefixBox.setButtonCell(new ListCell<MetricPrefix>() {
+        prefixBox.setButtonCell(new ListCell<Prefix>() {
             @Override
-            protected void updateItem(MetricPrefix t, boolean bln) {
+            protected void updateItem(Prefix t, boolean bln) {
                 super.updateItem(t, bln); //To change body of generated methods, choose Tools | Templates.
                 if (!bln) {
                     setAlignment(Pos.CENTER);

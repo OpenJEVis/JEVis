@@ -6,9 +6,10 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
@@ -16,7 +17,6 @@ import javafx.scene.transform.Scale;
 import javafx.stage.Popup;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.controlsfx.control.NotificationPane;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
@@ -24,8 +24,10 @@ import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.Layouts;
 import org.jevis.jeconfig.tool.ScrollPanes;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 
 public class DashBoardPane extends Pane {
 
@@ -42,6 +44,13 @@ public class DashBoardPane extends Pane {
     private final Background defaultBackground;
     private boolean snapToGrid = false;
     private boolean gridIsVisible = false;
+
+    /** Dummy Pane fif no Dashboard is loaded **/
+    public DashBoardPane(){
+        jeVisDataSource=null;
+        control=null;
+        defaultBackground=null;
+    }
 
     public DashBoardPane(DashboardControl control) {
         super();
@@ -182,16 +191,19 @@ public class DashBoardPane extends Pane {
     }
 
     public void setScale(double x, double y) {
-        this.scale.setY(y);
-        this.scale.setX(x);
+        logger.debug("Set Zoom: x:{} y:{}", x,y);
+        Platform.runLater(() -> {
+            getTransforms().removeAll( this.scale);
+            this.scale.setY(y);
+            this.scale.setX(x);
+            getTransforms().addAll(this.scale);
+        });
     }
 
+
+
     public void setZoom(double zoom) {
-        logger.debug("Set Zoom: {}", zoom);
-        this.scale.setX(zoom);
-        this.scale.setY(zoom);
-//        getTransforms().add(this.scale);
-//        requestLayout();
+        setScale(zoom,zoom);
     }
 
 
@@ -231,7 +243,7 @@ public class DashBoardPane extends Pane {
     }
 
 
-    private void setSize(Size newValue) {
+    public void setSize(Size newValue) {
         logger.debug("setSize: {}/{}", newValue.getWidth(), newValue.getHeight());
         this.setMaxWidth(newValue.getWidth());
         this.setMinWidth(newValue.getWidth());
@@ -282,7 +294,7 @@ public class DashBoardPane extends Pane {
      * @param yGridInterval
      */
     public void createGrid(double xGridInterval, double yGridInterval) {
-        logger.error("createGrid: {},{}",xGridInterval,yGridInterval);
+        logger.debug("createGrid: {},{}",xGridInterval,yGridInterval);
         getChildren().removeAll(visibleGrid);
 
 

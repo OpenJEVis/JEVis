@@ -12,6 +12,7 @@ import org.jevis.commons.database.JEVisAttributeDAO;
 import org.jevis.commons.database.JEVisObjectDataManager;
 import org.jevis.commons.database.JEVisSampleDAO;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.report.PeriodMode;
@@ -176,17 +177,6 @@ public class ReportLinkProperty implements ReportData {
 
                         switch (config.getConfigName()) {
                             case Period: {
-                                Interval interval = null;
-                                PeriodMode mode = null;
-                                try {
-                                    String modeName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.PERIOD).getLatestSample().getValueAsString();
-                                    mode = PeriodMode.valueOf(modeName.toUpperCase());
-                                    interval = intervalCalc.getInterval(mode);
-                                    logger.info("interval: " + interval);
-                                    logger.error("Mode name: " + modeName.toUpperCase());
-                                } catch (JEVisException ex) {
-                                    logger.error(ex);
-                                }
 
                                 AttributeConfiguration periodConfiguration = attributeProperty.getAttributeConfiguration(AttributeConfigurationFactory.ReportConfigurationName.Period);
                                 JEVisObject dataObject = linkProperty.getDataObject();
@@ -199,24 +189,75 @@ public class ReportLinkProperty implements ReportData {
                                     logger.error(ex);
                                 }
 
-                                String modeName = null;
+                                String aggregationName = null;
+                                String manipulationName = null;
                                 try {
-                                    modeName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION).getLatestSample().getValueAsString();
-                                    logger.error("Mode name: " + modeName);
-                                } catch (JEVisException ex) {
+                                    aggregationName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION).getLatestSample().getValueAsString();
+                                } catch (Exception ex) {
                                     logger.error(ex);
                                 }
 
-                                ManipulationMode manipulationMode = ManipulationMode.get(modeName.toUpperCase());
-                                logger.error("manipulationMode: " + manipulationMode.toString());
-                                AggregationPeriod period = AggregationPeriod.get(modeName.toUpperCase());
-                                logger.error("aggregationPeriod: " + period.toString());
+                                try {
+                                    manipulationName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.MANIPULATION).getLatestSample().getValueAsString();
+                                } catch (Exception ex) {
+                                    logger.error(ex);
+                                }
+
+                                AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
+
+                                if (aggregationName != null) {
+                                    aggregationPeriod = AggregationPeriod.get(aggregationName.toUpperCase());
+                                }
+                                logger.info("aggregationPeriod: " + aggregationPeriod.toString());
+
+                                ManipulationMode manipulationMode = ManipulationMode.NONE;
+                                if (manipulationName != null) {
+                                    manipulationMode = ManipulationMode.get(manipulationName.toUpperCase());
+                                } else if (aggregationName != null) {
+                                    manipulationMode = ManipulationMode.get(aggregationName.toUpperCase());
+                                }
+                                logger.info("manipulationMode: " + manipulationMode.toString());
+
+                                Interval interval = null;
+                                PeriodMode mode = null;
+                                try {
+                                    String modeName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.PERIOD).getLatestSample().getValueAsString();
+                                    mode = PeriodMode.valueOf(modeName.toUpperCase());
+
+                                    if (mode != PeriodMode.FIXED && mode != PeriodMode.FIXED_TO_REPORT_END) {
+                                        interval = intervalCalc.getInterval(mode.toString().toUpperCase());
+                                    } else {
+                                        String fixedPeriodName = config.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.FIXED_PERIOD).getLatestSample().getValueAsString();
+                                        FixedPeriod fixedPeriod = FixedPeriod.valueOf(fixedPeriodName.toUpperCase());
+                                        String name;
+                                        if (mode == PeriodMode.FIXED) {
+                                            name = PeriodMode.FIXED.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
+                                        } else {
+                                            name = PeriodMode.FIXED_TO_REPORT_END.toString().toUpperCase() + "_" + fixedPeriod.toString().toUpperCase();
+                                        }
+
+                                        interval = intervalCalc.getInterval(name);
+                                    }
+
+                                    logger.info("interval: " + interval);
+
+                                } catch (JEVisException ex) {
+                                    logger.error(ex);
+                                }
 
                                 if (interval != null) {
                                     long duration = 0;
                                     duration = interval.toDurationMillis();
 
-                                    switch (period) {
+                                    switch (aggregationPeriod) {
+                                        case QUARTER_HOURLY:
+                                            long quarter_hourly = 900000L;
+                                            if (duration < quarter_hourly) {
+                                                DateTime start = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(), interval.getEnd().getHourOfDay(), interval.getEnd().getMinuteOfHour(), 0);
+                                                DateTime end = interval.getEnd();
+                                                interval = new Interval(start, end);
+                                            }
+                                            break;
                                         case HOURLY:
                                             long hourly = 3600000L;
                                             if (duration < hourly) {
@@ -280,6 +321,7 @@ public class ReportLinkProperty implements ReportData {
                                             }
                                             break;
                                         case NONE:
+                                        default:
                                             break;
                                     }
                                 }
@@ -301,11 +343,11 @@ public class ReportLinkProperty implements ReportData {
                                     interval = new Interval(start, end);
                                 }
 
-                                PeriodSampleGenerator gen = new PeriodSampleGenerator(ds, dataObject, attribute, interval, manipulationMode, period);
+                                PeriodSampleGenerator gen = new PeriodSampleGenerator(ds, dataObject, attribute, interval, manipulationMode, aggregationPeriod);
 
                                 try {
                                     linkMap.putAll(gen.work(linkProperty, attributeProperty, property));
-                                    logger.debug("added link map " + linkMap.entrySet() + " to attribute map");
+                                    logger.info("added link map " + linkMap.entrySet() + " to attribute map");
                                 } catch (JEVisException e) {
                                     logger.error(e);
                                 }
@@ -316,7 +358,7 @@ public class ReportLinkProperty implements ReportData {
 
                                 try {
                                     linkMap.putAll(sampleGenerator.work(linkProperty, attributeProperty, property));
-                                    logger.debug("added link map " + linkMap.entrySet() + " to attribute map");
+                                    logger.info("added link map " + linkMap.entrySet() + " to attribute map");
                                 } catch (JEVisException e) {
                                     logger.error(e);
                                 }
@@ -339,6 +381,12 @@ public class ReportLinkProperty implements ReportData {
 
     @Override
     public LinkStatus getReportLinkStatus(DateTime end) {
+
+        DateTime endRecord = end;
+        if (workdayStart.isAfter(workdayEnd)) {
+            endRecord = endRecord.minusDays(1);
+        }
+
         boolean optional = false;
         try {
             if (linkObject.getAttribute("Optional") != null && linkObject.getAttribute("Optional").getLatestSample() != null) {
@@ -361,7 +409,7 @@ public class ReportLinkProperty implements ReportData {
                         if (att != null) {
                             JEVisSample latestSample = att.getLatestSample();
                             if (latestSample != null) {
-                                if (latestSample.getTimestamp().isAfter(end)) {
+                                if (latestSample.getTimestamp().isAfter(endRecord)) {
                                     return new LinkStatus(true, "ok");
                                 } else {
                                     return new LinkStatus(false, "No data available for jevis data object with id " + dataObject.getID());

@@ -3,12 +3,14 @@ package org.jevis.commons.chart;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.alarm.*;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.dataprocessing.SampleGenerator;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
@@ -16,10 +18,7 @@ import org.jevis.commons.unit.UnitManager;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,11 +53,12 @@ public class ChartDataModel {
     private boolean hasForecastData = false;
     private double timeFactor = 1.0;
     private Double scaleFactor = 1d;
-    private double min;
-    private double max;
-    private double avg;
-    private Double sum;
+    private double min = 0d;
+    private double max = 0d;
+    private double avg = 0d;
+    private Double sum = 0d;
     private Map<DateTime, JEVisSample> userNoteMap;
+    private Map<DateTime, Alarm> alarmMap;
     private boolean customWorkDay = true;
 
 
@@ -104,7 +104,7 @@ public class ChartDataModel {
     }
 
     public Map<DateTime, JEVisSample> getNoteSamples() {
-        if(userNoteMap!=null){
+        if (userNoteMap != null) {
             return userNoteMap;
         }
 
@@ -128,8 +128,142 @@ public class ChartDataModel {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        userNoteMap=noteSample;
+        userNoteMap = noteSample;
         return noteSample;
+    }
+
+    public Map<DateTime, Alarm> getAlarms() {
+        if (alarmMap != null) {
+            return alarmMap;
+        }
+
+        Map<DateTime, Alarm> alarms = new TreeMap<>();
+
+        try {
+            CleanDataAlarm cleanDataAlarm = new CleanDataAlarm(getDataProcessor());
+            if (cleanDataAlarm.isValidAlarmConfiguration()) {
+                Double tolerance = cleanDataAlarm.getTolerance();
+                AlarmType alarmType = cleanDataAlarm.getAlarmType();
+                Double limit = null;
+                List<UsageSchedule> usageSchedules = cleanDataAlarm.getUsageSchedules();
+                List<JEVisSample> comparisonSamples;
+                Map<DateTime, JEVisSample> compareMap = new HashMap<>();
+
+                boolean dynamicAlarm = alarmType.equals(AlarmType.DYNAMIC);
+
+                DateTime firstTimeStamp = getSelectedEnd();
+                if (dynamicAlarm) {
+                    comparisonSamples = cleanDataAlarm.getSamples(getSelectedStart(), getSelectedEnd());
+                    for (JEVisSample sample : comparisonSamples) {
+                        if (sample.getTimestamp().isBefore(firstTimeStamp)) firstTimeStamp = sample.getTimestamp();
+                        compareMap.put(sample.getTimestamp(), sample);
+                    }
+                } else limit = cleanDataAlarm.getLimit();
+
+
+                if (!getSamples().isEmpty()) {
+                    for (JEVisSample valueSample : getSamples()) {
+                        DateTime ts = valueSample.getTimestamp();
+                        JEVisSample compareSample = null;
+                        Double value = valueSample.getValueAsDouble();
+                        AlarmType sampleAlarmType;
+
+                        Double diff = null;
+                        Double lowerValue = null;
+                        Double upperValue = null;
+                        if (dynamicAlarm) {
+                            compareSample = compareMap.get(ts);
+
+                            if (compareSample == null) {
+
+                                DateTime dt = ts.minusSeconds(1);
+                                while (compareSample == null && (dt.equals(firstTimeStamp) || dt.isAfter(firstTimeStamp))) {
+                                    compareSample = compareMap.get(dt);
+                                    dt = dt.minusSeconds(1);
+                                }
+
+                                if (compareSample == null) {
+                                    logger.error("Could not find sample to compare with value." + ts);
+                                    continue;
+                                }
+                            }
+
+                            diff = compareSample.getValueAsDouble() * (tolerance / 100);
+                            lowerValue = compareSample.getValueAsDouble() - diff;
+                            upperValue = compareSample.getValueAsDouble() + diff;
+                            sampleAlarmType = AlarmType.DYNAMIC;
+                        } else {
+                            diff = limit * (tolerance / 100);
+                            lowerValue = limit - diff;
+                            upperValue = limit + diff;
+                            sampleAlarmType = AlarmType.STATIC;
+                        }
+
+                        boolean isAlarm = false;
+                        boolean upper = true;
+                        String operator = "";
+                        switch (cleanDataAlarm.getOperator()) {
+                            case BIGGER:
+                                if (value > upperValue) {
+                                    isAlarm = true;
+                                    operator = ">";
+                                }
+                                break;
+                            case BIGGER_EQUALS:
+                                if (value >= upperValue) {
+                                    isAlarm = true;
+                                    operator = "≥";
+                                }
+                                break;
+                            case EQUALS:
+                                if (value.equals(upperValue)) {
+                                    isAlarm = true;
+                                    operator = "=";
+                                }
+                                break;
+                            case NOT_EQUALS:
+                                if (!value.equals(upperValue)) {
+                                    isAlarm = true;
+                                    operator = "≠";
+                                }
+                                break;
+                            case SMALLER:
+                                if (value < lowerValue) {
+                                    isAlarm = true;
+                                    operator = "<";
+                                }
+                                upper = false;
+                                break;
+                            case SMALLER_EQUALS:
+                                if (value <= lowerValue) {
+                                    isAlarm = true;
+                                    operator = "≤";
+                                }
+                                upper = false;
+                                break;
+                        }
+
+                        if (isAlarm) {
+                            int logVal = 0;
+
+                            logVal = ScheduleService.getValueForLog(ts, usageSchedules);
+                            JEVisSample alarmSample = new VirtualSample(ts, (long) logVal);
+
+                            if (upper) {
+                                alarms.put(ts, new Alarm(getDataProcessor(), getAttribute(), alarmSample, ts, value, operator, upperValue, sampleAlarmType, logVal));
+                            } else {
+                                alarms.put(ts, new Alarm(getDataProcessor(), getAttribute(), alarmSample, ts, value, operator, lowerValue, sampleAlarmType, logVal));
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error(e);
+        }
+
+        alarmMap = alarms;
+        return alarmMap;
     }
 
     public List<JEVisSample> getSamples() {
@@ -209,7 +343,6 @@ public class ChartDataModel {
                     } catch (Exception ex) {
                         logger.error(ex);
                     }
-
 
 
                     return new ArrayList<JEVisSample>();
@@ -413,7 +546,11 @@ public class ChartDataModel {
     }
 
     public String getTitle() {
-        return title;
+        if (title != null && !title.equals("")) {
+            return title;
+        } else {
+            return getObject().getName();
+        }
     }
 
     public void setTitle(String title) {
@@ -641,6 +778,7 @@ public class ChartDataModel {
         newModel.setTimeFactor(this.getTimeFactor());
         newModel.setScaleFactor(this.getScaleFactor());
         newModel.setCustomWorkDay(this.isCustomWorkDay());
+        newModel.setSomethingChanged(false);
 
         return newModel;
     }
@@ -718,8 +856,14 @@ public class ChartDataModel {
     }
 
     public boolean equals(ChartDataModel obj) {
-        return this.getObject().getID().equals(obj.getObject().getID())
-                && this.getDataProcessor().getID().equals(obj.getDataProcessor().getID());
+        if (this.getDataProcessor() != null && obj.getDataProcessor() != null) {
+            return this.getObject().getID().equals(obj.getObject().getID())
+                    && this.getDataProcessor().getID().equals(obj.getDataProcessor().getID());
+        } else if (this.getDataProcessor() == null && obj.getDataProcessor() == null) {
+            return this.getObject().getID().equals(obj.getObject().getID());
+        } else {
+            return false;
+        }
     }
 
     public boolean isCustomWorkDay() {

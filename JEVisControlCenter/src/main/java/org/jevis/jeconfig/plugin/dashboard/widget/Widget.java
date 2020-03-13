@@ -102,12 +102,10 @@ public abstract class Widget extends Region {
         logger.debug("initLayout() {}", config.getTitle());
         makeDragDropOverlay();
         makeWindowForm();
-        makeLoadingOverlay();
-        makeAlartOverlay();
+        /** disabled because the animation eats al lot of performance for bigger Dashboards**/
+        //makeLoadingOverlay();
+        makeAlertOverlay();
 
-//        this.getChildren().add(this.contentRoot);
-//        this.getChildren().add(this.editPane);
-//        this.getChildren().add(this.loadingPane);
         this.getChildren().addAll(
                 this.contentRoot,
                 this.alertPane,
@@ -116,7 +114,6 @@ public abstract class Widget extends Region {
         );
         onDragResizeEventListener.setDashBoardPane(control.getDashboardPane());
         DragResizeMod.makeResizable(this, onDragResizeEventListener);
-//        DragResizeMod.makeResizable(this.contentRoot, onDragResizeEventListener);
 
         this.layoutYProperty().addListener((observable, oldValue, newValue) -> {
             this.config.setyPosition(newValue.doubleValue());
@@ -145,9 +142,6 @@ public abstract class Widget extends Region {
         this.config = config;
 
         setNodeSize(this.config.getSize().getWidth(), this.config.getSize().getHeight());
-//        makeDragDropOverlay();
-//        makeWindowForm();
-//        makeLoadingOverlay();
         setBorder(this.config.getBorderSize());
         layoutXProperty().set(this.config.getxPosition());
         layoutYProperty().set(this.config.getyPosition());
@@ -227,7 +221,7 @@ public abstract class Widget extends Region {
 
     }
 
-    private void makeAlartOverlay() {
+    private void makeAlertOverlay() {
         this.alertPane.setVisible(false);
         label.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         ImageView alert = JEConfig.getImage("Warning-icon.png", 16d, 16d);

@@ -43,11 +43,13 @@ import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ColorMappingBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
-import org.jevis.jeconfig.application.Chart.ChartSettings;
-import org.jevis.jeconfig.application.Chart.TimeFrame;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
+import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
@@ -152,7 +154,7 @@ public class ChartSelectionDialog {
 
         tabPaneCharts.getTabs().add(getCommonTab());
 
-        for (ChartSettings settings : data.getCharts()) {
+        for (ChartSetting settings : data.getCharts().getListSettings()) {
             tabPaneCharts.getTabs().add(createChartTab(settings));
         }
 
@@ -199,7 +201,7 @@ public class ChartSelectionDialog {
             List<UserSelection> listUS = new ArrayList<>();
             for (ChartDataModel cdm : data.getSelectedData()) {
                 for (int i : cdm.getSelectedcharts()) {
-                    for (ChartSettings set : data.getCharts()) {
+                    for (ChartSetting set : data.getCharts().getListSettings()) {
                         if (set.getId() == i)
                             listUS.add(new UserSelection(UserSelection.SelectionType.Object, cdm.getObject()));
                     }
@@ -229,7 +231,7 @@ public class ChartSelectionDialog {
             if (newValue) {
                 tabPaneCharts.getTabs().clear();
                 tabPaneCharts.getTabs().add(getCommonTab());
-                for (ChartSettings settings : data.getCharts()) {
+                for (ChartSetting settings : data.getCharts().getListSettings()) {
                     tabPaneCharts.getTabs().add(createChartTab(settings));
                 }
             }
@@ -243,16 +245,16 @@ public class ChartSelectionDialog {
     }
 
     private void removeEmptyCharts() {
-        List<ChartSettings> toBeRemoved = new ArrayList<>();
+        List<ChartSetting> toBeRemoved = new ArrayList<>();
 
-        data.getCharts().forEach(chartSettings -> {
+        data.getCharts().getListSettings().forEach(chartSettings -> {
             boolean hasData = data.getSelectedData().stream().anyMatch(model -> model.getSelectedcharts().contains(chartSettings.getId()));
             if (!hasData) {
                 toBeRemoved.add(chartSettings);
             }
         });
 
-        data.getCharts().removeAll(toBeRemoved);
+        data.getCharts().getListSettings().removeAll(toBeRemoved);
     }
 
     private Tab getCommonTab() {
@@ -310,7 +312,7 @@ public class ChartSelectionDialog {
         if (!listUS.isEmpty()) tree.openUserSelection(listUS);
     }
 
-    private Tab createChartTab(ChartSettings cset) {
+    private Tab createChartTab(ChartSetting cset) {
         Tab newTab = new Tab(cset.getId().toString());
         newTab.setClosable(false);
         ScrollPane scrollPane = new ScrollPane();
@@ -327,8 +329,8 @@ public class ChartSelectionDialog {
             if (chartDataModel.getSelectedcharts().contains(cset.getId())) correspondingDataModels.add(chartDataModel);
         });
 
-        PickerCombo pickerCombo = new PickerCombo(data, correspondingDataModels);
-        final ComboBox<TimeFrame> presetDateBox = pickerCombo.getPresetDateBox();
+        PickerCombo pickerCombo = new PickerCombo(data, correspondingDataModels, false);
+        final ComboBox<AnalysisTimeFrame> presetDateBox = pickerCombo.getPresetDateBox();
         final JFXDatePicker pickerDateStart = pickerCombo.getStartDatePicker();
         final JFXTimePicker pickerTimeStart = pickerCombo.getStartTimePicker();
         final JFXDatePicker pickerDateEnd = pickerCombo.getEndDatePicker();
@@ -338,8 +340,14 @@ public class ChartSelectionDialog {
         final ChartNameTextField chartNameTextField = new ChartNameTextField(cset);
 
         final Label labelChartType = new Label(I18n.getInstance().getString("graph.tabs.tab.charttype"));
-
         final ChartTypeComboBox chartTypeComboBox = new ChartTypeComboBox(cset);
+
+        Label labelColorMapping = null;
+        ColorMappingBox colorMappingBox = null;
+        if (cset.getChartType() == ChartType.HEAT_MAP) {
+            labelColorMapping = new Label("graph.tabs.tab.colormapping");
+            colorMappingBox = new ColorMappingBox(cset);
+        }
 
         final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
         final Label endText = new Label(I18n.getInstance().getString("plugin.graph.changedate.enddate"));
@@ -405,6 +413,12 @@ public class ChartSelectionDialog {
         gridPane.add(labelChartType, 0, row);
         gridPane.add(chartTypeComboBox, 1, row);
         row++;
+
+        if (cset.getChartType() == ChartType.HEAT_MAP) {
+            gridPane.add(labelColorMapping, 0, row);
+            gridPane.add(colorMappingBox, 1, row);
+            row++;
+        }
 
         gridPane.add(startText, 0, row);
         gridPane.add(pickerTimeStart, 1, row);

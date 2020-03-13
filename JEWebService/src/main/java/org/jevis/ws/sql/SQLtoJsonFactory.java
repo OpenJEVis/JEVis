@@ -25,6 +25,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisConstants;
+import org.jevis.api.JEVisType;
 import org.jevis.commons.ws.json.*;
 import org.jevis.ws.sql.tables.AttributeTable;
 import org.jevis.ws.sql.tables.ObjectTable;
@@ -37,6 +38,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -143,13 +145,37 @@ public class SQLtoJsonFactory {
      * @return
      */
     public static JsonObject buildObject(ResultSet rs) throws SQLException {
+        System.out.println("buildObject: "+rs.toString());
         JsonObject json = new JsonObject();
         json.setName(rs.getString(ObjectTable.COLUMN_NAME));
         json.setId(rs.getLong(ObjectTable.COLUMN_ID));
         json.setJevisClass(rs.getString(ObjectTable.COLUMN_CLASS));
         json.setisPublic(rs.getBoolean(ObjectTable.COLUMN_PUBLIC));
+
+        String i18njsonString = rs.getString(ObjectTable.COLUMN_I18N);
+        System.out.println("i18njsonString: "+i18njsonString);
+        if(i18njsonString!=null && !i18njsonString.isEmpty()){
+            try {
+                System.out.println("--exists");
+                JsonI18n[] jsons = objectMapper.readValue(i18njsonString, JsonI18n[].class);
+                System.out.println("-jsons: "+jsons);
+                json.setI18n(Arrays.asList(jsons));
+               // List<JsonI18n> i18ns = new ArrayList<>();
+            //    for (JsonI18n i18n : jsons) {
+//                logger.trace("Type: {}", type);
+
+           //         i18ns.add(new JEVisTypeWS(this, type, jclass.getName()));
+           //     }
+
+            }catch (Exception ex){
+                logger.error(ex);
+            }
+
+        }
+
         return json;
     }
+
 
     /**
      * Build a JSON representation of a JEVisRelationship
@@ -161,7 +187,6 @@ public class SQLtoJsonFactory {
         json.setFrom(rs.getLong(RelationshipTable.COLUMN_START));
         json.setTo(rs.getLong(RelationshipTable.COLUMN_END));
         json.setType(rs.getInt(RelationshipTable.COLUMN_TYPE));
-
 
         return json;
     }

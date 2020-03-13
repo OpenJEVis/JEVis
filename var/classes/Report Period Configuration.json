@@ -24,7 +24,25 @@
       "jevisClass": "Report Period Configuration"
     },
     {
+      "name": "Manipulation",
+      "primitiveType": 0,
+      "guiType": "Dynamic Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Period Configuration"
+    },
+    {
       "name": "Period",
+      "primitiveType": 0,
+      "guiType": "Dynamic Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Report Period Configuration"
+    },
+    {
+      "name": "Fixed Period",
       "primitiveType": 0,
       "guiType": "Dynamic Enum",
       "guiposition": 0,

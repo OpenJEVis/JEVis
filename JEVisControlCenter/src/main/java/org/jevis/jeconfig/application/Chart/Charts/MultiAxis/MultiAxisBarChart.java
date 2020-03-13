@@ -42,10 +42,10 @@ import javafx.css.StyleableDoubleProperty;
 import javafx.geometry.Orientation;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
+import javafx.scene.chart.Axis;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.ValueAxis;
 import javafx.scene.layout.StackPane;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.Axis;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.CategoryAxis;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.ValueAxis;
 
 import java.util.HashMap;
 import java.util.Iterator;

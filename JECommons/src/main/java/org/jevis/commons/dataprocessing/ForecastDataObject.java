@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.jevis.commons.constants.GapFillingReferencePeriod.ALL;
 import static org.jevis.commons.constants.GapFillingReferencePeriod.MONTH;
 import static org.jevis.commons.dataprocessing.ForecastDataObject.AttributeName.*;
 
@@ -224,7 +225,7 @@ public class ForecastDataObject {
     public List<JEVisSample> getSampleCache() {
         if (this.sampleCache == null || this.sampleCache.isEmpty()) {
             GapFillingReferencePeriod referencePeriod = null;
-            Long referencePeriodCount = null;
+            int referencePeriodCount = 6;
             try {
                 if (getReferencePeriodAttribute().hasSample()) {
                     referencePeriod = GapFillingReferencePeriod.parse(getReferencePeriodAttribute().getLatestSample().getValueAsString());
@@ -236,27 +237,29 @@ public class ForecastDataObject {
 
             try {
                 if (getReferencePeriodCountAttribute().hasSample()) {
-                    referencePeriodCount = getReferencePeriodCountAttribute().getLatestSample().getValueAsLong();
+                    referencePeriodCount = getReferencePeriodCountAttribute().getLatestSample().getValueAsLong().intValue();
                 }
             } catch (JEVisException e) {
                 logger.error("Could not get reference period count from {}:{}, assuming default value of 6", getForecastDataObject().getName(), getForecastDataObject().getID(), e);
-                referencePeriodCount = 6L;
             }
 
             long duration = 0L;
-            if (referencePeriod != null && referencePeriodCount != null) {
+            if (referencePeriod != null) {
+                DateTime endDate = getStartDate();
+                DateTime startDate = null;
+
                 switch (referencePeriod) {
                     case DAY:
-                        duration = 2 * 24L * 60L * 60L * 1000L;
+                        startDate = endDate.minusDays(referencePeriodCount);
                         break;
                     case MONTH:
-                        duration = 2 * 4L * 7L * 24L * 60L * 60L * 1000L;
+                        startDate = endDate.minusMonths(referencePeriodCount);
                         break;
                     case WEEK:
-                        duration = 2 * 7L * 24L * 60L * 60L * 1000L;
+                        startDate = endDate.minusWeeks(referencePeriodCount);
                         break;
                     case YEAR:
-                        duration = 2 * 52L * 4L * 7L * 24L * 60L * 60L * 1000L;
+                        startDate = endDate.minusYears(referencePeriodCount);
                         break;
                     case ALL:
                         try {
@@ -267,9 +270,6 @@ public class ForecastDataObject {
                         }
                         break;
                 }
-                duration *= referencePeriodCount;
-                DateTime endDate = getStartDate();
-                DateTime startDate = endDate.minus(duration);
 
                 try {
                     sampleCache = getInputAttribute().getSamples(startDate, endDate);
@@ -293,32 +293,23 @@ public class ForecastDataObject {
     public DateTime getEndDate() throws JEVisException {
         if (getForecastDurationAttribute().hasSample()) {
             String forecastDuration = getForecastDurationAttribute().getLatestSample().getValueAsString();
-            long forecastDurationCount = 1L;
+            int forecastDurationCount = 1;
             if (getForecastDurationCountAttribute().hasSample()) {
-                forecastDurationCount = getForecastDurationCountAttribute().getLatestSample().getValueAsLong();
+                forecastDurationCount = getForecastDurationCountAttribute().getLatestSample().getValueAsLong().intValue();
             }
-            long duration = 0L;
 
             switch (forecastDuration) {
                 case "MINUTES":
-                    duration = 60L * 1000L;
-                    break;
+                    return getStartDate().plusMinutes(forecastDurationCount);
                 case "HOURS":
-                    duration = 60L * 60L * 1000L;
-                    break;
+                    return getStartDate().plusHours(forecastDurationCount);
                 case "DAYS":
-                    duration = 24L * 60L * 60L * 1000L;
-                    break;
+                    return getStartDate().plusDays(forecastDurationCount);
                 case "WEEKS":
-                    duration = 7L * 24L * 60L * 60L * 1000L;
-                    break;
+                    return getStartDate().plusWeeks(forecastDurationCount);
                 case "MONTHS":
-                    duration = 4L * 7L * 24L * 60L * 60L * 1000L;
-                    break;
+                    return getStartDate().plusMonths(forecastDurationCount);
             }
-
-            duration *= forecastDurationCount;
-            return getStartDate().plus(duration);
         }
         return null;
     }
@@ -412,6 +403,10 @@ public class ForecastDataObject {
 
         if (getReferencePeriodCountAttribute().hasSample()) {
             referencePeriodCount = getReferencePeriodCountAttribute().getLatestSample().getValueAsString();
+        }
+
+        if (referencePeriod == ALL) {
+            referencePeriodCount = String.valueOf(Integer.MAX_VALUE);
         }
 
         GapFillingBoundToSpecific bindToSpecific = GapFillingBoundToSpecific.parse(getBindToSpecificAttribute().getLatestSample().getValueAsString());

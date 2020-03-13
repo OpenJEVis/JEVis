@@ -27,6 +27,9 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.FixedPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.report.*;
@@ -36,9 +39,7 @@ import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
-import org.jevis.jeconfig.tool.ReportAggregationBox;
-import org.jevis.jeconfig.tool.ReportPeriodBox;
-import org.jevis.jeconfig.tool.ToggleSwitchPlus;
+import org.jevis.jeconfig.tool.*;
 import org.joda.time.DateTime;
 
 import java.io.File;
@@ -116,6 +117,7 @@ public class ReportWizardDialog {
                             final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.waitsave"));
 
                             pForm.activateProgressBar();
+                            JEConfig.getStatusBar().startProgressJob("reportlinks", getReportLinkList().size() + 1, I18n.getInstance().getString("plugin.object.report.message.creatinglinks") + " ");
 
                             getReportLinkList().parallelStream().forEach(rl -> {
                                 executorService.submit(() -> {
@@ -126,38 +128,47 @@ public class ReportWizardDialog {
                                         object.commit();
 
                                         JEVisAttribute jeVis_id = object.getAttribute("JEVis ID");
-                                        JEVisSample sample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
-                                        sample.commit();
+                                        JEVisSample jevisIdSample = jeVis_id.buildSample(new DateTime(), rl.getjEVisID());
+                                        jevisIdSample.commit();
 
                                         JEVisAttribute optionalAttribute = object.getAttribute("Optional");
                                         JEVisSample sampleOptional = optionalAttribute.buildSample(new DateTime(), rl.isOptional());
                                         sampleOptional.commit();
 
                                         JEVisAttribute templateVariableName = object.getAttribute("Template Variable Name");
-                                        JEVisSample sample1 = templateVariableName.buildSample(new DateTime(), variableName);
-                                        sample1.commit();
+                                        JEVisSample templateVariableSample = templateVariableName.buildSample(new DateTime(), variableName);
+                                        templateVariableSample.commit();
 
                                         if (reportType == ReportType.STANDARD) {
                                             JEVisObject reportAttribute = object.buildObject("Report Attribute", finalReportAttributeClass);
                                             reportAttribute.commit();
                                             JEVisAttribute attribute_name = reportAttribute.getAttribute("Attribute Name");
 
-                                            JEVisSample sample4 = attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
-                                            sample4.commit();
+                                            JEVisSample attributeNameSample = attribute_name.buildSample(new DateTime(), rl.getReportAttribute().getAttributeName());
+                                            attributeNameSample.commit();
 
                                             JEVisObject reportPeriodConfiguration = reportAttribute.buildObject("Report Period Configuration", finalReportPeriodConfigurationClass);
                                             reportPeriodConfiguration.commit();
 
                                             JEVisAttribute aggregationAttribute = reportPeriodConfiguration.getAttribute("Aggregation");
-                                            JEVisSample sample2 = aggregationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
-                                            sample2.commit();
+                                            JEVisSample aggregationSample = aggregationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+                                            aggregationSample.commit();
+
+                                            JEVisAttribute manipulationAttribute = reportPeriodConfiguration.getAttribute("Manipulation");
+                                            JEVisSample manipulationSample = manipulationAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getReportManipulation());
+                                            manipulationSample.commit();
 
                                             JEVisAttribute periodAttribute = reportPeriodConfiguration.getAttribute("Period");
-                                            JEVisSample sample3 = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
-                                            sample3.commit();
+                                            JEVisSample periodSample = periodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
+                                            periodSample.commit();
+
+                                            JEVisAttribute fixedPeriodAttribute = reportPeriodConfiguration.getAttribute("Fixed Period");
+                                            JEVisSample fixedPeriodSample = fixedPeriodAttribute.buildSample(new DateTime(), rl.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod().toString());
+                                            fixedPeriodSample.commit();
                                         }
 
                                         completed.put(rl, true);
+                                        JEConfig.getStatusBar().progressProgressJob("reportlinks", 1, I18n.getInstance().getString("plugin.object.report.message.finishedlink") + " " + rl.getName());
 
                                         if (completed.size() == getReportLinkList().size()) {
                                             try {
@@ -171,7 +182,12 @@ public class ReportWizardDialog {
                                                 JEVisSample templateSample = templateAttribute.buildSample(new DateTime(), template);
                                                 templateSample.commit();
 
-                                                Platform.runLater(() -> pForm.getDialogStage().close());
+                                                JEConfig.getStatusBar().progressProgressJob("reportlinks", 1, I18n.getInstance().getString("plugin.object.report.message.finishedtemplate"));
+
+                                                Platform.runLater(() -> {
+                                                    pForm.getDialogStage().close();
+                                                    JEConfig.getStatusBar().finishProgressJob("reportlinks", I18n.getInstance().getString("plugin.object.report.message.finishedprocess"));
+                                                });
                                             } catch (IOException e) {
                                                 e.printStackTrace();
                                             } catch (JEVisException ex) {
@@ -321,7 +337,7 @@ public class ReportWizardDialog {
 
                 ReportLink newLink = new ReportLink("", us.getSelectedObject().getID(), false, "",
                         new ReportAttribute("Value",
-                                new ReportPeriodConfiguration("NONE", PeriodMode.CURRENT)));
+                                new ReportPeriodConfiguration(AggregationPeriod.NONE, ManipulationMode.NONE, PeriodMode.CURRENT, FixedPeriod.NONE)));
                 if (us.getSelectedAttribute() != null) {
                     newLink.getReportAttribute().setAttributeName(us.getSelectedAttribute().getName());
                 } else {
@@ -390,13 +406,15 @@ public class ReportWizardDialog {
         gridPane.getChildren().clear();
         Label reportVariableLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.reportlink"));
         Label aggregationLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.aggregation"));
+        Label manipulationLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.manipulation"));
         Label periodLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.period"));
         Label optionalLabel = new Label(I18n.getInstance().getString("plugin.object.report.dialog.header.optional"));
 
         gridPane.add(reportVariableLabel, 0, 0);
         gridPane.add(aggregationLabel, 1, 0);
-        gridPane.add(periodLabel, 2, 0);
-        gridPane.add(optionalLabel, 3, 0);
+        gridPane.add(manipulationLabel, 2, 0);
+        gridPane.add(periodLabel, 4, 0);
+        gridPane.add(optionalLabel, 6, 0);
         row = 1;
         for (ReportLink reportLink : reportLinkList) {
             createBox(reportLink);
@@ -407,7 +425,7 @@ public class ReportWizardDialog {
     private void createNewReportLink(Boolean copy, ReportLink oldReportLink) {
         ReportLink reportLink = null;
         if (!copy) {
-            reportLink = new ReportLink("", null, false, "", new ReportAttribute("Value", new ReportPeriodConfiguration("NONE", PeriodMode.CURRENT)));
+            reportLink = new ReportLink("", null, false, "", new ReportAttribute("Value", new ReportPeriodConfiguration(AggregationPeriod.NONE, ManipulationMode.NONE, PeriodMode.CURRENT, FixedPeriod.NONE)));
 
         } else {
             reportLink = oldReportLink.clone();
@@ -418,12 +436,20 @@ public class ReportWizardDialog {
     }
 
     private void createBox(ReportLink reportLink) {
+        int currentRow = row;
         Button targetsButton = new Button("Select Target");
-        ReportAggregationBox aggregationPeriodComboBox = new ReportAggregationBox(FXCollections.observableArrayList(ReportAggregation.values()));
+        ReportAggregationBox aggregationPeriodComboBox = new ReportAggregationBox();
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation() != null) {
             aggregationPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+        }
+
+        ReportManipulationBox manipulationComboBox = new ReportManipulationBox();
+        if (reportLink.getReportAttribute() != null
+                && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
+                && reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation() != null) {
+            manipulationComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getReportManipulation());
         }
 
         ImageView imageMarkAllAggregation = new ImageView(imgMarkAll);
@@ -443,11 +469,35 @@ public class ReportWizardDialog {
             });
         });
 
+        ImageView imageMarkAllManipulation = new ImageView(imgMarkAll);
+        imageMarkAllManipulation.fitHeightProperty().set(13);
+        imageMarkAllManipulation.fitWidthProperty().set(13);
+
+        Button tbManipulation = new Button("", imageMarkAllManipulation);
+        tbManipulation.setTooltip(tooltipMarkAll);
+        tbManipulation.setOnAction(event -> {
+            gridPane.getChildren().forEach(node -> {
+                if (GridPane.getColumnIndex(node) == 2) {
+                    if (node instanceof ReportManipulationBox) {
+                        ReportManipulationBox reportManipulationBox = (ReportManipulationBox) node;
+                        Platform.runLater(() -> reportManipulationBox.getSelectionModel().select(manipulationComboBox.getSelectionModel().getSelectedItem()));
+                    }
+                }
+            });
+        });
+
         ReportPeriodBox periodModeComboBox = new ReportPeriodBox(FXCollections.observableArrayList(PeriodMode.values()));
         if (reportLink.getReportAttribute() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
                 && reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode() != null) {
             periodModeComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getPeriodMode());
+        }
+
+        ReportFixedPeriodBox fixedPeriodComboBox = new ReportFixedPeriodBox();
+        if (reportLink.getReportAttribute() != null
+                && reportLink.getReportAttribute().getReportPeriodConfiguration() != null
+                && reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod() != null) {
+            fixedPeriodComboBox.getSelectionModel().select(reportLink.getReportAttribute().getReportPeriodConfiguration().getFixedPeriod());
         }
 
         ImageView imageMarkAllPeriod = new ImageView(imgMarkAll);
@@ -458,7 +508,7 @@ public class ReportWizardDialog {
         tbPeriod.setTooltip(tooltipMarkAll);
         tbPeriod.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
-                if (GridPane.getColumnIndex(node) == 3) {
+                if (GridPane.getColumnIndex(node) == 4) {
                     if (node instanceof ReportPeriodBox) {
                         ReportPeriodBox reportPeriodBox = (ReportPeriodBox) node;
                         Platform.runLater(() -> reportPeriodBox.getSelectionModel().select(periodModeComboBox.getSelectionModel().getSelectedItem()));
@@ -575,9 +625,42 @@ public class ReportWizardDialog {
             }
         });
 
+        manipulationComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                reportLink.getReportAttribute().getReportPeriodConfiguration().setReportManipulation(newValue);
+
+                Platform.runLater(() -> updateName(reportLink));
+            }
+        });
+
         periodModeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 reportLink.getReportAttribute().getReportPeriodConfiguration().setPeriodMode(newValue);
+
+                Platform.runLater(() -> updateName(reportLink));
+
+                if (newValue == PeriodMode.FIXED || newValue == PeriodMode.FIXED_TO_REPORT_END) {
+                    Platform.runLater(() -> gridPane.add(fixedPeriodComboBox, 9, currentRow));
+                } else if (oldValue == PeriodMode.FIXED || oldValue == PeriodMode.FIXED_TO_REPORT_END) {
+
+                    ReportFixedPeriodBox box = null;
+                    for (Node node : gridPane.getChildren()) {
+                        if (node instanceof ReportFixedPeriodBox) {
+                            box = (ReportFixedPeriodBox) node;
+                        }
+                    }
+
+                    if (box != null) {
+                        ReportFixedPeriodBox finalBox = box;
+                        Platform.runLater(() -> gridPane.getChildren().remove(finalBox));
+                    }
+                }
+            }
+        });
+
+        fixedPeriodComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                reportLink.getReportAttribute().getReportPeriodConfiguration().setFixedPeriod(newValue);
 
                 Platform.runLater(() -> updateName(reportLink));
             }
@@ -587,14 +670,15 @@ public class ReportWizardDialog {
             Platform.runLater(() -> createNewReportLink(true, reportLink));
         });
 
-        gridPane.add(targetsButton, 0, row);
-        gridPane.add(aggregationPeriodComboBox, 1, row);
-        gridPane.add(tbAggregation, 2, row);
-        gridPane.add(periodModeComboBox, 3, row);
-        gridPane.add(tbPeriod, 4, row);
-        gridPane.add(toggleSwitchPlus, 5, row);
-        gridPane.add(copyButton, 6, row);
-        gridPane.add(removeButton, 7, row);
+        gridPane.add(targetsButton, 0, currentRow);
+        gridPane.add(aggregationPeriodComboBox, 1, currentRow);
+        gridPane.add(manipulationComboBox, 2, currentRow);
+        gridPane.add(tbAggregation, 3, currentRow);
+        gridPane.add(periodModeComboBox, 4, currentRow);
+        gridPane.add(tbPeriod, 5, currentRow);
+        gridPane.add(toggleSwitchPlus, 6, currentRow);
+        gridPane.add(copyButton, 7, currentRow);
+        gridPane.add(removeButton, 8, currentRow);
     }
 
     private void updateName(ReportLink reportLink) {
@@ -753,7 +837,8 @@ public class ReportWizardDialog {
                 Cell cell = getOrCreateCell(sheet, 0, ((i + 1) + (counter - 2)));
                 cell.setCellValue(rl.getName());
                 Cell cell2 = getOrCreateCell(sheet, 0, ((i + 1) + counter - 1));
-                cell2.setCellValue(rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation());
+                cell2.setCellValue(rl.getReportAttribute().getReportPeriodConfiguration().getReportAggregation() + "_" +
+                        rl.getReportAttribute().getReportPeriodConfiguration().getReportManipulation());
                 Cell cell3 = getOrCreateCell(sheet, 0, ((i + 1) + counter));
                 cell3.setCellValue(rl.getReportAttribute().getReportPeriodConfiguration().getPeriodMode().toString());
 

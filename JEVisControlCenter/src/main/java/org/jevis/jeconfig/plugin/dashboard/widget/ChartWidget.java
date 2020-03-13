@@ -1,12 +1,10 @@
 package org.jevis.jeconfig.plugin.dashboard.widget;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.jfoenix.controls.JFXButton;
+import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.chart.PieChart;
 import javafx.scene.control.ButtonType;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
@@ -16,15 +14,18 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
+import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.LineChart;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisLineChart;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
+import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
@@ -32,23 +33,21 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public class ChartWidget extends Widget {
 
-    private static final Logger logger = LogManager.getLogger(PieChart.class);
+    private static final Logger logger = LogManager.getLogger(ChartWidget.class);
     public static String WIDGET_ID = "Chart";
 
     private LineChart lineChart;
     private DataModelDataHandler sampleHandler;
     private WidgetLegend legend = new WidgetLegend();
-    private JFXButton openAnalysisButton = new JFXButton();
-    private ObjectMapper mapper = new ObjectMapper();
     private BorderPane borderPane = new BorderPane();
     private Interval lastInterval = null;
-
-    private boolean autoAggregation = true;
+    private BorderPane bottomBorderPane = new BorderPane();
 
     public ChartWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -95,12 +94,14 @@ public class ChartWidget extends Widget {
                 this.sampleHandler.getDataModel().forEach(chartDataModel -> {
                     try {
                         String dataName = chartDataModel.getObject().getName();
+
+//                        if (chartDataModel.getSamples().isEmpty()) {
+//                            showAlertOverview(true, "");
+//                        }
                         this.legend.getItems().add(
                                 this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), ColorHelper.toColor(chartDataModel.getColor()),
-                                        this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject()));
-                        if (chartDataModel.getSamples().isEmpty()) {
-                            showAlertOverview(true, "");
-                        }
+                                        this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
+                                        chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata")));
 
                     } catch (Exception ex) {
                         logger.error(ex);
@@ -109,10 +110,17 @@ public class ChartWidget extends Widget {
                 /**
                  * LineChart does not support updateData so we need to create an new one every time;
                  */
-                this.lineChart = new LineChart(new AnalysisDataModel(getDataSource(), null), this.sampleHandler.getDataModel(), 0, "");
-
+                AnalysisDataModel model = new AnalysisDataModel(getDataSource(), null);
+                ChartSetting chartSetting = new ChartSetting(0, "");
+                chartSetting.setChartType(ChartType.LINE);
+                model.getCharts().setListSettings(Collections.singletonList(chartSetting));
+                this.borderPane.setCenter(null);
+                this.lineChart = new LineChart(model, this.sampleHandler.getDataModel(), chartSetting);
+                Size configSize = getConfig().getSize();
+                lineChart.getChart().setPrefSize(configSize.getWidth(), configSize.getHeight() - 20);
+                lineChart.getChart().setMaxHeight(configSize.getHeight() - 20);/** workaround for the legend overlap **/
                 this.borderPane.setCenter(this.lineChart.getChart());
-                updateConfig();/** workaround because we make a new chart everytime**/
+                updateConfig();/** workaround because we make a new chart every time**/
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -120,6 +128,7 @@ public class ChartWidget extends Widget {
             showProgressIndicator(false);
         });
     }
+
 
     @Override
     public void updateLayout() {
@@ -132,19 +141,33 @@ public class ChartWidget extends Widget {
             try {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
                 Background bgColorTrans = new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY));
-//                setChartLabel((MultiAxisLineChart) this.lineChart.getChart(), this.config.getFontColor());
                 this.setBackground(bgColorTrans);
                 this.legend.setBackground(bgColorTrans);
-//            this.legend.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-                //            legend.setBackground(new Background(new BackgroundFill(config.backgroundColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY)));
-//            lineChart.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Inset
                 this.borderPane.setBackground(bgColor);
-                this.borderPane.setPadding(new Insets(0, 0, 0, 25));
-                this.lineChart.applyColors();
-//                MultiAxisLineChart chart = (MultiAxisLineChart) this.lineChart.getChart();
-//                chart.getY2Axis().setVisible(false);
+
+                try {
+                    if (lineChart != null) {
+                        //lineChart.getChart().getPlotBackground().setBackground(bgColor);
+                        //lineChart.setBackGround(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+                        String cssBGColor = ColorHelper.toRGBCode(Color.TRANSPARENT);
+                        lineChart.getChart().getPlotBackground().setStyle("-fx-background-color: " + cssBGColor + ";");
+
+                        lineChart.getChart().setStyle("-fx-background-color: " + cssBGColor + ";");
+                        this.lineChart.getChart().getAxes().forEach(axis -> {
+                            if (axis instanceof DefaultNumericAxis) {
+                                DefaultNumericAxis defaultNumericAxis = (DefaultNumericAxis) axis;
+                                defaultNumericAxis.getAxisLabel().setVisible(false);
+                                defaultNumericAxis.setStyle("-fx-text-color: " + ColorHelper.toRGBCode(this.config.getFontColor()) + ";");
+                            }
+                        });
+
+                    }
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
             } catch (Exception ex) {
                 logger.error(ex);
+                ex.printStackTrace();
             }
         });
     }
@@ -186,14 +209,6 @@ public class ChartWidget extends Widget {
         }
     }
 
-    private void setChartLabel(MultiAxisLineChart chart, Color newValue) {
-        chart.getY1Axis().setTickLabelFill(newValue);
-        chart.getXAxis().setTickLabelFill(newValue);
-
-        chart.getXAxis().setLabel("");
-        chart.getY1Axis().setLabel("");
-    }
-
     @Override
     public void init() {
         this.sampleHandler = new DataModelDataHandler(getDataSource(), this.config.getConfigNode(WidgetConfig.DATA_HANDLER_NODE));
@@ -201,14 +216,18 @@ public class ChartWidget extends Widget {
 
         this.legend.setAlignment(Pos.CENTER);
 
-        BorderPane bottomBorderPane = new BorderPane();
-        bottomBorderPane.setCenter(this.legend);
-        bottomBorderPane.setRight(this.openAnalysisButton);
 
+        bottomBorderPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("bottomBorderPane: " + newValue);
+        });
         this.borderPane.setBottom(bottomBorderPane);
+        this.borderPane.setBottom(this.legend);
         setGraphic(this.borderPane);
 
 
+        /** Dummy chart **/
+        //this.lineChart = new LineChart(new AnalysisDataModel(getDataSource(),new GraphPluginView(getDataSource(),"dummy")) , this.sampleHandler.getDataModel(), 0, "");
+        //this.borderPane.setCenter(lineChart.getChart());
     }
 
     @Override

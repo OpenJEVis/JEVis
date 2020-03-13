@@ -33,6 +33,23 @@
       }
     },
     {
+      "type": "Disable Link",
+      "descriptions": {
+        "de": "Deaktiviert den Link zu der verknüpften Datenreihe im Alarm Plugin.",
+        "ru": "Деактивирует ссылку на связанный ряд данных в плагине тревоги.",
+        "uk": "Деактивує посилання на зв'язані серії даних у плагіні тривоги.",
+        "th": "เลิกใช้งานลิงก์ไปยังชุดข้อมูลที่เชื่อมโยงในปลั๊กอินเตือนภัย",
+        "en": "Deactivates the link to the data row in the alarm plugin"
+      },
+      "names": {
+        "de": "Deaktiviert Plugin Link",
+        "ru": "Деактивирует ссылку на плагин",
+        "th": "ปิดใช้งานลิงก์ปลั๊กอิน",
+        "uk": "Деактивує посилання на плагін",
+        "en": "Disable Plugin Link"
+      }
+    },
+    {
       "type": "Alarm Scope",
       "descriptions": {
         "de": "Definiert den Rahmen der beinhalteten Alarme; alle, ausgewählte, alle außer die ausgewählten oder keine. In jedem Fall werden die L1/L2 Grenzen protokolliert.",
@@ -48,31 +65,31 @@
         "uk": "діапазон сигналізації",
         "en": "Alarm Scope"
       },
-      "enums" : {
-        "COMPLETE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Alle Alarme",
-            "en" : "Every Alarm"
+      "enums": {
+        "COMPLETE": {
+          "descriptions": null,
+          "names": {
+            "de": "Alle Alarme",
+            "en": "Every Alarm"
           }
         },
-        "SELECTED" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Ausgewählte Alarme",
-            "en" : "Selected Alarm"
+        "SELECTED": {
+          "descriptions": null,
+          "names": {
+            "de": "Ausgewählte Alarme",
+            "en": "Selected Alarm"
           }
         },
-        "WITHOUT_SELECTED" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Ohne ausgewählte Alarme",
-            "en" : "Without selected"
+        "WITHOUT_SELECTED": {
+          "descriptions": null,
+          "names": {
+            "de": "Ohne ausgewählte Alarme",
+            "en": "Without selected"
           }
         },
-        "NONE" : {
-          "descriptions" : null,
-          "names" : {
+        "NONE": {
+          "descriptions": null,
+          "names": {
             "de": "Keine",
             "en": "None"
           }
@@ -129,73 +146,77 @@
         "uk": "період сигналізації",
         "en": "Alarm Period"
       },
-      "enums" : {
-        "MINUTELY" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Minütlich",
-            "ru" : "минутный",
-            "en" : "Minutely"
+      "enums": {
+        "MINUTELY": {
+          "descriptions": null,
+          "names": {
+            "de": "Minütlich",
+            "ru": "минутный",
+            "en": "Minutely"
           }
         },
-        "QUARTER_HOURLY" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Viertelstündlich",
-            "ru" : "Eжеквартально",
-            "en" : "Quarter-hourly"
+        "QUARTER_HOURLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Viertelstündlich",
+            "ru": "Eжеквартально",
+            "en": "Quarter-hourly"
           }
         },
-        "HOURLY" : {
-          "descriptions" : null,
-          "names" : {
+        "HOURLY": {
+          "descriptions": null,
+          "names": {
             "de": "Stündlich",
             "ru": "ежечасно",
             "en": "Hourly"
           }
         },
-        "WEEKLY" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Wöchentlich",
-            "ru" : "Eженедельно",
-            "en" : "Weekly"
-          }
-        },"MONTHLY" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Monatlich",
-            "ru" : "ежемесячно",
-            "en" : "Monthly"
+        "WEEKLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Wöchentlich",
+            "ru": "Eженедельно",
+            "en": "Weekly"
           }
         },
-        "QUARTERLY" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Vierteljährlich",
-            "ru" : "Eжеквартальный",
-            "en" : "Quarterly"
+        "MONTHLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Monatlich",
+            "ru": "ежемесячно",
+            "en": "Monthly"
           }
-        },"YEARLY" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Jährlich",
-            "ru" : "Ежегодно",
-            "en" : "Yearly"
+        },
+        "QUARTERLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Vierteljährlich",
+            "ru": "Eжеквартальный",
+            "en": "Quarterly"
           }
-        },"CUSTOM" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Benutzerdefiniert",
-            "ru" : "Пользовательский",
-            "en" : "Custom"
+        },
+        "YEARLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Jährlich",
+            "ru": "Ежегодно",
+            "en": "Yearly"
           }
-        },"NONE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Keine",
-            "ru" : "Никто",
-            "en" : "None"
+        },
+        "CUSTOM": {
+          "descriptions": null,
+          "names": {
+            "de": "Benutzerdefiniert",
+            "ru": "Пользовательский",
+            "en": "Custom"
+          }
+        },
+        "NONE": {
+          "descriptions": null,
+          "names": {
+            "de": "Keine",
+            "ru": "Никто",
+            "en": "None"
           }
         }
       }

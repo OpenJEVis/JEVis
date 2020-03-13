@@ -22,6 +22,8 @@ import org.jevis.jeconfig.plugin.dashboard.config2.DashboardPojo;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DashBoardToolbar extends ToolBar {
 
@@ -236,24 +238,15 @@ public class DashBoardToolbar extends ToolBar {
         if (dashboardSettings.getDashboardObject() != null) {
             this.listAnalysesComboBox.getSelectionModel().select(dashboardSettings.getDashboardObject());
         }
-
         disableEventListener = false;
     }
 
     public void updateView(final DashboardPojo dashboardSettings) {
-        logger.error("updateDashboard: {}", dashboardSettings);
+        logger.debug("updateDashboard: {}", dashboardSettings);
 
         unlockButton.setSelected(this.dashboardControl.editableProperty.getValue());
         showGridButton.setSelected(this.dashboardControl.showGridProperty.getValue());
         snapGridButton.setSelected(this.dashboardControl.snapToGridProperty.getValue());
-//        snapGridButton.selectedProperty().setValue(this.dashboardControl.enableSnapToGridProperty.getValue());
-//        showGridButton.selectedProperty().setValue(this.dashboardControl.showGridProperty.getValue());
-
-
-//        navigator.setDisable(dashboardControl.editableProperty.getValue());
-//        snapGridButton.setDisable(dashboardControl.enableSnapToGridProperty.getValue());
-
-
         listZoomLevel.setValue(dashboardControl.getZoomFactory());
         toolBarIntervalSelector.updateView();
 
@@ -322,16 +315,26 @@ public class DashBoardToolbar extends ToolBar {
         }
     }
 
-    private JFXComboBox<Double> buildZoomLevelListView() {
+    public static JFXComboBox<Double> buildZoomLevelListView() {
         ObservableList<Double> zoomLevel = FXCollections.observableArrayList();
 
-        zoomLevel.addAll(DashboardControl.fitToScreen, DashboardControl.fitToWidth, DashboardControl.fitToHeight
-                , 0.3d, 0.4d, 0.5d, 0.6d, 0.7d, 0.8d, 0.9d,
-                1.0d, 1.1d, 1.2d, 1.3d, 1.4d, 1.5d, 1.6d, 1.7d, 1.8d, 1.9d, 2.0d, 2.5d, 3.0d);
+        List<Double> zoomLevels = new ArrayList<>();
+        zoomLevels.add(DashboardControl.fitToScreen);
+        zoomLevel.add(DashboardControl.fitToWidth);
+        zoomLevel.add(DashboardControl.fitToHeight);
+
+        /** ComboBox need all posible values or the buttonCell will not work work in java 1.8 **/
+        double zs=0;
+        for(double d=0;d<=DashboardControl.MAX_ZOOM;d+=DashboardControl.zoomSteps){
+            zs= Precision.round((zs+0.05d),2);
+            zoomLevels.add(zs);
+        }
+        zoomLevel.addAll(zoomLevels);
 
 
         JFXComboBox<Double> doubleComboBox = new JFXComboBox<>(zoomLevel);
-        DecimalFormat df = new DecimalFormat("##0%");
+        DecimalFormat df = new DecimalFormat("##0");
+        //DecimalFormat df = new DecimalFormat("#.##");
         df.setMaximumFractionDigits(2);
         Callback<ListView<Double>, ListCell<Double>> cellFactory = new Callback<ListView<Double>, ListCell<Double>>() {
             @Override
@@ -340,18 +343,20 @@ public class DashBoardToolbar extends ToolBar {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         super.updateItem(item, empty);
-//                        System.out.println("item: "+item+" empty:"+empty);
+                        if (empty) {return;}
 
                         if (item != null) {
-                            if (item == DashboardControl.fitToScreen) {
-                                setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitscreen"));
-                            } else if (item == DashboardControl.fitToWidth) {
-                                setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitwidth"));
-                            } else if (item == DashboardControl.fitToHeight) {
-                                setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitheight"));
-                            } else {
-                                setText(df.format(Precision.round(item, 2)));
-                            }
+                            Platform.runLater(() -> {
+                                if (item == DashboardControl.fitToScreen) {
+                                    setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitscreen"));
+                                } else if (item == DashboardControl.fitToWidth) {
+                                    setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitwidth"));
+                                } else if (item == DashboardControl.fitToHeight) {
+                                    setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitheight"));
+                                } else {
+                                    setText(df.format(Precision.round(item*100, 2))+"%");
+                                }
+                            });
                         }
                     }
                 };
@@ -363,7 +368,9 @@ public class DashBoardToolbar extends ToolBar {
         doubleComboBox.setCellFactory(cellFactory);
         doubleComboBox.setButtonCell(cellFactory.call(null));
         doubleComboBox.setValue(1.0d);
-//        doubleComboBox.setPrefWidth(100d);
+        doubleComboBox.setPrefWidth(150d);
+
+
 
         return doubleComboBox;
     }

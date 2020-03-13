@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.sun.javafx.charts.Legend;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
@@ -16,6 +14,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
@@ -41,8 +40,7 @@ import java.util.Optional;
 public class PieWidget extends Widget {
     private static final Logger logger = LogManager.getLogger(PieWidget.class);
     public static String WIDGET_ID = "Pie";
-    //    private PieChart chart;
-    private PieChart chart;
+    private PieChart chart = new PieChart();
     private NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
     private WidgetLegend legend = new WidgetLegend();
@@ -93,27 +91,27 @@ public class PieWidget extends Widget {
 
         showAlertOverview(false, "");
 
-        ObservableList<PieChart.Data> series = FXCollections.observableArrayList();
+        List<PieChart.Data> series = new ArrayList<>();
         List<Legend.LegendItem> legendItemList = new ArrayList<>();
         List<Color> colors = new ArrayList<>();
 
 
         /** data Update **/
         AtomicDouble total = new AtomicDouble(0);
-        this.sampleHandler.getDataModel().forEach(chartDataModel -> {
+        for (ChartDataModel dataModel : this.sampleHandler.getDataModel()) {
             try {
 //                chartDataModel.setAbsolute(true);
-                Double dataModelTotal = DataModelDataHandler.getTotal(chartDataModel.getSamples());
+                Double dataModelTotal = DataModelDataHandler.getTotal(dataModel.getSamples());
                 total.set(total.get() + dataModelTotal);
-                logger.debug("dataModelTotal: [{}] {}", chartDataModel.getObject().getName(), dataModelTotal);
+                logger.debug("dataModelTotal: [{}] {}", dataModel.getObject().getName(), dataModelTotal);
             } catch (Exception ex) {
                 logger.error(ex);
             }
-        });
+        }
         logger.debug("Total.Total: {}", total.get());
 
 
-        this.sampleHandler.getDataModel().forEach(chartDataModel -> {
+        for (ChartDataModel chartDataModel : this.sampleHandler.getDataModel()) {
             try {
                 double value = 0;
                 String dataName = chartDataModel.getObject().getName();
@@ -143,12 +141,13 @@ public class PieWidget extends Widget {
                     logger.debug("Empty Samples for: {}", this.config.getTitle());
                     value = 0;
                     textValue = "n.a.  " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + this.nf.format(0) + "%";
-                    showAlertOverview(true, "");
+//                    showAlertOverview(true, "");
                 }
 
 
                 legendItemList.add(this.legend.buildLegendItem(
-                        dataName, ColorHelper.toColor(chartDataModel.getColor()), this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject()));
+                        dataName, ColorHelper.toColor(chartDataModel.getColor()), this.config.getFontColor(), this.config.getFontSize(),
+                        chartDataModel.getObject(),hasNoData,I18n.getInstance().getString("plugin.dashboard.alert.nodata")));
 
                 if (!hasNoData) {
                     PieChart.Data pieData = new PieChart.Data(textValue, value);
@@ -162,7 +161,7 @@ public class PieWidget extends Widget {
             } catch (Exception ex) {
                 logger.error(ex);
             }
-        });
+        }
 
 //        this.chart.setStyle(".chart-pie-label {\n" +
 //                "  -fx-font-size: 5pt ;\n" +
@@ -173,8 +172,9 @@ public class PieWidget extends Widget {
         /** redrawing **/
         Platform.runLater(() -> {
             try {
+                this.chart.getData().clear();
                 this.legend.getItems().setAll(legendItemList);
-                this.chart.setData(series);
+                this.chart.getData().setAll(series);
                 applyColors(colors);
                 this.chart.setStartAngle(180);
                 this.chart.setLabelLineLength(15d);
@@ -241,7 +241,6 @@ public class PieWidget extends Widget {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        this.chart = new PieChart();
         /** we have to disable animation or the color will be wrong ever second update**/
         chart.setAnimated(false);
 
@@ -278,7 +277,6 @@ public class PieWidget extends Widget {
 
     @Override
     public void openConfig() {
-        System.out.println("Pie.openConfig ");
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
         widgetConfigDialog.addGeneralTabsDataModel(this.sampleHandler);
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
@@ -322,20 +320,13 @@ public class PieWidget extends Widget {
         for (int i = 0; i < colors.size(); i++) {
 
             Color currentColor = colors.get(i);
-            String hexColor = toRGBCode(currentColor);
+            String hexColor = ColorHelper.toRGBCode(currentColor);
             String preIdent = ".default-color" + i;
             Node node = this.chart.lookup(preIdent + ".chart-pie");
             node.setStyle("-fx-pie-color: " + hexColor + ";");
 
 //            System.out.println(preIdent + ".chart-pie " + "-fx-pie-color: " + hexColor + ";" + " color: " + currentColor.toString());
         }
-    }
-
-    private String toRGBCode(Color color) {
-        return String.format("#%02X%02X%02X",
-                (int) (color.getRed() * 255),
-                (int) (color.getGreen() * 255),
-                (int) (color.getBlue() * 255));
     }
 
 

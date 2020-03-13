@@ -1,10 +1,12 @@
 package org.jevis.commons.alarm;
 
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
-import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 
@@ -22,6 +24,7 @@ public class AlarmConfiguration {
     private static final String TIME_STAMP = "Time Stamp";
     private static final String LOG = "Log";
     private final String ENABLED_NAME = "Enabled";
+    private final String DISABLE_LINK = "Disable Link";
     private final String ALARM_SCOPE = "Alarm Scope";
     private final String ALARM_PERIOD = "Alarm Period";
     private final String ALARM_OBJECTS = "Alarm Objects";
@@ -29,14 +32,9 @@ public class AlarmConfiguration {
     public final static String ALARM_CHECKED = "Alarm Checked";
     private final JEVisObject object;
     private final JEVisDataSource ds;
-    private Boolean enabled;
-    private Boolean checked;
-    private SampleHandler sampleHandler;
-    private Long id;
-    private String name;
-    private AlarmScope alarmScope;
+    private AlarmScope alarmScope = AlarmScope.NONE;
     private DateTime timeStamp;
-    private Period alarmPeriod;
+    private Period alarmPeriod = Period.NONE;
     private JEVisAttribute timeStampAttribute;
     private JEVisAttribute logAttribute;
     private List<JEVisObject> alarmObjects;
@@ -44,30 +42,54 @@ public class AlarmConfiguration {
     public AlarmConfiguration(JEVisDataSource ds, JEVisObject jeVisObject) {
         this.ds = ds;
         this.object = jeVisObject;
-        sampleHandler = new SampleHandler();
     }
 
     public Boolean isEnabled() {
-        if (enabled == null) {
-            enabled = sampleHandler.getLastSample(getObject(), ENABLED_NAME, false);
+        try {
+            JEVisAttribute enabledAtt = object.getAttribute(ENABLED_NAME);
+            if (enabledAtt != null) {
+                JEVisSample latestSample = enabledAtt.getLatestSample();
+                if (latestSample != null) {
+                    return latestSample.getValueAsBoolean();
+                }
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
         }
-        return enabled;
+
+        return false;
+    }
+
+    public Boolean isLinkDisabled() {
+        try {
+            JEVisAttribute disabledAtt = object.getAttribute(DISABLE_LINK);
+            if (disabledAtt != null) {
+                JEVisSample latestSample = disabledAtt.getLatestSample();
+                if (latestSample != null) {
+                    return latestSample.getValueAsBoolean();
+                }
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public JEVisAttribute getCheckedAttribute() {
         try {
-            return getObject().getAttribute(ALARM_CHECKED);
+            return object.getAttribute(ALARM_CHECKED);
         } catch (JEVisException e) {
-            logger.error("Could not get checked attribute for object {}:{}", getObject().getName(), getObject().getID(), e);
+            logger.error("Could not get checked attribute for object {}:{}", object.getName(), object.getID(), e);
         }
         return null;
     }
 
     public JEVisAttribute getFileLogAttribute() {
         try {
-            return getObject().getAttribute(LOG_FILE);
+            return object.getAttribute(LOG_FILE);
         } catch (JEVisException e) {
-            logger.error("Could not get file log attribute for object {}:{}", getObject().getName(), getObject().getID(), e);
+            logger.error("Could not get file log attribute for object {}:{}", object.getName(), object.getID(), e);
         }
         return null;
     }
@@ -79,25 +101,33 @@ public class AlarmConfiguration {
                 return latestSample.getValueAsBoolean();
             } else return false;
         } catch (JEVisException e) {
-            logger.error("Could not get checked status for object {}:{}", getObject().getName(), getObject().getID(), e);
+            logger.error("Could not get checked status for object {}:{}", object.getName(), object.getID(), e);
         }
         return false;
     }
 
     public void setChecked(Boolean checked) {
         try {
-            JEVisAttribute checkedAttribute = getObject().getAttribute(ALARM_CHECKED);
-            if (checkedAttribute != null) {
-                JEVisSample sample = checkedAttribute.buildSample(new DateTime(), checked);
-                if (checked) {
-                    sample.setNote("Checked by " + ds.getCurrentUser().getAccountName());
-                } else {
-                    sample.setNote("Unchecked by " + ds.getCurrentUser().getAccountName());
+            if (ds.getCurrentUser().canWrite(object.getID())) {
+                JEVisAttribute checkedAttribute = object.getAttribute(ALARM_CHECKED);
+                if (checkedAttribute != null) {
+                    JEVisSample sample = checkedAttribute.buildSample(new DateTime(), checked);
+                    if (checked) {
+                        sample.setNote("Checked by " + ds.getCurrentUser().getAccountName());
+                    } else {
+                        sample.setNote("Unchecked by " + ds.getCurrentUser().getAccountName());
+                    }
+                    sample.commit();
                 }
-                sample.commit();
+            } else {
+                Platform.runLater(() -> {
+                    Alert alert1 = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                    alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                    alert1.showAndWait();
+                });
             }
         } catch (Exception e) {
-            logger.error("Could not set checked attribute for object {}:{}", getObject().getName(), getObject().getID(), e);
+            logger.error("Could not set checked attribute for object {}:{}", object.getName(), object.getID(), e);
         }
     }
 
@@ -106,58 +136,76 @@ public class AlarmConfiguration {
     }
 
     public Long getId() {
-        if (id == null)
-            id = getObject().getID();
-        return id;
+        return object.getID();
     }
 
     public String getName() {
-        if (name == null) {
-            name = getObject().getName();
-        }
-        return name;
+        return object.getName();
     }
 
     public AlarmScope getAlarmScope() {
-        if (alarmScope == null) {
-            String scope = sampleHandler.getLastSample(getObject(), ALARM_SCOPE, "");
-            if (scope.equals(AlarmScope.COMPLETE.toString())) alarmScope = AlarmScope.COMPLETE;
-            else if (scope.equals(AlarmScope.SELECTED.toString())) alarmScope = AlarmScope.SELECTED;
-            else if (scope.equals(AlarmScope.WITHOUT_SELECTED.toString())) alarmScope = AlarmScope.WITHOUT_SELECTED;
-            else alarmScope = AlarmScope.NONE;
+
+        try {
+            JEVisAttribute scopeAtt = object.getAttribute(ALARM_SCOPE);
+            if (scopeAtt != null) {
+                JEVisSample latestSample = scopeAtt.getLatestSample();
+                if (latestSample != null) {
+                    String scope = latestSample.getValueAsString();
+                    if (scope.equals(AlarmScope.COMPLETE.toString())) alarmScope = AlarmScope.COMPLETE;
+                    else if (scope.equals(AlarmScope.SELECTED.toString())) alarmScope = AlarmScope.SELECTED;
+                    else if (scope.equals(AlarmScope.WITHOUT_SELECTED.toString()))
+                        alarmScope = AlarmScope.WITHOUT_SELECTED;
+                    else alarmScope = AlarmScope.NONE;
+                }
+
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
         }
+
         return alarmScope;
     }
 
     public DateTime getTimeStamp() {
-        if (timeStamp == null) {
-            String dateTimeString = sampleHandler.getLastSample(getObject(), TIME_STAMP, "");
-            if (!dateTimeString.equals("")) timeStamp = new DateTime(dateTimeString);
-
-            try {
-                timeStampAttribute = getObject().getAttribute(TIME_STAMP);
-                logAttribute = getObject().getAttribute(LOG);
-            } catch (JEVisException e) {
-                logger.error("Could not get Time Stamp Attribute.");
+        try {
+            JEVisAttribute timeStampAtt = object.getAttribute(TIME_STAMP);
+            if (timeStampAtt != null) {
+                JEVisSample latestSample = timeStampAtt.getLatestSample();
+                if (latestSample != null) {
+                    String dateTimeString = latestSample.getValueAsString();
+                    if (!dateTimeString.equals("")) timeStamp = new DateTime(dateTimeString);
+                }
             }
+        } catch (JEVisException e) {
+            e.printStackTrace();
         }
         return timeStamp;
     }
 
     public Period getAlarmPeriod() {
-        if (alarmPeriod == null) {
-            String alarmPeriodString = sampleHandler.getLastSample(getObject(), ALARM_PERIOD, "");
-            if (alarmPeriodString.equals(Period.MINUTELY.toString())) alarmPeriod = Period.MINUTELY;
-            else if (alarmPeriodString.equals(Period.QUARTER_HOURLY.toString())) alarmPeriod = Period.QUARTER_HOURLY;
-            else if (alarmPeriodString.equals(Period.HOURLY.toString())) alarmPeriod = Period.HOURLY;
-            else if (alarmPeriodString.equals(Period.DAILY.toString())) alarmPeriod = Period.DAILY;
-            else if (alarmPeriodString.equals(Period.WEEKLY.toString())) alarmPeriod = Period.WEEKLY;
-            else if (alarmPeriodString.equals(Period.MONTHLY.toString())) alarmPeriod = Period.MONTHLY;
-            else if (alarmPeriodString.equals(Period.QUARTERLY.toString())) alarmPeriod = Period.QUARTERLY;
-            else if (alarmPeriodString.equals(Period.YEARLY.toString())) alarmPeriod = Period.YEARLY;
-            else if (alarmPeriodString.equals(Period.CUSTOM.toString())) alarmPeriod = Period.CUSTOM;
-            else alarmPeriod = Period.NONE;
+        try {
+            JEVisAttribute periodAtt = object.getAttribute(ALARM_PERIOD);
+            if (periodAtt != null) {
+                JEVisSample latestSample = periodAtt.getLatestSample();
+                if (latestSample != null) {
+                    String alarmPeriodString = latestSample.getValueAsString();
+                    if (alarmPeriodString.equals(Period.MINUTELY.toString())) alarmPeriod = Period.MINUTELY;
+                    else if (alarmPeriodString.equals(Period.QUARTER_HOURLY.toString()))
+                        alarmPeriod = Period.QUARTER_HOURLY;
+                    else if (alarmPeriodString.equals(Period.HOURLY.toString())) alarmPeriod = Period.HOURLY;
+                    else if (alarmPeriodString.equals(Period.DAILY.toString())) alarmPeriod = Period.DAILY;
+                    else if (alarmPeriodString.equals(Period.WEEKLY.toString())) alarmPeriod = Period.WEEKLY;
+                    else if (alarmPeriodString.equals(Period.MONTHLY.toString())) alarmPeriod = Period.MONTHLY;
+                    else if (alarmPeriodString.equals(Period.QUARTERLY.toString())) alarmPeriod = Period.QUARTERLY;
+                    else if (alarmPeriodString.equals(Period.YEARLY.toString())) alarmPeriod = Period.YEARLY;
+                    else if (alarmPeriodString.equals(Period.CUSTOM.toString())) alarmPeriod = Period.CUSTOM;
+                    else alarmPeriod = Period.NONE;
+                }
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
         }
+
         return alarmPeriod;
     }
 
@@ -168,7 +216,7 @@ public class AlarmConfiguration {
     public JEVisAttribute getTimeStampAttribute() {
         if (timeStampAttribute == null) {
             try {
-                timeStampAttribute = getObject().getAttribute(TIME_STAMP);
+                timeStampAttribute = object.getAttribute(TIME_STAMP);
             } catch (JEVisException e) {
                 logger.error("Could not get time stamp attribute: ", e);
             }
@@ -179,7 +227,7 @@ public class AlarmConfiguration {
     public JEVisAttribute getLogAttribute() {
         if (logAttribute == null) {
             try {
-                logAttribute = getObject().getAttribute(LOG);
+                logAttribute = object.getAttribute(LOG);
             } catch (JEVisException e) {
                 logger.error("Could not get log attribute: ", e);
             }
@@ -188,15 +236,24 @@ public class AlarmConfiguration {
     }
 
     public List<JEVisObject> getAlarmObjects() {
-        if (alarmObjects == null) {
-            alarmObjects = new ArrayList<>();
+        alarmObjects = new ArrayList<>();
 
-            String alarmObjectsString = sampleHandler.getLastSample(getObject(), ALARM_OBJECTS, "");
-            TargetHelper th = new TargetHelper(ds, alarmObjectsString);
-            if (th.getObject() != null && !th.getObject().isEmpty()) {
-                alarmObjects.addAll(th.getObject());
+        try {
+            JEVisAttribute objectsAtt = object.getAttribute(ALARM_OBJECTS);
+            if (objectsAtt != null) {
+                JEVisSample latestSample = objectsAtt.getLatestSample();
+                if (latestSample != null) {
+                    String alarmObjectsString = latestSample.getValueAsString();
+                    TargetHelper th = new TargetHelper(ds, alarmObjectsString);
+                    if (th.getObject() != null && !th.getObject().isEmpty()) {
+                        alarmObjects.addAll(th.getObject());
+                    }
+                }
             }
+        } catch (JEVisException e) {
+            e.printStackTrace();
         }
+
         return alarmObjects;
     }
 }

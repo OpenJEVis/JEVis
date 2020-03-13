@@ -11,22 +11,24 @@ package org.jevis.report3.data.attribute;
  */
 public interface ReportAttributeConfiguration {
 
-    public static final String NAME = "Report Configuration";
+    String NAME = "Report Configuration";
 
 //    public interface ReportAttributeAggregationConfiguration extends ReportAttributeConfiguration {
 //
 //        public static final String NAME = "Report Aggregation Configuration";
 //    }
 
-    public interface ReportAttributePeriodConfiguration extends ReportAttributeConfiguration {
+    interface ReportAttributePeriodConfiguration extends ReportAttributeConfiguration {
 
-        public static final String NAME = "Report Period Configuration";
-        public static final String PERIOD = "Period";
-        public static final String AGGREGATION = "Aggregation";
+        String NAME = "Report Period Configuration";
+        String PERIOD = "Period";
+        String AGGREGATION = "Aggregation";
+        String MANIPULATION = "Manipulation";
+        String FIXED_PERIOD = "Fixed Period";
     }
 
-    public interface ReportAttributeSpecificValueConfiguration extends ReportAttributeConfiguration {
+    interface ReportAttributeSpecificValueConfiguration extends ReportAttributeConfiguration {
 
-        public static final String NAME = "Report Specific Value Configuration";
+        String NAME = "Report Specific Value Configuration";
     }
 }

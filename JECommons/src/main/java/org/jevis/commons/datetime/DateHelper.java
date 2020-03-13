@@ -77,6 +77,9 @@ public class DateHelper {
         switch (type) {
             case CUSTOM:
                 break;
+            case CURRENT:
+                startDate = getEndDate();
+                break;
             case TODAY:
 
                 startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
@@ -341,6 +344,7 @@ public class DateHelper {
 
         switch (type) {
             case PREVIEW:
+            case CURRENT:
             case TODAY:
             case THISMONTH:
             case THISYEAR:
@@ -510,7 +514,7 @@ public class DateHelper {
         this.endTime = endTime;
     }
 
-    public enum TransformType {CUSTOM, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, THISWEEK, LASTWEEK, THISMONTH, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR, PREVIEW}
+    public enum TransformType {CUSTOM, CURRENT, TODAY, LAST7DAYS, LAST30DAYS, YESTERDAY, THISWEEK, LASTWEEK, THISMONTH, LASTMONTH, CUSTOM_PERIOD, THISYEAR, LASTYEAR, PREVIEW}
 
     public enum InputType {STARTDATE, ENDDATE, STARTTIME, ENDTIME}
 

@@ -41,6 +41,7 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.prefs.Preferences;
 
 /**
  * @author Gerrit Schutz <gerrit.schutz@envidatec.com>
@@ -52,7 +53,7 @@ public class LoadAnalysisDialog {
     private Stage stage;
     private AnalysisDataModel analysisDataModel;
     private PickerCombo pickerCombo;
-    private ComboBox<TimeFrame> presetDateBox;
+    private ComboBox<AnalysisTimeFrame> presetDateBox;
     private JFXDatePicker pickerDateStart;
     private JFXTimePicker pickerTimeStart;
     private JFXDatePicker pickerDateEnd;
@@ -173,15 +174,30 @@ public class LoadAnalysisDialog {
                 analysisDataModel.setManipulationMode(ManipulationMode.NONE);
                 analysisDataModel.resetToolbarSettings();
                 AnalysisTimeFrame preview = new AnalysisTimeFrame(TimeFrame.PREVIEW);
-                analysisDataModel.setAnalysisTimeFrameForAllModels(preview);
+
+                final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
+                if (previewPref.getBoolean("enabled", true)) {
+                    analysisDataModel.setAnalysisTimeFrameForAllModels(preview);
+                } else {
+                    analysisDataModel.setAnalysisTimeFrameForAllModelsNO_EVENT(preview);
+                }
+
             }
         });
 
         presetDateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
-                switch (newValue) {
+                switch (newValue.getTimeFrame()) {
                     //Custom
                     case CUSTOM:
+                        break;
+                    //today
+                    case CURRENT:
+                        dateHelper.setType(DateHelper.TransformType.CURRENT);
+                        analysisDataModel.setGlobalAnalysisTimeFrameNOEVENT(new AnalysisTimeFrame(TimeFrame.CURRENT));
+                        analysisDataModel.getGlobalAnalysisTimeFrame().setStart(dateHelper.getStartDate());
+                        analysisDataModel.getGlobalAnalysisTimeFrame().setEnd(dateHelper.getEndDate());
+                        updateGridLayout();
                         break;
                     //today
                     case TODAY:
@@ -397,7 +413,7 @@ public class LoadAnalysisDialog {
             }
             analysisDataModel.setAggregationPeriod(aggregationBox.getSelectionModel().getSelectedItem());
             analysisDataModel.setManipulationMode(mathBox.getSelectionModel().getSelectedItem());
-            AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(presetDateBox.getSelectionModel().getSelectedItem());
+            AnalysisTimeFrame analysisTimeFrame = presetDateBox.getSelectionModel().getSelectedItem();
             if (presetDateBox.getSelectionModel().getSelectedItem().equals(TimeFrame.CUSTOM_START_END)) {
                 for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
                     if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == comboBoxCustomPeriods.getSelectionModel().getSelectedIndex()) {
@@ -602,7 +618,7 @@ public class LoadAnalysisDialog {
     private void updateGridLayout() {
         Platform.runLater(() -> {
 
-            pickerCombo = new PickerCombo(analysisDataModel, null);
+            pickerCombo = new PickerCombo(analysisDataModel, null, false);
             pickerCombo.updateCellFactory();
             presetDateBox = pickerCombo.getPresetDateBox();
             pickerDateStart = pickerCombo.getStartDatePicker();

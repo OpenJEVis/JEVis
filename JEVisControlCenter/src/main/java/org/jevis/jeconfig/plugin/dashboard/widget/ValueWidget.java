@@ -14,6 +14,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
@@ -111,6 +112,27 @@ public class ValueWidget extends Widget implements DataModelWidget {
 //                    total.set(results.get(results.size() - 1).getValueAsDouble());
                     displayedSample.setValue(total.get());
                     Platform.runLater(() -> {
+                        /** animation experiment **/
+//                        Timeline timeline = new Timeline();
+//                        DoubleProperty timeSeconds = new SimpleDoubleProperty(0);
+//                        //timeSeconds.set(total.get());
+//
+//                        //this.label.textProperty().bind(timeSeconds.asString());
+//                        timeSeconds.addListener((observable, oldValue, newValue) -> {
+//                            //System.out.println("------New value: "+newValue);
+//                            Platform.runLater(() -> {
+//                                this.label.setText((this.nf.format(newValue)) + " " + unit);
+//                            });
+//
+//                        });
+//                        timeline = new Timeline();
+//
+//                        Duration startValue = Duration.seconds(total.doubleValue()*0.8);//Duration.seconds(15 + 1);
+//                        timeline.setRate(total.doubleValue()/0.1);
+//                        timeline.getKeyFrames().add(
+//                                new KeyFrame(startValue, new KeyValue(timeSeconds, total.doubleValue())));
+//                        timeline.playFromStart();
+
                         this.label.setText((this.nf.format(total.get())) + " " + unit);
                     });
                     checkLimit();
@@ -159,6 +181,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
                 logger.debug("checkLimit: {}", config.getUuid());
 //                this.label.setText(this.labelText.getValue());
                 Color fontColor = this.config.getFontColor();
+                this.label.setFont(new Font(this.config.getFontSize()));
 
                 if (limit != null) {
                     this.label.setTextFill(limit.getExceedsLimitColor(fontColor, displayedSample.get()));

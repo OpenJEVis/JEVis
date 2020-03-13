@@ -13,7 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import org.apache.commons.validator.routines.DoubleValidator;
@@ -45,6 +44,7 @@ import org.jevis.jeconfig.plugin.object.attribute.*;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 import org.joda.time.DateTime;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,9 +87,12 @@ public class CleanDataExtension implements ObjectEditorExtension {
     private boolean changedConversionToDifferential = false;
     private JEVisAttribute gapFillingConfigAttribute;
     private JEVisAttribute limitsConfigurationAttribute;
+    private NumberFormat nf = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
 
     public CleanDataExtension(JEVisObject _obj) {
         this._obj = _obj;
+        this.nf.setMinimumFractionDigits(2);
+        this.nf.setMaximumFractionDigits(2);
     }
 
     @Override
@@ -120,8 +123,6 @@ public class CleanDataExtension implements ObjectEditorExtension {
         scroll.setStyle("-fx-background-color: transparent");
         scroll.setMaxSize(10000, 10000);
         scroll.setContent(gridPane);
-
-        AnchorPane ap = new AnchorPane();
 
         try {
             cleanDataObject = new CleanDataObject(_obj, new ObjectHandler(_obj.getDataSource()));
@@ -332,7 +333,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         valueMultiplier = new JFXTextField();
 
         if (valueMultiplierLastSample != null) {
-            valueMultiplier.setText(valueMultiplierLastSample.getValueAsDouble().toString());
+            valueMultiplier.setText(nf.format(valueMultiplierLastSample.getValueAsDouble()));
         }
 
         /**
@@ -367,7 +368,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         }
         value.setDisable(true);
         if (valueLastSample != null) {
-            value.setText(valueLastSample.getValueAsDouble().toString());
+            value.setText(nf.format(valueLastSample.getValueAsDouble()));
         }
         if (valueAttribute.getDisplayUnit() != null && !valueAttribute.getInputUnit().getLabel().isEmpty()) {
             unitValue.setText(UnitManager.getInstance().format(valueAttribute.getDisplayUnit().getLabel()));
@@ -387,7 +388,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         AttributeAdvSettingDialogButton advSettingDialogButtonValueOffset = new AttributeAdvSettingDialogButton(valueOffsetAttribute);
         valueOffset = new JFXTextField();
         if (valueOffsetLastSample != null) {
-            valueOffset.setText(valueOffsetLastSample.getValueAsLong().toString());
+            valueOffset.setText(nf.format(valueOffsetLastSample.getValueAsDouble()));
         }
 
         /**
@@ -401,7 +402,7 @@ public class CleanDataExtension implements ObjectEditorExtension {
         AttributeAdvSettingDialogButton advSettingDialogButtonCounterOverflow = new AttributeAdvSettingDialogButton(counterOverflowAttribute);
         counterOverflow = new JFXTextField();
         if (counterOverflowLastSample != null) {
-            counterOverflow.setText(counterOverflowLastSample.getValueAsDouble().toString());
+            counterOverflow.setText(nf.format(counterOverflowLastSample.getValueAsDouble()));
         }
 
         setupListener(conversionToDifferentialTimeStampEditor, conversionToDifferential,

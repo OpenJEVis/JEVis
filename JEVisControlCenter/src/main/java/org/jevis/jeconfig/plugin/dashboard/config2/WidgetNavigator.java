@@ -1,17 +1,16 @@
 package org.jevis.jeconfig.plugin.dashboard.config2;
 
+import com.jfoenix.controls.JFXComboBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -21,6 +20,7 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.dialog.DialogHeader;
+import org.jevis.jeconfig.plugin.dashboard.DashBoardToolbar;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFactoryBox;
@@ -108,11 +108,17 @@ public class WidgetNavigator {
         Label backgroundIconLabel = new Label(I18n.getInstance().getString("dashboard.navigator.background"));
         Label backgroundColorLabel = new Label(I18n.getInstance().getString("dashboard.navigator.backgroundColor"));
         Label timeLabel = new Label(I18n.getInstance().getString("dashboard.navigator.timeframe"));
+        Label defaultZoomLabel = new Label(I18n.getInstance().getString("dashboard.navigator.defaultzoom"));
 
+        Region spacer = new Region();
+        spacer.setPrefWidth(20d);
 
         TextField nameField = new TextField();
         TextField widthField = new TextField();
         TextField heightField = new TextField();
+        JFXComboBox<Double> listZoomLevel = DashBoardToolbar.buildZoomLevelListView();
+
+
         TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
         ObservableList<TimeFrameFactory> timeFrames = FXCollections.observableArrayList(control.getAllTimeFrames().getAll());
         timeFactoryBox.getItems().addAll(timeFrames);
@@ -130,6 +136,9 @@ public class WidgetNavigator {
         imageBox.setSpacing(5);
         imageBox.getChildren().addAll( backgroundButton, removeBGIcon,bhModeBox);
 
+        listZoomLevel.setMaxWidth(Double.MAX_VALUE);
+        defaultZoomLabel.setMaxWidth(Double.MAX_VALUE);
+
         widthField.setPrefWidth(75d);
         heightField.setPrefWidth(75d);
         HBox sizeBox = new HBox(8d);
@@ -140,17 +149,37 @@ public class WidgetNavigator {
         gridPane.setPadding(new Insets(8d));
         gridPane.setHgap(8);
         gridPane.setVgap(8);
+
+        /**
+        ColumnConstraints column1 = new ColumnConstraints();
+        ColumnConstraints column2 = new ColumnConstraints();
+        ColumnConstraints column3 = new ColumnConstraints();
+        ColumnConstraints column4 = new ColumnConstraints();
+        gridPane.getColumnConstraints().addAll(column1,column2,column3,column4);
+        **/
+
+        gridPane.addColumn(0,nameLabel,backgroundColorLabel,backgroundIconLabel);
+        gridPane.addColumn(1,nameField,pickerAdv, imageBox );
+        gridPane.add(new Separator(Orientation.VERTICAL) ,2,0,1,3);
+        gridPane.addColumn(4,sizeLabel,defaultZoomLabel,timeLabel );
+        gridPane.addColumn(5,sizeBox,listZoomLevel,timeFactoryBox );
+        gridPane.addColumn(6,new Region() );
+
+        //GridPane.setHgrow(listZoomLevel,Priority.SOMETIMES);
+        //GridPane.setHgrow(timeFactoryBox,Priority.SOMETIMES);
+
+        /**
         gridPane.addRow(0,nameLabel,nameField);
         gridPane.addRow(1,sizeLabel,sizeBox);
-        gridPane.addRow(2,backgroundColorLabel,pickerAdv);
-        gridPane.addRow(3,backgroundIconLabel,imageBox);
-        gridPane.addRow(4,timeLabel,timeFactoryBox);
-
+        gridPane.addRow(2,backgroundColorLabel,pickerAdv,backgroundIconLabel,imageBox);
+        gridPane.addRow(3,timeLabel,timeFactoryBox,defaultZoomLabel,listZoomLevel);
+**/
 
         try {
             nameField.setText(this.control.getActiveDashboard().getTitle());
             widthField.setText(this.control.getActiveDashboard().getSize().getWidth() + "");
             heightField.setText(this.control.getActiveDashboard().getSize().getHeight() + "");
+            listZoomLevel.setValue(this.control.getActiveDashboard().getZoomFactor());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -185,12 +214,15 @@ public class WidgetNavigator {
             control.startWallpaperSelection();
         });
 
-//        widthField.setOnAction(event -> {
-//            this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(heightField.getText()));
-//        });
-//        heightField.setOnAction(event -> {
-//            this.control.setDashboardSize(Double.parseDouble(widthField.getText()), Double.parseDouble(heightField.getText()));
-//        });
+
+        listZoomLevel.valueProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+               control.setDefaultZoom(newValue);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
 
         nameField.textProperty().addListener((observable, oldValue, newValue) -> {
             this.control.getActiveDashboard().setName(newValue);

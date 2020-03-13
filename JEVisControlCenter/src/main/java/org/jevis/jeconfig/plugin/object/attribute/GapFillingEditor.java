@@ -66,7 +66,7 @@ public class GapFillingEditor implements AttributeEditor {
     private final ObservableList<GapFillingBoundToSpecific> optionsBoundSpecifics = FXCollections.observableArrayList(GapFillingBoundToSpecific.NONE, GapFillingBoundToSpecific.WEEKDAY,
             GapFillingBoundToSpecific.WEEKOFYEAR, GapFillingBoundToSpecific.MONTHOFYEAR);
     private final ObservableList<GapFillingType> optionsType = FXCollections.observableArrayList(GapFillingType.NONE, GapFillingType.INTERPOLATION, GapFillingType.AVERAGE,
-            GapFillingType.DEFAULT_VALUE, GapFillingType.STATIC, GapFillingType.MINIMUM, GapFillingType.MAXIMUM, GapFillingType.MEDIAN);
+            GapFillingType.DEFAULT_VALUE, GapFillingType.STATIC, GapFillingType.MINIMUM, GapFillingType.MAXIMUM, GapFillingType.MEDIAN, GapFillingType.DELETE);
     public JEVisAttribute _attribute;
     private HBox box = new HBox(12);
     private JEVisSample _newSample;
@@ -311,6 +311,9 @@ public class GapFillingEditor implements AttributeEditor {
                                     break;
                                 case AVERAGE:
                                     text = I18n.getInstance().getString("graph.dialog.note.text.limit2.average");
+                                    break;
+                                case DELETE:
+                                    text = I18n.getInstance().getString("graph.dialog.note.text.limit2.delete");
                                     break;
                             }
                             setText(text);

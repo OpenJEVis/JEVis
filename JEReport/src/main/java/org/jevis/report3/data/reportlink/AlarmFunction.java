@@ -70,7 +70,7 @@ public class AlarmFunction implements ReportData {
     @Override
     public ConcurrentHashMap<String, Object> getReportMap(ReportProperty property, IntervalCalculator intervalCalc) {
         ConcurrentHashMap<String, Object> functionMap = new ConcurrentHashMap<>();
-        Interval interval = intervalCalc.getInterval(PeriodMode.CURRENT);
+        Interval interval = intervalCalc.getInterval(PeriodMode.CURRENT.toString().toUpperCase());
         DateTime start = interval.getStart();
         DateTime end = interval.getEnd();
 

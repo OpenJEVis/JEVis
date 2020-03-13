@@ -18,6 +18,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
 import org.jevis.api.*;
@@ -41,13 +42,18 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
     private final List<XYChartSerie> xyChartSerieList;
     private final GraphPluginView graphPluginView;
-    private final EventHandler<MouseEvent> mouseMoveHandler = this::updateTable;
+    private final EventHandler<MouseEvent> noteHandler = event -> {
+        if (event.getButton() == MouseButton.SECONDARY) {
+            updateTable(event);
+            event.consume();
+        }
+    };
 
     public DataPointNoteDialog(List<XYChartSerie> xyChartSerieList, GraphPluginView graphPluginView) {
         this.xyChartSerieList = xyChartSerieList;
         this.graphPluginView = graphPluginView;
 
-        registerInputEventHandler(MouseEvent.MOUSE_CLICKED, mouseMoveHandler);
+        registerInputEventHandler(MouseEvent.MOUSE_CLICKED, noteHandler);
     }
 
     private DataPoint findDataPoint(final MouseEvent event, final Bounds plotAreaBounds) {
@@ -81,7 +87,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                 final double y = xyChart.getYAxis().getDisplayPosition(dataPoint.y);
                 final Point2D displayPoint = new Point2D(x, y);
                 dataPoint.distanceFromMouse = displayPoint.distance(mouseLocation);
-                if (displayPoint.distance(mouseLocation) <= 1000 && (nearestDataPoint == null
+                if (displayPoint.distance(mouseLocation) <= 10000 && (nearestDataPoint == null
                         || dataPoint.distanceFromMouse < nearestDataPoint.distanceFromMouse)) {
                     nearestDataPoint = dataPoint;
                 }
@@ -174,49 +180,47 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
 
     private void updateTable(final MouseEvent event) {
-        if (event.isControlDown()) {
 
-            final Bounds plotAreaBounds = getChart().getPlotArea().getBoundsInLocal();
-            final DataPoint dataPoint = findDataPoint(event, plotAreaBounds);
+        final Bounds plotAreaBounds = getChart().getPlotArea().getBoundsInLocal();
+        final DataPoint dataPoint = findDataPoint(event, plotAreaBounds);
 
-            Map<String, RowNote> map = new HashMap<>();
+        Map<String, RowNote> map = new HashMap<>();
 
-            if (dataPoint != null) {
-                Double v = dataPoint.getX() * 1000d;
-                DateTime nearest = new DateTime(v.longValue());
+        if (dataPoint != null) {
+            Double v = dataPoint.getX() * 1000d;
+            DateTime nearest = new DateTime(v.longValue());
 
-                for (XYChartSerie serie : xyChartSerieList) {
-                    if (serie.getSingleRow().getManipulationMode().equals(ManipulationMode.NONE)) {
-                        try {
+            for (XYChartSerie serie : xyChartSerieList) {
+                if (serie.getSingleRow().getManipulationMode().equals(ManipulationMode.NONE)) {
+                    try {
 
-                            JEVisSample nearestSample = serie.getSampleMap().get(nearest);
+                        JEVisSample nearestSample = serie.getSampleMap().get(nearest);
 
-                            String title = "";
-                            title += serie.getSingleRow().getObject().getName();
+                        String title = "";
+                        title += serie.getSingleRow().getObject().getName();
 
-                            JEVisObject dataObject;
-                            if (serie.getSingleRow().getDataProcessor() != null)
-                                dataObject = serie.getSingleRow().getDataProcessor();
-                            else dataObject = serie.getSingleRow().getObject();
+                        JEVisObject dataObject;
+                        if (serie.getSingleRow().getDataProcessor() != null)
+                            dataObject = serie.getSingleRow().getDataProcessor();
+                        else dataObject = serie.getSingleRow().getObject();
 
-                            String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
-                            String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
+                        String userNote = getUserNoteForTimeStamp(nearestSample, nearestSample.getTimestamp());
+                        String userValue = getUserValueForTimeStamp(nearestSample, nearestSample.getTimestamp());
 
-                            RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getUnit(), serie.getSingleRow().getScaleFactor());
+                        RowNote rowNote = new RowNote(dataObject, nearestSample, serie.getSingleRow().getNoteSamples().get(nearestSample.getTimestamp()), title, userNote, userValue, serie.getUnit(), serie.getSingleRow().getScaleFactor(), serie.getSingleRow().getAlarms().get(nearestSample.getTimestamp()));
 
-                            map.put(title, rowNote);
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
+                        map.put(title, rowNote);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
                 }
+            }
 
-                NoteDialog nd = new NoteDialog(map);
+            NoteDialog nd = new NoteDialog(map);
 
-                nd.showAndWait().ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                        saveUserEntries(nd.getNoteMap());
-
+            nd.showAndWait().ifPresent(response -> {
+                if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                    if (saveUserEntries(nd.getNoteMap())) {
                         Dialog<ButtonType> wantToReload = new Dialog<>();
                         wantToReload.setTitle(I18n.getInstance().getString("plugin.graph.dialog.reload.title"));
                         final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.reload.ok"), ButtonBar.ButtonData.YES);
@@ -230,8 +234,8 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                             }
                         }));
                     }
-                });
-            }
+                }
+            });
         }
     }
 
@@ -311,9 +315,11 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
         return userNote;
     }
 
-    private void saveUserEntries(Map<String, RowNote> noteMap) {
+    private boolean saveUserEntries(Map<String, RowNote> noteMap) {
+        boolean savedValues = false;
         for (Map.Entry<String, RowNote> entry : noteMap.entrySet()) {
             if (entry.getValue().getChanged()) {
+                savedValues = true;
                 try {
                     JEVisObject obj = entry.getValue().getDataObject();
                     JEVisUser currentUser = obj.getDataSource().getCurrentUser();
@@ -500,6 +506,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                 }
             }
         }
+        return savedValues;
     }
 
     protected class DataPoint {

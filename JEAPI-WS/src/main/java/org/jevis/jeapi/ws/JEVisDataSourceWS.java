@@ -35,6 +35,7 @@ import org.jevis.commons.utils.PrettyError;
 import org.jevis.commons.ws.json.*;
 import org.joda.time.DateTime;
 
+import javax.net.ssl.SSLHandshakeException;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -80,6 +81,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
+    private HTTPConnection.Trust sslTrustMode = HTTPConnection.Trust.SYSTEM;
+
     /**
      * fallback because some old client will call preload but we now a days do per default
      **/
@@ -95,7 +98,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         configureObjectMapper();
     }
 
-    private void configureObjectMapper(){
+    private void configureObjectMapper() {
         objectMapper.registerModule(new AfterburnerModule());
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
@@ -281,6 +284,29 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     }
 
+    /**
+     * Returns the installed version of the JEVisControlCenter on the server.
+     *
+     * @return Version of jecc. 0 if no version is set or unreachable.
+     */
+    public String getJEVisCCVersion() {
+        String resource = "/jecc/version";
+        String version = "0";
+        try {
+            this.con.getInputStreamRequest(resource);
+            StringBuffer stringBuffer = this.con.getRequest(resource);
+            version = stringBuffer.toString();
+        } catch (SSLHandshakeException sslex) {
+            logger.error("SSl Exception: {}", sslex);
+        } catch (Exception ex) {
+            logger.error(ex);
+            ex.printStackTrace();
+        }
+
+        logger.error("getJEVisCCVersion(): {}", version);
+        return version;
+    }
+
     @Override
     public List<JEVisObject> getObjects() {
         logger.debug("getObjects");
@@ -294,8 +320,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     private void updateObject(JsonObject jsonObj) {
-        Long id = jsonObj.getId();
-        this.objectCache.remove(id);
+//        Long id = jsonObj.getId();
+//        this.objectCache.remove(id);
 
         JEVisObjectWS newObject = new JEVisObjectWS(this, jsonObj);
         this.objectCache.put(newObject.getID(), newObject);
@@ -306,7 +332,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     public void getObjectsWS() {
         logger.trace("Get ALL ObjectsWS");
         //TODO: throw excption?! so the other function can handel it?
-
+        Benchmark benchmark = new Benchmark();
         String resource = HTTPConnection.API_PATH_V1
                 + REQUEST.OBJECTS.PATH
                 + "?" + REQUEST.OBJECTS.OPTIONS.INCLUDE_RELATIONSHIPS + "false"
@@ -324,14 +350,16 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.error("IO exception. Error getting all objects. ", ex);
         }
 
+        benchmark.printBechmark("reading object input stream done");
         logger.debug("JsonObject.count: {}", jsonObjects.size());
-        jsonObjects.parallelStream().forEach(jsonObject -> {
+        jsonObjects.forEach(jsonObject -> {
             try {
                 updateObject(jsonObject);
             } catch (Exception ex) {
                 logger.error("Error while parsing object: {}", ex.getMessage());
             }
         });
+        benchmark.printBechmark("updateing object cache done for "+jsonObjects.size()+" objects");
     }
 
     @Override
@@ -793,9 +821,23 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         this.config = config;
         for (JEVisOption opt : config) {
             if (opt.getKey().equals(CommonOptions.DataSource.DataSource.getKey())) {
-                this.host = opt.getOption(CommonOptions.DataSource.HOST.getKey()).getValue();
+                try {
+                    this.host = opt.getOption(CommonOptions.DataSource.HOST.getKey()).getValue();
+
+                    String sslModeOpt = opt.getOption(CommonOptions.DataSource.SSLTRUST.getKey()).getValue();
+                    if (sslModeOpt != null && !sslModeOpt.isEmpty()) {
+                        this.sslTrustMode = HTTPConnection.Trust.valueOf(sslModeOpt.toUpperCase());
+                    } else {
+                        logger.error("No SSL-Trust-Mode set, using default: {}", sslTrustMode.toString());
+                    }
+                } catch (Exception ex) {
+                    logger.error("Error while parsing option: {}", ex.getMessage(), ex);
+                }
             }
         }
+
+        /** create dummy connection for request which need not user name password **/
+        this.con = new HTTPConnection(this.host, "", "", sslTrustMode);
     }
 
     public JEVisObject buildObject(long parentID, String jclass, String name) throws JEVisException {
@@ -1268,8 +1310,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     }
 
     public boolean confirmPassword(String username, String password) throws JEVisException {
-        HTTPConnection.trustAllCertificates();
-        HTTPConnection httpConnection = new HTTPConnection(this.host, username, password);
+        HTTPConnection httpConnection = new HTTPConnection(this.host, username, password, sslTrustMode);
+
 
         try {
             String resource
@@ -1288,11 +1330,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public boolean connect(String username, String password) throws JEVisException {
-        logger.debug("Connect with user {} to: {}", username, this.host);
+        logger.error("Connect with user {} to: {}", username, this.host);
 
-        //TODO implement config parameter to set trustAllCertificates
-        HTTPConnection.trustAllCertificates();
-        this.con = new HTTPConnection(this.host, username, password);
+        this.con = new HTTPConnection(this.host, username, password, sslTrustMode);
 
         try {
             String resource

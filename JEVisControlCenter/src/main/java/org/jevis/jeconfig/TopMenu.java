@@ -194,6 +194,9 @@ public class TopMenu extends MenuBar {
         menuEdit.getItems().addAll(copy, cut, paste, new SeparatorMenuItem(), delete, rename, new SeparatorMenuItem(), reload, findObject, findAgain);
 
         if (JEConfig.getExpert()) {
+            MenuItem replace = new MenuItem(I18n.getInstance().getString("searchbar.button.replace"));
+            replace.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
+
             MenuItem deleteAllCleanAndRaw = new MenuItem(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));
             deleteAllCleanAndRaw.setAccelerator(new KeyCodeCombination(KeyCode.DELETE, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
@@ -215,7 +218,7 @@ public class TopMenu extends MenuBar {
             MenuItem resetCalculation = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.resetcalc"));
             resetCalculation.setAccelerator(new KeyCodeCombination(KeyCode.J, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
-            menuEdit.getItems().addAll(deleteAllCleanAndRaw, setLimits, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation);
+            menuEdit.getItems().addAll(replace, deleteAllCleanAndRaw, setLimits, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation);
         }
 
 //        menuEdit.getItems().addAll(copie, delete, rename);
@@ -223,15 +226,38 @@ public class TopMenu extends MenuBar {
         Menu menuView = new Menu(I18n.getInstance().getString("menu.view"));
 
         Menu options = new Menu(I18n.getInstance().getString("menu.option"));
+
+        final Preferences preview = Preferences.userRoot().node("JEVis.JEConfig.preview");
+        CheckMenuItem enablePreview = new CheckMenuItem(I18n.getInstance().getString("menu.options.preview"));
+        enablePreview.setSelected(preview.getBoolean("enabled", true));
+        enablePreview.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                preview.putBoolean("enabled", !preview.getBoolean("enabled", true));
+            }
+        });
+
         final Preferences prefWelcome = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
         CheckMenuItem welcome = new CheckMenuItem(I18n.getInstance().getString("menu.options.welcome"));
         welcome.setSelected(prefWelcome.getBoolean("show", true));
         welcome.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                prefWelcome.putBoolean("show", !prefWelcome.getBoolean("show", true));
+                prefWelcome.putBoolean("show", !prefWelcome.getBoolean("show", false));
             }
         });
+
+        final Preferences patchNotes = Preferences.userRoot().node("JEVis.JEConfig.patchNotes");
+        CheckMenuItem showPatchNotes = new CheckMenuItem(I18n.getInstance().getString("menu.options.patchnotes"));
+        showPatchNotes.setSelected(prefWelcome.getBoolean("show", true));
+        showPatchNotes.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                patchNotes.put("version", JEConfig.class.getPackage().getImplementationVersion());
+                patchNotes.putBoolean("show", !patchNotes.getBoolean("show", true));
+            }
+        });
+
         MenuItem changePassword = new MenuItem(I18n.getInstance().getString("menu.options.changepassword"));
         changePassword.setOnAction(event -> {
             PasswordDialog dia = new PasswordDialog();
@@ -268,7 +294,7 @@ public class TopMenu extends MenuBar {
             }
         });
 
-        options.getItems().addAll(changePassword, welcome, expertMode);
+        options.getItems().addAll(changePassword, enablePreview, welcome, showPatchNotes, expertMode);
 
         Menu help = new Menu(I18n.getInstance().getString("menu.help"));
 

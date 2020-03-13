@@ -2,7 +2,7 @@ package org.jevis.jeconfig.application.Chart.Charts;
 
 import com.sun.javafx.charts.Legend;
 import javafx.collections.ObservableList;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.PieChart;
+import javafx.scene.chart.PieChart;
 
 public class PieChartExtended extends PieChart {
 

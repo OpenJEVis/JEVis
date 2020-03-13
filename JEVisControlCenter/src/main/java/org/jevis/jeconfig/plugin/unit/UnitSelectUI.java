@@ -39,6 +39,10 @@ import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.application.unit.SimpleTreeUnitChooser;
 
 import javax.measure.MetricPrefix;
+import javax.measure.Prefix;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -47,7 +51,7 @@ public class UnitSelectUI {
 
     private final TextField symbolField = new TextField();
     private static final Logger logger = LogManager.getLogger(UnitSelectUI.class);
-    private final ComboBox<MetricPrefix> prefixBox;
+    private final ComboBox<Prefix> prefixBox;
     private final Button changeBaseUnit = new Button();//new Button("Basic Unit");
     private JEVisUnit jeVisUnit;
     //workaround
@@ -56,22 +60,20 @@ public class UnitSelectUI {
     public UnitSelectUI(JEVisDataSource ds, JEVisUnit unit) {
         final JEVisUnit.Prefix prefix = unit.getPrefix();
         jeVisUnit = unit;
+        List<Prefix> list = new ArrayList<>();
+        list.add(null);
+        Collections.addAll(list, MetricPrefix.values());
         prefixBox = new ComboBox<>(FXCollections.observableArrayList(MetricPrefix.values()));
-        prefixBox.getItems().add(0, null);
 
-        prefixBox.setButtonCell(new ListCell<MetricPrefix>() {
+
+        prefixBox.setButtonCell(new ListCell<Prefix>() {
             @Override
-            protected void updateItem(MetricPrefix prefix, boolean bln) {
+            protected void updateItem(Prefix prefix, boolean bln) {
                 super.updateItem(prefix, bln);
                 setGraphic(null);
                 if (!bln) {
                     setAlignment(Pos.CENTER);
-                    if (prefix == null) {
-                        setText("None");
-                    } else {
-                        setText(prefix.getName());
-                    }
-
+                    setText(prefix.getName());
                 }
             }
         });
@@ -96,8 +98,8 @@ public class UnitSelectUI {
                 }
                 if (oldSymbol.length() > 1) {
                     String sub = oldSymbol.substring(0, 1);
-                    if (UnitManager.getInstance().getPrefixFromShort(sub) != null) {
-                        oldSymbol = oldSymbol.replace(sub, "");
+                    if (UnitManager.getInstance().getPrefixFromShort(sub) != null && !oldSymbol.equals("m²") && !oldSymbol.equals("m³") && !oldSymbol.equals("min")) {
+                        oldSymbol = oldSymbol.substring(1);
                     }
                 }
                 if (newValue != null) {
@@ -167,7 +169,7 @@ public class UnitSelectUI {
         return changeBaseUnit;
     }
 
-    public ComboBox<MetricPrefix> getPrefixBox() {
+    public ComboBox<Prefix> getPrefixBox() {
         return prefixBox;
     }
 //

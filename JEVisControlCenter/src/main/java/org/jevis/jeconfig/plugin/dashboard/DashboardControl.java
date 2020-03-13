@@ -5,6 +5,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -47,6 +49,7 @@ public class DashboardControl {
 
     private static final Logger logger = LogManager.getLogger(DashboardControl.class);
     private double zoomFactor = 1.0d;
+    private double defaultZoom = 1.0d;
     private final DashBordPlugIn dashBordPlugIn;
     private final ConfigManager configManager;
     private final JEVisDataSource jevisDataSource;
@@ -64,22 +67,30 @@ public class DashboardControl {
     private TimeFrameFactory activeTimeFrame;
     private TimeFrames timeFrames;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
-    //    private boolean fitToParent = false;
     public BooleanProperty highlightProperty = new SimpleBooleanProperty(false);
     public BooleanProperty showGridProperty = new SimpleBooleanProperty(false);
-//    public BooleanProperty showSnapToGridProperty = new SimpleBooleanProperty(true);
     public BooleanProperty editableProperty = new SimpleBooleanProperty(false);
     public BooleanProperty snapToGridProperty = new SimpleBooleanProperty(false);
-    private DashBoardPane dashboardPane;
+    private DashBoardPane dashboardPane = new DashBoardPane();
     private DashBoardToolbar toolBar;
     private String firstLoadedConfigHash = null;
     private WidgetNavigator widgetNavigator;
     private boolean fitToParent = false;
+    public static double MAX_ZOOM = 3;
+    public static double MIN_ZOOM = -0.2;
     public static double zoomSteps = 0.05d;
     public static double fitToScreen = 99;
     public static double fitToWidth = 98;
     public static double fitToHeight = 97;
     private Image backgroundImage;
+    private Timer timer;
+
+    /**
+     * we want to keep some changes when switching dashboard, this are the workaround variables
+     **/
+    private boolean firstDashboard = true;
+    private TimeFrameFactory previusActiveTimeFrame = null;
+    private Interval previusActiveInterval = null;
 
 
     public DashboardControl(DashBordPlugIn plugin) {
@@ -87,9 +98,14 @@ public class DashboardControl {
         this.dashBordPlugIn = plugin;
         this.jevisDataSource = plugin.getDataSource();
 
+        //TaskWindow taskWindow = new TaskWindow(runningUpdateTaskList);
+
         widgetNavigator = new WidgetNavigator(this);
         initTimeFrameFactory();
-        resetDashboard();
+        this.activeDashboard = this.configManager.createEmptyDashboard();
+        this.activeTimeFrame = this.timeFrames.day();
+
+
     }
 
     public ExecutorService getExecutor() {
@@ -135,12 +151,24 @@ public class DashboardControl {
         /** init default states **/
         this.activeDashboard = this.configManager.createEmptyDashboard();
         this.activeTimeFrame = this.timeFrames.day();
-
+        setZoomFactor(1);
     }
 
 
     public void setDashboardPane(DashBoardPane dashboardPane) {
         this.dashboardPane = dashboardPane;
+        ChangeListener<Number> sizeListener = new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                Size rootSize = dashBordPlugIn.getPluginSize();
+                setRootSizeChanged(rootSize.getWidth(), rootSize.getHeight());
+                //setRootSizeChanged(dashBordPlugIn.getScrollPane().getWidth(), dashBordPlugIn.getScrollPane().getHeight());
+            }
+        };
+        dashboardPane.widthProperty().addListener(sizeListener);
+        dashboardPane.heightProperty().addListener(sizeListener);
+
+
     }
 
     public DashBoardPane getDashboardPane() {
@@ -148,7 +176,7 @@ public class DashboardControl {
     }
 
     public void showGrid(boolean showGrid) {
-        if(showGrid!=showGridProperty.get()){
+        if (showGrid != showGridProperty.get()) {
             showGridProperty.setValue(showGrid);
             dashboardPane.showGrid(showGridProperty.getValue());
             toolBar.updateView(activeDashboard);
@@ -157,7 +185,7 @@ public class DashboardControl {
     }
 
     public void setSnapToGrid(boolean snapToGrid) {
-        if(snapToGrid!=showGridProperty.getValue()){
+        if (snapToGrid != showGridProperty.getValue()) {
             this.showGridProperty.setValue(snapToGrid);
             toolBar.updateView(activeDashboard);
 //            dashboardPane.updateView();
@@ -194,6 +222,8 @@ public class DashboardControl {
             } else if (!this.dashboardObjects.isEmpty()) {
                 selectDashboard(this.dashboardObjects.get(0));
             }
+
+            firstDashboard = false;
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -206,10 +236,8 @@ public class DashboardControl {
 
 
     public void setRootSizeChanged(double width, double height) {
-        if (this.fitToParent && width != 0.0 && height != 0.0) {
-            this.dashBordPlugIn.getDashBoardPane().zoomToParent(width, height);
-        }
-
+        //System.out.println("-- setRootSizeChanged: w"+width+"  h:"+height);
+        setZoomFactor(zoomFactor);
     }
 
     public void highlightWidgetInView(Widget widget, boolean highlight) {
@@ -226,43 +254,48 @@ public class DashboardControl {
     }
 
     public void zoomIn() {
-        if (this.zoomFactor < 3) {
-            this.zoomFactor = this.zoomFactor + zoomSteps;
-        }
-//        this.zoomFactor = this.zoomFactor + zoomSteps;
-        this.dashBordPlugIn.getDashBoardPane().setZoom(this.zoomFactor);
-        toolBar.updateZoomLevelView(Precision.round(zoomFactor, 2));
+        setZoomFactor(zoomFactor + zoomSteps);
     }
 
     public void zoomOut() {
-        if (this.zoomFactor > -0.2) {
-            this.zoomFactor = this.zoomFactor - zoomSteps;
-        }
-        this.dashBordPlugIn.getDashBoardPane().setZoom(this.zoomFactor);
-        toolBar.updateZoomLevelView(Precision.round(zoomFactor, 2));
+        setZoomFactor(zoomFactor - zoomSteps);
     }
 
 
     public void setZoomFactor(double zoom) {
+        /** check if the zoomMode is fine **/
+        if (zoom != fitToScreen && zoom != fitToHeight && zoom != fitToWidth) {
+            zoom = Precision.round(zoom,2);
+            if (this.zoomFactor < MIN_ZOOM) {
+                zoom = MIN_ZOOM;
+            } else if (zoom>90) { /** fix zoomFactor(to-screen etc) beginn at 90 **/
+                zoom = MAX_ZOOM;
+            } else if (zoom > MAX_ZOOM) {
+                zoom = MAX_ZOOM;
+            }
+        }
+
         this.zoomFactor = zoom;
         Size parentSize = dashBordPlugIn.getPluginSize();
         double relWidthDiff = parentSize.getWidth() / dashboardPane.getWidth();
         double relHeightDiff = parentSize.getHeight() / dashboardPane.getHeight();
 
+
+//        if(dashboardPane.getHeight()<dashboardPane.getBoundsInParent().getHeight() || dashboardPane.getWidth()<dashboardPane.getBoundsInParent().getWidth()){
+//            Size size= new Size( dashboardPane.getBoundsInParent().getHeight(),dashboardPane.getBoundsInParent().getWidth());
+//            dashboardPane.setSize(size);
+//        }
+
         if (zoomFactor == fitToScreen) {
             dashboardPane.setScale(relWidthDiff, relHeightDiff);
-            toolBar.updateZoomLevelView(fitToScreen);
         } else if (zoomFactor == fitToHeight) {
-            setZoomFactor(relHeightDiff);
-            toolBar.updateZoomLevelView(fitToHeight);
+            dashboardPane.setZoom(relHeightDiff);
         } else if (zoomFactor == fitToWidth) {
-            setZoomFactor(relWidthDiff);
-            toolBar.updateZoomLevelView(fitToWidth);
-        } else { /** Normal Zoom **/
-            this.dashBordPlugIn.getDashBoardPane().setZoom(zoomFactor);
-            toolBar.updateZoomLevelView(zoomFactor);
+            dashboardPane.setZoom(relWidthDiff);
+        } else { /** manual Zoom **/
+            dashboardPane.setZoom(zoomFactor);
         }
-
+        toolBar.updateZoomLevelView(zoomFactor);
 
     }
 
@@ -330,11 +363,11 @@ public class DashboardControl {
                     });
                 }
             }
-            firstLoadedConfigHash = null;
+            this.firstLoadedConfigHash = null;
             this.editableProperty.setValue(false);
             this.snapToGridProperty.setValue(true);
-            this.backgroundImage=null;
-            this.newBackgroundFile=null;
+            this.backgroundImage = null;
+            this.newBackgroundFile = null;
 
             resetDashboard();
             restartExecutor();
@@ -349,7 +382,7 @@ public class DashboardControl {
                 pluginSize.setHeight(pluginSize.getHeight() - 10);
                 pluginSize.setWidth(pluginSize.getWidth() - 10);
                 this.activeDashboard.setSize(pluginSize);
-            } else {
+            } else { /** load existing Dashboard**/
                 try {
                     this.activeDashboard = this.configManager.loadDashboard(this.configManager.readDashboardFile(object));
                 } catch (Exception ex) {
@@ -362,27 +395,27 @@ public class DashboardControl {
 
             this.dashBordPlugIn.getDashBoardPane().updateView();
             this.widgetList.addAll(this.configManager.createWidgets(this, this.activeDashboard.getWidgetList()));
-            this.dashBordPlugIn.setContentSize(this.activeDashboard.getSize().getWidth(), this.activeDashboard.getSize().getHeight());
+            //this.dashBordPlugIn.setContentSize(this.activeDashboard.getSize().getWidth(), this.activeDashboard.getSize().getHeight());
 
             updateBackground();
 
-            /** async Loading of the background image **/
+            /** async loading of the background image **/
             if (this.activeDashboard.getDashboardObject() != null) {
                 this.configManager.getBackgroundImage(this.activeDashboard.getDashboardObject()).addListener((observable, oldValue, newValue) -> {
                     if (newValue != null) {
                         backgroundImage = newValue;
-//                    this.dashBordPlugIn.getDashBoardPane().setBackgroundImage(newValue);
                         updateBackground();
                     }
                 });
             }
 
-
+            /** add widgets to dashboard**/
             this.widgetList.forEach(widget -> {
                 this.dashBordPlugIn.getDashBoardPane().addWidget(widget);
             });
 
 
+            /** inti configuration of widgets **/
             this.widgetList.forEach(widget -> {
                 try {
                     widget.updateConfig();
@@ -395,21 +428,54 @@ public class DashboardControl {
 //            this.widgetList.forEach(widget -> {
 //                addWidgetUpdateTask(widget, this.getInterval());
 //            });
-
 //            this.dashBordPlugIn.getDashBoardToolbar().updateView(this.activeDashboard);
 
-            if (activeDashboard.getTimeFrame() != null) {
+//            if(!firstDashboard){
+//
+//                setInterval(getInterval());
+//            }else{
+//                if (activeDashboard.getTimeFrame() != null) {
+//
+//                }
+//
+//            }
+//            firstDashboard=false;
+
+            /** the user wants to have the same time frame if the switches dashboards ...**/
+//            if(previusActiveTimeFrame!= null){
+//                this.activeTimeFrame = previusActiveTimeFrame;
+//            }else{
+//                this.activeTimeFrame = activeDashboard.getTimeFrame();
+//            }
+
+
+            /** the user wants to have the same time frame if the switches dashboards ...**/
+//            if(previusActiveInterval != null){
+//                setInterval(previusActiveInterval);
+//            }else{
+//                setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
+//            }
+
+
+            if (activeTimeFrame == null) {
                 this.activeTimeFrame = activeDashboard.getTimeFrame();
+
+            }
+            if (activeInterval != null) {
+                setInterval(activeInterval);
+            } else {
+                setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
             }
 
-
-
-            setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
-            toolBar.updateView(activeDashboard);
+            setActiveTimeFrame(activeTimeFrame);
 
             firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
 
-            setZoomFactor(1.0d);
+
+            Platform.runLater(() -> {
+                setZoomFactor(activeDashboard.getZoomFactor());
+                toolBar.updateView(activeDashboard);
+            });
 
 
         } catch (Exception ex) {
@@ -444,6 +510,10 @@ public class DashboardControl {
     public void openWidgetNavigator() {
 
         widgetNavigator.show();
+    }
+
+    public void setDefaultZoom(double zoomFactor) {
+        activeDashboard.setZoomFactor(zoomFactor);
     }
 
     public void setEditable(boolean editable) {
@@ -615,7 +685,7 @@ public class DashboardControl {
                 logger.debug("Starting Update");
                 JEConfig.getStatusBar().startProgressJob("Dashboard"
                         , DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count()
-                        , "Start Dashboard update");
+                        , I18n.getInstance().getString("plugin.dashboard.message.startupdate"));
                 try {
 //                    totalUpdateJobs.setValue(DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count());
                     for (Widget widget : DashboardControl.this.widgetList) {
@@ -626,9 +696,31 @@ public class DashboardControl {
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
+
+//                try{
+//                    Task updateTask = new Task() {
+//                        @Override
+//                        protected Object call() throws Exception {
+//                            try {
+//                                System.out.println("---Update Zoom");
+//
+//
+//                            } catch (Exception ex) {
+//                                ex.printStackTrace();
+//                            }
+//                            return null;
+//                        }
+//                    };
+//
+//
+////        processMonitor.addTask(updateTask);
+//                    DashboardControl.this.runningUpdateTaskList.add(updateTask);
+//                    DashboardControl.this.executor.execute(updateTask);
+//                }catch (Exception ex){
+//                    logger.error("Erro in zoomTask: {}",ex);
+//                }
             }
         };
-
 
         if (reStartUpdateDeamon) {
             this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(reStartUpdateDeamon);
@@ -641,6 +733,7 @@ public class DashboardControl {
     }
 
 
+
     private void addWidgetUpdateTask(Widget widget, Interval interval) {
         if (widget == null || interval == null) {
             logger.error("widget is null, this should not happen");
@@ -648,7 +741,7 @@ public class DashboardControl {
         }
 
 
-        Task updateTask = new Task() {
+        Task<Object> updateTask = new Task<Object>() {
             @Override
             protected Object call() throws Exception {
                 try {
@@ -662,7 +755,7 @@ public class DashboardControl {
                     ex.printStackTrace();
                 } finally {
                     JEConfig.getStatusBar().progressProgressJob("Dashboard", 1
-                            , "Done Widget: " + widget.getConfig().getUuid());
+                            , I18n.getInstance().getString("plugin.dashboard.message.finishedwidget") + " " + widget.getConfig().getUuid());
                 }
                 return null;
             }
@@ -830,7 +923,6 @@ public class DashboardControl {
         DashboardExport exporter = new DashboardExport();
         exporter.toPDF(dashboardPane, activeDashboard.getName() + "_" + intervalToString());
     }
-
 
 
 }

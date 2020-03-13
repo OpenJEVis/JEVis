@@ -22,6 +22,7 @@ package org.jevis.jeconfig;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.CacheHint;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -50,6 +51,7 @@ import org.jevis.jeconfig.application.login.FXLogin;
 import org.jevis.jeconfig.application.statusbar.Statusbar;
 import org.jevis.jeconfig.application.tools.Holidays;
 import org.jevis.jeconfig.dialog.HiddenConfig;
+import org.jevis.jeconfig.tool.PatchNotesPage;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
 
@@ -60,6 +62,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 /**
@@ -89,6 +93,7 @@ public class JEConfig extends Application {
     private static Statusbar statusBar = new Statusbar();
     private static ExecutorService taskExecutor = Executors.newFixedThreadPool(10);
     private TopMenu menu;
+    public static Date startDate= new Date();
 
     public static boolean getExpert() {
         final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
@@ -236,6 +241,32 @@ public class JEConfig extends Application {
         }
     }
 
+    private void checkVersion(JEVisDataSource ds){
+        /*
+        try {
+            String serverJECCVersion = ((JEVisDataSourceWS) ds).getJEVisCCVersion();
+            if (serverJECCVersion != "0") {
+                DefaultArtifactVersion thisVersion = new DefaultArtifactVersion(JEConfig.class.getPackage().getImplementationVersion());
+                DefaultArtifactVersion serverVersion = new DefaultArtifactVersion(serverJECCVersion);
+                System.out.println("versioncompare: "+thisVersion.compareTo(serverVersion));
+                if (thisVersion.compareTo(serverVersion) < 0) {
+                    System.out.println("There is a newer version");
+                    Notifications.create()
+                            .title("JEVis Control Center Update")
+                            .text("New version " + serverJECCVersion + " is avabable")
+                            .hideAfter(Duration.INDEFINITE)
+                            .showInformation();
+                } else {
+                    System.out.println("We are up to date");
+                }
+            } else {
+                System.out.println("version error");
+            }
+        }catch (Exception ex){
+            logger.error(ex);
+        }*/
+    }
+
     public static ExecutorService executor() {
         return taskExecutor;
     }
@@ -285,6 +316,18 @@ public class JEConfig extends Application {
     }
 
 
+    private void checkMemory(){
+        try{
+            /* This will return Long.MAX_VALUE if there is no preset limit */
+            long maxMemory = Runtime.getRuntime().maxMemory();
+            /* Maximum amount of memory the JVM will attempt to use */
+            System.out.println("Maximum memory (bytes): " +
+                    (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory));
+        }catch (Exception ex){
+            logger.error(ex);
+        }
+    }
+
     /**
      * Build an new JEConfig Login and main frame/stage
      *
@@ -313,6 +356,8 @@ public class JEConfig extends Application {
 
         Scene scene = new Scene(jeconfigRoot);
         primaryStage.setScene(scene);
+        jeconfigRoot.setCache(true);
+        jeconfigRoot.setCacheHint(CacheHint.SPEED);
 
         Date start = new Date();
         final FXLogin login = new FXLogin(primaryStage, getParameters(), PROGRAM_INFO);
@@ -324,9 +369,10 @@ public class JEConfig extends Application {
 
         login.getLoginStatus().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-
+                startDate= new Date();
                 logger.debug("Start JEVis Control Center");
                 _mainDS = login.getDataSource();
+                checkVersion(_mainDS);
 
                 JEConfig.userpassword = login.getUserPassword();
                 I18n.getInstance().selectBundle(login.getSelectedLocale());
@@ -447,6 +493,10 @@ public class JEConfig extends Application {
                     } catch (URISyntaxException ex) {
                         logger.fatal(ex);
                     }
+
+                    PatchNotesPage patchNotesPage = new PatchNotesPage();
+                    patchNotesPage.show(primaryStage);
+
                     logger.info("Time to start: {}ms", ((new Date()).getTime() - start.getTime()));
                 });
 
@@ -470,6 +520,18 @@ public class JEConfig extends Application {
         primaryStage.show();
 
         jeconfigRoot.getChildren().setAll(login);
+        //checkVersion(login.getDataSource());
+
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        //Platform.runLater(() -> notificationPane.show(message));
+
+        /**delay or it will not shown**/
+        executor.schedule(new Runnable() {
+            @Override
+            public void run() {
+                login.checkVersion();
+            }
+        }, 1, TimeUnit.SECONDS);
 
         primaryStage.onCloseRequestProperty().addListener((ov, t, t1) -> {
             try {

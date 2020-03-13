@@ -32,6 +32,7 @@ import java.util.TreeMap;
 public class XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
     private final boolean forecast;
+    public final String FINISHED_SERIE;
     Integer yAxis;
     DoubleDataSet valueDataSet;
     DoubleDataSet noteDataSet;
@@ -46,10 +47,10 @@ public class XYChartSerie {
 
     public XYChartSerie(ChartDataModel singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
         this.singleRow = singleRow;
+        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + singleRow.getTitle();
         this.yAxis = singleRow.getAxis();
         this.showIcons = showIcons;
         this.valueDataSet = new DoubleDataSet(singleRow.getTitle());
-        this.valueDataSet.setStyle("strokeColor=" + singleRow.getColor() + "; fillColor= " + singleRow.getColor() + ";");
         this.noteDataSet = new DoubleDataSet(singleRow.getTitle());
         this.forecast = forecast;
 
@@ -59,18 +60,22 @@ public class XYChartSerie {
     public void generateSeriesFromSamples() throws JEVisException {
         timeStampFromFirstSample = DateTime.now();
         timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
+        Color color = ColorHelper.toColor(singleRow.getColor()).deriveColor(0, 1, 1, 0.9);
+        Color brighter = ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor()));
 
         List<JEVisSample> samples = new ArrayList<>();
         if (!forecast) {
             this.tableEntry = new TableEntry(getTableEntryName());
             this.valueDataSet.setName(getTableEntryName());
-            this.tableEntry.setColor(ColorHelper.toColor(singleRow.getColor()));
+            this.tableEntry.setColor(color);
+            this.valueDataSet.setStyle("strokeColor=" + color + "; fillColor=" + color);
 
             samples = singleRow.getSamples();
         } else {
             this.tableEntry = new TableEntry(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
             this.valueDataSet.setName(getTableEntryName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
-            this.tableEntry.setColor(ColorHelper.toColor(ColorHelper.colorToBrighter(singleRow.getColor())));
+            this.tableEntry.setColor(brighter);
+            this.valueDataSet.setStyle("strokeColor=" + brighter + "; fillColor=" + brighter);
 
             samples = singleRow.getForecastSamples();
         }
@@ -80,15 +85,6 @@ public class XYChartSerie {
         valueDataSet.clearData();
 
         int samplesSize = samples.size();
-//        int seriesDataSize = serie.getData().size();
-
-//        if (samplesSize < seriesDataSize) {
-//            serie.getData().subList(samplesSize, seriesDataSize).clear();
-//        } else if (samplesSize > seriesDataSize) {
-//            for (int i = seriesDataSize; i < samplesSize; i++) {
-//                serie.getData().add(new MultiAxisChart.Data<>());
-//            }
-//        }
 
         if (samplesSize > 0) {
             try {
@@ -112,34 +108,19 @@ public class XYChartSerie {
         Double sum = 0.0;
         long zeroCount = 0;
 
-//        List<MultiAxisChart.Data<Number, Number>> dataList = new ArrayList<>();
         int noteIndex = 0;
-        for (JEVisSample sample : samples) {
+        for (int i = 0, size = samples.size(); i < size; i++) {
+            JEVisSample sample = samples.get(i);
             try {
-//                int index = samples.indexOf(sample);
 
                 DateTime dateTime = sample.getTimestamp();
                 Double currentValue = sample.getValueAsDouble();
 
-                if (!sample.getNote().contains("Zeros")) {
-                    min = Math.min(min, currentValue);
-                    max = Math.max(max, currentValue);
-                    sum += currentValue;
-                } else {
-                    zeroCount++;
-                }
+                min = Math.min(min, currentValue);
+                max = Math.max(max, currentValue);
+                sum += currentValue;
 
                 Double timestamp = dateTime.getMillis() / 1000d;
-
-//                MultiAxisChart.Data<Number, Number> data = new MultiAxisChart.Data<>();
-//                data.setXValue(timestamp);
-//                data.setYValue(currentValue);
-//                data.setExtraValue(yAxis);
-//
-//                data.setNode(null);
-//                data.setNode(generateNode(sample));
-//
-//                setDataNodeColor(data);
 
                 valueDataSet.add(timestamp, currentValue);
 
@@ -147,7 +128,11 @@ public class XYChartSerie {
                 if (noteString != null && showIcons) {
                     noteDataSet.add(timestamp, currentValue);
                     noteDataSet.addDataLabel(noteIndex, noteString);
-                    noteDataSet.addDataStyle(noteIndex, "strokeColor=" + singleRow.getColor() + "; fillColor= " + singleRow.getColor() + ";strokeDashPattern=solid");
+                    if (!forecast) {
+                        noteDataSet.addDataStyle(noteIndex, "strokeColor=" + color + "; fillColor= " + color + ";strokeDashPattern=0");
+                    } else {
+                        noteDataSet.addDataStyle(noteIndex, "strokeColor=" + brighter + "; fillColor= " + brighter + ";strokeDashPattern=0");
+                    }
                     noteIndex++;
                 }
 
@@ -163,10 +148,7 @@ public class XYChartSerie {
             sum = max;
         }
 
-//        dataSet.setAxisIndex(singleRow.getAxis());
-//        dataSet.getData().setAll(dataList);
-        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
-
+        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
 
         updateTableEntry(samples, unit, min, max, avg, sum, zeroCount);
     }
@@ -300,7 +282,7 @@ public class XYChartSerie {
     }
 
     public String generateNote(JEVisSample sample) throws JEVisException {
-        Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()));
+        Note note = new Note(sample, singleRow.getNoteSamples().get(sample.getTimestamp()), singleRow.getAlarms().get(sample.getTimestamp()));
 
         return note.getNoteAsString();
 //        if (note.getNote() != null && hideShowIcons) {

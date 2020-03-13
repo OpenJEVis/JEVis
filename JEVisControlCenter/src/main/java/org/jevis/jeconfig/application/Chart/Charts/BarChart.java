@@ -1,11 +1,12 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
-import de.gsi.chart.XYChart;
-import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -18,10 +19,10 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
-import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
-import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
+import org.jevis.jeconfig.application.Chart.TimeFrame;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -39,10 +40,11 @@ public class BarChart implements Chart {
     NumberAxis y2Axis = new NumberAxis();
     private String chartName;
     private String unit;
+    private AnalysisDataModel analysisDataModel;
     private List<ChartDataModel> chartDataModels;
     private Boolean hideShowIcons;
     private List<BarChartSerie> barChartSerieList = new ArrayList<>();
-    private de.gsi.chart.XYChart barChart;
+    private javafx.scene.chart.BarChart barChart;
     private List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -51,15 +53,14 @@ public class BarChart implements Chart {
     private Region areaChartRegion;
     private boolean asDuration = false;
     private AtomicReference<ManipulationMode> manipulationMode;
-    private ChartPanManager panner;
     private DateTime nearest;
-    private ChartType chartType = ChartType.BAR;
 
-    public BarChart(List<ChartDataModel> chartDataModels, Boolean hideShowIcons, Integer chartId, String chartName) {
+    public BarChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
+        this.analysisDataModel = analysisDataModel;
         this.chartDataModels = chartDataModels;
-        this.hideShowIcons = hideShowIcons;
-        this.chartId = chartId;
-        this.chartName = chartName;
+        this.hideShowIcons = analysisDataModel.getShowIcons();
+        this.chartId = chartSetting.getId();
+        this.chartName = chartSetting.getName();
         init();
     }
 
@@ -69,7 +70,7 @@ public class BarChart implements Chart {
         chartDataModels.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
-                    BarChartSerie serie = new BarChartSerie(singleRow, hideShowIcons);
+                    BarChartSerie serie = new BarChartSerie(singleRow, analysisDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() == TimeFrame.CURRENT);
                     barChartSerieList.add(serie);
                     hexColors.add(ColorHelper.toColor(singleRow.getColor()));
 
@@ -84,17 +85,18 @@ public class BarChart implements Chart {
             if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
         }
 
-        DefaultNumericAxis numberAxis = new DefaultNumericAxis();
-        de.gsi.chart.axes.spi.CategoryAxis catAxis = new de.gsi.chart.axes.spi.CategoryAxis();
+        NumberAxis numberAxis = new NumberAxis();
+        CategoryAxis catAxis = new CategoryAxis();
 
-        barChart = new XYChart(numberAxis, catAxis);
+        barChart = new javafx.scene.chart.BarChart<>(numberAxis, catAxis);
 
         barChart.setTitle(chartName);
+        barChart.setAnimated(false);
         barChart.setLegendVisible(false);
         barChart.getXAxis().setAutoRanging(true);
         //barChart.getXAxis().setLabel(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title"));
-//        barChart.getXAxis().setTickLabelRotation(-90);
-        barChart.getXAxis().setName(unit);
+        barChart.getXAxis().setTickLabelRotation(-90);
+        barChart.getXAxis().setLabel(unit);
 
         //initializeZoom();
 //        setTimer();
@@ -102,12 +104,14 @@ public class BarChart implements Chart {
     }
 
     public void addSeriesToChart() {
+        javafx.scene.chart.XYChart.Series<Number, String> serie = new XYChart.Series<>();
         for (BarChartSerie barChartSerie : barChartSerieList) {
             Platform.runLater(() -> {
-                barChart.getDatasets().add(barChartSerie.getDataSet());
+                serie.getData().add(barChartSerie.getData());
                 tableData.add(barChartSerie.getTableEntry());
             });
         }
+        barChart.getData().add(serie);
     }
 
     @Override
@@ -121,88 +125,8 @@ public class BarChart implements Chart {
     }
 
     @Override
-    public void setChartSettings(ChartSettingsFunction function) {
-        //TODO: implement me, see PieChart
-    }
-
-    @Override
-    public void initializeZoom() {
-//        panner = null;
-//
-//        getChart().setOnMouseMoved(mouseEvent -> {
-//            updateTable(mouseEvent, null);
-//        });
-//
-//        panner = new ChartPanManager((MultiAxisChart<?, ?>) getChart());
-//
-//        panner.setMouseFilter(mouseEvent -> {
-//            if (mouseEvent.getButton() != MouseButton.SECONDARY
-//                    && (mouseEvent.getButton() != MouseButton.PRIMARY
-//                    || !mouseEvent.isShortcutDown())) {
-//                mouseEvent.consume();
-//            }
-//        });
-//        panner.start();
-//
-//        JFXChartUtil jfxChartUtil = new JFXChartUtil();
-//        areaChartRegion = jfxChartUtil.setupZooming((MultiAxisChart<?, ?>) getChart(), mouseEvent -> {
-//
-//            if (mouseEvent.getButton() != MouseButton.PRIMARY
-//                    || mouseEvent.isShortcutDown()) {
-//                mouseEvent.consume();
-//                if (mouseEvent.isControlDown()) {
-//                    showNote(mouseEvent);
-//                }
-//            }
-//        });
-//
-//        jfxChartUtil.addDoublePrimaryClickAutoRangeHandler((MultiAxisChart<?, ?>) getChart());
-
-    }
-
-    @Override
-    public DateTime getStartDateTime() {
-        return timeStampOfFirstSample.get();
-    }
-
-    @Override
-    public DateTime getEndDateTime() {
-        return timeStampOfLastSample.get();
-    }
-
-    @Override
-    public void setDataModels(List<ChartDataModel> chartDataModels) {
-        this.chartDataModels = chartDataModels;
-    }
-
-    @Override
-    public void setShowIcons(Boolean showIcons) {
-        this.hideShowIcons = showIcons;
-    }
-
-    @Override
-    public ChartPanManager getPanner() {
-        return panner;
-    }
-
-    @Override
-    public JFXChartUtil getJfxChartUtil() {
-        return null;
-    }
-
-    @Override
     public void setRegion(Region region) {
         barChartRegion = region;
-    }
-
-    @Override
-    public void checkForY2Axis() {
-
-    }
-
-    @Override
-    public void applyBounds() {
-
     }
 
     @Override
@@ -236,17 +160,13 @@ public class BarChart implements Chart {
     }
 
     @Override
-    public void showNote(MouseEvent mouseEvent) {
-
-    }
-
-    @Override
     public void applyColors() {
         for (int i = 0; i < hexColors.size(); i++) {
             Color currentColor = hexColors.get(i);
             String hexColor = ColorHelper.toRGBCode(currentColor);
-            String preIdent = ".default-color" + i;
-            Node node = barChart.lookup(preIdent + ".chart-bar");
+//            String preIdent = ".default-color" + i;
+//            Node node = barChart.lookup(preIdent + ".chart-bar");
+            Node node = ((javafx.scene.chart.XYChart.Series<Number, String>) barChart.getData().get(0)).getData().get(i).getNode();
             if (node != null) {
                 node.setStyle("-fx-bar-fill: " + hexColor + ";");
             }
@@ -254,28 +174,18 @@ public class BarChart implements Chart {
     }
 
     @Override
-    public DateTime getValueForDisplay() {
-        return valueForDisplay;
-    }
-
-    @Override
-    public void setValueForDisplay(DateTime valueForDisplay) {
-        this.valueForDisplay = valueForDisplay;
-    }
-
-    @Override
-    public de.gsi.chart.XYChart getChart() {
-        return barChart;
+    public de.gsi.chart.Chart getChart() {
+        return null;
     }
 
     @Override
     public ChartType getChartType() {
-        return chartType;
+        return ChartType.BAR;
     }
 
     @Override
     public Region getRegion() {
-        return barChartRegion;
+        return barChart;
     }
 
 

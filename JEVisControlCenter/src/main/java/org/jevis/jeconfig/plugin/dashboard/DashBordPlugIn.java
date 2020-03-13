@@ -9,7 +9,6 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -47,6 +46,14 @@ public class DashBordPlugIn implements Plugin {
     private final DashBoardPane dashBoardPane;
     private final DashBoardToolbar toolBar;
     private ScrollPane scrollPane = new ScrollPane();
+    private static double scrollBarSize = 18;
+
+    /**
+     * pane which gets the zoomed size of the dashboard so the layout of the ScrollPane is ok
+     * Group() is not working because of Chart problems
+     */
+    private Pane zoomPane = new Pane();
+
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
         logger.debug("init DashBordPlugIn");
@@ -60,8 +67,18 @@ public class DashBordPlugIn implements Plugin {
         this.toolBar = new DashBoardToolbar(this.dashboardControl);
         this.dashBoardPane = new DashBoardPane(this.dashboardControl);
         this.dashboardControl.setDashboardPane(dashBoardPane);
-        this.scrollPane.setContent(this.dashBoardPane);
+//        this.workaround.getChildren().add(dashBoardPane);
+//        this.scrollPane.setContent(workaround);
+//        workaround.setAutoSizeChildren(true);
+//        this.scrollPane.setContent(dashBoardPane);
 
+
+        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToWidth(true);
+        zoomPane.getChildren().add(dashBoardPane);
+        this.scrollPane.setContent(zoomPane);
+
+        Layouts.setAnchor(this.zoomPane, 0d);
         Layouts.setAnchor(this.scrollPane, 0d);
         Layouts.setAnchor(this.rootPane, 0d);
 
@@ -78,12 +95,33 @@ public class DashBordPlugIn implements Plugin {
         ChangeListener<Number> sizeListener = new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                DashBordPlugIn.this.dashboardControl.setRootSizeChanged(DashBordPlugIn.this.scrollPane.getWidth(), DashBordPlugIn.this.scrollPane.getHeight());
+                Size size = getPluginSize();
+                DashBordPlugIn.this.dashboardControl.setRootSizeChanged(size.getWidth(), size.getHeight());
             }
         };
         this.scrollPane.widthProperty().addListener(sizeListener);
         this.scrollPane.heightProperty().addListener(sizeListener);
+        scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
+
+        dashBoardPane.boundsInParentProperty().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                /** Minus 10pix to account for the common use case of shadows **/
+                Layouts.setSize(zoomPane,dashBoardPane.getBoundsInParent().getWidth()-10,dashBoardPane.getBoundsInParent().getHeight()-10);
+            });
+        });
+
+
+    }
+
+    public Pane getZoomPane() {
+        return zoomPane;
+    }
+
+
+    public ScrollPane getScrollPane() {
+        return scrollPane;
     }
 
     public void showMessage(String message) {
@@ -97,16 +135,16 @@ public class DashBordPlugIn implements Plugin {
             }
         }, 5, TimeUnit.SECONDS);
 
-
     }
 
-    public void setContentSize(double width, double height) {
-        logger.debug("DashBordPlugIn init.size: {}/{} {}/{} ", this.rootPane.getWidth(), this.rootPane.getHeight(), this.scrollPane.getWidth(), this.scrollPane.getHeight());
 
+    public void setPluginSize(double height, double width) {
+        scrollPane.setMinWidth(width);
+        scrollPane.setMinHeight(height);
     }
 
     public Size getPluginSize() {
-        return new Size(rootPane.getHeight(), rootPane.getWidth());
+        return new Size(rootPane.getHeight() - scrollBarSize, rootPane.getWidth() - scrollBarSize);
     }
 
     public DashBoardToolbar getDashBoardToolbar() {
@@ -160,7 +198,6 @@ public class DashBordPlugIn implements Plugin {
 
     @Override
     public boolean supportsRequest(int cmdType) {
-        System.out.println();
         switch (cmdType) {
             case Constants.Plugin.Command.SAVE:
                 return true;

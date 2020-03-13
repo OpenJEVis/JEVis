@@ -2,463 +2,226 @@
   "jevisclass": "Report Period Configuration",
   "names": {
     "de": "Berichtsperiodenkonfiguration",
-    "ru": "Report Period Configuration",
-    "en": "Report Period Configuration"
+    "ru": "Конфигурация отчетного периода",
+    "en": "Report Period Configuration",
+    "uk": "Конфігурація періоду звіту",
+    "th": "การกำหนดช่วงเวลาของรายงาน"
   },
   "descriptions": {},
   "types": [
     {
       "type": "Aggregation",
       "descriptions": {
-        "de": "Aggregation description",
-        "ru": "Aggregation description",
-        "en": "Aggregation description"
+        "de": "Die Aggregation gibt die Aggregation der Werte vor.",
+        "ru": "Агрегация определяет агрегацию значений.",
+        "en": "The aggregation specifies the aggregation of the values.",
+        "uk": "Агрегація вказує агрегацію значень.",
+        "th": "การรวมระบุการรวมของค่า"
       },
       "names": {
         "de": "Aggregation",
-        "ru": "Aggregation",
-        "en": "Aggregation"
+        "ru": "агрегирование",
+        "en": "Aggregation",
+        "uk": "Агрегація",
+        "th": "การรวมตัว"
       },
-      "enums" : {
-        "NONE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Keine Aggregation, keine Datenmanipulation",
-            "en" : "No aggregation, no manipulation"
+      "enums": {
+        "NONE": {
+          "descriptions": null,
+          "names": {
+            "de": "Keine Aggregation",
+            "en": "No aggregation",
+            "ru": "Нет агрегации",
+            "uk": "Немає агрегації",
+            "th": "ไม่มีการรวม"
           }
         },
-        "HOURLY_NONE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Stundenwerte, keine Datenmanipulation",
-            "en" : "Hourly values, no manipulation"
+        "QUARTER_HOURLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Viertelstundenwerte",
+            "en": "Quarterly hour values",
+            "ru": "Четверть-часовые значения",
+            "uk": "Чверть-годинні значення",
+            "th": "ค่าไตรมาสชั่วโมง"
           }
         },
-        "DAILY_NONE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Tageswerte, keine Datenmanipulation",
-            "en" : "Daily values, no manipulation"
+        "HOURLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Stundenwerte",
+            "en": "Hourly values",
+            "ru": "часовые значения",
+            "uk": "часові значення",
+            "th": "ค่าชั่วโมง"
           }
         },
-        "WEEKLY_NONE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Wochenwerte, keine Datenmanipulation",
-            "en" : "Weekly values, no manipulation"
+        "DAILY": {
+          "descriptions": null,
+          "names": {
+            "de": "Tageswerte",
+            "en": "Daily values",
+            "ru": "Дневные значения",
+            "uk": "денні значення",
+            "th": "ค่าในชีวิตประจำวัน"
           }
         },
-        "MONTHLY_NONE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Monatswerte, keine Datenmanipulation",
-            "en" : "Monthly values, no manipulation"
+        "WEEKLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Wochenwerte",
+            "en": "Weekly values",
+            "ru": "еженедельные значения",
+            "uk": "щотижневі значення",
+            "th": "ค่ารายสัปดาห์"
           }
         },
-        "QUARTERLY_NONE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Quartalswerte, keine Datenmanipulation",
-            "en" : "Quarterly values, no manipulation"
+        "MONTHLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Monatswerte",
+            "en": "Monthly values",
+            "ru": "месячные значения",
+            "uk": "місячні значення",
+            "th": "ค่าบริการรายเดือน"
           }
         },
-        "YEARLY_NONE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Jahreswerte, keine Datenmanipulation",
-            "en" : "Yearly values, no manipulation"
+        "QUARTERLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Quartalswerte",
+            "en": "Quarterly values",
+            "ru": "квартальная",
+            "uk": "квартальна",
+            "th": "ตัวเลขรายไตรมาส"
           }
         },
-        "NONE_AVERAGE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Keine Aggregation, Durchschnitsswert",
-            "en" : "No aggregation, average value"
+        "YEARLY": {
+          "descriptions": null,
+          "names": {
+            "de": "Jahreswerte",
+            "en": "Yearly values",
+            "ru": "годовые значения",
+            "uk": "річні значення",
+            "th": "ค่าประจำปี"
+          }
+        }
+      }
+    },
+    {
+      "type": "Manipulation",
+      "descriptions": {
+        "de": "Die Manipulation bestimmt ob die Daten in einer bestimmten Form manipuliert werden.",
+        "ru": "Манипуляция определяет, будут ли данные обрабатываться в определенной форме.",
+        "en": "The manipulation determines whether the data is manipulated in a certain form.",
+        "uk": "Маніпуляція визначає, чи дані маніпулюють у певній формі.",
+        "th": "การจัดการกำหนดว่าข้อมูลจะถูกจัดการในรูปแบบที่แน่นอน"
+      },
+      "names": {
+        "de": "Manipulation",
+        "ru": "манипуляция",
+        "en": "Manipulation",
+        "uk": "маніпуляція",
+        "th": "การจัดการ"
+      },
+      "enums": {
+        "NONE": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Keine Manipulation",
+            "en": "No manipulation",
+            "ru": "Никаких манипуляций",
+            "uk": "Ніяких маніпуляцій",
+            "th": "ไม่มีการยักย้ายถ่ายเท"
           }
         },
-        "HOURLY_AVERAGE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Stundenwerte, Durchschnitsswert",
-            "en" : "Hourly values, average value"
+        "AVERAGE": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Durchschnittswerte",
+            "en": "Average values",
+            "ru": "Сред",
+            "uk": "Середовищ",
+            "th": "ค่าเฉลี่ย"
           }
         },
-        "DAILY_AVERAGE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Tageswerte, Durchschnitsswert",
-            "en" : "Daily values, average value"
+        "SORTED_MIN": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Aufsteigend sortiert",
+            "en": "Sorted by Minimum",
+            "ru": "Сортировка по возрастанию",
+            "uk": "Відсортовано у порядку зростання",
+            "th": "เรียงตามลำดับจากน้อยไปหามาก"
           }
         },
-        "WEEKLY_AVERAGE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Wochenwerte, Durchschnitsswert",
-            "en" : "Weekly values, average value"
+        "SORTED_MAX": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Absteigend sortiert",
+            "en": "Sorted by Maximum",
+            "ru": "Отсортировано по убыванию",
+            "uk": "Відсортовано за спаданням",
+            "th": "เรียงลำดับจากมากไปน้อย"
           }
         },
-        "MONTHLY_AVERAGE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Monatswerte, Durchschnitsswert",
-            "en" : "Monthly values, average value"
+        "MIN": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Minimalwert der Periode",
+            "en": "Minimum value of period",
+            "ru": "Минимальное значение периода",
+            "uk": "Мінімальне значення періоду",
+            "th": "มูลค่าขั้นต่ำของงวด"
           }
         },
-        "QUARTERLY_AVERAGE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Quartalswerte, Durchschnitsswert",
-            "en" : "Quarterly values, average value"
+        "MAX": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Maximalwert der Periode",
+            "en": "Maximum value of period",
+            "ru": "Максимальное значение периода",
+            "uk": "Максимальне значення періоду",
+            "th": "ค่าสูงสุดของงวด"
           }
         },
-        "YEARLY_AVERAGE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Jahreswerte, Durchschnitsswert",
-            "en" : "Yearly values, average value"
+        "MEDIAN": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Medianwert der Periode",
+            "en": "Median value of period",
+            "ru": "Медиана периода",
+            "uk": "Медіана періоду",
+            "th": "ค่ามัธยฐานของยุคนั้น"
           }
         },
-        "NONE_SORTED_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Keine Aggregation, Aufsteigend sortiert",
-            "en" : "No aggregation, sorted in ascending order"
+        "CENTRIC_RUNNING_MEAN": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Zentrierte Gleitende Mittelwerte",
+            "en": "Centric running mean values",
+            "ru": "Центрированные скользящие средние",
+            "uk": "По центру ковзні середні",
+            "th": "ค่าเฉลี่ยเคลื่อนที่เป็นศูนย์กลาง"
           }
         },
-        "HOURLY_SORTED_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Stundenwerte, Aufsteigend sortiert",
-            "en" : "Hourly values, sorted in ascending order"
-          }
-        },
-        "DAILY_SORTED_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Tageswerte, Aufsteigend sortiert",
-            "en" : "Daily values, sorted in ascending order"
-          }
-        },
-        "WEEKLY_SORTED_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Wochenwerte, Aufsteigend sortiert",
-            "en" : "Weekly values, sorted in ascending order"
-          }
-        },
-        "MONTHLY_SORTED_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Monatswerte, Aufsteigend sortiert",
-            "en" : "Monthly values, sorted in ascending order"
-          }
-        },
-        "QUARTERLY_SORTED_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Quartalswerte, Aufsteigend sortiert",
-            "en" : "Quarterly values, sorted in ascending order"
-          }
-        },
-        "YEARLY_SORTED_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Jahreswerte, Aufsteigend sortiert",
-            "en" : "Yearly values, sorted in ascending order"
-          }
-        },
-        "NONE_SORTED_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Keine Aggregation, Absteigend sortiert",
-            "en" : "No aggregation, sorted in descending order"
-          }
-        },
-        "HOURLY_SORTED_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Stundenwerte, Absteigend sortiert",
-            "en" : "Hourly values, sorted in descending order"
-          }
-        },
-        "DAILY_SORTED_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Tageswerte, Absteigend sortiert",
-            "en" : "Daily values, sorted in descending order"
-          }
-        },
-        "WEEKLY_SORTED_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Wochenwerte, Absteigend sortiert",
-            "en" : "Weekly values, sorted in descending order"
-          }
-        },
-        "MONTHLY_SORTED_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Monatswerte, Absteigend sortiert",
-            "en" : "Monthly values, sorted in descending order"
-          }
-        },
-        "QUARTERLY_SORTED_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Quartalswerte, Absteigend sortiert",
-            "en" : "Quarterly values, sorted in descending order"
-          }
-        },
-        "YEARLY_SORTED_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Jahreswerte, Absteigend sortiert",
-            "en" : "Yearly values, sorted in descending order"
-          }
-        },
-        "NONE_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Keine Aggregation, Minimalwert der Periode",
-            "en" : "No aggregation, minimum value of the period"
-          }
-        },
-        "HOURLY_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Stundenwerte, Minimalwert der Periode",
-            "en" : "Hourly values, minimum value of the period"
-          }
-        },
-        "DAILY_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Tageswerte, Minimalwert der Periode",
-            "en" : "Daily values, minimum value of the period"
-          }
-        },
-        "WEEKLY_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Wochenwerte, Minimalwert der Periode",
-            "en" : "Weekly values, minimum value of the period"
-          }
-        },
-        "MONTHLY_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Monatswerte, Minimalwert der Periode",
-            "en" : "Monthly values, minimum value of the period"
-          }
-        },
-        "QUARTERLY_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Quartalswerte, Minimalwert der Periode",
-            "en" : "Quarterly values, minimum value of the period"
-          }
-        },
-        "YEARLY_MIN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Jahreswerte, Minimalwert der Periode",
-            "en" : "Yearly values, minimum value of the period"
-          }
-        },
-        "NONE_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Keine Aggregation, Maximalwert der Periode",
-            "en" : "No aggregation, maximum value of the period"
-          }
-        },
-        "HOURLY_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Stundenwerte, Maximalwert der Periode",
-            "en" : "Hourly values, maximum value of the period"
-          }
-        },
-        "DAILY_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Tageswerte, Maximalwert der Periode",
-            "en" : "Daily values, maximum value of the period"
-          }
-        },
-        "WEEKLY_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Wochenwerte, Maximalwert der Periode",
-            "en" : "Weekly values, maximum value of the period"
-          }
-        },
-        "MONTHLY_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Monatswerte, Maximalwert der Periode",
-            "en" : "Monthly values, maximum value of the period"
-          }
-        },
-        "QUARTERLY_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Quartalswerte, Maximalwert der Periode",
-            "en" : "Quarterly values, maximum value of the period"
-          }
-        },
-        "YEARLY_MAX" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Jahreswerte, Maximalwert der Periode",
-            "en" : "Yearly values, maximum value of the period"
-          }
-        },
-        "NONE_MEDIAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Keine Aggregation, Medianwert der Periode",
-            "en" : "No aggregation, median value of the period"
-          }
-        },
-        "HOURLY_MEDIAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Stundenwerte, Medianwert der Periode",
-            "en" : "Hourly values, median value of the period"
-          }
-        },
-        "DAILY_MEDIAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Tageswerte, Medianwert der Periode",
-            "en" : "Daily values, median value of the period"
-          }
-        },
-        "WEEKLY_MEDIAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Wochenwerte, Medianwert der Periode",
-            "en" : "Weekly values, median value of the period"
-          }
-        },
-        "MONTHLY_MEDIAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Monatswerte, Medianwert der Periode",
-            "en" : "Monthly values, median value of the period"
-          }
-        },
-        "QUARTERLY_MEDIAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Quartalswerte, Medianwert der Periode",
-            "en" : "Quarterly values, median value of the period"
-          }
-        },
-        "YEARLY_MEDIAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Jahreswerte, Medianwert der Periode",
-            "en" : "Yearly values, median value of the period"
-          }
-        },
-        "NONE_CENTRIC_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Keine Aggregation, zentrierte Gleitende Mittelwerte",
-            "en" : "No aggregation, centric running mean values"
-          }
-        },
-        "HOURLY_CENTRIC_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Stundenwerte, zentrierte Gleitende Mittelwerte",
-            "en" : "Hourly values, centric running mean values"
-          }
-        },
-        "DAILY_CENTRIC_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Tageswerte, zentrierte Gleitende Mittelwerte",
-            "en" : "Daily values, centric running mean values"
-          }
-        },
-        "WEEKLY_CENTRIC_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Wochenwerte, zentrierte Gleitende Mittelwerte",
-            "en" : "Weekly values, centric running mean values"
-          }
-        },
-        "MONTHLY_CENTRIC_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Monatswerte, zentrierte Gleitende Mittelwerte",
-            "en" : "Monthly values, centric running mean values"
-          }
-        },
-        "QUARTERLY_CENTRIC_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Quartalswerte, zentrierte Gleitende Mittelwerte",
-            "en" : "Quarterly values, centric running mean values"
-          }
-        },
-        "YEARLY_CENTRIC_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Jahreswerte, zentrierte Gleitende Mittelwerte",
-            "en" : "Yearly values, centric running mean values"
-          }
-        },
-        "NONE_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Keine Aggregation, Gleitende Mittelwerte",
-            "en" : "No aggregation, running mean values"
-          }
-        },
-        "HOURLY_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Stundenwerte, Gleitende Mittelwerte",
-            "en" : "Hourly values, running mean values"
-          }
-        },
-        "DAILY_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Tageswerte, Gleitende Mittelwerte",
-            "en" : "Daily values, running mean values"
-          }
-        },
-        "WEEKLY_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Wochenwerte, Gleitende Mittelwerte",
-            "en" : "Weekly values, running mean values"
-          }
-        },
-        "MONTHLY_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Monatswerte, Gleitende Mittelwerte",
-            "en" : "Monthly values, running mean values"
-          }
-        },
-        "QUARTERLY_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Quartalswerte, Gleitende Mittelwerte",
-            "en" : "Quarterly values, running mean values"
-          }
-        },
-        "YEARLY_RUNNING_MEAN" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Jahreswerte, Gleitende Mittelwerte",
-            "en" : "Yearly values, running mean values"
+        "RUNNING_MEAN": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Gleitende Mittelwerte",
+            "en": "Running mean values",
+            "ru": "Скользящие средние",
+            "uk": "Ковзні середні",
+            "th": "ค่าเฉลี่ยเคลื่อนที่"
           }
         }
       }
@@ -466,41 +229,185 @@
     {
       "type": "Period",
       "descriptions": {
-        "de": "Period description",
-        "ru": "Period description",
-        "en": "Period description"
+        "de": "Die Periode bestimmt den Zeitraum aus den die Werte generiert werden.",
+        "ru": "Период определяет период, из которого генерируются значения.",
+        "en": "The period determines the period from which the values are generated.",
+        "uk": "Період визначає період, з якого формуються значення.",
+        "th": "ช่วงเวลากำหนดช่วงเวลาที่สร้างค่า"
       },
       "names": {
         "de": "Periode",
-        "ru": "Period",
-        "en": "Period"
+        "ru": "период",
+        "en": "Period",
+        "uk": "період",
+        "th": "ระยะเวลา"
       },
-      "enums" : {
-      "LAST" : {
-        "enumID" : null,
-        "descriptions" : null,
-        "names" : {
-          "de" : "Letzte",
-          "en" : "Last"
-        }
-      },
-      "CURRENT" : {
-        "enumID" : null,
-        "descriptions" : null,
-        "names" : {
-          "de" : "Aktulle",
-          "en" : "Current"
-        }
-      },
-      "ALL" : {
-        "enumID" : null,
-        "descriptions" : null,
-        "names" : {
-          "de" : "Alles",
-          "en" : "All"
+      "enums": {
+        "LAST": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Letzte Berichtsperiode",
+            "en": "Last reporting period",
+            "ru": "Последний отчетный период",
+            "uk": "Останній звітний період",
+            "th": "รอบระยะเวลาการรายงานล่าสุด"
+          }
+        },
+        "CURRENT": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Aktuelle Berichtsperiode",
+            "en": "Current reporting period",
+            "ru": "Текущий отчетный период",
+            "uk": "Поточний звітний період",
+            "th": "รอบระยะเวลาการรายงานปัจจุบัน"
+          }
+        },
+        "ALL": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Alle Daten",
+            "en": "All data",
+            "ru": "Все данные",
+            "uk": "Усі дані",
+            "th": "ข้อมูลทั้งหมด"
+          }
+        },
+        "FIXED": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Feste Periode",
+            "en": "Fixed period",
+            "ru": "Фиксированный период",
+            "uk": "Фіксований період",
+            "th": "ช่วงเวลาคงที่"
+          }
+        },
+        "FIXED_TO_REPORT_END": {
+          "enumID": null,
+          "descriptions": null,
+          "names": {
+            "de": "Periode bis Berichtsende",
+            "en": "Period to report end",
+            "ru": "Период до конца отчета",
+            "uk": "Період до кінця звіту",
+            "th": "ระยะเวลาจนถึงจุดสิ้นสุดของรายงาน"
+          }
         }
       }
-    }
+    },
+    {
+      "type": "Fixed Period",
+      "descriptions": {
+        "de": "Wenn feste Periode ausgewählt ist, wird hier die Zeitraum eingestellt.",
+        "ru": "Если выбран фиксированный период, период устанавливается здесь.",
+        "en": "If a fixed period is selected, the period is set here.",
+        "uk": "Якщо обраний фіксований період, тут встановлюється період.",
+        "th": "หากเลือกช่วงเวลาที่แน่นอนจะมีการกำหนดช่วงเวลาที่นี่"
+      },
+      "names": {
+        "de": "Feste Periode",
+        "en": "Fixed period",
+        "ru": "Фиксированный период",
+        "uk": "Фіксований період",
+        "th": "ช่วงเวลาคงที่"
+      },
+      "enums": {
+        "NONE": {
+          "descriptions": null,
+          "names": {
+            "de": "Keine",
+            "en": "No",
+            "ru": "Нет",
+            "uk": "Немає",
+            "th": "ไม่"
+          }
+        },
+        "QUARTER_HOUR": {
+          "descriptions": null,
+          "names": {
+            "de": "Viertelstunde",
+            "en": "Quarter hour",
+            "ru": "четверть часа",
+            "uk": "чверть години",
+            "th": "สี่ของชั่วโมง"
+          }
+        },
+        "HOUR": {
+          "descriptions": null,
+          "names": {
+            "de": "Stunde",
+            "en": "Hour",
+            "ru": "час",
+            "uk": "годину",
+            "th": "ชั่วโมง"
+          }
+        },
+        "DAY": {
+          "descriptions": null,
+          "names": {
+            "de": "Tag",
+            "en": "Day",
+            "ru": "день",
+            "uk": "день",
+            "th": "วัน"
+          }
+        },
+        "WEEK": {
+          "descriptions": null,
+          "names": {
+            "de": "Woche",
+            "en": "Week",
+            "ru": "неделя",
+            "uk": "тиждень",
+            "th": "สัปดาห์"
+          }
+        },
+        "MONTH": {
+          "descriptions": null,
+          "names": {
+            "de": "Monat",
+            "en": "Month",
+            "ru": "месяц",
+            "uk": "місяць",
+            "th": "เดือน"
+          }
+        },
+        "QUARTER": {
+          "descriptions": null,
+          "names": {
+            "de": "Quartal",
+            "en": "Quarter",
+            "ru": "четверть",
+            "uk": "чверть",
+            "th": "ย่าน"
+          }
+        },
+        "YEAR": {
+          "descriptions": null,
+          "names": {
+            "de": "Jahr",
+            "en": "Year",
+            "ru": "год",
+            "uk": "рік",
+            "th": "ปี"
+          }
+        },
+        "THREEYEARS": {
+          "descriptions": null,
+          "names": {
+            "de": "3 Jahre",
+            "en": "3 Years",
+            "ru": "3 год",
+            "uk": "3 роки",
+            "th": "3 ปี"
+          }
+        }
+      }
     }
   ]
 }

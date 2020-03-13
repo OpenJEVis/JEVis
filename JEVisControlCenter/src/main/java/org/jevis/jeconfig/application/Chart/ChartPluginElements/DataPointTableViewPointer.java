@@ -10,19 +10,22 @@ import de.gsi.chart.axes.Axis;
 import de.gsi.chart.plugins.AbstractDataFormattingPlugin;
 import de.gsi.dataset.DataSet;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
+import javafx.scene.control.ComboBox;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Pair;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.alarm.Alarm;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
+import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
+import org.jevis.jeconfig.application.Chart.Charts.TableChart;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
@@ -34,42 +37,29 @@ import java.util.TreeMap;
 
 public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
-    private final ObservableList<TableEntry> tableData;
-    private final List<TreeMap<DateTime, JEVisSample>> sampleTreeMaps;
-    private final SimpleObjectProperty<DateTime> valueForDisplay = new SimpleObjectProperty<>();
-    private List<Map<DateTime, JEVisSample>> noteMaps;
+    private final org.jevis.jeconfig.application.Chart.Charts.XYChart currentChart;
+    private final List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActiveCharts;
     private DateTime timestampFromFirstSample = null;
     private boolean asDuration = false;
-    private final EventHandler<MouseEvent> mouseMoveHandler = this::updateTable;
+    boolean plotArea = true;
+    private final List<XYChartSerie> xyChartSerieList;
 
-    public DataPointTableViewPointer(ObservableList<TableEntry> tableData,
-                                     List<TreeMap<DateTime, JEVisSample>> sampleTreeMaps, List<Map<DateTime, JEVisSample>> noteMaps) {
-        this.tableData = tableData;
-        this.sampleTreeMaps = sampleTreeMaps;
-        this.noteMaps = noteMaps;
+    public DataPointTableViewPointer(org.jevis.jeconfig.application.Chart.Charts.Chart chart, List<org.jevis.jeconfig.application.Chart.Charts.Chart> notActive) {
+        this.currentChart = (org.jevis.jeconfig.application.Chart.Charts.XYChart) chart;
+        this.notActiveCharts = notActive;
+        this.asDuration = this.currentChart.isAsDuration();
+        this.xyChartSerieList = this.currentChart.getXyChartSerieList();
+        this.timestampFromFirstSample = this.currentChart.getTimeStampOfFirstSample().get();
 
+        EventHandler<MouseEvent> mouseMoveHandler = event -> {
+            plotArea = true;
+            updateTable(event);
+        };
         registerInputEventHandler(MouseEvent.MOUSE_MOVED, mouseMoveHandler);
-    }
-
-    public DataPointTableViewPointer(ObservableList<TableEntry> tableData,
-                                     List<TreeMap<DateTime, JEVisSample>> sampleTreeMaps, List<Map<DateTime, JEVisSample>> noteMaps,
-                                     boolean asDuration, DateTime timestampFromFirstSample) {
-        this(tableData, sampleTreeMaps, noteMaps);
-
-        this.asDuration = asDuration;
-        this.timestampFromFirstSample = timestampFromFirstSample;
-    }
-
-    public DateTime getValueForDisplay() {
-        return valueForDisplay.get();
-    }
-
-    public void setValueForDisplay(DateTime valueForDisplay) {
-        this.valueForDisplay.set(valueForDisplay);
-    }
-
-    public SimpleObjectProperty<DateTime> valueForDisplayProperty() {
-        return valueForDisplay;
+        this.currentChart.getChart().setOnMouseMoved(event -> {
+            plotArea = false;
+            updateTable(event);
+        });
     }
 
     private DataPoint findDataPoint(final MouseEvent event, final Bounds plotAreaBounds) {
@@ -103,7 +93,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                 final double y = xyChart.getYAxis().getDisplayPosition(dataPoint.y);
                 final Point2D displayPoint = new Point2D(x, y);
                 dataPoint.distanceFromMouse = displayPoint.distance(mouseLocation);
-                if (displayPoint.distance(mouseLocation) <= 1000 && (nearestDataPoint == null
+                if (displayPoint.distance(mouseLocation) <= 10000 && (nearestDataPoint == null
                         || dataPoint.distanceFromMouse < nearestDataPoint.distanceFromMouse)) {
                     nearestDataPoint = dataPoint;
                 }
@@ -186,15 +176,45 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
 
     private void updateTable(final MouseEvent event) {
-        final Bounds plotAreaBounds = getChart().getPlotArea().getBoundsInLocal();
-        final DataPoint dataPoint = findDataPoint(event, plotAreaBounds);
+        final Bounds areaBounds;
+        if (plotArea)
+            areaBounds = getChart().getPlotArea().getBoundsInLocal();
+        else {
+            areaBounds = getChart().getBoundsInLocal();
+        }
+        final DataPoint dataPoint = findDataPoint(event, areaBounds);
 
         if (dataPoint != null) {
             Double v = dataPoint.getX() * 1000d;
             DateTime nearest = new DateTime(v.longValue());
-            setValueForDisplay(nearest);
 
             updateTable(nearest);
+
+            if (!notActiveCharts.isEmpty()) {
+                notActiveCharts.forEach(chart -> {
+                    if (!chart.getChartType().equals(ChartType.PIE)
+                            && !chart.getChartType().equals(ChartType.BAR)
+                            && !chart.getChartType().equals(ChartType.BUBBLE)
+                            && !chart.getChartType().equals(ChartType.TABLE)) {
+                        chart.getChart().getPlugins().forEach(chartPlugin -> {
+                            if (chartPlugin instanceof DataPointTableViewPointer) {
+                                ((DataPointTableViewPointer) chartPlugin).updateTable(nearest);
+                            }
+                        });
+                    } else if (chart.getChartType().equals(ChartType.TABLE)) {
+
+                        TableChart tableChart = (TableChart) chart;
+                        tableChart.updateTable(null, nearest);
+                        tableChart.setBlockDatePickerEvent(true);
+                        TableTopDatePicker tableTopDatePicker = tableChart.getTableTopDatePicker();
+                        ComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
+                        Platform.runLater(() -> {
+                            datePicker.getSelectionModel().select(nearest);
+                            tableChart.setBlockDatePickerEvent(false);
+                        });
+                    }
+                });
+            }
         }
     }
 
@@ -203,49 +223,57 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
         nf.setMinimumFractionDigits(2);
         nf.setMaximumFractionDigits(2);
 
-        tableData.forEach(tableEntry -> {
+        xyChartSerieList.forEach(xyChartSerie -> {
             try {
-                int i = tableData.indexOf(tableEntry);
-                TreeMap<DateTime, JEVisSample> sampleTreeMap = sampleTreeMaps.get(i);
-                Map<DateTime, JEVisSample> noteMap = noteMaps.get(i);
-                JEVisSample sample = sampleTreeMap.get(nearest);
+                TableEntry tableEntry = xyChartSerie.getTableEntry();
+                TreeMap<DateTime, JEVisSample> sampleTreeMap = xyChartSerie.getSampleMap();
+                Map<DateTime, JEVisSample> noteMap = xyChartSerie.getSingleRow().getNoteSamples();
+                Map<DateTime, Alarm> alarmMap = xyChartSerie.getSingleRow().getAlarms();
 
-                Note formattedNote = new Note(sample, noteMap.get(sample.getTimestamp()));
+                DateTime dateTime = nearest;
+                if (currentChart instanceof LogicalChart) {
+                    dateTime = sampleTreeMap.lowerKey(nearest);
+                }
+                DateTime finalDateTime = dateTime;
+
+                JEVisSample sample = sampleTreeMap.get(finalDateTime);
+
+                Note formattedNote = new Note(sample, noteMap.get(sample.getTimestamp()), alarmMap.get(sample.getTimestamp()));
 
                 if (!asDuration) {
                     Platform.runLater(() -> {
-                        tableEntry.setDate(nearest
+                        tableEntry.setDate(finalDateTime
                                 .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
                     });
                 } else {
-                    Platform.runLater(() -> tableEntry.setDate((nearest.getMillis() -
+                    Platform.runLater(() -> tableEntry.setDate((finalDateTime.getMillis() -
                             timestampFromFirstSample.getMillis()) / 1000 / 60 / 60 + " h"));
                 }
                 Platform.runLater(() -> tableEntry.setNote(formattedNote.getNoteAsString()));
-                String unit = UnitManager.getInstance().format(sample.getUnit());
+                String unit = xyChartSerie.getUnit();
 
                 if (!sample.getNote().contains("Zeros")) {
                     Double valueAsDouble = null;
                     String formattedDouble = null;
-//                        if (!serie.getSingleRow().isStringData()) {
-                    try {
-                        valueAsDouble = sample.getValueAsDouble();
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
+
+                    if (!xyChartSerie.getSingleRow().isStringData()) {
+                        try {
+                            valueAsDouble = sample.getValueAsDouble();
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                        formattedDouble = nf.format(valueAsDouble);
+                        String finalFormattedDouble = formattedDouble;
+                        Platform.runLater(() -> tableEntry.setValue(finalFormattedDouble + " " + unit));
+                    } else {
+                        Platform.runLater(() -> {
+                            try {
+                                tableEntry.setValue(sample.getValueAsString() + " " + unit);
+                            } catch (JEVisException e) {
+                                e.printStackTrace();
+                            }
+                        });
                     }
-                    formattedDouble = nf.format(valueAsDouble);
-                    String finalFormattedDouble = formattedDouble;
-                    Platform.runLater(() -> tableEntry.setValue(finalFormattedDouble + " " + unit));
-//                        }
-//                        else {
-//                            Platform.runLater(() -> {
-//                                try {
-//                                    tableEntry.setValue(sample.getValueAsString() + " " + unit);
-//                                } catch (JEVisException e) {
-//                                    e.printStackTrace();
-//                                }
-//                            });
-//                        }
 
                 } else Platform.runLater(() -> tableEntry.setValue("- " + unit));
 

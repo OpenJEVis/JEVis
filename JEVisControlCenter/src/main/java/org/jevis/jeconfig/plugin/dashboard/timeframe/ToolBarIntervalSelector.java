@@ -41,7 +41,7 @@ public class ToolBarIntervalSelector extends HBox {
         timeFactoryBox.setMinWidth(200);
 
         timeFrames = FXCollections.observableArrayList(controller.getAllTimeFrames().getAll());
-        timeFactoryBox.getItems().addAll(timeFrames);
+        timeFactoryBox.getItems().setAll(timeFrames);
 
         dateButton.setText(controller.getActiveTimeFrame().format(controller.getInterval()));
         dateButton.setTooltip(new Tooltip(controller.getInterval().toString()));
@@ -90,6 +90,7 @@ public class ToolBarIntervalSelector extends HBox {
     }
 
     public void updateView(){
+        logger.debug("updateView: timeframe: '{}', interval: '{}' date: '{}'",controller.getActiveTimeFrame(),controller.getInterval(),controller.getInterval().getEnd());
         disableEventListener=true;
 
         timeFactoryBox.selectValue(controller.getActiveTimeFrame());

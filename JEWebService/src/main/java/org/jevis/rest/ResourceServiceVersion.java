@@ -32,7 +32,7 @@ public class ResourceServiceVersion {
 
     @GET
     public Response get() {
-        String re = "1.8.0";
+        String re = "1.9.0";
 
         return Response.ok(re).build();
 

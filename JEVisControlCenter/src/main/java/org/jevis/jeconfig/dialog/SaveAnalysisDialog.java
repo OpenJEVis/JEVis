@@ -11,13 +11,11 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.json.JsonAnalysisDataRow;
-import org.jevis.commons.json.JsonChartDataModel;
-import org.jevis.commons.json.JsonChartSettings;
-import org.jevis.commons.json.JsonChartTimeFrame;
+import org.jevis.commons.json.*;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.plugin.charts.ToolBarView;
@@ -209,7 +207,7 @@ public class SaveAnalysisDialog {
                 });
     }
 
-    private void saveDataModel(JEVisObject analysis, Set<ChartDataModel> selectedData, List<ChartSettings> chartSettings) {
+    private void saveDataModel(JEVisObject analysis, Set<ChartDataModel> selectedData, ChartSettings chartSettings) {
         try {
             JEVisAttribute dataModel = analysis.getAttribute("Data Model");
             JEVisAttribute charts = analysis.getAttribute("Charts");
@@ -248,21 +246,29 @@ public class SaveAnalysisDialog {
             }
             jsonChartDataModel.setListDataRows(jsonDataModels);
 
-            List<JsonChartSettings> jsonChartSettings = new ArrayList<>();
-            for (ChartSettings cset : chartSettings) {
-                JsonChartSettings set = new JsonChartSettings();
+            JsonChartSettings jsonChartSettings = new JsonChartSettings();
+
+            if (chartSettings.getAutoSize() != null) {
+                jsonChartSettings.setAutoSize(chartSettings.getAutoSize().toString());
+            }
+
+            for (ChartSetting cset : chartSettings.getListSettings()) {
+                JsonChartSetting set = new JsonChartSetting();
                 if (cset.getId() != null) set.setId(cset.getId().toString());
-                set.setName(cset.getName());
-                set.setChartType(cset.getChartType().toString());
-                set.setHeight(cset.getHeight().toString());
+                if (cset.getName() != null) set.setName(cset.getName());
+                if (cset.getChartType() != null) set.setChartType(cset.getChartType().toString());
+                if (cset.getColorMapping() != null) set.setColorMapping(cset.getColorMapping().toString());
+                if (cset.getHeight() != null) set.setHeight(cset.getHeight().toString());
 
                 JsonChartTimeFrame jctf = new JsonChartTimeFrame();
-                jctf.setTimeframe(cset.getAnalysisTimeFrame().getTimeFrame().toString());
+                if (cset.getAnalysisTimeFrame().getTimeFrame() != null) {
+                    jctf.setTimeframe(cset.getAnalysisTimeFrame().getTimeFrame().toString());
+                }
                 jctf.setId(String.valueOf(cset.getAnalysisTimeFrame().getId()));
 
                 set.setAnalysisTimeFrame(jctf);
 
-                jsonChartSettings.add(set);
+                jsonChartSettings.getListSettings().add(set);
             }
 
             if (jsonChartDataModel.toString().length() < 16635 && jsonChartSettings.toString().length() < 16635) {

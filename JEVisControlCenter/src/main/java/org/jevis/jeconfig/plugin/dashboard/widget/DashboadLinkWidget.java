@@ -48,7 +48,7 @@ public class DashboadLinkWidget extends Widget {
     private DataModelDataHandler sampleHandler;
     public static ObjectMapper objectMapper = new ObjectMapper();
 
-    JFXButton linkButton = new JFXButton("", JEConfig.getImage("1415314386_Graph.png", 20, 20));
+    JFXButton linkButton = new JFXButton("", JEConfig.getImage("if_dashboard_46791.png", 20, 20));
     private TimeFrameFactory selectedTimeFrameFactory;
     private Interval lastInterval = null;
     private JEVisObject linkedDashboardObj;
@@ -119,12 +119,14 @@ public class DashboadLinkWidget extends Widget {
                 this.anchorPane.setBackground(bgColor);
                 this.setBorder(null);
 
-                if (dataModelNode.getDashboardObject() != null) {
+                if (dataModelNode.getDashboardObject() != null && getDataSource().getObject(dataModelNode.getDashboardObject())!=null) {
                     try {
                         linkedDashboardObj = getDataSource().getObject(dataModelNode.getDashboardObject());
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
+                }else{
+                    logger.warn("can not find linked object");
                 }
 
                 this.layout();

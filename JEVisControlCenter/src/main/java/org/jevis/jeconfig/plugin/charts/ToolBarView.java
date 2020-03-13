@@ -28,11 +28,12 @@ import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
+import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
-import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.control.RegressionBox;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
 import org.jevis.jeconfig.dialog.Response;
@@ -44,6 +45,7 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.prefs.Preferences;
 
 /**
  * @author broder
@@ -68,7 +70,7 @@ public class ToolBarView {
     private ToggleButton disableIcons;
     private ToggleButton zoomOut;
     private PickerCombo pickerCombo;
-    private ComboBox<TimeFrame> presetDateBox;
+    private ComboBox<AnalysisTimeFrame> presetDateBox;
     private JFXDatePicker pickerDateStart;
     private JFXTimePicker pickerTimeStart;
     private JFXDatePicker pickerDateEnd;
@@ -106,9 +108,9 @@ public class ToolBarView {
                         changed = false;
                         getGraphPluginView().handleRequest(Constants.Plugin.Command.SAVE);
                     }
-                    model.setTemporary(false);
                 });
             }
+            model.setTemporary(false);
             model.setCurrentAnalysis(newValue);
             model.resetToolbarSettings();
             model.setGlobalAnalysisTimeFrame(model.getGlobalAnalysisTimeFrame());
@@ -217,8 +219,11 @@ public class ToolBarView {
             getGraphPluginView().handleRequest(Constants.Plugin.Command.NEW);
         } else if (dialog.getResponse() == Response.LOAD) {
 
+            final Preferences previewPref = Preferences.userRoot().node("JEVis.JEConfig.preview");
+            if (!previewPref.getBoolean("enabled", true)) {
+                model.setAnalysisTimeFrameForAllModels(model.getGlobalAnalysisTimeFrame());
+            }
         }
-
     }
 
     private void hideShowIconsInGraph() {
@@ -251,37 +256,38 @@ public class ToolBarView {
             polyDegreeNumberSpinner.setMin(new BigDecimal(1));
             polyDegreeNumberSpinner.setMax(new BigDecimal(11));
 
-            Label regressionTypeLabel = new Label(I18n.getInstance().getString("plugin.graph.toolbar.regression.type"));
-
-            RegressionBox regressionTypeComboBox = new RegressionBox();
+//            Label regressionTypeLabel = new Label(I18n.getInstance().getString("plugin.graph.toolbar.regression.type"));
+            Label regressionTypeLabel = new Label(I18n.getInstance().getString("dialog.regression.type.poly"));
+//            RegressionBox regressionTypeComboBox = new RegressionBox();
 
             GridPane gridPane = new GridPane();
             gridPane.setVgap(4);
             gridPane.setHgap(4);
 
             gridPane.add(regressionTypeLabel, 0, 0);
-            gridPane.add(regressionTypeComboBox, 1, 0);
+//            gridPane.add(regressionTypeComboBox, 1, 0);
 
             gridPane.add(polyDegreeLabel, 0, 1);
             gridPane.add(polyDegreeNumberSpinner, 1, 1);
 
-            regressionTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                if (!newValue.equals(oldValue)) {
-                    if (newValue.equals(RegressionType.POLY)) {
-                        gridPane.add(polyDegreeLabel, 0, 1);
-                        gridPane.add(polyDegreeNumberSpinner, 1, 1);
-                    } else {
-                        gridPane.getChildren().removeAll(polyDegreeLabel, polyDegreeNumberSpinner);
-                    }
-                }
-            });
+//            regressionTypeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+//                if (!newValue.equals(oldValue)) {
+//                    if (newValue.equals(RegressionType.POLY)) {
+//                        gridPane.add(polyDegreeLabel, 0, 1);
+//                        gridPane.add(polyDegreeNumberSpinner, 1, 1);
+//                    } else {
+//                        gridPane.getChildren().removeAll(polyDegreeLabel, polyDegreeNumberSpinner);
+//                    }
+//                }
+//            });
 
             alert.getDialogPane().setContent(gridPane);
 
             alert.showAndWait().ifPresent(buttonType -> {
                 if (buttonType.getButtonData().isDefaultButton()) {
                     model.setPolyRegressionDegree(polyDegreeNumberSpinner.getNumber().toBigInteger().intValue());
-                    model.setRegressionType(regressionTypeComboBox.getSelectionModel().getSelectedItem());
+//                    model.setRegressionType(regressionTypeComboBox.getSelectionModel().getSelectedItem());
+                    model.setRegressionType(RegressionType.POLY);
                     model.setCalcRegression(!model.calcRegression());
                 }
             });
@@ -364,7 +370,7 @@ public class ToolBarView {
             }
 
             toolBar.getItems().clear();
-            pickerCombo = new PickerCombo(model, null);
+            pickerCombo = new PickerCombo(model, null, true);
             pickerCombo.updateCellFactory();
             presetDateBox = pickerCombo.getPresetDateBox();
             pickerDateStart = pickerCombo.getStartDatePicker();
@@ -379,18 +385,37 @@ public class ToolBarView {
             Separator sep3 = new Separator();
             Separator sep4 = new Separator();
 
+            boolean isRegressionPossible = false;
+            for (ChartSetting chartSetting : model.getCharts().getListSettings()) {
+                if (chartSetting.getChartType() != ChartType.TABLE && chartSetting.getChartType() != ChartType.HEAT_MAP
+                        && chartSetting.getChartType() != ChartType.BAR && chartSetting.getChartType() != ChartType.PIE)
+                    isRegressionPossible = true;
+            }
+
             if (!JEConfig.getExpert()) {
                 toolBar.getItems().addAll(listAnalysesComboBox,
                         sep1, presetDateBox, pickerDateStart, pickerDateEnd,
                         sep2, reload, zoomOut,
                         sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                        sep4, customWorkDay, calcRegression, showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
+                        sep4, customWorkDay);
+
+                if (isRegressionPossible) {
+                    toolBar.getItems().add(calcRegression);
+                }
+
+                toolBar.getItems().addAll(showL1L2, showSum, disableIcons, autoResize, runUpdateButton);
             } else {
                 toolBar.getItems().addAll(listAnalysesComboBox,
                         sep1, presetDateBox, pickerDateStart, pickerDateEnd,
                         sep2, reload, zoomOut,
                         sep3, loadNew, save, delete, select, exportCSV, exportImage,
-                        sep4, customWorkDay, calcRegression, showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
+                        sep4, customWorkDay);
+
+                if (isRegressionPossible) {
+                    toolBar.getItems().add(calcRegression);
+                }
+
+                toolBar.getItems().addAll(showL1L2, showRawData, showSum, disableIcons, autoResize, runUpdateButton);
             }
 
             addAnalysisComboBoxListener();
@@ -421,8 +446,8 @@ public class ToolBarView {
                 ge = new GraphExportCSV(
                         ds,
                         model,
-                        new DateTime(graphPluginView.getxAxisLowerBound().longValue()),
-                        new DateTime(graphPluginView.getxAxisUpperBound().longValue()));
+                        new DateTime(graphPluginView.getxAxisLowerBound().longValue() * 1000),
+                        new DateTime(graphPluginView.getxAxisUpperBound().longValue() * 1000));
             } else {
                 ge = new GraphExportCSV(
                         ds,

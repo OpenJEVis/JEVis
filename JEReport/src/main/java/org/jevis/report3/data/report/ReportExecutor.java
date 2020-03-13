@@ -66,7 +66,7 @@ public class ReportExecutor {
 
         intervalCalculator.buildIntervals(reportObject);
 
-        DateTime end = intervalCalculator.getInterval(PeriodMode.CURRENT).getEnd();
+        DateTime end = intervalCalculator.getInterval(PeriodMode.CURRENT.toString().toUpperCase()).getEnd();
 
         if (!precondition.isPreconditionReached(reportObject)) {
 
@@ -82,7 +82,7 @@ public class ReportExecutor {
         for (ReportData curData : reportLinks) {
             ReportData.LinkStatus reportLinkStatus = curData.getReportLinkStatus(end);
             if (!reportLinkStatus.isSanityCheck()) {
-                logger.info(reportLinkStatus.getMessage());
+                logger.error("Report " + this.reportObject.getName() + ":" + this.reportObject.getID() + " - " + reportLinkStatus.getMessage());
                 isDataAvailable.set(false);
                 break;
             }

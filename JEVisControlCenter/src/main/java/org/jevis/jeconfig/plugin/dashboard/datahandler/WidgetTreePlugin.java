@@ -8,14 +8,14 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.unit.ChartUnits.*;
+import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.Benchmark;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
@@ -25,6 +25,7 @@ import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.jevistree.TreePlugin;
 import org.jevis.jeconfig.plugin.dashboard.config.DataPointNode;
 
+import javax.measure.unit.Unit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ public class WidgetTreePlugin implements TreePlugin {
     public static String COLUMN_MANIPULATION = I18n.getInstance().getString("plugin.graph.manipulation.label");
     public static String DATA_MODEL_NODE = "DataModelNode";
     public static String COLUMN_CLEANING = I18n.getInstance().getString("graph.table.cleaning");
+    public static String COLUMN_UNIT = I18n.getInstance().getString("graph.table.unit");
 
     final String keyPreset = I18n.getInstance().getString("plugin.graph.interval.preset");
     final String keyTotal = I18n.getInstance().getString("plugin.graph.manipulation.total");
@@ -150,10 +152,202 @@ public class WidgetTreePlugin implements TreePlugin {
                 buildManipulationColumn(),
                 buildAggregationColumn(),
                 buildDataProcessorColumn(),
-                buildENIPColumn());
+                buildENIPColumn(),
+                buildUnitColumn());
         list.add(pluginHeader);
 
         return list;
+    }
+
+    private TreeTableColumn<JEVisTreeRow, JEVisUnit> buildUnitColumn() {
+        TreeTableColumn<JEVisTreeRow, JEVisUnit> column = new TreeTableColumn<>(COLUMN_UNIT);
+        column.setPrefWidth(130);
+        column.setEditable(true);
+        column.setId(COLUMN_UNIT);
+
+        column.setCellValueFactory(param -> {
+            DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
+            if (dataPoint != null && dataPoint.getUnit() != null) {
+                return new ReadOnlyObjectWrapper<>(ChartUnits.parseUnit(dataPoint.getUnit()));
+            }
+            return new ReadOnlyObjectWrapper<>(new JEVisUnitImp(Unit.ONE));
+        });
+
+        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, JEVisUnit>, TreeTableCell<JEVisTreeRow, JEVisUnit>>() {
+
+            @Override
+            public TreeTableCell<JEVisTreeRow, JEVisUnit> call(TreeTableColumn<JEVisTreeRow, JEVisUnit> param) {
+
+
+                TreeTableCell<JEVisTreeRow, JEVisUnit> cell = new TreeTableCell<JEVisTreeRow, JEVisUnit>() {
+                    @Override
+                    public void commitEdit(JEVisUnit unit) {
+
+                        super.commitEdit(unit);
+                        DataPointNode dataPoint = getDataPointNode(getTreeTableRow().getItem());
+                        dataPoint.setUnit(UnitManager.getInstance().format(unit).replace("·", ""));
+                    }
+
+                    @Override
+                    protected void updateItem(JEVisUnit item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        setText(null);
+                        setGraphic(null);
+
+                        if (!empty) {
+                            try {
+                                boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+
+                                if (show) {
+
+                                    DataPointNode dataPoint = getDataPointNode(getTreeTableRow().getItem());
+                                    ComboBox<String> box = buildUnitBox(dataPoint);
+
+                                    box.valueProperty().addListener((observable, oldValue, newValue) -> {
+                                        if (!newValue.equals(oldValue)) {
+                                            JEVisUnit jeVisUnit = ChartUnits.parseUnit(newValue);
+                                            commitEdit(jeVisUnit);
+                                        }
+                                    });
+
+                                    setGraphic(box);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                };
+
+                return cell;
+            }
+        });
+        return column;
+    }
+
+    private ComboBox<String> buildUnitBox(DataPointNode singleRow) {
+        ComboBox<String> processorBox = new ComboBox<>();
+        try {
+            JEVisClass stringDataClass = null;
+
+            stringDataClass = jeVisTree.getJEVisDataSource().getJEVisClass("String Data");
+            JEVisObject object = jeVisTree.getJEVisDataSource().getObject(singleRow.getCleanObjectID());
+            if (object == null) {
+                object = jeVisTree.getJEVisDataSource().getObject(singleRow.getObjectID());
+            }
+//
+            JEVisAttribute attribute = object.getAttribute(singleRow.getAttribute());
+
+            if (!object.getJEVisClass().equals(stringDataClass)) {
+
+                List<String> proNames = new ArrayList<>();
+
+                boolean isEnergyUnit = false;
+                boolean isVolumeUnit = false;
+                boolean isMassUnit = false;
+                boolean isPressureUnit = false;
+                boolean isVolumeFlowUnit = false;
+                Boolean isMoneyUnit = false;
+
+                JEVisUnit currentUnit;
+                if (singleRow.getUnit() != null) {
+                    currentUnit = ChartUnits.parseUnit(singleRow.getUnit());
+                } else {
+                    currentUnit = attribute.getDisplayUnit();
+                }
+
+                for (EnergyUnit eu : EnergyUnit.values()) {
+                    if (eu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isEnergyUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(eu.toString())) {
+                        isEnergyUnit = true;
+                    }
+                }
+                if (isEnergyUnit) for (EnergyUnit eu : EnergyUnit.values()) {
+                    proNames.add(eu.toString());
+                }
+
+                for (VolumeUnit vu : VolumeUnit.values()) {
+                    if (vu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isVolumeUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(vu.toString())) {
+                        isEnergyUnit = true;
+                    }
+                }
+                if (isVolumeUnit) for (VolumeUnit vu : VolumeUnit.values()) {
+                    proNames.add(vu.toString());
+                }
+
+                for (MassUnit mu : MassUnit.values()) {
+                    if (mu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isMassUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(mu.toString())) {
+                        isEnergyUnit = true;
+                    }
+                }
+                if (isMassUnit) for (MassUnit mu : MassUnit.values()) {
+                    proNames.add(mu.toString());
+                }
+
+                for (PressureUnit pu : PressureUnit.values()) {
+                    if (pu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isPressureUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(pu.toString())) {
+                        isEnergyUnit = true;
+                    }
+                }
+                if (isPressureUnit) for (PressureUnit pu : PressureUnit.values()) {
+                    proNames.add(pu.toString());
+                }
+
+                for (VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
+                    if (vfu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isVolumeFlowUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(vfu.toString())) {
+                        isEnergyUnit = true;
+                    }
+                }
+                if (isVolumeFlowUnit) {
+                    for (VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
+                        proNames.add(vfu.toString());
+                    }
+                }
+
+                if (!isEnergyUnit && !isMassUnit && !isPressureUnit && !isVolumeFlowUnit && !isVolumeUnit) {
+                    if (singleRow.getUnit() != null)
+                        proNames.add(singleRow.getUnit());
+                }
+
+                for (MoneyUnit mu : MoneyUnit.values()) {
+                    if (mu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
+                        isMoneyUnit = true;
+                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(mu.toString())) {
+                        isMoneyUnit = true;
+                    }
+                }
+                if (isMoneyUnit) for (MoneyUnit mu : MoneyUnit.values()) {
+                    proNames.add(mu.toString());
+                }
+
+
+                processorBox.setItems(FXCollections.observableArrayList(proNames));
+
+                processorBox.setPrefWidth(90);
+                processorBox.setMinWidth(70);
+
+                if (currentUnit != null) {
+                    processorBox.getSelectionModel().select(currentUnit.getLabel());
+                }
+
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
+        return processorBox;
+
     }
 
     @Override
@@ -657,6 +851,7 @@ public class WidgetTreePlugin implements TreePlugin {
         column.setCellValueFactory(param -> {
 //            DataPointNode dataPoint = (DataPointNode) param.getValue().getValue().getDataObject(DATA_MODEL_NODE, null);
             DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
+
             if (dataPoint != null && (dataPoint.getCalculationID() != null && dataPoint.getCalculationID() > 0l)) {
 //                System.out.println("ENPI: " + dataPoint.getCalculationID());
                 return new SimpleBooleanProperty(true);
@@ -689,10 +884,12 @@ public class WidgetTreePlugin implements TreePlugin {
                                         if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
 
                                             if (box.isSelected()) {
+                                                //System.out.println("b1: "+WidgetTreePlugin.this.targetCalcMap.containsKey(getDataPointNode(getTreeTableRow()).getObjectID()));
                                                 if (WidgetTreePlugin.this.targetCalcMap.containsKey(getDataPointNode(getTreeTableRow()).getObjectID())) {
-                                                    getDataPointNode(getTreeTableRow()).setCleanObjectID(WidgetTreePlugin.this.targetCalcMap.get(getDataPointNode(getTreeTableRow()).getObjectID()));
-                                                } else {
-//                                                    System.out.println("----> keine calc id gefunden");
+                                                    getDataPointNode(getTreeTableRow()).setCalculationID(WidgetTreePlugin.this.targetCalcMap.get(getDataPointNode(getTreeTableRow()).getObjectID()));
+
+                                                    //System.out.println("set for: "+getDataPointNode(getTreeTableRow()));
+                                                    //System.out.println("calcID: "+WidgetTreePlugin.this.targetCalcMap.get(getDataPointNode(getTreeTableRow()).getObjectID()));
                                                 }
 
                                             } else {
@@ -728,15 +925,19 @@ public class WidgetTreePlugin implements TreePlugin {
 
         for (JEVisObject calculationObj : this.jeVisTree.getJEVisDataSource().getObjects(calculation, true)) {
             try {
-                List<JEVisObject> output = calculationObj.getChildren(outputClass, true);
+                List<JEVisObject> outputs = calculationObj.getChildren(outputClass, true);
 
-                if (output != null && !output.isEmpty()) {
-                    JEVisAttribute tartgetAttribute = output.get(0).getAttribute("Attribute Target");
-                    TargetHelper th = new TargetHelper(this.jeVisTree.getJEVisDataSource(), tartgetAttribute);
-
-                    if (th != null && th.getObject() != null && !th.getObject().isEmpty()) {
-                        calcAndResult.put(th.getObject().get(0).getID(), calculationObj.getID());
+                if (outputs != null && !outputs.isEmpty()) {
+                    // System.out.println("output: "+outputs);
+                    for (JEVisObject output : outputs) {
+                        JEVisAttribute tartgetAttribute = output.getAttribute("Output");
+                        TargetHelper th = new TargetHelper(this.jeVisTree.getJEVisDataSource(), tartgetAttribute);
+                        if (th != null && th.getObject() != null && !th.getObject().isEmpty()) {
+                            calcAndResult.put(th.getObject().get(0).getID(), calculationObj.getID());
+                            //System.out.println("Add "+output);
+                        }
                     }
+
 
                 }
             } catch (Exception ex) {

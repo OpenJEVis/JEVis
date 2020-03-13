@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * ? Only used by exporter ? can be deleted ?
  *
  * @author Florian Simon<florian.simon@openjevis.org>
  */
@@ -38,6 +39,7 @@ public class JsonObject {
     private long parent;
     private List<JsonAttribute> attributes = new ArrayList<JsonAttribute>();
     private List<JsonObject> children = new ArrayList<JsonObject>();
+
 //    private List<JsonRelationship> relations;
 
     public JsonObject() {

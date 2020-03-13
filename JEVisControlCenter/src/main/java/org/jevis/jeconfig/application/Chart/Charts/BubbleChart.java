@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -18,14 +19,11 @@ import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.jeconfig.application.Chart.ChartElements.Bubble;
-import org.jevis.jeconfig.application.Chart.ChartElements.DateAxis;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
-import org.jevis.jeconfig.application.Chart.Charts.jfx.NumberAxis;
-import org.jevis.jeconfig.application.Chart.Zoom.ChartPanManager;
-import org.jevis.jeconfig.application.Chart.Zoom.JFXChartUtil;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
@@ -56,15 +54,15 @@ public class BubbleChart implements Chart {
     private String yUnit;
     private ChartType chartType = ChartType.BUBBLE;
 
-    public BubbleChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, Integer chartId, String chartName) {
+    public BubbleChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
         this.regressionType = analysisDataModel.getRegressionType();
         this.calcRegression = analysisDataModel.calcRegression();
         this.polyRegressionDegree = analysisDataModel.getPolyRegressionDegree();
         this.chartDataModels = chartDataModels;
-        this.chartId = chartId;
-        this.chartName = chartName;
+        this.chartId = chartSetting.getId();
+        this.chartName = chartSetting.getName();
 
-        final DateAxis xAxis = new DateAxis();
+        final NumberAxis xAxis = new NumberAxis();
         final NumberAxis yAxis = new NumberAxis();
 
         List<JEVisSample> xList = new ArrayList<>();
@@ -209,6 +207,8 @@ public class BubbleChart implements Chart {
         });
 
         chart = new MultiAxisBubbleChart(xAxis, yAxis, null);
+        chart.setOnMouseMoved(event -> updateTable(event, null));
+
         if (calcRegression) {
             chart.setRegressionColor(0, hexColors.get(0));
             chart.setRegression(0, regressionType, polyRegressionDegree);
@@ -230,13 +230,13 @@ public class BubbleChart implements Chart {
             }
         }
 
-        xAxis.setLabel(xAxisTitle);
+        xAxis.setLabel(xAxisTitle + " [" + xUnit + "]");
         xAxis.setAutoRanging(false);
         xAxis.setLowerBound(Math.max(minX.get() - 30, 0d));
         xAxis.setUpperBound(maxX.get() + 30);
         xAxis.setTickUnit(30);
 
-        yAxis.setLabel(yAxisTitle);
+        yAxis.setLabel(yAxisTitle + " [" + yUnit + "]");
         yAxis.setAutoRanging(false);
         yAxis.setLowerBound(Math.max(minY.get(), 0d) * 0.75);
         yAxis.setUpperBound(maxY.get() * 1.25);
@@ -298,14 +298,16 @@ public class BubbleChart implements Chart {
     @Override
     public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
         Point2D mouseCoordinates = null;
-        if (mouseEvent != null) mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-
-//        double x = ((MultiAxisBubbleChart) getChart()).getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
-//
-//        Double displayValue = ((NumberAxis) ((MultiAxisBubbleChart) getChart()).getXAxis()).getValueForDisplay(x).doubleValue();
         Double displayValue = null;
+
+        if (mouseEvent != null) {
+            mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
+            double x = chart.getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
+
+            displayValue = ((NumberAxis) chart.getXAxis()).getValueForDisplay(x).doubleValue();
+        }
+
         if (displayValue != null) {
-            setValueForDisplay(valueForDisplay);
             double finalDisplayValue = displayValue;
             NumberFormat nf = NumberFormat.getInstance();
             nf.setMinimumFractionDigits(2);
@@ -352,63 +354,13 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public DateTime getStartDateTime() {
-        return null;
-    }
-
-    @Override
-    public DateTime getEndDateTime() {
-        return null;
-    }
-
-    @Override
-    public void setDataModels(List<ChartDataModel> chartDataModels) {
-
-    }
-
-    @Override
-    public void setShowIcons(Boolean showIcons) {
-
-    }
-
-    @Override
-    public void setChartSettings(ChartSettingsFunction function) {
-        //TODO: implement me, see PieChart
-    }
-
-    @Override
-    public ChartPanManager getPanner() {
-        return null;
-    }
-
-    @Override
-    public JFXChartUtil getJfxChartUtil() {
-        return null;
-    }
-
-    @Override
     public void setRegion(Region region) {
-
-    }
-
-    @Override
-    public void checkForY2Axis() {
-
-    }
-
-    @Override
-    public void applyBounds() {
 
     }
 
     @Override
     public List<ChartDataModel> getChartDataModels() {
         return chartDataModels;
-    }
-
-    @Override
-    public void showNote(MouseEvent mouseEvent) {
-
     }
 
     @Override
@@ -431,16 +383,6 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public DateTime getValueForDisplay() {
-        return null;
-    }
-
-    @Override
-    public void setValueForDisplay(DateTime valueForDisplay) {
-
-    }
-
-    @Override
     public de.gsi.chart.XYChart getChart() {
         return null;
     }
@@ -453,11 +395,6 @@ public class BubbleChart implements Chart {
     @Override
     public Region getRegion() {
         return chart;
-    }
-
-    @Override
-    public void initializeZoom() {
-
     }
 
     @Override

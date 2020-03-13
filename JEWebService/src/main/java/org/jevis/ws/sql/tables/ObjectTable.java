@@ -44,6 +44,7 @@ public class ObjectTable {
     public final static String COLUMN_PUBLIC = "public";
     public final static String COLUMN_LINK = "link";
     public final static String COLUMN_DELETE = "deletets";
+    public final static String COLUMN_I18N = "i18n";
     public final static String COLUMN_GROUP = "groupid";//remove ID from name
     private static final Logger logger = LogManager.getLogger(ObjectTable.class);
     private SQLDataSource _connection;
@@ -92,16 +93,17 @@ public class ObjectTable {
      * @return
      * @throws JEVisException
      */
-    public JsonObject insertObject(String name, String jclass, long parent, boolean isPublic) throws JEVisException {
-        String sql = String.format("insert into %s(%s,%s, %s) values(?,?,?)", TABLE, COLUMN_NAME, COLUMN_CLASS, COLUMN_PUBLIC);
+    public JsonObject insertObject(String name, String jclass, long parent, boolean isPublic, String i18n) throws JEVisException {
+        String sql = String.format("insert into %s(%s, %s, %s, %s) values(?,?,?,?)", TABLE, COLUMN_NAME, COLUMN_CLASS, COLUMN_PUBLIC,COLUMN_I18N);
 
 
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, name);
             ps.setString(2, jclass);
             ps.setBoolean(3, isPublic);
+            ps.setString(4,i18n);
 
-            logger.trace("SQL: {}", ps);
+            logger.error("SQL: {}", ps);
             int count = ps.executeUpdate();
             if (count == 1) {
                 ResultSet rs = ps.getGeneratedKeys();
@@ -133,15 +135,16 @@ public class ObjectTable {
 
     }
 
-    public JsonObject updateObject(long id, String newname, boolean ispublic) throws JEVisException {
-        String sql = String.format("update %s set %s=?,%s=? where %s=?", TABLE, COLUMN_NAME, COLUMN_PUBLIC, COLUMN_ID);
-
+    public JsonObject updateObject(long id, String newname, boolean ispublic, String i18n) throws JEVisException {
+        String sql = String.format("update %s set %s=?,%s=?,%s=? where %s=?", TABLE, COLUMN_NAME, COLUMN_PUBLIC, COLUMN_I18N,COLUMN_ID );
+        System.out.println("updateObject: "+sql);
         try (PreparedStatement ps = _connection.getConnection().prepareStatement(sql)) {
             ps.setString(1, newname);
             ps.setBoolean(2, ispublic);
-            ps.setLong(3, id);
+            ps.setString(3,i18n);
+            ps.setLong(4, id);
 
-            logger.trace("SQL: {}", ps);
+            logger.error("SQL: {}", ps);
             int count = ps.executeUpdate();
             if (count == 1) {
                 return getObject(id);
