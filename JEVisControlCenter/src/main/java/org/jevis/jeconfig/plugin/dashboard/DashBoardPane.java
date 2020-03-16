@@ -177,18 +177,6 @@ public class DashBoardPane extends Pane {
     }
 
 
-    public void zoomToParent(double parentWidth, double parentHeight) {
-        double scaleFactorWidth = parentWidth / getWidth();
-        double scaleFactorHeight = parentHeight / getHeight();
-
-        if (Double.isFinite(scaleFactorWidth) && Double.isFinite(scaleFactorHeight)) {
-//            System.out.println("w/h " + parentWidth + "/" + getWidth() + "    " + parentHeight + "/" + getHeight());
-//            System.out.println("Scale: " + scaleFactorWidth + " / " + scaleFactorHeight);
-            this.scale.setX(scaleFactorWidth);
-            this.scale.setY(scaleFactorHeight);
-        }
-
-    }
 
     public void setScale(double x, double y) {
         logger.debug("Set Zoom: x:{} y:{}", x,y);
@@ -346,7 +334,7 @@ public class DashBoardPane extends Pane {
 
 
     public double getNextGridX(double xPos) {
-        if (!this.snapToGrid) {
+        if (!this.control.snapToGridProperty.get()) {
             return xPos;
         }
         double c = this.xGrids.stream()
@@ -356,7 +344,7 @@ public class DashBoardPane extends Pane {
     }
 
     public double getNextGridY(double yPos) {
-        if (!this.snapToGrid) {
+        if (!this.control.snapToGridProperty.get()) {
             return yPos;
         }
         double c = this.yGrids.stream()

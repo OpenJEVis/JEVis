@@ -273,7 +273,6 @@ public class ControlPane extends GridPane {
     public List<JEVisSample> getSamples() {
         List<JEVisSample> sampleList = new ArrayList<>();
         try {
-
             FutureTask<List<JEVisSample>> futureTask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
                 @Override
                 public List<JEVisSample> call() {
@@ -298,13 +297,12 @@ public class ControlPane extends GridPane {
                 }
             });
 
-            Executors.newFixedThreadPool(1).execute(futureTask);
+            JEConfig.getStatusBar().addTask(this.getClass().getName(),futureTask,JEConfig.getImage("1415314386_Graph.png"),true);
             try {
                 sampleList = futureTask.get();
             } catch (Exception ex) {
                 logger.error(ex);
             }
-
             //logger.error("Generate Samples: object: {} attribute: '{}' from/until: {}/{} period: {}", attribute.getObject(),attribute,fromDate,untilDate,period);
 
             logger.error("Samples: {}",sampleList.size());

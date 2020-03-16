@@ -3,6 +3,7 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
@@ -94,10 +95,6 @@ public class ChartWidget extends Widget {
                 this.sampleHandler.getDataModel().forEach(chartDataModel -> {
                     try {
                         String dataName = chartDataModel.getObject().getName();
-
-//                        if (chartDataModel.getSamples().isEmpty()) {
-//                            showAlertOverview(true, "");
-//                        }
                         this.legend.getItems().add(
                                 this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), ColorHelper.toColor(chartDataModel.getColor()),
                                         this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
@@ -195,12 +192,8 @@ public class ChartWidget extends Widget {
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                Runnable task = () -> {
-                    widgetConfigDialog.commitSettings();
-                    updateConfig(getConfig());
-                    updateData(lastInterval);
-                };
-                control.getExecutor().submit(task);
+                widgetConfigDialog.commitSettings();
+                control.updateWidget(this);
 
 
             } catch (Exception ex) {

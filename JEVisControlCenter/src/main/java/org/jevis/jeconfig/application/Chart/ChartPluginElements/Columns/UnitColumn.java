@@ -16,10 +16,10 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
-import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.unit.ChartUnits.*;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 

@@ -48,7 +48,6 @@ import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
@@ -113,7 +112,7 @@ public class MeterPlugin implements Plugin {
                     if (tableView.getSkin() != null) {
                         columnToFitMethod.invoke(tableView.getSkin(), column, -1);
                     }
-                } catch (IllegalAccessException | InvocationTargetException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -136,6 +135,7 @@ public class MeterPlugin implements Plugin {
             JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
             JEVisType multiplierType = cleanDataClass.getType("Value Multiplier");
             JEVisType locationType = jeVisClass.getType("Location");
+            JEVisType pictureType = jeVisClass.getType("Picture");
             JEVisType measuringPointIdType = jeVisClass.getType("Measuring Point ID");
             JEVisType measuringPointName = jeVisClass.getType("Measuring Point Name");
 

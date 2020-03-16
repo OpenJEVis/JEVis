@@ -11,8 +11,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import org.jevis.api.JEVisException;
-import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;

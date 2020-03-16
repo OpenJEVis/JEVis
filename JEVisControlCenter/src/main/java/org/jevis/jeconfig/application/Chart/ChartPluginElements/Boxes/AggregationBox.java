@@ -5,10 +5,10 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
-import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
 
 public class AggregationBox extends ComboBox<AggregationPeriod> {
 

@@ -1,11 +1,13 @@
-package org.jevis.commons.chart;
+package org.jevis.jeconfig.application.Chart.data;
 
+import javafx.scene.image.Image;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.alarm.*;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
+import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -15,14 +17,11 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
 
 public class ChartDataModel {
     private static final Logger logger = LogManager.getLogger(ChartDataModel.class);
@@ -60,12 +59,11 @@ public class ChartDataModel {
     private Map<DateTime, JEVisSample> userNoteMap;
     private Map<DateTime, Alarm> alarmMap;
     private boolean customWorkDay = true;
-
+    private Image taskImage = JEConfig.getImage("Analysis.png");
 
     /**
      * Maximum number of parallel running getSamples(), not the Dashboard need multiple
      */
-    private static ExecutorService executor = Executors.newFixedThreadPool(10);
     private JEVisAttribute forecastDataAttribute;
 
     public ChartDataModel(JEVisDataSource dataSource) {
@@ -268,90 +266,74 @@ public class ChartDataModel {
 
     public List<JEVisSample> getSamples() {
         if (this.somethingChanged) {
+            try {
+                List<JEVisSample> samples = new ArrayList<>();
+                userNoteMap = null;//reset userNote list
+                getAttribute();
 
-            FutureTask<List<JEVisSample>> futureTask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
-                @Override
-                public List<JEVisSample> call() {
+                somethingChanged = false;
 
+                if (getSelectedStart() == null || getSelectedEnd() == null) {
+                    this.samples = samples;
+                    return this.samples;
+                }
+
+                if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                     try {
-                        logger.debug("CDM.getSample.thread: {}{}", Thread.currentThread().getId(), Thread.currentThread().getName());
-                        List<JEVisSample> samples = new ArrayList<>();
-                        userNoteMap = null;//reset userNote list
-                        getAttribute();
-
-                        somethingChanged = false;
-
-                        if (getSelectedStart() == null || getSelectedEnd() == null) {
-                            return samples;
-                        }
-                        if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
-                            try {
-                                if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
-                                    SampleGenerator sg = new SampleGenerator(
-                                            attribute.getDataSource(),
-                                            attribute.getObject(),
-                                            attribute,
-                                            selectedStart, selectedEnd,
-                                            customWorkDay,
-                                            manipulationMode,
-                                            aggregationPeriod);
+                        if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
+                            SampleGenerator sg = new SampleGenerator(
+                                    attribute.getDataSource(),
+                                    attribute.getObject(),
+                                    attribute,
+                                    selectedStart, selectedEnd,
+                                    customWorkDay,
+                                    manipulationMode,
+                                    aggregationPeriod);
 
 //                                    samples = sg.generateSamples();
-                                    samples = sg.getAggregatedSamples();
+                            samples = sg.getAggregatedSamples();
 
-                                    if (!isStringData) {
-                                        samples = factorizeSamples(samples);
-                                    }
-
-                                } else {
-                                    CalcJobFactory calcJobCreator = new CalcJobFactory();
-
-                                    CalcJob calcJob;
-
-                                    if (!getAbsolute()) {
-                                        calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
-                                                selectedStart, selectedEnd, aggregationPeriod);
-                                    } else {
-                                        calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
-                                                selectedStart, selectedEnd, true);
-                                    }
-
-                                    samples = calcJob.getResults();
-                                }
-
-                            } catch (Exception ex) {
-                                logger.error(ex);
+                            if (!isStringData) {
+                                samples = factorizeSamples(samples);
                             }
+
                         } else {
-                            if (getDataProcessor() != null) {
-                                logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
-                                        getDataProcessor().getName(), getDataProcessor().getID());
+                            CalcJobFactory calcJobCreator = new CalcJobFactory();
+
+                            CalcJob calcJob;
+
+                            if (!getAbsolute()) {
+                                calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                        selectedStart, selectedEnd, aggregationPeriod);
                             } else {
-                                logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
-                                        getObject().getName(), getObject().getID());
+                                calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), dataSource, calculationObject,
+                                        selectedStart, selectedEnd, true);
                             }
-                        }
 
-                        try {
-                            userNoteMap = getNoteSamples();
-                        } catch (Exception ex) {
-                            logger.error(ex);
+                            samples = calcJob.getResults();
                         }
-
-                        return samples;
 
                     } catch (Exception ex) {
                         logger.error(ex);
                     }
 
-
-                    return new ArrayList<JEVisSample>();
+                    try {
+                        userNoteMap = getNoteSamples();
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
+                } else {
+                    if (getDataProcessor() != null) {
+                        logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                                getDataProcessor().getName(), getDataProcessor().getID());
+                    } else {
+                        logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                                getObject().getName(), getObject().getID());
+                    }
                 }
-            });
 
-            executor.execute(futureTask);
-            try {
-                samples = futureTask.get();
+                this.samples = samples;
+
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -361,63 +343,49 @@ public class ChartDataModel {
 
     public List<JEVisSample> getForecastSamples() {
 
-        FutureTask<List<JEVisSample>> futureTask = new FutureTask<List<JEVisSample>>(new Callable<List<JEVisSample>>() {
-            @Override
-            public List<JEVisSample> call() {
+        try {
+            List<JEVisSample> samples = new ArrayList<>();
+            getAttribute();
 
+
+            if (getSelectedStart() == null || getSelectedEnd() == null) {
+                this.forecastSamples = samples;
+                return this.forecastSamples;
+            }
+            if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                 try {
-                    logger.debug("CDM.getSample.thread: {}{}", Thread.currentThread().getId(), Thread.currentThread().getName());
-                    List<JEVisSample> samples = new ArrayList<>();
-                    getAttribute();
 
+                    SampleGenerator sg = new SampleGenerator(forecastDataAttribute.getDataSource(),
+                            forecastDataAttribute.getObject(),
+                            forecastDataAttribute,
+                            selectedStart, selectedEnd,
+                            customWorkDay,
+                            manipulationMode, aggregationPeriod);
 
-                    if (getSelectedStart() == null || getSelectedEnd() == null) {
-                        return samples;
+                    samples = sg.getAggregatedSamples();
+
+                    if (!isStringData) {
+                        samples = factorizeSamples(samples);
                     }
-                    if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
-                        try {
-
-                            SampleGenerator sg = new SampleGenerator(forecastDataAttribute.getDataSource(),
-                                    forecastDataAttribute.getObject(),
-                                    forecastDataAttribute,
-                                    selectedStart, selectedEnd,
-                                    customWorkDay,
-                                    manipulationMode, aggregationPeriod);
-
-                            samples = sg.getAggregatedSamples();
-
-                            if (!isStringData) {
-                                samples = factorizeSamples(samples);
-                            }
-
-                        } catch (Exception ex) {
-                            logger.error(ex);
-                        }
-                    } else {
-                        if (getDataProcessor() != null) {
-                            logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
-                                    getDataProcessor().getName(), getDataProcessor().getID());
-                        } else {
-                            logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
-                                    getObject().getName(), getObject().getID());
-                        }
-                    }
-                    return samples;
 
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
-
-                return new ArrayList<JEVisSample>();
+            } else {
+                if (getDataProcessor() != null) {
+                    logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                            getDataProcessor().getName(), getDataProcessor().getID());
+                } else {
+                    logger.error("No interval between timestamps for object {}:{}. The end instant must be greater the start. ",
+                            getObject().getName(), getObject().getID());
+                }
             }
-        });
 
-        executor.execute(futureTask);
-        try {
-            forecastSamples = futureTask.get();
+            forecastSamples = samples;
         } catch (Exception ex) {
             logger.error(ex);
         }
+
         return forecastSamples;
     }
 

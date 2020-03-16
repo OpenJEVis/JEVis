@@ -22,7 +22,6 @@ import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
 import org.jevis.commons.chart.BubbleType;
-import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -1103,7 +1102,7 @@ public class AnalysisDataModel {
             DateHelper dateHelper = new DateHelper();
             if (getWorkdayStart() != null) dateHelper.setStartTime(getWorkdayStart());
             if (getWorkdayEnd() != null) dateHelper.setEndTime(getWorkdayEnd());
-            dateHelper.setMinMaxForDateHelper(chartDataModels);
+            setMinMaxForDateHelper(dateHelper, chartDataModels);
             dateHelper.setType(TimeFrame.parseTransformType(globalAnalysisTimeFrame.getTimeFrame()));
             globalAnalysisTimeFrame.setStart(dateHelper.getStartDate());
             globalAnalysisTimeFrame.setEnd(dateHelper.getEndDate());
@@ -1127,6 +1126,49 @@ public class AnalysisDataModel {
         } else {
             selectedData.forEach(chartDataModel -> setChartDataModelStartAndEnd(chartDataModel, globalAnalysisTimeFrame.getStart(), globalAnalysisTimeFrame.getEnd()));
         }
+    }
+
+    private void setMinMaxForDateHelper(DateHelper dateHelper, List<ChartDataModel> chartDataModels) {
+        DateTime min = null;
+        DateTime max = null;
+
+        for (ChartDataModel chartDataModel : chartDataModels) {
+            JEVisAttribute att = chartDataModel.getAttribute();
+            if (att != null) {
+                DateTime min_check = null;
+                DateTime timestampFromFirstSample = att.getTimestampFromFirstSample();
+                if (timestampFromFirstSample != null) {
+                    min_check = new DateTime(
+                            timestampFromFirstSample.getYear(),
+                            timestampFromFirstSample.getMonthOfYear(),
+                            timestampFromFirstSample.getDayOfMonth(),
+                            timestampFromFirstSample.getHourOfDay(),
+                            timestampFromFirstSample.getMinuteOfHour(),
+                            timestampFromFirstSample.getSecondOfMinute());
+                }
+
+                DateTime timestampFromLastSample = att.getTimestampFromLastSample();
+                DateTime max_check = null;
+                if (timestampFromLastSample != null) {
+                    max_check = new DateTime(
+                            timestampFromLastSample.getYear(),
+                            timestampFromLastSample.getMonthOfYear(),
+                            timestampFromLastSample.getDayOfMonth(),
+                            timestampFromLastSample.getHourOfDay(),
+                            timestampFromLastSample.getMinuteOfHour(),
+                            timestampFromLastSample.getSecondOfMinute());
+                }
+
+                if (min == null || (min_check != null && min_check.isBefore(min))) min = min_check;
+                if (max == null || (max_check != null && max_check.isAfter(max))) max = max_check;
+            }
+        }
+
+        if (min != null && max != null) {
+            dateHelper.setMinStartDateTime(min);
+            dateHelper.setMaxEndDateTime(max);
+        }
+
     }
 
     public AggregationPeriod getAggregationPeriod() {

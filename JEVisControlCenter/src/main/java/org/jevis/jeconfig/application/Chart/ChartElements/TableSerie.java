@@ -7,9 +7,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 

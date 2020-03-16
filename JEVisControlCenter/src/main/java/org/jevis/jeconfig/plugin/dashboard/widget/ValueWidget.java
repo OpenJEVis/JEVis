@@ -18,9 +18,9 @@ import javafx.scene.text.Font;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
@@ -222,14 +222,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                Runnable task = () -> {
-                    widgetConfigDialog.commitSettings();
-                    updateConfig(getConfig());
-                    updateData(lastInterval);
-                };
-                control.getExecutor().submit(task);
-
-
+                widgetConfigDialog.commitSettings();
+                control.updateWidget(this);
             } catch (Exception ex) {
                 logger.error(ex);
             }

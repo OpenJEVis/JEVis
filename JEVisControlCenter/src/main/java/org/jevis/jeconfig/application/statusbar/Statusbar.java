@@ -20,21 +20,31 @@
  */
 package org.jevis.jeconfig.application.statusbar;
 
+import com.google.inject.internal.util.$AsynchronousComputationException;
+import com.jfoenix.controls.JFXPopup;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
+import javafx.collections.WeakListChangeListener;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.PopupWindow;
+import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.TaskProgressView;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisOption;
@@ -42,11 +52,14 @@ import org.jevis.commons.config.CommonOptions;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
+import org.jevis.jeconfig.dialog.HiddenConfig;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 /**
  * Status bar with user and connection infos.
@@ -72,6 +85,15 @@ public class Statusbar extends ToolBar {
     private ProgressBar progressBar = new ProgressBar();
     private HBox progressbox = new HBox();
     private Label messageBox = new Label();
+    private TaskProgressView taskProgressView = new TaskProgressView();
+    private JFXPopup popup = new JFXPopup();
+    private Button showTaskViewButton = new Button("",JEConfig.getImage("TaskList.png",15,15));
+    private Map<String, Image> imageList = new HashMap<>();
+    private boolean hideTaskList = false;
+    private Label titleLabel = new Label(I18n.getInstance().getString("statusbar.taskmon.title"));
+    private Region spacer = new Region();
+    private ExecutorService executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
+    private HashMap<Task, String> taskList = new HashMap<>();
 
     private class Job {
         public double total = 0;
@@ -87,13 +109,159 @@ public class Statusbar extends ToolBar {
 
     public Statusbar() {
         super();
+        BorderPane anchorPane = new BorderPane(taskProgressView);
+        ToggleButton hideButton = new ToggleButton("", JEConfig.getImage("Hide.png",12,12));
+        HBox hBox = new HBox(titleLabel,spacer,hideButton);
+        hBox.setPadding(new Insets(8));
+        hBox.setAlignment(Pos.TOP_RIGHT);
+        HBox.setHgrow(spacer,Priority.ALWAYS);
+        anchorPane.setTop(hBox);
+
+        popup.setPopupContent(anchorPane);
+        popup.setAutoHide(true);
+        popup.setAutoFix(true);
+        popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
+        showTaskViewButton.setStyle("-fx-padding: 0;");
+        showTaskViewButton.setOnAction(event -> {
+            if (popup.isShowing()) {
+                popup.hide();
+            }else{
+                popup.show(onlineInfo);
+            }
+
+        });
+        taskProgressView.setGraphicFactory(new Callback() {
+            @Override
+            public Object call(Object param) {
+
+                if(param!=null){
+                    if(imageList.containsKey(param.toString())){
+                        ImageView imageView = new ImageView(imageList.get(param.toString()));
+                        imageView.setPreserveRatio(true);
+                        imageView.fitHeightProperty().set(25);
+                        //imageView.setFitHeight(100);
+                        //imageView.setFitWidth(100);
+                        //imageView.fitWidthProperty().set(25);
+                        return imageView;
+                    }
+                }
+                return null;
+            }
+        });
+        taskProgressView.setPrefHeight(300);
+        taskProgressView.getTasks().addListener(new ListChangeListener() {
+            @Override
+            public void onChanged(Change c) {
+                while (c.next()){
+
+                    if(c.getRemovedSize()==taskProgressView.getTasks().size()){
+                        try {
+                            Platform.runLater(() ->  popup.hide());
+                        }catch ( Exception ex){
+                        }
+                    }
+                    if(c.wasAdded()){
+                        try {
+                            Platform.runLater(() -> {
+                                if(!hideTaskList && !popup.isShowing()){
+                                    popup.show(onlineInfo);
+                                }
+                            });
+
+                        }catch (Exception ex) {
+                        }
+                    }
+                }
+
+            }
+        });
+
+        hideButton.setSelected(hideTaskList);
+        hideButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                hideTaskList=newValue;
+                if(newValue){
+                    popup.hide();
+                }
+            }
+        });
+
     }
 
+    /**
+     * Display an message in the shared status bar.
+     * @param jobID
+     * @param totalJobs
+     * @param message
+     */
     public void startProgressJob(String jobID, double totalJobs, String message) {
         jobList.put(jobID, new Job(totalJobs, 0));
         setProgressBar(totalJobs, 0, message);
         Platform.runLater(() -> messageBox.setText(message));
     }
+
+
+    /**
+     * NOTE: Add the task monitor support.
+     * @param owner
+     * @param futureTask
+     * @param image
+     * @param autoStart
+     */
+    public void addTask(String owner, FutureTask futureTask, Image image, boolean autoStart){
+        logger.debug("Starting new FutureTask: {}",futureTask);
+
+        if(autoStart)executor.execute(futureTask);
+    }
+
+    /**
+     * Add an new task to the process monitor.
+     *
+     * @param owner id of the function to start the task, used to stop the task if needed
+     * @param task task
+     * @param image image for this task in the process monitor
+     * @param autoStart if ture the shared executor will start the task.
+     */
+    public void addTask(String owner, Task task,Image image, boolean autoStart){
+        logger.debug("Starting new Task: {}",task);
+        imageList.put(task.toString(),image);
+        task.stateProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (newValue.equals(Worker.State.CANCELLED) || newValue.equals(Worker.State.FAILED) || newValue.equals(Worker.State.SUCCEEDED)) {
+                    taskList.remove(task);
+                    imageList.remove(task.toString());
+                }
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+        });
+        Platform.runLater(() -> {
+            taskProgressView.getTasks().add(task);
+            taskList.put(task,owner);
+        });
+
+        if(autoStart)executor.submit(task);
+    }
+
+    /**
+     * Top all running and queued tasks for the owner
+     *
+     * @param owner
+     */
+    public void stopTasks(String owner){
+
+        taskList.forEach((task, s) -> {
+            if(s.equals(owner)){
+                try {
+                    task.cancel(true);
+                }catch (Exception ex){
+                    ex.printStackTrace();
+                }
+            }
+        });
+    }
+
 
     /**
      * Increase the job done list by the given amount. (its not total)
@@ -144,24 +312,13 @@ public class Statusbar extends ToolBar {
         double procent = (((100 / totalJobs) * doneJobs) / 100);
         Platform.runLater(() -> {
             progressBar.setProgress(procent);
-            if (doneJobs >= totalJobs) {
-//                FadeTransition ft = new FadeTransition(Duration.millis(5000), progressbox);
-//                ft.setFromValue(1.0);
-//                ft.setToValue(0.0);
-//                ft.setCycleCount(1);
-//                ft.setOnFinished(event -> {
-//                    System.out.println("Animation finished");
-//                    progressbox.setVisible(false);
-//                    ft.stop();
-//                });
-//
-//                System.out.println("Start Animation");
-//                ft.play();
-                progressbox.setVisible(false);
-                messageBox.setVisible(false);
+            if (doneJobs >= totalJobs ) {
+                progressBar.setProgress(0);
+                //progressbox.setVisible(false);
+                //messageBox.setVisible(false);
             } else {
-                progressbox.setVisible(true);
-                messageBox.setVisible(true);
+               // progressbox.setVisible(true);
+               // messageBox.setVisible(true);
             }
 
         });
@@ -207,7 +364,9 @@ public class Statusbar extends ToolBar {
 
         Separator sep1 = new Separator(Orientation.VERTICAL);
 
-        progressbox.getChildren().setAll(messageBox, sep1, loadStatus, progressBar);
+        progressbox.setAlignment(Pos.CENTER_RIGHT);
+        progressbox.setSpacing(8);
+        progressbox.getChildren().setAll(messageBox, sep1, loadStatus, progressBar,showTaskViewButton);
         //TODO implement notification
         root.getChildren().setAll(userIcon, this.userName, spacerLeft, progressbox, spacer, versionLabel, versionNumber, spacer2, this.conBox, this.onlineInfo);
 
