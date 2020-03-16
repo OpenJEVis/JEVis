@@ -52,6 +52,39 @@ public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
             "------Version 3.9.19------\n" +
+                    "JECC - smaller bugfixes\n" +
+                    "JECC - Implemented an taskmanager and support to an central Executor\n" +
+                    "JECC - Improved startup time\n" +
+                    "JECC - Add missing class description\n" +
+                    "JECC - added menu item to top menu for replace\n" +
+                    "JECC - added function for recursive search&replace for object names\n" +
+                    "JECC - Reset calculations doesn't enable calculations after completion\n" +
+                    "JECC - AlarmPlugin - autofit fix\n" +
+                    "JECC - AlarmPlugin - added permission warning for confirming alarms\n" +
+                    "JECC - Charts - fixed a null pointer for chart title in export\n" +
+                    "JECC - Charts - fixed change check when closing note dialog soll\n" +
+                    "JECC - Charts - Heatmap - added function for color map (settings dialog, advanced settings, select chart)\n" +
+                    "JECC - Charts - new standard time frame 'current'\n" +
+                    "JECC - Charts - added custom time frames to the quickbar\n" +
+                    "JECC - Charts - right mouse click - show current value in new column\n" +
+                    "JECC - Charts - restored scroll bars to table charts\n" +
+                    "JECC - Charts - added sort option to xy-chart-based charts\n" +
+                    "JECC - Charts - show alarms in charts like limits (sa, da, more info in note dialog)\n" +
+                    "JECC - Dashboard - Snap to grid not working\n" +
+                    "JECC - Dashboard - Standard timeframe not working\n" +
+                    "JECC - Dashboard - Widget navigator show always ID 1\n" +
+                    "JECC - Dashboard - Fixed an bug where the update process was running in the GUI thread\n" +
+                    "JECC - Dashboard - Add new \"Value Editor\" Widget\n" +
+                    "JECC - Dashboard - add option for unit in selection\n" +
+                    "JECC - Dashboard - selection combobox has wrong tooltip\n" +
+                    "JECC - MeterPlugin - added delete function with permission check\n" +
+                    "JECC - MeterPlugin - optimized new dialog, added translation\n" +
+                    "JECC - MeterPlugin - added replace dialog\n\n" +
+                    "JEAlarm - fixed null pointer in some cases\n" +
+                    "JEAlarm - fixed missing scope readout of alarm configurations\n\n" +
+                    "JEDataProcessor - Forecast not working with months fixes\n" +
+                    "JEDataProcessor - added missing brake in switch statement\n\n"+
+            "------Version 3.9.19------\n" +
                     "JECC - AlarmPlugin - Added button to confirm all alarms\n" +
                     "JECC - AlarmPlugin - fixed some threading issues\n" +
                     "JECC - AlarmPlugin - relocated reload button\n" +
