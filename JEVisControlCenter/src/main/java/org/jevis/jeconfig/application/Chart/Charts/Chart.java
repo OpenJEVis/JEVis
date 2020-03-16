@@ -3,9 +3,9 @@ package org.jevis.jeconfig.application.Chart.Charts;
 import javafx.collections.ObservableList;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
-import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 

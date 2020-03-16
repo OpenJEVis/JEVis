@@ -37,10 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author fs
@@ -175,6 +172,15 @@ public class JEVisClassWS implements JEVisClass {
             for (JsonType t : json.getTypes()) {
                 types.add(new JEVisTypeWS(ds, t, getName()));
             }
+
+            types.sort(Comparator.comparing(jeVisType -> {
+                try {
+                    return jeVisType.getGUIDisplayType();
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }));
         }
         if (types == null) {
             types = new ArrayList<>();
