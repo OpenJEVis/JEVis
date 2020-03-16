@@ -51,7 +51,7 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.19------\n" +
+            "------Version 3.9.20------\n" +
                     "JECC - smaller bugfixes\n" +
                     "JECC - Implemented an taskmanager and support to an central Executor\n" +
                     "JECC - Improved startup time\n" +
