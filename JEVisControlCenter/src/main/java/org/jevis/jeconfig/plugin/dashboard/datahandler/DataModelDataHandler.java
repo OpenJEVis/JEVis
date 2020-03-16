@@ -405,7 +405,7 @@ public class DataModelDataHandler {
 //            chartDataModel.setAbsolute(autoAggregation);
             chartDataModel.setSelectedStart(this.durationProperty.getValue().getStart());
             chartDataModel.setSelectedEnd(this.durationProperty.getValue().getEnd());
-
+            chartDataModel.getSamples();
         });
 
         this.lastUpdate.setValue(new DateTime());

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.AtomicDouble;
 import com.sun.javafx.charts.Legend;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
@@ -88,6 +89,7 @@ public class PieWidget extends Widget {
 
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
+
 
         showAlertOverview(false, "");
 
@@ -282,13 +284,8 @@ public class PieWidget extends Widget {
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                Runnable task = () -> {
-                    widgetConfigDialog.commitSettings();
-                    updateConfig(getConfig());
-                    updateData(lastInterval);
-                };
-                control.getExecutor().submit(task);
-
+                widgetConfigDialog.commitSettings();
+                control.updateWidget(this);
 
             } catch (Exception ex) {
                 logger.error(ex);

@@ -71,7 +71,6 @@ public class DashBoardToolbar extends ToolBar {
         ObservableList<JEVisObject> observableList = this.dashboardControl.getAllDashboards();
         this.listAnalysesComboBox = new ComboBox<>(observableList);
         setCellFactoryForComboBox();
-        listAnalysesComboBox.setTooltip(new Tooltip(listAnalysesComboBox + "  :> " + this.listAnalysesComboBox.getSelectionModel().getSelectedItem()));
         this.listAnalysesComboBox.setPrefWidth(350);
         this.listAnalysesComboBox.setMinWidth(350);
 

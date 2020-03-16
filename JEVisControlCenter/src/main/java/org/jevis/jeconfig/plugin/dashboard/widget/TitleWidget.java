@@ -172,12 +172,8 @@ public class TitleWidget extends Widget {
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                Runnable task = () -> {
-                    widgetConfigDialog.commitSettings();
-                    updateConfig(getConfig());
-                };
-                control.getExecutor().submit(task);
-
+                widgetConfigDialog.commitSettings();
+                control.updateWidget(this);
 
             } catch (Exception ex) {
                 logger.error(ex);

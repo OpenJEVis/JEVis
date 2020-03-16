@@ -1,9 +1,9 @@
 {
   "jevisclass": "Dashboard Analysis",
   "names": {
-    "de": "Analyse",
-    "ru": "Analysis",
-    "en": "Analysis"
+    "de": "Dashboard Analyse",
+    "ru": "Dashboard Analysis",
+    "en": "Dashboard Analysis"
   },
   "descriptions": {
     "de": "Das Analysenobjekt beeinhaltet das Daten Modell aus Graph. Alle wichtigen Einstellungen zu der entsprechenden Analyse sind hier abgelegt.",
@@ -12,7 +12,7 @@
   },
   "types": [
     {
-      "type": "Data Model",
+      "type": "Data Model File",
       "descriptions": {
         "de": "Beeinhaltet das Datenmodell zur gespeicherten Analyse",
         "ru": "Includes the data model for stored analysis",
@@ -22,6 +22,19 @@
         "de": "Datenmodell",
         "ru": "Data Model",
         "en": "Data Model"
+      }
+    },
+    {
+      "type": "Background",
+      "descriptions": {
+        "de": "Hintergrundbild des Dashboards",
+        "ru": "Background image of the dashboard",
+        "en": "Background image of the dashboard"
+      },
+      "names": {
+        "de": "Hintergrundbild",
+        "ru": "Background",
+        "en": "Background"
       }
     }
   ]
