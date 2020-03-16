@@ -53,11 +53,13 @@ import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Future;
 
 public class AlarmPlugin implements Plugin {
@@ -104,22 +106,22 @@ public class AlarmPlugin implements Plugin {
     private JFXDatePicker startDatePicker = new JFXDatePicker();
     private JFXDatePicker endDatePicker = new JFXDatePicker();
     private ComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
+    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
+        if (newValue != oldValue) {
+            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
+            timeFrame = TimeFrame.CUSTOM;
+
+            updateList();
+            Platform.runLater(this::initToolBar);
+        }
+    };
     //    private ObservableList<AlarmRow> alarmRows = FXCollections.observableArrayList();
     private final ChangeListener<LocalDate> endDateChangeListener = (observable, oldValue, newValue) -> {
         if (newValue != oldValue) {
             end = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 23, 59, 59);
             timeFrame = TimeFrame.CUSTOM;
 
-            updateList(start, end);
-            Platform.runLater(this::initToolBar);
-        }
-    };
-    private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
-        if (newValue != oldValue) {
-            start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
-            timeFrame = TimeFrame.CUSTOM;
-
-            updateList(start, end);
+            updateList();
             Platform.runLater(this::initToolBar);
         }
     };
@@ -133,8 +135,8 @@ public class AlarmPlugin implements Plugin {
                 if (tableView.getSkin() != null) {
                     columnToFitMethod.invoke(tableView.getSkin(), column, -1);
                 }
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                logger.error("columnToFitMethod error",e);
+            } catch (Exception e) {
+                logger.error("columnToFitMethod error", e);
             }
         }
 //            }
@@ -148,16 +150,16 @@ public class AlarmPlugin implements Plugin {
 
     private void restartExecutor() {
         try {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setContentText(I18n.getInstance().getString("plugin.alarms.info.wait"));
-                alert.show();
-                JEConfig.getStatusBar().startProgressJob("stoppingAlarms", runningUpdateTaskList.size() + 1, I18n.getInstance().getString("plugin.alarms.message.stoppingthreads"));
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setContentText(I18n.getInstance().getString("plugin.alarms.info.wait"));
+            alert.show();
+            JEConfig.getStatusBar().startProgressJob("stoppingAlarms", runningUpdateTaskList.size(), I18n.getInstance().getString("plugin.alarms.message.stoppingthreads"));
 
-                JEConfig.getStatusBar().stopTasks(AlarmPlugin.class.getName());
-                this.runningUpdateTaskList.clear();
-                JEConfig.getStatusBar().finishProgressJob("stoppingAlarms", I18n.getInstance().getString("plugin.alarms.message.stoppedall"));
+            JEConfig.getStatusBar().stopTasks(AlarmPlugin.class.getName());
+            this.runningUpdateTaskList.clear();
+            JEConfig.getStatusBar().finishProgressJob("stoppingAlarms", I18n.getInstance().getString("plugin.alarms.message.stoppedall"));
 
-                alert.close();
+            alert.close();
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -590,7 +592,7 @@ public class AlarmPlugin implements Plugin {
         tableView.getColumns().setAll(dateColumn, configNameColumn, objectNameColumn, isValueColumn, operatorColumn, shouldBeValueColumn, logValueColumn, toleranceColumn, alarmTypeColumn, confirmationColumn);
         Platform.runLater(() -> {
             tableView.getSortOrder().clear();
-            tableView.getSortOrder().addAll(dateColumn);
+            tableView.getSortOrder().setAll(dateColumn);
         });
 
 
@@ -624,7 +626,7 @@ public class AlarmPlugin implements Plugin {
                                 ds.clearCache();
                                 ds.preload();
 
-                                updateList(start, end);
+                                updateList();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -671,7 +673,7 @@ public class AlarmPlugin implements Plugin {
         viewComboBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 showCheckedAlarms = newValue.intValue();
-                updateList(start, end);
+                updateList();
             }
         });
 
@@ -818,7 +820,7 @@ public class AlarmPlugin implements Plugin {
                     start = dateHelper.getStartDate();
                     end = dateHelper.getEndDate();
 
-                    updateList(start, end);
+                    updateList();
                 }
             }
         });
@@ -905,7 +907,7 @@ public class AlarmPlugin implements Plugin {
         return borderPane;
     }
 
-    private void updateList(DateTime start, DateTime end) {
+    private void updateList() {
 
         Platform.runLater(this::initToolBar);
 
@@ -928,18 +930,18 @@ public class AlarmPlugin implements Plugin {
                 protected List<AlarmRow> call() {
                     List<AlarmRow> list = new ArrayList<>();
                     try {
-                        Platform.runLater(() -> this.updateTitle("Loading Alarm '"+alarmConfiguration.getName()+"'"));                        ;
+                        Platform.runLater(() -> this.updateTitle("Loading Alarm '" + alarmConfiguration.getName() + "'"));
                         JEVisAttribute fileLog = alarmConfiguration.getFileLogAttribute();
                         list.addAll(getAlarmRow(fileLog, alarmConfiguration));
                         this.succeeded();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.error(e);
                         this.failed();
                     } finally {
                         this.done();
                         Platform.runLater(() -> tableView.getItems().addAll(list));
                         //Platform.runLater(() -> tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed()));
-                        //Platform.runLater(() -> autoFitTable(tableView));
+                        Platform.runLater(() -> autoFitTable(tableView));
 
                         /**
                          * Sort only every 5 rows and at the end. Sorting cost a lot of ram and cpu.
@@ -947,7 +949,7 @@ public class AlarmPlugin implements Plugin {
                          */
                         if (tableView.getItems().size() % 5 == 0) {
                             Platform.runLater(() -> tableView.sort());
-                            Platform.runLater(() -> autoFitTable(tableView));
+//                            Platform.runLater(() -> autoFitTable(tableView));
                         }
 
                         JEConfig.getStatusBar().progressProgressJob(
@@ -960,13 +962,12 @@ public class AlarmPlugin implements Plugin {
                 }
             };
             //JEConfig.getStatusBar().addTask(task,JEConfig.getImage("alarm_icon.png"));//,
-            JEConfig.getStatusBar().addTask(AlarmPlugin.class.getName(),task,taskImage,true);//,
-
+            JEConfig.getStatusBar().addTask(AlarmPlugin.class.getName(), task, taskImage, true);//,
 
 
             /** check if all Jobs are done/failed to set statusbar **/
             EventHandler<WorkerStateEvent> doneEvent = event -> {
-                if(allJobsDone(futures)){
+                if (allJobsDone(futures)) {
                     JEConfig.getStatusBar().finishProgressJob("AlarmConfigs", "");
                     Platform.runLater(() -> tableView.sort());
                     Platform.runLater(() -> autoFitTable(tableView));
@@ -976,28 +977,27 @@ public class AlarmPlugin implements Plugin {
             task.setOnSucceeded(doneEvent);
             task.setOnFailed(doneEvent);
 
-            //this.runningUpdateTaskList.add(task);
+            this.runningUpdateTaskList.add(task);
             //this.executor.execute(task);
         });
 
         /**
-       futures = runningUpdateTaskList.stream()
-                .map(r -> executor.submit(r))
-                .collect(Collectors.toList());
+         futures = runningUpdateTaskList.stream()
+         .map(r -> executor.submit(r))
+         .collect(Collectors.toList());
          **/
     }
 
-    private synchronized boolean allJobsDone( List<Future<?>> futures){
-        boolean allDone=true;
+    private synchronized boolean allJobsDone(List<Future<?>> futures) {
+        boolean allDone = true;
         Iterator<Future<?>> itr = futures.iterator();
         while (itr.hasNext()) {
-            if (!itr.next().isDone()){
-                allDone=false;
+            if (!itr.next().isDone()) {
+                allDone = false;
             }
         }
 
         return allDone;
-
     }
 
     private List<AlarmRow> getAlarmRow(JEVisAttribute fileLog, AlarmConfiguration alarmConfiguration) throws JEVisException, IOException {
