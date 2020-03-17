@@ -22,8 +22,10 @@ package org.jevis.commons.driver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
-import org.jevis.commons.DatabaseHelper;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -33,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author bf
  */
 public class JEVisImporter implements Importer {
@@ -56,10 +57,20 @@ public class JEVisImporter implements Importer {
         try {
             this.dataSource = dataSource;
             _client = dataSource.getDataSource();
-            JEVisClass dataSourceClass = _client.getJEVisClass(DataCollectorTypes.DataSource.NAME);
-            JEVisType timezoneType = dataSourceClass.getType(DataCollectorTypes.DataSource.TIMEZONE);
-            String timezone = DatabaseHelper.getObjectAsString(dataSource, timezoneType);
-            _timezone = DateTimeZone.forID(timezone);
+            JEVisAttribute timezoneAttribute = dataSource.getAttribute(DataCollectorTypes.DataSource.TIMEZONE);
+            _timezone = DateTimeZone.UTC;
+            if (timezoneAttribute != null) {
+                JEVisSample lastSample = timezoneAttribute.getLatestSample();
+                if (lastSample != null) {
+                    try {
+                        DateTimeZone dateTimeZone = DateTimeZone.forID(lastSample.getValueAsString());
+                        if (dateTimeZone != null)
+                            _timezone = dateTimeZone;
+                    } catch (IllegalArgumentException e) {
+                        logger.error("Timezone readout failed, falling back to UTC");
+                    }
+                }
+            }
         } catch (Exception ex) {
             logger.fatal("Timezone setup in Importer failed", ex);
         }
