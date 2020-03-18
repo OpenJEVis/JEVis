@@ -12,7 +12,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
@@ -29,7 +29,7 @@ public class BarChartSerie {
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
     private final XYChart.Data<Number, String> data;
 
-    public BarChartSerie(ChartDataModel singleRow, Boolean lastValue) throws JEVisException {
+    public BarChartSerie(ChartDataRow singleRow, Boolean lastValue) throws JEVisException {
         String unit = UnitManager.getInstance().format(singleRow.getUnit());
         if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
 

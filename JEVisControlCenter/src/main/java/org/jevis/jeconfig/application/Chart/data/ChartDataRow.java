@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.application.Chart.data;
 
-import javafx.scene.image.Image;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -17,14 +16,13 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
-import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.*;
 
-public class ChartDataModel {
-    private static final Logger logger = LogManager.getLogger(ChartDataModel.class);
+public class ChartDataRow {
+    private static final Logger logger = LogManager.getLogger(ChartDataRow.class);
     private final JEVisDataSource dataSource;
 
     private String title;
@@ -59,14 +57,13 @@ public class ChartDataModel {
     private Map<DateTime, JEVisSample> userNoteMap;
     private Map<DateTime, Alarm> alarmMap;
     private boolean customWorkDay = true;
-    private Image taskImage = JEConfig.getImage("Analysis.png");
 
     /**
      * Maximum number of parallel running getSamples(), not the Dashboard need multiple
      */
     private JEVisAttribute forecastDataAttribute;
 
-    public ChartDataModel(JEVisDataSource dataSource) {
+    public ChartDataRow(JEVisDataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -724,8 +721,8 @@ public class ChartDataModel {
     }
 
     @Override
-    public ChartDataModel clone() {
-        ChartDataModel newModel = new ChartDataModel(dataSource);
+    public ChartDataRow clone() {
+        ChartDataRow newModel = new ChartDataRow(dataSource);
         newModel.setManipulationMode(this.getManipulationMode());
         newModel.setAggregationPeriod(this.getAggregationPeriod());
         newModel.setObject(this.getObject());
@@ -823,7 +820,7 @@ public class ChartDataModel {
         this.scaleFactor = scaleFactor;
     }
 
-    public boolean equals(ChartDataModel obj) {
+    public boolean equals(ChartDataRow obj) {
         if (this.getDataProcessor() != null && obj.getDataProcessor() != null) {
             return this.getObject().getID().equals(obj.getObject().getID())
                     && this.getDataProcessor().getID().equals(obj.getDataProcessor().getID());

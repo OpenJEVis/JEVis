@@ -18,7 +18,7 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeC
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -89,7 +89,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
         column.setResizable(false);
 
         column.setCellValueFactory(param -> {
-            ChartDataModel data = getData(param.getValue().getValue());
+            ChartDataRow data = getData(param.getValue().getValue());
 
             boolean selectedChart = false;
             for (Integer i : data.getSelectedcharts()) {
@@ -128,7 +128,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                     public void commitEdit(Boolean newValue) {
                         super.commitEdit(newValue);
                         getTreeTableRow().getItem().setSelected(newValue);
-                        ChartDataModel data1 = getData(getTreeTableRow().getItem());
+                        ChartDataRow data1 = getData(getTreeTableRow().getItem());
 
                         if (newValue) {
                             if (!data1.getSelectedcharts().contains(getChartId())) {
@@ -165,7 +165,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                     checkBox.setSelected(item);
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel currentDataModel = getData(getTreeTableRow().getItem());
+                                    ChartDataRow currentDataModel = getData(getTreeTableRow().getItem());
 
                                     stackPane.getChildren().setAll(checkBox);
                                     StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
@@ -174,7 +174,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                         try {
                                             boolean wasSelected = false;
                                             Color oldColor = null;
-                                            for (ChartDataModel mdl : getData().getSelectedData()) {
+                                            for (ChartDataRow mdl : getData().getSelectedData()) {
                                                 if (currentDataModel.equals(mdl) && !mdl.getSelectedcharts().isEmpty()) {
                                                     wasSelected = true;
                                                     oldColor = ColorHelper.toColor(mdl.getColor());
@@ -202,7 +202,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                                  * check for other data rows within this chart
                                                  */
                                                 boolean foundOther = false;
-                                                for (ChartDataModel dataModel : data.getSelectedData()) {
+                                                for (ChartDataRow dataModel : data.getSelectedData()) {
                                                     if (!dataModel.getSelectedcharts().isEmpty() && currentDataModel.equals(dataModel)) {
                                                         foundOther = true;
                                                         break;
@@ -245,7 +245,7 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                             comboBoxChartType.setDisable(false);
                         } else {
                             boolean foundSelected = false;
-                            for (ChartDataModel mdl : getData().getSelectedData()) {
+                            for (ChartDataRow mdl : getData().getSelectedData()) {
                                 for (Integer i : mdl.getSelectedcharts()) {
                                     if (i.equals(chartId)) {
                                         foundSelected = true;

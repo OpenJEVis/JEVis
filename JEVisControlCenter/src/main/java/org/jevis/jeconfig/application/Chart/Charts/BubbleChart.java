@@ -24,7 +24,7 @@ import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -37,7 +37,7 @@ public class BubbleChart implements Chart {
     private final RegressionType regressionType;
     private final Boolean calcRegression;
     private final Integer polyRegressionDegree;
-    private final List<ChartDataModel> chartDataModels;
+    private final List<ChartDataRow> chartDataRows;
     private final Integer chartId;
     private final String chartName;
     private List<Color> hexColors = new ArrayList<>();
@@ -54,11 +54,11 @@ public class BubbleChart implements Chart {
     private String yUnit;
     private ChartType chartType = ChartType.BUBBLE;
 
-    public BubbleChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
+    public BubbleChart(AnalysisDataModel analysisDataModel, List<ChartDataRow> chartDataRows, ChartSetting chartSetting) {
         this.regressionType = analysisDataModel.getRegressionType();
         this.calcRegression = analysisDataModel.calcRegression();
         this.polyRegressionDegree = analysisDataModel.getPolyRegressionDegree();
-        this.chartDataModels = chartDataModels;
+        this.chartDataRows = chartDataRows;
         this.chartId = chartSetting.getId();
         this.chartName = chartSetting.getName();
 
@@ -73,9 +73,9 @@ public class BubbleChart implements Chart {
         AtomicReference<Double> minY = new AtomicReference<>(Double.MAX_VALUE);
         AtomicReference<Double> maxY = new AtomicReference<>(-Double.MAX_VALUE);
         boolean isEnPI = false;
-        ChartDataModel chartDataModelY = null;
+        ChartDataRow chartDataRowY = null;
 
-        for (ChartDataModel model : chartDataModels) {
+        for (ChartDataRow model : chartDataRows) {
             for (JEVisSample sample : model.getSamples()) {
                 try {
                     if (model.getBubbleType() == BubbleType.X) {
@@ -96,7 +96,7 @@ public class BubbleChart implements Chart {
 
             if (model.getBubbleType() == BubbleType.Y && model.getEnPI()) {
                 isEnPI = true;
-                chartDataModelY = model;
+                chartDataRowY = model;
             }
         }
 
@@ -171,12 +171,12 @@ public class BubbleChart implements Chart {
             }
             if (size > 0 && !isEnPI) {
                 value = value / size;
-            } else if (chartDataModelY != null && chartDataModelY.getCalculationObject() != null) {
+            } else if (chartDataRowY != null && chartDataRowY.getCalculationObject() != null) {
                 try {
                     CalcJob calcJob = new CalcJobFactory().getCalcJobForTimeFrame(
                             new SampleHandler(),
-                            chartDataModelY.getCalculationObject().getDataSource(),
-                            chartDataModelY.getCalculationObject(),
+                            chartDataRowY.getCalculationObject().getDataSource(),
+                            chartDataRowY.getCalculationObject(),
                             firstBeforeDate,
                             lastDate,
                             true);
@@ -220,7 +220,7 @@ public class BubbleChart implements Chart {
         xUnit = "";
         String yAxisTitle = "";
         yUnit = "";
-        for (ChartDataModel model : chartDataModels) {
+        for (ChartDataRow model : chartDataRows) {
             if (model.getBubbleType() == BubbleType.X) {
                 xAxisTitle = model.getObject().getName();
                 xUnit = model.getUnitLabel();
@@ -359,8 +359,8 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public List<ChartDataModel> getChartDataModels() {
-        return chartDataModels;
+    public List<ChartDataRow> getChartDataRows() {
+        return chartDataRows;
     }
 
     @Override

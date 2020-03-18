@@ -17,7 +17,7 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
@@ -33,7 +33,7 @@ public class ColumnChartSerie {
     public final String FINISHED_SERIE;
     private final Boolean hideShowIcons;
     private boolean forecast;
-    private ChartDataModel singleRow;
+    private ChartDataRow singleRow;
     private Integer yAxis;
     private ObservableList<MultiAxisBarChart.Data<String, Number>> seriesData = FXCollections.observableArrayList();
     private DoubleDataSet dataSet;
@@ -42,7 +42,7 @@ public class ColumnChartSerie {
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
     private TreeMap<DateTime, JEVisSample> sampleMap;
 
-    public ColumnChartSerie(ChartDataModel singleRow, Boolean hideShowIcons, boolean forecast) throws JEVisException {
+    public ColumnChartSerie(ChartDataRow singleRow, Boolean hideShowIcons, boolean forecast) throws JEVisException {
         this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + singleRow.getTitle();
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
@@ -202,11 +202,11 @@ public class ColumnChartSerie {
         this.timeStampFromLastSample = timeStampFromLastSample;
     }
 
-    public ChartDataModel getSingleRow() {
+    public ChartDataRow getSingleRow() {
         return singleRow;
     }
 
-    public void setSingleRow(ChartDataModel singleRow) {
+    public void setSingleRow(ChartDataRow singleRow) {
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
     }

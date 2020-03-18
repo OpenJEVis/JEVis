@@ -19,7 +19,7 @@ import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.ChartUnits.*;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 
@@ -45,7 +45,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         this.columnName = columnName;
     }
 
-    private ComboBox<String> buildUnitBox(ChartDataModel singleRow) {
+    private ComboBox<String> buildUnitBox(ChartDataRow singleRow) {
         ComboBox<String> processorBox = new ComboBox<>();
         try {
             JEVisClass stringDataClass = null;
@@ -175,7 +175,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         column.setId(COLUMN_ID);
 
         column.setCellValueFactory(param -> {
-            ChartDataModel data = getData(param.getValue().getValue());
+            ChartDataRow data = getData(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(data.getUnit());
         });
 
@@ -191,7 +191,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                     public void commitEdit(JEVisUnit unit) {
 
                         super.commitEdit(unit);
-                        ChartDataModel data = getData(getTreeTableRow().getItem());
+                        ChartDataRow data = getData(getTreeTableRow().getItem());
                         data.setUnit(unit);
                     }
 
@@ -210,7 +210,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
 
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    ChartDataRow data = getData(getTreeTableRow().getItem());
                                     ComboBox box = buildUnitBox(data);
 
                                     box.valueProperty().addListener((ChangeListener<String>) (observable, oldValue, newValue) -> {

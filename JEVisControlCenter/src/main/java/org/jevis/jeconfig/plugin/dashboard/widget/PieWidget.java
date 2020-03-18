@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
@@ -99,7 +99,7 @@ public class PieWidget extends Widget {
 
         /** data Update **/
         AtomicDouble total = new AtomicDouble(0);
-        for (ChartDataModel dataModel : this.sampleHandler.getDataModel()) {
+        for (ChartDataRow dataModel : this.sampleHandler.getDataModel()) {
             try {
 //                chartDataModel.setAbsolute(true);
                 Double dataModelTotal = DataModelDataHandler.getTotal(dataModel.getSamples());
@@ -112,26 +112,26 @@ public class PieWidget extends Widget {
         logger.debug("Total.Total: {}", total.get());
 
 
-        for (ChartDataModel chartDataModel : this.sampleHandler.getDataModel()) {
+        for (ChartDataRow chartDataRow : this.sampleHandler.getDataModel()) {
             try {
                 double value = 0;
-                String dataName = chartDataModel.getObject().getName();
-                boolean hasNoData = chartDataModel.getSamples().isEmpty();
+                String dataName = chartDataRow.getObject().getName();
+                boolean hasNoData = chartDataRow.getSamples().isEmpty();
 
                 String textValue = "";
 
 
                 if (!hasNoData) {
-                    logger.debug("Samples: ({}) {}", dataName, chartDataModel.getSamples());
+                    logger.debug("Samples: ({}) {}", dataName, chartDataRow.getSamples());
                     try {
-                        value = DataModelDataHandler.getTotal(chartDataModel.getSamples());
-                        logger.debug("part.total: [{}] {}", chartDataModel.getObject().getName(), value);
+                        value = DataModelDataHandler.getTotal(chartDataRow.getSamples());
+                        logger.debug("part.total: [{}] {}", chartDataRow.getObject().getName(), value);
                         double proC = (value / total.get()) * 100;
                         if (Double.isInfinite(proC)) proC = 100;
                         if (Double.isNaN(proC)) proC = 0;
 
 
-                        textValue = this.nf.format(value) + " " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + this.nf.format(proC) + "%";
+                        textValue = this.nf.format(value) + " " + UnitManager.getInstance().format(chartDataRow.getUnitLabel()) + "\n" + this.nf.format(proC) + "%";
 
 
                     } catch (Exception ex) {
@@ -141,19 +141,19 @@ public class PieWidget extends Widget {
                 } else {
                     logger.debug("Empty Samples for: {}", this.config.getTitle());
                     value = 0;
-                    textValue = "n.a.  " + UnitManager.getInstance().format(chartDataModel.getUnitLabel()) + "\n" + this.nf.format(0) + "%";
+                    textValue = "n.a.  " + UnitManager.getInstance().format(chartDataRow.getUnitLabel()) + "\n" + this.nf.format(0) + "%";
 //                    showAlertOverview(true, "");
                 }
 
 
                 legendItemList.add(this.legend.buildLegendItem(
-                        dataName, ColorHelper.toColor(chartDataModel.getColor()), this.config.getFontColor(), this.config.getFontSize(),
-                        chartDataModel.getObject(),hasNoData,I18n.getInstance().getString("plugin.dashboard.alert.nodata")));
+                        dataName, ColorHelper.toColor(chartDataRow.getColor()), this.config.getFontColor(), this.config.getFontSize(),
+                        chartDataRow.getObject(), hasNoData, I18n.getInstance().getString("plugin.dashboard.alert.nodata")));
 
                 if (!hasNoData) {
                     PieChart.Data pieData = new PieChart.Data(textValue, value);
                     series.add(pieData);
-                    colors.add(ColorHelper.toColor(chartDataModel.getColor()));
+                    colors.add(ColorHelper.toColor(chartDataRow.getColor()));
                 }
 
 

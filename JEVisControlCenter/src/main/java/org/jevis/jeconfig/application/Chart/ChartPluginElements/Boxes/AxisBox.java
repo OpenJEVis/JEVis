@@ -4,7 +4,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.scene.control.ChoiceBox;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 public class AxisBox {
     private ChoiceBox choiceBox;
 
-    public AxisBox(final ChartDataModel data) {
+    public AxisBox(final ChartDataRow data) {
         List<String> axisList = new ArrayList<>();
 
         final String y1 = I18n.getInstance().getString("plugin.graph.chartplugin.axisbox.y1");

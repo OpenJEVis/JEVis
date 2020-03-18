@@ -22,7 +22,7 @@ import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -41,7 +41,7 @@ public class BarChart implements Chart {
     private String chartName;
     private String unit;
     private AnalysisDataModel analysisDataModel;
-    private List<ChartDataModel> chartDataModels;
+    private List<ChartDataRow> chartDataRows;
     private Boolean hideShowIcons;
     private List<BarChartSerie> barChartSerieList = new ArrayList<>();
     private javafx.scene.chart.BarChart barChart;
@@ -55,9 +55,9 @@ public class BarChart implements Chart {
     private AtomicReference<ManipulationMode> manipulationMode;
     private DateTime nearest;
 
-    public BarChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
+    public BarChart(AnalysisDataModel analysisDataModel, List<ChartDataRow> chartDataRows, ChartSetting chartSetting) {
         this.analysisDataModel = analysisDataModel;
-        this.chartDataModels = chartDataModels;
+        this.chartDataRows = chartDataRows;
         this.hideShowIcons = analysisDataModel.getShowIcons();
         this.chartId = chartSetting.getId();
         this.chartName = chartSetting.getName();
@@ -67,7 +67,7 @@ public class BarChart implements Chart {
     private void init() {
         manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
-        chartDataModels.forEach(singleRow -> {
+        chartDataRows.forEach(singleRow -> {
             if (!singleRow.getSelectedcharts().isEmpty()) {
                 try {
                     BarChartSerie serie = new BarChartSerie(singleRow, analysisDataModel.getGlobalAnalysisTimeFrame().getTimeFrame() == TimeFrame.CURRENT);
@@ -80,8 +80,8 @@ public class BarChart implements Chart {
             }
         });
 
-        if (chartDataModels != null && chartDataModels.size() > 0) {
-            unit = UnitManager.getInstance().format(chartDataModels.get(0).getUnit());
+        if (chartDataRows != null && chartDataRows.size() > 0) {
+            unit = UnitManager.getInstance().format(chartDataRows.get(0).getUnit());
             if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
         }
 
@@ -130,8 +130,8 @@ public class BarChart implements Chart {
     }
 
     @Override
-    public List<ChartDataModel> getChartDataModels() {
-        return chartDataModels;
+    public List<ChartDataRow> getChartDataRows() {
+        return chartDataRows;
     }
 
     @Override

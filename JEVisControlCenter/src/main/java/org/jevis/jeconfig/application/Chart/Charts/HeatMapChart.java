@@ -28,7 +28,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.Holidays;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -45,7 +45,7 @@ public class HeatMapChart implements Chart {
     private final Integer chartId;
     private final WorkDays workDays;
     private final ColorMapping colorMapping;
-    private List<ChartDataModel> chartDataModels;
+    private List<ChartDataRow> chartDataRows;
     private String chartTitle;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Long ROWS;
@@ -62,14 +62,14 @@ public class HeatMapChart implements Chart {
     private List<DateTime> xAxisList;
     private List<DateTime> yAxisList;
 
-    public HeatMapChart(List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
-        this.chartDataModels = chartDataModels;
+    public HeatMapChart(List<ChartDataRow> chartDataRows, ChartSetting chartSetting) {
+        this.chartDataRows = chartDataRows;
         this.chartId = chartSetting.getId();
         this.chartTitle = chartSetting.getName();
         this.colorMapping = chartSetting.getColorMapping();
         this.ROWS = 24L;
         this.COLS = 4L;
-        this.workDays = new WorkDays(chartDataModels.get(0).getObject());
+        this.workDays = new WorkDays(chartDataRows.get(0).getObject());
 
         init();
     }
@@ -77,10 +77,10 @@ public class HeatMapChart implements Chart {
     private void init() {
         List<MatrixChartItem> matrixData1 = new ArrayList<>();
 
-        ChartDataModel chartDataModel = chartDataModels.get(0);
-        unit = UnitManager.getInstance().format(chartDataModel.getUnit());
-        Period period = new Period(chartDataModel.getSelectedStart(), chartDataModel.getSelectedEnd());
-        Period inputSampleRate = chartDataModel.getAttribute().getInputSampleRate();
+        ChartDataRow chartDataRow = chartDataRows.get(0);
+        unit = UnitManager.getInstance().format(chartDataRow.getUnit());
+        Period period = new Period(chartDataRow.getSelectedStart(), chartDataRow.getSelectedEnd());
+        Period inputSampleRate = chartDataRow.getAttribute().getInputSampleRate();
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
         numberFormat.setMinimumFractionDigits(2);
         numberFormat.setMaximumFractionDigits(2);
@@ -91,9 +91,9 @@ public class HeatMapChart implements Chart {
         X_FORMAT = heatMapXY.getX_FORMAT();
         Y_FORMAT = heatMapXY.getY_FORMAT();
         Y2_FORMAT = heatMapXY.getY2_FORMAT();
-        chartDataModel.setAggregationPeriod(heatMapXY.getAggregationPeriod());
+        chartDataRow.setAggregationPeriod(heatMapXY.getAggregationPeriod());
 
-        List<JEVisSample> samples = chartDataModel.getSamples();
+        List<JEVisSample> samples = chartDataRow.getSamples();
         try {
             inputSampleRate = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
 
@@ -372,8 +372,8 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public List<ChartDataModel> getChartDataModels() {
-        return chartDataModels;
+    public List<ChartDataRow> getChartDataRows() {
+        return chartDataRows;
     }
 
     @Override

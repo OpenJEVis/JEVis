@@ -17,7 +17,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
@@ -37,7 +37,7 @@ public class XYChartSerie {
     DoubleDataSet valueDataSet;
     DoubleDataSet noteDataSet;
     TableEntry tableEntry;
-    ChartDataModel singleRow;
+    ChartDataRow singleRow;
     Boolean showIcons;
     TreeMap<DateTime, JEVisSample> sampleMap;
     DateTime timeStampFromFirstSample = DateTime.now();
@@ -45,7 +45,7 @@ public class XYChartSerie {
     Double minValue = Double.MAX_VALUE;
     Double maxValue = -Double.MAX_VALUE;
 
-    public XYChartSerie(ChartDataModel singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
+    public XYChartSerie(ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
         this.singleRow = singleRow;
         this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + singleRow.getTitle();
         this.yAxis = singleRow.getAxis();
@@ -322,11 +322,11 @@ public class XYChartSerie {
         this.timeStampFromLastSample = timeStampFromLastSample;
     }
 
-    public ChartDataModel getSingleRow() {
+    public ChartDataRow getSingleRow() {
         return singleRow;
     }
 
-    public void setSingleRow(ChartDataModel singleRow) {
+    public void setSingleRow(ChartDataRow singleRow) {
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
     }
