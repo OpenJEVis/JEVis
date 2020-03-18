@@ -7,7 +7,13 @@
     "th": "อาคาร",
     "en": "Building"
   },
-  "descriptions": {},
+  "descriptions": {
+    "de": "Gebäude.",
+    "ru": "",
+    "uk": "",
+    "th": "",
+    "en": "Building."
+  },
   "types": [
     {
       "type": "Address",

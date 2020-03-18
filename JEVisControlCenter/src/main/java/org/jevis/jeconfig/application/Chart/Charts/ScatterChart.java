@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
-import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
 
 import java.util.List;
 

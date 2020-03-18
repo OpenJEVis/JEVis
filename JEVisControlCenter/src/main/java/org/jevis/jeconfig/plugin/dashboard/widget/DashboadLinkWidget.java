@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListCell;
@@ -110,6 +111,7 @@ public class DashboadLinkWidget extends Widget {
 
     @Override
     public void updateConfig() {
+
         Platform.runLater(() -> {
             try {
                 Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
@@ -119,7 +121,9 @@ public class DashboadLinkWidget extends Widget {
                 this.anchorPane.setBackground(bgColor);
                 this.setBorder(null);
 
-                if (dataModelNode.getDashboardObject() != null && getDataSource().getObject(dataModelNode.getDashboardObject())!=null) {
+                if (dataModelNode.getDashboardObject() != null
+                        && dataModelNode.getDashboardObject()>0
+                        && getDataSource().getObject(dataModelNode.getDashboardObject())!=null) {
                     try {
                         linkedDashboardObj = getDataSource().getObject(dataModelNode.getDashboardObject());
                     } catch (Exception ex) {
@@ -229,13 +233,9 @@ public class DashboadLinkWidget extends Widget {
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                Runnable task = () -> {
-                    widgetConfigDialog.commitSettings();
-                    updateConfig(getConfig());
-                    updateData(lastInterval);
-                };
-                control.getExecutor().submit(task);
 
+                widgetConfigDialog.commitSettings();
+                control.updateWidget(this);
 
             } catch (Exception ex) {
                 logger.error(ex);

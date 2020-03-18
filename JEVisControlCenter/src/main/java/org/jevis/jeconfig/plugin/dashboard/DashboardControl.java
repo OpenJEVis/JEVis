@@ -33,6 +33,7 @@ import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
+import org.jevis.jeconfig.plugin.dashboard.widget.SampleEditorWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -61,6 +62,7 @@ public class DashboardControl {
     private ExecutorService executor;
     private boolean isUpdateRunning = false;
     private java.io.File newBackgroundFile;
+    private Image widgetTaskIcon = JEConfig.getImage("if_dashboard_46791.png");
 
     private Interval activeInterval = new Interval(new DateTime(), new DateTime());
     private ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
@@ -108,10 +110,28 @@ public class DashboardControl {
 
     }
 
+    /**
     public ExecutorService getExecutor() {
         return executor;
     }
+     **/
 
+    public void executeTask(Task task){
+        JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(),task,widgetTaskIcon,true);
+    }
+
+    public void updateWidget(Widget widget){
+        Task task = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                widget.updateConfig(widget.getConfig());
+                widget.updateData(activeInterval);
+                super.done();
+                return null;
+            }
+        };
+        JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(),task,widgetTaskIcon,true);
+    }
 
     private void initTimeFrameFactory() {
         this.timeFrames = new TimeFrames(this.jevisDataSource);
@@ -185,11 +205,16 @@ public class DashboardControl {
     }
 
     public void setSnapToGrid(boolean snapToGrid) {
+        logger.error("setSnapToGrid: "+snapToGrid);
+        snapToGridProperty.setValue(snapToGrid);
+        toolBar.updateView(activeDashboard);
+        /**
         if (snapToGrid != showGridProperty.getValue()) {
             this.showGridProperty.setValue(snapToGrid);
             toolBar.updateView(activeDashboard);
 //            dashboardPane.updateView();
         }
+         **/
     }
 
 
@@ -198,7 +223,7 @@ public class DashboardControl {
 
         try {
             Widget maxIDWidget = getWidgetList().stream().max(comp).get();
-            return maxIDWidget.getConfig().getUuid();
+            return maxIDWidget.getConfig().getUuid()+1;
         } catch (Exception ex) {
             return 1;
         }
@@ -206,6 +231,7 @@ public class DashboardControl {
 
     public Widget createNewWidget(WidgetPojo widgetPojo) {
         widgetPojo.setUuid(getNextFreeUUID());
+        System.out.println("createNewWidget: "+widgetPojo.getUuid());
         return configManager.createWidget(this, widgetPojo);
     }
 
@@ -639,6 +665,8 @@ public class DashboardControl {
         try {
             this.isUpdateRunning = false;
 
+            JEConfig.getStatusBar().stopTasks(DashBordPlugIn.class.getName());
+            /**
             if (this.updateTask != null) {
                 try {
                     this.updateTask.cancel();
@@ -648,6 +676,8 @@ public class DashboardControl {
             }
             this.updateTimer.cancel();
             if (this.executor != null) this.executor.shutdownNow();
+
+             */
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -659,7 +689,7 @@ public class DashboardControl {
         stopAllUpdates();
 
         this.updateTimer = new Timer(true);
-        this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
+        //this.executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
 //        this.totalUpdateJobs.setValue(0);
 //        this.finishUpdateJobs.setValue(0);
 
@@ -690,37 +720,22 @@ public class DashboardControl {
 //                    totalUpdateJobs.setValue(DashboardControl.this.widgetList.stream().filter(wiget -> !wiget.isStatic()).count());
                     for (Widget widget : DashboardControl.this.widgetList) {
                         if (!widget.isStatic()) {
-                            addWidgetUpdateTask(widget, activeInterval);
+                            //addWidgetUpdateTask(widget, activeInterval);
+                            Task<Object> updateTask = addWidgetUpdateTask(widget, activeInterval);
+                            //runningUpdateTaskList.add(updateTask);
+                            //JEConfig.getStatusBar().addTask(updateTask,widgetTaskIcon);
+                            //executor.submit(updateTask);
+                            JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(),updateTask,widgetTaskIcon,true);
                         }
                     }
+
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
-
-//                try{
-//                    Task updateTask = new Task() {
-//                        @Override
-//                        protected Object call() throws Exception {
-//                            try {
-//                                System.out.println("---Update Zoom");
-//
-//
-//                            } catch (Exception ex) {
-//                                ex.printStackTrace();
-//                            }
-//                            return null;
-//                        }
-//                    };
-//
-//
-////        processMonitor.addTask(updateTask);
-//                    DashboardControl.this.runningUpdateTaskList.add(updateTask);
-//                    DashboardControl.this.executor.execute(updateTask);
-//                }catch (Exception ex){
-//                    logger.error("Erro in zoomTask: {}",ex);
-//                }
             }
         };
+
+
 
         if (reStartUpdateDeamon) {
             this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(reStartUpdateDeamon);
@@ -734,39 +749,57 @@ public class DashboardControl {
 
 
 
-    private void addWidgetUpdateTask(Widget widget, Interval interval) {
+    private Task<Object> addWidgetUpdateTask(Widget widget, Interval interval){
+        /**
         if (widget == null || interval == null) {
             logger.error("widget is null, this should not happen");
             return;
         }
+         **/
+
 
 
         Task<Object> updateTask = new Task<Object>() {
             @Override
             protected Object call() throws Exception {
                 try {
-                    logger.debug("addWidgetUpdateTask: " + widget.typeID());
+                    logger.error("addWidgetUpdateTask: " + widget);
+                    Platform.runLater(()->this.updateTitle("Updating Widget ["+widget.typeID()+""+widget.getConfig().getUuid()+"] "+widget.getConfig().getTitle()+"'"));
+
                     if (!widget.isStatic()) {
                         widget.updateData(interval);
+                        logger.debug("updateData done: " + widget);
 //                        finishUpdateJobs.setValue(finishUpdateJobs.getValue() + 1);
                     }
+
+                    this.succeeded();
+                    logger.error("task done: " + widget);
                 } catch (Exception ex) {
+                    this.failed();
                     logger.error("Widget update error: [{}]", widget.getConfig().getUuid(), ex);
                     ex.printStackTrace();
                 } finally {
+                    this.done();
                     JEConfig.getStatusBar().progressProgressJob("Dashboard", 1
                             , I18n.getInstance().getString("plugin.dashboard.message.finishedwidget") + " " + widget.getConfig().getUuid());
                 }
                 return null;
             }
         };
+        return updateTask;
+    }
 
+    private synchronized boolean allJobsDone( List<Task> futures){
+        boolean allDone=true;
+        Iterator<Task> itr = futures.iterator();
+        while (itr.hasNext()) {
+            if (!itr.next().isDone()){
+                allDone=false;
+            }
+        }
 
-//        processMonitor.addTask(updateTask);
-        this.runningUpdateTaskList.add(updateTask);
+        return allDone;
 
-
-        this.executor.execute(updateTask);
     }
 
     public ObservableList<Widget> getWidgetList() {

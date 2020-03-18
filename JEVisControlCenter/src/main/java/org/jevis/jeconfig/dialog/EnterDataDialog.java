@@ -1,18 +1,37 @@
 package org.jevis.jeconfig.dialog;
 
 import com.jfoenix.controls.JFXDatePicker;
+import com.jfoenix.controls.JFXPopup;
 import com.jfoenix.controls.JFXTimePicker;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.ScaleTransition;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.layout.*;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.paint.Color;
+import javafx.scene.transform.Scale;
+import javafx.stage.*;
+import javafx.scene.Node;
+import javafx.util.Duration;
 import javafx.util.converter.LocalTimeStringConverter;
+import org.apache.commons.net.pop3.POP3;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,20 +63,25 @@ public class EnterDataDialog {
     public static String ICON = "Startup Wizard_18228.png";
     private final JEVisDataSource ds;
     private final ObjectRelations objectRelations;
-    private JFXDatePicker datePicker;
-    private JFXTimePicker timePicker;
-    private TextField doubleField;
+
     private JEVisObject selectedObject;
     private Stage stage;
     private Response response;
-    private Label lastValueLabel = new Label();
-    private Label lastTSLabel = new Label();
+
+
     private NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
     private Double lastValue;
     private JEVisClass dataClass;
     private JEVisClass cleanDataClass;
-    private TextField searchIdField = new TextField();
-    private Label unitField;
+    private boolean showValuePrompt=false;
+    private JEVisSample initSample= null;
+    private boolean targetEdible = true;
+    private JEVisAttribute target=null;
+    private ObjectProperty<JEVisSample> newSampleProperty = new SimpleObjectProperty<>();
+    private Label unitField = new Label();
+    private Label lastTSLabel  = new Label();
+    private Label lastValueLabel  = new Label();
+
 
     public EnterDataDialog(JEVisDataSource dataSource) {
         this.ds = dataSource;
@@ -73,26 +97,193 @@ public class EnterDataDialog {
             stage.close();
             stage = null;
         }
-
         stage = new Stage();
 
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.initStyle(StageStyle.UTILITY);
-        stage.initOwner(JEConfig.getStage());
+        GridPane gridPane = buildForm(stage);
 
+        Scene scene = new Scene(gridPane);
+
+        JFXPopup popup = new JFXPopup();
+        stage.initStyle(StageStyle.UTILITY);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(JEConfig.getStage());
         stage.setTitle(I18n.getInstance().getString("plugin.object.dialog.data.title"));
 //        stage.setHeader(DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("plugin.object.dialog.data.header")));
         stage.initOwner(JEConfig.getStage());
         stage.setResizable(true);
 //        stage.setMinHeight(450);
         stage.setMinWidth(1000);
+        stage.setScene(scene);
+        stage.centerOnScreen();
+        /** new **/
+        stage.getScene().getRoot().setEffect(new DropShadow());
+        stage.getScene().setFill(Color.TRANSPARENT);
 
+
+        stage.showAndWait();
+        return response;
+
+
+    }
+
+    public void showPopup(Node parent) {
+        JFXPopup popup = new JFXPopup();
+        GridPane gridPane = buildForm(popup);
+        popup.setAutoHide(false);
+        popup.setAutoFix(true);
+        popup.setPopupContent(gridPane);
+        popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
+        Bounds boundsInScreen = parent.localToScreen(parent.getBoundsInLocal());
+
+        //System.out.println("Stagepos1: " + boundsInScreen);
+       // System.out.println("Stagepos2: " + parent.getBoundsInLocal());
+        //System.out.println("Stagepos3: " + parent.getLayoutX() + "/" + parent.getLayoutY());
+
+        // stage.setX(parent.getLayoutX());
+        // stage.setY(parent.getLayoutY());
+        popup.show(parent);
+
+
+
+    }
+
+    public ObjectProperty<JEVisSample> getNewSampleProperty(){
+        return newSampleProperty;
+    }
+
+    public void setSample(JEVisSample sample){
+        initSample=sample;
+    }
+
+    public void setTarget(boolean targetEdible, JEVisAttribute target){
+        System.out.println("Set Target: "+targetEdible+" : "+target);
+        this.targetEdible=targetEdible;
+        this.target=target;
+        this.selectedObject=target.getObject();
+    }
+
+    public void setShowValuePrompt(boolean showValuePrompt){
+        this.showValuePrompt=showValuePrompt;
+    }
+
+
+    private GridPane buildForm(Object windows) {
         GridPane gridPane = new GridPane();
-        gridPane.setPadding(new Insets(12));
-        gridPane.setVgap(8);
-        gridPane.setHgap(8);
+
 
         Label idLabel = new Label(I18n.getInstance().getString("plugin.graph.export.text.id"));
+        Label valueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
+        Label unitLabel = new Label(I18n.getInstance().getString("graph.table.unit"));
+
+        Label unitFieldLastV = new Label();
+        TextField doubleField = new TextField();
+        TextField searchIdField = new TextField();
+
+        unitFieldLastV.textProperty().bind(unitField.textProperty());
+
+
+        double widthInitial = 200;
+        double heightInitial = 200;
+        Region region = new Region();
+        ScrollPane extendableSearchPane = new ScrollPane();
+        extendableSearchPane.setContent(new TableView<>());
+        extendableSearchPane.setMaxHeight(1);
+
+
+        extendableSearchPane.getTransforms().addAll(new Scale(0,0));
+        //extendableSearchPane.setMaxHeight(0);
+       // extendableSearchPane.setPrefHeight(0);
+       // ScaleTransition st = new ScaleTransition(Duration.millis(2000), extendableSearchPane);
+       // st.setByX(1);
+        //st.setByY(1);
+
+        Pane pane = new Pane();
+
+
+        Rectangle clipRect=  new Rectangle();
+        clipRect.setHeight(0);
+        //clipRect.translateYProperty().set(heightInitial);
+        Button toggleSamples = new Button("+");
+
+
+        DoubleProperty height = new  SimpleDoubleProperty();
+        height.addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() -> {
+                System.out.println("New height: "+newValue);
+                final Rectangle outputClip = new Rectangle();
+                //outputClip.setArcWidth(1);
+                //outputClip.setArcHeight(1);
+                outputClip.setHeight(newValue.doubleValue());
+                extendableSearchPane.setClip(outputClip);
+                extendableSearchPane.setMinHeight(newValue.doubleValue());
+                extendableSearchPane.setMaxHeight(newValue.doubleValue());
+            });
+        });
+        final KeyValue keyValue1a = new KeyValue(height, 0);
+        final KeyValue keyValue2a = new KeyValue(height, 100);
+        KeyFrame keyFramea  = new KeyFrame(Duration.millis(200), keyValue1a,keyValue2a);
+        Timeline timelineUpa = new Timeline();
+        timelineUpa.getKeyFrames().add(keyFramea);
+
+
+        Timeline timelineUp = new Timeline();
+        final KeyValue keyValue1 = new KeyValue(clipRect.heightProperty(), 0);
+        final KeyValue keyValue2 = new KeyValue(clipRect.heightProperty(), 50);
+        //final KeyValue keyValue2 = new KeyValue(clipRect.translateYProperty(), 50);
+        KeyFrame keyFrame  = new KeyFrame(Duration.millis(200), keyValue1,keyValue2);
+        timelineUp.getKeyFrames().add(keyFrame);
+
+        toggleSamples.setOnAction(event -> {
+            Platform.runLater(() -> {
+                //timelineUp.play();
+                timelineUpa.play();
+                //st.play();
+                //lipRect.setHeight(80);
+            });
+        });
+
+        /**
+
+        clipRect.setWidth(widthInitial);
+        clipRect.setHeight(0);
+        clipRect.translateYProperty().set(heightInitial);
+
+        // Animation for scroll up.
+        Timeline timelineUp = new Timeline();
+
+        // Animation of sliding the search pane up, implemented via
+        // clipping.
+        final KeyValue kvUp1 = new KeyValue(clipRect.heightProperty(), 0);
+        final KeyValue kvUp2 = new KeyValue(clipRect.translateYProperty(), extendableSearchPane.getHeight());
+
+        // The actual movement of the search pane. This makes the table
+        // grow.
+        final KeyValue kvUp4 = new KeyValue(extendableSearchPane.prefHeightProperty(), 0);
+        final KeyValue kvUp3 = new KeyValue(extendableSearchPane.translateYProperty(), -extendableSearchPane.getHeight());
+
+        final KeyFrame kfUp = new KeyFrame(Duration.millis(200), kvUp1, kvUp2, kvUp3, kvUp4);
+
+        toggleSamples.setOnAction(event -> {
+            Platform.runLater(() -> {
+                timelineUp.getKeyFrames().add(kfUp);
+                timelineUp.play();
+            });
+        });
+        **/
+
+
+        try {
+            if (initSample != null && showValuePrompt) {
+
+                doubleField.setPromptText(initSample.getValue().toString());
+                //oadLastValue(unitField, lastTSLabel, lastValueLabel);
+                loadLastValue();
+                //doubleField.setText(initSample.getValue().toString());
+            }
+        }catch ( Exception ex){
+            ex.printStackTrace();
+        }
+
 
         List<JEVisObject> allData = new ArrayList<>();
         HashMap<Long, JEVisObject> map = new HashMap<>();
@@ -121,7 +312,7 @@ public class EnterDataDialog {
             allFilter.add(allCurrentClassFilter);
 
             SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE);
-            selectTargetDialog.setInitOwner(stage.getScene().getWindow());
+            //selectTargetDialog.setInitOwner(stage.getScene().getWindow());
 
             List<UserSelection> openList = new ArrayList<>();
 
@@ -146,25 +337,33 @@ public class EnterDataDialog {
                 treeButton.setText(selectedObject.getName());
                 searchIdField.setText(selectedObject.getID().toString());
 
+                //loadLastValue(unitField, lastTSLabel, lastValueLabel);
                 loadLastValue();
             }
 
         });
 
+
+        System.out.println("-----------------------targetEdible: "+targetEdible);
+        treeButton.setDisable(!targetEdible);
+        searchIdField.setDisable(!targetEdible);
+        if(selectedObject!=null){
+            //searchIdField.setText(selectedObject.getID().toString());
+            searchIdField.setText("["+selectedObject.getID().toString()+"] "+selectedObject.getName());
+        }
+
+
         Label dateLabel = new Label(I18n.getInstance().getString("graph.dialog.column.timestamp"));
-        datePicker = new JFXDatePicker(LocalDate.now());
-        timePicker = new JFXTimePicker(LocalTime.of(0, 0, 0));
+        JFXDatePicker datePicker = new JFXDatePicker(LocalDate.now());
+        JFXTimePicker timePicker = new JFXTimePicker(LocalTime.of(0, 0, 0));
+        /*
         datePicker.setPrefWidth(120d);
         timePicker.setPrefWidth(100d);
         timePicker.setMaxWidth(100d);
+        */
         timePicker.set24HourView(true);
         timePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
-        Label valueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
-        doubleField = new TextField();
-
-        Label unitLabel = new Label(I18n.getInstance().getString("graph.table.unit"));
-        unitField = new Label();
 
         HashMap<Long, JEVisObject> finalMap = map;
         searchIdField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -175,7 +374,8 @@ public class EnterDataDialog {
                     if (selection != null) {
                         selectedObject = selection;
                         treeButton.setText(selection.getName());
-                        loadLastValue();
+
+
                     }
                 } catch (Exception ignored) {
                 }
@@ -185,10 +385,11 @@ public class EnterDataDialog {
         Separator sep = new Separator(Orientation.HORIZONTAL);
 
         Button confirm = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.save"));
+        confirm.setDefaultButton(true);
         Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
+        cancel.setCancelButton(true);
         cancel.setOnAction(event -> {
-                    stage.close();
-                    stage = null;
+                   closeWindows(windows);
                 }
         );
         confirm.setOnAction(event -> {
@@ -210,7 +411,7 @@ public class EnterDataDialog {
                                     CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject, new ObjectHandler(ds));
                                     limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
                                 }
-                            } catch (JEVisException e) {
+                            } catch (Exception e) {
                                 logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
                             }
                             DateTime ts = new DateTime(
@@ -341,44 +542,61 @@ public class EnterDataDialog {
                         warning.setResizable(true);
                         warning.showAndWait();
                     }
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error("Could not get current User", e);
                 }
             }
+
+
         });
 
-        int row = 0;
-        gridPane.add(idLabel, 0, row);
-//        gridPane.add(diffSwitchLabel, 2, row);
-        gridPane.add(dateLabel, 3, row, 2, 1);
-        gridPane.add(valueLabel, 5, row);
-        gridPane.add(unitLabel, 6, row);
-        row++;
-        gridPane.add(searchIdField, 0, row);
-        gridPane.add(treeButton, 1, row, 2, 1);
-//        gridPane.add(diffSwitch, 2, row);
-        gridPane.add(datePicker, 3, row);
-        gridPane.add(timePicker, 4, row);
-        gridPane.add(doubleField, 5, row);
-        gridPane.add(unitField, 6, row);
-        row++;
-        gridPane.add(sep, 0, row, 7, 1);
-        row++;
-        gridPane.add(lastTSLabel, 1, row);
-        gridPane.add(lastValueLabel, 2, row);
-        gridPane.add(cancel, 5, row);
-        gridPane.add(confirm, 6, row);
+        HBox buttonBox = new HBox(cancel,confirm);
+        buttonBox.setAlignment(Pos.BASELINE_RIGHT);
+        buttonBox.setSpacing(8);
 
-        Scene scene = new Scene(gridPane);
-        stage.setScene(scene);
-        stage.centerOnScreen();
+        gridPane.setPadding(new Insets(12));
+        gridPane.setVgap(8);
+        gridPane.setHgap(8);
+        gridPane.setPadding(new Insets(10, 10, 10, 10));
+
+
+        gridPane.addRow(0,idLabel,searchIdField,treeButton);
+        gridPane.addRow(1,dateLabel,datePicker,timePicker);
+        gridPane.addRow(2,valueLabel,doubleField,unitField);
+        gridPane.add(new Label("Last Value"), 0, 3,1,1);
+        gridPane.add(lastValueLabel, 1, 3,2,1);
+
+       // gridPane.addRow(3,,lastValueLabel,unitFieldLastV);
+
+        gridPane.add(sep, 0, 4,3,1);
+        gridPane.add(buttonBox, 0, 5,3,1);
+
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        ColumnConstraints col2 = new ColumnConstraints(120);
+        ColumnConstraints col3 = new ColumnConstraints(80);
+        gridPane.getColumnConstraints().addAll(col1,col2,col3);
+
+
 
         GridPane.setHgrow(treeButton, Priority.ALWAYS);
         GridPane.setFillWidth(treeButton, true);
 
-        stage.showAndWait();
+        Platform.runLater(() -> {
+            doubleField.requestFocus();
+        });
 
-        return response;
+        return gridPane;
+    }
+
+    private void closeWindows(Object windows){
+        if(windows instanceof Stage){
+            ((Stage)windows).close();
+            stage.close();
+            stage = null;
+        }else if (windows instanceof JFXPopup){
+            ((JFXPopup)windows).hide();
+        }
     }
 
     private void buildSample(JEVisAttribute valueAttribute, DateTime ts, Double newVal) {
@@ -395,6 +613,10 @@ public class EnterDataDialog {
                 Alert ok = new Alert(Alert.AlertType.INFORMATION, message);
                 ok.setResizable(true);
                 ok.showAndWait();
+
+                newSampleProperty.setValue(sample);
+                loadLastValue();
+
             } catch (JEVisException e) {
                 logger.error("Could not commit sample {}", sample, e);
             }
@@ -412,7 +634,8 @@ public class EnterDataDialog {
                 unitString = UnitManager.getInstance().format(displayUnit);
                 if (!unitString.equals("")) {
                     String finalUnitString = unitString;
-                    Platform.runLater(() -> this.unitField.setText(finalUnitString));
+                    System.out.println("Unit: "+finalUnitString);
+                    Platform.runLater(() -> unitField.setText(finalUnitString));
                 }
             } catch (JEVisException e) {
                 logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
@@ -432,19 +655,24 @@ public class EnterDataDialog {
                             Double finalLastValue = lastValue;
                             String finalUnitString = unitString;
                             Platform.runLater(() -> {
-                                this.lastTSLabel.setText(finalLastTS.toString("yyyy-MM-dd HH:mm") + " : ");
+                                lastTSLabel.setText(finalLastTS.toString("yyyy-MM-dd HH:mm") + " : ");
 
+
+                                /**
                                 if (!finalUnitString.equals("")) {
-                                    this.lastValueLabel.setText(numberFormat.format(finalLastValue) + " " + finalUnitString);
-                                } else {
-                                    this.lastValueLabel.setText(numberFormat.format(finalLastValue));
+                                    valueString+=" "+finalUnitString;
                                 }
+                                lastValueLabel.setText(valueString);
+                                 **/
+                                String valueString = numberFormat.format(finalLastValue)+finalUnitString+" @ "+ finalLastTS.toString("yyyy-MM-dd HH:mm");
+                                lastValueLabel.setText(valueString);
                             });
                         }
                     }
-                } catch (JEVisException e) {
+                } catch (Exception e) {
                     logger.error("Could not get last sample.", e);
                 }
         }
     }
+
 }

@@ -48,7 +48,6 @@ import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
@@ -113,7 +112,7 @@ public class MeterPlugin implements Plugin {
                     if (tableView.getSkin() != null) {
                         columnToFitMethod.invoke(tableView.getSkin(), column, -1);
                     }
-                } catch (IllegalAccessException | InvocationTargetException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -136,6 +135,7 @@ public class MeterPlugin implements Plugin {
             JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
             JEVisType multiplierType = cleanDataClass.getType("Value Multiplier");
             JEVisType locationType = jeVisClass.getType("Location");
+            JEVisType pictureType = jeVisClass.getType("Picture");
             JEVisType measuringPointIdType = jeVisClass.getType("Measuring Point ID");
             JEVisType measuringPointName = jeVisClass.getType("Measuring Point Name");
 
@@ -831,6 +831,18 @@ public class MeterPlugin implements Plugin {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newButton);
         newButton.setOnAction(event -> handleRequest(Constants.Plugin.Command.NEW));
 
+        ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(replaceButton);
+        replaceButton.setOnAction(event -> {
+            JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
+            TableView<MeterRow> tableView = (TableView<MeterRow>) selectedItem.getContent();
+
+            MeterDialog meterDialog = new MeterDialog(ds, selectedItem.getJeVisClass());
+            if (meterDialog.showReplaceWindow(tableView.getSelectionModel().getSelectedItem().getObject()) == Response.OK) {
+                handleRequest(Constants.Plugin.Command.RELOAD);
+            }
+        });
+
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
         delete.setOnAction(event -> handleRequest(Constants.Plugin.Command.DELETE));
@@ -898,7 +910,7 @@ public class MeterPlugin implements Plugin {
         });
 
         // -delete
-        toolBar.getItems().setAll(reload, sep1, save, sep2, newButton, sep3, printButton);
+        toolBar.getItems().setAll(reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
     }
 
     @Override
@@ -1016,12 +1028,39 @@ public class MeterPlugin implements Plugin {
                 }
                 break;
             case Constants.Plugin.Command.DELETE:
+                Tab selectedItem = tabPane.getSelectionModel().getSelectedItem();
+                TableView<MeterRow> tableView = (TableView<MeterRow>) selectedItem.getContent();
+
+                JEVisObject object = tableView.getSelectionModel().getSelectedItem().getObject();
+
+                Dialog<ButtonType> reallyDelete = new Dialog<>();
+                reallyDelete.setTitle(I18n.getInstance().getString("plugin.graph.dialog.delete.title"));
+                final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.delete.ok"), ButtonBar.ButtonData.YES);
+                final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.delete.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+                reallyDelete.setContentText(I18n.getInstance().getString("plugin.meters.dialog.delete.message"));
+                reallyDelete.getDialogPane().getButtonTypes().addAll(ok, cancel);
+                reallyDelete.showAndWait().ifPresent(response -> {
+                    if (response.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
+                        try {
+                            if (ds.getCurrentUser().canDelete(object.getID())) {
+                                ds.deleteObject(object.getID());
+                                handleRequest(Constants.Plugin.Command.RELOAD);
+                            } else {
+                                Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.meters.dialog.delete.error"), cancel);
+                                alert.showAndWait();
+                            }
+                        } catch (JEVisException e) {
+                            logger.error("Error: could not delete current meter", e);
+                        }
+                    }
+                });
                 break;
             case Constants.Plugin.Command.EXPAND:
                 break;
             case Constants.Plugin.Command.NEW:
-                NewMeterDialog newMeterDialog = new NewMeterDialog(ds, ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
-                if (newMeterDialog.show() == Response.OK) {
+                MeterDialog meterDialog = new MeterDialog(ds, ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
+                if (meterDialog.showNewWindow() == Response.OK) {
                     handleRequest(Constants.Plugin.Command.RELOAD);
                 }
                 break;

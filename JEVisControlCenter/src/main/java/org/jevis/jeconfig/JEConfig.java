@@ -91,7 +91,6 @@ public class JEConfig extends Application {
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
     private static Statusbar statusBar = new Statusbar();
-    private static ExecutorService taskExecutor = Executors.newFixedThreadPool(10);
     private TopMenu menu;
     public static Date startDate= new Date();
 
@@ -267,10 +266,6 @@ public class JEConfig extends Application {
         }*/
     }
 
-    public static ExecutorService executor() {
-        return taskExecutor;
-    }
-
     /**
      * Get an imge in the given size from the common
      *
@@ -420,8 +415,6 @@ public class JEConfig extends Application {
                         } else {
                             logger.warn("Missing activities attribute for user");
                         }
-
-
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }

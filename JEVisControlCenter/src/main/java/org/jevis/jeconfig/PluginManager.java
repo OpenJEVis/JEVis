@@ -47,9 +47,7 @@ import org.jevis.jeconfig.plugin.meters.MeterPlugin;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.plugin.reports.ReportPlugin;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * The PluginManger controls the view of the different Plugins
@@ -272,6 +270,9 @@ public class PluginManager {
 //            pluginTab.setContent(plugin.getView().getNode());
                 pluginTab.setContent(plugin.getContentNode());
 
+                /**
+                 * Special case Alarming beginning
+                 */
                 if (plugin instanceof AlarmPlugin) {
                     AlarmPlugin alarmPlugin = (AlarmPlugin) plugin;
                     Timeline flasher = new Timeline(
@@ -287,12 +288,14 @@ public class PluginManager {
                     flasher.setCycleCount(Animation.INDEFINITE);
 
                     alarmPlugin.hasAlarmsProperty().addListener((observable, oldValue, newValue) -> {
-                        if (newValue) {
-                            flasher.play();
-                        } else {
-                            flasher.stop();
-                            pluginTab.setStyle("-tab-text-color: black;");
-                        }
+                        Platform.runLater(() -> {
+                            if (newValue) {
+                                flasher.play();
+                            } else {
+                                flasher.stop();
+                                pluginTab.setStyle("-tab-text-color: black;");
+                            }
+                        });
                     });
                 }
 
@@ -304,6 +307,16 @@ public class PluginManager {
                 });
 
                 pluginTab.setGraphic(plugin.getIcon());
+
+                /** Start Loading Alarms in the background after an delay **/
+                Timer updateTimer = new Timer(true);
+                updateTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        Platform.runLater(() -> plugin.setHasFocus());
+                    }
+                }, 4000);
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -331,23 +344,13 @@ public class PluginManager {
                 });
             }
         });
-        this.selectedPluginProperty.setValue(this._plugins.get(0));
+
 
         this.tabPane.getSelectionModel().selectedIndexProperty().addListener((ov, oldValue, newValue) -> this.selectedPluginProperty.setValue(this._plugins.get(newValue.intValue())));
 
-        //Watermark is disabled
-        //Todo: configure via start parameter
-//        if (_watermark) {
-//            VBox waterBox = new VBox(); //TODO better load the
-//            waterBox.setId("watermark");
-//            waterBox.setStyle(null);
-//            waterBox.setDisable(true);
-//            box.getChildren().addAll(tabPane,
-//                    waterBox);
-//        } else {
-//            box.getChildren().addAll(tabPane);
-//        }
+
         box.getChildren().addAll(this.tabPane);
+        selectedPluginProperty.setValue(_plugins.get(0));
 
         return box;
     }

@@ -25,6 +25,19 @@
       }
     },
     {
+      "type": "Picture",
+      "descriptions": {
+        "de": "Photo des Zählers.",
+        "ru": "Фото счетчика.",
+        "en": "A picture of the mesaurement instrument"
+      },
+      "names": {
+        "de": "Bild",
+        "ru": "снимок",
+        "en": "Picture"
+      }
+    },
+    {
       "type": "Measuring Point ID",
       "descriptions": {
         "de": "Die Messpunkt ID gibt die interne Zuordnung an.",

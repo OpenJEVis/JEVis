@@ -14,10 +14,10 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.commons.chart.ChartDataModel;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetLegend;
@@ -88,6 +88,7 @@ public class PieWidget extends Widget {
 
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
+
 
         showAlertOverview(false, "");
 
@@ -282,13 +283,8 @@ public class PieWidget extends Widget {
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                Runnable task = () -> {
-                    widgetConfigDialog.commitSettings();
-                    updateConfig(getConfig());
-                    updateData(lastInterval);
-                };
-                control.getExecutor().submit(task);
-
+                widgetConfigDialog.commitSettings();
+                control.updateWidget(this);
 
             } catch (Exception ex) {
                 logger.error(ex);

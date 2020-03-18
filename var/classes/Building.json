@@ -1,6 +1,7 @@
 {
   "name": "Building",
   "unique": false,
+  "description": "The class represents an building",
   "relationships": [
     {
       "start": "Building",
