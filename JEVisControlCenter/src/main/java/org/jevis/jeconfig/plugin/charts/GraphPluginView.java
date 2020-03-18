@@ -99,7 +99,7 @@ public class GraphPluginView implements Plugin {
     private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
     private final ScrollPane sp = new ScrollPane();
-    public static String JOB_NAME = "Graph Update";
+    public static String JOB_NAME = "Chart Update";
     private Double xAxisLowerBound;
     private Double xAxisUpperBound;
     private boolean zoomed = false;
@@ -450,8 +450,7 @@ public class GraphPluginView implements Plugin {
     public void update() {
 
         try {
-            double totalJob = dataModel.getSelectedData().stream().mapToDouble(model -> (long) model.getSelectedcharts().size()).sum()
-                    + (dataModel.getCharts().getListSettings().size() * 2);
+            double totalJob = dataModel.getCharts().getListSettings().size();
 
             JEConfig.getStatusBar().startProgressJob(GraphPluginView.JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
         } catch (Exception ex) {
@@ -525,7 +524,6 @@ public class GraphPluginView implements Plugin {
 
                     Chart chart = null;
                     if (chartSetting.getChartType() != ChartType.LOGICAL) {
-                        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, I18n.getInstance().getString("plugin.graph.message.createchart") + " " + chartSetting.getChartType());
                         chart = getChart(chartSetting, null);
                         allCharts.add(chart);
                     } else {
@@ -696,8 +694,6 @@ public class GraphPluginView implements Plugin {
 
         Platform.runLater(() -> {
             toolBarView.updateLayout();
-
-            JEConfig.getStatusBar().finishProgressJob(GraphPluginView.JOB_NAME, I18n.getInstance().getString("plugin.graph.message.finishedupdate"));
 
             StringBuilder allFormulas = new StringBuilder();
             for (Chart chart : allCharts) {
@@ -1348,12 +1344,15 @@ public class GraphPluginView implements Plugin {
         for (ChartDataRow singleRow : dataModel.getSelectedData()) {
             for (int i : singleRow.getSelectedcharts()) {
                 if (i == chartSetting.getId()) {
-                    Chart subView = getChart(chartSetting, Collections.singletonList(singleRow));
+                    List<ChartDataRow> dataRows = Collections.singletonList(singleRow);
+                    Chart subView = getChart(chartSetting, dataRows);
                     LogicalChart logicalChart = (LogicalChart) subView;
+                    logicalChart.createChart(dataModel, dataRows, chartSetting, true);
                     subCharts.add(logicalChart);
                 }
             }
         }
+
         AlphanumComparator ac = new AlphanumComparator();
 
         subCharts.sort((o1, o2) -> ac.compare(o1.getChartDataRows().get(0).getTitle(), o2.getChartDataRows().get(0).getTitle()));

@@ -20,6 +20,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
@@ -41,7 +43,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class HeatMapChart implements Chart {
-
+    private static final Logger logger = LogManager.getLogger(HeatMapChart.class);
     private final Integer chartId;
     private final WorkDays workDays;
     private final ColorMapping colorMapping;
@@ -94,11 +96,16 @@ public class HeatMapChart implements Chart {
         chartDataRow.setAggregationPeriod(heatMapXY.getAggregationPeriod());
 
         List<JEVisSample> samples = chartDataRow.getSamples();
-        try {
-            inputSampleRate = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+        if (samples.size() > 1) {
+            try {
+                inputSampleRate = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
 
-        } catch (JEVisException e) {
-            e.printStackTrace();
+            } catch (JEVisException e) {
+                logger.error("Error while getting input sample rate", e);
+            }
+        } else {
+            logger.warn("Only got {} samples, aborting", samples.size());
+            return;
         }
 
         HashMap<DateTime, JEVisSample> sampleHashMap = new HashMap<>();
@@ -106,14 +113,14 @@ public class HeatMapChart implements Chart {
             try {
                 sampleHashMap.put(jeVisSample.getTimestamp(), jeVisSample);
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Error while getting sample timestamp of sample {}", jeVisSample, e);
             }
         });
         DateTime currentTS = null;
         try {
             currentTS = samples.get(0).getTimestamp();
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Could not get current time stamp while getting time stamp of sample {}", samples.get(0), e);
         }
 
         double minValue = Double.MAX_VALUE;
@@ -132,7 +139,7 @@ public class HeatMapChart implements Chart {
                     isCustomStart = true;
                 }
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Error while getting custom work day start and end", e);
             }
         }
 
@@ -170,7 +177,7 @@ public class HeatMapChart implements Chart {
                         xCell++;
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Error while processing sample {}", sampleHashMap.get(currentTS), e);
                 }
 
                 currentTS = currentTS.plus(inputSampleRate);
@@ -182,7 +189,7 @@ public class HeatMapChart implements Chart {
             yAxisList.removeAll(yAxisList.stream().filter(dateTime -> dateTime.isAfter(lastTs)).collect(Collectors.toList()));
             ROWS = (long) yAxisList.size();
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Error while getting row length of heat map", e);
         }
 
         this.maxValue = maxValue;

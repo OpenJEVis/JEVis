@@ -17,9 +17,9 @@ import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBarChart;
+import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -43,7 +43,7 @@ public class ColumnChartSerie {
     private TreeMap<DateTime, JEVisSample> sampleMap;
 
     public ColumnChartSerie(ChartDataRow singleRow, Boolean hideShowIcons, boolean forecast) throws JEVisException {
-        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + singleRow.getTitle();
+        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + " " + singleRow.getTitle();
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
         this.hideShowIcons = hideShowIcons;
@@ -168,7 +168,7 @@ public class ColumnChartSerie {
             }
         }
 
-        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
+        JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
     }
 
     public void setDataNodeColor(MultiAxisBarChart.Data<String, Number> data) {
