@@ -17,9 +17,9 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
+import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
@@ -47,7 +47,7 @@ public class XYChartSerie {
 
     public XYChartSerie(ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
         this.singleRow = singleRow;
-        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + singleRow.getTitle();
+        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + " " + singleRow.getTitle();
         this.yAxis = singleRow.getAxis();
         this.showIcons = showIcons;
         this.valueDataSet = new DoubleDataSet(singleRow.getTitle());
@@ -148,9 +148,9 @@ public class XYChartSerie {
             sum = max;
         }
 
-        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
-
         updateTableEntry(samples, unit, min, max, avg, sum, zeroCount);
+
+        JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
     }
 
     public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, double min, double max, double avg, Double sum, long zeroCount) throws JEVisException {

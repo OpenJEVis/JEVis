@@ -16,6 +16,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.BarChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
@@ -61,6 +62,11 @@ public class BarChart implements Chart {
         this.hideShowIcons = analysisDataModel.getShowIcons();
         this.chartId = chartSetting.getId();
         this.chartName = chartSetting.getName();
+
+        double totalJob = chartDataRows.size();
+
+        JEConfig.getStatusBar().startProgressJob(org.jevis.jeconfig.application.Chart.Charts.XYChart.JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
+
         init();
     }
 

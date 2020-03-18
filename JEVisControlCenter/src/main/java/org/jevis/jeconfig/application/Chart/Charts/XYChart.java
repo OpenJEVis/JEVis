@@ -99,6 +99,7 @@ public class XYChart implements Chart {
     private boolean hasSecondAxis = false;
     private StringBuilder regressionFormula = new StringBuilder();
     private Image taskImage = JEConfig.getImage("Analysis.png");
+    public static String JOB_NAME = "Create series";
 
     public XYChart() {
 
@@ -106,20 +107,44 @@ public class XYChart implements Chart {
     }
 
     public void createChart(AnalysisDataModel dataModel, List<ChartDataRow> dataRows, ChartSetting chartSetting) {
-        Task task = new Task() {
-            @Override
-            protected Object call() throws Exception {
-                buildChart(dataModel, dataRows, chartSetting);
-                return null;
-            }
-        };
+        this.createChart(dataModel, dataRows, chartSetting, false);
+    }
 
-        JEConfig.getStatusBar().addTask(XYChart.class.getName(), task, taskImage, true);
+    public void createChart(AnalysisDataModel dataModel, List<ChartDataRow> dataRows, ChartSetting chartSetting, boolean instant) {
+        if (!instant) {
+            Task task = new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    buildChart(dataModel, dataRows, chartSetting);
+                    return null;
+                }
+            };
+
+            JEConfig.getStatusBar().addTask(XYChart.class.getName(), task, taskImage, true);
+        } else {
+            buildChart(dataModel, dataRows, chartSetting);
+        }
     }
 
     private void buildChart(AnalysisDataModel dataModel, List<ChartDataRow> dataRows, ChartSetting chartSetting) {
         this.analysisDataModel = dataModel;
         this.chartDataRows = dataRows;
+
+        double totalJob = chartDataRows.size();
+
+        if (showRawData) {
+            totalJob *= 4;
+        }
+
+        if (showSum) {
+            totalJob += 1;
+        }
+
+        if (calcRegression) {
+            totalJob += 1;
+        }
+
+        JEConfig.getStatusBar().startProgressJob(JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
 
         this.showRawData = dataModel.getShowRawData();
         this.showSum = dataModel.getShowSum();

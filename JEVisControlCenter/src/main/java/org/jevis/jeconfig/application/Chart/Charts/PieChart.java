@@ -24,6 +24,7 @@ import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
@@ -57,6 +58,7 @@ public class PieChart implements Chart {
     private Period period;
     private ChartType chartType = ChartType.PIE;
     private boolean legendMode = false;
+
     private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
         @Override
         public void applySetting(javafx.scene.chart.Chart chart) {
@@ -73,6 +75,19 @@ public class PieChart implements Chart {
         this.hideShowIcons = analysisDataModel.getShowIcons();
         this.chartName = chartSetting.getName();
         this.chartId = chartSetting.getId();
+
+        double totalJob = chartDataRows.size();
+
+        if (showRawData) {
+            totalJob *= 4;
+        }
+
+        if (showSum) {
+            totalJob += 1;
+        }
+
+        JEConfig.getStatusBar().startProgressJob(XYChart.JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
+
         init();
     }
 
@@ -192,6 +207,8 @@ public class PieChart implements Chart {
             javafx.scene.chart.PieChart.Data data = new javafx.scene.chart.PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
             series.add(data);
             seriesNames.add(name);
+
+            JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, I18n.getInstance().getString("graph.progress.finishedserie") + " " + name);
         }
 
         if (pieChart == null) {
