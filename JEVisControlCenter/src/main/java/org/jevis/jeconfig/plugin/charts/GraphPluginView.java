@@ -70,7 +70,7 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePick
 import org.jevis.jeconfig.application.Chart.Charts.*;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
@@ -532,8 +532,8 @@ public class GraphPluginView implements Plugin {
                         dataSize = 4;
                     }
 
-                    for (ChartDataModel chartDataModel : dataModel.getSelectedData()) {
-                        for (int i : chartDataModel.getSelectedcharts()) {
+                    for (ChartDataRow chartDataRow : dataModel.getSelectedData()) {
+                        for (int i : chartDataRow.getSelectedcharts()) {
                             if (i == chartSetting.getId()) {
                                 dataSize++;
                             }
@@ -674,6 +674,24 @@ public class GraphPluginView implements Plugin {
                     JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, I18n.getInstance().getString("plugin.graph.message.finishedchart") + " ");
                 }
             }
+
+            dataModel.getCharts().getListSettings().forEach(chartSetting -> {
+                int chartId = chartSetting.getId();
+                Chart chart = allCharts.get(chartId);
+                if (chart instanceof XYChart) {
+                    XYChart xyChart = (XYChart) chart;
+                    List<ChartDataRow> dataRows = new ArrayList<>();
+                    for (ChartDataRow singleRow : dataModel.getSelectedData()) {
+                        for (int i : singleRow.getSelectedcharts()) {
+                            if (i == chartId) {
+                                dataRows.add(singleRow);
+                            }
+                        }
+                    }
+
+                    xyChart.createChart(dataModel, dataRows, chartSetting);
+                }
+            });
         });
 
         Platform.runLater(() -> {
@@ -711,15 +729,15 @@ public class GraphPluginView implements Plugin {
         });
     }
 
-    private Chart getChart(ChartSetting chart, List<ChartDataModel> chartDataModels) {
+    private Chart getChart(ChartSetting chart, List<ChartDataRow> chartDataRows) {
 
-        if (chartDataModels == null) {
-            chartDataModels = new ArrayList<>();
+        if (chartDataRows == null) {
+            chartDataRows = new ArrayList<>();
 
-            for (ChartDataModel singleRow : dataModel.getSelectedData()) {
+            for (ChartDataRow singleRow : dataModel.getSelectedData()) {
                 for (int i : singleRow.getSelectedcharts()) {
                     if (i == chart.getId()) {
-                        chartDataModels.add(singleRow);
+                        chartDataRows.add(singleRow);
                     }
                 }
             }
@@ -727,26 +745,26 @@ public class GraphPluginView implements Plugin {
 
         switch (chart.getChartType()) {
             case LOGICAL:
-                return new LogicalChart(dataModel, chartDataModels, chart);
+                return new LogicalChart();
             case LINE:
-                return new LineChart(dataModel, chartDataModels, chart);
+                return new LineChart();
             case BAR:
-                return new BarChart(dataModel, chartDataModels, chart);
+                return new BarChart(dataModel, chartDataRows, chart);
             case COLUMN:
-                return new ColumnChart(dataModel, chartDataModels, chart);
+                return new ColumnChart();
             case BUBBLE:
-                return new BubbleChart(dataModel, chartDataModels, chart);
+                return new BubbleChart(dataModel, chartDataRows, chart);
             case SCATTER:
-                return new ScatterChart(dataModel, chartDataModels, chart);
+                return new ScatterChart();
             case PIE:
-                return new PieChart(dataModel, chartDataModels, chart);
+                return new PieChart(dataModel, chartDataRows, chart);
             case TABLE:
-                return new TableChart(dataModel, chartDataModels, chart);
+                return new TableChart();
             case HEAT_MAP:
-                return new HeatMapChart(chartDataModels, chart);
+                return new HeatMapChart(chartDataRows, chart);
             case AREA:
             default:
-                return new AreaChart(dataModel, chartDataModels, chart);
+                return new AreaChart();
         }
     }
 
@@ -816,7 +834,7 @@ public class GraphPluginView implements Plugin {
                             final Text dataText = new Text(valueString + "");
                             dataText.setPickOnBounds(false);
                             dataText.setFont(new Font(12));
-                            dataText.setFill(ColorHelper.getHighlightColor(ColorHelper.toColor(cv.getChartDataModels().get(index).getColor())));
+                            dataText.setFill(ColorHelper.getHighlightColor(ColorHelper.toColor(cv.getChartDataRows().get(index).getColor())));
 
                             node.getChildren().add(dataText);
 
@@ -1118,14 +1136,14 @@ public class GraphPluginView implements Plugin {
 
                 } else if (jeVisObject.getJEVisClassName().equals("Data") || jeVisObject.getJEVisClassName().equals("Clean Data")) {
 
-                    ChartDataModel chartDataModel = new ChartDataModel(ds);
+                    ChartDataRow chartDataRow = new ChartDataRow(ds);
 
                     try {
                         if (jeVisObject.getJEVisClassName().equals("Data")) {
-                            chartDataModel.setObject(jeVisObject);
+                            chartDataRow.setObject(jeVisObject);
                         } else if (jeVisObject.getJEVisClassName().equals("Clean Data")) {
-                            chartDataModel.setDataProcessor(jeVisObject);
-                            chartDataModel.setObject(jeVisObject.getParents().get(0));
+                            chartDataRow.setDataProcessor(jeVisObject);
+                            chartDataRow.setObject(jeVisObject.getParents().get(0));
                         }
                     } catch (JEVisException e) {
 
@@ -1133,14 +1151,14 @@ public class GraphPluginView implements Plugin {
 
                     List<Integer> list = new ArrayList<>();
                     list.add(0);
-                    chartDataModel.setSelectedCharts(list);
-                    chartDataModel.setColor(ColorHelper.toRGBCode(Color.BLUE));
-                    chartDataModel.setSomethingChanged(true);
+                    chartDataRow.setSelectedCharts(list);
+                    chartDataRow.setColor(ColorHelper.toRGBCode(Color.BLUE));
+                    chartDataRow.setSomethingChanged(true);
 
-                    Set<ChartDataModel> chartDataModels = new HashSet<>();
-                    chartDataModels.add(chartDataModel);
+                    Set<ChartDataRow> chartDataRows = new HashSet<>();
+                    chartDataRows.add(chartDataRow);
 
-                    ChartSetting chartSetting = new ChartSetting(chartDataModel.getObject().getName());
+                    ChartSetting chartSetting = new ChartSetting(chartDataRow.getObject().getName());
                     chartSetting.setId(0);
                     chartSetting.setChartType(ChartType.AREA);
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
@@ -1163,7 +1181,7 @@ public class GraphPluginView implements Plugin {
                     dataModel.setTemporary(true);
                     dataModel.setCurrentAnalysisNOEVENT(newObject);
                     dataModel.getCharts().setListSettings(chartSettingList);
-                    dataModel.setData(chartDataModels);
+                    dataModel.setData(chartDataRows);
                     dataModel.setAggregationPeriod(analysisRequest.getAggregationPeriod());
                     dataModel.setManipulationMode(analysisRequest.getManipulationMode());
                     dataModel.isGlobalAnalysisTimeFrame(true);
@@ -1220,7 +1238,7 @@ public class GraphPluginView implements Plugin {
                     TableChart chart = (TableChart) cv;
                     TableTopDatePicker tableTopDatePicker = chart.getTableTopDatePicker();
                     ComboBox<DateTime> datePicker = tableTopDatePicker.getDatePicker();
-                    ChartDataModel singleRow = chart.getSingleRow();
+                    ChartDataRow singleRow = chart.getSingleRow();
                     datePicker.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                         if (datePicker.getSelectionModel().selectedIndexProperty().get() < singleRow.getSamples().size()
                                 && datePicker.getSelectionModel().selectedIndexProperty().get() > -1 && !chart.isBlockDatePickerEvent()) {
@@ -1327,7 +1345,7 @@ public class GraphPluginView implements Plugin {
         List<LogicalChart> subCharts = new ArrayList<>();
         VBox vboxSubs = new VBox();
 
-        for (ChartDataModel singleRow : dataModel.getSelectedData()) {
+        for (ChartDataRow singleRow : dataModel.getSelectedData()) {
             for (int i : singleRow.getSelectedcharts()) {
                 if (i == chartSetting.getId()) {
                     Chart subView = getChart(chartSetting, Collections.singletonList(singleRow));
@@ -1338,7 +1356,7 @@ public class GraphPluginView implements Plugin {
         }
         AlphanumComparator ac = new AlphanumComparator();
 
-        subCharts.sort((o1, o2) -> ac.compare(o1.getChartDataModels().get(0).getTitle(), o2.getChartDataModels().get(0).getTitle()));
+        subCharts.sort((o1, o2) -> ac.compare(o1.getChartDataRows().get(0).getTitle(), o2.getChartDataRows().get(0).getTitle()));
         subCharts.forEach(subChart -> vboxSubs.getChildren().add(subChart.getChart()));
 
         ObservableList<TableEntry> allEntries = FXCollections.observableArrayList();
@@ -1351,8 +1369,8 @@ public class GraphPluginView implements Plugin {
             }
             allEntries.addAll(logicalChart.getTableData());
 
-            logicalChart.getChartDataModels().get(0).setColor(ColorHelper.toRGBCode(ColorColumn.color_list[subCharts.indexOf(logicalChart)]));
-            logicalChart.getChartDataModels().get(0).calcMinAndMax();
+            logicalChart.getChartDataRows().get(0).setColor(ColorHelper.toRGBCode(ColorColumn.color_list[subCharts.indexOf(logicalChart)]));
+            logicalChart.getChartDataRows().get(0).calcMinAndMax();
             double min = logicalChart.getMinValue();
             double max = logicalChart.getMaxValue();
             minValue = Math.min(minValue, min);

@@ -6,22 +6,18 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYLogicalChartSerie;
-import org.jevis.jeconfig.application.Chart.ChartSetting;
-import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-
-import java.util.List;
 
 public class LogicalChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(LogicalChart.class);
 
-    public LogicalChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
-        super(analysisDataModel, chartDataModels, chartSetting);
+    public LogicalChart() {
+        super();
     }
 
     @Override
-    public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataModel singleRow) throws JEVisException {
+    public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
         XYLogicalChartSerie serie = new XYLogicalChartSerie(singleRow, showIcons);
         setMinValue(Math.min(minValue, serie.getMinValue()));
         setMaxValue(Math.max(maxValue, serie.getMaxValue()));

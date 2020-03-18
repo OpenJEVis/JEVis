@@ -12,7 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
@@ -80,7 +80,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
     @Override
     public void setGraphDataModel(AnalysisDataModel analysisDataModel) {
         this.data = analysisDataModel;
-        for (ChartDataModel model : data.getSelectedData()) {
+        for (ChartDataRow model : data.getSelectedData()) {
             if (!this.usedColors.contains(model.getColor())) this.usedColors.add(ColorHelper.toColor(model.getColor()));
         }
         update();
@@ -92,7 +92,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
         column.setPrefWidth(80);
         column.setId(COLUMN_ID);
         column.setCellValueFactory(param -> {
-            ChartDataModel data = getData(param.getValue().getValue());
+            ChartDataRow data = getData(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(ColorHelper.toColor(data.getColor()));
         });
 
@@ -106,7 +106,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
                     @Override
                     public void commitEdit(Color newValue) {
                         super.commitEdit(newValue);
-                        ChartDataModel data1 = getData(getTreeTableRow().getItem());
+                        ChartDataRow data1 = getData(getTreeTableRow().getItem());
                         data1.setColor(ColorHelper.toRGBCode(newValue));
                         if (!usedColors.contains(newValue)) usedColors.add(newValue);
                     }
@@ -125,7 +125,7 @@ public class ColorColumn extends TreeTableColumn<JEVisTreeRow, Color> implements
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel currentDataModel = getData(getTreeTableRow().getItem());
+                                    ChartDataRow currentDataModel = getData(getTreeTableRow().getItem());
 
                                     ColorPickerAdv colorPicker = new ColorPickerAdv();
 

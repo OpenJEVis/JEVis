@@ -3,7 +3,6 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
@@ -112,7 +111,9 @@ public class ChartWidget extends Widget {
                 chartSetting.setChartType(ChartType.LINE);
                 model.getCharts().setListSettings(Collections.singletonList(chartSetting));
                 this.borderPane.setCenter(null);
-                this.lineChart = new LineChart(model, this.sampleHandler.getDataModel(), chartSetting);
+                this.lineChart = new LineChart();
+                this.lineChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting);
+
                 Size configSize = getConfig().getSize();
                 lineChart.getChart().setPrefSize(configSize.getWidth(), configSize.getHeight() - 20);
                 lineChart.getChart().setMaxHeight(configSize.getHeight() - 20);/** workaround for the legend overlap **/

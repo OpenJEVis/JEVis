@@ -12,7 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -22,14 +22,14 @@ import java.util.List;
 public class TableTopDatePicker extends HBox {
 
 
-    private final ChartDataModel chartDataModel;
+    private final ChartDataRow chartDataRow;
     private ImageView leftImage;
     private ImageView rightImage;
     private ComboBox<DateTime> selectionBox;
 
-    public TableTopDatePicker(ChartDataModel chartDataModel) {
+    public TableTopDatePicker(ChartDataRow chartDataRow) {
         super();
-        this.chartDataModel = chartDataModel;
+        this.chartDataRow = chartDataRow;
     }
 
     public void initialize(DateTime date) {
@@ -37,7 +37,7 @@ public class TableTopDatePicker extends HBox {
         LocalDate ld = LocalDate.of(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth());
 
         List<DateTime> dates = new ArrayList<>();
-        chartDataModel.getSamples().forEach(jeVisSample -> {
+        chartDataRow.getSamples().forEach(jeVisSample -> {
             try {
                 dates.add(jeVisSample.getTimestamp());
             } catch (JEVisException e) {

@@ -17,7 +17,7 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.charts.ToolBarView;
 import org.joda.time.DateTime;
 
@@ -207,7 +207,7 @@ public class SaveAnalysisDialog {
                 });
     }
 
-    private void saveDataModel(JEVisObject analysis, Set<ChartDataModel> selectedData, ChartSettings chartSettings) {
+    private void saveDataModel(JEVisObject analysis, Set<ChartDataRow> selectedData, ChartSettings chartSettings) {
         try {
             JEVisAttribute dataModel = analysis.getAttribute("Data Model");
             JEVisAttribute charts = analysis.getAttribute("Charts");
@@ -223,7 +223,7 @@ public class SaveAnalysisDialog {
 
             JsonChartDataModel jsonChartDataModel = new JsonChartDataModel();
             List<JsonAnalysisDataRow> jsonDataModels = new ArrayList<>();
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (!mdl.getSelectedcharts().isEmpty()) {
                     JsonAnalysisDataRow json = new JsonAnalysisDataRow();
                     json.setName(mdl.getTitle());

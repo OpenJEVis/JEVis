@@ -9,7 +9,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 
@@ -19,7 +19,7 @@ import java.util.TreeMap;
 public class TableSerie extends XYChartSerie {
     private static final Logger logger = LogManager.getLogger(TableSerie.class);
 
-    public TableSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
+    public TableSerie(ChartDataRow singleRow, Boolean hideShowIcons) throws JEVisException {
         super(singleRow, hideShowIcons, false);
     }
 
@@ -101,11 +101,11 @@ public class TableSerie extends XYChartSerie {
         this.timeStampFromLastSample = timeStampFromLastSample;
     }
 
-    public ChartDataModel getSingleRow() {
+    public ChartDataRow getSingleRow() {
         return singleRow;
     }
 
-    public void setSingleRow(ChartDataModel singleRow) {
+    public void setSingleRow(ChartDataRow singleRow) {
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
     }

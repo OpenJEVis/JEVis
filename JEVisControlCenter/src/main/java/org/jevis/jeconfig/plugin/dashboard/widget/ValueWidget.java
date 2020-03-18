@@ -20,7 +20,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
@@ -101,7 +101,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
             this.sampleHandler.setAutoAggregation(true);
             this.sampleHandler.update();
             if (!this.sampleHandler.getDataModel().isEmpty()) {
-                ChartDataModel dataModel = this.sampleHandler.getDataModel().get(0);
+                ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
                 List<JEVisSample> results;
 
                 String unit = dataModel.getUnitLabel();

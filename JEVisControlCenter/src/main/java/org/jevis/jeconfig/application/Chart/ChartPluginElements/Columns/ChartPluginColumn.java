@@ -9,7 +9,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 
@@ -24,12 +24,12 @@ public interface ChartPluginColumn {
 
     Tooltip tooltipMarkAll = new Tooltip(I18n.getInstance().getString("plugin.graph.dialog.changesettings.tooltip.forall"));
 
-    default ChartDataModel getData(JEVisTreeRow row) {
+    default ChartDataRow getData(JEVisTreeRow row) {
         Long id = Long.parseLong(row.getID());
         if (getData() != null && getData().getSelectedData() != null && getData().containsId(id)) {
             return getData().get(id);
         } else {
-            ChartDataModel newData = new ChartDataModel(getDataSource());
+            ChartDataRow newData = new ChartDataRow(getDataSource());
             newData.setObject(row.getJEVisObject());
             try {
                 List<JEVisObject> children = row.getJEVisObject().getChildren();
