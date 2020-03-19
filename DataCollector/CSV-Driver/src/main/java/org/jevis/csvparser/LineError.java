@@ -28,11 +28,11 @@ package org.jevis.csvparser;
 public class LineError {
 
     private int line = -1;
-    private int column = -1;
+    private Integer column = -1;
     private Throwable error;
     private String message = "";
 
-    public LineError(int line, int column, Throwable error, String message) {
+    public LineError(int line, Integer column, Throwable error, String message) {
         this.line = line;
         this.column = column;
         this.error = error;

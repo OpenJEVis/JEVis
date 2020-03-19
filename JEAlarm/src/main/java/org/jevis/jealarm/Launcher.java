@@ -30,6 +30,7 @@ public class Launcher extends AbstractCliApp {
     public static String KEY = "process-id";
     private final String APP_SERVICE_CLASS_NAME = "JEAlarm";
     private final Command commands = new Command();
+    private boolean firstRun = true;
 
     private Launcher(String[] args, String appname) {
         super(args, appname);
@@ -117,13 +118,15 @@ public class Launcher extends AbstractCliApp {
         List<AlarmConfiguration> enabledAlarmConfigurations = new ArrayList<>();
 
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            try {
-                ds.clearCache();
-                ds.preload();
-                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-            } catch (JEVisException e) {
-                logger.error(e);
-            }
+            if (!firstRun) {
+                try {
+                    ds.clearCache();
+                    ds.preload();
+                    getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+                } catch (JEVisException e) {
+                    logger.error(e);
+                }
+            } else firstRun = false;
 
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                 try {

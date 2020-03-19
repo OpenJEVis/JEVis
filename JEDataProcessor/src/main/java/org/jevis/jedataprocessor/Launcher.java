@@ -34,6 +34,7 @@ public class Launcher extends AbstractCliApp {
     private final String APP_SERVICE_CLASS_NAME = "JEDataProcessor";
     private final Command commands = new Command();
     private int processingSize = 10000;
+    private boolean firstRun = true;
 
     private Launcher(String[] args, String appname) {
         super(args, appname);
@@ -118,12 +119,14 @@ public class Launcher extends AbstractCliApp {
         List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
 
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            try {
-                ds.clearCache();
-                ds.preload();
-            } catch (JEVisException e) {
-                logger.error("Could not preload.");
-            }
+            if (!firstRun) {
+                try {
+                    ds.clearCache();
+                    ds.preload();
+                } catch (JEVisException e) {
+                    logger.error("Could not preload.");
+                }
+            } else firstRun = false;
 
             getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
             this.processingSize = getProcessingSizeFromService(APP_SERVICE_CLASS_NAME);

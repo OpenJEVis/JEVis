@@ -34,6 +34,7 @@ public class ReportLauncher extends AbstractCliApp {
     private static final String APP_INFO = "JEReport";
     private final String APP_SERVICE_CLASS_NAME = "JEReport";
     private final Command commands = new Command();
+    private boolean firstRun = true;
 
     public ReportLauncher(String[] args, String appname) {
         super(args, appname);
@@ -150,15 +151,17 @@ public class ReportLauncher extends AbstractCliApp {
     protected void runServiceHelp() {
 
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            try {
-                ds.clearCache();
-                ds.preload();
-                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-            } catch (JEVisException e) {
-            }
+            if (!firstRun) {
+                try {
+                    ds.clearCache();
+                    ds.preload();
+                } catch (JEVisException e) {
+                }
+            } else firstRun = false;
+
+            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
 
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-
 
                 List<JEVisObject> reports = getEnabledReports();
                 executeReports(reports);

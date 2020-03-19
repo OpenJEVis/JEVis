@@ -35,6 +35,7 @@ public class Launcher extends AbstractCliApp {
     public static String KEY = "process-id";
     private static final Logger logger = LogManager.getLogger(Launcher.class);
     private final Command commands = new Command();
+    private boolean firstRun = true;
 
 
     /**
@@ -174,12 +175,14 @@ public class Launcher extends AbstractCliApp {
     protected void runSingle(Long id) {
         logger.info("Start Single Mode");
 
-        try {
-            ds.clearCache();
-            ds.preload();
-        } catch (JEVisException e) {
-            logger.error(e);
-        }
+        if (!firstRun) {
+            try {
+                ds.clearCache();
+                ds.preload();
+            } catch (JEVisException e) {
+                logger.error(e);
+            }
+        } else firstRun = false;
 
         try {
             logger.info("Try adding Single Mode for ID " + id);
@@ -197,13 +200,16 @@ public class Launcher extends AbstractCliApp {
     protected void runServiceHelp() {
 
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            try {
-                ds.clearCache();
-                ds.preload();
-                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-            } catch (JEVisException e) {
-                logger.error(e);
-            }
+
+            if (!firstRun) {
+                try {
+                    ds.clearCache();
+                    ds.preload();
+                    getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+                } catch (JEVisException e) {
+                    logger.error(e);
+                }
+            } else firstRun = false;
 
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                 logger.info("Service is enabled.");
