@@ -203,9 +203,10 @@ public class JEVisCSVParser implements Parser {
                     logger.info("DataPoint target error: " + ex.getMessage());
 //                    ex.printStackTrace();
                 }
-                String valueString = DatabaseHelper.getObjectAsString(dp, valueIdentifierType);
+                String valueString = null;
                 Integer valueIndex = null;
                 try {
+                    valueString = DatabaseHelper.getObjectAsString(dp, valueIdentifierType);
                     valueIndex = Integer.parseInt(Objects.requireNonNull(valueString));
                     valueIndex--;
                 } catch (Exception ex) {

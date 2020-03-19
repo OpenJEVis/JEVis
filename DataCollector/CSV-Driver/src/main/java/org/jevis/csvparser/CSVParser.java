@@ -51,8 +51,8 @@ public class CSVParser {
     private Integer _dpIndex;
     private String _dateFormat;
     private String _timeFormat;
-    private String _decimalSeperator;
-    private String _thousandSeperator;
+    private String _decimalSeparator;
+    private String _thousandSeparator;
     private Integer _currLineIndex;
     private Charset charset;
 
@@ -145,7 +145,7 @@ public class CSVParser {
                         }
                     }
 
-                    if (mappingIdentifier != null && !currentMappingValue.equals(mappingIdentifier)) {
+                    if (mappingIdentifier != null && currentMappingValue != null && !mappingIdentifier.equals(currentMappingValue)) {
                         mappingError = true;
                         _report.addError(new LineError(_currLineIndex, valueIndex, null, "Mapping Error"));
                         continue;
@@ -168,10 +168,10 @@ public class CSVParser {
 //                }
 
                 //todo bind locale to language or location?? ad thousands separator without regex
-                if (_decimalSeperator == null || _decimalSeperator.equals(",")) {
+                if (_decimalSeparator == null || _decimalSeparator.equals(",")) {
                     NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
                     value = nf_in.parse(sVal).doubleValue();
-                } else if (_decimalSeperator.equals(".")) {
+                } else if (_decimalSeparator.equals(".")) {
                     NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
                     value = nf_out.parse(sVal).doubleValue();
                 }
@@ -325,11 +325,11 @@ public class CSVParser {
     }
 
     public void setDecimalSeperator(String _decimalSeperator) {
-        this._decimalSeperator = _decimalSeperator;
+        this._decimalSeparator = _decimalSeperator;
     }
 
     public void setThousandSeperator(String _thousandSeperator) {
-        this._thousandSeperator = _thousandSeperator;
+        this._thousandSeparator = _thousandSeperator;
     }
 
     public void setDataPoints(List<DataPoint> _dataPoints) {

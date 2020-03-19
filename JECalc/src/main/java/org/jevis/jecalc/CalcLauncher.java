@@ -30,6 +30,7 @@ public class CalcLauncher extends AbstractCliApp {
     private final Command commands = new Command();
     private static final String APP_INFO = "JECalc";
     private final String APP_SERVICE_CLASS_NAME = "JECalc";
+    private boolean firstRun = true;
 
     public CalcLauncher(String[] args, String appname) {
         super(args, appname);
@@ -47,13 +48,16 @@ public class CalcLauncher extends AbstractCliApp {
     @Override
     protected void runServiceHelp() {
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            try {
-                ds.clearCache();
-                ds.preload();
-                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-            } catch (JEVisException e) {
-                logger.error(e);
-            }
+            if (!firstRun) {
+                try {
+                    ds.clearCache();
+                    ds.preload();
+                } catch (JEVisException e) {
+                    logger.error(e);
+                }
+            } else firstRun = false;
+
+            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
 
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                 logger.info("Service is enabled.");

@@ -53,6 +53,7 @@ public class Launcher extends AbstractCliApp {
     private Long latestReported;
     private String emergencyConfig = "";
     private JEVisObject serviceObject;
+    private boolean firstRun = true;
 
     public Launcher(String[] args, String appname) {
         super(args, appname);
@@ -99,14 +100,17 @@ public class Launcher extends AbstractCliApp {
         }
 
         if (isActive() && isReady(serviceObject)) {
-            try {
-                ds.clearCache();
-                ds.preload();
-                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-                getTimeConstraints();
-            } catch (JEVisException e) {
-                logger.error(e);
-            }
+            if (!firstRun) {
+                try {
+                    ds.clearCache();
+                    ds.preload();
+                } catch (JEVisException e) {
+                    logger.error(e);
+                }
+            } else firstRun = false;
+
+            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+            getTimeConstraints();
 
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                 logger.info("Service is enabled.");
