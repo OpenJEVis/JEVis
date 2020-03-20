@@ -13,6 +13,11 @@
       "type": 0
     },
     {
+      "start": "DWD HDD Parser",
+      "end": "Parser",
+      "type": 0
+    },
+    {
       "start": "SQL Parser",
       "end": "Parser",
       "type": 0

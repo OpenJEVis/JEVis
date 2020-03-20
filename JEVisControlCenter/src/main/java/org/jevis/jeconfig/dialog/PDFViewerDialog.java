@@ -1,19 +1,18 @@
 package org.jevis.jeconfig.dialog;
 
-import javafx.application.Platform;
+import com.google.common.util.concurrent.AtomicDouble;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
 import javafx.stage.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,26 +22,21 @@ import org.jevis.api.JEVisFile;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.resource.PDFModel;
 
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
 
 public class PDFViewerDialog {
     private static final Logger logger = LogManager.getLogger(PDFViewerDialog.class);
     private final int iconSize = 32;
     private Stage stage;
-    private WebView web = new WebView();
-    private WebEngine engine = web.getEngine();
+    private AtomicDouble zoomFactor = new AtomicDouble(1);
 
     public PDFViewerDialog() {
 
-        this.engine.setUserStyleSheetLocation(JEConfig.class.getResource("/web/web.css").toExternalForm());
-
-        this.engine.setJavaScriptEnabled(true);
-        this.engine.load(JEConfig.class.getResource("/web/viewer.html").toExternalForm());
     }
 
     public void show(JEVisFile file, Window owner) {
@@ -124,14 +118,38 @@ public class PDFViewerDialog {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         bp.setTop(headerBox);
-        bp.setCenter(web);
+        Pagination pagination = new Pagination();
+        bp.setCenter(new ScrollPane(pagination));
+        bp.widthProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.doubleValue() != oldValue.doubleValue()) {
+                pagination.setPrefWidth(newValue.doubleValue());
+            }
+        });
 
         Scene scene = new Scene(bp);
         stage.setScene(scene);
 
         byte[] bytes = file.getBytes();
-        String base64 = Base64.getEncoder().encodeToString(bytes);
-        Platform.runLater(() -> engine.executeScript("openFileFromBase64('" + base64 + "')"));
+        PDFModel model = new PDFModel(bytes);
+        pagination.setPageCount(model.numPages());
+        pagination.setPageFactory(index -> (model.getImage(index, 1)));
+
+        pagination.setOnScroll(new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent event) {
+                if (event.isControlDown()) {
+                    double deltaY = event.getDeltaY();
+
+                    if (deltaY < 0) {
+                        zoomFactor.set(zoomFactor.get() - 0.05);
+                    } else {
+                        zoomFactor.set(zoomFactor.get() + 0.05);
+                    }
+                    pagination.setPageFactory(index -> new Group(model.getImage(index, zoomFactor.get())));
+                    event.consume();
+                }
+            }
+        });
 
         stage.showAndWait();
     }

@@ -1,24 +1,26 @@
 package org.jevis.jeconfig.plugin.reports;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -34,6 +36,7 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.application.resource.PDFModel;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -42,7 +45,10 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ReportPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(ReportPlugin.class);
@@ -56,14 +62,15 @@ public class ReportPlugin implements Plugin {
     private final ToolBar toolBar = new ToolBar();
     private boolean initialized = false;
     private ListView<JEVisObject> listView = new ListView<>();
-    private WebView web = new WebView();
+    Pagination pagination = new Pagination();
     private ComboBox<DateTime> dateTimeComboBox;
     private List<JEVisObject> disabledItemList;
-    private WebEngine engine = web.getEngine();
     private HBox hBox = new HBox();
     private TextField filterInput = new TextField();
     private final int iconSize = 20;
     private boolean multipleDirectories;
+    private PDFModel model = new PDFModel();
+    private AtomicDouble zoomFactor = new AtomicDouble(1);
 
     public ReportPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -73,9 +80,33 @@ public class ReportPlugin implements Plugin {
         this.hBox.setSpacing(4);
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
-        BorderPane view = new BorderPane();
-        view.setTop(hBox);
-        view.setCenter(web);
+        ScrollPane scrollPane = new ScrollPane(pagination);
+        VBox view = new VBox(hBox, scrollPane);
+        view.setFillWidth(true);
+        VBox.setVgrow(hBox, Priority.NEVER);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        view.widthProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.doubleValue() != oldValue.doubleValue()) {
+                pagination.setPrefWidth(newValue.doubleValue());
+            }
+        });
+
+        pagination.setOnScroll(new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent event) {
+                if (event.isControlDown()) {
+                    double deltaY = event.getDeltaY();
+
+                    if (deltaY < 0) {
+                        zoomFactor.set(zoomFactor.get() - 0.05);
+                    } else {
+                        zoomFactor.set(zoomFactor.get() + 0.05);
+                    }
+                    pagination.setPageFactory(index -> new Group(model.getImage(index, zoomFactor.get())));
+                    event.consume();
+                }
+            }
+        });
 
         SplitPane sp = new SplitPane();
         sp.setOrientation(Orientation.HORIZONTAL);
@@ -94,13 +125,6 @@ public class ReportPlugin implements Plugin {
 
         this.objectRelations = new ObjectRelations(ds);
 
-        String url = JEConfig.class.getResource("/web/viewer.html").toExternalForm();
-
-        // connect CSS styles to customize pdf.js appearance
-        this.engine.setUserStyleSheetLocation(JEConfig.class.getResource("/web/web.css").toExternalForm());
-
-        this.engine.setJavaScriptEnabled(true);
-        this.engine.load(url);
     }
 
     private void initToolBar() {
@@ -464,29 +488,25 @@ public class ReportPlugin implements Plugin {
                     if (!newValue.equals(oldValue)) {
                         try {
                             byte[] bytes = sampleMap.get(newValue).getValueAsFile().getBytes();
-                            String base64 = Base64.getEncoder().encodeToString(bytes);
-                            engine.executeScript("openFileFromBase64('" + base64 + "')");
+                            model.setBytes(bytes);
+                            pagination.setPageCount(model.numPages());
+                            zoomFactor.set(0.3);
+                            pagination.setPageFactory(index -> new Group(model.getImage(index, zoomFactor.get())));
                         } catch (Exception e) {
                             logger.error("Could not load report for {}:{} for ts {}", reportObject.getName(), reportObject.getID(), newValue.toString(), e);
                         }
                     }
                 });
 
-//                engine.getLoadWorker()
-//                        .stateProperty()
-//                        .addListener((observable, oldValue, newValue) -> {
-//                            if (newValue == Worker.State.SUCCEEDED) {
                 try {
-
                     byte[] bytes = sampleMap.get(lastSample.getTimestamp()).getValueAsFile().getBytes();
-                    String base64 = Base64.getEncoder().encodeToString(bytes);
-                    // call JS function from Java code
-                    engine.executeScript("openFileFromBase64('" + base64 + "')");
+                    model.setBytes(bytes);
+                    pagination.setPageCount(model.numPages());
+                    zoomFactor.set(0.3);
+                    pagination.setPageFactory(index -> new Group(model.getImage(index, zoomFactor.get())));
                 } catch (Exception e) {
                     logger.error("Could not load latest report for {}:{}", reportObject.getName(), reportObject.getID(), e);
                 }
-//                            }
-//                        });
             }
         }
     }
