@@ -51,7 +51,28 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.20------\n" +
+            "------Version 3.9.21------\n" +
+                    "\n" +
+                    "JECC - Charts - Logical chart fixed errors with new data model\n" +
+                    "JECC - BarChartSerie, ColumnChartSerie, TableSerie, XYChartSerie - fixed status bar messaging\n" +
+                    "JECC - HeatMapChart - added logging for better debugging\n" +
+                    "JECC - Charts - improved data model logic \n" +
+                    "JECC - Charts - new model logic for xy charts\n" +
+                    "\n" +
+                    "JECC - switched to more compatible pdf viewer\n" +
+                    "\n" +
+                    "JEDataCollector - fixed some null pointer in JEVisCSVParser\n" +
+                    "JEDataCollector - prepared for hdd parser\n" +
+                    "JEDataCollector - JEVisCSVParser - fixed some null pointers\n" +
+                    "JEDataCollector - JEVisCSVParser - fixed some strange row/column logic\n" +
+                    "\n" +
+                    "JECommons - changed timezone attribute logic for data importer\n" +
+                    "JECommons - DatabaseHelper - fixed some null pointers\n" +
+                    "\n" +
+                    "Launcher - fixed second preload on run\n" +
+                    "\n" +
+                    "Classes - prepared for hdd parser\n\n" +
+                    "------Version 3.9.20------\n" +
                     "JECC - smaller bugfixes\n" +
                     "JECC - Implemented an taskmanager and support to an central Executor\n" +
                     "JECC - Improved startup time\n" +
@@ -83,8 +104,8 @@ public class PatchNotesPage {
                     "JEAlarm - fixed null pointer in some cases\n" +
                     "JEAlarm - fixed missing scope readout of alarm configurations\n\n" +
                     "JEDataProcessor - Forecast not working with months fixes\n" +
-                    "JEDataProcessor - added missing brake in switch statement\n\n"+
-            "------Version 3.9.19------\n" +
+                    "JEDataProcessor - added missing brake in switch statement\n\n" +
+                    "------Version 3.9.19------\n" +
                     "JECC - AlarmPlugin - Added button to confirm all alarms\n" +
                     "JECC - AlarmPlugin - fixed some threading issues\n" +
                     "JECC - AlarmPlugin - relocated reload button\n" +
