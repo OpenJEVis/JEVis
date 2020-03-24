@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static org.jevis.commons.calculation.CalcInputType.ASYNC;
 import static org.jevis.commons.calculation.CalcInputType.PERIODIC;
 
 /**
@@ -299,7 +300,7 @@ public class CalcJobFactory {
                 JEVisAttribute attribute = child.getAttribute(Calculation.INPUT_TYPE.getName());
                 String inputTypeString = attribute.getLatestSample().getValueAsString();
                 CalcInputType inputType = CalcInputType.valueOf(inputTypeString);
-                if (inputType.equals(PERIODIC)) {
+                if (inputType.equals(PERIODIC) || inputType.equals(ASYNC)) {
                     JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
                     TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                     JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);

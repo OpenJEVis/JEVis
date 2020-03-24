@@ -88,6 +88,7 @@ public class CalcInputObject {
         }
 
         switch (inputType) {
+            case ASYNC:
             case PERIODIC:
                 //todo try to make it better for incomplete periods (aggregation)
                 returnSamples = valueAttribute.getSamples(startTime, endTime);
@@ -144,6 +145,7 @@ public class CalcInputObject {
             logger.error("Could not reload attribute. ", e);
         }
         switch (inputType) {
+            case ASYNC:
             case PERIODIC:
                 try {
 
@@ -179,6 +181,7 @@ public class CalcInputObject {
             logger.error("Could not reload attribute. ", e);
         }
         switch (inputType) {
+            case ASYNC:
             case PERIODIC:
                 try {
 
