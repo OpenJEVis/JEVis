@@ -16,8 +16,9 @@ public class DatabaseHelper {
 
     public static boolean checkValidStringObject(JEVisObject jevisObject, JEVisType jevisType) throws JEVisException {
         boolean isValid = false;
-        if (jevisObject.getAttribute(jevisType).hasSample()) {
-            JEVisSample latestSample = jevisObject.getAttribute(jevisType).getLatestSample();
+        JEVisAttribute attribute = jevisObject.getAttribute(jevisType);
+        if (attribute != null && attribute.hasSample()) {
+            JEVisSample latestSample = attribute.getLatestSample();
             if (latestSample != null) {
                 if (latestSample.getValueAsString() != null
                         && !latestSample.getValueAsString().equals("")) {
@@ -30,8 +31,15 @@ public class DatabaseHelper {
 
     private static boolean checkValidFileObject(JEVisObject jevisObject, JEVisType jevisType) throws JEVisException {
         boolean isValid = false;
-        if (jevisObject.getAttribute(jevisType).hasSample() && jevisObject.getAttribute(jevisType).getLatestSample() != null && jevisObject.getAttribute(jevisType).getLatestSample().getValueAsFile() instanceof JEVisFile) {
-            isValid = true;
+        JEVisAttribute attribute = jevisObject.getAttribute(jevisType);
+        if (attribute != null && attribute.hasSample()) {
+            JEVisSample latestSample = attribute.getLatestSample();
+            if (latestSample != null) {
+                if (latestSample.getValueAsString() != null
+                        && attribute.getLatestSample().getValueAsFile() != null) {
+                    isValid = true;
+                }
+            }
         }
         return isValid;
     }
@@ -39,8 +47,14 @@ public class DatabaseHelper {
     private static boolean checkValidSelectionObject(JEVisObject jevisObject, JEVisType jevisType) throws
             JEVisException {
         boolean isValid = false;
-        if (jevisObject.getAttribute(jevisType).hasSample() && jevisObject.getAttribute(jevisType).getLatestSample() != null && jevisObject.getAttribute(jevisType).getLatestSample().getValueAsFile() instanceof JEVisSelection) {
-            isValid = true;
+        JEVisAttribute attribute = jevisObject.getAttribute(jevisType);
+        if (attribute != null && attribute.hasSample()) {
+            JEVisSample latestSample = attribute.getLatestSample();
+            if (latestSample != null) {
+                if (latestSample.getValueAsString() != null && attribute.getLatestSample().getValueAsFile() instanceof JEVisSelection) {
+                    isValid = true;
+                }
+            }
         }
         return isValid;
     }
@@ -48,8 +62,16 @@ public class DatabaseHelper {
     public static boolean checkValidNumberObject(JEVisObject jevisObject, JEVisType jevisType) throws
             JEVisException {
         boolean isValid = false;
-        if (jevisObject.getAttribute(jevisType).hasSample() && jevisObject.getAttribute(jevisType).getLatestSample() != null && !jevisObject.getAttribute(jevisType).getLatestSample().getValueAsString().equals("") && jevisObject.getAttribute(jevisType).getLatestSample().getValueAsLong() instanceof Long) {
-            isValid = true;
+        JEVisAttribute attribute = jevisObject.getAttribute(jevisType);
+        if (attribute != null && attribute.hasSample()) {
+            JEVisSample latestSample = attribute.getLatestSample();
+            if (latestSample != null) {
+                if (latestSample.getValueAsString() != null
+                        && !attribute.getLatestSample().getValueAsString().equals("")
+                        && attribute.getLatestSample().getValueAsLong() != null) {
+                    isValid = true;
+                }
+            }
         }
         return isValid;
     }
@@ -57,8 +79,15 @@ public class DatabaseHelper {
     public static boolean checkValidBooleanObject(JEVisObject jevisObject, JEVisType jevisType) throws
             JEVisException {
         boolean isValid = false;
-        if (jevisObject.getAttribute(jevisType).hasSample() && jevisObject.getAttribute(jevisType).getLatestSample() != null) {
-            isValid = true;
+        JEVisAttribute attribute = jevisObject.getAttribute(jevisType);
+        if (attribute != null && attribute.hasSample()) {
+            JEVisSample latestSample = attribute.getLatestSample();
+            if (latestSample != null) {
+                if (latestSample.getValueAsString() != null &&
+                        latestSample.getValueAsBoolean() != null) {
+                    isValid = true;
+                }
+            }
         }
         return isValid;
     }

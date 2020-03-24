@@ -193,10 +193,10 @@ public class FTPDataSource implements DataSource {
             JEVisType userType = ftpType.getType(DataCollectorTypes.DataSource.DataServer.FTP.USER);
             JEVisType passwordType = ftpType.getType(DataCollectorTypes.DataSource.DataServer.FTP.PASSWORD);
             JEVisType timezoneType = ftpType.getType(DataCollectorTypes.DataSource.DataServer.FTP.TIMEZONE);
-            JEVisType enableType = ftpType.getType(DataCollectorTypes.DataSource.DataServer.ENABLE);
+//            JEVisType enableType = ftpType.getType(DataCollectorTypes.DataSource.DataServer.ENABLE);
 
-            String _name = ftpObject.getName();
-            Long _id = ftpObject.getID();
+//            String _name = ftpObject.getName();
+//            Long _id = ftpObject.getID();
             _ssl = DatabaseHelper.getObjectAsBoolean(ftpObject, sslType);
             _serverURL = DatabaseHelper.getObjectAsString(ftpObject, serverType);
             _port = DatabaseHelper.getObjectAsInteger(ftpObject, portType);
@@ -207,14 +207,14 @@ public class FTPDataSource implements DataSource {
             _readTimeout = DatabaseHelper.getObjectAsInteger(ftpObject, readTimeoutType);
 
             JEVisAttribute userAttr = ftpObject.getAttribute(userType);
-            if (!userAttr.hasSample()) {
+            if (userAttr == null || !userAttr.hasSample()) {
                 _userName = "";
             } else {
                 _userName = DatabaseHelper.getObjectAsString(ftpObject, userType);
             }
 
             JEVisAttribute passAttr = ftpObject.getAttribute(passwordType);
-            if (!passAttr.hasSample()) {
+            if (passAttr == null || !passAttr.hasSample()) {
                 _password = "";
             } else {
                 _password = DatabaseHelper.getObjectAsString(ftpObject, passwordType);
@@ -225,7 +225,7 @@ public class FTPDataSource implements DataSource {
             } else {
                 _timezone = DateTimeZone.UTC;
             }
-            Boolean _enabled = DatabaseHelper.getObjectAsBoolean(ftpObject, enableType);
+//            Boolean _enabled = DatabaseHelper.getObjectAsBoolean(ftpObject, enableType);
 
         } catch (JEVisException ex) {
             logger.error(ex);
