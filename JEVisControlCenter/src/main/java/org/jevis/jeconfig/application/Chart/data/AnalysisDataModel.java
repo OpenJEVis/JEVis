@@ -131,7 +131,7 @@ public class AnalysisDataModel {
                 if (getCurrentAnalysis() != null && !getTemporary()) {
                     selectedData = new HashSet<>();
                     charts = new ChartSettings();
-                    getSelectedData();
+                    updateSelectedData();
                 } else if (getTemporary()) {
                     setGlobalAnalysisTimeFrame(getSelectedData());
                 }

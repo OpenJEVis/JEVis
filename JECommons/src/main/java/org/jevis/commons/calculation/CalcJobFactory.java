@@ -136,7 +136,7 @@ public class CalcJobFactory {
         DateTime startTime;
         if (lastEndTime == null) {
             startTime = getStartTimeFromOutputs(ds, outputAttributes, getCalcInputObjects(jevisObject));
-            if (outputAttributes.size() == 1) {
+            if (outputAttributes.size() == 1 && !startTime.equals(new DateTime(0))) {
                 startTime = startTime.minus(outputAttributes.get(0).getInputSampleRate());
             }
 
