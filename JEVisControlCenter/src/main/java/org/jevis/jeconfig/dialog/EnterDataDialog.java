@@ -5,33 +5,32 @@ import com.jfoenix.controls.JFXPopup;
 import com.jfoenix.controls.JFXTimePicker;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
-import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.layout.*;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.paint.Color;
-import javafx.scene.transform.Scale;
-import javafx.stage.*;
 import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Scale;
+import javafx.stage.Modality;
+import javafx.stage.PopupWindow;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import javafx.util.converter.LocalTimeStringConverter;
-import org.apache.commons.net.pop3.POP3;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -103,7 +102,6 @@ public class EnterDataDialog {
 
         Scene scene = new Scene(gridPane);
 
-        JFXPopup popup = new JFXPopup();
         stage.initStyle(StageStyle.UTILITY);
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(JEConfig.getStage());
@@ -111,11 +109,10 @@ public class EnterDataDialog {
 //        stage.setHeader(DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("plugin.object.dialog.data.header")));
         stage.initOwner(JEConfig.getStage());
         stage.setResizable(true);
-//        stage.setMinHeight(450);
         stage.setMinWidth(1000);
         stage.setScene(scene);
         stage.centerOnScreen();
-        /** new **/
+
         stage.getScene().getRoot().setEffect(new DropShadow());
         stage.getScene().setFill(Color.TRANSPARENT);
 
@@ -133,18 +130,8 @@ public class EnterDataDialog {
         popup.setAutoFix(true);
         popup.setPopupContent(gridPane);
         popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
-        Bounds boundsInScreen = parent.localToScreen(parent.getBoundsInLocal());
 
-        //System.out.println("Stagepos1: " + boundsInScreen);
-       // System.out.println("Stagepos2: " + parent.getBoundsInLocal());
-        //System.out.println("Stagepos3: " + parent.getLayoutX() + "/" + parent.getLayoutY());
-
-        // stage.setX(parent.getLayoutX());
-        // stage.setY(parent.getLayoutY());
         popup.show(parent);
-
-
-
     }
 
     public ObjectProperty<JEVisSample> getNewSampleProperty(){
@@ -156,7 +143,6 @@ public class EnterDataDialog {
     }
 
     public void setTarget(boolean targetEdible, JEVisAttribute target){
-        System.out.println("Set Target: "+targetEdible+" : "+target);
         this.targetEdible=targetEdible;
         this.target=target;
         this.selectedObject=target.getObject();
@@ -181,38 +167,20 @@ public class EnterDataDialog {
 
         unitFieldLastV.textProperty().bind(unitField.textProperty());
 
-
-        double widthInitial = 200;
-        double heightInitial = 200;
-        Region region = new Region();
         ScrollPane extendableSearchPane = new ScrollPane();
         extendableSearchPane.setContent(new TableView<>());
         extendableSearchPane.setMaxHeight(1);
-
-
         extendableSearchPane.getTransforms().addAll(new Scale(0,0));
-        //extendableSearchPane.setMaxHeight(0);
-       // extendableSearchPane.setPrefHeight(0);
-       // ScaleTransition st = new ScaleTransition(Duration.millis(2000), extendableSearchPane);
-       // st.setByX(1);
-        //st.setByY(1);
-
-        Pane pane = new Pane();
-
 
         Rectangle clipRect=  new Rectangle();
         clipRect.setHeight(0);
-        //clipRect.translateYProperty().set(heightInitial);
         Button toggleSamples = new Button("+");
 
 
         DoubleProperty height = new  SimpleDoubleProperty();
         height.addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
-                System.out.println("New height: "+newValue);
                 final Rectangle outputClip = new Rectangle();
-                //outputClip.setArcWidth(1);
-                //outputClip.setArcHeight(1);
                 outputClip.setHeight(newValue.doubleValue());
                 extendableSearchPane.setClip(outputClip);
                 extendableSearchPane.setMinHeight(newValue.doubleValue());
@@ -343,8 +311,6 @@ public class EnterDataDialog {
 
         });
 
-
-        System.out.println("-----------------------targetEdible: "+targetEdible);
         treeButton.setDisable(!targetEdible);
         searchIdField.setDisable(!targetEdible);
         if(selectedObject!=null){
@@ -634,7 +600,6 @@ public class EnterDataDialog {
                 unitString = UnitManager.getInstance().format(displayUnit);
                 if (!unitString.equals("")) {
                     String finalUnitString = unitString;
-                    System.out.println("Unit: "+finalUnitString);
                     Platform.runLater(() -> unitField.setText(finalUnitString));
                 }
             } catch (JEVisException e) {

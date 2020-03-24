@@ -414,13 +414,13 @@ public class LoadAnalysisDialog {
             analysisDataModel.setAggregationPeriod(aggregationBox.getSelectionModel().getSelectedItem());
             analysisDataModel.setManipulationMode(mathBox.getSelectionModel().getSelectedItem());
             AnalysisTimeFrame analysisTimeFrame = presetDateBox.getSelectionModel().getSelectedItem();
-            if (presetDateBox.getSelectionModel().getSelectedItem().equals(TimeFrame.CUSTOM_START_END)) {
+            if (presetDateBox.getSelectionModel().getSelectedItem().getTimeFrame().equals(TimeFrame.CUSTOM_START_END)) {
                 for (CustomPeriodObject cpo : finalListCustomPeriodObjects) {
                     if (finalListCustomPeriodObjects.indexOf(cpo) + 1 == comboBoxCustomPeriods.getSelectionModel().getSelectedIndex()) {
                         analysisTimeFrame.setId(cpo.getObject().getID());
                     }
                 }
-            } else if (presetDateBox.getSelectionModel().getSelectedItem().equals(TimeFrame.CUSTOM)) {
+            } else if (presetDateBox.getSelectionModel().getSelectedItem().getTimeFrame().equals(TimeFrame.CUSTOM)) {
                 DateTime start = new DateTime(pickerDateStart.getValue().getYear(), pickerDateStart.getValue().getMonthValue(), pickerDateStart.getValue().getDayOfMonth(),
                         pickerTimeStart.getValue().getHour(), pickerTimeStart.getValue().getMinute(), pickerTimeStart.getValue().getSecond());
                 DateTime end = new DateTime(pickerDateEnd.getValue().getYear(), pickerDateEnd.getValue().getMonthValue(), pickerDateEnd.getValue().getDayOfMonth(),

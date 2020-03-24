@@ -126,6 +126,37 @@ public class AlarmPlugin implements Plugin {
         }
     };
 
+    public AlarmPlugin(JEVisDataSource ds, String title) {
+        this.ds = ds;
+        this.title = title;
+
+        this.borderPane.setCenter(this.tableView);
+        Label label = new Label(I18n.getInstance().getString("plugin.alarms.noalarms"));
+        label.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+        this.tableView.setPlaceholder(label);
+
+        this.tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
+        this.tableView.setStyle("-fx-background-color: white;");
+
+//        this.tableView.setItems(alarmRows);
+
+        this.numberFormat.setMinimumFractionDigits(2);
+        this.numberFormat.setMaximumFractionDigits(2);
+
+        this.startDatePicker.setPrefWidth(120d);
+        this.endDatePicker.setPrefWidth(120d);
+
+        createColumns();
+
+        this.activeAlarms.addListener((MapChangeListener<? super DateTime, ? super Boolean>) change -> {
+            if (this.activeAlarms.isEmpty()) {
+                this.hasAlarms.set(false);
+            } else {
+                this.hasAlarms.set(true);
+            }
+        });
+    }
+
     public static void autoFitTable(TableView<AlarmRow> tableView) {
 //        tableView.getItems().addListener(new ListChangeListener<Object>() {
 //            @Override
@@ -136,16 +167,11 @@ public class AlarmPlugin implements Plugin {
                     columnToFitMethod.invoke(tableView.getSkin(), column, -1);
                 }
             } catch (Exception e) {
-                logger.error("columnToFitMethod error", e);
+//                logger.error("columnToFitMethod error", e);
             }
         }
 //            }
 //        });
-    }
-
-    public AlarmPlugin(JEVisDataSource ds, String title) {
-        this.ds = ds;
-        this.title = title;
     }
 
     private void restartExecutor() {
@@ -919,7 +945,6 @@ public class AlarmPlugin implements Plugin {
 
         tableView.getItems().clear();
 
-        autoFitTable(tableView);
         List<AlarmConfiguration> alarms = getAllAlarmConfigs();
         JEConfig.getStatusBar().startProgressJob("AlarmConfigs", alarms.size(), I18n.getInstance().getString("plugin.alarms.message.loadingconfigs"));
 
@@ -943,13 +968,9 @@ public class AlarmPlugin implements Plugin {
                         //Platform.runLater(() -> tableView.getItems().sort(Comparator.comparing(AlarmRow::getTimeStamp).reversed()));
                         Platform.runLater(() -> autoFitTable(tableView));
 
-                        /**
-                         * Sort only every 5 rows and at the end. Sorting cost a lot of ram and cpu.
-                         * My test show an 40% lower ram profile for a big dataset.
-                         */
-                        if (tableView.getItems().size() % 5 == 0) {
+                        if (alarms.indexOf(alarmConfiguration) % 5 == 0
+                                || alarms.indexOf(alarmConfiguration) == alarms.size() - 1) {
                             Platform.runLater(() -> tableView.sort());
-//                            Platform.runLater(() -> autoFitTable(tableView));
                         }
 
                         JEConfig.getStatusBar().progressProgressJob(
@@ -1065,31 +1086,6 @@ public class AlarmPlugin implements Plugin {
     @Override
     public void setHasFocus() {
 
-        this.borderPane.setCenter(this.tableView);
-        Label label = new Label(I18n.getInstance().getString("plugin.alarms.noalarms"));
-        label.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        this.tableView.setPlaceholder(label);
-
-        this.tableView.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-        this.tableView.setStyle("-fx-background-color: white;");
-
-//        this.tableView.setItems(alarmRows);
-
-        this.numberFormat.setMinimumFractionDigits(2);
-        this.numberFormat.setMaximumFractionDigits(2);
-
-        this.startDatePicker.setPrefWidth(120d);
-        this.endDatePicker.setPrefWidth(120d);
-
-        createColumns();
-
-        this.activeAlarms.addListener((MapChangeListener<? super DateTime, ? super Boolean>) change -> {
-            if (this.activeAlarms.isEmpty()) {
-                this.hasAlarms.set(false);
-            } else {
-                this.hasAlarms.set(true);
-            }
-        });
 
         this.timeFrameComboBox.getSelectionModel().select(TimeFrame.PREVIEW);
 
