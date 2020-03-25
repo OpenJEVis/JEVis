@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.application.control;
 
 import com.google.common.collect.Lists;
-import com.sun.javafx.scene.control.skin.CustomColorDialog;
-import com.sun.javafx.scene.control.skin.resources.ControlResources;
+//import com.sun.javafx.scene.control.skin.CustomColorDialog;
+//import com.sun.javafx.scene.control.skin.resources.ControlResources;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -77,6 +77,9 @@ public class ColorPickerAdv extends HBox {
         try {
 //            System.out.println("Show color");
 //            System.out.println("this.getScene(): "+this.getScene());
+
+            /** JFX11
+
             if(owner==null){
 //                System.out.println("this.getScene().getWindow(): "+this.getScene().getWindow());
                 owner=this.getScene().getWindow();
@@ -159,6 +162,7 @@ public class ColorPickerAdv extends HBox {
 //            dialog.setTitle("Farbe Cool Picker");
             customColorDialog.show();
             dialog.centerOnScreen();
+             **/
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();

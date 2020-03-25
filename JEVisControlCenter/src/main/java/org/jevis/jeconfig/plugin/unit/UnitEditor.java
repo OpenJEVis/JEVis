@@ -83,22 +83,7 @@ public class UnitEditor {
 
     }
 
-    public void hideImageNodesMatching(Node node, Pattern imageNamePattern, int depth) {
-        if (node instanceof ImageView) {
-            ImageView imageView = (ImageView) node;
-            String url = imageView.getImage().impl_getUrl();
-            if (url != null && imageNamePattern.matcher(url).matches()) {
-                Node button = imageView.getParent().getParent();
-                button.setVisible(false);
-                button.setManaged(false);
-            }
-        }
-        if (node instanceof Parent) {
-            for (Node child : ((Parent) node).getChildrenUnmodifiable()) {
-                hideImageNodesMatching(child, imageNamePattern, depth + 1);
-            }
-        }
-    }
+
 
     public Node getView() {
         return _view;

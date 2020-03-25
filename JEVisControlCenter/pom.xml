@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.9.21</version>
+    <version>4.0</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -65,6 +65,7 @@
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
+            <version>11.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.jxmapviewer</groupId>
@@ -78,12 +79,12 @@
         <dependency>
             <groupId>org.jfxtras</groupId>
             <artifactId>jfxtras-controls</artifactId>
-            <version>8.0-r6</version>
+            <version>10.0-r1</version>
         </dependency>
         <dependency>
             <groupId>de.gsi.chart</groupId>
             <artifactId>chartfx-chart</artifactId>
-            <version>8.1.1</version>
+            <version>11.1.2</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -98,7 +99,7 @@
         <dependency>
             <groupId>com.jfoenix</groupId>
             <artifactId>jfoenix</artifactId>
-            <version>8.0.8</version>
+            <version>9.0.9</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.jeval</groupId>
@@ -201,8 +202,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
 

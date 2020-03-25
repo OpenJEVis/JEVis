@@ -2,10 +2,10 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTimePicker;
-import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;
+import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -72,6 +72,7 @@ public class PickerCombo {
 
         this.dateHelper = new DateHelper();
 
+        /** TODO: JFX11**/
         this.presetDateBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
                 ComboBoxListViewSkin<?> skin = (ComboBoxListViewSkin<?>) this.presetDateBox.getSkin();
@@ -83,6 +84,7 @@ public class PickerCombo {
                 }
             });
         });
+
 
         final String custom = I18n.getInstance().getString("plugin.graph.changedate.buttoncustom");
         final String current = I18n.getInstance().getString("plugin.graph.changedate.buttoncurrent");

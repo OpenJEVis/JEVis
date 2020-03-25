@@ -1,12 +1,12 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
-import com.sun.javafx.scene.control.skin.ColorPickerSkin;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.skin.ColorPickerSkin;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;

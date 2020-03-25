@@ -4,7 +4,7 @@
 
     <groupId>org.jevis.api</groupId>
     <artifactId>jeapi</artifactId>
-    <version>3.1.4</version>
+    <version>4.0</version>
     <packaging>jar</packaging>
 
     <name>JEAPI</name>
@@ -15,6 +15,7 @@
         <additionalparam>-Xdoclint:none</additionalparam>
     </properties>
 
+    <!--
     <repositories>
         <repository>
             <releases>
@@ -33,7 +34,7 @@
             <layout>default</layout>
         </repository>
     </repositories>
-
+-->
     <parent>
         <groupId>org.jevis</groupId>
         <artifactId>JEVisCore</artifactId>

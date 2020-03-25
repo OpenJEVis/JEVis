@@ -1,13 +1,13 @@
 package org.jevis.jeconfig.plugin.charts;
 
 import com.sun.javafx.scene.text.TextLayout;
-import com.sun.javafx.tk.Toolkit;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+import java.awt.*;
 import java.text.Bidi;
 
 import static javafx.scene.control.OverrunStyle.*;
@@ -17,7 +17,11 @@ public class Utils {
     static final double DEFAULT_WRAPPING_WIDTH = helper.getWrappingWidth();
     static final double DEFAULT_LINE_SPACING = helper.getLineSpacing();
     static final String DEFAULT_TEXT = helper.getText();
-    static final TextLayout layout = Toolkit.getToolkit().getTextLayoutFactory().createLayout();
+    static final TextLayout layout = null;
+    /** JFX11 **/
+    //static final TextLayout layout = Toolkit.getToolkit().getTextLayoutFactory().createLayout();
+
+
 
     static String computeClippedText(Font font, String text, double width,
                                      OverrunStyle type, String ellipsisString) {
@@ -220,7 +224,8 @@ public class Utils {
     }
 
     static double computeTextWidth(Font font, String text, double wrappingWidth) {
-        layout.setContent(text != null ? text : "", font.impl_getNativeFont());
+        /** JFX11 **/
+        //layout.setContent(text != null ? text : "", font.impl_getNativeFont());
         layout.setWrapWidth((float) wrappingWidth);
         return layout.getBounds().getWidth();
     }
@@ -235,7 +240,9 @@ public class Utils {
         // clear what causes the small discrepancies.
         Bounds bounds = helper.getLayoutBounds();
         Point2D endPoint = new Point2D(width - 2, bounds.getMinY() + bounds.getHeight() / 2);
-        final int index = helper.impl_hitTestChar(endPoint).getCharIndex();
+        /** JFX11 **/
+        int index =0;
+        //final int index = helper.impl_hitTestChar(endPoint).getCharIndex();
         // RESTORE STATE
         helper.setWrappingWidth(DEFAULT_WRAPPING_WIDTH);
         helper.setLineSpacing(DEFAULT_LINE_SPACING);
