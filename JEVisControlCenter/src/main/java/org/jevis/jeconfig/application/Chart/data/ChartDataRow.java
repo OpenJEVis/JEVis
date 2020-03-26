@@ -629,7 +629,7 @@ public class ChartDataRow {
     }
 
     public boolean isSelectable() {
-        return getAttribute() != null && getAttribute().hasSample();
+        return getAttribute() != null;
     }
 
     public boolean hasForecastData() {

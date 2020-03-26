@@ -290,9 +290,11 @@ public class XYChart implements Chart {
                     }
                     Map<DateTime, JEVisSample> sumSamples = new HashMap<>();
                     boolean hasData = false;
+                    int moreThanOne = 0;
                     for (ChartDataRow model : chartDataRows) {
                         if (model.getAxis() == index) {
                             hasData = true;
+                            moreThanOne++;
                             for (JEVisSample jeVisSample : model.getSamples()) {
                                 try {
                                     DateTime ts = jeVisSample.getTimestamp();
@@ -332,7 +334,7 @@ public class XYChart implements Chart {
                     sumModel.setSomethingChanged(false);
 
                     try {
-                        if (hasData) {
+                        if (hasData && moreThanOne > 1) {
                             dataModel.getSelectedData().add(sumModel);
                             xyChartSerieList.add(generateSerie(changedBoth, sumModel));
                         }
