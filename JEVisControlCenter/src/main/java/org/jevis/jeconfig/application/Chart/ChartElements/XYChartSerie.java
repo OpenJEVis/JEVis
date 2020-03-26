@@ -169,7 +169,12 @@ public class XYChartSerie {
         if (firstTS != null && secondTS != null) {
             DateTime finalFirstTS = firstTS;
             DateTime finalSecondTS = secondTS;
-            Platform.runLater(() -> tableEntry.setPeriod(new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()))));
+            try {
+                String s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                Platform.runLater(() -> tableEntry.setPeriod(s));
+            } catch (Exception e) {
+                logger.error("Couldn't calculate period word-based");
+            }
         }
 
         QuantityUnits qu = new QuantityUnits();
@@ -214,7 +219,7 @@ public class XYChartSerie {
                         try {
                             tableEntry.setAvg(nf_out.format(results.get(0).getValueAsDouble()) + " " + getUnit());
                         } catch (JEVisException e) {
-                            e.printStackTrace();
+                            logger.error("Couldn't get calculation result");
                         }
                     });
                 } else {
