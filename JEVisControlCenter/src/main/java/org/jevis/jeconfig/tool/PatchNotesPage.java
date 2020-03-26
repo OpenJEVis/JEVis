@@ -53,6 +53,11 @@ public class PatchNotesPage {
     private final String versionHistory =
             "------Version 3.9.21------\n" +
                     "\n" +
+                    "\n" +
+                    "JECC - Charts - LoadAnalysisDialog - individual time frames are not working\n" +
+                    "JECC - Charts - fixed asynchronous period visualization\n" +
+                    "JECC - Charts - sum function fix\n" +
+                    "JECC - Charts - allow empty data rows for selection\n" +
                     "JECC - Charts - Logical chart fixed errors with new data model\n" +
                     "JECC - BarChartSerie, ColumnChartSerie, TableSerie, XYChartSerie - fixed status bar messaging\n" +
                     "JECC - HeatMapChart - added logging for better debugging\n" +
@@ -60,12 +65,18 @@ public class PatchNotesPage {
                     "JECC - Charts - new model logic for xy charts\n" +
                     "\n" +
                     "JECC - switched to more compatible pdf viewer\n" +
+                    "JECC - AlarmPlugin - fixed sort logic\n" +
                     "\n" +
+                    "JEDataCollector - FTPDataSource - fixed null pointer\n" +
                     "JEDataCollector - fixed some null pointer in JEVisCSVParser\n" +
                     "JEDataCollector - prepared for hdd parser\n" +
                     "JEDataCollector - JEVisCSVParser - fixed some null pointers\n" +
                     "JEDataCollector - JEVisCSVParser - fixed some strange row/column logic\n" +
                     "\n" +
+                    "JECalc - added asynchronous input data type\n" +
+                    "JECalc - fixed null pointer\n" +
+                    "\n" +
+                    "JECommons - DatabaseHelper - fixed null pointer\n" +
                     "JECommons - changed timezone attribute logic for data importer\n" +
                     "JECommons - DatabaseHelper - fixed some null pointers\n" +
                     "\n" +
