@@ -372,6 +372,9 @@ public class XYChart implements Chart {
         ErrorDataSetRenderer rendererY1 = new ErrorDataSetRenderer();
 
         ErrorDataSetRenderer rendererY2 = new ErrorDataSetRenderer();
+
+        CustomMarkerRenderer labelledMarkerRenderer = new CustomMarkerRenderer(xyChartSerieList);
+
         ErrorDataSetRenderer trendLineRenderer = new ErrorDataSetRenderer();
         trendLineRenderer.setPolyLineStyle(LineStyle.NORMAL);
         trendLineRenderer.setDrawMarker(false);
@@ -445,17 +448,25 @@ public class XYChart implements Chart {
                 trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             }
 
+            if (showIcons) {
+                labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
+            }
+
             Platform.runLater(() -> tableData.add(xyChartSerie.getTableEntry()));
         }
 
         AlphanumComparator ac = new AlphanumComparator();
         Platform.runLater(() -> tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
 
-        Platform.runLater(() -> chart.getRenderers().setAll(rendererY1, rendererY2));
+        Platform.runLater(() -> chart.getRenderers().addAll(rendererY1, rendererY2));
         Platform.runLater(() -> chart.getToolBar().setVisible(false));
 
         if (calcRegression) {
             Platform.runLater(() -> chart.getRenderers().add(trendLineRenderer));
+        }
+
+        if (showIcons) {
+            Platform.runLater(() -> chart.getRenderers().add(labelledMarkerRenderer));
         }
     }
 

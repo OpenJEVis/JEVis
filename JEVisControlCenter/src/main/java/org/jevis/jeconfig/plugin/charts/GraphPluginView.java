@@ -62,7 +62,9 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.*;
-import org.jevis.jeconfig.application.Chart.ChartElements.*;
+import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
+import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartElements.TableHeader;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDialog;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointTableViewPointer;
@@ -1215,20 +1217,13 @@ public class GraphPluginView implements Plugin {
                 case AREA:
                 case LINE:
                 case SCATTER:
-                    setupNoteDialog(cv);
-
-                    setupMouseMoved(cv, notActive);
-
-                    setupLinkedZoom(cv, notActive);
-
-                    setupLabelRenderer(cv);
-                    break;
                 case LOGICAL:
                     setupNoteDialog(cv);
 
                     setupMouseMoved(cv, notActive);
 
                     setupLinkedZoom(cv, notActive);
+
                     break;
                 case TABLE:
                     TableChart chart = (TableChart) cv;
@@ -1282,20 +1277,6 @@ public class GraphPluginView implements Plugin {
                 default:
                     break;
             }
-        }
-    }
-
-    private void setupLabelRenderer(Chart cv) {
-
-        XYChart xyChart = (XYChart) cv;
-        CustomMarkerRenderer labelledMarkerRenderer = new CustomMarkerRenderer(xyChart.getXyChartSerieList());
-
-        if (xyChart.getShowIcons()) {
-            for (XYChartSerie xyChartSerie : xyChart.getXyChartSerieList()) {
-                labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
-            }
-
-            cv.getChart().getRenderers().add(labelledMarkerRenderer);
         }
     }
 
