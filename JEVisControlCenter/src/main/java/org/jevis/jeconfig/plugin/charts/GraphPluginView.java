@@ -33,12 +33,14 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -62,7 +64,9 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.application.Chart.*;
-import org.jevis.jeconfig.application.Chart.ChartElements.*;
+import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
+import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.jeconfig.application.Chart.ChartElements.TableHeader;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDialog;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointTableViewPointer;
@@ -108,6 +112,7 @@ public class GraphPluginView implements Plugin {
     private BorderPane border = new BorderPane(sp);
     private Tooltip tp = new Tooltip("");
     private List<Chart> allCharts = new ArrayList<>();
+    private Image taskImage = JEConfig.getImage("Analysis.png");
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
         this.dataModel = new AnalysisDataModel(ds, this);
@@ -692,37 +697,55 @@ public class GraphPluginView implements Plugin {
             });
         });
 
-        Platform.runLater(() -> {
-            toolBarView.updateLayout();
+        Task task = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                finalUpdates();
+                return null;
+            }
+        };
 
-            StringBuilder allFormulas = new StringBuilder();
-            for (Chart chart : allCharts) {
-                List<Chart> notActive = new ArrayList<>(allCharts);
-                notActive.remove(chart);
-                ChartType chartType = chart.getChartType();
+        JEConfig.getStatusBar().addTask(GraphPluginView.class.getName(), task, taskImage, true);
 
-                setupListener(chart, notActive, chartType);
+    }
 
-                if (chart instanceof XYChart && dataModel.calcRegression()) {
-                    allFormulas.append(((XYChart) chart).getRegressionFormula().toString());
+    private void finalUpdates() throws InterruptedException {
+        if (JEConfig.getStatusBar().getTaskList().size() <= 1) {
+            Platform.runLater(() -> {
+                toolBarView.updateLayout();
+
+                StringBuilder allFormulas = new StringBuilder();
+                for (Chart chart : allCharts) {
+                    List<Chart> notActive = new ArrayList<>(allCharts);
+                    notActive.remove(chart);
+                    ChartType chartType = chart.getChartType();
+
+                    setupListener(chart, notActive, chartType);
+
+                    if (chart instanceof XYChart && dataModel.calcRegression()) {
+                        allFormulas.append(((XYChart) chart).getRegressionFormula().toString());
+                    }
                 }
-            }
 
-            Platform.runLater(this::autoSize);
+                Platform.runLater(() -> autoSize());
 
-            if (dataModel.calcRegression()) {
-                Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
-                infoBox.setResizable(true);
-                infoBox.setTitle(I18n.getInstance().getString("dialog.regression.title"));
-                infoBox.setHeaderText(I18n.getInstance().getString("dialog.regression.headertext"));
-                TextArea textArea = new TextArea(allFormulas.toString());
-                textArea.setWrapText(true);
-                textArea.setPrefWidth(450);
-                textArea.setPrefHeight(200);
-                infoBox.getDialogPane().setContent(textArea);
-                infoBox.show();
-            }
-        });
+                if (dataModel.calcRegression()) {
+                    Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
+                    infoBox.setResizable(true);
+                    infoBox.setTitle(I18n.getInstance().getString("dialog.regression.title"));
+                    infoBox.setHeaderText(I18n.getInstance().getString("dialog.regression.headertext"));
+                    TextArea textArea = new TextArea(allFormulas.toString());
+                    textArea.setWrapText(true);
+                    textArea.setPrefWidth(450);
+                    textArea.setPrefHeight(200);
+                    infoBox.getDialogPane().setContent(textArea);
+                    infoBox.show();
+                }
+            });
+        } else {
+            Thread.currentThread().wait(500);
+            finalUpdates();
+        }
     }
 
     private Chart getChart(ChartSetting chart, List<ChartDataRow> chartDataRows) {
@@ -1215,20 +1238,13 @@ public class GraphPluginView implements Plugin {
                 case AREA:
                 case LINE:
                 case SCATTER:
-                    setupNoteDialog(cv);
-
-                    setupMouseMoved(cv, notActive);
-
-                    setupLinkedZoom(cv, notActive);
-
-                    setupLabelRenderer(cv);
-                    break;
                 case LOGICAL:
                     setupNoteDialog(cv);
 
                     setupMouseMoved(cv, notActive);
 
                     setupLinkedZoom(cv, notActive);
+
                     break;
                 case TABLE:
                     TableChart chart = (TableChart) cv;
@@ -1282,20 +1298,6 @@ public class GraphPluginView implements Plugin {
                 default:
                     break;
             }
-        }
-    }
-
-    private void setupLabelRenderer(Chart cv) {
-
-        XYChart xyChart = (XYChart) cv;
-        CustomMarkerRenderer labelledMarkerRenderer = new CustomMarkerRenderer(xyChart.getXyChartSerieList());
-
-        if (xyChart.getShowIcons()) {
-            for (XYChartSerie xyChartSerie : xyChart.getXyChartSerieList()) {
-                labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
-            }
-
-            cv.getChart().getRenderers().add(labelledMarkerRenderer);
         }
     }
 

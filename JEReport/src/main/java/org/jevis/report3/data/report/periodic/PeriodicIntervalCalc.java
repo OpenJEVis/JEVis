@@ -65,8 +65,10 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
         DateTime start = JEVisDates.DEFAULT_DATE_FORMAT.parseDateTime(startRecordString);
 
         if (schedule == Period.DAILY || schedule == Period.WEEKLY || schedule == Period.MONTHLY || schedule == Period.QUARTERLY || schedule == Period.YEARLY) {
-            if (workDays.getWorkdayStart() != null) workdayStart = workDays.getWorkdayStart();
-            if (workDays.getWorkdayEnd() != null) workdayEnd = workDays.getWorkdayEnd();
+            if (workDays.getWorkdayStart() != null && workDays.getWorkdayEnd() != null) {
+                workdayStart = workDays.getWorkdayStart();
+                workdayEnd = workDays.getWorkdayEnd();
+            }
         }
 
         org.jevis.commons.datetime.DateHelper dateHelper = null;
@@ -80,6 +82,9 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
             if (workdayStart != null && workdayEnd != null) {
                 startRecord = startRecord.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
                 endRecord = endRecord.withHourOfDay(workdayEnd.getHour()).withMinuteOfHour(workdayEnd.getMinute()).withSecondOfMinute(workdayEnd.getSecond()).withMillisOfSecond(999);
+                if (workdayEnd.isBefore(workdayStart)) {
+                    startRecord = startRecord.minusDays(1);
+                }
             }
 
             Interval interval = new Interval(startRecord, endRecord);
@@ -95,6 +100,11 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                 startRecordFixed = startRecordFixed.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
                 startRecordFixedToReportEnd = startRecordFixed.withHourOfDay(workdayStart.getHour()).withMinuteOfHour(workdayStart.getMinute()).withSecondOfMinute(workdayStart.getSecond()).withMillisOfSecond(0);
                 endRecord = endRecord.withHourOfDay(workdayEnd.getHour()).withMinuteOfHour(workdayEnd.getMinute()).withSecondOfMinute(workdayEnd.getSecond()).withMillisOfSecond(999);
+                if (workdayEnd.isBefore(workdayStart)) {
+                    startRecordFixed = startRecordFixed.minusDays(1);
+                    startRecordFixedToReportEnd = startRecordFixedToReportEnd.minusDays(1);
+                    endRecord = endRecord.minusDays(1);
+                }
             }
 
             Interval intervalFixed = new Interval(startRecordFixed, endRecord);
@@ -204,7 +214,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                         resultStartRecord = startRecord.minusYears(1);
                         break;
                     case THREEYEARS:
-                        resultStartRecord = startRecord.minusYears(3);
+                        resultStartRecord = startRecord.minusYears(2);
                         break;
                     case NONE:
                     default:

@@ -14,7 +14,6 @@ import org.jevis.commons.database.JEVisSampleDAO;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.report3.data.DataHelper;
 import org.jevis.report3.data.attribute.*;
@@ -245,7 +244,7 @@ public class ReportLinkProperty implements ReportData {
                                     logger.error(ex);
                                 }
 
-                                if (interval != null) {
+                                if (interval != null && !workdayEnd.isBefore(workdayStart)) {
                                     long duration = 0;
                                     duration = interval.toDurationMillis();
 
@@ -326,22 +325,22 @@ public class ReportLinkProperty implements ReportData {
                                     }
                                 }
 
-                                WorkDays wd = new WorkDays(dataObject);
-                                if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
-                                if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
-
-                                if (interval != null) {
-                                    DateTime start = new DateTime(interval.getStart().getYear(), interval.getStart().getMonthOfYear(), interval.getStart().getDayOfMonth(),
-                                            workdayStart.getHour(), workdayStart.getMinute(), workdayStart.getSecond());
-                                    DateTime end = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(),
-                                            workdayEnd.getHour(), workdayEnd.getMinute(), workdayEnd.getSecond(), workdayEnd.getNano() / 1000000);
-
-                                    if (workdayStart.isAfter(workdayEnd)) {
-                                        start = start.minusDays(1);
-                                    }
-
-                                    interval = new Interval(start, end);
-                                }
+//                                WorkDays wd = new WorkDays(dataObject);
+//                                if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
+//                                if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
+//
+//                                if (interval != null) {
+//                                    DateTime start = new DateTime(interval.getStart().getYear(), interval.getStart().getMonthOfYear(), interval.getStart().getDayOfMonth(),
+//                                            workdayStart.getHour(), workdayStart.getMinute(), workdayStart.getSecond());
+//                                    DateTime end = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(),
+//                                            workdayEnd.getHour(), workdayEnd.getMinute(), workdayEnd.getSecond(), workdayEnd.getNano() / 1000000);
+//
+//                                    if (workdayStart.isAfter(workdayEnd)) {
+//                                        start = start.minusDays(1);
+//                                    }
+//
+//                                    interval = new Interval(start, end);
+//                                }
 
                                 PeriodSampleGenerator gen = new PeriodSampleGenerator(ds, dataObject, attribute, interval, manipulationMode, aggregationPeriod);
 

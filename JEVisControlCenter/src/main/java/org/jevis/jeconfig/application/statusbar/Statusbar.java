@@ -503,5 +503,9 @@ public class Statusbar extends ToolBar {
         reConn.start();
     }
 
-// TODO implement status bar for JEVis applications
+    public HashMap<Task, String> getTaskList() {
+        return taskList;
+    }
+
+    // TODO implement status bar for JEVis applications
 }
