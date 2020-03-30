@@ -153,13 +153,6 @@ public class Statusbar extends ToolBar {
             @Override
             public void onChanged(Change c) {
                 while (c.next()) {
-
-                    if (c.getRemovedSize() == taskProgressView.getTasks().size()) {
-                        try {
-                            Platform.runLater(() -> popup.hide());
-                        } catch (Exception ex) {
-                        }
-                    }
                     if (c.wasAdded()) {
                         try {
                             Platform.runLater(() -> {
@@ -168,6 +161,13 @@ public class Statusbar extends ToolBar {
                                 }
                             });
 
+                        } catch (Exception ex) {
+                        }
+                    }
+
+                    if (c.getRemovedSize() == taskProgressView.getTasks().size()) {
+                        try {
+                            Platform.runLater(() -> popup.hide());
                         } catch (Exception ex) {
                         }
                     }
