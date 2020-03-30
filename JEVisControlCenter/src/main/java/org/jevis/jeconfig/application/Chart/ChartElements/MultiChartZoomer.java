@@ -4,7 +4,6 @@ import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
-import de.gsi.chart.axes.spi.Axes;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import de.gsi.chart.plugins.ChartPlugin;
 import de.gsi.chart.plugins.MouseEventsHelper;
@@ -1019,6 +1018,16 @@ public class MultiChartZoomer extends ChartPlugin {
         zoomRectangle.setVisible(false);
     }
 
+    protected static boolean hasBoundedRange(Axis axis) {
+        return axis.minProperty().isBound() || axis.maxProperty().isBound();
+    }
+
+    private void panDragged(final MouseEvent event) {
+        final Point2D mouseLocation = getLocationInPlotArea(event);
+        panChart(getChart(), mouseLocation);
+        previousMouseLocation = mouseLocation;
+    }
+
     private void panChart(final Chart chart, final Point2D mouseLocation) {
         if (!(chart instanceof XYChart)) {
             return;
@@ -1043,7 +1052,7 @@ public class MultiChartZoomer extends ChartPlugin {
             final double offset = prevData - newData;
 
             final boolean allowsShift = side.isHorizontal() ? getAxisMode().allowsX() : getAxisMode().allowsY();
-            if (!Axes.hasBoundedRange(axis) && allowsShift) {
+            if (!hasBoundedRange(axis) && allowsShift) {
                 axis.setAutoRanging(false);
                 // shift bounds
                 axis.set(axis.getMin() + offset, axis.getMax() + offset);
@@ -1052,10 +1061,17 @@ public class MultiChartZoomer extends ChartPlugin {
         previousMouseLocation = mouseLocation;
     }
 
-    private void panDragged(final MouseEvent event) {
-        final Point2D mouseLocation = getLocationInPlotArea(event);
-        panChart(getChart(), mouseLocation);
-        previousMouseLocation = mouseLocation;
+    private boolean panOngoing() {
+        return previousMouseLocation != null;
+    }
+
+    private void panStarted(final MouseEvent event) {
+        previousMouseLocation = getLocationInPlotArea(event);
+        panShiftX = 0.0;
+        panShiftY = 0.0;
+        installDragCursor();
+        clearZoomStackIfAxisAutoRangingIsEnabled();
+        pushCurrentZoomWindows();
     }
 
     private void panEnded() {
@@ -1071,7 +1087,7 @@ public class MultiChartZoomer extends ChartPlugin {
             final Side side = axis.getSide();
 
             final boolean allowsShift = side.isHorizontal() ? getAxisMode().allowsX() : getAxisMode().allowsY();
-            if (!Axes.hasBoundedRange(axis) && allowsShift) {
+            if (!hasBoundedRange(axis) && allowsShift) {
                 axis.setAutoRanging(false);
             }
         }
@@ -1080,19 +1096,6 @@ public class MultiChartZoomer extends ChartPlugin {
         panShiftY = 0.0;
         previousMouseLocation = null;
         uninstallCursor();
-    }
-
-    private boolean panOngoing() {
-        return previousMouseLocation != null;
-    }
-
-    private void panStarted(final MouseEvent event) {
-        previousMouseLocation = getLocationInPlotArea(event);
-        panShiftX = 0.0;
-        panShiftY = 0.0;
-        installDragCursor();
-        clearZoomStackIfAxisAutoRangingIsEnabled();
-        pushCurrentZoomWindows();
     }
 
     private void performZoom(Entry<Axis, ZoomState> zoomStateEntry, final boolean isZoomIn) {
@@ -1112,7 +1115,7 @@ public class MultiChartZoomer extends ChartPlugin {
         }
 
         if (isAnimated()) {
-            if (!Axes.hasBoundedRange(axis)) {
+            if (!hasBoundedRange(axis)) {
                 final Timeline xZoomAnimation = new Timeline();
                 xZoomAnimation.getKeyFrames().setAll(
                         new KeyFrame(Duration.ZERO, new KeyValue(axis.minProperty(), axis.getMin()),
@@ -1122,7 +1125,7 @@ public class MultiChartZoomer extends ChartPlugin {
                 xZoomAnimation.play();
             }
         } else {
-            if (!Axes.hasBoundedRange(axis)) {
+            if (!hasBoundedRange(axis)) {
                 // only update if this axis is not bound to another (e.g. auto-range) managed axis)
                 axis.set(zoomState.zoomRangeMin, zoomState.zoomRangeMax);
             }

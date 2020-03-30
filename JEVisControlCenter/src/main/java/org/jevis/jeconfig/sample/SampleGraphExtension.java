@@ -24,7 +24,6 @@ import de.gsi.chart.axes.AxisLabelOverlapPolicy;
 import de.gsi.chart.axes.AxisMode;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
-import de.gsi.chart.plugins.DataPointTooltip;
 import de.gsi.chart.plugins.Zoomer;
 import de.gsi.chart.renderer.LineStyle;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
@@ -39,6 +38,8 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.unit.UnitManager;
+import org.jevis.jeconfig.application.Chart.ChartElements.CustomStringConverter;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -96,7 +97,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
                         I18n.getInstance().getString("plugin.graph.chart.valueaxis.until"),
                         dtfOutLegend.print(lastTS));
 
-                final DefaultNumericAxis xAxis = new DefaultNumericAxis(I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall, null);
+                final DefaultNumericAxis xAxis = new DefaultNumericAxis(" ", I18n.getInstance().getString("plugin.graph.chart.dateaxis.title") + " " + overall);
                 xAxis.setOverlapPolicy(AxisLabelOverlapPolicy.SKIP_ALT);
                 xAxis.setAutoRangeRounding(false);
                 xAxis.setTimeAxis(true);
@@ -111,19 +112,33 @@ public class SampleGraphExtension implements SampleEditorExtension {
                 final XYChart chart = new XYChart(xAxis, yAxis);
                 chart.legendVisibleProperty().set(false);
                 chart.getPlugins().add(new Zoomer(AxisMode.X));
-                //            chart.getPlugins().add(new EditAxis());
 
-                DataPointTooltip dataPointTooltip = new DataPointTooltip();
-                try {
-                    dataPointTooltip.setPickingDistance(attribute.getDisplaySampleRate().toStandardDuration().getMillis() / 1000.0);
-                } catch (Exception ignored) {
-                }
+                chart.setStyle("-fx-font-size: " + 12 + "px;");
 
-                chart.getPlugins().add(dataPointTooltip);
+                chart.setLegendVisible(false);
+//                chart.getPlugins().add(new EditAxis());
+
+//                DataPointTooltip dataPointTooltip = new DataPointTooltip();
+//                try {
+//                    dataPointTooltip.setPickingDistance(attribute.getDisplaySampleRate().toStandardDuration().getMillis() / 1000.0);
+//                } catch (Exception ignored) {
+//                }
+//
+//                chart.getPlugins().add(dataPointTooltip);
                 // set them false to make the plot faster
                 chart.setAnimated(false);
 
                 yAxis.setAutoRangeRounding(true);
+                yAxis.setForceZeroInRange(true);
+                yAxis.setAutoGrowRanging(true);
+                yAxis.setAutoRanging(true);
+                CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2);
+                Platform.runLater(() -> {
+                    yAxis.setTickLabelFormatter(tickLabelFormatter1);
+                    yAxis.setAnimated(false);
+                    yAxis.setName("");
+                });
+                yAxis.setUnit(UnitManager.getInstance().format(attribute.getDisplayUnit()));
 
                 ErrorDataSetRenderer renderer = new ErrorDataSetRenderer();
                 renderer.setPolyLineStyle(LineStyle.AREA);

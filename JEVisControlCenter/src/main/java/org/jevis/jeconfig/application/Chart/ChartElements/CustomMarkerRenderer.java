@@ -51,6 +51,10 @@ public class CustomMarkerRenderer extends LabelledMarkerRenderer {
             }
         }
 
+        if (yAxis == null) {
+            return;
+        }
+
         gc.save();
         setGraphicsContextAttributes(gc, dataSet.getStyle());
         gc.setTextAlign(TextAlignment.LEFT);
