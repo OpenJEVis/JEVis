@@ -148,7 +148,7 @@ public class FTPDataSource implements DataSource {
 
 //            String filePath = dp.getFilePath();
             logger.info("SendSampleRequest2");
-            List<String> fileNames = DataSourceHelper.getFTPMatchedFileNames(_fc, lastReadout, filePath);
+            List<String> fileNames = DataSourceHelper.getFTPMatchedFileNames(_fc, lastReadout, _timezone, filePath);
 //        String currentFilePath = Paths.get(filePath).getParent().toString();
             logger.info("Nr of Matched Files " + fileNames.size());
             for (String fileName : fileNames) {
