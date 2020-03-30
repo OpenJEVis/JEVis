@@ -115,7 +115,7 @@ public class InputFunction implements ProcessFunction {
 
                         for (JEVisSample userValue : userValues) {
                             String note = map.get(userValue.getTimestamp()).getNote();
-                            VirtualSample virtualSample = new VirtualSample(userValue.getTimestamp(), userValue.getValueAsDouble());
+                            VirtualSample virtualSample = new VirtualSample(userValue.getTimestamp(), userValue.getValueAsDouble(), att.getDisplayUnit());
                             virtualSample.setNote(note + "," + USER_VALUE);
                             virtualSample.setAttribute(map.get(userValue.getTimestamp()).getAttribute());
 
