@@ -88,7 +88,7 @@ public class DataSourceHelper {
         HttpsURLConnection.setDefaultHostnameVerifier(hv);
     }
 
-    public static List<String> getFTPMatchedFileNames(FTPClient fc, DateTime lastReadout, String filePath) {
+    public static List<String> getFTPMatchedFileNames(FTPClient fc, DateTime lastReadout, DateTimeZone timeZone, String filePath) {
         filePath = filePath.replace("\\", "/");
         String[] pathStream = getPathTokens(filePath);
 
@@ -121,7 +121,7 @@ public class DataSourceHelper {
                 for (FTPFile file : fc.listFiles()) {
 //                    org.apache.log4j.Logger.getLogger(Launcher.class.getName()).log(org.apache.log4j.Level.ALL, "CurrentFileName: " + fileName);
 //                    fileName = removeFoler(fileName, folder);
-                    DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyyMMddHHmmss");
+                    DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyyMMddHHmmss").withZone(timeZone);
                     String fileName = file.getName();
                     String timePart = fc.getModificationTime(folder + fileName).split(" ")[1].trim();
                     DateTime modificationTime = dateFormat.parseDateTime(timePart);
