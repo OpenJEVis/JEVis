@@ -51,7 +51,11 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.21------\n" +
+            "------Version 3.9.22------\n" +
+                    "\n" +
+                    "\n" +
+                    "JECC - Charts - fixed some threading issues with loading\n\n" +
+                    "------Version 3.9.21------\n" +
                     "\n" +
                     "\n" +
                     "JECC - Charts - LoadAnalysisDialog - individual time frames are not working\n" +
