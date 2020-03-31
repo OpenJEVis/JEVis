@@ -512,8 +512,8 @@ public class GraphPluginView implements Plugin {
 
                     BorderPane bp = new BorderPane();
                     bp.setStyle("-fx-faint-focus-color: transparent; -fx-focus-color: transparent;");
-                    bp.setBorder(new Border(new BorderStroke(Color.TRANSPARENT,
-                            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(4))));
+//                    bp.setBorder(new Border(new BorderStroke(Color.TRANSPARENT,
+//                            BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(4))));
 
 //                    bp.setMinHeight(autoMinSize.get());
 
