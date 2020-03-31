@@ -287,7 +287,7 @@ public class WidgetNavigator {
             control.addWidget(newWidget);
             newWidget.setEditable(true);
 //            newWidget.updateConfig();
-            table.getSelectionModel().select(newWidget);
+            table.getSelectionModel().clearAndSelect(table.getItems().size()-1);
             table.scrollTo(newWidget);
             this.control.requestViewUpdate(newWidget);
         });
