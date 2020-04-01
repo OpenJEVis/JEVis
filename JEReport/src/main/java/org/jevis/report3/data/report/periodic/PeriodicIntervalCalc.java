@@ -186,6 +186,12 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                     case THREEYEARS:
                         resultStartRecord = startRecord.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusYears(2);
                         break;
+                    case FIVEYEARS:
+                        resultStartRecord = startRecord.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusYears(4);
+                        break;
+                    case TENYEARS:
+                        resultStartRecord = startRecord.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusYears(9);
+                        break;
                     case NONE:
                     default:
                         break;
@@ -215,6 +221,12 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
                         break;
                     case THREEYEARS:
                         resultStartRecord = startRecord.minusYears(2);
+                        break;
+                    case FIVEYEARS:
+                        resultStartRecord = startRecord.minusYears(4);
+                        break;
+                    case TENYEARS:
+                        resultStartRecord = startRecord.minusYears(9);
                         break;
                     case NONE:
                     default:

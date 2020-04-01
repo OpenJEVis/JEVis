@@ -406,6 +406,26 @@
             "uk": "3 роки",
             "th": "3 ปี"
           }
+        },
+        "FIVEYEARS": {
+          "descriptions": null,
+          "names": {
+            "de": "5 Jahre",
+            "en": "5 Years",
+            "ru": "5 год",
+            "uk": "5 роки",
+            "th": "5 ปี"
+          }
+        },
+        "TENYEARS": {
+          "descriptions": null,
+          "names": {
+            "de": "10 Jahre",
+            "en": "10 Years",
+            "ru": "10 год",
+            "uk": "10 роки",
+            "th": "10 ปี"
+          }
         }
       }
     }
