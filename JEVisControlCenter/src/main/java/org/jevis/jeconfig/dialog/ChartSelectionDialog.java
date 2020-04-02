@@ -58,6 +58,7 @@ import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.tool.NumberSpinner;
+import org.jevis.jeconfig.tool.ScreenSize;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 
 import java.math.BigDecimal;
@@ -114,7 +115,8 @@ public class ChartSelectionDialog {
         double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
         stage.setWidth(maxScreenWidth - 20);
 
-        stage.setHeight(768);
+        stage.setHeight(ScreenSize.fitScreenHeight(768));
+        stage.setWidth(ScreenSize.fitScreenWidth(1980));
         stage.setResizable(true);
 
         TabPane mainTabPane = new TabPane();
