@@ -519,28 +519,10 @@ public class GraphPluginView implements Plugin {
 
                     bp.setMaxWidth(sp.getMaxWidth());
 
-                    /**
-                     * Add offset for every data object because of the table legend
-                     * Every row has about 25 pixel with the default font
-                     */
-                    int dataSizeOffset = 30;
-                    /** Calculate maxsize based on the amount of Data **/
-                    int dataSize = 0;
-
                     Chart chart = null;
                     if (chartSetting.getChartType() != ChartType.LOGICAL) {
                         chart = getChart(chartSetting, null);
                         allCharts.add(chart);
-                    } else {
-                        dataSize = 4;
-                    }
-
-                    for (ChartDataRow chartDataRow : dataModel.getSelectedData()) {
-                        for (int i : chartDataRow.getSelectedcharts()) {
-                            if (i == chartSetting.getId()) {
-                                dataSize++;
-                            }
-                        }
                     }
 
                     if (chartSetting.getChartType() != ChartType.TABLE) {
@@ -551,11 +533,8 @@ public class GraphPluginView implements Plugin {
                             case BUBBLE:
                                 if (chart != null) {
                                     bp.setCenter(chart.getRegion());
-//                                    bp.setMinHeight(autoMinSize.get());
                                     if (!dataModel.getCharts().getAutoSize()) {
                                         bp.setPrefHeight(chartSetting.getHeight());
-                                    } else {
-                                        bp.setPrefHeight(autoMinSize.get() + (dataSize * dataSizeOffset));
                                     }
                                 }
                                 break;
@@ -565,11 +544,8 @@ public class GraphPluginView implements Plugin {
                             default:
                                 if (chart != null) {
                                     bp.setCenter(chart.getChart());
-//                                    bp.setMinHeight(autoMinSize.get());
                                     if (!dataModel.getCharts().getAutoSize()) {
                                         bp.setPrefHeight(chartSetting.getHeight());
-                                    } else {
-                                        bp.setPrefHeight(autoMinSize.get() + (dataSize * dataSizeOffset));
                                     }
                                 }
                                 break;
@@ -1044,26 +1020,27 @@ public class GraphPluginView implements Plugin {
         double totalPrefHeight; /**
          * If auto size is on or if its only one chart scale the chart to maximize screen size
          */
+        int noOfCharts = dataModel.getCharts().getListSettings().size();
 
-//        if (!hasLogicalCharts()) {
-        if (dataModel.getCharts().getListSettings().size() == 1 || dataModel.getAutoResize()) {
+        if (noOfCharts == 1 || dataModel.getAutoResize()) {
             /**
              * If all children take more space then the maximum available size
              * set all on min size. after this the free space will be reallocate
              */
             totalPrefHeight = calculationTotalPrefSize(vBox);
 
-            if (chartsPerScreen != null && dataModel.getCharts().getListSettings().size() > 1) {
+            if (chartsPerScreen != null && noOfCharts > 1) {
                 ObservableList<Node> children = vBox.getChildren();
-                int noOfCharts = (int) children.stream().filter(node -> node instanceof Separator).count();
 
                 double height = border.getHeight() - (4.5 * noOfCharts);
 
                 for (Node node : children) {
                     if (node instanceof BorderPane) {
+                        BorderPane borderPane = (BorderPane) node;
                         boolean isLogical = false;
 
-                        for (Node node1 : ((BorderPane) node).getChildren()) {
+                        ObservableList<Node> borderChildren = borderPane.getChildren();
+                        for (Node node1 : borderChildren) {
                             if (node1 instanceof VBox) {
                                 isLogical = true;
 
@@ -1078,10 +1055,17 @@ public class GraphPluginView implements Plugin {
                         }
 
                         if (!isLogical) {
-                            ((BorderPane) node).setPrefHeight((height) / chartsPerScreen);
+                            TableHeader top = (TableHeader) borderPane.getTop();
+                            double heightTop = top.getHeight();
+
+                            if (!borderChildren.isEmpty() && borderChildren.get(0) instanceof de.gsi.chart.XYChart) {
+                                de.gsi.chart.XYChart xyChart = (de.gsi.chart.XYChart) borderChildren.get(0);
+                                double v = (height / chartsPerScreen) - heightTop;
+                                xyChart.setPrefHeight(v);
+                            }
                         }
                     } else if (node instanceof HBox) {
-                        ((HBox) node).setPrefHeight((height) / chartsPerScreen);
+                        ((HBox) node).setPrefHeight(height / chartsPerScreen);
                     }
                 }
             } else {
