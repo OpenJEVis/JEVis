@@ -57,6 +57,7 @@ import java.text.NumberFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -93,7 +94,7 @@ public class Statusbar extends ToolBar {
     private Label titleLabel = new Label(I18n.getInstance().getString("statusbar.taskmon.title"));
     private Region spacer = new Region();
     private ExecutorService executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
-    private HashMap<Task, String> taskList = new HashMap<>();
+    private ConcurrentHashMap<Task, String> taskList = new ConcurrentHashMap<>();
     private StackPane stackpane = new StackPane();
     /** This pane will hide the 'No task message' which we have no access to **/
     private Pane hideTaskListPane = new Pane();
@@ -252,8 +253,8 @@ public class Statusbar extends ToolBar {
         });
         Platform.runLater(() -> {
             taskProgressView.getTasks().add(task);
-            taskList.put(task, owner);
         });
+        taskList.put(task, owner);
 
         if (autoStart) executor.submit(task);
     }
@@ -515,7 +516,7 @@ public class Statusbar extends ToolBar {
         reConn.start();
     }
 
-    public HashMap<Task, String> getTaskList() {
+    public ConcurrentHashMap<Task, String> getTaskList() {
         return taskList;
     }
 

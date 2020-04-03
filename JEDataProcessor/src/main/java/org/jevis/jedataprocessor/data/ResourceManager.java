@@ -147,6 +147,31 @@ public class ResourceManager {
                     //calculate the next date
                     currentDate = currentDate.plus(rawPeriodAlignment);
                 }
+            } else if (rawPeriodAlignment.equals(Period.ZERO) && cleanDataPeriodAlignment.equals(Period.minutes(15))) {
+                try {
+                    DateTime firstTs = cleanDataObject.getRawSamplesDown().get(0).getTimestamp();
+                    if (firstTs.getMinuteOfHour() < 15) {
+                        firstTs = firstTs.withMinuteOfHour(0);
+                    } else if (firstTs.getMinuteOfHour() < 30) {
+                        firstTs = firstTs.withMinuteOfHour(15);
+                    } else if (firstTs.getMinuteOfHour() < 45) {
+                        firstTs = firstTs.withMinuteOfHour(30);
+                    } else {
+                        firstTs = firstTs.withMinuteOfHour(45);
+                    }
+
+                    DateTime currentTs = firstTs;
+                    DateTime lastTs = cleanDataObject.getRawSamplesDown().get(rawSamplesDown.size() - 1).getTimestamp();
+
+                    while (currentTs.isBefore(lastTs)) {
+                        Interval interval = new Interval(currentTs, currentTs.plusMinutes(14).plusSeconds(59).plusMillis(999));
+                        CleanInterval cleanInterval = new CleanInterval(interval, currentTs);
+                        rawIntervals.add(cleanInterval);
+                        currentTs = currentTs.plusMinutes(15);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             } else {
                 /**
                  * TODO: months and years
