@@ -94,6 +94,9 @@ public class Statusbar extends ToolBar {
     private Region spacer = new Region();
     private ExecutorService executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
     private HashMap<Task, String> taskList = new HashMap<>();
+    private StackPane stackpane = new StackPane();
+    /** This pane will hide the 'No task message' which we have no access to **/
+    private Pane hideTaskListPane = new Pane();
 
     private class Job {
         public double total = 0;
@@ -109,7 +112,11 @@ public class Statusbar extends ToolBar {
 
     public Statusbar() {
         super();
-        BorderPane anchorPane = new BorderPane(taskProgressView);
+
+        hideTaskListPane.setStyle("-fx-background-color: #ffffff;");
+        stackpane.getChildren().addAll(taskProgressView,hideTaskListPane);
+
+        BorderPane anchorPane = new BorderPane(stackpane);//taskProgressView);
         ToggleButton hideButton = new ToggleButton("", JEConfig.getImage("Hide.png", 12, 12));
         HBox hBox = new HBox(titleLabel, spacer, hideButton);
         hBox.setPadding(new Insets(8));
@@ -156,7 +163,10 @@ public class Statusbar extends ToolBar {
                     if (c.wasRemoved()) {
                         if (taskProgressView.getTasks().isEmpty()) {
                             if (popup.isShowing()) {
-                                Platform.runLater(() -> popup.hide());
+                                Platform.runLater(() ->{
+                                    hideTaskListPane.setVisible(true);
+                                    popup.hide();
+                                });
                             }
                         }
                     }
@@ -164,9 +174,11 @@ public class Statusbar extends ToolBar {
                     if (c.wasAdded() && c.getAddedSize() > 0) {
                         Platform.runLater(() -> {
                             try {
+                                hideTaskListPane.setVisible(false);
                                 if (!hideTaskList && !popup.isShowing()) {
                                     popup.show(onlineInfo);
                                 }
+
                             } catch (Exception ex) {
                             }
                         });
@@ -176,7 +188,6 @@ public class Statusbar extends ToolBar {
 
             }
         });
-
         hideButton.setSelected(hideTaskList);
         hideButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override

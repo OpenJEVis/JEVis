@@ -54,7 +54,12 @@ public interface ChartPluginColumn {
                         break;
                     }
                 }
-            } catch (JEVisException e) {
+
+                if(newData.getDataProcessor() == null && !children.isEmpty()){
+                    newData.setDataProcessor(children.get(0));
+                }
+
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             newData.setAttribute(row.getJEVisAttribute());
