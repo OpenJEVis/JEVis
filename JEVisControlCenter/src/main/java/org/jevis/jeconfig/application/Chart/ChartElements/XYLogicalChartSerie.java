@@ -5,12 +5,14 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 
+import javax.measure.unit.Unit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -81,6 +83,9 @@ public class XYLogicalChartSerie extends XYChartSerie {
 
             }
         }
+
+        updateTableEntry(modifiedList, new JEVisUnitImp(Unit.ONE), getMinValue(), getMaxValue(), 0.0, 0.0, 0);
+
         JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
     }
 
