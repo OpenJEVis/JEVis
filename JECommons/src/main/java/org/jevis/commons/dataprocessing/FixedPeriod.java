@@ -2,7 +2,7 @@ package org.jevis.commons.dataprocessing;
 
 public enum FixedPeriod {
 
-    NONE, QUARTER_HOUR, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR, THREEYEARS;
+    NONE, QUARTER_HOUR, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR, THREEYEARS, FIVEYEARS, TENYEARS;
 
     public static FixedPeriod get(String modeName) {
         return valueOf(modeName);
@@ -26,6 +26,10 @@ public enum FixedPeriod {
                 return YEAR;
             case ("Three Years"):
                 return THREEYEARS;
+            case ("Five Years"):
+                return FIVEYEARS;
+            case ("Ten Years"):
+                return TENYEARS;
             case ("None"):
             default:
                 return NONE;

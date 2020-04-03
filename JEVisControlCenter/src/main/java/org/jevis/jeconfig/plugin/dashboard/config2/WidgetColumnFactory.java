@@ -388,6 +388,8 @@ public class WidgetColumnFactory {
 //                            });
 
                             setGraphic(textField);
+                        }else{
+                            setGraphic(null);
                         }
 
                     }
@@ -441,6 +443,8 @@ public class WidgetColumnFactory {
 //                            addFocusRefreshListener(colorPicker);
 
                             setGraphic(colorPicker);
+                        }else{
+                            setGraphic(null);
                         }
 
                     }
@@ -497,6 +501,8 @@ public class WidgetColumnFactory {
 
 //                            addFocusRefreshListener(colorPicker);
 //                            setGraphic(colorPicker);
+                        }else {
+                            setGraphic(null);
                         }
 
                     }
@@ -549,6 +555,8 @@ public class WidgetColumnFactory {
 
                             addFocusRefreshListener(textField);
                             setGraphic(textField);
+                        }else{
+                            setGraphic(null);
                         }
                     }
                 };
@@ -588,6 +596,7 @@ public class WidgetColumnFactory {
                 TableCell<Widget, Double> cell = new TableCell<Widget, Double>() {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
+                        setGraphic(null);
                         if (item != null && !empty) {
                             TextField textField = buildDoubleTextField(item.toString());
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -637,6 +646,7 @@ public class WidgetColumnFactory {
                 TableCell<Widget, Double> cell = new TableCell<Widget, Double>() {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
+
                         if (item != null && !empty) {
                             TextField textField = buildDoubleTextField(item.toString());
                             textField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -658,6 +668,8 @@ public class WidgetColumnFactory {
 
 
                             setGraphic(textField);
+                        }else{
+                            setGraphic(null);
                         }
                     }
                 };
@@ -825,6 +837,8 @@ public class WidgetColumnFactory {
                             addFocusRefreshListener(textField);
 
                             setGraphic(textField);
+                        }else{
+                            setGraphic(null);
                         }
                     }
                 };

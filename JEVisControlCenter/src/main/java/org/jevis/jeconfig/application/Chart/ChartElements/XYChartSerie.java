@@ -170,8 +170,18 @@ public class XYChartSerie {
             DateTime finalFirstTS = firstTS;
             DateTime finalSecondTS = secondTS;
             try {
-                String s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
-                Platform.runLater(() -> tableEntry.setPeriod(s));
+                String s = "";
+                try {
+                    if (!samples.get(0).getAttribute().getInputSampleRate().equals(Period.ZERO)) {
+                        s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                    } else {
+                        s = I18n.getInstance().getString("plugin.unit.samplingrate.async");
+                    }
+                } catch (Exception e) {
+                    s = "-";
+                }
+                String finalS = s;
+                Platform.runLater(() -> tableEntry.setPeriod(finalS));
             } catch (Exception e) {
                 logger.error("Couldn't calculate period word-based");
             }

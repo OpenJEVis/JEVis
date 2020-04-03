@@ -54,8 +54,8 @@ public class ChartDataRow {
     private double max = 0d;
     private double avg = 0d;
     private Double sum = 0d;
-    private Map<DateTime, JEVisSample> userNoteMap;
-    private Map<DateTime, Alarm> alarmMap;
+    private Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
+    private Map<DateTime, Alarm> alarmMap = new TreeMap<>();
     private boolean customWorkDay = true;
 
     /**
@@ -128,12 +128,11 @@ public class ChartDataRow {
     }
 
     public Map<DateTime, Alarm> getAlarms() {
-        if (alarmMap != null) {
+        if (alarmMap != null && !somethingChanged) {
             return alarmMap;
         }
 
-        Map<DateTime, Alarm> alarms = new TreeMap<>();
-
+        alarmMap.clear();
         try {
             CleanDataAlarm cleanDataAlarm = new CleanDataAlarm(getDataProcessor());
             if (cleanDataAlarm.isValidAlarmConfiguration()) {
@@ -245,9 +244,9 @@ public class ChartDataRow {
                             JEVisSample alarmSample = new VirtualSample(ts, (long) logVal);
 
                             if (upper) {
-                                alarms.put(ts, new Alarm(getDataProcessor(), getAttribute(), alarmSample, ts, value, operator, upperValue, sampleAlarmType, logVal));
+                                alarmMap.put(ts, new Alarm(getDataProcessor(), getAttribute(), alarmSample, ts, value, operator, upperValue, sampleAlarmType, logVal));
                             } else {
-                                alarms.put(ts, new Alarm(getDataProcessor(), getAttribute(), alarmSample, ts, value, operator, lowerValue, sampleAlarmType, logVal));
+                                alarmMap.put(ts, new Alarm(getDataProcessor(), getAttribute(), alarmSample, ts, value, operator, lowerValue, sampleAlarmType, logVal));
                             }
                         }
                     }
@@ -257,7 +256,6 @@ public class ChartDataRow {
             logger.error(e);
         }
 
-        alarmMap = alarms;
         return alarmMap;
     }
 

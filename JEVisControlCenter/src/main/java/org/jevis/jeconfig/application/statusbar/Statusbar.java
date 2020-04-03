@@ -153,24 +153,25 @@ public class Statusbar extends ToolBar {
             @Override
             public void onChanged(Change c) {
                 while (c.next()) {
-                    if (c.wasAdded()) {
-                        try {
-                            Platform.runLater(() -> {
+                    if (c.wasRemoved()) {
+                        if (taskProgressView.getTasks().isEmpty()) {
+                            if (popup.isShowing()) {
+                                Platform.runLater(() -> popup.hide());
+                            }
+                        }
+                    }
+
+                    if (c.wasAdded() && c.getAddedSize() > 0) {
+                        Platform.runLater(() -> {
+                            try {
                                 if (!hideTaskList && !popup.isShowing()) {
                                     popup.show(onlineInfo);
                                 }
-                            });
-
-                        } catch (Exception ex) {
-                        }
+                            } catch (Exception ex) {
+                            }
+                        });
                     }
 
-                    if (c.getRemovedSize() == taskProgressView.getTasks().size()) {
-                        try {
-                            Platform.runLater(() -> popup.hide());
-                        } catch (Exception ex) {
-                        }
-                    }
                 }
 
             }

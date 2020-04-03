@@ -21,6 +21,8 @@ public class ReportFixedPeriodBox extends ComboBox<FixedPeriod> {
         final String keyQuarter = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.quarter");
         final String keyYear = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.year");
         final String keyThreeYears = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.threeyears");
+        final String keyFiveYears = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.fiveyears");
+        final String keyTenYears = I18n.getInstance().getString("plugin.object.report.dialog.aggregation.tenyears");
 
         setItems(FXCollections.observableArrayList(FixedPeriod.values()));
 
@@ -62,6 +64,12 @@ public class ReportFixedPeriodBox extends ComboBox<FixedPeriod> {
                                     break;
                                 case THREEYEARS:
                                     text = keyThreeYears;
+                                    break;
+                                case FIVEYEARS:
+                                    text = keyFiveYears;
+                                    break;
+                                case TENYEARS:
+                                    text = keyTenYears;
                                     break;
                             }
 
