@@ -51,7 +51,34 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.22------\n" +
+            "------Version 3.9.24------\n" +
+                    "\n" +
+                    "\n" +
+                    "JECC - AlarmPlugin - fixed some errors with localization of special characters\n" +
+                    "JECC - Charts - fixed problem with threads in logical chart\n" +
+                    "JECC - Charts - fixed problem with threads in xy based charts\n" +
+                    "JECC - Charts - axis labels are cut off\n" +
+                    "JECC - Charts - x axis is not scaling properly in rare cases\n" +
+                    "JECC - Charts - autosize working properly again\n" +
+                    "JECC - Charts - removed not used empty chart legend \n" +
+                    "JECC - Charts - removed size settings which arent doing anything\n" +
+                    "JECC - Charts - TableChart - initializing chart causes null pointer\n" +
+                    "JECC - Charts - XYCharts - asynchronous data rows show period\n" +
+                    "JECC - Charts - fixed an rare case where clean data was not the default selection in the graph tree\n" +
+                    "JECC - Charts - fixed cut units in the y axis \n" +
+                    "JECC - Dashboard - ChartWidget - fixed size error\n" +
+                    "JECC - Dashboard - fixed table view if new widgets are added\n" +
+                    "JECC - SampleGraphExtension - look like analysis chart\n" +
+                    "JECC - Statusbar - made task list threadsafe\n" +
+                    "JECC - Taskmanager shows empty list\n" +
+                    "JECC - fixed type\n" +
+                    "JECC - add an holiday preload task to improve the building editor\n" +
+                    "JECC - fixed duplicated PDF dependency\n" +
+                    "JECC - fixed unit issue in sample generator for user data\n" +
+                    "\n" +
+                    "JEReport - added five and ten years to report period configuration fixed periods\n" +
+                    "Classes - added five and ten years to report period configuration\n\n" +
+                    "------Version 3.9.22------\n" +
                     "\n" +
                     "\n" +
                     "JECC - Charts - fixed some threading issues with loading\n\n" +
