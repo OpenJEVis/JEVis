@@ -159,7 +159,7 @@ public class ChartWidget extends Widget {
                                 defaultNumericAxis.setStyle("-fx-text-color: " + ColorHelper.toRGBCode(this.config.getFontColor()) + ";");
                             }
                         });
-
+                        lineChart.getChart().requestLayout();
                     }
                 } catch (Exception ex) {
                     logger.error(ex);
