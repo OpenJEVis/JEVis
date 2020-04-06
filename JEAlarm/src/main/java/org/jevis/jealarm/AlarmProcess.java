@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.alarm.*;
+import org.jevis.commons.constants.AlarmConstants;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
@@ -365,38 +366,38 @@ public class AlarmProcess {
                             case BIGGER:
                                 if (value > upperValue) {
                                     isAlarm = true;
-                                    operator = ">";
+                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.BIGGER);
                                 }
                                 break;
                             case BIGGER_EQUALS:
                                 if (value >= upperValue) {
                                     isAlarm = true;
-                                    operator = "≥";
+                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.BIGGER_EQUALS);
                                 }
                                 break;
                             case EQUALS:
                                 if (value.equals(upperValue)) {
                                     isAlarm = true;
-                                    operator = "=";
+                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.EQUALS);
                                 }
                                 break;
                             case NOT_EQUALS:
                                 if (!value.equals(upperValue)) {
                                     isAlarm = true;
-                                    operator = "≠";
+                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.NOT_EQUALS);
                                 }
                                 break;
                             case SMALLER:
                                 if (value < lowerValue) {
                                     isAlarm = true;
-                                    operator = "<";
+                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.SMALLER);
                                 }
                                 upper = false;
                                 break;
                             case SMALLER_EQUALS:
                                 if (value <= lowerValue) {
                                     isAlarm = true;
-                                    operator = "≤";
+                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.SMALLER_EQUALS);
                                 }
                                 upper = false;
                                 break;
