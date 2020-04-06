@@ -148,7 +148,7 @@ public class PieWidget extends Widget {
 
                 legendItemList.add(this.legend.buildLegendItem(
                         dataName, ColorHelper.toColor(chartDataRow.getColor()), this.config.getFontColor(), this.config.getFontSize(),
-                        chartDataRow.getObject(), hasNoData, I18n.getInstance().getString("plugin.dashboard.alert.nodata")));
+                        chartDataRow.getObject(), hasNoData, I18n.getInstance().getString("plugin.dashboard.alert.nodata"),true));
 
                 if (!hasNoData) {
                     PieChart.Data pieData = new PieChart.Data(textValue, value);

@@ -97,7 +97,7 @@ public class ChartWidget extends Widget {
                         this.legend.getItems().add(
                                 this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), ColorHelper.toColor(chartDataModel.getColor()),
                                         this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
-                                        chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata")));
+                                        chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata"),false));
 
                     } catch (Exception ex) {
                         logger.error(ex);
