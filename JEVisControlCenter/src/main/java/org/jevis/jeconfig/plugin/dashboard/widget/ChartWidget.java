@@ -112,10 +112,10 @@ public class ChartWidget extends Widget {
                 model.getCharts().setListSettings(Collections.singletonList(chartSetting));
                 this.borderPane.setCenter(null);
                 this.lineChart = new LineChart();
-                this.lineChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting);
+                this.lineChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting, true);
 
                 Size configSize = getConfig().getSize();
-                lineChart.getChart().setPrefSize(configSize.getWidth()-20, configSize.getHeight() - 20);
+                lineChart.getChart().setPrefSize(configSize.getWidth() - 20, configSize.getHeight() - 20);
                 lineChart.getChart().setMaxHeight(configSize.getHeight() - 20);/** workaround for the legend overlap **/
                 lineChart.getChart().setMaxHeight(configSize.getHeight() - 20);/** workaround for the legend overlap **/
                 this.borderPane.setCenter(this.lineChart.getChart());

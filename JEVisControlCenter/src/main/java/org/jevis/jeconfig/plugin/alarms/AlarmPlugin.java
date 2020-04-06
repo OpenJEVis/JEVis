@@ -405,7 +405,30 @@ public class AlarmPlugin implements Plugin {
                             setGraphic(null);
                             setText(null);
                         } else {
-                            setText(item);
+                            switch (item) {
+                                case ">":
+                                    setText(">");
+                                    break;
+                                case ">=":
+                                case "":
+                                case "\u2265":
+                                    setText("\u2265");
+                                    break;
+                                case "=":
+                                    setText("=");
+                                    break;
+                                case "!=":
+                                case "\u2260":
+                                    setText("\u2260");
+                                    break;
+                                case "<":
+                                    setText("<");
+                                    break;
+                                case "\u2264":
+                                case "<=":
+                                    setText("\u2264");
+                                    break;
+                            }
                         }
                     }
                 };

@@ -7,6 +7,7 @@ import org.jevis.commons.alarm.*;
 import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.chart.BubbleType;
+import org.jevis.commons.constants.AlarmConstants;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
@@ -200,38 +201,38 @@ public class ChartDataRow {
                             case BIGGER:
                                 if (value > upperValue) {
                                     isAlarm = true;
-                                    operator = ">";
+                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.BIGGER);
                                 }
                                 break;
                             case BIGGER_EQUALS:
                                 if (value >= upperValue) {
                                     isAlarm = true;
-                                    operator = "≥";
+                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.BIGGER_EQUALS);
                                 }
                                 break;
                             case EQUALS:
                                 if (value.equals(upperValue)) {
                                     isAlarm = true;
-                                    operator = "=";
+                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.EQUALS);
                                 }
                                 break;
                             case NOT_EQUALS:
                                 if (!value.equals(upperValue)) {
                                     isAlarm = true;
-                                    operator = "≠";
+                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.NOT_EQUALS);
                                 }
                                 break;
                             case SMALLER:
                                 if (value < lowerValue) {
                                     isAlarm = true;
-                                    operator = "<";
+                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.SMALLER);
                                 }
                                 upper = false;
                                 break;
                             case SMALLER_EQUALS:
                                 if (value <= lowerValue) {
                                     isAlarm = true;
-                                    operator = "≤";
+                                    operator = AlarmConstants.Operator.getValue(AlarmConstants.Operator.SMALLER_EQUALS);
                                 }
                                 upper = false;
                                 break;
