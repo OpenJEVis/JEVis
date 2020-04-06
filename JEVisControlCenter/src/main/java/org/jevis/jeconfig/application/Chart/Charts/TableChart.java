@@ -8,16 +8,24 @@ import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
+import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
+
+import java.util.List;
 
 public class TableChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(TableChart.class);
     private ChartDataRow singleRow;
     private TableTopDatePicker tableTopDatePicker;
 
-    public TableChart() {
+    public TableChart(AnalysisDataModel dataModel, List<ChartDataRow> chartDataRows, ChartSetting chart) {
         super();
+
+        super.init();
+
+        super.createChart(dataModel, chartDataRows, chart, true);
 
         tableTopDatePicker = new TableTopDatePicker(singleRow);
         tableTopDatePicker.setAlignment(Pos.CENTER);
