@@ -8,6 +8,7 @@ package org.jevis.commons.calculation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
@@ -24,6 +25,7 @@ public class SampleMerger {
     private final List<Sample> constants = new ArrayList<>();
     private final List<List<Sample>> periodConstants = new ArrayList<>();
     private int noOfAsyncVariables = 0;
+    private List<String> asyncVariables = new ArrayList<>();
 
     private void addPeriodic(List<JEVisSample> jevisSamples, String variable, CalcInputType calcInputType) {
         List<Sample> samples = jevisSamples.stream().map(currentSample -> new Sample(currentSample, variable, calcInputType)).collect(Collectors.toList());
@@ -46,6 +48,7 @@ public class SampleMerger {
                 addPeriodic(jevisSamples, variable, inputType);
             case ASYNC:
                 noOfAsyncVariables++;
+                asyncVariables.add(variable);
                 addPeriodic(jevisSamples, variable, inputType);
                 break;
             case STATIC:
@@ -67,6 +70,31 @@ public class SampleMerger {
         insertPeriodicConstants(sampleMap); //value changed for specific periods
 
         int variableSize = allSamples.size() + constants.size() + periodConstants.size();
+
+        if (noOfAsyncVariables > 0) {
+            for (Map.Entry<DateTime, List<Sample>> entry : sampleMap.entrySet()) {
+                DateTime sampleTime = entry.getKey();
+                List<Sample> sampleList = entry.getValue();
+
+                if (sampleList.size() < variableSize) {
+                    List<String> usedAsyncVariables = new ArrayList<>();
+                    sampleList.forEach(sample -> {
+                        if (sample.getCalcInputType() == CalcInputType.ASYNC) {
+                            usedAsyncVariables.add(sample.getVariable());
+                        }
+                    });
+
+                    for (String variable : asyncVariables) {
+                        if (!usedAsyncVariables.contains(variable)) {
+                            VirtualSample virtualSample = new VirtualSample(sampleTime, 0.0);
+                            Sample smp = new Sample(virtualSample, variable, CalcInputType.ASYNC);
+                            sampleList.add(smp);
+                        }
+                    }
+                }
+            }
+        }
+
         Set<DateTime> removableKeys = new HashSet<>();
         for (Map.Entry<DateTime, List<Sample>> sampleEntry : sampleMap.entrySet()) {
             if (sampleEntry.getValue().size() + noOfAsyncVariables < variableSize) {
@@ -99,12 +127,14 @@ public class SampleMerger {
             sampleMap.computeIfAbsent(sample.getDate(), k -> new ArrayList<>());
         }));
 
-        sampleMap.forEach((currentSampleTime, value) -> {
+        for (Map.Entry<DateTime, List<Sample>> entry : sampleMap.entrySet()) {
+            DateTime currentSampleTime = entry.getKey();
+            List<Sample> value = entry.getValue();
             for (List<Sample> periodicConstants : periodConstants) {
                 Sample validConstant = null;
                 for (Sample periodicConstant : periodicConstants) {
                     DateTime startDate = periodicConstant.getDate();
-                    if (startDate.isBefore(currentSampleTime) || startDate.isEqual(currentSampleTime)) {
+                    if (periodicConstant.getCalcInputType() != CalcInputType.ASYNC && (startDate.isBefore(currentSampleTime) || startDate.isEqual(currentSampleTime))) {
                         validConstant = periodicConstant;
                     } else if (startDate.isAfter(currentSampleTime)) {
                         break;
@@ -114,7 +144,7 @@ public class SampleMerger {
                     value.add(validConstant);
                 }
             }
-        });
+        }
     }
 
 
