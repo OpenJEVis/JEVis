@@ -131,6 +131,7 @@ public class AttributeValueChange {
     }
 
     public void commit(DateTime dateTime) throws JEVisException {
+        System.out.println("Commit attribute: "+primitiveType+" "+attribute.getName());
         switch (primitiveType) {
             case JEVisConstants.PrimitiveType.LONG:
                 JEVisSample longSample = attribute.buildSample(dateTime, longValue);
@@ -141,6 +142,7 @@ public class AttributeValueChange {
                 doubleSample.commit();
                 break;
             case JEVisConstants.PrimitiveType.FILE:
+                System.out.println("is file: "+jeVisFile);
                 JEVisSample fileSample = attribute.buildSample(dateTime, jeVisFile);
                 fileSample.commit();
                 break;
@@ -164,6 +166,7 @@ public class AttributeValueChange {
 
                 break;
         }
+        System.out.println("->done");
     }
 
     @Override

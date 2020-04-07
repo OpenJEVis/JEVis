@@ -11,6 +11,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.print.*;
@@ -24,6 +26,7 @@ import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.dialog.ProgressDialog;
@@ -552,29 +555,27 @@ public class MeterPlugin implements Plugin {
                                 valueChange = changeMap.get(item);
                             }
 
+                            Button previewButton = new Button("", JEConfig.getImage("export-image.png", tableIconSize, tableIconSize));
+                            previewButton.setDisable(true);
                             try {
+                                downloadButton.setDisable(!item.hasSample());
                                 if (item.hasSample()) {
                                     valueChange.setJeVisFile(item.getLatestSample().getValueAsFile());
                                     fileName = valueChange.getJeVisFile().getFilename();
                                     String finalFileName = fileName;
                                     Platform.runLater(() -> downloadButton.setTooltip(new Tooltip(finalFileName + " " + I18n.getInstance().getString("plugin.object.attribute.file.download"))));
 
-                                    String s = fileName.substring(fileName.length() - 3).toLowerCase();
-                                    switch (s) {
-                                        case "pdf":
-                                            isPDF = true;
-                                            break;
-                                        case "png":
-                                        case "jpg":
-                                        case "jpeg":
-                                        case "gif":
-                                            isImage = true;
-                                            break;
-                                    }
+                                    setPreviewButton(previewButton,valueChange);
+                                    previewButton.setDisable(false);
                                 }
                             } catch (JEVisException e) {
                                 e.printStackTrace();
                             }
+
+                            HBox hBox = new HBox();
+                            hBox.setAlignment(Pos.CENTER);
+                            hBox.setSpacing(4);
+
 
                             Button uploadButton = new Button("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
 
@@ -608,16 +609,17 @@ public class MeterPlugin implements Plugin {
                                     if (selectedFile != null) {
                                         try {
                                             JEConfig.setLastPath(selectedFile);
-                                            logger.debug("add new file: {}", selectedFile);
+                                            logger.error("add new file: {}", selectedFile);
                                             JEVisFile jfile = new JEVisFileImp(selectedFile.getName(), selectedFile);
+                                            JEVisSample fileSample = item.buildSample(new DateTime(), jfile);
+                                            fileSample.commit();
+                                            valueChange.setJeVisFile(jfile);
 
-                                            AttributeValueChange attributeValueChange = changeMap.get(item);
-                                            if (attributeValueChange != null) {
-                                                attributeValueChange.setJeVisFile(jfile);
-                                            } else {
-                                                valueChange.setJeVisFile(jfile);
-                                                valueChange.setChanged(true);
-                                            }
+                                            downloadButton.setDisable(false);
+                                            setPreviewButton(previewButton,valueChange);
+                                            previewButton.setDisable(false);
+                                            //hBox.getChildren().add(2,previewButton(valueChange));
+
                                         } catch (Exception ex) {
                                             logger.catching(ex);
                                         }
@@ -627,29 +629,20 @@ public class MeterPlugin implements Plugin {
                                 }
                             });
 
-                            HBox hBox = new HBox(uploadButton, downloadButton);
-                            hBox.setAlignment(Pos.CENTER);
-                            hBox.setSpacing(4);
 
-                            if (isPDF) {
-                                Button pdfButton = new Button("", JEConfig.getImage("pdf_24_2133056.png", tableIconSize, tableIconSize));
-                                String finalFileName1 = fileName;
-                                Platform.runLater(() -> pdfButton.setTooltip(new Tooltip(finalFileName1 + " " + I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"))));
-                                hBox.getChildren().add(pdfButton);
-                                pdfButton.setOnAction(event -> {
-                                    PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
-                                    pdfViewerDialog.show(valueChange.getJeVisFile(), this.getScene().getWindow());
-                                });
-                            } else if (isImage) {
-                                Button imageButton = new Button("", JEConfig.getImage("export-image.png", tableIconSize, tableIconSize));
-                                String finalFileName1 = fileName;
-                                Platform.runLater(() -> imageButton.setTooltip(new Tooltip(finalFileName1 + " " + I18n.getInstance().getString("plugin.object.attribute.file.download"))));
-                                hBox.getChildren().add(imageButton);
-                                imageButton.setOnAction(event -> {
-                                    ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
-                                    imageViewerDialog.show(valueChange.getJeVisFile(), JEConfig.getStage());
-                                });
+
+                            hBox.getChildren().addAll(uploadButton,downloadButton,previewButton);
+
+                            /**
+                            if(getItem().hasSample()){
+                                try{
+                                    hBox.getChildren().add(2,previewButton(valueChange));
+                                }catch (Exception ex){
+                                    ex.printStackTrace();
+                                }
+
                             }
+                             **/
 
                             VBox vBox = new VBox(hBox);
                             vBox.setAlignment(Pos.CENTER);
@@ -661,6 +654,77 @@ public class MeterPlugin implements Plugin {
             }
 
         };
+    }
+
+    private void setPreviewButton(Button button, AttributeValueChange valueChange){
+
+        button.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                boolean isPDF = false;
+                String fileName = valueChange.getJeVisFile().getFilename();
+                String s = FilenameUtils.getExtension(fileName);
+                switch (s) {
+                    case "pdf":
+                        isPDF = true;
+                        break;
+                    case "png":
+                    case "jpg":
+                    case "jpeg":
+                    case "gif":
+                        isPDF = false;
+                        break;
+                }
+
+                if(isPDF){
+                    PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
+                    pdfViewerDialog.show(valueChange.getJeVisFile(),JEConfig.getStage());
+                }else{
+                    ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
+                    imageViewerDialog.show(valueChange.getJeVisFile(), JEConfig.getStage());
+                }
+            }
+        });
+    }
+
+
+    private Button previewButton(AttributeValueChange valueChange){
+        boolean isPDF = false;
+        String fileName = valueChange.getJeVisFile().getFilename();
+        String s = FilenameUtils.getExtension(fileName);
+        switch (s) {
+            case "pdf":
+                isPDF = true;
+                break;
+            case "png":
+            case "jpg":
+            case "jpeg":
+            case "gif":
+                isPDF = false;
+                break;
+        }
+
+        if (isPDF) {
+            Button pdfButton = new Button("", JEConfig.getImage("pdf_24_2133056.png", tableIconSize, tableIconSize));
+            String finalFileName1 = fileName;
+            Platform.runLater(() -> pdfButton.setTooltip(new Tooltip(finalFileName1 + " " + I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"))));
+
+            pdfButton.setOnAction(event -> {
+                PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
+                pdfViewerDialog.show(valueChange.getJeVisFile(),JEConfig.getStage());
+            });
+            return pdfButton;
+
+        } else {
+            Button imageButton = new Button("", JEConfig.getImage("export-image.png", tableIconSize, tableIconSize));
+            String finalFileName1 = fileName;
+            Platform.runLater(() -> imageButton.setTooltip(new Tooltip(finalFileName1 + " " + I18n.getInstance().getString("plugin.object.attribute.file.download"))));
+            imageButton.setOnAction(event -> {
+                ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
+                imageViewerDialog.show(valueChange.getJeVisFile(), JEConfig.getStage());
+            });
+            return imageButton;
+        }
     }
 
     private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellDouble() {
@@ -1017,6 +1081,7 @@ public class MeterPlugin implements Plugin {
             case Constants.Plugin.Command.SAVE:
                 DateTime saveTime = new DateTime();
                 for (Map.Entry<JEVisAttribute, AttributeValueChange> entry : changeMap.entrySet()) {
+                    System.out.println("AttributeValueChange: "+entry);
                     JEVisAttribute a = entry.getKey();
                     AttributeValueChange attributeValueChange = entry.getValue();
                     try {

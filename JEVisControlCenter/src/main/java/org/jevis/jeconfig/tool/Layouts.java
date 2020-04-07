@@ -18,4 +18,5 @@ public class Layouts {
         node.setMinSize(maxWidth,maxHeight);
         node.setPrefSize(maxWidth,maxHeight);
     }
+
 }

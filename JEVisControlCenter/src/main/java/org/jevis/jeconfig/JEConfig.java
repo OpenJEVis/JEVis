@@ -110,13 +110,11 @@ public class JEConfig extends Application {
      */
     public static File getLastPath() {
         File result;
+        boolean lastPathOK = false;
 
-//        if (OsUtils.isWindows()) {//Pref is not working under windows 8+
-//            result = new File("/");
-//        } else {
-        final Preferences lastPath = Preferences.userRoot().node("JEVis.JEConfig");
-        result = new File(lastPath.get("lastPath", System.getProperty("user.home")));
-//        }
+        try{
+            final Preferences lastPath = Preferences.userRoot().node("JEVis.JEConfig");
+            result = new File(lastPath.get("lastPath", System.getProperty("user.home")));
 
         if (result.canRead()) {
             if (result.isFile()) {
@@ -125,9 +123,13 @@ public class JEConfig extends Application {
             } else {
                 return result;
             }
-        } else {
-            return new File(System.getProperty("user.home"));
         }
+        }catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return new File(System.getProperty("user.home"));
+
     }
 
     /**

@@ -18,6 +18,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Window;
 import javafx.stage.*;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisFile;
@@ -160,7 +161,8 @@ public class ImageViewerDialog {
         stage.setScene(scene);
 
         try {
-            File tempFile = File.createTempFile(file.getFilename().substring(0, file.getFilename().length() - 3), "." + file.getFileExtension());
+            File tempFile = File.createTempFile(FilenameUtils.getExtension(file.getFilename()), "." + file.getFileExtension());
+            //File tempFile = File.createTempFile(file.getFilename().substring(0, file.getFilename().length() - 3), "." + file.getFileExtension());
             tempFile.deleteOnExit();
             file.saveToFile(tempFile);
             Image image = new Image(tempFile.toURI().toString());
