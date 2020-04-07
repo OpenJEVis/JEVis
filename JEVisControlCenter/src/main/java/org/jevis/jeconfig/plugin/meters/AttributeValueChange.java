@@ -142,7 +142,6 @@ public class AttributeValueChange {
                 doubleSample.commit();
                 break;
             case JEVisConstants.PrimitiveType.FILE:
-                System.out.println("is file: "+jeVisFile);
                 JEVisSample fileSample = attribute.buildSample(dateTime, jeVisFile);
                 fileSample.commit();
                 break;

@@ -177,7 +177,7 @@ public class MeterPlugin implements Plugin {
                             column.setCellFactory(valueCellStringPassword());
                         } else if (type.getGUIDisplayType().equals(GUIConstants.TARGET_OBJECT.getId()) || type.getGUIDisplayType().equals(GUIConstants.TARGET_ATTRIBUTE.getId())) {
                             column.setCellFactory(valueCellTargetSelection());
-                            column.setMinWidth(85);
+                            column.setMinWidth(120);
                         } else if (type.getGUIDisplayType().equals(GUIConstants.DATE_TIME.getId()) || type.getGUIDisplayType().equals(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                             column.setCellFactory(valueCellDateTime());
                             column.setMinWidth(110);
@@ -305,6 +305,8 @@ public class MeterPlugin implements Plugin {
                         } else {
                             MeterRow meterRow = (MeterRow) getTableRow().getItem();
 
+                            Button manSampleButton = new Button("",JEConfig.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
+                            manSampleButton.setDisable(true);
                             Button treeButton = new Button("",
                                     JEConfig.getImage("folders_explorer.png", tableIconSize, tableIconSize));
                             treeButton.wrapTextProperty().setValue(true);
@@ -313,7 +315,15 @@ public class MeterPlugin implements Plugin {
                                     JEConfig.getImage("1476393792_Gnome-Go-Jump-32.png", tableIconSize, tableIconSize));//icon
                             gotoButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.object.attribute.target.goto.tooltip")));
 
-                            Boolean foundTarget = false;
+                            try {
+                                if(item.hasSample()){
+                                    addEventManSampleAction(item.getLatestSample(),manSampleButton);
+                                    Platform.runLater(() ->  manSampleButton.setDisable(false));
+                                }
+
+                            } catch (Exception ex) {
+                                logger.catching(ex);
+                            }
 
                             gotoButton.setOnAction(event -> {
                                 try {
@@ -345,7 +355,6 @@ public class MeterPlugin implements Plugin {
                                     allFilter.add(allDataFilter);
 
                                     selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE);
-
                                     selectTargetDialog.setInitOwner(treeButton.getScene().getWindow());
 
                                     List<UserSelection> openList = new ArrayList<>();
@@ -372,18 +381,22 @@ public class MeterPlugin implements Plugin {
                                             newTarget += us.getSelectedObject().getID();
                                             if (us.getSelectedAttribute() != null) {
                                                 newTarget += ":" + us.getSelectedAttribute().getName();
+
                                             } else {
                                                 newTarget += ":Value";
                                             }
                                         }
 
-                                        AttributeValueChange attributeValueChange = changeMap.get(item);
-                                        if (attributeValueChange != null) {
-                                            attributeValueChange.setStringValue(newTarget);
-                                        } else {
-                                            AttributeValueChange valueChange = new AttributeValueChange(item.getPrimitiveType(), item.getType().getGUIDisplayType(), item, newTarget);
-                                            changeMap.put(item, valueChange);
+
+                                        JEVisSample newTargetSample = item.buildSample(new DateTime(),newTarget);
+                                        newTargetSample.commit();
+                                        try{
+                                            addEventManSampleAction(newTargetSample,manSampleButton);
+                                            manSampleButton.setDisable(false);
+                                        }catch (Exception ex){
+                                            ex.printStackTrace();
                                         }
+
                                     }
                                     setToolTipText(treeButton, item);
 
@@ -393,7 +406,7 @@ public class MeterPlugin implements Plugin {
                             });
 
 
-                            HBox hBox = new HBox(treeButton);
+                            HBox hBox = new HBox(treeButton,manSampleButton);
                             hBox.setAlignment(Pos.CENTER);
                             hBox.setSpacing(4);
 
@@ -411,6 +424,29 @@ public class MeterPlugin implements Plugin {
             }
 
         };
+    }
+
+    private void addEventManSampleAction(JEVisSample targetSample, Button buttonToAddEvent ){
+        EnterDataDialog enterDataDialog = new EnterDataDialog(getDataSource());
+        if(targetSample!=null){
+            try {
+                TargetHelper th = new TargetHelper(getDataSource(), targetSample.getValueAsString());
+                if (th.isValid() && th.targetAccessible()) {
+                    JEVisSample laastValue = th.getAttribute().get(0).getLatestSample();
+                    enterDataDialog.setTarget(false, th.getAttribute().get(0));
+                    enterDataDialog.setSample(laastValue);
+                    enterDataDialog.setShowValuePrompt(true);
+                }
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+        }
+
+
+
+        buttonToAddEvent.setOnAction(event -> {
+            enterDataDialog.showPopup(buttonToAddEvent);
+        });
     }
 
     private boolean setToolTipText(Button treeButton, JEVisAttribute att) {
