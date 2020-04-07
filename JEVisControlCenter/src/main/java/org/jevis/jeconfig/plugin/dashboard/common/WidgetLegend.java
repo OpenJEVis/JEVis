@@ -18,7 +18,7 @@ import java.lang.reflect.Field;
 
 public class WidgetLegend extends Legend {
 
-    public Legend.LegendItem buildLegendItem(String name, Color color, Color fontcolor, double fontSize, JEVisObject obj, boolean isAlert, String alertText) {
+    public Legend.LegendItem buildLegendItem(String name, Color color, Color fontcolor, double fontSize, JEVisObject obj, boolean isAlert, String alertText, boolean wrapText) {
 
         Rectangle r = new Rectangle();
         r.setX(0);
@@ -54,7 +54,7 @@ public class WidgetLegend extends Legend {
                     getDeclaredField("label");
             privateStringField.setAccessible(true);
             Label label = (Label) privateStringField.get(item);
-            label.setWrapText(true);
+            label.setWrapText(wrapText);
 //            label.setTextOverrun(OverrunStyle.CENTER_ELLIPSIS);
             label.setTextFill(fontcolor);
             label.setFont(new Font(fontSize));
