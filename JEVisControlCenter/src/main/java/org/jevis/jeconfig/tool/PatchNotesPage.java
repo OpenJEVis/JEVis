@@ -51,9 +51,14 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.24------\n" +
+            "------Version 3.9.25------\n" +
+                    "JECC - Dashboard - Sometime the chart will not render\n" +
+                    "JECC - MeterPlugin - Add manual sample button to online column\n" +
+                    "JECC - MeterPlugin  - Fixed an bug when the file upload did not work\n" +
+                    "JECC - Add additonal check for the last user path \n" +
                     "\n" +
-                    "\n" +
+                    "JECalc - fixed problem with calculation of async variables\n\n" +
+                    "------Version 3.9.24------\n" +
                     "JECC - AlarmPlugin - fixed some errors with localization of special characters\n" +
                     "JECC - Charts - fixed problem with threads in logical chart\n" +
                     "JECC - Charts - fixed problem with threads in xy based charts\n" +
@@ -79,12 +84,8 @@ public class PatchNotesPage {
                     "JEReport - added five and ten years to report period configuration fixed periods\n" +
                     "Classes - added five and ten years to report period configuration\n\n" +
                     "------Version 3.9.22------\n" +
-                    "\n" +
-                    "\n" +
                     "JECC - Charts - fixed some threading issues with loading\n\n" +
                     "------Version 3.9.21------\n" +
-                    "\n" +
-                    "\n" +
                     "JECC - Charts - LoadAnalysisDialog - individual time frames are not working\n" +
                     "JECC - Charts - fixed asynchronous period visualization\n" +
                     "JECC - Charts - sum function fix\n" +
