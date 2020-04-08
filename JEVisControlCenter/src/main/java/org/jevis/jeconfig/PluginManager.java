@@ -199,9 +199,9 @@ public class PluginManager {
                                                     continue;
                                                 }
                                             } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
-                                                JEVisClass alarmClass = this._ds.getJEVisClass(MeterPlugin.MEASUREMENT_INSTRUMENT_CLASS);
-                                                List<JEVisObject> allAlarms = this._ds.getObjects(alarmClass, true);
-                                                if (allAlarms.size() == 0) {
+                                                JEVisClass measurementInstrumentClass = this._ds.getJEVisClass(MeterPlugin.MEASUREMENT_INSTRUMENT_CLASS);
+                                                List<JEVisObject> allMeasurementInstruments = this._ds.getObjects(measurementInstrumentClass, true);
+                                                if (allMeasurementInstruments.size() == 0) {
                                                     continue;
                                                 }
                                             }
@@ -297,6 +297,15 @@ public class PluginManager {
                             }
                         });
                     });
+
+                    /** Start Loading Alarms in the background delayed **/
+                    Timer updateTimer = new Timer(true);
+                    updateTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            Platform.runLater(() -> plugin.setHasFocus());
+                        }
+                    }, 4000);
                 }
 
                 this.tabPane.getTabs().add(pluginTab);
@@ -307,15 +316,6 @@ public class PluginManager {
                 });
 
                 pluginTab.setGraphic(plugin.getIcon());
-
-                /** Start Loading Alarms in the background after an delay **/
-                Timer updateTimer = new Timer(true);
-                updateTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        Platform.runLater(() -> plugin.setHasFocus());
-                    }
-                }, 4000);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
