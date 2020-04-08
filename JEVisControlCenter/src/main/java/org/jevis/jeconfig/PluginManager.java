@@ -199,9 +199,9 @@ public class PluginManager {
                                                     continue;
                                                 }
                                             } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
-                                                JEVisClass alarmClass = this._ds.getJEVisClass(MeterPlugin.MEASUREMENT_INSTRUMENT_CLASS);
-                                                List<JEVisObject> allAlarms = this._ds.getObjects(alarmClass, true);
-                                                if (allAlarms.size() == 0) {
+                                                JEVisClass measurementInstrumentClass = this._ds.getJEVisClass(MeterPlugin.MEASUREMENT_INSTRUMENT_CLASS);
+                                                List<JEVisObject> allMeasurementInstruments = this._ds.getObjects(measurementInstrumentClass, true);
+                                                if (allMeasurementInstruments.size() == 0) {
                                                     continue;
                                                 }
                                             }
