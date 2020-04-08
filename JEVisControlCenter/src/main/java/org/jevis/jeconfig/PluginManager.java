@@ -297,8 +297,7 @@ public class PluginManager {
                             }
                         });
                     });
-
-                    /** Start Loading Alarms in the background delayed **/
+                    /** Start Loading Alarms in the background after an delay **/
                     Timer updateTimer = new Timer(true);
                     updateTimer.schedule(new TimerTask() {
                         @Override
@@ -306,6 +305,7 @@ public class PluginManager {
                             Platform.runLater(() -> plugin.setHasFocus());
                         }
                     }, 4000);
+
                 }
 
                 this.tabPane.getTabs().add(pluginTab);
@@ -316,6 +316,8 @@ public class PluginManager {
                 });
 
                 pluginTab.setGraphic(plugin.getIcon());
+
+
 
             } catch (Exception ex) {
                 ex.printStackTrace();
