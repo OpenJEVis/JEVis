@@ -297,6 +297,15 @@ public class PluginManager {
                             }
                         });
                     });
+                    /** Start Loading Alarms in the background after an delay **/
+                    Timer updateTimer = new Timer(true);
+                    updateTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            Platform.runLater(() -> plugin.setHasFocus());
+                        }
+                    }, 4000);
+
                 }
 
                 this.tabPane.getTabs().add(pluginTab);
@@ -308,14 +317,7 @@ public class PluginManager {
 
                 pluginTab.setGraphic(plugin.getIcon());
 
-                /** Start Loading Alarms in the background after an delay **/
-                Timer updateTimer = new Timer(true);
-                updateTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        Platform.runLater(() -> plugin.setHasFocus());
-                    }
-                }, 4000);
+
 
             } catch (Exception ex) {
                 ex.printStackTrace();

@@ -130,6 +130,10 @@ public class AttributeValueChange {
         this.attribute = attribute;
     }
 
+    public JEVisAttribute getAttribute(){
+        return this.attribute;
+    }
+
     public void commit(DateTime dateTime) throws JEVisException {
         System.out.println("Commit attribute: "+primitiveType+" "+attribute.getName());
         switch (primitiveType) {

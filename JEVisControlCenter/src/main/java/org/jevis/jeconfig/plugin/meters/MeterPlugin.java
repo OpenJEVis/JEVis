@@ -3,6 +3,8 @@ package org.jevis.jeconfig.plugin.meters;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
+import de.jollyday.HolidayManager;
+import de.jollyday.ManagerParameters;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -35,6 +37,7 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.commons.utils.Benchmark;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
@@ -106,9 +109,6 @@ public class MeterPlugin implements Plugin {
     }
 
     public static void autoFitTable(TableView<MeterRow> tableView) {
-//        tableView.getItems().addListener(new ListChangeListener<Object>() {
-//            @Override
-//            public void onChanged(Change<?> c) {
         for (TableColumn<MeterRow, ?> column : tableView.getColumns()) {
             if (column.isVisible()) {
                 try {
@@ -120,9 +120,6 @@ public class MeterPlugin implements Plugin {
                 }
             }
         }
-
-//            }
-//        });
     }
 
     private void createColumns(TableView<MeterRow> tableView, JEVisClass jeVisClass) {
@@ -574,9 +571,6 @@ public class MeterPlugin implements Plugin {
                             Button downloadButton = new Button("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
                             String fileName = "";
 
-                            boolean isPDF = false;
-                            boolean isImage = false;
-
                             AttributeValueChange valueChange;
                             if (changeMap.get(item) == null) {
                                 valueChange = new AttributeValueChange();
@@ -596,15 +590,15 @@ public class MeterPlugin implements Plugin {
                             try {
                                 downloadButton.setDisable(!item.hasSample());
                                 if (item.hasSample()) {
-                                    valueChange.setJeVisFile(item.getLatestSample().getValueAsFile());
-                                    fileName = valueChange.getJeVisFile().getFilename();
-                                    String finalFileName = fileName;
-                                    Platform.runLater(() -> downloadButton.setTooltip(new Tooltip(finalFileName + " " + I18n.getInstance().getString("plugin.object.attribute.file.download"))));
+                                    //valueChange.setJeVisFile(item.getLatestSample().getValueAsFile());
+                                    //fileName = valueChange.getJeVisFile().getFilename();
+                                    //String finalFileName = fileName;
+                                    //Platform.runLater(() -> downloadButton.setTooltip(new Tooltip(finalFileName + " " + I18n.getInstance().getString("plugin.object.attribute.file.download"))));
 
                                     setPreviewButton(previewButton,valueChange);
                                     previewButton.setDisable(false);
                                 }
-                            } catch (JEVisException e) {
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
 
@@ -669,17 +663,6 @@ public class MeterPlugin implements Plugin {
 
                             hBox.getChildren().addAll(uploadButton,downloadButton,previewButton);
 
-                            /**
-                            if(getItem().hasSample()){
-                                try{
-                                    hBox.getChildren().add(2,previewButton(valueChange));
-                                }catch (Exception ex){
-                                    ex.printStackTrace();
-                                }
-
-                            }
-                             **/
-
                             VBox vBox = new VBox(hBox);
                             vBox.setAlignment(Pos.CENTER);
 
@@ -697,70 +680,35 @@ public class MeterPlugin implements Plugin {
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                boolean isPDF = false;
-                String fileName = valueChange.getJeVisFile().getFilename();
-                String s = FilenameUtils.getExtension(fileName);
-                switch (s) {
-                    case "pdf":
-                        isPDF = true;
-                        break;
-                    case "png":
-                    case "jpg":
-                    case "jpeg":
-                    case "gif":
-                        isPDF = false;
-                        break;
-                }
+                try {
+                    boolean isPDF = false;
 
-                if(isPDF){
-                    PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
-                    pdfViewerDialog.show(valueChange.getJeVisFile(),JEConfig.getStage());
-                }else{
-                    ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
-                    imageViewerDialog.show(valueChange.getJeVisFile(), JEConfig.getStage());
+                    String fileName = valueChange.getAttribute().getLatestSample().getValueAsFile().getFilename();
+                    String s = FilenameUtils.getExtension(fileName);
+                    switch (s) {
+                        case "pdf":
+                            isPDF = true;
+                            break;
+                        case "png":
+                        case "jpg":
+                        case "jpeg":
+                        case "gif":
+                            isPDF = false;
+                            break;
+                    }
+
+                    if (isPDF) {
+                        PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
+                        pdfViewerDialog.show(valueChange.getJeVisFile(), JEConfig.getStage());
+                    } else {
+                        ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
+                        imageViewerDialog.show(valueChange.getJeVisFile(), JEConfig.getStage());
+                    }
+                }catch (Exception ex){
+                    ex.printStackTrace();
                 }
             }
         });
-    }
-
-
-    private Button previewButton(AttributeValueChange valueChange){
-        boolean isPDF = false;
-        String fileName = valueChange.getJeVisFile().getFilename();
-        String s = FilenameUtils.getExtension(fileName);
-        switch (s) {
-            case "pdf":
-                isPDF = true;
-                break;
-            case "png":
-            case "jpg":
-            case "jpeg":
-            case "gif":
-                isPDF = false;
-                break;
-        }
-
-        if (isPDF) {
-            Button pdfButton = new Button("", JEConfig.getImage("pdf_24_2133056.png", tableIconSize, tableIconSize));
-            String finalFileName1 = fileName;
-            Platform.runLater(() -> pdfButton.setTooltip(new Tooltip(finalFileName1 + " " + I18n.getInstance().getString("plugin.reports.toolbar.tooltip.pdf"))));
-
-            pdfButton.setOnAction(event -> {
-                PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
-                pdfViewerDialog.show(valueChange.getJeVisFile(),JEConfig.getStage());
-            });
-            return pdfButton;
-
-        } else {
-            Button imageButton = new Button("", JEConfig.getImage("export-image.png", tableIconSize, tableIconSize));
-            String finalFileName1 = fileName;
-            Platform.runLater(() -> imageButton.setTooltip(new Tooltip(finalFileName1 + " " + I18n.getInstance().getString("plugin.object.attribute.file.download"))));
-            imageButton.setOnAction(event -> {
-                ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
-                imageViewerDialog.show(valueChange.getJeVisFile(), JEConfig.getStage());
-            });
-            return imageButton;
-        }
     }
 
     private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellDouble() {
@@ -1011,6 +959,7 @@ public class MeterPlugin implements Plugin {
 
         // -delete
         toolBar.getItems().setAll(reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
+        System.out.println("MP:Done toolbar");
     }
 
     @Override
@@ -1166,37 +1115,27 @@ public class MeterPlugin implements Plugin {
                 }
                 break;
             case Constants.Plugin.Command.RELOAD:
+                System.out.println("Handel reload command");
                 final String loading = I18n.getInstance().getString("plugin.alarms.reload.progress.message");
-                Service<Void> service = new Service<Void>() {
-                    @Override
-                    protected Task<Void> createTask() {
-                        return new Task<Void>() {
-                            @Override
-                            protected Void call() {
-                                updateMessage(loading);
-                                try {
-                                    if (initialized) {
-                                        ds.clearCache();
-                                        ds.preload();
-                                    } else {
-                                        initialized = true;
-                                    }
 
-                                    updateList();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                return null;
-                            }
-                        };
+                Task clearCacheTask = new Task() {
+                    @Override
+                    protected Object call() throws Exception {
+                        try{
+                            this.updateTitle(I18n.getInstance().getString("Clear Cache"));
+                            ds.clearCache();
+                            ds.preload();
+                            updateList();
+                            succeeded();
+                        }catch (Exception ex){
+                            failed();
+                        }finally {
+                            done();
+                        }
+                        return null;
                     }
                 };
-                ProgressDialog pd = new ProgressDialog(service);
-                pd.setHeaderText(I18n.getInstance().getString("plugin.reports.reload.progress.header"));
-                pd.setTitle(I18n.getInstance().getString("plugin.reports.reload.progress.title"));
-                pd.getDialogPane().setContent(null);
-
-                service.start();
+                JEConfig.getStatusBar().addTask(PLUGIN_NAME,clearCacheTask,JEConfig.getImage("measurement_instrument.png"),true);
 
                 break;
             case Constants.Plugin.Command.ADD_TABLE:
@@ -1224,7 +1163,7 @@ public class MeterPlugin implements Plugin {
     }
 
     private void updateList() {
-
+        System.out.println("Update List");
         Platform.runLater(() -> tabPane.getTabs().clear());
         changeMap.clear();
 
@@ -1314,13 +1253,18 @@ public class MeterPlugin implements Plugin {
                 e.printStackTrace();
             }
         }
+        System.out.println("done updae");
     }
 
     private Map<JEVisClass, List<JEVisObject>> getAllMeters() {
+        System.out.println("Load all meter");
         Map<JEVisClass, List<JEVisObject>> map = new HashMap<>();
         try {
             JEVisClass meterClass = ds.getJEVisClass(MEASUREMENT_INSTRUMENT_CLASS);
+            Benchmark benchmark = new Benchmark();
+            System.out.println("start meter donload");
             List<JEVisObject> allObjects = ds.getObjects(meterClass, true);
+            benchmark.printBenchmarkDetail("load all metering objects");
             for (JEVisObject object : allObjects) {
                 if (!map.containsKey(object.getJEVisClass())) {
                     List<JEVisObject> objectArrayList = new ArrayList<>();
@@ -1349,9 +1293,25 @@ public class MeterPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
-        if (!initialized) {
-            handleRequest(Constants.Plugin.Command.RELOAD);
-        }
+        System.out.println("MP.setHasFocus");
+
+        Task loadTask = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                try{
+                    this.updateTitle(I18n.getInstance().getString("plugin.meters.load"));
+                    updateList();
+                    succeeded();
+                }catch (Exception ex){
+                    failed();
+                }finally {
+                    done();
+                }
+                return null;
+            }
+        };
+        JEConfig.getStatusBar().addTask(PLUGIN_NAME,loadTask,JEConfig.getImage("measurement_instrument.png"),true);
+
     }
 
     @Override
