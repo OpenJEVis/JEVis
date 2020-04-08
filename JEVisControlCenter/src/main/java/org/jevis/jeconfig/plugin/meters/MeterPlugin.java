@@ -569,7 +569,6 @@ public class MeterPlugin implements Plugin {
                             setGraphic(null);
                         } else {
                             Button downloadButton = new Button("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
-                            String fileName = "";
 
                             AttributeValueChange valueChange;
                             if (changeMap.get(item) == null) {
@@ -590,11 +589,6 @@ public class MeterPlugin implements Plugin {
                             try {
                                 downloadButton.setDisable(!item.hasSample());
                                 if (item.hasSample()) {
-                                    //valueChange.setJeVisFile(item.getLatestSample().getValueAsFile());
-                                    //fileName = valueChange.getJeVisFile().getFilename();
-                                    //String finalFileName = fileName;
-                                    //Platform.runLater(() -> downloadButton.setTooltip(new Tooltip(finalFileName + " " + I18n.getInstance().getString("plugin.object.attribute.file.download"))));
-
                                     setPreviewButton(previewButton,valueChange);
                                     previewButton.setDisable(false);
                                 }
@@ -681,9 +675,11 @@ public class MeterPlugin implements Plugin {
             @Override
             public void handle(ActionEvent event) {
                 try {
+                    System.out.println("Show file");
                     boolean isPDF = false;
+                    JEVisFile file = valueChange.getAttribute().getLatestSample().getValueAsFile();
+                    String fileName = file.getFilename();
 
-                    String fileName = valueChange.getAttribute().getLatestSample().getValueAsFile().getFilename();
                     String s = FilenameUtils.getExtension(fileName);
                     switch (s) {
                         case "pdf":
@@ -699,11 +695,12 @@ public class MeterPlugin implements Plugin {
 
                     if (isPDF) {
                         PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
-                        pdfViewerDialog.show(valueChange.getJeVisFile(), JEConfig.getStage());
+                        pdfViewerDialog.show(file, JEConfig.getStage());
                     } else {
                         ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
-                        imageViewerDialog.show(valueChange.getJeVisFile(), JEConfig.getStage());
+                        imageViewerDialog.show(file, JEConfig.getStage());
                     }
+                    System.out.println("doine show file");
                 }catch (Exception ex){
                     ex.printStackTrace();
                 }
@@ -1180,7 +1177,9 @@ public class MeterPlugin implements Plugin {
             return 1;
         });
 
+        Benchmark benchmark = new Benchmark();
         for (JEVisClass jeVisClass : classes) {
+            benchmark.printBenchmarkDetail("start class"+jeVisClass);
             List<JEVisObject> listObjects = allMeters.get(jeVisClass);
 
             try {
@@ -1204,6 +1203,7 @@ public class MeterPlugin implements Plugin {
                 JEVisType multiplierType = cleanDataClass.getType("Value Multiplier");
 
                 for (JEVisObject meterObject : listObjects) {
+                    benchmark.printBenchmarkDetail("-- start object"+meterObject);
                     Map<JEVisType, JEVisAttribute> map = new HashMap<>();
 
                     for (JEVisAttribute meterObjectAttribute : meterObject.getAttributes()) {
@@ -1241,13 +1241,9 @@ public class MeterPlugin implements Plugin {
                     meterRows.add(tableData);
                 }
 
-                tableView.getItems().setAll(meterRows);
-
                 Platform.runLater(() -> {
+                    tableView.getItems().setAll(meterRows);
                     tabPane.getTabs().add(tab);
-
-//                    Platform.runLater(() -> autoFitTable(tableView));
-
                 });
             } catch (JEVisException e) {
                 e.printStackTrace();
