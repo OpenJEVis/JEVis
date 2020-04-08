@@ -33,7 +33,7 @@ public class PDFViewerDialog {
     private static final Logger logger = LogManager.getLogger(PDFViewerDialog.class);
     private final int iconSize = 32;
     private Stage stage;
-    private AtomicDouble zoomFactor = new AtomicDouble(1);
+    private AtomicDouble zoomFactor = new AtomicDouble(0.3);
 
     public PDFViewerDialog() {
 
@@ -132,7 +132,7 @@ public class PDFViewerDialog {
         byte[] bytes = file.getBytes();
         PDFModel model = new PDFModel(bytes);
         pagination.setPageCount(model.numPages());
-        pagination.setPageFactory(index -> (model.getImage(index, 1)));
+        pagination.setPageFactory(index -> new Group(model.getImage(index, zoomFactor.get())));
 
         pagination.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
