@@ -3,15 +3,12 @@ package org.jevis.jeconfig.plugin.meters;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
-import de.jollyday.HolidayManager;
-import de.jollyday.ManagerParameters;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
-import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -31,13 +28,11 @@ import javafx.util.Callback;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
-import org.jevis.commons.utils.Benchmark;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
@@ -675,32 +670,54 @@ public class MeterPlugin implements Plugin {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    System.out.println("Show file");
-                    boolean isPDF = false;
-                    JEVisFile file = valueChange.getAttribute().getLatestSample().getValueAsFile();
-                    String fileName = file.getFilename();
+                    Task clearCacheTask = new Task() {
+                        @Override
+                        protected Object call() throws Exception {
+                            try{
+                                this.updateTitle(I18n.getInstance().getString("plugin.meters.download"));
+                                boolean isPDF = false;
+                                JEVisFile file = valueChange.getAttribute().getLatestSample().getValueAsFile();
+                                String fileName = file.getFilename();
 
-                    String s = FilenameUtils.getExtension(fileName);
-                    switch (s) {
-                        case "pdf":
-                            isPDF = true;
-                            break;
-                        case "png":
-                        case "jpg":
-                        case "jpeg":
-                        case "gif":
-                            isPDF = false;
-                            break;
-                    }
+                                String s = FilenameUtils.getExtension(fileName);
+                                switch (s) {
+                                    case "pdf":
+                                        isPDF = true;
+                                        break;
+                                    case "png":
+                                    case "jpg":
+                                    case "jpeg":
+                                    case "gif":
+                                        isPDF = false;
+                                        break;
+                                }
 
-                    if (isPDF) {
-                        PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
-                        pdfViewerDialog.show(file, JEConfig.getStage());
-                    } else {
-                        ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
-                        imageViewerDialog.show(file, JEConfig.getStage());
-                    }
-                    System.out.println("doine show file");
+
+                                if (isPDF) {
+                                    Platform.runLater(() -> {
+                                        PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
+                                        pdfViewerDialog.show(file, JEConfig.getStage());
+                                    });
+
+                                } else {
+                                    Platform.runLater(() -> {
+                                        ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
+                                        imageViewerDialog.show(file, JEConfig.getStage());
+                                            });
+
+                                }
+                            }catch (Exception ex){
+                                failed();
+                            }finally {
+                                done();
+                            }
+                            return null;
+                        }
+                    };
+                    JEConfig.getStatusBar().addTask(PLUGIN_NAME,clearCacheTask,JEConfig.getImage("measurement_instrument.png"),true);
+
+
+
                 }catch (Exception ex){
                     ex.printStackTrace();
                 }
@@ -956,7 +973,6 @@ public class MeterPlugin implements Plugin {
 
         // -delete
         toolBar.getItems().setAll(reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
-        System.out.println("MP:Done toolbar");
     }
 
     @Override
@@ -1177,9 +1193,7 @@ public class MeterPlugin implements Plugin {
             return 1;
         });
 
-        Benchmark benchmark = new Benchmark();
         for (JEVisClass jeVisClass : classes) {
-            benchmark.printBenchmarkDetail("start class"+jeVisClass);
             List<JEVisObject> listObjects = allMeters.get(jeVisClass);
 
             try {
@@ -1203,7 +1217,6 @@ public class MeterPlugin implements Plugin {
                 JEVisType multiplierType = cleanDataClass.getType("Value Multiplier");
 
                 for (JEVisObject meterObject : listObjects) {
-                    benchmark.printBenchmarkDetail("-- start object"+meterObject);
                     Map<JEVisType, JEVisAttribute> map = new HashMap<>();
 
                     for (JEVisAttribute meterObjectAttribute : meterObject.getAttributes()) {
@@ -1245,22 +1258,17 @@ public class MeterPlugin implements Plugin {
                     tableView.getItems().setAll(meterRows);
                     tabPane.getTabs().add(tab);
                 });
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        System.out.println("done updae");
     }
 
     private Map<JEVisClass, List<JEVisObject>> getAllMeters() {
-        System.out.println("Load all meter");
         Map<JEVisClass, List<JEVisObject>> map = new HashMap<>();
         try {
             JEVisClass meterClass = ds.getJEVisClass(MEASUREMENT_INSTRUMENT_CLASS);
-            Benchmark benchmark = new Benchmark();
-            System.out.println("start meter donload");
             List<JEVisObject> allObjects = ds.getObjects(meterClass, true);
-            benchmark.printBenchmarkDetail("load all metering objects");
             for (JEVisObject object : allObjects) {
                 if (!map.containsKey(object.getJEVisClass())) {
                     List<JEVisObject> objectArrayList = new ArrayList<>();
