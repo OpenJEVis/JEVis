@@ -1176,7 +1176,6 @@ public class MeterPlugin implements Plugin {
     }
 
     private void updateList() {
-        System.out.println("Update List");
         Platform.runLater(() -> tabPane.getTabs().clear());
         changeMap.clear();
 
@@ -1297,8 +1296,6 @@ public class MeterPlugin implements Plugin {
 
     @Override
     public void setHasFocus() {
-        System.out.println("MP.setHasFocus");
-
         Task loadTask = new Task() {
             @Override
             protected Object call() throws Exception {
