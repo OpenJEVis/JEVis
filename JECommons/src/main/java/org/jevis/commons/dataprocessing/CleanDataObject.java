@@ -209,21 +209,41 @@ public class CleanDataObject {
     public void reloadAttributes() throws JEVisException {
 
         getCleanObject().getDataSource().reloadAttribute(conversionToDifferentialAttribute);
+        conversionDifferential = null;
         getCleanObject().getDataSource().reloadAttribute(enabledAttribute);
+        enabled = null;
         getCleanObject().getDataSource().reloadAttribute(limitsEnabledAttribute);
+        limitsEnabled = null;
         getCleanObject().getDataSource().reloadAttribute(limitsConfigurationAttribute);
+        jsonLimitsConfig = null;
         getCleanObject().getDataSource().reloadAttribute(gapFillingEnabledAttribute);
+        gapFillingEnabled = null;
         getCleanObject().getDataSource().reloadAttribute(gapFillingConfigAttribute);
+        jsonGapFillingConfig = null;
         getCleanObject().getDataSource().reloadAttribute(alarmEnabledAttribute);
         getCleanObject().getDataSource().reloadAttribute(alarmConfigAttribute);
         getCleanObject().getDataSource().reloadAttribute(alarmLogAttribute);
         getCleanObject().getDataSource().reloadAttribute(periodAlignmentAttribute);
+        isPeriodAligned = null;
         getCleanObject().getDataSource().reloadAttribute(periodOffsetAttribute);
+        periodOffset = null;
         getCleanObject().getDataSource().reloadAttribute(valueIsAQuantityAttribute);
+        valueIsQuantity = null;
         getCleanObject().getDataSource().reloadAttribute(valueMultiplierAttribute);
+        multiplier = null;
         getCleanObject().getDataSource().reloadAttribute(valueOffsetAttribute);
+        offset = null;
         getCleanObject().getDataSource().reloadAttribute(counterOverflowAttribute);
+        counterOverflow = null;
         getCleanObject().getDataSource().reloadAttribute(valueAttribute);
+
+        periodRawData = null;
+        periodCleanData = null;
+        firstDate = null;
+        lastDate = null;
+        rawSamplesDown = null;
+        rawSamplesUp = null;
+        lastCleanValue = null;
     }
 
     public Boolean getEnabled() {

@@ -151,6 +151,7 @@ public class ProcessManager {
 
     private void reRun() throws Exception {
 
+        resourceManager.getCleanDataObject().reloadAttributes();
         for (ProcessStep ps : processSteps) {
 //            if (rerun && ps.getClass().equals(PrepareStep.class)) {
 //                JEVisDataSource ds = resourceManager.getCleanDataObject().getCleanObject().getDataSource();

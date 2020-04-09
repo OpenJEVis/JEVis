@@ -124,9 +124,7 @@ public class SampleMerger {
     }
 
     private void insertPeriodicConstants(Map<DateTime, List<Sample>> sampleMap) {
-        periodConstants.forEach(currentSamples -> currentSamples.forEach(sample -> {
-            sampleMap.computeIfAbsent(sample.getDate(), k -> new ArrayList<>());
-        }));
+//        periodConstants.forEach(currentSamples -> currentSamples.forEach(sample -> sampleMap.computeIfAbsent(sample.getDate(), k -> new ArrayList<>())));
 
         for (Map.Entry<DateTime, List<Sample>> entry : sampleMap.entrySet()) {
             DateTime currentSampleTime = entry.getKey();

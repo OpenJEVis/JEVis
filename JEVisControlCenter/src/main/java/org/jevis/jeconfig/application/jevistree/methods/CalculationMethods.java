@@ -83,7 +83,7 @@ public class CalculationMethods extends CommonMethods {
         }
 
         for (JEVisObject concernedCalculation : calculationsToDisable) {
-            setEnabled(concernedCalculation, "Calculation", false);
+            setEnabled(pForm, concernedCalculation, "Calculation", false);
         }
 
         deleteSamplesInList(pForm, from, to, foundCalcTarget);
@@ -100,7 +100,7 @@ public class CalculationMethods extends CommonMethods {
         deleteSamplesInList(pForm, from, to, allCleanData);
 
         for (JEVisObject concernedCalculation : calculationsToDisable) {
-            setEnabled(concernedCalculation, "Calculation", true);
+            setEnabled(pForm, concernedCalculation, "Calculation", true);
         }
     }
 

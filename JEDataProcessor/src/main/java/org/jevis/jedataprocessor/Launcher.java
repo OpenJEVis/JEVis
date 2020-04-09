@@ -73,7 +73,6 @@ public class Launcher extends AbstractCliApp {
                             LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
                             runningJobs.remove(currentCleanDataObject.getID());
                             plannedJobs.remove(currentCleanDataObject.getID());
-                            currentProcess = null;
 
                             logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
 
