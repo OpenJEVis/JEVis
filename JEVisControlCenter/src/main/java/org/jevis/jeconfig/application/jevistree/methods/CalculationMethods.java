@@ -2,10 +2,7 @@ package org.jevis.jeconfig.application.jevistree.methods;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.*;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.joda.time.DateTime;
@@ -23,26 +20,33 @@ public class CalculationMethods extends CommonMethods {
         JEVisClass outputClass = null;
         JEVisClass cleanDataClass = null;
         JEVisClass rawDataClass = null;
+        JEVisDataSource ds = null;
         try {
-            calculationClass = jeVisObject.getDataSource().getJEVisClass("Calculation");
-            outputClass = jeVisObject.getDataSource().getJEVisClass("Output");
-            rawDataClass = jeVisObject.getDataSource().getJEVisClass("Data");
-            cleanDataClass = jeVisObject.getDataSource().getJEVisClass("Clean Data");
-        } catch (JEVisException e) {
+            ds = jeVisObject.getDataSource();
+            calculationClass = ds.getJEVisClass("Calculation");
+            outputClass = ds.getJEVisClass("Output");
+            rawDataClass = ds.getJEVisClass("Data");
+            cleanDataClass = ds.getJEVisClass("Clean Data");
+
+        } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        if (ds == null) {
+            return;
         }
 
         List<JEVisObject> rawData = new ArrayList<>();
         try {
             rawData = getAllRawDataRec(jeVisObject, rawDataClass);
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         List<JEVisObject> allCalculations = new ArrayList<>();
         try {
-            allCalculations = jeVisObject.getDataSource().getObjects(calculationClass, false);
-        } catch (JEVisException e) {
+            allCalculations = ds.getObjects(calculationClass, false);
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -53,12 +57,18 @@ public class CalculationMethods extends CommonMethods {
                 for (JEVisObject output : calcObject.getChildren(outputClass, false)) {
                     JEVisAttribute attribute = output.getAttribute("Output");
                     if (attribute != null && attribute.hasSample()) {
-                        TargetHelper th = new TargetHelper(jeVisObject.getDataSource(), attribute);
-                        allTargets.addAll(th.getObject());
-                        targetAndCalc.put(th.getObject().get(0), calcObject);
+                        try {
+                            TargetHelper th = new TargetHelper(ds, attribute);
+                            if (!th.getObject().isEmpty()) {
+                                allTargets.addAll(th.getObject());
+                                targetAndCalc.put(th.getObject().get(0), calcObject);
+                            }
+                        } catch (Exception e) {
+                            logger.error("Error with output {}:{}", output.getName(), output.getID(), e);
+                        }
                     }
                 }
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -82,7 +92,7 @@ public class CalculationMethods extends CommonMethods {
         for (JEVisObject data : foundCalcTarget) {
             try {
                 allCleanData.addAll(data.getChildren(cleanDataClass, false));
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
