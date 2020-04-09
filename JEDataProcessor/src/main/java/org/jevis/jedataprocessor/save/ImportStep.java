@@ -67,6 +67,7 @@ public class ImportStep implements ProcessStep {
         DateTime firstDateTimeOfResults = null;
         DateTime lastDateTimeOfResults = null;
         if (!resourceManager.getIntervals().isEmpty()) {
+            resourceManager.getIntervals().remove(0);
             firstDateTimeOfResults = resourceManager.getIntervals().get(0).getInterval().getStart();
             lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();
 
@@ -104,11 +105,10 @@ public class ImportStep implements ProcessStep {
             logger.info("[{}] Start import of new Samples: {}", resourceManager.getID(), cleanSamples.size());
             insertSamples(attribute, cleanSamples);
             logger.info("[{}] Import finished for samples: {}", resourceManager.getID(), cleanSamples.size());
-            LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
         } else {
             logger.info("[{}] No new Samples.", resourceManager.getID());
-            LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
         }
+        LogTaskManager.getInstance().getTask(resourceManager.getID()).addStep("S. Import", cleanSamples.size() + "");
     }
 
     private void removeOldForecastSamples(JEVisObject cleanObject, DateTime lastDateTimeOfResults) {

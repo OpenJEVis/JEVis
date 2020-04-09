@@ -26,17 +26,18 @@ public class CommonMethods {
         return jeVisObject;
     }
 
-    public static void setEnabled(JEVisObject object, String selectedClass, boolean b) {
+    public static void setEnabled(ProgressForm pForm, JEVisObject object, String selectedClass, boolean b) {
         try {
             if (object.getJEVisClassName().equals(selectedClass) || selectedClass.equals("All")) {
                 JEVisAttribute enabled = object.getAttribute("Enabled");
                 if (enabled != null) {
                     JEVisSample sample = enabled.buildSample(new DateTime(), b);
                     sample.commit();
+                    pForm.addMessage("Set enabled attribute of object " + object.getName() + ":" + object.getID() + " to " + b);
                 }
             }
             for (JEVisObject child : object.getChildren()) {
-                setEnabled(child, selectedClass, b);
+                setEnabled(pForm, child, selectedClass, b);
             }
         } catch (Exception e) {
             logger.error("Could not set enabled for {}:{}", object.getName(), object.getID());
