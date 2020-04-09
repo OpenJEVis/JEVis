@@ -46,6 +46,7 @@ public class SampleMerger {
         switch (inputType) {
             case PERIODIC:
                 addPeriodic(jevisSamples, variable, inputType);
+                break;
             case ASYNC:
                 noOfAsyncVariables++;
                 asyncVariables.add(variable);
