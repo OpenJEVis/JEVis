@@ -50,6 +50,7 @@ import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.ObjectHelper;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.methods.CalculationMethods;
@@ -504,7 +505,7 @@ public class TreeHelper {
                                 pForm.activateProgressBar(reload);
                                 pForm.getDialogStage().show();
 
-                                new Thread(reload).start();
+                                JEConfig.getStatusBar().addTask("DeleteAllCalculations", reload, null, true);
 
                             } catch (Exception ex) {
                                 logger.catching(ex);

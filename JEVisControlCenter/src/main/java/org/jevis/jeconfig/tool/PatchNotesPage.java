@@ -51,7 +51,19 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.25------\n" +
+            "------Version 3.9.26------\n" +
+                    "JECC - Improved ProzessMonitor behavior \n" +
+                    "JECC - Alarm - Fixed thread exception\n" +
+                    "JECC - Charts - single left mouse click can remove datarow details (sum, avg, etc.) from other charts\n" +
+                    "JECC - MeterPlugin - translation\n" +
+                    "JECC - MeterPlugin - Improved loading\n" +
+                    "JECC - PDFViewerDialog - set initial zoom to 0.3\n" +
+                    "JECC - MeterPlugin - added loading to standard thread pool\n" +
+                    "JECC - MeterPlugin - removed loading on program startup\n" +
+                    "JECC - Dashboard - Improved legend\n" +
+                    "\n" +
+                    "JECalc - fixed a missing break\n\n" +
+                    "------Version 3.9.25------\n" +
                     "JECC - Dashboard - Sometime the chart will not render\n" +
                     "JECC - MeterPlugin - Add manual sample button to online column\n" +
                     "JECC - MeterPlugin  - Fixed an bug when the file upload did not work\n" +
