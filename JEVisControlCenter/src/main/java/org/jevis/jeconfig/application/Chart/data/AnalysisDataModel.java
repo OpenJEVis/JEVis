@@ -15,11 +15,9 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
 import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.database.ObjectHandler;
@@ -80,8 +78,8 @@ public class AnalysisDataModel {
     private ChartSettings charts = new ChartSettings();
     private Boolean showIcons = true;
     private ManipulationMode addSeries = ManipulationMode.NONE;
-    private JEVisDataSource ds;
-    private ObservableList<JEVisObject> observableListAnalyses = FXCollections.observableArrayList();
+    private final JEVisDataSource ds;
+    private final ObservableList<JEVisObject> observableListAnalyses = FXCollections.observableArrayList();
     private JsonChartDataModel listAnalysisModel = new JsonChartDataModel();
     private JsonChartSettings jsonChartSettings = new JsonChartSettings();
     private boolean customWorkDay = true;
@@ -94,7 +92,7 @@ public class AnalysisDataModel {
     private Long horizontalTables = 3L;
     private Boolean isGlobalAnalysisTimeFrame = true;
     private AnalysisTimeFrame globalAnalysisTimeFrame;
-    private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
     private Boolean showRawData = false;
     private Boolean showSum = false;
     private Boolean calcRegression = false;
@@ -166,31 +164,29 @@ public class AnalysisDataModel {
         this.selectedData = data;
     }
 
-    public void update() {
-        final String loading = I18n.getInstance().getString("graph.progress.message");
+    private final Service<Void> service = new Service<Void>() {
+        @Override
+        protected Task<Void> createTask() {
+            return new Task<Void>() {
+                @Override
+                protected Void call() {
+                    try {
+                        TimeUnit.SECONDS.sleep(finalSeconds);
+                        Platform.runLater(() -> {
+                            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
+                        });
 
-        Service<Void> service = new Service<Void>() {
-            @Override
-            protected Task<Void> createTask() {
-                return new Task<Void>() {
-                    @Override
-                    protected Void call() {
-                        updateMessage(loading);
-                        graphPluginView.update();
-                        return null;
+                    } catch (InterruptedException e) {
+                        logger.warn("Reload Service stopped.");
+                        cancelled();
                     }
-                };
-            }
-        };
-        ProgressDialog pd = new ProgressDialog(service);
-        pd.setHeaderText(I18n.getInstance().getString("graph.progress.header"));
-        pd.setTitle(I18n.getInstance().getString("graph.progress.title"));
-        Button cancelButton = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
-        cancelButton.setOnAction(event -> service.cancel());
-        pd.getDialogPane().setContent(cancelButton);
+                    succeeded();
 
-        service.start();
-    }
+                    return null;
+                }
+            };
+        }
+    };
 
     private AggregationPeriod globalAggregationPeriod = AggregationPeriod.NONE;
 
@@ -406,29 +402,32 @@ public class AnalysisDataModel {
         return colorMapping;
     }
 
-    private Service<Void> service = new Service<Void>() {
-        @Override
-        protected Task<Void> createTask() {
-            return new Task<Void>() {
-                @Override
-                protected Void call() {
-                    try {
-                        TimeUnit.SECONDS.sleep(finalSeconds);
-                        Platform.runLater(() -> {
-                            graphPluginView.handleRequest(Constants.Plugin.Command.RELOAD);
-                        });
-
-                    } catch (InterruptedException e) {
-                        logger.warn("Reload Service stopped.");
-                        cancelled();
-                    }
-                    succeeded();
-
-                    return null;
-                }
-            };
-        }
-    };
+    public void update() {
+//        final String loading = I18n.getInstance().getString("graph.progress.message");
+//
+//        Service<Void> service = new Service<Void>() {
+//            @Override
+//            protected Task<Void> createTask() {
+//                return new Task<Void>() {
+//                    @Override
+//                    protected Void call() {
+//                        updateMessage(loading);
+//
+//                        return null;
+//                    }
+//                };
+//            }
+//        };
+//        ProgressDialog pd = new ProgressDialog(service);
+//        pd.setHeaderText(I18n.getInstance().getString("graph.progress.header"));
+//        pd.setTitle(I18n.getInstance().getString("graph.progress.title"));
+//        Button cancelButton = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
+//        cancelButton.setOnAction(event -> service.cancel());
+//        pd.getDialogPane().setContent(cancelButton);
+//
+//        service.start();
+        graphPluginView.update();
+    }
 
     public void stopTimer() {
         service.cancel();

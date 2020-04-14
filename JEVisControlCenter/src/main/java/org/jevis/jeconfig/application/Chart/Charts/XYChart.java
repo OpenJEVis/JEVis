@@ -461,13 +461,14 @@ public class XYChart implements Chart {
 
         AlphanumComparator ac = new AlphanumComparator();
         Platform.runLater(() -> {
-            tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
             chart.getRenderers().setAll(rendererY1, rendererY2);
             chart.getToolBar().setVisible(false);
 
             for (XYChartSerie xyChartSerie : xyChartSerieList) {
                 tableData.add(xyChartSerie.getTableEntry());
             }
+
+            tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
 
             if (calcRegression) {
                 chart.getRenderers().add(trendLineRenderer);
@@ -774,7 +775,7 @@ public class XYChart implements Chart {
 //            dateAxis.setAsDuration(true);
 //            dateAxis.setFirstTS(timeStampOfFirstSample.get());
 //        }
-//        Platform.runLater(() -> dateAxis.setName(""));
+        Platform.runLater(() -> dateAxis.setName(""));
 
         Period realPeriod = Period.minutes(15);
         if (chartDataRows != null && chartDataRows.size() > 0) {
