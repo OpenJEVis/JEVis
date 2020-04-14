@@ -62,12 +62,12 @@ public class GraphExportCSV {
     private final DateTime maxDate;
     private Boolean multiAnalyses = false;
     private final ObservableList<Locale> choices = FXCollections.observableArrayList(Locale.getAvailableLocales());
-    private List<ChartSetting> charts;
+    private final List<ChartSetting> charts;
     private Locale selectedLocale;
     private NumberFormat numberFormat;
     private Boolean withUserNotes = false;
     private final List<ChartDataRow> selectedData;
-    private AlphanumComparator ac = new AlphanumComparator();
+    private final AlphanumComparator ac = new AlphanumComparator();
 
     public GraphExportCSV(JEVisDataSource ds, AnalysisDataModel model, DateTime xAxisLowerBound, DateTime xAxisUpperBound) {
         this.NAME = I18n.getInstance().getString("plugin.graph.export.text.name");
@@ -182,7 +182,12 @@ public class GraphExportCSV {
                         + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()));
                 File file = fileChooser.showSaveDialog(JEConfig.getStage());
                 if (file != null) {
-                    destinationFile = new File(file + fileChooser.getSelectedExtensionFilter().getExtensions().get(0));
+                    String fileExtension = fileChooser.getSelectedExtensionFilter().getExtensions().get(0);
+                    if (!file.getAbsolutePath().contains(fileExtension)) {
+                        destinationFile = new File(file + fileExtension);
+                    } else {
+                        destinationFile = file;
+                    }
                     if (fileChooser.getSelectedExtensionFilter().equals(xlsxFilter)) {
                         xlsx = true;
                     }
