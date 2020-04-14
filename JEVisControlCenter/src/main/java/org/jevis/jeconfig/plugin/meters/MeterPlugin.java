@@ -22,6 +22,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.transform.Scale;
 import javafx.scene.transform.Translate;
 import javafx.stage.FileChooser;
@@ -66,7 +67,7 @@ public class MeterPlugin implements Plugin {
     private final int tableIconSize = 18;
     public static String PLUGIN_NAME = "Meter Plugin";
     private static Method columnToFitMethod;
-    private Image taskImage = JEConfig.getImage("measurement_instrument.png");
+    private final Image taskImage = JEConfig.getImage("measurement_instrument.png");
 
     static {
         try {
@@ -81,7 +82,7 @@ public class MeterPlugin implements Plugin {
     private final String title;
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
-    private TabPane tabPane = new TabPane();
+    private final TabPane tabPane = new TabPane();
     private boolean initialized = false;
     Map<JEVisAttribute, AttributeValueChange> changeMap = new HashMap<>();
 
@@ -92,8 +93,8 @@ public class MeterPlugin implements Plugin {
 
         this.tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != oldValue) {
+                Tab selectedItem = this.tabPane.getSelectionModel().getSelectedItem();
                 Platform.runLater(() -> {
-                    Tab selectedItem = this.tabPane.getSelectionModel().getSelectedItem();
                     if (selectedItem != null && selectedItem.getContent() instanceof TableView) {
                         TableView<MeterRow> tableView = (TableView<MeterRow>) selectedItem.getContent();
                         autoFitTable(tableView);
@@ -108,15 +109,14 @@ public class MeterPlugin implements Plugin {
 
     public static void autoFitTable(TableView<MeterRow> tableView) {
         for (TableColumn<MeterRow, ?> column : tableView.getColumns()) {
-            if (column.isVisible()) {
+//            if (column.isVisible()) {
                 try {
                     if (tableView.getSkin() != null) {
                         columnToFitMethod.invoke(tableView.getSkin(), column, -1);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
                 }
-            }
+//            }
         }
     }
 
@@ -246,6 +246,12 @@ public class MeterPlugin implements Plugin {
                                             date.get(DateTimeFieldType.hourOfDay()), date.get(DateTimeFieldType.minuteOfHour()), date.get(DateTimeFieldType.secondOfMinute()));
                                     lDate.atZone(ZoneId.of(date.getZone().getID()));
                                     pickerDate.valueProperty().setValue(lDate.toLocalDate());
+
+                                    if (item.getName().equals("Verification Date")) {
+                                        if (date.isBefore(new DateTime())) {
+                                            pickerDate.setDefaultColor(Color.RED);
+                                        }
+                                    }
                                 } catch (Exception ex) {
                                     logger.catching(ex);
                                 }
@@ -587,7 +593,7 @@ public class MeterPlugin implements Plugin {
                                 valueChange = changeMap.get(item);
                             }
 
-                           previewButton.setDisable(true);
+                            previewButton.setDisable(true);
                             try {
                                 downloadButton.setDisable(!item.hasSample());
                                 if (item.hasSample()) {

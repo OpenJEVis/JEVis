@@ -70,7 +70,7 @@ public class XYChart implements Chart {
     private Boolean showRawData = false;
     private Boolean showSum = false;
     CustomNumericAxis y1Axis = new CustomNumericAxis();
-    private List<Color> hexColors = new ArrayList<>();
+    private final List<Color> hexColors = new ArrayList<>();
     ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     DateTime now = DateTime.now();
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(now);
@@ -85,8 +85,8 @@ public class XYChart implements Chart {
     Double maxValue = -Double.MAX_VALUE;
     boolean asDuration = false;
     private String chartName;
-    private List<String> unitY1 = new ArrayList<>();
-    private List<String> unitY2 = new ArrayList<>();
+    private final List<String> unitY1 = new ArrayList<>();
+    private final List<String> unitY2 = new ArrayList<>();
     List<XYChartSerie> xyChartSerieList = new ArrayList<>();
     private Region areaChartRegion;
     private Period period;
@@ -94,11 +94,11 @@ public class XYChart implements Chart {
     private AtomicBoolean addManipulationToTitle;
     private AtomicReference<ManipulationMode> manipulationMode;
     private Boolean[] changedBoth;
-    private DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
+    private final DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
     private WorkDays workDays = new WorkDays(null);
     private boolean hasSecondAxis = false;
-    private StringBuilder regressionFormula = new StringBuilder();
-    private Image taskImage = JEConfig.getImage("Analysis.png");
+    private final StringBuilder regressionFormula = new StringBuilder();
+    private final Image taskImage = JEConfig.getImage("Analysis.png");
     public static String JOB_NAME = "Create series";
 
     public XYChart() {
@@ -157,8 +157,11 @@ public class XYChart implements Chart {
         this.chartName = chartSetting.getName();
         this.chartType = chartSetting.getChartType();
         this.addSeriesOfType = dataModel.getAddSeries();
-        if (dataRows.stream().anyMatch(chartDataModel -> chartDataModel.getAxis() == 1)) {
-            hasSecondAxis = true;
+        for (ChartDataRow chartDataModel : dataRows) {
+            if (chartDataModel.getAxis() == 1) {
+                hasSecondAxis = true;
+                break;
+            }
         }
 
         if (!chartDataRows.isEmpty()) {
@@ -353,9 +356,11 @@ public class XYChart implements Chart {
 
         generateYAxis();
 
-        Platform.runLater(() -> getChart().setTitle(getUpdatedChartName()));
+        Platform.runLater(() -> {
+            getChart().setTitle(getUpdatedChartName());
+            updateTable(null, timeStampOfFirstSample.get());
+        });
 
-        Platform.runLater(() -> updateTable(null, timeStampOfFirstSample.get()));
     }
 
     public void init() {
@@ -452,22 +457,27 @@ public class XYChart implements Chart {
                 labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
             }
 
-            Platform.runLater(() -> tableData.add(xyChartSerie.getTableEntry()));
         }
 
         AlphanumComparator ac = new AlphanumComparator();
-        Platform.runLater(() -> tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
+        Platform.runLater(() -> {
+            tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+            chart.getRenderers().setAll(rendererY1, rendererY2);
+            chart.getToolBar().setVisible(false);
 
-        Platform.runLater(() -> chart.getRenderers().addAll(rendererY1, rendererY2));
-        Platform.runLater(() -> chart.getToolBar().setVisible(false));
+            for (XYChartSerie xyChartSerie : xyChartSerieList) {
+                tableData.add(xyChartSerie.getTableEntry());
+            }
 
-        if (calcRegression) {
-            Platform.runLater(() -> chart.getRenderers().add(trendLineRenderer));
-        }
+            if (calcRegression) {
+                chart.getRenderers().add(trendLineRenderer);
+            }
 
-        if (showIcons) {
-            Platform.runLater(() -> chart.getRenderers().add(labelledMarkerRenderer));
-        }
+            if (showIcons) {
+                chart.getRenderers().add(labelledMarkerRenderer);
+            }
+        });
+
     }
 
     private List<DoubleDataSet> drawRegression(XYChartSerie xyChartSerie) {
@@ -656,10 +666,8 @@ public class XYChart implements Chart {
         asDuration = singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MIN)
                 || singleRow.getManipulationMode().equals(ManipulationMode.SORTED_MAX);
 
-        if (singleRow.getManipulationMode().equals(RUNNING_MEAN)
-                || singleRow.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN)) {
-            addManipulationToTitle.set(true);
-        } else addManipulationToTitle.set(false);
+        addManipulationToTitle.set(singleRow.getManipulationMode().equals(RUNNING_MEAN)
+                || singleRow.getManipulationMode().equals(ManipulationMode.CENTRIC_RUNNING_MEAN));
 
         manipulationMode.set(singleRow.getManipulationMode());
 
@@ -685,6 +693,11 @@ public class XYChart implements Chart {
     }
 
     public void generateYAxis() {
+
+        CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2);
+
+        CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(2);
+
         Platform.runLater(() -> {
             y1Axis.setForceZeroInRange(true);
             y1Axis.setAutoGrowRanging(true);
@@ -692,17 +705,11 @@ public class XYChart implements Chart {
             y2Axis.setForceZeroInRange(true);
             y2Axis.setAutoRanging(true);
             y2Axis.setAutoGrowRanging(true);
-        });
 
-        CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2);
-        Platform.runLater(() -> {
             y1Axis.setTickLabelFormatter(tickLabelFormatter1);
             y1Axis.setAnimated(false);
             y1Axis.setName("");
-        });
 
-        CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(2);
-        Platform.runLater(() -> {
             y2Axis.setTickLabelFormatter(tickLabelFormatter2);
             y2Axis.setAnimated(false);
             y2Axis.setSide(Side.RIGHT);
@@ -767,7 +774,7 @@ public class XYChart implements Chart {
 //            dateAxis.setAsDuration(true);
 //            dateAxis.setFirstTS(timeStampOfFirstSample.get());
 //        }
-        Platform.runLater(() -> dateAxis.setName(""));
+//        Platform.runLater(() -> dateAxis.setName(""));
 
         Period realPeriod = Period.minutes(15);
         if (chartDataRows != null && chartDataRows.size() > 0) {

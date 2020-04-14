@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
@@ -172,10 +173,13 @@ public class XYChartSerie {
             try {
                 String s = "";
                 try {
-                    if (!samples.get(0).getAttribute().getInputSampleRate().equals(Period.ZERO)) {
+                    JEVisAttribute attribute = samples.get(0).getAttribute();
+                    if (attribute != null && !attribute.getInputSampleRate().equals(Period.ZERO)) {
                         s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
-                    } else {
+                    } else if (attribute != null && attribute.getInputSampleRate().equals(Period.ZERO)) {
                         s = I18n.getInstance().getString("plugin.unit.samplingrate.async");
+                    } else if (attribute == null) {
+                        s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
                     }
                 } catch (Exception e) {
                     s = "-";

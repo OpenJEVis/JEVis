@@ -8,11 +8,12 @@ import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.constants.AlarmConstants;
+import org.jevis.commons.constants.NoteConstants;
+import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
-import org.jevis.commons.dataprocessing.AggregationPeriod;
-import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.commons.dataprocessing.SampleGenerator;
-import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.json.JsonGapFillingConfig;
+import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
@@ -56,7 +57,7 @@ public class ChartDataRow {
     private double avg = 0d;
     private Double sum = 0d;
     private Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
-    private Map<DateTime, Alarm> alarmMap = new TreeMap<>();
+    private final Map<DateTime, Alarm> alarmMap = new TreeMap<>();
     private boolean customWorkDay = true;
 
     /**
@@ -261,7 +262,7 @@ public class ChartDataRow {
     }
 
     public List<JEVisSample> getSamples() {
-        if (this.somethingChanged) {
+        if (this.somethingChanged || this.samples.isEmpty()) {
             try {
                 List<JEVisSample> samples = new ArrayList<>();
                 userNoteMap = null;//reset userNote list
@@ -307,6 +308,58 @@ public class ChartDataRow {
                             }
 
                             samples = calcJob.getResults();
+
+                            if (!getAbsolute() && dataProcessorObject != null) {
+                                CleanDataObject cleanDataObject = new CleanDataObject(dataProcessorObject, new ObjectHandler(dataSource));
+                                if (cleanDataObject.getLimitsEnabled()) {
+                                    List<JsonLimitsConfig> limitsConfig = cleanDataObject.getLimitsConfig();
+                                    Double maxDouble = null;
+                                    for (JsonLimitsConfig jsonLimitsConfig : limitsConfig) {
+                                        if (limitsConfig.indexOf(jsonLimitsConfig) == 1) {
+                                            String maxString = jsonLimitsConfig.getMax();
+                                            try {
+                                                maxDouble = Double.parseDouble(maxString);
+                                            } catch (Exception e) {
+                                                logger.error("Could not parse string {} to double", maxString, e);
+                                            }
+                                        }
+                                    }
+
+                                    if (maxDouble != null) {
+                                        Double replacementValue = null;
+                                        List<JsonGapFillingConfig> gapFillingConfig = cleanDataObject.getGapFillingConfig();
+
+                                        for (JsonGapFillingConfig jsonGapFillingConfig : gapFillingConfig) {
+                                            if (gapFillingConfig.indexOf(jsonGapFillingConfig) == 1) {
+                                                String defaultValue = jsonGapFillingConfig.getDefaultvalue();
+                                                try {
+                                                    replacementValue = Double.parseDouble(defaultValue);
+                                                } catch (Exception e) {
+                                                    logger.error("Could not parse string {} to double", defaultValue, e);
+                                                }
+                                            }
+                                        }
+
+                                        if (replacementValue != null) {
+                                            Double finalMaxDouble = maxDouble;
+                                            Double finalReplacementValue = replacementValue;
+                                            samples.forEach(jeVisSample -> {
+                                                try {
+                                                    if (jeVisSample.getValueAsDouble() > finalMaxDouble) {
+                                                        jeVisSample.setValue(finalReplacementValue);
+                                                        String note = "";
+                                                        note += jeVisSample.getNote();
+                                                        note += "," + NoteConstants.Limits.LIMIT_DEFAULT;
+                                                        jeVisSample.setNote(note);
+                                                    }
+                                                } catch (JEVisException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                     } catch (Exception ex) {

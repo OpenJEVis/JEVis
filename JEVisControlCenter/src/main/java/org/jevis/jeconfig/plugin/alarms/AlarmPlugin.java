@@ -73,16 +73,16 @@ public class AlarmPlugin implements Plugin {
     private final int iconSize = 20;
     private static Method columnToFitMethod;
     private final Image checkAllImage = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "jetxee-check-sign-and-cross-sign-3.png"));
-    private DateHelper dateHelper = new DateHelper(DateHelper.TransformType.PREVIEW);
-    private SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
-    private ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
+    private final DateHelper dateHelper = new DateHelper(DateHelper.TransformType.PREVIEW);
+    private final SimpleBooleanProperty hasAlarms = new SimpleBooleanProperty(false);
+    private final ObservableMap<DateTime, Boolean> activeAlarms = FXCollections.observableHashMap();
     private final List<Task<List<AlarmRow>>> runningUpdateTaskList = new ArrayList<>();
     int showCheckedAlarms = 0;
     private boolean init = false;
-    private List<Future<?>> futures = new ArrayList<>();
-    private Image taskImage = JEConfig.getImage("alarm_icon.png");
+    private final List<Future<?>> futures = new ArrayList<>();
+    private final Image taskImage = JEConfig.getImage("alarm_icon.png");
 
-    private Comparator<AlarmRow> alarmRowComparator = new Comparator<AlarmRow>() {
+    private final Comparator<AlarmRow> alarmRowComparator = new Comparator<AlarmRow>() {
         @Override
         public int compare(AlarmRow o1, AlarmRow o2) {
             return Comparator.comparing(AlarmRow::getTimeStamp).reversed().compare(o1, o2);
@@ -98,14 +98,14 @@ public class AlarmPlugin implements Plugin {
         }
     }
 
-    private TableView<AlarmRow> tableView = new TableView<>();
-    private NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
+    private final TableView<AlarmRow> tableView = new TableView<>();
+    private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
     private DateTime start;
     private DateTime end;
     private TimeFrame timeFrame = TimeFrame.TODAY;
-    private JFXDatePicker startDatePicker = new JFXDatePicker();
-    private JFXDatePicker endDatePicker = new JFXDatePicker();
-    private ComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
+    private final JFXDatePicker startDatePicker = new JFXDatePicker();
+    private final JFXDatePicker endDatePicker = new JFXDatePicker();
+    private final ComboBox<TimeFrame> timeFrameComboBox = getTimeFrameComboBox();
     private final ChangeListener<LocalDate> startDateChangeListener = (observable, oldValue, newValue) -> {
         if (newValue != oldValue) {
             start = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(), 0, 0, 0);
@@ -149,29 +149,19 @@ public class AlarmPlugin implements Plugin {
         createColumns();
 
         this.activeAlarms.addListener((MapChangeListener<? super DateTime, ? super Boolean>) change -> {
-            if (this.activeAlarms.isEmpty()) {
-                this.hasAlarms.set(false);
-            } else {
-                this.hasAlarms.set(true);
-            }
+            this.hasAlarms.set(!this.activeAlarms.isEmpty());
         });
     }
 
     public static void autoFitTable(TableView<AlarmRow> tableView) {
-//        tableView.getItems().addListener(new ListChangeListener<Object>() {
-//            @Override
-//            public void onChanged(Change<?> c) {
         for (TableColumn<AlarmRow, ?> column : tableView.getColumns()) {
             try {
                 if (tableView.getSkin() != null) {
                     columnToFitMethod.invoke(tableView.getSkin(), column, -1);
                 }
             } catch (Exception e) {
-//                logger.error("columnToFitMethod error", e);
             }
         }
-//            }
-//        });
     }
 
     private void restartExecutor() {
