@@ -177,9 +177,12 @@ public class GraphExportCSV {
                 fileChooser.getExtensionFilters().addAll(csvFilter, xlsxFilter);
                 fileChooser.setSelectedExtensionFilter(csvFilter);
 
-                fileChooser.setInitialFileName(formattedName + I18n.getInstance().getString("plugin.graph.dialog.export.from")
-                        + fmtDate.print(minDate) + I18n.getInstance().getString("plugin.graph.dialog.export.to")
-                        + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()));
+                fileChooser.setInitialFileName(
+                        formattedName + "_"
+                                + I18n.getInstance().getString("plugin.graph.dialog.export.from") + "_"
+                                + fmtDate.print(minDate) + "_" + I18n.getInstance().getString("plugin.graph.dialog.export.to") + "_"
+                                + fmtDate.print(maxDate) + "_" + I18n.getInstance().getString("plugin.graph.dialog.export.created") + "_"
+                                + fmtDate.print(new DateTime()));
                 File file = fileChooser.showSaveDialog(JEConfig.getStage());
                 if (file != null) {
                     String fileExtension = fileChooser.getSelectedExtensionFilter().getExtensions().get(0);
