@@ -51,7 +51,18 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.26------\n" +
+            "------Version 3.9.27------\n" +
+                    "JECC - Charts - Export to csv/xlsx - added extension \n" +
+                    "JECC - Charts - Windows Size changes after screenshot\n" +
+                    "JECC - Charts - any non-XYCharts dont close process monitor after finishing\n" +
+                    "JECC - Charts - calculation based data rows should follow Limits and Substitution Values from clean data object\n" +
+                    "JECC - Charts - calculation based data rows don't show the correct period when selecting aggregation\n" +
+                    "JECC - Charts - sometimes data rows contain no samples\n" +
+                    "\n" +
+                    "JECC - MeterPlugin - added Verification highlighting\n" +
+                    "\n" +
+                    "JEDataProcessor - fixed some problems with continous cycles and updated values\n\n" +
+                    "------Version 3.9.26------\n" +
                     "JECC - Improved ProzessMonitor behavior \n" +
                     "JECC - Alarm - Fixed thread exception\n" +
                     "JECC - Charts - single left mouse click can remove datarow details (sum, avg, etc.) from other charts\n" +
@@ -284,8 +295,8 @@ public class PatchNotesPage {
                     "JEDataCollector - improved logging\n" +
                     "JEVis - Add JEVisObject name localization - used in renaming dialog";
     CheckBox remember = new CheckBox(I18n.getInstance().getString("welcome.dontshow"));
-    private Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.patchNotes");
-    private boolean isLoading = true;
+    private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.patchNotes");
+    private final boolean isLoading = true;
 
     public PatchNotesPage() {
 
