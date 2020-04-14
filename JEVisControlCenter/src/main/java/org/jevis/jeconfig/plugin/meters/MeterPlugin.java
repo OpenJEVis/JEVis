@@ -302,6 +302,7 @@ public class MeterPlugin implements Plugin {
 
                             Button manSampleButton = new Button("", JEConfig.getImage("if_textfield_add_64870.png", tableIconSize, tableIconSize));
                             manSampleButton.setDisable(true);
+                            manSampleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.mansample")));
                             Button treeButton = new Button("",
                                     JEConfig.getImage("folders_explorer.png", tableIconSize, tableIconSize));
                             treeButton.wrapTextProperty().setValue(true);
@@ -405,9 +406,8 @@ public class MeterPlugin implements Plugin {
                             hBox.setAlignment(Pos.CENTER);
                             hBox.setSpacing(4);
 
-                            if (setToolTipText(treeButton, item)) {
-                                hBox.getChildren().add(gotoButton);
-                            }
+                            hBox.getChildren().add(gotoButton);
+                            gotoButton.setDisable(!setToolTipText(treeButton, item));
 
                             VBox vBox = new VBox(hBox);
                             vBox.setAlignment(Pos.CENTER);
@@ -566,6 +566,12 @@ public class MeterPlugin implements Plugin {
                             setGraphic(null);
                         } else {
                             Button downloadButton = new Button("", JEConfig.getImage("698925-icon-92-inbox-download-48.png", tableIconSize, tableIconSize));
+                            Button previewButton = new Button("", JEConfig.getImage("export-image.png", tableIconSize, tableIconSize));
+                            Button uploadButton = new Button("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
+
+                            downloadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.download")));
+                            previewButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.preview")));
+                            uploadButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.meters.table.upload")));
 
                             AttributeValueChange valueChange;
                             if (changeMap.get(item) == null) {
@@ -581,8 +587,7 @@ public class MeterPlugin implements Plugin {
                                 valueChange = changeMap.get(item);
                             }
 
-                            Button previewButton = new Button("", JEConfig.getImage("export-image.png", tableIconSize, tableIconSize));
-                            previewButton.setDisable(true);
+                           previewButton.setDisable(true);
                             try {
                                 downloadButton.setDisable(!item.hasSample());
                                 if (item.hasSample()) {
@@ -596,8 +601,6 @@ public class MeterPlugin implements Plugin {
                             HBox hBox = new HBox();
                             hBox.setAlignment(Pos.CENTER);
                             hBox.setSpacing(4);
-
-                            Button uploadButton = new Button("", JEConfig.getImage("1429894158_698394-icon-130-cloud-upload-48.png", tableIconSize, tableIconSize));
 
                             downloadButton.setOnAction(event -> {
                                 try {

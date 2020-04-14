@@ -243,7 +243,8 @@ public class Statusbar extends ToolBar {
         imageList.put(task.toString(), image);
         task.stateProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                if (newValue.equals(Worker.State.CANCELLED) || newValue.equals(Worker.State.FAILED) || newValue.equals(Worker.State.SUCCEEDED)) {
+                //System.out.println("task state: "+newValue+ " for "+task);
+                if( !newValue.equals(Worker.State.RUNNING) || !newValue.equals(Worker.State.SCHEDULED)){
                     taskList.remove(task);
                     imageList.remove(task.toString());
                 }
