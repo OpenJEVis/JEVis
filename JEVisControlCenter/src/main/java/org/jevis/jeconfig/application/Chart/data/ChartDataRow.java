@@ -56,7 +56,7 @@ public class ChartDataRow {
     private double avg = 0d;
     private Double sum = 0d;
     private Map<DateTime, JEVisSample> userNoteMap = new TreeMap<>();
-    private Map<DateTime, Alarm> alarmMap = new TreeMap<>();
+    private final Map<DateTime, Alarm> alarmMap = new TreeMap<>();
     private boolean customWorkDay = true;
 
     /**
@@ -261,7 +261,7 @@ public class ChartDataRow {
     }
 
     public List<JEVisSample> getSamples() {
-        if (this.somethingChanged) {
+        if (this.somethingChanged || this.samples.isEmpty()) {
             try {
                 List<JEVisSample> samples = new ArrayList<>();
                 userNoteMap = null;//reset userNote list
