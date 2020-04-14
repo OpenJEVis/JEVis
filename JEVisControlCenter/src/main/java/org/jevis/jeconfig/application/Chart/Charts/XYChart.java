@@ -447,7 +447,6 @@ public class XYChart implements Chart {
                 rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
                 trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             } else {
-                System.out.println(xyChartSerie.getTableEntryName());
                 rendererY2.getAxes().add(y2Axis);
                 rendererY2.getDatasets().add(xyChartSerie.getValueDataSet());
                 rendererY2.getDatasets().addAll(drawL1L2(xyChartSerie));

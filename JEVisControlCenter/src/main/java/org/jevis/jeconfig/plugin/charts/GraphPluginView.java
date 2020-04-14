@@ -95,14 +95,14 @@ public class GraphPluginView implements Plugin {
     public static String PLUGIN_NAME = "Graph Plugin";
     //    private final List<ChartView> charts = new ArrayList<>();
     private final DoubleProperty zoomDurationMillis = new SimpleDoubleProperty(750.0);
-    private ToolBarView toolBarView;
-    private AnalysisDataModel dataModel;
+    private final ToolBarView toolBarView;
+    private final AnalysisDataModel dataModel;
     //private GraphController controller;
-    private StringProperty name = new SimpleStringProperty("Graph");
-    private StringProperty id = new SimpleStringProperty("*NO_ID*");
+    private final StringProperty name = new SimpleStringProperty("Graph");
+    private final StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
     private ToolBar toolBar;
-    private String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
+    private final String tooltip = I18n.getInstance().getString("pluginmanager.graph.tooltip");
     private boolean firstStart = true;
     private final ScrollPane sp = new ScrollPane();
     public static String JOB_NAME = "Chart Update";
@@ -110,11 +110,11 @@ public class GraphPluginView implements Plugin {
     private Double xAxisUpperBound;
     private boolean zoomed = false;
     //this.chartView = new ChartView(dataModel);
-    private VBox vBox = new VBox();
-    private BorderPane border = new BorderPane(sp);
-    private Tooltip tp = new Tooltip("");
-    private List<Chart> allCharts = new ArrayList<>();
-    private Image taskImage = JEConfig.getImage("Analysis.png");
+    private final VBox vBox = new VBox();
+    private final BorderPane border = new BorderPane(sp);
+    private final Tooltip tp = new Tooltip("");
+    private final List<Chart> allCharts = new ArrayList<>();
+    private final Image taskImage = JEConfig.getImage("Analysis.png");
 
     public GraphPluginView(JEVisDataSource ds, String newname) {
         this.dataModel = new AnalysisDataModel(ds, this);
@@ -1022,6 +1022,8 @@ public class GraphPluginView implements Plugin {
                         }
                     });
                 }
+            } else {
+                cv.getChart().requestLayout();
             }
         }
     }
