@@ -682,6 +682,7 @@ public class GraphPluginView implements Plugin {
                 }
             };
 
+
             JEConfig.getStatusBar().addTask(GraphPluginView.class.getName(), task, taskImage, true);
         });
     }
@@ -713,7 +714,7 @@ public class GraphPluginView implements Plugin {
                     }
                 }
 
-                Platform.runLater(() -> autoSize());
+                Platform.runLater(this::autoSize);
 
                 if (dataModel.calcRegression()) {
                     Alert infoBox = new Alert(Alert.AlertType.INFORMATION);
@@ -727,6 +728,9 @@ public class GraphPluginView implements Plugin {
                     infoBox.getDialogPane().setContent(textArea);
                     infoBox.show();
                 }
+
+                Platform.runLater(() -> JEConfig.getStatusBar().finishProgressJob(GraphPluginView.class.getName(), ""));
+                Platform.runLater(() -> JEConfig.getStatusBar().getPopup().hide());
             });
         } else {
             Thread.sleep(500);

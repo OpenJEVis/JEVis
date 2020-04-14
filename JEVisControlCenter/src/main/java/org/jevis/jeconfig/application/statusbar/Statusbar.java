@@ -74,30 +74,32 @@ public class Statusbar extends ToolBar {
     private final int WAIT_TIME = 3000;//60000;//MSEC
     private final int RETRY_COUNT = 720;//count
     public BooleanProperty connectedProperty = new SimpleBooleanProperty(true);
-    private Label userName = new Label("");
-    private Label onlineInfo = new Label("Online");
-    private Label versionLabel = new Label(I18n.getInstance().getString("statusbar.version"));
-    private HBox conBox = new HBox();
-    private ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
-    private ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
+    private final Label userName = new Label("");
+    private final Label onlineInfo = new Label("Online");
+    private final Label versionLabel = new Label(I18n.getInstance().getString("statusbar.version"));
+    private final HBox conBox = new HBox();
+    private final ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
+    private final ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
     private JEVisDataSource _ds;
-    private Tooltip tt = new Tooltip("Warning:\nConnection to server lost. Trying to reconnect...  ");
+    private final Tooltip tt = new Tooltip("Warning:\nConnection to server lost. Trying to reconnect...  ");
     private int retryCount = 0;
-    private ProgressBar progressBar = new ProgressBar();
-    private HBox progressbox = new HBox();
-    private Label messageBox = new Label();
-    private TaskProgressView taskProgressView = new TaskProgressView();
-    private JFXPopup popup = new JFXPopup();
-    private Button showTaskViewButton = new Button("", JEConfig.getImage("TaskList.png", 15, 15));
-    private Map<String, Image> imageList = new HashMap<>();
+    private final ProgressBar progressBar = new ProgressBar();
+    private final HBox progressbox = new HBox();
+    private final Label messageBox = new Label();
+    private final TaskProgressView taskProgressView = new TaskProgressView();
+    private final JFXPopup popup = new JFXPopup();
+    private final Button showTaskViewButton = new Button("", JEConfig.getImage("TaskList.png", 15, 15));
+    private final Map<String, Image> imageList = new HashMap<>();
     private boolean hideTaskList = false;
-    private Label titleLabel = new Label(I18n.getInstance().getString("statusbar.taskmon.title"));
-    private Region spacer = new Region();
-    private ExecutorService executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
-    private ConcurrentHashMap<Task, String> taskList = new ConcurrentHashMap<>();
-    private StackPane stackpane = new StackPane();
-    /** This pane will hide the 'No task message' which we have no access to **/
-    private Pane hideTaskListPane = new Pane();
+    private final Label titleLabel = new Label(I18n.getInstance().getString("statusbar.taskmon.title"));
+    private final Region spacer = new Region();
+    private final ExecutorService executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
+    private final ConcurrentHashMap<Task, String> taskList = new ConcurrentHashMap<>();
+    private final StackPane stackpane = new StackPane();
+    /**
+     * This pane will hide the 'No task message' which we have no access to
+     **/
+    private final Pane hideTaskListPane = new Pane();
 
     private class Job {
         public double total = 0;
@@ -109,7 +111,7 @@ public class Statusbar extends ToolBar {
         }
     }
 
-    private HashMap<String, Job> jobList = new HashMap<>();
+    private final HashMap<String, Job> jobList = new HashMap<>();
 
     public Statusbar() {
         super();
@@ -519,6 +521,10 @@ public class Statusbar extends ToolBar {
 
     public ConcurrentHashMap<Task, String> getTaskList() {
         return taskList;
+    }
+
+    public JFXPopup getPopup() {
+        return popup;
     }
 
     // TODO implement status bar for JEVis applications
