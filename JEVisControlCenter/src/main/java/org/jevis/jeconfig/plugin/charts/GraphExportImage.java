@@ -60,7 +60,11 @@ public class GraphExportImage {
         File file = fileChooser.showSaveDialog(JEConfig.getStage());
         if (file != null) {
             String fileExtension = fileChooser.getSelectedExtensionFilter().getExtensions().get(0);
-            destinationFile = new File(file + fileExtension);
+            if (!file.getAbsolutePath().contains(fileExtension)) {
+                destinationFile = new File(file + fileExtension);
+            } else {
+                destinationFile = file;
+            }
             formatName = fileExtension;
             JEConfig.setLastPath(file);
         }
@@ -98,6 +102,16 @@ public class GraphExportImage {
             } catch (IOException | InterruptedException e) {
                 logger.error("Error: could not export to file.", e);
             }
+
+            Platform.runLater(() -> {
+                JEConfig.getStage().setMaximized(true);
+//                double height = JEConfig.getStage().getHeight();
+//                double width = JEConfig.getStage().getWidth();
+//                JEConfig.getStage().setWidth(0);
+//                JEConfig.getStage().setHeight(0);
+//                JEConfig.getStage().setHeight(height);
+//                JEConfig.getStage().setWidth(width);
+            });
         });
     }
 

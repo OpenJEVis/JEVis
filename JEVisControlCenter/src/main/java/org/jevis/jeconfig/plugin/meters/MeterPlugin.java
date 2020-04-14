@@ -93,8 +93,8 @@ public class MeterPlugin implements Plugin {
 
         this.tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != oldValue) {
+                Tab selectedItem = this.tabPane.getSelectionModel().getSelectedItem();
                 Platform.runLater(() -> {
-                    Tab selectedItem = this.tabPane.getSelectionModel().getSelectedItem();
                     if (selectedItem != null && selectedItem.getContent() instanceof TableView) {
                         TableView<MeterRow> tableView = (TableView<MeterRow>) selectedItem.getContent();
                         autoFitTable(tableView);
@@ -109,15 +109,14 @@ public class MeterPlugin implements Plugin {
 
     public static void autoFitTable(TableView<MeterRow> tableView) {
         for (TableColumn<MeterRow, ?> column : tableView.getColumns()) {
-            if (column.isVisible()) {
+//            if (column.isVisible()) {
                 try {
                     if (tableView.getSkin() != null) {
                         columnToFitMethod.invoke(tableView.getSkin(), column, -1);
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
                 }
-            }
+//            }
         }
     }
 
