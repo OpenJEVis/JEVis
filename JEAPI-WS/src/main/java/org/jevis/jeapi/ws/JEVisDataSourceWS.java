@@ -74,9 +74,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private JEVisUser user;
     private List<JEVisOption> config = new ArrayList<>();
     //    private List<JEVisRelationship> objectRelCache = Collections.synchronizedList(new ArrayList<JEVisRelationship>());
-    private ConcurrentHashMap<String, JEVisClass> classCache = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Long, JEVisObject> objectCache = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Long, List<JEVisRelationship>> objectRelMapCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, JEVisClass> classCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, JEVisObject> objectCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, List<JEVisRelationship>> objectRelMapCache = new ConcurrentHashMap<>();
     private boolean allAttributesPreloaded = false;
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
@@ -87,7 +87,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
      * fallback because some old client will call preload but we now a days do per default
      **/
     private boolean hasPreloaded = false;
-    private ConcurrentHashMap<Long, List<JEVisAttribute>> attributeCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, List<JEVisAttribute>> attributeCache = new ConcurrentHashMap<>();
 
     public JEVisDataSourceWS(String host) {
         this.host = host;
@@ -359,7 +359,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 logger.error("Error while parsing object: {}", ex.getMessage());
             }
         });
-        benchmark.printBechmark("updateing object cache done for "+jsonObjects.size()+" objects");
+        benchmark.printBechmark("updateing object cache done for " + jsonObjects.size() + " objects");
     }
 
     @Override
@@ -605,33 +605,33 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     private void fixMissingAttributes(JEVisObject object, List<JEVisAttribute> attributes) {
         try {
+            if (object != null) {
+                JEVisClass oClass = object.getJEVisClass();
 
-            JEVisClass oClass = object.getJEVisClass();
+                if (oClass != null && oClass.getTypes() != null) {
+                    oClass.getTypes().forEach(jeVisType -> {
+                        boolean exists = false;
+                        try {
+                            for (JEVisAttribute att : attributes) {
+                                if (att.getName().equals(jeVisType.getName())) exists = true;
+                            }
+                            if (!exists) {
+                                JsonAttribute json = new JsonAttribute();
+                                json.setObjectID(object.getID());
+                                json.setType(jeVisType.getName());
+                                json.setPrimitiveType(jeVisType.getPrimitiveType());
+                                json.setSampleCount(0);
 
-            if (oClass != null && oClass.getTypes() != null) {
-                oClass.getTypes().forEach(jeVisType -> {
-                    boolean exists = false;
-                    try {
-                        for (JEVisAttribute att : attributes) {
-                            if (att.getName().equals(jeVisType.getName())) exists = true;
+                                JEVisAttribute newAttribute = new JEVisAttributeWS(this, json);
+                                attributes.add(newAttribute);
+                            }
+                        } catch (Exception ex) {
+                            logger.error(ex);
                         }
-                        if (!exists) {
-                            JsonAttribute json = new JsonAttribute();
-                            json.setObjectID(object.getID());
-                            json.setType(jeVisType.getName());
-                            json.setPrimitiveType(jeVisType.getPrimitiveType());
-                            json.setSampleCount(0);
 
-                            JEVisAttribute newAttribute = new JEVisAttributeWS(this, json);
-                            attributes.add(newAttribute);
-                        }
-                    } catch (Exception ex) {
-                        logger.error(ex);
-                    }
-
-                });
+                    });
+                }
             }
-
         } catch (Exception ex) {
             logger.error(ex);
         }

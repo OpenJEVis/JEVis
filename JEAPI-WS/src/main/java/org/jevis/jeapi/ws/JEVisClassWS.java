@@ -173,13 +173,13 @@ public class JEVisClassWS implements JEVisClass {
                 types.add(new JEVisTypeWS(ds, t, getName()));
             }
 
-            types.sort(Comparator.comparing(jeVisType -> {
+            types.sort(Comparator.comparingInt(jeVisType -> {
                 try {
-                    return jeVisType.getGUIDisplayType();
+                    return jeVisType.getGUIPosition();
                 } catch (JEVisException e) {
                     e.printStackTrace();
                 }
-                return null;
+                return 0;
             }));
         }
         if (types == null) {

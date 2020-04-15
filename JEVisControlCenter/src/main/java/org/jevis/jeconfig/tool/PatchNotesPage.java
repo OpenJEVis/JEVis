@@ -52,6 +52,8 @@ public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
             "------Version 3.9.28------\n" +
+                    "\"JECC - Charts - fixed 'empty' chart bug \n\n" +
+                    "------Version 3.9.28------\n" +
                     "JECC - Charts - fixed autosize for some chart types\n" +
                     "JECC - Charts - fixed holiday display in normal charts\n" +
                     "JECC - Charts - restored table sorting\n\n" +

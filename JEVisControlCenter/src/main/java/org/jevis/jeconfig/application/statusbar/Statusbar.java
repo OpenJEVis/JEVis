@@ -117,7 +117,7 @@ public class Statusbar extends ToolBar {
         super();
 
         hideTaskListPane.setStyle("-fx-background-color: #ffffff;");
-        stackpane.getChildren().addAll(taskProgressView,hideTaskListPane);
+        stackpane.getChildren().addAll(taskProgressView, hideTaskListPane);
 
         BorderPane anchorPane = new BorderPane(stackpane);//taskProgressView);
         ToggleButton hideButton = new ToggleButton("", JEConfig.getImage("Hide.png", 12, 12));
@@ -166,7 +166,7 @@ public class Statusbar extends ToolBar {
                     if (c.wasRemoved()) {
                         if (taskProgressView.getTasks().isEmpty()) {
                             if (popup.isShowing()) {
-                                Platform.runLater(() ->{
+                                Platform.runLater(() -> {
                                     hideTaskListPane.setVisible(true);
                                     popup.hide();
                                 });
@@ -246,7 +246,7 @@ public class Statusbar extends ToolBar {
         task.stateProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 //System.out.println("task state: "+newValue+ " for "+task);
-                if( !newValue.equals(Worker.State.RUNNING) || !newValue.equals(Worker.State.SCHEDULED)){
+                if (!newValue.equals(Worker.State.RUNNING) && !newValue.equals(Worker.State.SCHEDULED) && !newValue.equals(Worker.State.READY)) {
                     taskList.remove(task);
                     imageList.remove(task.toString());
                 }

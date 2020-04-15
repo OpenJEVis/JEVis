@@ -112,6 +112,7 @@ public class XYChart implements Chart {
 
     public void createChart(AnalysisDataModel dataModel, List<ChartDataRow> dataRows, ChartSetting chartSetting, boolean instant) {
         if (!instant) {
+
             Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {
@@ -467,20 +468,17 @@ public class XYChart implements Chart {
         }
 
         AlphanumComparator ac = new AlphanumComparator();
-        Platform.runLater(() -> {
-            chart.getRenderers().setAll(rendererY1, rendererY2);
-            chart.getToolBar().setVisible(false);
+        Platform.runLater(() -> chart.getRenderers().addAll(rendererY1, rendererY2));
 
-            tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
+        Platform.runLater(() -> tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
 
-            if (calcRegression) {
-                chart.getRenderers().add(trendLineRenderer);
-            }
+        if (calcRegression) {
+            Platform.runLater(() -> chart.getRenderers().add(trendLineRenderer));
+        }
 
-            if (showIcons) {
-                chart.getRenderers().add(labelledMarkerRenderer);
-            }
-        });
+        if (showIcons) {
+            Platform.runLater(() -> chart.getRenderers().add(labelledMarkerRenderer));
+        }
 
     }
 
@@ -637,6 +635,7 @@ public class XYChart implements Chart {
 
         chart.setLegend(null);
         chart.legendVisibleProperty().set(false);
+        chart.getToolBar().setVisible(false);
     }
 
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {

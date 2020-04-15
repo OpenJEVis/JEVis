@@ -518,7 +518,7 @@ public class GraphPluginView implements Plugin {
 
 //                    bp.setMinHeight(autoMinSize.get());
 
-                bp.setMaxWidth(sp.getMaxWidth());
+//                bp.setMaxWidth(sp.getMaxWidth() - 4);
 
                 Chart chart = null;
                 if (chartSetting.getChartType() != ChartType.LOGICAL) {
@@ -1043,8 +1043,6 @@ public class GraphPluginView implements Plugin {
                         }
                     });
                 }
-            } else {
-                entry.getValue().getChart().requestLayout();
             }
         }
     }
@@ -1093,7 +1091,7 @@ public class GraphPluginView implements Plugin {
 
                             if (top.getItems().size() == 0) {
                                 Chart chart = allCharts.get(top.getChartId());
-                                //30 -> borders and stuff, 25 -> per row
+                                //30 -> captions, borders and stuff, 25 -> per row
                                 heightTop = 30 + (25 * chart.getChartDataRows().size());
                             }
 
@@ -1368,11 +1366,23 @@ public class GraphPluginView implements Plugin {
         List<LogicalChart> subCharts = new ArrayList<>();
         VBox vboxSubs = new VBox();
 
+        AlphanumComparator ac = new AlphanumComparator();
+        ObservableList<TableEntry> allEntries = FXCollections.observableArrayList();
+
         for (ChartDataRow singleRow : dataModel.getSelectedData()) {
             for (int i : singleRow.getSelectedcharts()) {
                 if (i == chartSetting.getId()) {
                     List<ChartDataRow> dataRows = Collections.singletonList(singleRow);
                     Chart subView = getChart(chartSetting, dataRows);
+
+                    subView.getTableData().addListener((ListChangeListener<? super TableEntry>) c -> {
+                        while (c.next())
+                            if (c.wasAdded() && c.getAddedSize() > 0) {
+                                allEntries.add(c.getAddedSubList().get(0));
+                                Platform.runLater(() -> allEntries.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
+                            }
+                    });
+
                     LogicalChart logicalChart = (LogicalChart) subView;
                     logicalChart.createChart(dataModel, dataRows, chartSetting, true);
                     subCharts.add(logicalChart);
@@ -1380,12 +1390,9 @@ public class GraphPluginView implements Plugin {
             }
         }
 
-        AlphanumComparator ac = new AlphanumComparator();
-
         subCharts.sort((o1, o2) -> ac.compare(o1.getChartDataRows().get(0).getTitle(), o2.getChartDataRows().get(0).getTitle()));
         subCharts.forEach(subChart -> vboxSubs.getChildren().add(subChart.getChart()));
 
-        ObservableList<TableEntry> allEntries = FXCollections.observableArrayList();
         Double minValue = Double.MAX_VALUE;
         Double maxValue = -Double.MAX_VALUE;
 
@@ -1393,14 +1400,6 @@ public class GraphPluginView implements Plugin {
             if (subCharts.indexOf(logicalChart) > 0) {
                 Platform.runLater(() -> logicalChart.getChart().setTitle(null));
             }
-
-            logicalChart.getTableData().addListener((ListChangeListener<? super TableEntry>) c -> {
-                while (c.next())
-                    if (c.wasAdded() && c.getAddedSize() > 0) {
-                        allEntries.add(c.getAddedSubList().get(0));
-                        Platform.runLater(() -> allEntries.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
-                    }
-            });
 
             logicalChart.getChartDataRows().get(0).setColor(ColorHelper.toRGBCode(ColorColumn.color_list[subCharts.indexOf(logicalChart)]));
             logicalChart.getChartDataRows().get(0).calcMinAndMax();
