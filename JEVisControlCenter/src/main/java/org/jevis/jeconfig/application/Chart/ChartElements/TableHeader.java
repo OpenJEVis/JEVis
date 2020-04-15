@@ -28,15 +28,19 @@ import java.util.Collections;
 public class TableHeader extends TableView<TableEntry> {
     private final double VALUE_COLUMNS_PREF_SIZE = 200;
     private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 60;
-    private TableColumn<TableEntry, String> nameCol;
-    private TableColumn<TableEntry, Color> colorCol;
+    private final ChartType chartType;
+    private final Integer chartId;
+    private final TableColumn<TableEntry, String> nameCol;
+    private final TableColumn<TableEntry, Color> colorCol;
     private TableColumn<TableEntry, String> periodCol;
     private TableColumn<TableEntry, String> dateCol;
     private TableColumn<TableEntry, String> noteCol;
     private TableViewContextMenuHelper contextMenuHelper;
-    private AlphanumComparator alphanumComparator = new AlphanumComparator();
+    private final AlphanumComparator alphanumComparator = new AlphanumComparator();
 
-    public TableHeader(ChartType chartType, final ObservableList<TableEntry> tableData) {
+    public TableHeader(Integer chartId, ChartType chartType, final ObservableList<TableEntry> tableData) {
+        this.chartId = chartId;
+        this.chartType = chartType;
         setBorder(null);
         setStyle(
                 ".table-view:focused {" +
@@ -373,5 +377,13 @@ public class TableHeader extends TableView<TableEntry> {
 
     public AlphanumComparator getAlphanumComparator() {
         return alphanumComparator;
+    }
+
+    public ChartType getChartType() {
+        return chartType;
+    }
+
+    public Integer getChartId() {
+        return chartId;
     }
 }

@@ -115,7 +115,13 @@ public class XYChart implements Chart {
             Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {
-                    buildChart(dataModel, dataRows, chartSetting);
+                    try {
+                        buildChart(dataModel, dataRows, chartSetting);
+                    } catch (Exception e) {
+                        this.failed();
+                    } finally {
+                        succeeded();
+                    }
                     return null;
                 }
             };
@@ -457,16 +463,13 @@ public class XYChart implements Chart {
                 labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
             }
 
+            tableData.add(xyChartSerie.getTableEntry());
         }
 
         AlphanumComparator ac = new AlphanumComparator();
         Platform.runLater(() -> {
             chart.getRenderers().setAll(rendererY1, rendererY2);
             chart.getToolBar().setVisible(false);
-
-            for (XYChartSerie xyChartSerie : xyChartSerieList) {
-                tableData.add(xyChartSerie.getTableEntry());
-            }
 
             tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
 
