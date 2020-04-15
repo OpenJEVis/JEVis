@@ -51,7 +51,13 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.27------\n" +
+            "------Version 3.9.28------\n" +
+                    "\"JECC - Charts - fixed 'empty' chart bug \n\n" +
+                    "------Version 3.9.28------\n" +
+                    "JECC - Charts - fixed autosize for some chart types\n" +
+                    "JECC - Charts - fixed holiday display in normal charts\n" +
+                    "JECC - Charts - restored table sorting\n\n" +
+                    "------Version 3.9.27------\n" +
                     "JECC - Charts - Export to csv/xlsx - added extension \n" +
                     "JECC - Charts - Windows Size changes after screenshot\n" +
                     "JECC - Charts - any non-XYCharts dont close process monitor after finishing\n" +

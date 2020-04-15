@@ -69,7 +69,7 @@ public class DefaultDateAxis extends DefaultNumericAxis {
 
         gc.setFont(tickMark.getFont());
         if (!isHoliday) {
-            gc.setFill(tickMark.getFill());
+            gc.setFill(Color.GRAY);
         } else {
             gc.setFill(Color.BLACK);
         }

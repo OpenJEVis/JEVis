@@ -18,7 +18,7 @@ import java.util.List;
 public class TableChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(TableChart.class);
     private ChartDataRow singleRow;
-    private TableTopDatePicker tableTopDatePicker;
+    private final TableTopDatePicker tableTopDatePicker;
 
     public TableChart(AnalysisDataModel dataModel, List<ChartDataRow> chartDataRows, ChartSetting chart) {
         super();
@@ -30,8 +30,6 @@ public class TableChart extends XYChart {
         tableTopDatePicker = new TableTopDatePicker(singleRow);
         tableTopDatePicker.setAlignment(Pos.CENTER);
         tableTopDatePicker.initialize(timeStampOfLastSample.get());
-
-
     }
 
     @Override

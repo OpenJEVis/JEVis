@@ -112,10 +112,17 @@ public class XYChart implements Chart {
 
     public void createChart(AnalysisDataModel dataModel, List<ChartDataRow> dataRows, ChartSetting chartSetting, boolean instant) {
         if (!instant) {
+
             Task task = new Task() {
                 @Override
                 protected Object call() throws Exception {
-                    buildChart(dataModel, dataRows, chartSetting);
+                    try {
+                        buildChart(dataModel, dataRows, chartSetting);
+                    } catch (Exception e) {
+                        this.failed();
+                    } finally {
+                        succeeded();
+                    }
                     return null;
                 }
             };
@@ -457,26 +464,21 @@ public class XYChart implements Chart {
                 labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
             }
 
+            tableData.add(xyChartSerie.getTableEntry());
         }
 
         AlphanumComparator ac = new AlphanumComparator();
-        Platform.runLater(() -> {
-            tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
-            chart.getRenderers().setAll(rendererY1, rendererY2);
-            chart.getToolBar().setVisible(false);
+        Platform.runLater(() -> chart.getRenderers().addAll(rendererY1, rendererY2));
 
-            for (XYChartSerie xyChartSerie : xyChartSerieList) {
-                tableData.add(xyChartSerie.getTableEntry());
-            }
+        Platform.runLater(() -> tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
 
-            if (calcRegression) {
-                chart.getRenderers().add(trendLineRenderer);
-            }
+        if (calcRegression) {
+            Platform.runLater(() -> chart.getRenderers().add(trendLineRenderer));
+        }
 
-            if (showIcons) {
-                chart.getRenderers().add(labelledMarkerRenderer);
-            }
-        });
+        if (showIcons) {
+            Platform.runLater(() -> chart.getRenderers().add(labelledMarkerRenderer));
+        }
 
     }
 
@@ -633,6 +635,7 @@ public class XYChart implements Chart {
 
         chart.setLegend(null);
         chart.legendVisibleProperty().set(false);
+        chart.getToolBar().setVisible(false);
     }
 
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
@@ -774,7 +777,7 @@ public class XYChart implements Chart {
 //            dateAxis.setAsDuration(true);
 //            dateAxis.setFirstTS(timeStampOfFirstSample.get());
 //        }
-//        Platform.runLater(() -> dateAxis.setName(""));
+        Platform.runLater(() -> dateAxis.setName(""));
 
         Period realPeriod = Period.minutes(15);
         if (chartDataRows != null && chartDataRows.size() > 0) {

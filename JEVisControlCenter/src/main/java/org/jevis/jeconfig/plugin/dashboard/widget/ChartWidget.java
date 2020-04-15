@@ -44,10 +44,10 @@ public class ChartWidget extends Widget {
 
     private LineChart lineChart;
     private DataModelDataHandler sampleHandler;
-    private WidgetLegend legend = new WidgetLegend();
-    private BorderPane borderPane = new BorderPane();
+    private final WidgetLegend legend = new WidgetLegend();
+    private final BorderPane borderPane = new BorderPane();
     private Interval lastInterval = null;
-    private BorderPane bottomBorderPane = new BorderPane();
+    private final BorderPane bottomBorderPane = new BorderPane();
 
     public ChartWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -114,9 +114,9 @@ public class ChartWidget extends Widget {
                 this.lineChart = new LineChart();
                 this.lineChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting, true);
 
-                Size configSize = getConfig().getSize();
-                lineChart.getChart().setPrefSize(configSize.getWidth(), configSize.getHeight());
                 this.borderPane.setCenter(this.lineChart.getChart());
+                Size configSize = getConfig().getSize();
+                lineChart.getChart().setPrefSize(configSize.getWidth() - 20, configSize.getHeight());
                 updateConfig();/** workaround because we make a new chart every time**/
             } catch (Exception ex) {
                 logger.error(ex);
