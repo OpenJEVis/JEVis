@@ -468,7 +468,8 @@ public class XYChart implements Chart {
         }
 
         AlphanumComparator ac = new AlphanumComparator();
-        Platform.runLater(() -> chart.getRenderers().addAll(rendererY1, rendererY2));
+        Platform.runLater(() -> chart.getRenderers().add(rendererY1));
+        Platform.runLater(() -> chart.getRenderers().add(rendererY2));
 
         Platform.runLater(() -> tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
 
@@ -705,6 +706,7 @@ public class XYChart implements Chart {
             y1Axis.setForceZeroInRange(true);
             y1Axis.setAutoGrowRanging(true);
             y1Axis.setAutoRanging(true);
+
             y2Axis.setForceZeroInRange(true);
             y2Axis.setAutoRanging(true);
             y2Axis.setAutoGrowRanging(true);
