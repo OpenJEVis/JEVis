@@ -51,7 +51,12 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.28------\n" +
+            "------Version 3.9.30------\n" +
+                    "JECC - Charts - XYChart - y axis looses zero although forceZeroInRange=true\n" +
+                    "JECC - Charts - XYChart - secondary y axis scales wrongly in cases of high amount of data\n" +
+                    "JECC - ReportPlugin - pagination menu should always be visible\n" +
+                    "JECC - ReportPlugin - zoom buttons like dashboard toolbar\n\n" +
+                    "------Version 3.9.29------\n" +
                     "\"JECC - Charts - fixed 'empty' chart bug \n\n" +
                     "------Version 3.9.28------\n" +
                     "JECC - Charts - fixed autosize for some chart types\n" +
