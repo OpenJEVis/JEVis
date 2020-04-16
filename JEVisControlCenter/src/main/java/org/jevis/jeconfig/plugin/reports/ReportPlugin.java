@@ -1,6 +1,6 @@
 package org.jevis.jeconfig.plugin.reports;
 
-import com.google.common.util.concurrent.AtomicDouble;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -61,16 +61,16 @@ public class ReportPlugin implements Plugin {
     private final ObjectRelations objectRelations;
     private final ToolBar toolBar = new ToolBar();
     private boolean initialized = false;
-    private ListView<JEVisObject> listView = new ListView<>();
-    Pagination pagination = new Pagination();
+    private final ListView<JEVisObject> listView = new ListView<>();
+    private final Pagination pagination = new Pagination();
     private ComboBox<DateTime> dateTimeComboBox;
     private List<JEVisObject> disabledItemList;
-    private HBox hBox = new HBox();
-    private TextField filterInput = new TextField();
+    private final HBox hBox = new HBox();
+    private final TextField filterInput = new TextField();
     private final int iconSize = 20;
     private boolean multipleDirectories;
-    private PDFModel model = new PDFModel();
-    private AtomicDouble zoomFactor = new AtomicDouble(1);
+    private final PDFModel model = new PDFModel();
+    private final SimpleDoubleProperty zoomFactor = new SimpleDoubleProperty(0.3);
 
     public ReportPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -80,11 +80,10 @@ public class ReportPlugin implements Plugin {
         this.hBox.setSpacing(4);
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
-        ScrollPane scrollPane = new ScrollPane(pagination);
-        VBox view = new VBox(hBox, scrollPane);
+        VBox view = new VBox(hBox, pagination);
         view.setFillWidth(true);
         VBox.setVgrow(hBox, Priority.NEVER);
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        VBox.setVgrow(pagination, Priority.ALWAYS);
         view.widthProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.doubleValue() != oldValue.doubleValue()) {
                 pagination.setPrefWidth(newValue.doubleValue());
@@ -97,14 +96,25 @@ public class ReportPlugin implements Plugin {
                 if (event.isControlDown()) {
                     double deltaY = event.getDeltaY();
 
-                    if (deltaY < 0) {
+                    if (deltaY < 0 && zoomFactor.get() - 0.05 > 0) {
                         zoomFactor.set(zoomFactor.get() - 0.05);
                     } else {
                         zoomFactor.set(zoomFactor.get() + 0.05);
                     }
-                    pagination.setPageFactory(index -> new Group(model.getImage(index, zoomFactor.get())));
                     event.consume();
                 }
+            }
+        });
+
+        zoomFactor.addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                pagination.setPageFactory((Integer pageIndex) -> {
+                    if (pageIndex >= model.numPages()) {
+                        return null;
+                    } else {
+                        return createPage(pageIndex);
+                    }
+                });
             }
         });
 
@@ -125,6 +135,21 @@ public class ReportPlugin implements Plugin {
 
         this.objectRelations = new ObjectRelations(ds);
 
+    }
+
+    public HBox createPage(int pageIndex) {
+        HBox hBox = new HBox();
+        hBox.setAlignment(Pos.CENTER);
+        VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER);
+
+        ImageView image = model.getImage(pageIndex, zoomFactor.get());
+        Group group = new Group(image);
+        ScrollPane scrollPane = new ScrollPane(group);
+        vBox.getChildren().add(scrollPane);
+        hBox.getChildren().add(vBox);
+
+        return hBox;
     }
 
     private void initToolBar() {
@@ -491,7 +516,13 @@ public class ReportPlugin implements Plugin {
                             model.setBytes(bytes);
                             pagination.setPageCount(model.numPages());
                             zoomFactor.set(0.3);
-                            pagination.setPageFactory(index -> new Group(model.getImage(index, zoomFactor.get())));
+                            pagination.setPageFactory((Integer pageIndex) -> {
+                                if (pageIndex >= model.numPages()) {
+                                    return null;
+                                } else {
+                                    return createPage(pageIndex);
+                                }
+                            });
                         } catch (Exception e) {
                             logger.error("Could not load report for {}:{} for ts {}", reportObject.getName(), reportObject.getID(), newValue.toString(), e);
                         }
@@ -503,7 +534,13 @@ public class ReportPlugin implements Plugin {
                     model.setBytes(bytes);
                     pagination.setPageCount(model.numPages());
                     zoomFactor.set(0.3);
-                    pagination.setPageFactory(index -> new Group(model.getImage(index, zoomFactor.get())));
+                    pagination.setPageFactory((Integer pageIndex) -> {
+                        if (pageIndex >= model.numPages()) {
+                            return null;
+                        } else {
+                            return createPage(pageIndex);
+                        }
+                    });
                 } catch (Exception e) {
                     logger.error("Could not load latest report for {}:{}", reportObject.getName(), reportObject.getID(), e);
                 }
