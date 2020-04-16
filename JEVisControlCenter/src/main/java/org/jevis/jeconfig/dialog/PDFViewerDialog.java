@@ -1,16 +1,16 @@
 package org.jevis.jeconfig.dialog;
 
-import com.google.common.util.concurrent.AtomicDouble;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.*;
@@ -33,7 +33,8 @@ public class PDFViewerDialog {
     private static final Logger logger = LogManager.getLogger(PDFViewerDialog.class);
     private final int iconSize = 32;
     private Stage stage;
-    private AtomicDouble zoomFactor = new AtomicDouble(0.3);
+    private final SimpleDoubleProperty zoomFactor = new SimpleDoubleProperty(0.3);
+    private PDFModel model;
 
     public PDFViewerDialog() {
 
@@ -64,6 +65,7 @@ public class PDFViewerDialog {
         BorderPane bp = new BorderPane();
 
         HBox headerBox = new HBox();
+        headerBox.setPadding(new Insets(2));
         headerBox.setSpacing(4);
 
         ToggleButton pdfButton = new ToggleButton("", JEConfig.getImage("pdf_24_2133056.png", iconSize, iconSize));
@@ -108,18 +110,26 @@ public class PDFViewerDialog {
             }
         });
 
+        Separator separator = new Separator(Orientation.VERTICAL);
+        ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", this.iconSize, this.iconSize));
+        ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", this.iconSize, this.iconSize));
+
+        zoomIn.setOnAction(event -> zoomFactor.set(zoomFactor.get() + 0.05));
+        zoomOut.setOnAction(event -> zoomFactor.set(zoomFactor.get() - 0.05));
+
         Region spacer = new Region();
         Label fileName = new Label(file.getFilename());
         fileName.setPadding(new Insets(0, 4, 0, 0));
         fileName.setTextFill(Color.web("#0076a3"));
         fileName.setFont(new Font("Cambria", iconSize));
 
-        headerBox.getChildren().addAll(pdfButton, printButton, spacer, fileName);
+        headerBox.getChildren().addAll(pdfButton, printButton, separator, zoomIn, zoomOut, spacer, fileName);
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         bp.setTop(headerBox);
         Pagination pagination = new Pagination();
-        bp.setCenter(new ScrollPane(pagination));
+        pagination.getStylesheets().add(PDFViewerDialog.class.getResource("/styles/pagination.css").toExternalForm());
+        bp.setCenter(pagination);
         bp.widthProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.doubleValue() != oldValue.doubleValue()) {
                 pagination.setPrefWidth(newValue.doubleValue());
@@ -130,9 +140,15 @@ public class PDFViewerDialog {
         stage.setScene(scene);
 
         byte[] bytes = file.getBytes();
-        PDFModel model = new PDFModel(bytes);
+        model = new PDFModel(bytes);
         pagination.setPageCount(model.numPages());
-        pagination.setPageFactory(index -> new Group(model.getImage(index, zoomFactor.get())));
+        pagination.setPageFactory((Integer pageIndex) -> {
+            if (pageIndex >= model.numPages()) {
+                return null;
+            } else {
+                return createPage(pageIndex);
+            }
+        });
 
         pagination.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
@@ -140,17 +156,45 @@ public class PDFViewerDialog {
                 if (event.isControlDown()) {
                     double deltaY = event.getDeltaY();
 
-                    if (deltaY < 0) {
+                    if (deltaY < 0 && zoomFactor.get() - 0.05 > 0) {
                         zoomFactor.set(zoomFactor.get() - 0.05);
                     } else {
                         zoomFactor.set(zoomFactor.get() + 0.05);
                     }
-                    pagination.setPageFactory(index -> new Group(model.getImage(index, zoomFactor.get())));
                     event.consume();
                 }
             }
         });
 
+        zoomFactor.addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                pagination.setPageFactory((Integer pageIndex) -> {
+                    if (pageIndex >= model.numPages()) {
+                        return null;
+                    } else {
+                        return createPage(pageIndex);
+                    }
+                });
+            }
+        });
+
         stage.showAndWait();
     }
+
+    public HBox createPage(int pageIndex) {
+        HBox hBox = new HBox();
+        hBox.setAlignment(Pos.CENTER);
+        VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER);
+
+        ImageView image = model.getImage(pageIndex, zoomFactor.get());
+        Group group = new Group(image);
+        ScrollPane scrollPane = new ScrollPane(group);
+        vBox.getChildren().add(scrollPane);
+        hBox.getChildren().add(vBox);
+
+        return hBox;
+    }
+
 }
+
