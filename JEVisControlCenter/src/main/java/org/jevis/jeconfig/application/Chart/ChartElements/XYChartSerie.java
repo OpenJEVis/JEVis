@@ -3,6 +3,7 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 
 import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -222,25 +223,41 @@ public class XYChartSerie {
                 double finalAvg = avg;
                 Platform.runLater(() -> tableEntry.setAvg(nf_out.format(finalAvg) + " " + getUnit()));
             } else {
-                CalcJobFactory calcJobCreator = new CalcJobFactory();
-
-                CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), singleRow.getObject().getDataSource(), singleRow.getCalculationObject(),
-                        firstTS, lastTS, true);
-                List<JEVisSample> results = calcJob.getResults();
-
-                if (results.size() == 1) {
-                    Platform.runLater(() -> {
+                DateTime finalFirstTS1 = firstTS;
+                DateTime finalLastTS = lastTS;
+                double finalAvg2 = avg;
+                Task task = new Task() {
+                    @Override
+                    protected Object call() throws Exception {
                         try {
-                            tableEntry.setAvg(nf_out.format(results.get(0).getValueAsDouble()) + " " + getUnit());
-                        } catch (JEVisException e) {
-                            logger.error("Couldn't get calculation result");
+                            CalcJobFactory calcJobCreator = new CalcJobFactory();
+
+                            CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), singleRow.getObject().getDataSource(), singleRow.getCalculationObject(),
+                                    finalFirstTS1, finalLastTS, true);
+                            List<JEVisSample> results = calcJob.getResults();
+
+                            if (results.size() == 1) {
+                                Platform.runLater(() -> {
+                                    try {
+                                        tableEntry.setAvg(nf_out.format(results.get(0).getValueAsDouble()) + " " + getUnit());
+                                    } catch (JEVisException e) {
+                                        logger.error("Couldn't get calculation result");
+                                    }
+                                });
+                            } else {
+                                Platform.runLater(() -> tableEntry.setAvg("- " + getUnit()));
+                            }
+                            double finalAvg1 = finalAvg2;
+                            Platform.runLater(() -> tableEntry.setEnpi(nf_out.format(finalAvg1) + " " + getUnit()));
+                        } catch (Exception e) {
+                            failed();
+                        } finally {
+                            succeeded();
                         }
-                    });
-                } else {
-                    Platform.runLater(() -> tableEntry.setAvg("- " + getUnit()));
-                }
-                double finalAvg1 = avg;
-                Platform.runLater(() -> tableEntry.setEnpi(nf_out.format(finalAvg1) + " " + getUnit()));
+                        return null;
+                    }
+                };
+                JEConfig.getStatusBar().addTask(XYChart.class.getName(), task, XYChart.taskImage, true);
             }
             if (isQuantity) {
 //                tableEntry.setSum(nf_out.format(sum / singleRow.getScaleFactor() / singleRow.getTimeFactor()) + " " + getUnit());
