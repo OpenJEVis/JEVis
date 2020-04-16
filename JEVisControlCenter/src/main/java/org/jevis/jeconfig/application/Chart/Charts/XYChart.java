@@ -634,6 +634,7 @@ public class XYChart implements Chart {
 
         setChart(new de.gsi.chart.XYChart(dateAxis, y1Axis));
 
+        chart.getRenderers().clear();
         chart.setLegend(null);
         chart.legendVisibleProperty().set(false);
         chart.getToolBar().setVisible(false);

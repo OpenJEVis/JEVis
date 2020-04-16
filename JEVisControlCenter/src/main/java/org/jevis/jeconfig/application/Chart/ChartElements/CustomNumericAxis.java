@@ -9,13 +9,11 @@ public class CustomNumericAxis extends DefaultNumericAxis {
         super();
     }
 
+
     @Override
-    protected AxisRange autoRange(final double minValue, double maxValue, final double length,
+    protected AxisRange autoRange(final double minValue, final double maxValue, final double length,
                                   final double labelSize) {
         double min = minValue > 0 && isForceZeroInRange() ? 0 : minValue;
-
-        maxValue *= 1.10;
-
         if (isLogAxis && minValue <= 0) {
             min = DefaultNumericAxis.DEFAULT_LOG_MIN_VALUE;
             isUpdating = true;
@@ -23,7 +21,8 @@ public class CustomNumericAxis extends DefaultNumericAxis {
             setMin(DefaultNumericAxis.DEFAULT_LOG_MIN_VALUE);
             isUpdating = false;
         }
-        final double max = maxValue < 0 && isForceZeroInRange() ? 0 : maxValue;
+
+        final double max = maxValue < 0 && isForceZeroInRange() ? 0 : maxValue * 1.10;
         final double padding = DefaultNumericAxis.getEffectiveRange(min, max) * getAutoRangePadding();
         final double paddingScale = 1.0 + getAutoRangePadding();
         final double paddedMin = isLogAxis ? minValue / paddingScale
