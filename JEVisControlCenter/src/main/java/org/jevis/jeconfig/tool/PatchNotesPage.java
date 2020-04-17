@@ -51,7 +51,11 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.30------\n" +
+            "------Version 3.9.31------\n" +
+                    "JECC - Charts - zooming in one chart messes up the axis of another chart" +
+                    "JECC - make central function in commons for naming saving of files\n" +
+                    "JEReport - Naming for report files\n\n" +
+                    "------Version 3.9.30------\n" +
                     "JECC - Charts - XYChart - y axis looses zero although forceZeroInRange=true\n" +
                     "JECC - Charts - XYChart - secondary y axis scales wrongly in cases of high amount of data\n" +
                     "JECC - ReportPlugin - pagination menu should always be visible\n" +

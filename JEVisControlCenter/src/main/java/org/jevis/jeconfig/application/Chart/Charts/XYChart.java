@@ -98,7 +98,7 @@ public class XYChart implements Chart {
     private WorkDays workDays = new WorkDays(null);
     private boolean hasSecondAxis = false;
     private final StringBuilder regressionFormula = new StringBuilder();
-    private final Image taskImage = JEConfig.getImage("Analysis.png");
+    public static final Image taskImage = JEConfig.getImage("Analysis.png");
     public static String JOB_NAME = "Create series";
 
     public XYChart() {
