@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.plugin.reports;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -63,26 +64,25 @@ public class ReportPlugin implements Plugin {
     private boolean initialized = false;
     private final ListView<JEVisObject> listView = new ListView<>();
     private final Pagination pagination = new Pagination();
-    private ComboBox<DateTime> dateTimeComboBox;
+    private final ComboBox<DateTime> dateTimeComboBox = new ComboBox<>(FXCollections.observableArrayList());
     private List<JEVisObject> disabledItemList;
-    private final HBox hBox = new HBox();
     private final TextField filterInput = new TextField();
     private final int iconSize = 20;
     private boolean multipleDirectories;
     private final PDFModel model = new PDFModel();
     private final SimpleDoubleProperty zoomFactor = new SimpleDoubleProperty(0.3);
+    private final ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
+    private final ImageView leftImage = JEConfig.getImage("left.png", 20, 20);
+    private final Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
 
     public ReportPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
 
-        this.hBox.setPadding(new Insets(4, 4, 4, 4));
-        this.hBox.setSpacing(4);
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
-        VBox view = new VBox(hBox, pagination);
+        VBox view = new VBox(pagination);
         view.setFillWidth(true);
-        VBox.setVgrow(hBox, Priority.NEVER);
         VBox.setVgrow(pagination, Priority.ALWAYS);
         view.widthProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue.doubleValue() != oldValue.doubleValue()) {
@@ -108,6 +108,7 @@ public class ReportPlugin implements Plugin {
 
         zoomFactor.addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
+                int currentPageIndex = pagination.getCurrentPageIndex();
                 pagination.setPageFactory((Integer pageIndex) -> {
                     if (pageIndex >= model.numPages()) {
                         return null;
@@ -115,6 +116,7 @@ public class ReportPlugin implements Plugin {
                         return createPage(pageIndex);
                     }
                 });
+                Platform.runLater(() -> pagination.setCurrentPageIndex(currentPageIndex));
             }
         });
 
@@ -145,7 +147,9 @@ public class ReportPlugin implements Plugin {
 
         ImageView image = model.getImage(pageIndex, zoomFactor.get());
         Group group = new Group(image);
-        ScrollPane scrollPane = new ScrollPane(group);
+        BorderPane bp = new BorderPane(group);
+        bp.setPadding(new Insets(20));
+        ScrollPane scrollPane = new ScrollPane(bp);
         vBox.getChildren().add(scrollPane);
         hBox.getChildren().add(vBox);
 
@@ -275,7 +279,77 @@ public class ReportPlugin implements Plugin {
             }
         });
 
-        toolBar.getItems().setAll(reload, sep1, pdfButton, xlsxButton, sep2, printButton);
+        Separator sep3 = new Separator(Orientation.VERTICAL);
+
+        ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", this.iconSize, this.iconSize));
+        ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", this.iconSize, this.iconSize));
+
+        zoomIn.setOnAction(event -> zoomFactor.set(zoomFactor.get() + 0.05));
+        zoomOut.setOnAction(event -> zoomFactor.set(zoomFactor.get() - 0.05));
+
+        Separator sep4 = new Separator(Orientation.VERTICAL);
+        Separator sep5 = new Separator(Orientation.VERTICAL);
+        Separator sep6 = new Separator(Orientation.VERTICAL);
+
+        Label labelDateTimeComboBox = new Label(I18n.getInstance().getString("plugin.reports.selectionbox.label"));
+        labelDateTimeComboBox.setAlignment(Pos.CENTER_LEFT);
+
+        Callback<ListView<DateTime>, ListCell<DateTime>> cellFactory = new Callback<ListView<DateTime>, ListCell<DateTime>>() {
+            @Override
+            public ListCell<DateTime> call(ListView<DateTime> param) {
+                return new ListCell<DateTime>() {
+                    @Override
+                    protected void updateItem(DateTime obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (obj == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(obj.toString("yyyy-MM-dd HH:mm"));
+                        }
+                    }
+                };
+            }
+        };
+
+        dateTimeComboBox.setCellFactory(cellFactory);
+        dateTimeComboBox.setButtonCell(cellFactory.call(null));
+
+        leftImage.setOnMouseClicked(event -> {
+            int i = dateTimeComboBox.getSelectionModel().getSelectedIndex();
+            if (i > 0) {
+                dateTimeComboBox.getSelectionModel().select(i - 1);
+            }
+        });
+
+        rightImage.setOnMouseClicked(event -> {
+            int i = dateTimeComboBox.getSelectionModel().getSelectedIndex();
+            if (i < sampleMap.size()) {
+                dateTimeComboBox.getSelectionModel().select(i + 1);
+            }
+        });
+
+        dateTimeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.equals(oldValue)) {
+                try {
+                    byte[] bytes = sampleMap.get(newValue).getValueAsFile().getBytes();
+                    model.setBytes(bytes);
+                    pagination.setPageCount(model.numPages());
+                    zoomFactor.set(0.3);
+                    pagination.setPageFactory((Integer pageIndex) -> {
+                        if (pageIndex >= model.numPages()) {
+                            return null;
+                        } else {
+                            return createPage(pageIndex);
+                        }
+                    });
+                } catch (Exception e) {
+                    logger.error("Could not load report for ts {}", newValue.toString(), e);
+                }
+            }
+        });
+
+        toolBar.getItems().setAll(reload, sep1, pdfButton, xlsxButton, sep2, printButton, sep3, zoomIn, zoomOut, sep4, labelDateTimeComboBox, leftImage, sep5, dateTimeComboBox, sep6, rightImage);
     }
 
     @Override
@@ -444,7 +518,7 @@ public class ReportPlugin implements Plugin {
             List<JEVisSample> allSamples = lastReportPDFAttribute.getAllSamples();
             if (allSamples.size() > 0) {
                 JEVisSample lastSample = allSamples.get(allSamples.size() - 1);
-                Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
+                sampleMap.clear();
                 List<DateTime> dateTimeList = new ArrayList<>();
                 for (JEVisSample jeVisSample : allSamples) {
                     try {
@@ -454,78 +528,16 @@ public class ReportPlugin implements Plugin {
                         logger.error("Could not add date to dat list.");
                     }
                 }
-                dateTimeComboBox = new ComboBox<>(FXCollections.observableList(dateTimeList));
-                Callback<ListView<DateTime>, ListCell<DateTime>> cellFactory = new Callback<ListView<DateTime>, ListCell<DateTime>>() {
-                    @Override
-                    public ListCell<DateTime> call(ListView<DateTime> param) {
-                        return new ListCell<DateTime>() {
-                            @Override
-                            protected void updateItem(DateTime obj, boolean empty) {
-                                super.updateItem(obj, empty);
-                                if (obj == null || empty) {
-                                    setGraphic(null);
-                                    setText(null);
-                                } else {
-                                    setText(obj.toString("yyyy-MM-dd HH:mm"));
-                                }
-                            }
-                        };
-                    }
-                };
 
-                dateTimeComboBox.setCellFactory(cellFactory);
-                dateTimeComboBox.setButtonCell(cellFactory.call(null));
+                Platform.runLater(() -> {
+                    dateTimeComboBox.getItems().clear();
+                    dateTimeComboBox.getItems().addAll(dateTimeList);
 
-                try {
-                    dateTimeComboBox.getSelectionModel().select(lastSample.getTimestamp());
-                } catch (JEVisException e) {
-                    logger.error("Could not get Time Stamp of last sample.");
-                    dateTimeComboBox.getSelectionModel().select(dateTimeList.size() - 1);
-                }
-
-                ImageView leftImage = JEConfig.getImage("left.png", 20, 20);
-                ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
-
-                leftImage.setOnMouseClicked(event -> {
-                    int i = dateTimeComboBox.getSelectionModel().getSelectedIndex();
-                    if (i > 0) {
-                        dateTimeComboBox.getSelectionModel().select(i - 1);
-                    }
-                });
-
-                rightImage.setOnMouseClicked(event -> {
-                    int i = dateTimeComboBox.getSelectionModel().getSelectedIndex();
-                    if (i < sampleMap.size()) {
-                        dateTimeComboBox.getSelectionModel().select(i + 1);
-                    }
-                });
-
-                Separator sep1 = new Separator(Orientation.VERTICAL);
-                Separator sep2 = new Separator(Orientation.VERTICAL);
-
-                Label labelDateTimeComboBox = new Label(I18n.getInstance().getString("plugin.reports.selectionbox.label"));
-                labelDateTimeComboBox.setAlignment(Pos.CENTER_LEFT);
-
-                hBox.getChildren().setAll(labelDateTimeComboBox, leftImage, sep1, dateTimeComboBox, sep2, rightImage);
-                hBox.setAlignment(Pos.CENTER);
-
-                dateTimeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                    if (!newValue.equals(oldValue)) {
-                        try {
-                            byte[] bytes = sampleMap.get(newValue).getValueAsFile().getBytes();
-                            model.setBytes(bytes);
-                            pagination.setPageCount(model.numPages());
-                            zoomFactor.set(0.3);
-                            pagination.setPageFactory((Integer pageIndex) -> {
-                                if (pageIndex >= model.numPages()) {
-                                    return null;
-                                } else {
-                                    return createPage(pageIndex);
-                                }
-                            });
-                        } catch (Exception e) {
-                            logger.error("Could not load report for {}:{} for ts {}", reportObject.getName(), reportObject.getID(), newValue.toString(), e);
-                        }
+                    try {
+                        dateTimeComboBox.getSelectionModel().select(lastSample.getTimestamp());
+                    } catch (JEVisException e) {
+                        logger.error("Could not get Time Stamp of last sample.");
+                        dateTimeComboBox.getSelectionModel().select(dateTimeList.size() - 1);
                     }
                 });
 
@@ -546,6 +558,7 @@ public class ReportPlugin implements Plugin {
                 }
             }
         }
+
     }
 
     private void setupCellFactory(ListView<JEVisObject> listView) {

@@ -22,13 +22,13 @@ public class CustomNumericAxis extends DefaultNumericAxis {
             isUpdating = false;
         }
 
-        final double max = maxValue < 0 && isForceZeroInRange() ? 0 : maxValue * 1.10;
+        final double max = maxValue < 0 && isForceZeroInRange() ? 0 : maxValue;
         final double padding = DefaultNumericAxis.getEffectiveRange(min, max) * getAutoRangePadding();
         final double paddingScale = 1.0 + getAutoRangePadding();
         final double paddedMin = isLogAxis ? minValue / paddingScale
                 : DefaultNumericAxis.clampBoundToZero(min - padding, min);
         final double paddedMax = isLogAxis ? maxValue * paddingScale
-                : DefaultNumericAxis.clampBoundToZero(max + padding, max);
+                : DefaultNumericAxis.clampBoundToZero(max + padding, max) * 1.10;
 
         return computeRange(paddedMin, paddedMax, length, labelSize);
     }

@@ -1,5 +1,6 @@
 package org.jevis.jeconfig.dialog;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -168,6 +169,7 @@ public class PDFViewerDialog {
 
         zoomFactor.addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
+                int currentPageIndex = pagination.getCurrentPageIndex();
                 pagination.setPageFactory((Integer pageIndex) -> {
                     if (pageIndex >= model.numPages()) {
                         return null;
@@ -175,6 +177,7 @@ public class PDFViewerDialog {
                         return createPage(pageIndex);
                     }
                 });
+                Platform.runLater(() -> pagination.setCurrentPageIndex(currentPageIndex));
             }
         });
 

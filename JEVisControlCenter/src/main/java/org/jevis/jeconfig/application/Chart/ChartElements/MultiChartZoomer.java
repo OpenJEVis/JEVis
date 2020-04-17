@@ -1281,14 +1281,15 @@ public class MultiChartZoomer extends ChartPlugin {
                         double displayPositionRightX = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) chart).getDateAxis().getDisplayPosition(valueForDisplayRight);
                         double width = displayPositionRightX - displayPositionLeftX;
                         chart.updateTableZoom(valueForDisplayLeft, valueForDisplayRight);
+                        double height = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) chart).getY1Axis().getHeight();
 
                         chart.getChart().getPlugins().forEach(naChartPlugin -> {
                             if (naChartPlugin instanceof MultiChartZoomer) {
                                 MultiChartZoomer zoomer = (MultiChartZoomer) naChartPlugin;
                                 zoomer.setFollowUpZoom(true);
                                 zoomer.getZoomRectangle().setX(displayPositionLeftX);
-                                zoomer.getZoomRectangle().setY(zoomRectangle.getY());
-                                zoomer.getZoomRectangle().setHeight(zoomRectangle.getHeight());
+                                zoomer.getZoomRectangle().setY(0d);
+                                zoomer.getZoomRectangle().setHeight(height);
                                 zoomer.getZoomRectangle().setWidth(width);
                                 zoomer.getZoomRectangle().setArcHeight(zoomRectangle.getArcHeight());
                                 zoomer.getZoomRectangle().setArcWidth(zoomRectangle.getArcWidth());
