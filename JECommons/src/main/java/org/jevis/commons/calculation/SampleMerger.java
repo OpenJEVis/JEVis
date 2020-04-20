@@ -25,7 +25,7 @@ public class SampleMerger {
     private final List<Sample> constants = new ArrayList<>();
     private final List<List<Sample>> periodConstants = new ArrayList<>();
     private int noOfAsyncVariables = 0;
-    private List<String> asyncVariables = new ArrayList<>();
+    private final List<String> asyncVariables = new ArrayList<>();
 
     private void addPeriodic(List<JEVisSample> jevisSamples, String variable, CalcInputType calcInputType) {
         List<Sample> samples = jevisSamples.stream().map(currentSample -> new Sample(currentSample, variable, calcInputType)).collect(Collectors.toList());
@@ -124,7 +124,12 @@ public class SampleMerger {
     }
 
     private void insertPeriodicConstants(Map<DateTime, List<Sample>> sampleMap) {
-//        periodConstants.forEach(currentSamples -> currentSamples.forEach(sample -> sampleMap.computeIfAbsent(sample.getDate(), k -> new ArrayList<>())));
+
+        periodConstants.forEach(currentSamples -> currentSamples.forEach(sample -> {
+            if (sample.getCalcInputType().equals(CalcInputType.ASYNC)) {
+                sampleMap.computeIfAbsent(sample.getDate(), k -> new ArrayList<>());
+            }
+        }));
 
         for (Map.Entry<DateTime, List<Sample>> entry : sampleMap.entrySet()) {
             DateTime currentSampleTime = entry.getKey();
