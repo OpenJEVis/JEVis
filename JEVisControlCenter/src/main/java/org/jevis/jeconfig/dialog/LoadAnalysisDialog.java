@@ -51,7 +51,7 @@ public class LoadAnalysisDialog {
     private final ObjectRelations objectRelations;
     private Response response = Response.CANCEL;
     private Stage stage;
-    private AnalysisDataModel analysisDataModel;
+    private final AnalysisDataModel analysisDataModel;
     private PickerCombo pickerCombo;
     private ComboBox<AnalysisTimeFrame> presetDateBox;
     private JFXDatePicker pickerDateStart;
@@ -59,10 +59,10 @@ public class LoadAnalysisDialog {
     private JFXDatePicker pickerDateEnd;
     private JFXTimePicker pickerTimeEnd;
     private FilteredList<JEVisObject> filteredData;
-    private TextField filterInput = new TextField();
+    private final TextField filterInput = new TextField();
     private ListView<JEVisObject> analysisListView;
-    private JEVisDataSource ds;
-    private DateHelper dateHelper = new DateHelper();
+    private final JEVisDataSource ds;
+    private final DateHelper dateHelper = new DateHelper();
     private ComboBox<AggregationPeriod> aggregationBox;
     private DisabledItemsComboBox<ManipulationMode> mathBox;
     private List<CustomPeriodObject> finalListCustomPeriodObjects;
@@ -578,9 +578,8 @@ public class LoadAnalysisDialog {
             tempBox.getSelectionModel().select(0);
         }
 
+        finalListCustomPeriodObjects = listCustomPeriodObjects;
         if (customPeriods.size() > 1) {
-
-            finalListCustomPeriodObjects = listCustomPeriodObjects;
             tempBox.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
                 if (!newValue.equals(oldValue)) {
                     if (newValue.intValue() > 0) {
