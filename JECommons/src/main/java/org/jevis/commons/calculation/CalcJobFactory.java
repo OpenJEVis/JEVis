@@ -10,15 +10,14 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.datetime.PeriodArithmetic;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static org.jevis.commons.calculation.CalcInputType.ASYNC;
 import static org.jevis.commons.calculation.CalcInputType.PERIODIC;
@@ -29,7 +28,7 @@ import static org.jevis.commons.calculation.CalcInputType.PERIODIC;
 public class CalcJobFactory {
 
     private static final Logger logger = LogManager.getLogger(CalcJobFactory.class);
-    private CalcJob calcJob;
+    private final CalcJob calcJob;
     private List<JEVisObject> calcInputObjects;
     private DateTime lastEndTime;
 
@@ -293,6 +292,8 @@ public class CalcJobFactory {
         Interval fromTo = null;
         Period period = null;
         DateTime endTime = new DateTime(2050, 12, 31, 23, 59, 59, 999);
+        boolean allAsync = true;
+        DateTime lastAsyncTS = endTime;
 
         List<JEVisObject> calcInputObjects = getCalcInputObjects(jevisObject);
         for (JEVisObject child : calcInputObjects) {
@@ -309,6 +310,10 @@ public class CalcJobFactory {
                     if (latestTimeStamp.isBefore(endTime)) {
                         endTime = latestTimeStamp;
                     }
+                }
+
+                if (inputType != ASYNC) {
+                    allAsync = false;
                 }
 
             } catch (JEVisException e) {
@@ -358,7 +363,11 @@ public class CalcJobFactory {
                 CalcInputType inputType = CalcInputType.valueOf(inputTypeString);
 
                 CalcInputObject calcObject = new CalcInputObject(identifier, inputType, valueAttribute);
-                calcObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, endTime);
+                if (allAsync) {
+                    calcObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, lastAsyncTS);
+                } else {
+                    calcObject.buildSamplesFromInputType(valueAttribute, inputType, startTime, endTime);
+                }
                 logger.info("Got samples for id {}", calcObject.getIdentifier());
                 calcObjects.add(calcObject);
             }
@@ -366,6 +375,43 @@ public class CalcJobFactory {
             calcJob.setHasProcessedAllInputSamples(true);
             logger.fatal(ex);
         }
+
+        if (allAsync) {
+            List<DateTime> allDates = new ArrayList<>();
+            calcObjects.forEach(calcInputObject -> calcInputObject.getSamples().forEach(jeVisSample -> {
+                try {
+                    if (!allDates.contains(jeVisSample.getTimestamp())) {
+                        allDates.add(jeVisSample.getTimestamp());
+                    }
+                } catch (JEVisException e) {
+                    logger.error("Could not get Date for {} of sample {}", calcInputObject.getIdentifier(), jeVisSample, e);
+                }
+            }));
+
+            calcObjects.forEach(calcInputObject -> {
+                Map<DateTime, JEVisSample> map = new HashMap<>();
+                JEVisAttribute attribute = null;
+                for (JEVisSample jeVisSample : calcInputObject.getSamples()) {
+                    try {
+                        map.put(jeVisSample.getTimestamp(), jeVisSample);
+                        if (attribute == null) {
+                            attribute = jeVisSample.getAttribute();
+                        }
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                for (DateTime dateTime : allDates) {
+                    if (!map.containsKey(dateTime)) {
+                        VirtualSample sample = new VirtualSample(dateTime, 0.0);
+                        sample.setAttribute(attribute);
+                        calcInputObject.getSamples().add(sample);
+                    }
+                }
+            });
+        }
+
         return calcObjects;
     }
 

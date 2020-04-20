@@ -223,7 +223,7 @@ public class ProcessOptions {
             startDate = startDate.plus(period);
             if (startDate.isAfter(lastSample)) {
 //                logger.info("wtf: " + startDate.getMillis() + "     " + lastSample.getMillis());
-//                logger.info("faild Interval: " + startDate + "   is after   " + lastSample);
+//                logger.info("failed Interval: " + startDate + "   is after   " + lastSample);
                 run = false;
             } else {
                 result.add(new Interval(startDate, period));

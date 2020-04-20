@@ -1262,6 +1262,7 @@ public class GraphPluginView implements Plugin {
                 case LINE:
                 case SCATTER:
                 case LOGICAL:
+                case COLUMN:
                     setupNoteDialog(cv);
 
                     setupMouseMoved(cv, notActive);
@@ -1314,9 +1315,6 @@ public class GraphPluginView implements Plugin {
                 case PIE:
                     break;
                 case HEAT_MAP:
-                    break;
-                case COLUMN:
-                    setupMouseMoved(cv, notActive);
                     break;
                 default:
                     break;

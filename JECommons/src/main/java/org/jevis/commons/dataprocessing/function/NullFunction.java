@@ -38,8 +38,8 @@ public class NullFunction implements ProcessFunction {
     private static final Logger logger = LogManager.getLogger(NullFunction.class);
 
     public static final String NAME = "Null Function";
-    private AggregationPeriod aggregationPeriod;
-    private ManipulationMode mode;
+    private final AggregationPeriod aggregationPeriod;
+    private final ManipulationMode mode;
 
     public NullFunction(ManipulationMode mode, AggregationPeriod aggregationPeriod) {
         this.mode = mode;
@@ -75,6 +75,9 @@ public class NullFunction implements ProcessFunction {
             aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, Boolean.toString(isCustomWorkDay)));
 
             switch (aggregationPeriod) {
+                case QUARTER_HOURLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.minutes(15).toString()));
+                    break;
                 case DAILY:
                     aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
                     break;

@@ -19,12 +19,12 @@ import java.util.List;
 
 public class SampleGenerator {
     private static final Logger logger = LogManager.getLogger(SampleGenerator.class);
-    private Interval interval;
-    private JEVisDataSource ds;
-    private JEVisAttribute attribute;
-    private JEVisObject object;
-    private ManipulationMode manipulationMode;
-    private AggregationPeriod aggregationPeriod;
+    private final Interval interval;
+    private final JEVisDataSource ds;
+    private final JEVisAttribute attribute;
+    private final JEVisObject object;
+    private final ManipulationMode manipulationMode;
+    private final AggregationPeriod aggregationPeriod;
     private Boolean customWorkday = true;
 
     public SampleGenerator(JEVisDataSource ds, JEVisObject object, JEVisAttribute attribute, DateTime from, DateTime until, ManipulationMode manipulationMode, AggregationPeriod aggregationPeriod) {
@@ -132,6 +132,9 @@ public class SampleGenerator {
                 aggregationProcess.setObject(attribute.getObject());
 
                 switch (aggregationPeriod) {
+                    case QUARTER_HOURLY:
+                        aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.minutes(15).toString()));
+                        break;
                     case DAILY:
                         aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
                         break;
@@ -161,6 +164,9 @@ public class SampleGenerator {
                 return aggregationProcess.getResult();
             } else {
                 switch (aggregationPeriod) {
+                    case QUARTER_HOURLY:
+                        basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.minutes(15).toString()));
+                        break;
                     case DAILY:
                         basicProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
                         break;
