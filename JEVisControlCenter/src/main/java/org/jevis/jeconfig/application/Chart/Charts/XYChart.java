@@ -442,6 +442,8 @@ public class XYChart implements Chart {
                 break;
         }
 
+        xyChartSerieList.sort(Comparator.comparingDouble(XYChartSerie::getSortCriteria));
+
         for (XYChartSerie xyChartSerie : xyChartSerieList) {
             int index = xyChartSerieList.indexOf(xyChartSerie);
 
