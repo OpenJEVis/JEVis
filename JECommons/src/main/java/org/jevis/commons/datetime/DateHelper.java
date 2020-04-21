@@ -314,15 +314,15 @@ public class DateHelper {
             }
 
             if (interval < 0) {
-                Integer index = (int) Math.abs(interval);
+                Integer index = (int) Math.abs(interval) - 1;
                 for (int i = listTimeStamps.size() - 1; i >= 0; i--) {
                     if (listTimeStamps.get(i - index).isBefore(DateTime.now())) {
                         return listTimeStamps.get(i - index);
                     }
                 }
             } else if (interval > 0) {
-                Integer index = (int) Math.abs(interval);
-                for (int i = 0; i >= listTimeStamps.size() - 1; i++) {
+                Integer index = (int) Math.abs(interval) - 1;
+                for (int i = 0; i <= listTimeStamps.size() - 1; i++) {
                     if (listTimeStamps.get(i + index).isAfter(DateTime.now())) {
                         return listTimeStamps.get(i + index);
                     }
