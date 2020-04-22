@@ -51,7 +51,15 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.31------\n" +
+            "------Version 3.9.32------\n" +
+                    "JECC - Charts - LoadAnalysisDialog - custom time frames don't work\n" +
+                    "JECC - Charts - AreaChart - optimize Visualization \n" +
+                    "JECC - Charts - LoadAnalysisDialog - 15 minute aggregation doesn't work \n" +
+                    "JECC - Charts - ColumnChart - zoom functionality\n" +
+                    "\n" +
+                    "JEStatus - calculations and cleaning should check for asynchronous data like data server  \n" +
+                    "JEStatus - ServiceStatus - JEAlarm seems to equal JEDataCollector\n\n" +
+                    "------Version 3.9.31------\n" +
                     "JECC - Charts - zooming in one chart messes up the axis of another chart\n" +
                     "JECC - make central function in commons for naming saving of files\n\n" +
                     "JEReport - Naming for report files\n\n" +
