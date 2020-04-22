@@ -511,9 +511,9 @@ public class LoadAnalysisDialog {
     private ComboBox<String> getCustomPeriodsComboBox() {
 
         ObservableList<String> customPeriods = FXCollections.observableArrayList();
-        List<JEVisObject> listCalendarDirectories = null;
-        List<JEVisObject> listCustomPeriods = null;
-        List<CustomPeriodObject> listCustomPeriodObjects = null;
+        List<JEVisObject> listCalendarDirectories = new ArrayList<>();
+        List<JEVisObject> listCustomPeriods = new ArrayList<>();
+        List<CustomPeriodObject> listCustomPeriodObjects = new ArrayList<>();
 
         try {
             try {
@@ -553,7 +553,6 @@ public class LoadAnalysisDialog {
 
         for (JEVisObject obj : listCustomPeriods) {
             if (obj != null) {
-                if (listCustomPeriodObjects == null) listCustomPeriodObjects = new ArrayList<>();
                 CustomPeriodObject cpo = new CustomPeriodObject(obj, new ObjectHandler(ds));
                 if (cpo.isVisible()) {
                     listCustomPeriodObjects.add(cpo);

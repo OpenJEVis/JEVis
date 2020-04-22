@@ -46,6 +46,7 @@ public class XYChartSerie {
     DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
     Double minValue = Double.MAX_VALUE;
     Double maxValue = -Double.MAX_VALUE;
+    private double sortCriteria;
 
     public XYChartSerie(ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
         this.singleRow = singleRow;
@@ -197,6 +198,7 @@ public class XYChartSerie {
 
         if (!singleRow.getManipulationMode().equals(ManipulationMode.CUMULATE) && samples.size() > 0) {
             avg = sum / (samples.size() - zeroCount);
+            sortCriteria = avg;
         }
 
         NumberFormat nf_out = NumberFormat.getNumberInstance();
@@ -414,5 +416,9 @@ public class XYChartSerie {
 
     public Integer getyAxis() {
         return yAxis;
+    }
+
+    public double getSortCriteria() {
+        return sortCriteria;
     }
 }

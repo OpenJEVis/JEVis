@@ -6,6 +6,7 @@ import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.util.*;
 
@@ -135,6 +136,19 @@ public class CalculationTable extends AlarmTable {
                 outOfBounds.remove(allInputs.get(dataServerObject));
             }
         }
+
+        List<JEVisObject> asyncTargets = new ArrayList<>();
+        for (JEVisObject calculation : outOfBounds) {
+            JEVisObject target = calcAndResult.get(calculation);
+            if (target != null) {
+                JEVisAttribute attribute = target.getAttribute(VALUE_ATTRIBUTE_NAME);
+                if (attribute.getInputSampleRate().equals(Period.ZERO)) {
+                    asyncTargets.add(calculation);
+                }
+            }
+        }
+
+        outOfBounds.removeAll(asyncTargets);
 
         outOfBounds.sort(new Comparator<JEVisObject>() {
             @Override

@@ -64,6 +64,16 @@ public class CleanDataTable extends AlarmTable {
             }
         }
 
+        List<JEVisObject> asyncTargets = new ArrayList<>();
+        for (JEVisObject cleanDataObject : outOfBounds) {
+            JEVisAttribute attribute = cleanDataObject.getAttribute(VALUE_ATTRIBUTE_NAME);
+            if (attribute.getInputSampleRate().equals(Period.ZERO)) {
+                asyncTargets.add(cleanDataObject);
+            }
+        }
+
+        outOfBounds.removeAll(asyncTargets);
+
         outOfBounds.sort(new Comparator<JEVisObject>() {
             @Override
             public int compare(JEVisObject o1, JEVisObject o2) {

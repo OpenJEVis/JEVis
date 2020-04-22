@@ -287,11 +287,10 @@ public class ChartDataRow {
                                     manipulationMode,
                                     aggregationPeriod);
 
-//                                    samples = sg.generateSamples();
-                            samples = sg.getAggregatedSamples();
-
                             if (!isStringData) {
-                                samples = factorizeSamples(samples);
+                                samples = factorizeSamples(sg.getAggregatedSamples());
+                            } else {
+                                samples = sg.getAggregatedSamples();
                             }
 
                         } else {
