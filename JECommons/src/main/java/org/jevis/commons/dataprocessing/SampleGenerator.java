@@ -124,6 +124,7 @@ public class SampleGenerator {
 
 
         BasicProcess aggregationProcess = new BasicProcess();
+        aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, customWorkday.toString()));
         if (aggregationPeriod == AggregationPeriod.NONE) {
             return basicProcess.getResult();
         } else {
@@ -158,7 +159,6 @@ public class SampleGenerator {
                 }
                 aggregationProcess.setFunction(new AggregatorFunction());
                 aggregationProcess.setID("Aggregation");
-                aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, customWorkday.toString()));
 
                 aggregationProcess.setSubProcesses(Collections.singletonList(basicProcess));
                 return aggregationProcess.getResult();
