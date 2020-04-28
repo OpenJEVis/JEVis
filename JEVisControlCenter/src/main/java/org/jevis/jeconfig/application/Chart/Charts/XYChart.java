@@ -2,6 +2,7 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
 import com.ibm.icu.text.DecimalFormat;
+import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
 import de.gsi.chart.renderer.LineStyle;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
 import de.gsi.chart.ui.geometry.Side;
@@ -236,7 +237,7 @@ public class XYChart implements Chart {
         if (asDuration) {
             Platform.runLater(() -> this.dateAxis.setTimeAxis(true));
 
-            CustomTimeFormatter axisLabelFormatter = new CustomTimeFormatter(this.dateAxis) {
+            DefaultTimeFormatter axisLabelFormatter = new DefaultTimeFormatter(this.dateAxis) {
 
                 @Override
                 public String toString(Number utcValueSeconds) {
@@ -253,8 +254,10 @@ public class XYChart implements Chart {
                     final LocalDateTime dateTime = LocalDateTime.ofEpochSecond(longUTCSeconds, nanoSeconds,
                             getTimeZoneOffset());
 
-                    DateTime ts = new DateTime(dateTime.getYear(), dateTime.getMonthValue(), dateTime.getDayOfMonth(),
-                            dateTime.getHour(), dateTime.getMinute(), dateTime.getSecond());
+//                    DateTime ts = new DateTime(dateTime.getYear(), dateTime.getMonthValue(), dateTime.getDayOfMonth(),
+//                            dateTime.getHour(), dateTime.getMinute(), dateTime.getSecond());
+                    Double utcValueMillis = longUTCSeconds * 1000d;
+                    DateTime ts = new DateTime(utcValueMillis.longValue());
 
                     return (ts.getMillis() - timeStampOfFirstSample.get().getMillis()) / 1000 / 60 / 60 + " h";
                 }
