@@ -58,14 +58,14 @@ public class FileEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(FileEditor.class);
     private final BooleanProperty changed = new SimpleBooleanProperty(false);
     public JEVisAttribute attribute;
-    private HBox box = new HBox();
-    private boolean hasChanged = false;
+    private final HBox box = new HBox();
+    private final boolean hasChanged = false;
     private Button _downloadButton;
     private Button uploadButton;
     private boolean readOnly = true;
     //Enable the automatic download of the smaple fo rthe filename
     //This function is suboptial and gives a abd user experience.
-    private boolean _autoDownload = true;
+    private final boolean _autoDownload = true;
 
     public FileEditor(JEVisAttribute att) {
         attribute = att;
@@ -164,7 +164,7 @@ public class FileEditor implements AttributeEditor {
                 try {
                     JEVisSample latestSample = attribute.getLatestSample();
                     if (latestSample != null) {
-                        pdfViewerDialog.show(latestSample.getValueAsFile(), JEConfig.getStage());
+                        pdfViewerDialog.show(attribute, latestSample.getValueAsFile(), JEConfig.getStage());
                     }
                 } catch (JEVisException e) {
                     logger.error("Could not open pdf viewer", e);
@@ -180,7 +180,7 @@ public class FileEditor implements AttributeEditor {
                 try {
                     JEVisSample latestSample = attribute.getLatestSample();
                     if (latestSample != null) {
-                        imageViewerDialog.show(latestSample.getValueAsFile(), JEConfig.getStage());
+                        imageViewerDialog.show(attribute, latestSample.getValueAsFile(), JEConfig.getStage());
                     }
                 } catch (JEVisException e) {
                     logger.error("Could not open pdf viewer", e);

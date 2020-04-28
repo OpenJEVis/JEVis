@@ -745,7 +745,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                 pdfButton.setOnAction(event -> {
                                     PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
                                     try {
-                                        pdfViewerDialog.show(sample.getValueAsFile(), this.getScene().getWindow());
+                                        pdfViewerDialog.show(sample.getAttribute(), sample.getValueAsFile(), this.getScene().getWindow());
                                     } catch (JEVisException e) {
                                         logger.error("Could not open pdf viewer", e);
                                     }
@@ -758,7 +758,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
                                 imageButton.setOnAction(event -> {
                                     ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
                                     try {
-                                        imageViewerDialog.show(sample.getValueAsFile(), JEConfig.getStage());
+                                        imageViewerDialog.show(sample.getAttribute(), sample.getValueAsFile(), JEConfig.getStage());
                                     } catch (JEVisException e) {
                                         logger.error("Could not open pdf viewer", e);
                                     }
@@ -1117,7 +1117,7 @@ public class SampleTable extends TableView<SampleTable.TableSample> {
         private SimpleObjectProperty value = new SimpleObjectProperty();
         private SimpleStringProperty note = new SimpleStringProperty();
         private SimpleObjectProperty<DateTime> timeStamp = new SimpleObjectProperty<>();
-        private SimpleBooleanProperty isSelected = new SimpleBooleanProperty(false);
+        private final SimpleBooleanProperty isSelected = new SimpleBooleanProperty(false);
 
         private JEVisSample jevisSample = null;
         private boolean isNew = false;

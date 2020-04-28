@@ -703,13 +703,13 @@ public class MeterPlugin implements Plugin {
                                 if (isPDF) {
                                     Platform.runLater(() -> {
                                         PDFViewerDialog pdfViewerDialog = new PDFViewerDialog();
-                                        pdfViewerDialog.show(file, JEConfig.getStage());
+                                        pdfViewerDialog.show(valueChange.getAttribute(), file, JEConfig.getStage());
                                     });
 
                                 } else {
                                     Platform.runLater(() -> {
                                         ImageViewerDialog imageViewerDialog = new ImageViewerDialog();
-                                        imageViewerDialog.show(file, JEConfig.getStage());
+                                        imageViewerDialog.show(valueChange.getAttribute(), file, JEConfig.getStage());
                                     });
 
                                 }
