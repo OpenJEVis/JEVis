@@ -32,8 +32,8 @@ public class SaveAnalysisDialog {
     private final AnalysisDataModel model;
     private final ObjectRelations objectRelations;
     private final ToolBarView toolBarView;
-    private PickerCombo pickerCombo;
-    private ComboBox<JEVisObject> listAnalysesComboBox;
+    private final PickerCombo pickerCombo;
+    private final ComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean changed;
     private JEVisObject currentAnalysisDirectory = null;
 
@@ -294,7 +294,8 @@ public class SaveAnalysisDialog {
                     smp5.commit();
                 }
 
-                changed = false;
+                this.changed = false;
+                this.toolBarView.setChanged(false);
                 this.model.setTemporary(false);
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));

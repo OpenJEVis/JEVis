@@ -28,6 +28,7 @@ public class JEVisItemLoader {
     private final List<JEVisObject> roots;
     private final ConcurrentHashMap<JEVisObject, JEVisTreeItem> itemObjectLinker = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, JEVisTreeItem> itemAttributeLinker = new ConcurrentHashMap<>();
+    private final ObservableList<JEVisObject> visibleObjects = FXCollections.observableArrayList();
 
 
     /**
@@ -72,15 +73,15 @@ public class JEVisItemLoader {
         return this.itemObjectLinker.values();
     }
 
-    public List<JEVisObject> getVisibleObjects() {
-        List<JEVisObject> result = new ArrayList<>();
+    public ObservableList<JEVisObject> getVisibleObjects() {
+        visibleObjects.clear();
         this.itemObjectLinker.forEach((object, jeVisTreeItem) -> {
             if (jeVisTreeItem.isFiltered() || jeVisTreeItem.isParentForFilter()) {
-                result.add(jeVisTreeItem.getValue().getJEVisObject());
+                visibleObjects.add(jeVisTreeItem.getValue().getJEVisObject());
             }
         });
 
-        return result;
+        return visibleObjects;
     }
 
     /**

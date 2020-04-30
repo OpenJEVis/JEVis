@@ -1,28 +1,33 @@
 package org.jevis.jeconfig.dialog;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Window;
 import javafx.stage.*;
+import javafx.util.Callback;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisFile;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.report.JEVisFileWithSample;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 
@@ -34,23 +39,65 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ImageViewerDialog {
     private static final Logger logger = LogManager.getLogger(ImageViewerDialog.class);
     private final int iconSize = 32;
     private Stage stage;
-    private ImageView imageView = new ImageView();
+    private final ImageView imageView = new ImageView();
+    private final ComboBox<JEVisFileWithSample> fileComboBox = new ComboBox<>(FXCollections.observableArrayList());
+    private final Map<JEVisFile, JEVisSample> sampleMap = new HashMap<>();
+    private final ImageView imageIcon = JEConfig.getImage("1390344346_3d_objects.png", iconSize, iconSize);
+    private final ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
+    private final ImageView leftImage = JEConfig.getImage("left.png", 20, 20);
+    private Label fileName;
 
     public ImageViewerDialog() {
 
     }
 
-    public void show(JEVisFile file, Window owner) {
+    public void show(JEVisAttribute attribute, JEVisFile file, Window owner) {
 
         if (stage != null) {
             stage.close();
             stage = null;
         }
+
+        Task loadOtherFilesInBackground = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                try {
+                    if (attribute != null) {
+                        sampleMap.clear();
+                        Platform.runLater(() -> fileComboBox.getItems().clear());
+
+                        java.util.List<JEVisSample> allSamples = attribute.getAllSamples();
+                        if (allSamples.size() > 0) {
+                            for (JEVisSample jeVisSample : allSamples) {
+                                try {
+                                    JEVisFile valueAsFile = jeVisSample.getValueAsFile();
+                                    fileComboBox.getItems().add(new JEVisFileWithSample(jeVisSample, valueAsFile));
+                                    sampleMap.put(valueAsFile, jeVisSample);
+                                } catch (JEVisException e) {
+                                    logger.error("Could not add date to dat list.");
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    failed();
+                } finally {
+                    succeeded();
+                }
+                return null;
+            }
+        };
+
+        loadOtherFilesInBackground.setOnSucceeded(event -> Platform.runLater(() -> fileComboBox.getSelectionModel().selectLast()));
+
+        JEConfig.getStatusBar().addTask(PDFViewerDialog.class.getName(), loadOtherFilesInBackground, imageIcon.getImage(), true);
 
         stage = new Stage();
 
@@ -146,12 +193,55 @@ public class ImageViewerDialog {
         });
 
         Region spacer = new Region();
-        Label fileName = new Label(file.getFilename());
+        fileName = new Label(file.getFilename());
         fileName.setPadding(new Insets(0, 4, 0, 0));
         fileName.setTextFill(Color.web("#0076a3"));
         fileName.setFont(new Font("Cambria", iconSize));
 
-        headerBox.getChildren().addAll(saveButton, printButton, spacer, fileName);
+        Callback<ListView<JEVisFileWithSample>, ListCell<JEVisFileWithSample>> cellFactory = new Callback<ListView<JEVisFileWithSample>, ListCell<JEVisFileWithSample>>() {
+            @Override
+            public ListCell<JEVisFileWithSample> call(ListView<JEVisFileWithSample> param) {
+                return new ListCell<JEVisFileWithSample>() {
+                    @Override
+                    protected void updateItem(JEVisFileWithSample obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (obj == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(obj.getJeVisFile().getFilename());
+                        }
+                    }
+                };
+            }
+        };
+
+        fileComboBox.setCellFactory(cellFactory);
+        fileComboBox.setButtonCell(cellFactory.call(null));
+
+        leftImage.setOnMouseClicked(event -> {
+            int i = fileComboBox.getSelectionModel().getSelectedIndex();
+            if (i > 0) {
+                fileComboBox.getSelectionModel().select(i - 1);
+            }
+        });
+
+        rightImage.setOnMouseClicked(event -> {
+            int i = fileComboBox.getSelectionModel().getSelectedIndex();
+            if (i < sampleMap.size()) {
+                fileComboBox.getSelectionModel().select(i + 1);
+            }
+        });
+
+        Separator separator2 = new Separator(Orientation.VERTICAL);
+        VBox left = new VBox(leftImage);
+        left.setAlignment(Pos.CENTER);
+        VBox right = new VBox(rightImage);
+        right.setAlignment(Pos.CENTER);
+        VBox sampleSelection = new VBox(new HBox(4, left, fileComboBox, right));
+        sampleSelection.setAlignment(Pos.CENTER);
+
+        headerBox.getChildren().addAll(saveButton, printButton, separator2, sampleSelection, spacer, fileName);
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         bp.setTop(headerBox);
@@ -161,17 +251,30 @@ public class ImageViewerDialog {
         stage.setScene(scene);
 
         try {
-            File tempFile = File.createTempFile(FilenameUtils.getExtension(file.getFilename()), "." + file.getFileExtension());
-            //File tempFile = File.createTempFile(file.getFilename().substring(0, file.getFilename().length() - 3), "." + file.getFileExtension());
-            tempFile.deleteOnExit();
-            file.saveToFile(tempFile);
-            Image image = new Image(tempFile.toURI().toString());
-            Platform.runLater(() -> imageView.setImage(image));
+            createImage(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        fileComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue != null && newValue != null && !newValue.equals(oldValue)) {
+                try {
+                    createImage(file);
+                } catch (Exception e) {
+                    logger.error("Could not load report for ts {}", newValue.toString(), e);
+                }
+            }
+        });
 
         stage.showAndWait();
+    }
+
+    private void createImage(JEVisFile file) throws IOException {
+        File tempFile = File.createTempFile(FilenameUtils.getExtension(file.getFilename()), "." + file.getFileExtension());
+        tempFile.deleteOnExit();
+        file.saveToFile(tempFile);
+        Image image = new Image(tempFile.toURI().toString());
+        Platform.runLater(() -> imageView.setImage(image));
+        Platform.runLater(() -> fileName.setText(file.getFilename()));
     }
 }

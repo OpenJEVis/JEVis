@@ -48,19 +48,19 @@ import java.util.UUID;
  */
 public class JEVisTree extends TreeTableView {
     private static final Logger logger = LogManager.getLogger(JEVisTree.class);
-    private ObservableList<TreePlugin> plugins = FXCollections.observableArrayList();
-    private JEVisDataSource ds;
+    private final ObservableList<TreePlugin> plugins = FXCollections.observableArrayList();
+    private final JEVisDataSource ds;
     private JEVisObject copyObject;
     private JEVisTreeRow dragItem;
-    private UUID uuid = UUID.randomUUID();
+    private final UUID uuid = UUID.randomUUID();
     private JEVisTreeFilter cellFilter;
     private JEVisItemLoader itemLoader;
-    private ObservableList<JEVisObject> highlighterList = FXCollections.observableArrayList();
+    private final ObservableList<JEVisObject> highlighterList = FXCollections.observableArrayList();
     private boolean isCut = false;
     private SearchFilterBar searchBar;
 
     /**
-     * Create an default Tree for the given JEVisDatasource by using all accessable JEVisOBjects starting by the
+     * Create an default Tree for the given JEVisDataSource by using all accessable JEVisObjects starting by the
      * root objects.
      *
      * @param ds
@@ -165,7 +165,7 @@ public class JEVisTree extends TreeTableView {
         init();
     }
 
-    public List<JEVisObject> getVisibleObjects() {
+    public ObservableList<JEVisObject> getVisibleObjects() {
         return this.itemLoader.getVisibleObjects();
     }
 
@@ -335,6 +335,7 @@ public class JEVisTree extends TreeTableView {
     public void setFilter(JEVisTreeFilter filter) {
         this.cellFilter = filter;
         this.itemLoader.filterTree(filter);
+        this.getVisibleObjects();
     }
 
     public JEVisObject getCopyObject() {
