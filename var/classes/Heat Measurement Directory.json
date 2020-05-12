@@ -1,0 +1,23 @@
+{
+  "name": "Heat Measurement Directory",
+  "description": "The class Channel Directory represents a specific directory for Heat measurement instruments.\n\n",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Heat Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 0
+    },
+    {
+      "start": "Heat Measurement Directory",
+      "end": "Measurement Directory",
+      "type": 3
+    },
+    {
+      "start": "Heat Measurement Directory",
+      "end": "Heat Measurement Instrument",
+      "type": 3
+    }
+  ]
+}
+

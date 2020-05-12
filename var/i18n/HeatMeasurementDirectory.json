@@ -1,0 +1,13 @@
+{
+  "jevisclass": "Heat Measurement Directory",
+  "names": {
+    "de": "Messstellen (Wärme)",
+    "ru": "Measurement (Heat)",
+    "en": "Measurement (Heat)"
+  },
+  "descriptions": {
+    "de": "Dient der Verwaltung von Messstellen (Wärme).",
+    "ru": "For managing measurements (Heat).",
+    "en": "For managing measurements (Heat)."
+  }
+}
