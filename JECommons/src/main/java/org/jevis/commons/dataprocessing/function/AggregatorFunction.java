@@ -21,15 +21,13 @@ package org.jevis.commons.dataprocessing.function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
-import org.jevis.api.JEVisUnit;
+import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeComparator;
 import org.joda.time.Interval;
 import org.joda.time.Period;
 
@@ -60,7 +58,11 @@ public class AggregatorFunction implements ProcessFunction {
         if (allTimestamps.isEmpty()) {
             return result;
         }
-        List<Interval> intervals = ProcessOptions.getIntervals(mainTask, allTimestamps.get(0), allTimestamps.get(allTimestamps.size() - 1));
+
+        StartAndEndDates startAndEndDates = new StartAndEndDates(mainTask).invoke();
+
+//        List<Interval> intervals = ProcessOptions.getIntervals(mainTask, allTimestamps.get(0), allTimestamps.get(allTimestamps.size() - 1));
+        List<Interval> intervals = ProcessOptions.getIntervals(mainTask, startAndEndDates.getStart(), startAndEndDates.getEnd());
 
         boolean isCustomWorkDay = true;
         for (ProcessOption option : mainTask.getOptions()) {
@@ -101,6 +103,8 @@ public class AggregatorFunction implements ProcessFunction {
         }
 
         int lastPos = 0;
+        List<Interval> emptyIntervals = new ArrayList<>();
+        JEVisUnit unit = null;
         for (Interval interval : intervals) {
             List<JEVisSample> samplesInPeriod = new ArrayList<>();
             //logger.info("interval: " + interval);
@@ -139,7 +143,7 @@ public class AggregatorFunction implements ProcessFunction {
 
                 boolean hasSamples = false;
                 Double sum = 0d;
-                JEVisUnit unit = null;
+
                 for (JEVisSample sample : samplesInPeriod) {
                     try {
                         sum += sample.getValueAsDouble();
@@ -156,6 +160,7 @@ public class AggregatorFunction implements ProcessFunction {
 
                 QuantityUnits qu = new QuantityUnits();
                 boolean isQuantity = qu.isQuantityUnit(unit);
+                isQuantity = isQuantityIfCleanData(attribute, isQuantity);
 
                 if (hasSamples && !isQuantity) {
                     sum = sum / samplesInPeriod.size();
@@ -171,12 +176,64 @@ public class AggregatorFunction implements ProcessFunction {
                         }
                     }
                     result.add(resultSum);
+                } else {
+                    emptyIntervals.add(interval);
                 }
             }
-
         }
 
+//        StartAndEndDates startAndEndDates = new StartAndEndDates(mainTask).invoke();
+        DateTime start = startAndEndDates.getStart();
+        DateTime end = startAndEndDates.getEnd();
+
+        if (start != null && end != null && unit != null) {
+            for (Interval emptyInterval : emptyIntervals) {
+                if (emptyInterval.getStart().equals(start)
+                        || (emptyInterval.getStart().isAfter(start) && emptyInterval.getStart().isBefore(end))
+                        || emptyInterval.getStart().equals(end)) {
+                    JEVisSample resultSum = new VirtualSample(emptyInterval.getStart(), 0d, unit, mainTask.getJEVisDataSource(), attribute);
+                    try {
+                        resultSum.setNote("Aggregation(" + emptyInterval.getStart().toString() + "/" + emptyInterval.getEnd().toString() + ")");
+                    } catch (JEVisException e) {
+                        logger.error("Could not set new Note to sample: " + e);
+                    }
+                    result.add(resultSum);
+                }
+            }
+        }
+
+        result.sort((o1, o2) -> {
+            try {
+                return DateTimeComparator.getInstance().compare(o1.getTimestamp(), o2.getTimestamp());
+            } catch (JEVisException e) {
+                logger.error(e);
+            }
+            return 0;
+        });
+
         return result;
+    }
+
+    private boolean isQuantityIfCleanData(JEVisAttribute attribute, boolean isQuantity) {
+        if (attribute != null) {
+            JEVisObject object = attribute.getObject();
+            if (object != null) {
+                try {
+                    if (object.getJEVisClassName().equals(CleanDataObject.CLASS_NAME)) {
+                        JEVisAttribute quantityAttribute = object.getAttribute(CleanDataObject.AttributeName.VALUE_QUANTITY.getAttributeName());
+                        if (quantityAttribute != null && quantityAttribute.hasSample()) {
+                            JEVisSample latestSample = quantityAttribute.getLatestSample();
+                            if (latestSample != null) {
+                                isQuantity = latestSample.getValueAsBoolean();
+                            }
+                        }
+                    }
+                } catch (JEVisException e) {
+                    logger.error(e);
+                }
+            }
+        }
+        return isQuantity;
     }
 
     @Override
@@ -194,4 +251,6 @@ public class AggregatorFunction implements ProcessFunction {
 
         return options;
     }
+
+
 }

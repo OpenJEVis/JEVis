@@ -34,6 +34,7 @@ import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
+import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.Constants;
@@ -68,6 +69,7 @@ public class MeterPlugin implements Plugin {
     public static String PLUGIN_NAME = "Meter Plugin";
     private static Method columnToFitMethod;
     private final Image taskImage = JEConfig.getImage("measurement_instrument.png");
+    private final ObjectRelations objectRelations;
 
     static {
         try {
@@ -90,6 +92,7 @@ public class MeterPlugin implements Plugin {
         this.ds = ds;
         this.title = title;
         this.borderPane.setCenter(tabPane);
+        this.objectRelations = new ObjectRelations(ds);
 
         this.tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != oldValue) {
@@ -110,12 +113,12 @@ public class MeterPlugin implements Plugin {
     public static void autoFitTable(TableView<MeterRow> tableView) {
         for (TableColumn<MeterRow, ?> column : tableView.getColumns()) {
 //            if (column.isVisible()) {
-                try {
-                    if (tableView.getSkin() != null) {
-                        columnToFitMethod.invoke(tableView.getSkin(), column, -1);
-                    }
-                } catch (Exception e) {
+            try {
+                if (tableView.getSkin() != null) {
+                    columnToFitMethod.invoke(tableView.getSkin(), column, -1);
                 }
+            } catch (Exception e) {
+            }
 //            }
         }
     }
@@ -123,6 +126,14 @@ public class MeterPlugin implements Plugin {
     private void createColumns(TableView<MeterRow> tableView, JEVisClass jeVisClass) {
 
         try {
+            if (isMultiSite()) {
+                TableColumn<MeterRow, String> multiSiteColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnsite"));
+                multiSiteColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(objectRelations.getObjectPath(param.getValue().getObject())));
+                multiSiteColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+
+                tableView.getColumns().add(multiSiteColumn);
+            }
+
             TableColumn<MeterRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnname"));
             nameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject().getName()));
             nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
@@ -221,6 +232,31 @@ public class MeterPlugin implements Plugin {
         } catch (JEVisException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isMultiSite() {
+
+        try {
+            JEVisClass measurementInstrumentDirectoryClass = ds.getJEVisClass("Measurement Directory");
+            List<JEVisObject> objects = ds.getObjects(measurementInstrumentDirectoryClass, true);
+
+            List<JEVisObject> buildingParents = new ArrayList<>();
+            for (JEVisObject jeVisObject : objects) {
+                JEVisObject buildingParent = objectRelations.getBuildingParent(jeVisObject);
+                if (!buildingParents.contains(buildingParent)) {
+                    buildingParents.add(buildingParent);
+
+                    if (buildingParents.size() > 1) {
+                        return true;
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+
+        }
+
+        return false;
     }
 
     private Callback<TableColumn<MeterRow, JEVisAttribute>, TableCell<MeterRow, JEVisAttribute>> valueCellDateTime() {
