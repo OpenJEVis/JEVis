@@ -34,6 +34,19 @@
       }
     },
     {
+      "type": "Last Readout Try",
+      "descriptions": {
+        "de": "Datum und Zeit der letzten versuchten Auslesung in der Zeitzone, die im Server Objekt eingestellt ist",
+        "ru": "Last Readout try description",
+        "en": "Date and Time of last readout try in time zone setup in the server object"
+      },
+      "names": {
+        "de": "Letzte versuchte Auslesung",
+        "ru": "Last Readout Try",
+        "en": "Last Readout Try"
+      }
+    },
+    {
       "type": "Target",
       "descriptions": {
         "de": "Target description",
