@@ -78,7 +78,9 @@ public class MathFunction implements ProcessFunction {
         List<Interval> intervals = null;
         if (aggregationPeriod != AggregationPeriod.NONE) {
             allTimestamps = getAllTimestampsSingleList(allSamples);
-            intervals = ProcessOptions.getIntervals(mainTask, allTimestamps.get(0), allTimestamps.get(allTimestamps.size() - 1));
+//            intervals = ProcessOptions.getIntervals(mainTask, allTimestamps.get(0), allTimestamps.get(allTimestamps.size() - 1));
+            StartAndEndDates startAndEndDates = new StartAndEndDates(mainTask).invoke();
+            intervals = ProcessOptions.getIntervals(mainTask, startAndEndDates.getStart(), startAndEndDates.getEnd());
         }
 
         Boolean hasSamples = false;
@@ -523,9 +525,9 @@ public class MathFunction implements ProcessFunction {
     }
 
     private class Aggregate {
-        private Process mainTask;
-        private List<JEVisSample> allSamples;
-        private List<Interval> intervals;
+        private final Process mainTask;
+        private final List<JEVisSample> allSamples;
+        private final List<Interval> intervals;
         private Boolean hasSamples;
         private JEVisUnit unit;
         private List<JEVisSample> aggregatedSamples;

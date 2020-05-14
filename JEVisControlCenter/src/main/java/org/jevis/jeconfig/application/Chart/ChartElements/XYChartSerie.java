@@ -33,7 +33,7 @@ import java.util.TreeMap;
 
 public class XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
-    private final boolean forecast;
+    final boolean forecast;
     public final String FINISHED_SERIE;
     Integer yAxis;
     DoubleDataSet valueDataSet;
@@ -262,39 +262,14 @@ public class XYChartSerie {
                 JEConfig.getStatusBar().addTask(XYChart.class.getName(), task, XYChart.taskImage, true);
             }
             if (isQuantity) {
-//                tableEntry.setSum(nf_out.format(sum / singleRow.getScaleFactor() / singleRow.getTimeFactor()) + " " + getUnit());
                 Double finalSum = sum;
                 Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum) + " " + getUnit()));
             } else {
                 if (qu.isSumCalculable(unit) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
                     try {
-                        Period period = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
-                        if (period.getMonths() < 1 && period.getYears() < 1) {
-                            long periodMillis = period.toStandardDuration().getMillis();
-                            long hourMillis = Period.hours(1).toStandardDuration().getMillis();
-                            Double factor = (double) hourMillis / (double) periodMillis;
-//                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
-                            sum = sum / singleRow.getScaleFactor() / singleRow.getTimeFactor();
-                            Double finalSum1 = sum;
-                            Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum1) + " " + qu.getSumUnit(unit)));
-                        } else {
-                            double periodMillis = 0.0;
-
-                            if (period.getMonths() == 1) {
-                                periodMillis = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
-                            } else if (period.getMonths() == 3) {
-                                periodMillis = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 3;
-                            } else if (period.getYears() == 1) {
-                                periodMillis = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
-                            }
-
-                            long hourMillis = Period.hours(1).toStandardDuration().getMillis();
-                            Double factor = (double) hourMillis / periodMillis;
-//                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
-                            sum = sum / singleRow.getScaleFactor() / singleRow.getTimeFactor();
-                            Double finalSum2 = sum;
-                            Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum2) + " " + qu.getSumUnit(unit)));
-                        }
+                        sum = sum / singleRow.getScaleFactor();
+                        Double finalSum1 = sum;
+                        Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum1) + " " + qu.getSumUnit(unit)));
                     } catch (Exception e) {
                         logger.error("Couldn't calculate periods");
                         Platform.runLater(() -> tableEntry.setSum("- " + getUnit()));
