@@ -5,6 +5,8 @@ package org.jevis.httpdatasource;
  * and open the template in the editor.
  */
 
+import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -13,7 +15,9 @@ import org.jevis.commons.driver.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +27,8 @@ import java.util.List;
 public class JEVisHTTPDataSource implements DataSource {
     private static final Logger logger = LogManager.getLogger(JEVisHTTPDataSource.class);
     private DateTimeZone timezone;
+
+    private final List<JEVisObject> _channels = new ArrayList<>();
 
     @Override
     public void run() {
@@ -37,50 +43,50 @@ public class JEVisHTTPDataSource implements DataSource {
                 _parser = ParserFactory.getParser(parser);
                 _parser.initialize(parser);
 
-                List<InputStream> input = this.sendSampleRequest(channel);
+                try {
+                    List<InputStream> input = this.sendSampleRequest(channel);
 
-                if (!input.isEmpty()) {
-                    this.parse(input);
-                }
+                    if (!input.isEmpty()) {
+                        this.parse(input);
+                    }
 
 
-                if (!_result.isEmpty()) {
+                    if (!_result.isEmpty()) {
 //                    this.importResult();
 //
 //                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
-                    JEVisImporterAdapter.importResults(_result, _importer, channel);
-                    for (InputStream inputStream : input) {
-                        try {
-                            inputStream.close();
-                        } catch (Exception ex) {
-                            logger.warn("could not close input stream: {}", ex.getMessage());
+                        JEVisImporterAdapter.importResults(_result, _importer, channel);
+                        for (InputStream inputStream : input) {
+                            try {
+                                inputStream.close();
+                            } catch (Exception ex) {
+                                logger.warn("could not close input stream: {}", ex.getMessage());
+                            }
                         }
                     }
+                } catch (
+                        MalformedURLException ex) {
+                    logger.error("MalformedURLException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("MalformedURLException. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                } catch (
+                        ClientProtocolException ex) {
+                    logger.error("Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                } catch (
+                        IOException ex) {
+                    logger.error("IO Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("IO Exception. For channel {}:{}.", channel.getID(), channel.getName(), ex);
+                } catch (
+                        ParseException ex) {
+                    logger.error("Parse Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("Parse Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                } catch (Exception ex) {
+                    logger.error("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
                 }
             } catch (Exception ex) {
                 logger.error(ex);
             }
         }
-    }
-
-    @Override
-    public List<InputStream> sendSampleRequest(JEVisObject channel) {
-        Channel httpChannel = new Channel();
-
-        try {
-            JEVisClass channelClass = channel.getJEVisClass();
-            JEVisType pathType = channelClass.getType(HTTPChannelTypes.PATH);
-            String path = DatabaseHelper.getObjectAsString(channel, pathType);
-            JEVisType readoutType = channelClass.getType(HTTPChannelTypes.LAST_READOUT);
-            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
-
-            httpChannel.setLastReadout(lastReadout);
-            httpChannel.setPath(path);
-        } catch (JEVisException ex) {
-            logger.error(ex);
-        }
-
-        return _httpdatasource.sendSampleRequest(httpChannel);
     }
 
     private void initializeAttributes(JEVisObject httpObject) {
@@ -145,7 +151,28 @@ public class JEVisHTTPDataSource implements DataSource {
 
     private Parser _parser;
     private Importer _importer;
-    private List<JEVisObject> _channels = new ArrayList<>();
+
+    @Override
+    public List<InputStream> sendSampleRequest(JEVisObject channel) throws Exception {
+        Channel httpChannel = new Channel();
+
+        try {
+            JEVisClass channelClass = channel.getJEVisClass();
+            JEVisType pathType = channelClass.getType(HTTPChannelTypes.PATH);
+            String path = DatabaseHelper.getObjectAsString(channel, pathType);
+            JEVisType readoutType = channelClass.getType(HTTPChannelTypes.LAST_READOUT);
+            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
+
+            httpChannel.setLastReadout(lastReadout);
+            httpChannel.setPath(path);
+        } catch (JEVisException ex) {
+            logger.error(ex);
+        }
+
+
+        return _httpdatasource.sendSampleRequest(httpChannel);
+    }
+
     private List<Result> _result;
 
     private HTTPDataSource _httpdatasource;

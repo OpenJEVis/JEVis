@@ -62,7 +62,7 @@ public interface DataSource {
      * @param channel
      * @return
      */
-    List<InputStream> sendSampleRequest(JEVisObject channel);
+    List<InputStream> sendSampleRequest(JEVisObject channel) throws Exception;
 
     /**
      * Parse the data from the input from the data source query. There

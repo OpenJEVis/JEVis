@@ -8,11 +8,9 @@ package org.jevis.httpdatasource;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
@@ -27,10 +25,8 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -67,18 +63,17 @@ public class HTTPDataSource {
      * @param channel
      * @return
      */
-    public List<InputStream> sendSampleRequest(Channel channel) {
+    public List<InputStream> sendSampleRequest(Channel channel) throws Exception {
         List<InputStream> answer = new ArrayList<InputStream>();
-        try {
 
-            String path = channel.getPath();
-            DateTime lastReadout = channel.getLastReadout();
+        String path = channel.getPath();
+        DateTime lastReadout = channel.getLastReadout();
 
-            if (path.startsWith("/")) {
-                path = path.substring(1);
-            }
+        if (path.startsWith("/")) {
+            path = path.substring(1);
+        }
 
-            URL requestUrl;
+        URL requestUrl;
             if (_userName == null || _password == null || _userName.equals("") || _password.equals("")) {
 
                 path = DataSourceHelper.replaceDateFromUntil(lastReadout, new DateTime(), path, _timeZone);
@@ -157,21 +152,7 @@ public class HTTPDataSource {
             }
 //        List<InputHandler> answerList = new ArrayList<InputHandler>();
 //        answerList.add(InputHandlerFactory.getInputConverter(answer));
-        } catch (MalformedURLException ex) {
-            logger.error("MalformedURLException. For channel {}:{}. {}", getId(), getName(), ex.getMessage());
-            logger.debug("MalformedURLException. For channel {}:{}", getId(), getName(), ex);
-        } catch (ClientProtocolException ex) {
-            logger.error("Exception. For channel {}:{}. {}", getId(), getName(), ex.getMessage());
-            logger.debug("Exception. For channel {}:{}", getId(), getName(), ex);
-        } catch (IOException ex) {
-            logger.error("IO Exception. For channel {}:{}. {}", getId(), getName(), ex.getMessage());
-            logger.debug("IO Exception. For channel {}:{}.", getId(), getName(), ex);
-        } catch (ParseException ex) {
-            logger.error("Parse Exception. For channel {}:{}. {}", getId(), getName(), ex.getMessage());
-            logger.debug("Parse Exception. For channel {}:{}", getId(), getName(), ex);
-        } catch (Exception ex) {
-            logger.error("Exception. For channel {}:{}", getId(), getName(), ex);
-        }
+
         return answer;
     }
     private String _serverURL;

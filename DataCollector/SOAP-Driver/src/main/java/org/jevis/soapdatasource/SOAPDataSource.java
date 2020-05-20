@@ -22,7 +22,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.*;
 import javax.xml.transform.dom.DOMSource;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -53,7 +52,7 @@ public class SOAPDataSource {
      * @param channel
      * @return
      */
-    public List<InputStream> sendSampleRequest(Channel channel) {
+    public List<InputStream> sendSampleRequest(Channel channel) throws Exception {
         String uri = "";
         List<InputStream> answer = new ArrayList<InputStream>();
         javax.xml.soap.SOAPConnection conn = null;
@@ -129,20 +128,6 @@ public class SOAPDataSource {
             InputStream input = new ByteArrayInputStream(out.toByteArray());
 
             answer.add(input);
-        } catch (MalformedURLException ex) {
-            logger.error("Malformed URL exception. SOAP Uri: {}  and host: {}. {}", uri, _host, ex.getMessage());
-            logger.debug("Malformed URL exception. SOAP Uri: {}  and host: {}", uri, _host, ex);
-        } catch (IOException ex) {
-            logger.error("IO exception. SOAP Uri: {}  and host: {}. {}", uri, _host, ex.getMessage());
-            logger.debug("IO exception. SOAP Uri: {}  and host: {}", uri, _host, ex);
-        } catch (UnsupportedOperationException ex) {
-            logger.error("Unsupported operation exception. SOAP Uri: {}  and host: {}. {}", uri, _host, ex.getMessage());
-            logger.debug("Unsupported operation exception. SOAP Uri: {}  and host: {}", uri, _host, ex);
-        } catch (SOAPException ex) {
-            logger.error("SOAP exception. SOAP Uri: {}  and host: {}. {}", uri, _host, ex.getMessage());
-            logger.debug("SOAP exception. SOAP Uri: {}  and host: {}", uri, _host, ex);
-        } catch (Exception ex) {
-            logger.error("Exception. SOAP Uri: {}  and host: {}", uri, _host, ex);
         } finally {
             if (conn != null) {
                 try {
