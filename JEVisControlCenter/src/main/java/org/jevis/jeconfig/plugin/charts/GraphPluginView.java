@@ -785,7 +785,7 @@ public class GraphPluginView implements Plugin {
             case PIE:
                 return new PieChart(dataModel, chartDataRows, chart);
             case TABLE:
-                return new TableChart(dataModel, chartDataRows, chart);
+                return new TableChart();
             case HEAT_MAP:
                 return new HeatMapChart(chartDataRows, chart);
             case AREA:
