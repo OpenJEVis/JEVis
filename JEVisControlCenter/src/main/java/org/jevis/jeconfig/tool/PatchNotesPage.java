@@ -51,7 +51,32 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.32------\n" +
+            "------Version 3.9.33------\n" +
+                    "JECC - Charts - BubbleChart - migrate to new library\n" +
+                    "JECC - Charts - TableChart - something is grabbing cpu like crazy for big timeframes\n" +
+                    "JECC - Charts - asking to save after saving\n" +
+                    "JECC - Charts - sorted values filter shows bold hours on time axis\n" +
+                    "JECC - MeterPlugin - added site column\n" +
+                    "JECC - MeterPlugin - Download images and pdfs from table view does not work\n" +
+                    "JECC - PDF/Image Viewer - add sample selection\n" +
+                    "JECC - moved time scaling to commons\n" +
+                    "JECC - if filter is selected, search bar should only search in visible objects\n" +
+                    "JECC - disable custom workdays only works for unaggregated data \n" +
+                    "\n" +
+                    "Classes - added heat measurement instrument\n" +
+                    "Classes - added new Loytec icons and channel\n" +
+                    "Classes - added attribute for readout try\n" +
+                    "\n" +
+                    "JECommons - removed limit on intervals without samples \n" +
+                    "JECommons - DataSourceHelper - fixed syntax \n" +
+                    "\n" +
+                    "JENotifier - switched to jakarta mail\n" +
+                    "JEReport - switched to jakarta mail\n" +
+                    "JEStatus - switched to jakarta mail\n" +
+                    "Notifier-EP - switched to jakarta mail\n" +
+                    "\n" +
+                    "JEDataCollector - improved logging and exception handling\n\n" +
+                    "------Version 3.9.32------\n" +
                     "JECC - Charts - LoadAnalysisDialog - custom time frames don't work\n" +
                     "JECC - Charts - AreaChart - optimize Visualization \n" +
                     "JECC - Charts - LoadAnalysisDialog - 15 minute aggregation doesn't work \n" +
