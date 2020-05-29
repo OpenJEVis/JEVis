@@ -75,7 +75,7 @@ public class ChartSelectionDialog {
     private Response _response = Response.CANCEL;
     private AnalysisDataModel data;
     private Stage stage;
-    private boolean init = true;
+    private final boolean init = true;
     private JEVisTree tree;
     //    private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private ChartPluginTree chartPlugin = null;
@@ -344,6 +344,14 @@ public class ChartSelectionDialog {
         final Label labelChartType = new Label(I18n.getInstance().getString("graph.tabs.tab.charttype"));
         final ChartTypeComboBox chartTypeComboBox = new ChartTypeComboBox(cset);
 
+        final Label labelGroupingInterval = new Label("grouping Interval");
+        final NumberSpinner groupingInterval = new NumberSpinner(new BigDecimal(cset.getGroupingInterval()), new BigDecimal(1));
+        groupingInterval.numberProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                cset.setGroupingInterval(newValue.longValue());
+            }
+        });
+
         Label labelColorMapping = null;
         ColorMappingBox colorMappingBox = null;
         if (cset.getChartType() == ChartType.HEAT_MAP) {
@@ -419,6 +427,12 @@ public class ChartSelectionDialog {
         if (cset.getChartType() == ChartType.HEAT_MAP) {
             gridPane.add(labelColorMapping, 0, row);
             gridPane.add(colorMappingBox, 1, row);
+            row++;
+        }
+
+        if (cset.getChartType() == ChartType.BUBBLE) {
+            gridPane.add(labelGroupingInterval, 0, row);
+            gridPane.add(groupingInterval, 1, row);
             row++;
         }
 

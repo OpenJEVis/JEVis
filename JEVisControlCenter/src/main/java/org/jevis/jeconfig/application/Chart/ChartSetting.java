@@ -11,6 +11,7 @@ public class ChartSetting {
     private ChartType chartType;
     private Double height;
     private ColorMapping colorMapping;
+    private Long groupingInterval;
 
     private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
 
@@ -63,6 +64,14 @@ public class ChartSetting {
 
     public void setColorMapping(ColorMapping colorMapping) {
         this.colorMapping = colorMapping;
+    }
+
+    public Long getGroupingInterval() {
+        return groupingInterval;
+    }
+
+    public void setGroupingInterval(Long groupingInterval) {
+        this.groupingInterval = groupingInterval;
     }
 
     public AnalysisTimeFrame getAnalysisTimeFrame() {

@@ -39,8 +39,6 @@ public enum ChartType {
 
     public static ChartType parseChartType(String chartType) {
         switch (chartType) {
-            case ("AREA"):
-                return AREA;
             case ("LOGICAL"):
                 return LOGICAL;
             case ("LINE"):
@@ -59,6 +57,7 @@ public enum ChartType {
                 return TABLE;
             case ("HEAT_MAP"):
                 return HEAT_MAP;
+            case ("AREA"):
             default:
                 return AREA;
         }

@@ -6,7 +6,9 @@ import de.gsi.chart.axes.spi.format.DefaultTimeFormatter;
 import de.gsi.chart.renderer.LineStyle;
 import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
 import de.gsi.chart.ui.geometry.Side;
+import de.gsi.dataset.DataSet;
 import de.gsi.dataset.spi.DoubleDataSet;
+import de.gsi.dataset.spi.DoubleErrorDataSet;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -68,8 +70,8 @@ public class XYChart implements Chart {
     Boolean showIcons = true;
     DefaultDateAxis dateAxis = new DefaultDateAxis();
     List<ChartDataRow> chartDataRows;
-    private Boolean showRawData = false;
-    private Boolean showSum = false;
+    Boolean showRawData = false;
+    Boolean showSum = false;
     CustomNumericAxis y1Axis = new CustomNumericAxis();
     private final List<Color> hexColors = new ArrayList<>();
     ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
@@ -77,27 +79,27 @@ public class XYChart implements Chart {
     AtomicReference<DateTime> timeStampOfFirstSample = new AtomicReference<>(now);
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
     CustomNumericAxis y2Axis = new CustomNumericAxis();
-    private Boolean showL1L2 = false;
+    Boolean showL1L2 = false;
     de.gsi.chart.Chart chart;
-    private AnalysisDataModel analysisDataModel;
-    private Integer chartId;
-    private ChartType chartType = ChartType.LINE;
+    AnalysisDataModel analysisDataModel;
+    Integer chartId;
+    ChartType chartType = ChartType.LINE;
     Double minValue = Double.MAX_VALUE;
     Double maxValue = -Double.MAX_VALUE;
     boolean asDuration = false;
-    private String chartName;
+    String chartName;
     private final List<String> unitY1 = new ArrayList<>();
     private final List<String> unitY2 = new ArrayList<>();
     List<XYChartSerie> xyChartSerieList = new ArrayList<>();
     private Region areaChartRegion;
     private Period period;
-    private ManipulationMode addSeriesOfType;
-    private AtomicBoolean addManipulationToTitle;
-    private AtomicReference<ManipulationMode> manipulationMode;
-    private Boolean[] changedBoth;
+    ManipulationMode addSeriesOfType;
+    AtomicBoolean addManipulationToTitle;
+    AtomicReference<ManipulationMode> manipulationMode;
+    Boolean[] changedBoth;
     private final DateTimeFormatter dtfOutLegend = DateTimeFormat.forPattern("EE. dd.MM.yyyy HH:mm");
-    private WorkDays workDays = new WorkDays(null);
-    private boolean hasSecondAxis = false;
+    WorkDays workDays = new WorkDays(null);
+    boolean hasSecondAxis = false;
     private final StringBuilder regressionFormula = new StringBuilder();
     public static final Image taskImage = JEConfig.getImage("Analysis.png");
     public static String JOB_NAME = "Create series";
@@ -408,6 +410,7 @@ public class XYChart implements Chart {
         trendLineRenderer.setPolyLineStyle(LineStyle.NORMAL);
         trendLineRenderer.setDrawMarker(false);
         trendLineRenderer.setMarkerSize(0);
+        trendLineRenderer.setAssumeSortedData(false);
 
         switch (chartType) {
             case AREA:
@@ -502,11 +505,15 @@ public class XYChart implements Chart {
 
     }
 
-    private List<DoubleDataSet> drawRegression(XYChartSerie xyChartSerie) {
-        List<DoubleDataSet> list = new ArrayList<>();
+    private List<DataSet> drawRegression(XYChartSerie xyChartSerie) {
+        return drawRegression(xyChartSerie.getValueDataSet(), ColorHelper.toColor(xyChartSerie.getSingleRow().getColor()),
+                xyChartSerie.getSingleRow().getTitle());
+    }
+
+    List<DataSet> drawRegression(DataSet input, Color color, String title) {
+        List<DataSet> list = new ArrayList<>();
 
         if (calcRegression) {
-            DoubleDataSet input = xyChartSerie.getValueDataSet();
 
             TrendLine trendLineObs = null;
             PolynomialCurveFitter fitter = null;
@@ -533,14 +540,21 @@ public class XYChart implements Chart {
                 double[] y = new double[input.getDataCount()];
 
                 for (int i = 0; i < input.getDataCount(); i++) {
-                    x[i] = input.getX(i);
-                    y[i] = input.getY(i);
+                    if (input instanceof DoubleDataSet) {
+                        DoubleDataSet doubleDataSet = (DoubleDataSet) input;
+                        x[i] = doubleDataSet.getX(i);
+                        y[i] = doubleDataSet.getY(i);
+                    } else if (input instanceof DoubleErrorDataSet) {
+                        DoubleErrorDataSet doubleErrorDataSet = (DoubleErrorDataSet) input;
+                        x[i] = doubleErrorDataSet.getX(i);
+                        y[i] = doubleErrorDataSet.getY(i);
+                    }
                 }
 
                 trendLineObs.setValues(y, x);
 
                 DoubleDataSet set = new DoubleDataSet("regression");
-                Color darker = ColorHelper.toColor(xyChartSerie.getSingleRow().getColor()).darker();
+                Color darker = color.darker();
                 set.setStyle("strokeColor=" + darker + "; fillColor= " + darker + ";");
 
                 for (int i = 0; i < x.length; i++) {
@@ -552,10 +566,17 @@ public class XYChart implements Chart {
                 DoubleDataSet set = new DoubleDataSet("regression");
                 final WeightedObservedPoints obs = new WeightedObservedPoints();
                 for (int i = 0; i < input.getDataCount(); i++) {
-                    obs.add(input.getX(i), input.getY(i));
+
+                    if (input instanceof DoubleDataSet) {
+                        DoubleDataSet doubleDataSet = (DoubleDataSet) input;
+                        obs.add(doubleDataSet.getX(i), doubleDataSet.getY(i));
+                    } else if (input instanceof DoubleErrorDataSet) {
+                        DoubleErrorDataSet doubleErrorDataSet = (DoubleErrorDataSet) input;
+                        obs.add(doubleErrorDataSet.getX(i), doubleErrorDataSet.getY(i));
+                    }
                 }
 
-                Color darker = ColorHelper.toColor(xyChartSerie.getSingleRow().getColor()).darker();
+                Color darker = color.darker();
                 set.setStyle("strokeColor=" + darker + "; fillColor= " + darker + ";");
 
                 final double[] coefficient = fitter.fit(obs.toList());
@@ -564,13 +585,26 @@ public class XYChart implements Chart {
 
                     double result = 0d;
                     for (int power = coefficient.length - 1; power >= 0; power--) {
-                        result += coefficient[power] * (Math.pow(input.getX(i), power));
+
+                        if (input instanceof DoubleDataSet) {
+                            DoubleDataSet doubleDataSet = (DoubleDataSet) input;
+                            result += coefficient[power] * (Math.pow(doubleDataSet.getX(i), power));
+                        } else if (input instanceof DoubleErrorDataSet) {
+                            DoubleErrorDataSet doubleErrorDataSet = (DoubleErrorDataSet) input;
+                            result += coefficient[power] * (Math.pow(doubleErrorDataSet.getX(i), power));
+                        }
                     }
 
-                    set.add(input.getX(i), result);
+                    if (input instanceof DoubleDataSet) {
+                        DoubleDataSet doubleDataSet = (DoubleDataSet) input;
+                        set.add(doubleDataSet.getX(i), result);
+                    } else if (input instanceof DoubleErrorDataSet) {
+                        DoubleErrorDataSet doubleErrorDataSet = (DoubleErrorDataSet) input;
+                        set.add(doubleErrorDataSet.getX(i), result);
+                    }
                 }
 
-                regressionFormula.append(xyChartSerie.getSingleRow().getTitle());
+                regressionFormula.append(title);
                 regressionFormula.append(System.getProperty("line.separator"));
                 regressionFormula.append("f(x) = ");
                 DecimalFormat formatter = new DecimalFormat();
