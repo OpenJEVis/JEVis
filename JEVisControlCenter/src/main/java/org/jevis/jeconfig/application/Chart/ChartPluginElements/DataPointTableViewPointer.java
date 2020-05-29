@@ -24,6 +24,7 @@ import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartType;
+import org.jevis.jeconfig.application.Chart.Charts.BubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
 import org.joda.time.DateTime;
@@ -34,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
 
@@ -184,7 +186,7 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
         }
         final DataPoint dataPoint = findDataPoint(event, areaBounds);
 
-        if (dataPoint != null) {
+        if (dataPoint != null && currentChart.getChartType() != ChartType.BUBBLE) {
             Double v = dataPoint.getX() * 1000d;
             DateTime nearest = new DateTime(v.longValue());
 
@@ -194,7 +196,6 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                 notActiveCharts.forEach(chart -> {
                     if (!chart.getChartType().equals(ChartType.PIE)
                             && !chart.getChartType().equals(ChartType.BAR)
-                            && !chart.getChartType().equals(ChartType.BUBBLE)
                             && !chart.getChartType().equals(ChartType.TABLE)) {
                         chart.getChart().getPlugins().forEach(chartPlugin -> {
                             if (chartPlugin instanceof DataPointTableViewPointer) {
@@ -215,6 +216,9 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                     }
                 });
             }
+        } else if (dataPoint != null) {
+            Double v = dataPoint.getX();
+            updateTable(v);
         }
     }
 
@@ -280,6 +284,44 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
             } catch (Exception ignored) {
             }
         });
+    }
+
+    public void updateTable(Double nearest) {
+        NumberFormat nf = NumberFormat.getInstance();
+        nf.setMinimumFractionDigits(2);
+        nf.setMaximumFractionDigits(2);
+
+        try {
+            BubbleChart currentChart = (BubbleChart) this.currentChart;
+
+            TreeMap<Double, Double> sampleTreeMap = currentChart.getSampleTreeMap();
+            TableEntry tableEntry = currentChart.getTableData().get(0);
+
+            Double yValue = sampleTreeMap.get(nearest);
+            AtomicReference<Double> xValue = new AtomicReference<>(nearest);
+            sampleTreeMap.forEach((aDouble, aDouble2) -> {
+                if (aDouble2.equals(yValue)) {
+                    xValue.set(aDouble);
+                }
+            });
+
+            String formattedX = nf.format(xValue.get());
+            String formattedY = nf.format(yValue);
+            String xUnit = currentChart.getxUnit();
+            String yUnit = currentChart.getyUnit();
+            if (!xUnit.equals("")) {
+                Platform.runLater(() -> tableEntry.setxValue(formattedX + " " + xUnit));
+            } else {
+                Platform.runLater(() -> tableEntry.setxValue(formattedX));
+            }
+            if (!yUnit.equals("")) {
+                Platform.runLater(() -> tableEntry.setyValue(formattedY + " " + yUnit));
+            } else {
+                Platform.runLater(() -> tableEntry.setyValue(formattedY));
+            }
+
+        } catch (Exception ex) {
+        }
     }
 
     protected class DataPoint {

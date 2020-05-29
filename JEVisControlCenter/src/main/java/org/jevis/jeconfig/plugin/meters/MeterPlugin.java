@@ -646,20 +646,23 @@ public class MeterPlugin implements Plugin {
 
                             downloadButton.setOnAction(event -> {
                                 try {
-                                    if (valueChange.getJeVisFile() != null) {
-                                        FileChooser fileChooser = new FileChooser();
-                                        fileChooser.setInitialFileName(valueChange.getJeVisFile().getFilename());
-                                        fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
-                                        fileChooser.getExtensionFilters().addAll(
-                                                new FileChooser.ExtensionFilter("All Files", "*.*"));
-                                        File selectedFile = fileChooser.showSaveDialog(null);
-                                        if (selectedFile != null) {
-                                            JEConfig.setLastPath(selectedFile);
-                                            valueChange.getJeVisFile().saveToFile(selectedFile);
+                                    if (item.hasSample()) {
+                                        JEVisFile file = item.getLatestSample().getValueAsFile();
+                                        if (file != null) {
+                                            FileChooser fileChooser = new FileChooser();
+                                            fileChooser.setInitialFileName(file.getFilename());
+                                            fileChooser.setTitle(I18n.getInstance().getString("plugin.object.attribute.file.download.title"));
+                                            fileChooser.getExtensionFilters().addAll(
+                                                    new FileChooser.ExtensionFilter("All Files", "*.*"));
+                                            File selectedFile = fileChooser.showSaveDialog(null);
+                                            if (selectedFile != null) {
+                                                JEConfig.setLastPath(selectedFile);
+                                                file.saveToFile(selectedFile);
+                                            }
                                         }
                                     }
                                 } catch (Exception ex) {
-                                    logger.fatal(ex);
+                                    logger.error(ex);
                                 }
 
                             });

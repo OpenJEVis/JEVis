@@ -26,7 +26,6 @@ import eu.hansolo.fx.charts.MatrixPane;
 import eu.hansolo.fx.charts.data.MatrixChartItem;
 import eu.hansolo.fx.charts.tools.Helper;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -36,7 +35,10 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
-import javafx.geometry.*;
+import javafx.geometry.Bounds;
+import javafx.geometry.Orientation;
+import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -46,7 +48,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
@@ -73,7 +74,6 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDia
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointTableViewPointer;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
 import org.jevis.jeconfig.application.Chart.Charts.*;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -531,7 +531,7 @@ public class GraphPluginView implements Plugin {
                         case BAR:
                         case PIE:
                         case HEAT_MAP:
-                        case BUBBLE:
+//                        case BUBBLE:
                             if (chart != null) {
                                 bp.setCenter(chart.getRegion());
                                 if (!dataModel.getCharts().getAutoSize()) {
@@ -779,13 +779,13 @@ public class GraphPluginView implements Plugin {
             case COLUMN:
                 return new ColumnChart();
             case BUBBLE:
-                return new BubbleChart(dataModel, chartDataRows, chart);
+                return new BubbleChart();
             case SCATTER:
                 return new ScatterChart();
             case PIE:
                 return new PieChart(dataModel, chartDataRows, chart);
             case TABLE:
-                return new TableChart(dataModel, chartDataRows, chart);
+                return new TableChart();
             case HEAT_MAP:
                 return new HeatMapChart(chartDataRows, chart);
             case AREA:
@@ -796,56 +796,7 @@ public class GraphPluginView implements Plugin {
 
     private void formatCharts() {
         for (Map.Entry<Integer, Chart> entry : allCharts.entrySet()) {
-            if (entry.getValue().getChartType().equals(ChartType.BUBBLE)) {
-                MultiAxisBubbleChart bubbleChart = (MultiAxisBubbleChart) entry.getValue().getRegion();
-                String yUnit = ((BubbleChart) entry.getValue()).getyUnit();
-
-                bubbleChart.getData().forEach(numberNumberSeries -> {
-                    MultiAxisBubbleChart.Series bubbleChartSeries = (MultiAxisBubbleChart.Series) numberNumberSeries;
-                    bubbleChartSeries.getData().forEach(numberNumberData -> {
-                        Node bubble = ((MultiAxisBubbleChart.Data) numberNumberData).getNode();
-                        if (bubble instanceof StackPane) {
-                            StackPane stackPane = (StackPane) bubble;
-                            if (stackPane.getShape() != null && stackPane.getShape() instanceof Circle) {
-                                Circle circle = (Circle) stackPane.getShape();
-                                DoubleProperty fontSize = new SimpleDoubleProperty(20);
-
-                                NumberFormat nf = NumberFormat.getInstance();
-                                nf.setMinimumFractionDigits(0);
-                                nf.setMaximumFractionDigits(0);
-                                String countValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getExtraValue());
-                                nf.setMinimumFractionDigits(2);
-                                nf.setMaximumFractionDigits(2);
-                                String yValue = nf.format(((MultiAxisBubbleChart.Data) numberNumberData).getYValue());
-
-                                Label labelCount = new Label(countValue);
-                                Tooltip tooltipYValue = new Tooltip(yValue + " " + yUnit);
-                                labelCount.setAlignment(Pos.CENTER);
-                                labelCount.setBackground(
-                                        new Background(
-                                                new BackgroundFill(Color.WHITE, new CornerRadii(5), new Insets(1, 1, 1, 1))
-                                        )
-                                );
-
-                                labelCount.setMinWidth((countValue.length() + 1) * 20d);
-
-//                                    if (circle.radiusProperty().get() / 5 > 18d) {
-//                                        fontSize.bind(Bindings.divide(circle.radiusProperty(), 5));
-//                                        labelCount.minWidthProperty().bind(Bindings.divide(circle.radiusProperty(), 5).add(4));
-//                                    } else {
-                                fontSize.set(16d);
-//                                    }
-
-                                labelCount.styleProperty().bind(Bindings.concat("-fx-font-size:", fontSize.asString(), ";"));
-//                                    label.styleProperty().bind(Bindings.concat("-fx-font-size:", 20d, ";"));
-                                Tooltip.install(bubble, tooltipYValue);
-                                stackPane.getChildren().setAll(labelCount);
-                            }
-                            bubble.setOnMouseClicked(event -> bubble.toFront());
-                        }
-                    });
-                });
-            } else if (entry.getValue().getChartType().equals(ChartType.BAR)) {
+            if (entry.getValue().getChartType().equals(ChartType.BAR)) {
                 javafx.scene.chart.BarChart barChart = (javafx.scene.chart.BarChart) entry.getValue().getRegion();
                 try {
                     barChart.getData().forEach(numberNumberSeries -> {
@@ -1263,6 +1214,7 @@ public class GraphPluginView implements Plugin {
                 case SCATTER:
                 case LOGICAL:
                 case COLUMN:
+                case BUBBLE:
                     setupNoteDialog(cv);
 
                     setupMouseMoved(cv, notActive);
@@ -1309,9 +1261,6 @@ public class GraphPluginView implements Plugin {
 
                 case BAR:
                     break;
-                case BUBBLE:
-                    setupMouseMovedBubble(cv);
-                    break;
                 case PIE:
                     break;
                 case HEAT_MAP:
@@ -1320,13 +1269,6 @@ public class GraphPluginView implements Plugin {
                     break;
             }
         }
-    }
-
-    private void setupMouseMovedBubble(Chart cv) {
-        MultiAxisBubbleChart bubbleChart = (MultiAxisBubbleChart) cv.getRegion();
-        bubbleChart.setOnMouseMoved(event -> {
-            cv.updateTable(event, null);
-        });
     }
 
     private void setupNoteDialog(Chart cv) {

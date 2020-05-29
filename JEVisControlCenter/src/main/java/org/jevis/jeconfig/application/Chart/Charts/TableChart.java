@@ -1,10 +1,13 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
-import javafx.geometry.Pos;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
+import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableSerie;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.TableTopDatePicker;
@@ -13,23 +16,41 @@ import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class TableChart extends XYChart {
     private static final Logger logger = LogManager.getLogger(TableChart.class);
     private ChartDataRow singleRow;
-    private final TableTopDatePicker tableTopDatePicker;
+    private final TableTopDatePicker tableTopDatePicker = new TableTopDatePicker();
 
-    public TableChart(AnalysisDataModel dataModel, List<ChartDataRow> chartDataRows, ChartSetting chart) {
-        super();
+    public TableChart() {
+    }
 
-        super.init();
+    @Override
+    public void createChart(AnalysisDataModel dataModel, List<ChartDataRow> dataRows, ChartSetting chartSetting, boolean instant) {
+        if (!instant) {
 
-        super.createChart(dataModel, chartDataRows, chart, true);
+            Task task = new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    try {
+                        buildChart(dataModel, dataRows, chartSetting);
 
-        tableTopDatePicker = new TableTopDatePicker(singleRow);
-        tableTopDatePicker.setAlignment(Pos.CENTER);
-        tableTopDatePicker.initialize(timeStampOfLastSample.get());
+                        tableTopDatePicker.initialize(singleRow, timeStampOfLastSample.get());
+                    } catch (Exception e) {
+                        this.failed();
+                    } finally {
+                        succeeded();
+                    }
+                    return null;
+                }
+            };
+
+            JEConfig.getStatusBar().addTask(XYChart.class.getName(), task, taskImage, true);
+        } else {
+            buildChart(dataModel, dataRows, chartSetting);
+        }
     }
 
     @Override
@@ -61,33 +82,25 @@ public class TableChart extends XYChart {
         return serie;
     }
 
+    @Override
+    public void addSeriesToChart() {
+        xyChartSerieList.sort(Comparator.comparingDouble(XYChartSerie::getSortCriteria));
+
+        for (XYChartSerie xyChartSerie : xyChartSerieList) {
+            tableData.add(xyChartSerie.getTableEntry());
+        }
+
+        AlphanumComparator ac = new AlphanumComparator();
+
+        Platform.runLater(() -> tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
+    }
+
     public HBox getTopPicker() {
         return tableTopDatePicker;
     }
 
     @Override
     public void generateYAxis() {
-//        y1Axis.setAutoRanging(false);
-//        y2Axis.setAutoRanging(false);
-//
-//        y1Axis.setLowerBound(0);
-//        y2Axis.setLowerBound(0);
-//
-//        y1Axis.setUpperBound(0);
-//        y2Axis.setUpperBound(0);
-//
-//        y1Axis.setMaxHeight(0);
-//        y2Axis.setMaxHeight(0);
-//
-//        y1Axis.setTickLabelsVisible(false);
-//        y2Axis.setTickLabelsVisible(false);
-//
-//        y1Axis.setVisible(false);
-//        y2Axis.setVisible(false);
-//
-//        y1Axis.setLabel("");
-//        y2Axis.setLabel("");
-
     }
 
     public TableTopDatePicker getTableTopDatePicker() {

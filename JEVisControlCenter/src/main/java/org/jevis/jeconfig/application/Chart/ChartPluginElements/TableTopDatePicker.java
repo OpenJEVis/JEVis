@@ -1,8 +1,8 @@
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -15,36 +15,20 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TableTopDatePicker extends HBox {
 
 
-    private final ChartDataRow chartDataRow;
-    private ImageView leftImage;
-    private ImageView rightImage;
-    private ComboBox<DateTime> selectionBox;
+    private final ImageView leftImage;
+    private final ImageView rightImage;
+    private final ComboBox<DateTime> selectionBox;
 
-    public TableTopDatePicker(ChartDataRow chartDataRow) {
+    public TableTopDatePicker() {
         super();
-        this.chartDataRow = chartDataRow;
-    }
-
-    public void initialize(DateTime date) {
-        setPadding(new Insets(4, 4, 4, 4));
-        LocalDate ld = LocalDate.of(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth());
-
-        List<DateTime> dates = new ArrayList<>();
-        chartDataRow.getSamples().forEach(jeVisSample -> {
-            try {
-                dates.add(jeVisSample.getTimestamp());
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
-        });
-        selectionBox = new ComboBox<>(FXCollections.observableArrayList(dates));
+        setAlignment(Pos.CENTER);
+        selectionBox = new ComboBox<>();
         Callback<ListView<DateTime>, ListCell<DateTime>> cellFactory = new Callback<ListView<DateTime>, ListCell<DateTime>>() {
             @Override
             public ListCell<DateTime> call(ListView<DateTime> param) {
@@ -66,6 +50,27 @@ public class TableTopDatePicker extends HBox {
         selectionBox.setCellFactory(cellFactory);
         selectionBox.setButtonCell(cellFactory.call(null));
 
+        leftImage = JEConfig.getImage("left.png", 20, 20);
+        rightImage = JEConfig.getImage("right.png", 20, 20);
+        Separator sep1 = new Separator(Orientation.VERTICAL);
+        Separator sep2 = new Separator(Orientation.VERTICAL);
+
+        getChildren().setAll(leftImage, sep1, selectionBox, sep2, rightImage);
+    }
+
+    public void initialize(ChartDataRow chartDataRow, DateTime date) {
+        setPadding(new Insets(4, 4, 4, 4));
+
+        List<DateTime> dates = new ArrayList<>();
+        chartDataRow.getSamples().forEach(jeVisSample -> {
+            try {
+                dates.add(jeVisSample.getTimestamp());
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+        });
+        selectionBox.getItems().addAll(dates);
+
         selectionBox.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != oldValue) {
                 if (!dates.contains(newValue)) {
@@ -84,13 +89,6 @@ public class TableTopDatePicker extends HBox {
                 }
             }
         });
-
-        leftImage = JEConfig.getImage("left.png", 20, 20);
-        rightImage = JEConfig.getImage("right.png", 20, 20);
-        Separator sep1 = new Separator(Orientation.VERTICAL);
-        Separator sep2 = new Separator(Orientation.VERTICAL);
-
-        getChildren().addAll(leftImage, sep1, selectionBox, sep2, rightImage);
 
         selectionBox.getSelectionModel().select(date);
     }

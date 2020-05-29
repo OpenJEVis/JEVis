@@ -1,12 +1,13 @@
 package org.jevis.jeconfig.application.Chart.Charts;
 
+import de.gsi.chart.marker.DefaultMarker;
+import de.gsi.chart.renderer.ErrorStyle;
+import de.gsi.chart.renderer.LineStyle;
+import de.gsi.chart.renderer.spi.ErrorDataSetRenderer;
+import de.gsi.dataset.spi.DefaultDataSet;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Point2D;
-import javafx.scene.Node;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import org.apache.commons.lang3.ArrayUtils;
@@ -17,12 +18,12 @@ import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.chart.BubbleType;
 import org.jevis.commons.database.SampleHandler;
-import org.jevis.jeconfig.application.Chart.ChartElements.Bubble;
-import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
+import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.datetime.WorkDays;
+import org.jevis.commons.i18n.I18n;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartElements.*;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
-import org.jevis.jeconfig.application.Chart.ChartType;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisBubbleChart;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -31,39 +32,80 @@ import org.joda.time.Period;
 
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class BubbleChart implements Chart {
-    private final RegressionType regressionType;
-    private final Boolean calcRegression;
-    private final Integer polyRegressionDegree;
-    private final List<ChartDataRow> chartDataRows;
-    private final Integer chartId;
-    private final String chartName;
-    private List<Color> hexColors = new ArrayList<>();
-    private List<Integer> noOfBubbles = new ArrayList<>();
-    MultiAxisBubbleChart chart;
-    private Region chartRegion;
-    private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
-    private final Map<Integer, Integer> modifiedX;
-    private final Map<Integer, Double> modifiedY;
+public class BubbleChart extends XYChart {
+    private final List<Color> hexColors = new ArrayList<>();
+    private final List<Integer> noOfBubbles = new ArrayList<>();
+    private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
+    private final Map<Integer, Integer> modifiedX = new HashMap<>();
+    private final Map<Integer, Double> modifiedY = new HashMap<>();
     private final TreeMap<Double, Double> sampleTreeMap = new TreeMap<>();
     private TableEntry tableEntry;
-    private Double nearest = 0d;
+    private final Double nearest = 0d;
     private String xUnit;
     private String yUnit;
-    private ChartType chartType = ChartType.BUBBLE;
 
-    public BubbleChart(AnalysisDataModel analysisDataModel, List<ChartDataRow> chartDataRows, ChartSetting chartSetting) {
-        this.regressionType = analysisDataModel.getRegressionType();
-        this.calcRegression = analysisDataModel.calcRegression();
-        this.polyRegressionDegree = analysisDataModel.getPolyRegressionDegree();
-        this.chartDataRows = chartDataRows;
+    public BubbleChart() {
+
+        init();
+    }
+
+    @Override
+    public void buildChart(AnalysisDataModel dataModel, List<ChartDataRow> dataRows, ChartSetting chartSetting) {
+
+        this.analysisDataModel = dataModel;
+        this.chartDataRows = dataRows;
+        Long groupingInterval = chartSetting.getGroupingInterval();
+
+        double totalJob = chartDataRows.size();
+
+        if (showRawData) {
+            totalJob *= 4;
+        }
+
+        if (showSum) {
+            totalJob += 1;
+        }
+
+        if (calcRegression) {
+            totalJob += 1;
+        }
+
+        JEConfig.getStatusBar().startProgressJob(JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
+
+        this.showRawData = dataModel.getShowRawData();
+        this.showSum = dataModel.getShowSum();
+        this.showL1L2 = dataModel.getShowL1L2();
+        this.regressionType = dataModel.getRegressionType();
+        this.showIcons = dataModel.getShowIcons();
+        this.calcRegression = dataModel.calcRegression();
+        this.polyRegressionDegree = dataModel.getPolyRegressionDegree();
         this.chartId = chartSetting.getId();
         this.chartName = chartSetting.getName();
+        this.chartType = chartSetting.getChartType();
+        this.addSeriesOfType = dataModel.getAddSeries();
+        for (ChartDataRow chartDataModel : dataRows) {
+            if (chartDataModel.getAxis() == 1) {
+                hasSecondAxis = true;
+                break;
+            }
+        }
 
-        final NumberAxis xAxis = new NumberAxis();
-        final NumberAxis yAxis = new NumberAxis();
+        if (!chartDataRows.isEmpty()) {
+            workDays = new WorkDays(chartDataRows.get(0).getObject());
+            workDays.setEnabled(dataModel.isCustomWorkDay());
+        }
+
+        hexColors.clear();
+        chart.getDatasets().clear();
+        tableData.clear();
+
+        changedBoth = new Boolean[]{false, false};
+
+        addManipulationToTitle = new AtomicBoolean(false);
+        manipulationMode = new AtomicReference<>(ManipulationMode.NONE);
 
         List<JEVisSample> xList = new ArrayList<>();
         List<JEVisSample> yList = new ArrayList<>();
@@ -78,14 +120,12 @@ public class BubbleChart implements Chart {
         for (ChartDataRow model : chartDataRows) {
             for (JEVisSample sample : model.getSamples()) {
                 try {
-                    if (model.getBubbleType() == BubbleType.X) {
-                        if (!sample.getValueAsDouble().equals(0d)) {
-                            xList.add(sample);
-                            maxX.set(Math.max(maxX.get(), sample.getValueAsDouble()));
-                        }
-                    } else if (model.getBubbleType() == BubbleType.Y) {
+                    if (model.getBubbleType() == BubbleType.X && !sample.getValueAsDouble().equals(0d)) {
+                        xList.add(sample);
+                        maxX.set(Math.max(maxX.get(), sample.getValueAsDouble()));
+                    } else if (model.getBubbleType() == BubbleType.Y && !sample.getValueAsDouble().equals(0d)) {
                         yList.add(sample);
-                        if (!hexColors.contains(model.getColor())) {
+                        if (!hexColors.contains(ColorHelper.toColor(model.getColor()))) {
                             hexColors.add(ColorHelper.toColor(model.getColor()));
                         }
                     }
@@ -100,29 +140,28 @@ public class BubbleChart implements Chart {
             }
         }
 
-        modifiedX = new HashMap<>();
-        modifiedY = new HashMap<>();
         Map<Integer, List<DateTime>> yDates = new HashMap<>();
-        for (int i = 0; i < maxX.get() + 30; i = i + 30) {
-            double upperBound = i + 30;
+        for (int i = -groupingInterval.intValue() / 2; i < maxX.get() + (2 * groupingInterval); i = i + groupingInterval.intValue()) {
+            double upperBound = i + groupingInterval;
+            int meanX = i + groupingInterval.intValue() / 2;
             for (JEVisSample sample : xList) {
                 try {
                     if (sample.getValueAsDouble() >= (double) i && sample.getValueAsDouble() < upperBound) {
-                        if (modifiedX.get(i) != null) {
-                            int old = modifiedX.get(i);
-                            modifiedX.remove(i);
-                            modifiedX.put(i, old + 1);
+                        if (modifiedX.get(meanX) != null) {
+                            int old = modifiedX.get(meanX);
+                            modifiedX.remove(meanX);
+                            modifiedX.put(meanX, old + 1);
                         } else {
-                            modifiedX.put(i, 1);
+                            modifiedX.put(meanX, 1);
                         }
 
-                        if (yDates.get(i) != null) {
-                            List<DateTime> old = yDates.get(i);
+                        if (yDates.get(meanX) != null) {
+                            List<DateTime> old = yDates.get(meanX);
                             old.add(xList.get(xList.indexOf(sample)).getTimestamp());
-                            yDates.remove(i);
-                            yDates.put(i, old);
+                            yDates.remove(meanX);
+                            yDates.put(meanX, old);
                         } else {
-                            yDates.put(i, new ArrayList<>(Collections.singleton(xList.get(xList.indexOf(sample)).getTimestamp())));
+                            yDates.put(meanX, new ArrayList<>(Collections.singleton(xList.get(xList.indexOf(sample)).getTimestamp())));
                         }
                     }
                 } catch (JEVisException e) {
@@ -155,7 +194,8 @@ public class BubbleChart implements Chart {
                 if (!isEnPI) {
                     for (JEVisSample sample : yList) {
                         try {
-                            if (sample.getTimestamp().isAfter(firstBeforeDate) && sample.getTimestamp().isBefore(dt)) {
+                            if ((sample.getTimestamp().isAfter(firstBeforeDate) && sample.getTimestamp().isBefore(dt))
+                                    || sample.getTimestamp().equals(dt)) {
                                 value += sample.getValueAsDouble();
                                 size++;
                             }
@@ -197,24 +237,21 @@ public class BubbleChart implements Chart {
 
         List<Bubble> bubbles = new ArrayList<>();
         List<Double> arrayList = new ArrayList<>();
+        AtomicReference<Double> maxSize = new AtomicReference<>((double) 0);
         modifiedX.forEach((aInteger, aInteger2) -> {
             minX.set(Math.min(minX.get(), aInteger));
             minY.set(Math.min(minY.get(), modifiedY.get(aInteger)));
             maxY.set(Math.max(maxY.get(), modifiedY.get(aInteger)));
+            maxSize.set(Math.max(maxSize.get(), aInteger2.doubleValue()));
             bubbles.add(new Bubble(aInteger.doubleValue(), modifiedY.get(aInteger), aInteger2.doubleValue()));
             sampleTreeMap.put(aInteger.doubleValue(), modifiedY.get(aInteger));
             arrayList.add(modifiedY.get(aInteger));
         });
 
-        chart = new MultiAxisBubbleChart(xAxis, yAxis, null);
-        chart.setOnMouseMoved(event -> updateTable(event, null));
-
-        if (calcRegression) {
-            chart.setRegressionColor(0, hexColors.get(0));
-            chart.setRegression(0, regressionType, polyRegressionDegree);
-        }
-        chart.setTitle(getChartName());
-        chart.setLegendVisible(false);
+        Platform.runLater(() -> {
+            chart.setTitle(getChartName());
+            chart.setLegendVisible(false);
+        });
 
         String xAxisTitle = "";
         xUnit = "";
@@ -230,17 +267,23 @@ public class BubbleChart implements Chart {
             }
         }
 
-        xAxis.setLabel(xAxisTitle + " [" + xUnit + "]");
-        xAxis.setAutoRanging(false);
-        xAxis.setLowerBound(Math.max(minX.get() - 30, 0d));
-        xAxis.setUpperBound(maxX.get() + 30);
-        xAxis.setTickUnit(30);
+        String finalXAxisTitle = xAxisTitle;
+        String finalYAxisTitle = yAxisTitle;
+        Platform.runLater(() -> {
+            getDateAxis().setName(finalXAxisTitle);
+            getDateAxis().setUnit(xUnit);
+            getDateAxis().setAutoRanging(false);
+            getDateAxis().setMin(Math.max(minX.get() - groupingInterval, 0d));
+            getDateAxis().setMax(maxX.get() + groupingInterval);
+            getDateAxis().setTickUnit(30);
 
-        yAxis.setLabel(yAxisTitle + " [" + yUnit + "]");
-        yAxis.setAutoRanging(false);
-        yAxis.setLowerBound(Math.max(minY.get(), 0d) * 0.75);
-        yAxis.setUpperBound(maxY.get() * 1.25);
-        yAxis.setForceZeroInRange(false);
+            getY1Axis().setName(finalYAxisTitle);
+            getY1Axis().setUnit(yUnit);
+            getY1Axis().setAutoRanging(false);
+            getY1Axis().setMin(Math.max(minY.get(), 0d) * 0.75);
+            getY1Axis().setMax(maxY.get() * 1.25);
+            getY1Axis().setForceZeroInRange(false);
+        });
 
         tableEntry = new TableEntry(yAxisTitle + " : " + xAxisTitle);
         tableEntry.setColor(hexColors.get(0));
@@ -265,19 +308,80 @@ public class BubbleChart implements Chart {
         }
 
         tableData.add(tableEntry);
-        MultiAxisBubbleChart.Series series1 = new MultiAxisBubbleChart.Series();
-//        series1.setName("Arabica");
+
+        DefaultDataSet bubbleDataSet = new DefaultDataSet("bubbles");
+        Color color = hexColors.get(0).deriveColor(0, 1, 1, 0.9);
+//        bubbleDataSet.setStyle("strokeColor=" + color + "; fillColor=" + color + "markerType=circle;");
 
         for (Bubble bubble : bubbles) {
-            MultiAxisBubbleChart.Data data = new MultiAxisBubbleChart.Data(bubble.getX(), bubble.getY(), bubble.getSize());
+            int count = bubbles.indexOf(bubble);
+            bubbleDataSet.add(bubble.getX(), bubble.getY(), "bubble " + count);
 
-            series1.getData().add(data);
+//            String markerSize = "markerSize=" + 40 * Math.sqrt(bubble.getSize() / maxSize.get()) + "; index="
+//                    + count + ";";
+            String markerSize = "markerSize=" + 40 * Math.sqrt(bubble.getSize()) + "; index=" + count + ";";
+
+            bubbleDataSet.addDataStyle(count, markerSize);
+            bubbleDataSet.addDataStyle(count, markerSize + "; markerColor=" + color + "; markerType=circle;");
         }
 
         noOfBubbles.add(bubbles.size());
 
-        chart.getData().addAll(series1);
-        chart.layout();
+        ErrorDataSetRenderer rendererY1 = new ErrorDataSetRenderer();
+        CustomBubbleChartRenderer customBubbleChartRenderer = new CustomBubbleChartRenderer(bubbles);
+
+        rendererY1.setMarkerSize(5);
+        rendererY1.setPolyLineStyle(LineStyle.NONE);
+        rendererY1.setErrorType(ErrorStyle.NONE);
+        rendererY1.setDrawMarker(true);
+        rendererY1.setAssumeSortedData(false);
+        rendererY1.setMarker(DefaultMarker.DIAMOND);
+        rendererY1.setDrawBubbles(false);
+
+        rendererY1.getDatasets().add(bubbleDataSet);
+        customBubbleChartRenderer.getDatasets().add(bubbleDataSet);
+
+        if (calcRegression) {
+            ErrorDataSetRenderer trendLineRenderer = new ErrorDataSetRenderer();
+            trendLineRenderer.setPolyLineStyle(LineStyle.NORMAL);
+            trendLineRenderer.setDrawMarker(false);
+            trendLineRenderer.setMarkerSize(0);
+            trendLineRenderer.setAssumeSortedData(false);
+
+            trendLineRenderer.getDatasets().addAll(drawRegression(bubbleDataSet, color, getChartName()));
+            Platform.runLater(() -> chart.getRenderers().setAll(rendererY1, customBubbleChartRenderer, trendLineRenderer));
+        } else {
+            Platform.runLater(() -> chart.getRenderers().setAll(rendererY1, customBubbleChartRenderer));
+        }
+
+    }
+
+    @Override
+    public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
+        XYChartSerie serie = new BubbleChartSerie(singleRow, showIcons, false);
+
+        hexColors.add(ColorHelper.toColor(singleRow.getColor()));
+
+        /**
+         * check if timestamps are in serie
+         */
+
+        if (serie.getTimeStampFromFirstSample().isBefore(timeStampOfFirstSample.get())) {
+            timeStampOfFirstSample.set(serie.getTimeStampFromFirstSample());
+            changedBoth[0] = true;
+        }
+
+        if (serie.getTimeStampFromLastSample().isAfter(timeStampOfLastSample.get())) {
+            timeStampOfLastSample.set(serie.getTimeStampFromLastSample());
+            changedBoth[1] = true;
+        }
+
+        /**
+         * check if theres a manipulation for changing the x axis values into duration instead of concrete timestamps
+         */
+
+        checkManipulation(singleRow);
+        return serie;
     }
 
     @Override
@@ -296,59 +400,6 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public void updateTable(MouseEvent mouseEvent, DateTime valueForDisplay) {
-        Point2D mouseCoordinates = null;
-        Double displayValue = null;
-
-        if (mouseEvent != null) {
-            mouseCoordinates = new Point2D(mouseEvent.getSceneX(), mouseEvent.getSceneY());
-            double x = chart.getXAxis().sceneToLocal(Objects.requireNonNull(mouseCoordinates)).getX();
-
-            displayValue = ((NumberAxis) chart.getXAxis()).getValueForDisplay(x).doubleValue();
-        }
-
-        if (displayValue != null) {
-            double finalDisplayValue = displayValue;
-            NumberFormat nf = NumberFormat.getInstance();
-            nf.setMinimumFractionDigits(2);
-            nf.setMaximumFractionDigits(2);
-
-            try {
-
-                nearest = null;
-                if (sampleTreeMap.get(finalDisplayValue) != null) {
-                    nearest = finalDisplayValue;
-                } else {
-                    nearest = sampleTreeMap.lowerKey(finalDisplayValue);
-                }
-
-                Double yValue = sampleTreeMap.get(nearest);
-                AtomicReference<Double> xValue = new AtomicReference<>(finalDisplayValue);
-                sampleTreeMap.forEach((aDouble, aDouble2) -> {
-                    if (aDouble2.equals(yValue)) {
-                        xValue.set(aDouble);
-                    }
-                });
-
-                String formattedX = nf.format(xValue.get());
-                String formattedY = nf.format(yValue);
-                if (!xUnit.equals("")) {
-                    Platform.runLater(() -> tableEntry.setxValue(formattedX + " " + xUnit));
-                } else {
-                    Platform.runLater(() -> tableEntry.setxValue(formattedX));
-                }
-                if (!yUnit.equals("")) {
-                    Platform.runLater(() -> tableEntry.setyValue(formattedY + " " + yUnit));
-                } else {
-                    Platform.runLater(() -> tableEntry.setyValue(formattedY));
-                }
-
-            } catch (Exception ex) {
-            }
-        }
-    }
-
-    @Override
     public void updateTableZoom(double lowerBound, double upperBound) {
 
     }
@@ -364,40 +415,6 @@ public class BubbleChart implements Chart {
     }
 
     @Override
-    public void applyColors() {
-        for (int i = 0; i < hexColors.size(); i++) {
-            Color currentColor = hexColors.get(i);
-            currentColor = currentColor.deriveColor(0, 1, 1, 0.7);
-            String hexColor = ColorHelper.toRGBCode(currentColor);
-            int noOfBubbles = this.noOfBubbles.get(i);
-            String preIdent = "";
-            for (int j = 0; j < noOfBubbles; j++) {
-                preIdent = ".chart-bubble.series" + i + ".data" + j + ".default-color0";
-
-                Node node = chart.lookup(preIdent);
-                if (node != null) {
-                    node.setStyle("-fx-bubble-fill: " + hexColor + ";");
-                }
-            }
-        }
-    }
-
-    @Override
-    public de.gsi.chart.XYChart getChart() {
-        return null;
-    }
-
-    @Override
-    public ChartType getChartType() {
-        return chartType;
-    }
-
-    @Override
-    public Region getRegion() {
-        return chart;
-    }
-
-    @Override
     public ObservableList<TableEntry> getTableData() {
         return tableData;
     }
@@ -409,5 +426,13 @@ public class BubbleChart implements Chart {
 
     public String getyUnit() {
         return yUnit;
+    }
+
+    public TreeMap<Double, Double> getSampleTreeMap() {
+        return sampleTreeMap;
+    }
+
+    public String getxUnit() {
+        return xUnit;
     }
 }

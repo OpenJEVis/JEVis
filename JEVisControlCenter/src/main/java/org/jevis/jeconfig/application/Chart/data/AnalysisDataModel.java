@@ -330,6 +330,10 @@ public class AnalysisDataModel {
                         newSettings.setColorMapping(parseColorMapping(settings.getColorMapping()));
                     } else newSettings.setColorMapping(ColorMapping.GREEN_YELLOW_RED);
 
+                    if (settings.getGroupingInterval() != null) {
+                        newSettings.setGroupingInterval(Long.parseLong(settings.getGroupingInterval()));
+                    } else newSettings.setGroupingInterval(30L);
+
                     if (settings.getHeight() != null) {
                         newSettings.setHeight(Double.parseDouble(settings.getHeight()));
                     }
