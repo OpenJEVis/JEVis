@@ -4,33 +4,43 @@
 
 package org.jevis.jeconfig.application.Chart.ChartPluginElements;
 
+import com.jfoenix.controls.JFXTextField;
 import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.plugins.AbstractDataFormattingPlugin;
 import de.gsi.dataset.DataSet;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import org.apache.commons.validator.routines.DoubleValidator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.Constants;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
 import org.jevis.jeconfig.application.Chart.data.RowNote;
+import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.dialog.NoteDialog;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.sample.tableview.SampleTable;
 import org.joda.time.DateTime;
 
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,14 +50,198 @@ import static org.jevis.commons.constants.NoteConstants.User.USER_VALUE;
 
 public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
-    private final List<XYChartSerie> xyChartSerieList;
-    private final GraphPluginView graphPluginView;
+    private static final Logger logger = LogManager.getLogger(DataPointNoteDialog.class);
+    private final DoubleValidator validator = DoubleValidator.getInstance();
+    private List<XYChartSerie> xyChartSerieList;
     private final EventHandler<MouseEvent> noteHandler = event -> {
         if (event.getButton() == MouseButton.SECONDARY) {
             updateTable(event);
             event.consume();
         }
     };
+    private GraphPluginView graphPluginView;
+
+    public DataPointNoteDialog(JEVisAttribute att, SampleTable table) {
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+
+        final ButtonType ok = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        final ButtonType cancel = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
+
+        Label timeStampLabel = new Label(I18n.getInstance().getString("alarms.table.captions.timestamp"));
+
+        Label nameValue = new Label();
+        try {
+            nameValue.setText(I18nWS.getInstance().getAttributeName(att));
+        } catch (JEVisException e) {
+            logger.error("Could not get translated attribute name of attribute {} of object {}:{}", att.getName(), att.getObject().getName(), att.getObject().getID(), e);
+            nameValue.setText(att.getName());
+        }
+        JFXTextField value = new JFXTextField();
+        JFXTextField unit = new JFXTextField();
+
+        HBox valueBox = new HBox(4, nameValue, value, unit);
+        valueBox.setAlignment(Pos.CENTER);
+        HBox timeStampBox = new HBox(4, timeStampLabel);
+        timeStampBox.setAlignment(Pos.CENTER);
+        VBox vBox = new VBox(4, timeStampBox, valueBox);
+        vBox.setAlignment(Pos.CENTER);
+
+        dialog.getDialogPane().setContent(vBox);
+
+        getUnitName(att, unit);
+
+        unit.setDisable(true);
+
+        value.textProperty().addListener((observable, oldValue, newValue) -> {
+            DoubleValidator validator = DoubleValidator.getInstance();
+            try {
+                double parsedValue = validator.validate(newValue, I18n.getInstance().getLocale());
+            } catch (Exception e) {
+                value.setText(oldValue);
+            }
+        });
+
+        table.getItems().forEach(tableSample -> {
+            if (tableSample.isSelected()) {
+                try {
+                    JEVisSample jevisSample = tableSample.getJevisSample();
+                    timeStampLabel.setText(I18n.getInstance().getString("alarms.table.captions.timestamp") + ": "
+                            + jevisSample.getTimestamp().toString("yyyy-MM-dd HH:mm:ss"));
+
+                    NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
+                    Double userValueForTimeStampAsDouble = getUserValueForTimeStampAsDouble(jevisSample, jevisSample.getTimestamp());
+
+                    if (userValueForTimeStampAsDouble != null) {
+                        String userValueForTimeStamp = nf.format(userValueForTimeStampAsDouble);
+                        value.setText(userValueForTimeStamp);
+                    }
+
+                } catch (Exception ex) {
+                    logger.error("Error while setting user value", ex);
+                }
+
+                dialog.showAndWait().ifPresent(response -> {
+                    if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+                        Task task = new Task() {
+                            @Override
+                            protected Object call() throws Exception {
+                                try {
+                                    if (value.getText().length() > 0) {
+                                        saveUserEntry(att, tableSample.getJevisSample(), validator.validate(value.getText(), I18n.getInstance().getLocale()));
+                                    } else {
+                                        saveUserEntry(att, tableSample.getJevisSample(), null);
+                                    }
+                                } catch (Exception ex) {
+                                    logger.error("Error while creating user value samples", ex);
+                                }
+                                return null;
+                            }
+                        };
+
+                        JEConfig.getStatusBar().addTask(this.getClass().getName(), task, null, true);
+                    }
+                });
+            }
+        });
+    }
+
+    public DataPointNoteDialog(JEVisAttribute att, DateTime[] minMax) {
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+
+        final ButtonType ok = new ButtonType(I18n.getInstance().getString("graph.dialog.ok"), ButtonBar.ButtonData.OK_DONE);
+        final ButtonType cancel = new ButtonType(I18n.getInstance().getString("graph.dialog.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
+
+        Label timeStampLabel = new Label(I18n.getInstance().getString("alarms.table.captions.timestamp") + ": " +
+                minMax[0].toString("yyyy-MM-dd HH:mm:ss") + " - " + minMax[1].toString("yyyy-MM-dd HH:mm:ss"));
+
+        JFXTextField value = new JFXTextField();
+        JFXTextField unit = new JFXTextField();
+
+        Label nameValue = new Label();
+        try {
+            nameValue.setText(I18nWS.getInstance().getAttributeName(att));
+        } catch (JEVisException e) {
+            logger.error("Could not get translated attribute name of attribute {} of object {}:{}", att.getName(), att.getObject().getName(), att.getObject().getID(), e);
+            nameValue.setText(att.getName());
+        }
+
+        HBox valueBox = new HBox(4, nameValue, value, unit);
+        valueBox.setAlignment(Pos.CENTER);
+        HBox timeStampBox = new HBox(4, timeStampLabel);
+        timeStampBox.setAlignment(Pos.CENTER);
+        VBox vBox = new VBox(4, timeStampBox, valueBox);
+        vBox.setAlignment(Pos.CENTER);
+
+        dialog.getDialogPane().setContent(vBox);
+
+        getUnitName(att, unit);
+
+        unit.setDisable(true);
+
+        value.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                double parsedValue = validator.validate(newValue, I18n.getInstance().getLocale());
+            } catch (Exception e) {
+                value.setText(oldValue);
+            }
+        });
+
+        dialog.showAndWait().ifPresent(response -> {
+            if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
+
+                Task task = new Task() {
+                    @Override
+                    protected Object call() throws Exception {
+                        att.getSamples(minMax[0], minMax[1]).forEach(jeVisSample -> {
+                            try {
+                                if (value.getText().length() > 0) {
+                                    saveUserEntry(att, jeVisSample, validator.validate(value.getText(), I18n.getInstance().getLocale()));
+                                } else {
+                                    saveUserEntry(att, jeVisSample, null);
+                                }
+                            } catch (Exception ex) {
+                                logger.error("Error while creating user value samples", ex);
+                            }
+                        });
+                        return null;
+                    }
+                };
+
+                JEConfig.getStatusBar().addTask(this.getClass().getName(), task, null, true);
+            }
+        });
+    }
+
+    private void getUnitName(JEVisAttribute att, JFXTextField unit) {
+        try {
+            if (att.getObject().getJEVisClassName().equals("Clean Data")) {
+                if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
+                    unit.setText(UnitManager.getInstance().format(att.getDisplayUnit().getLabel()));
+                } else {
+                    unit.setText(UnitManager.getInstance().format(att.getInputUnit().getLabel()));
+                }
+            } else {
+                List<JEVisObject> children = att.getObject().getChildren();
+                if (children.size() == 1) {
+                    JEVisObject cleanObject = children.get(0);
+                    JEVisAttribute valueAttribute = cleanObject.getAttribute("Value");
+                    if (valueAttribute != null && valueAttribute.getDisplayUnit() != null && !valueAttribute.getInputUnit().getLabel().isEmpty()) {
+                        unit.setText(UnitManager.getInstance().format(valueAttribute.getDisplayUnit().getLabel()));
+                    } else if (valueAttribute != null) {
+                        unit.setText(UnitManager.getInstance().format(valueAttribute.getInputUnit().getLabel()));
+                    }
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not get unit from attribute {} of object {}:{}", att.getName(), att.getObject().getName(), att.getObject().getID(), e);
+        }
+    }
 
     public DataPointNoteDialog(List<XYChartSerie> xyChartSerieList, GraphPluginView graphPluginView) {
         this.xyChartSerieList = xyChartSerieList;
@@ -242,6 +436,18 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
     private String getUserValueForTimeStamp(JEVisSample nearestSample, DateTime timeStamp) {
         String userValue = "";
 
+        Double userValueForTimeStampAsDouble = getUserValueForTimeStampAsDouble(nearestSample, timeStamp);
+
+        if (userValueForTimeStampAsDouble != null) {
+            return userValueForTimeStampAsDouble.toString();
+        }
+
+        return userValue;
+    }
+
+    private Double getUserValueForTimeStampAsDouble(JEVisSample nearestSample, DateTime timeStamp) {
+        Double userValue = null;
+
         try {
             if (nearestSample.getAttribute() != null) {
                 JEVisObject obj = nearestSample.getAttribute().getObject();
@@ -263,7 +469,7 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                         List<JEVisSample> listSamples = userDataAttribute.getSamples(timeStamp, timeStamp);
                         if (listSamples.size() == 1) {
                             for (JEVisSample smp : listSamples) {
-                                return smp.getValueAsString();
+                                return smp.getValueAsDouble();
                             }
                         }
                     } catch (JEVisException ignored) {
@@ -507,6 +713,129 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
             }
         }
         return savedValues;
+    }
+
+    private void saveUserEntry(JEVisAttribute att, JEVisSample sample, Double value) {
+
+        try {
+            JEVisObject obj = att.getObject();
+            DateTime timeStamp = sample.getTimestamp();
+            JEVisSample correspondingCleanDataSample = null;
+            JEVisUser currentUser = obj.getDataSource().getCurrentUser();
+
+            List<JEVisObject> listParents = obj.getParents();
+
+            JEVisObject correspondingUserDataObject = null;
+            final JEVisClass userDataClass = obj.getDataSource().getJEVisClass("User Data");
+            boolean foundUserDataObject = false;
+
+            if (obj.getJEVisClassName().equals("Clean Data")) {
+                for (JEVisObject parent : listParents) {
+                    for (JEVisObject child : parent.getChildren()) {
+                        if (child.getJEVisClass().equals(userDataClass)) {
+                            correspondingUserDataObject = child;
+                            foundUserDataObject = true;
+                            break;
+                        }
+                    }
+                }
+            } else if (obj.getJEVisClassName().equals("Data")) {
+                for (JEVisObject child : obj.getChildren()) {
+                    if (child.getJEVisClass().equals(userDataClass)) {
+                        correspondingUserDataObject = child;
+                        foundUserDataObject = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!foundUserDataObject && obj.getJEVisClassName().equals("Clean Data")) {
+                for (JEVisObject parent : listParents) {
+                    if (currentUser.canCreate(parent.getID())) {
+                        correspondingUserDataObject = parent.buildObject(obj.getName() + " User Data", userDataClass);
+                        correspondingUserDataObject.commit();
+                    }
+
+                }
+            } else if (!foundUserDataObject && obj.getJEVisClassName().equals("Data")) {
+                if (currentUser.canCreate(obj.getID())) {
+                    JEVisClass cleanDataClass = obj.getDataSource().getJEVisClass("Clean Data");
+                    List<JEVisObject> cleanObjects = obj.getChildren(cleanDataClass, true);
+                    if (cleanObjects.size() == 1) {
+                        correspondingUserDataObject = obj.buildObject(cleanObjects.get(0).getName() + " User Data", userDataClass);
+                        correspondingUserDataObject.commit();
+                    }
+                }
+            }
+
+            JEVisClass cleanDataClass = obj.getDataSource().getJEVisClass("Clean Data");
+
+            if (obj.getJEVisClassName().equals("Data")) {
+                List<JEVisObject> cleanObjects = obj.getChildren(cleanDataClass, true);
+                if (cleanObjects.size() == 1) {
+                    List<JEVisSample> samples = cleanObjects.get(0).getAttribute("Value").getSamples(timeStamp, timeStamp);
+                    if (samples.size() == 1) {
+                        correspondingCleanDataSample = samples.get(0);
+                    }
+                }
+            } else if (obj.getJEVisClassName().equals("Clean Data")) {
+                List<JEVisSample> samples = obj.getAttribute("Value").getSamples(timeStamp, timeStamp);
+                if (samples.size() == 1) {
+                    correspondingCleanDataSample = samples.get(0);
+                }
+            }
+
+            if (correspondingUserDataObject != null && currentUser.canWrite(correspondingUserDataObject.getID())) {
+                try {
+                    JEVisAttribute userDataValueAttribute = correspondingUserDataObject.getAttribute("Value");
+
+                    List<JEVisSample> listSamples;
+                    if (userDataValueAttribute.hasSample()) {
+                        listSamples = userDataValueAttribute.getSamples(timeStamp, timeStamp);
+
+                        if (value != null && listSamples.size() == 1) {
+                            listSamples.get(0).setValue(value);
+                            listSamples.get(0).commit();
+                        } else if (value != null) {
+                            JEVisSample newSample = userDataValueAttribute.buildSample(timeStamp.toDateTimeISO(), value, sample.getNote());
+                            newSample.commit();
+                        } else {
+                            userDataValueAttribute.deleteSamplesBetween(timeStamp.toDateTimeISO(), timeStamp.toDateTimeISO());
+                        }
+                    } else {
+                        if (value != null) {
+                            JEVisSample newSample = userDataValueAttribute.buildSample(timeStamp.toDateTimeISO(), value, sample.getNote());
+                            newSample.commit();
+                        }
+                    }
+
+                    if (value != null && correspondingCleanDataSample != null && !correspondingCleanDataSample.getNote().contains(USER_VALUE)) {
+
+                        String note = correspondingCleanDataSample.getNote();
+                        note += "," + USER_VALUE;
+                        correspondingCleanDataSample.setNote(note);
+                        correspondingCleanDataSample.commit();
+                    } else if (value == null && correspondingCleanDataSample != null && correspondingCleanDataSample.getNote().contains(USER_VALUE)) {
+
+                        String note = correspondingCleanDataSample.getNote();
+                        note = note.replace("," + USER_VALUE, "");
+                        correspondingCleanDataSample.setNote(note);
+                        correspondingCleanDataSample.commit();
+                    }
+
+                } catch (JEVisException ignored) {
+
+                }
+            }
+
+        } catch (Exception ignored) {
+            ignored.printStackTrace();
+            Platform.runLater(() -> {
+                Alert alert1 = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                alert1.showAndWait();
+            });
+        }
     }
 
     protected class DataPoint {
