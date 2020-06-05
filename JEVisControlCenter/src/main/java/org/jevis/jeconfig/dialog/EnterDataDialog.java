@@ -35,6 +35,7 @@ import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.constants.EnterDataTypes;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
@@ -43,6 +44,10 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.control.DataTypeBox;
+import org.jevis.jeconfig.application.control.DayBox;
+import org.jevis.jeconfig.application.control.MonthBox;
+import org.jevis.jeconfig.application.control.YearBox;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.joda.time.DateTime;
@@ -68,18 +73,18 @@ public class EnterDataDialog {
     private Response response;
 
 
-    private NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
+    private final NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
     private Double lastValue;
     private JEVisClass dataClass;
     private JEVisClass cleanDataClass;
-    private boolean showValuePrompt=false;
-    private JEVisSample initSample= null;
-    private boolean targetEdible = true;
-    private JEVisAttribute target=null;
-    private ObjectProperty<JEVisSample> newSampleProperty = new SimpleObjectProperty<>();
-    private Label unitField = new Label();
-    private Label lastTSLabel  = new Label();
-    private Label lastValueLabel  = new Label();
+    private final ObjectProperty<JEVisSample> newSampleProperty = new SimpleObjectProperty<>();
+    private final Label unitField = new Label();
+    private final Label lastTSLabel = new Label();
+    private final Label lastValueLabel = new Label();
+    private boolean showValuePrompt = false;
+    private JEVisSample initSample = null;
+    private boolean traceable = true;
+    private JEVisAttribute target = null;
 
 
     public EnterDataDialog(JEVisDataSource dataSource) {
@@ -110,6 +115,7 @@ public class EnterDataDialog {
         stage.initOwner(JEConfig.getStage());
         stage.setResizable(true);
         stage.setMinWidth(1000);
+        stage.setMinHeight(450);
         stage.setScene(scene);
         stage.centerOnScreen();
 
@@ -134,22 +140,22 @@ public class EnterDataDialog {
         popup.show(parent);
     }
 
-    public ObjectProperty<JEVisSample> getNewSampleProperty(){
+    public ObjectProperty<JEVisSample> getNewSampleProperty() {
         return newSampleProperty;
     }
 
-    public void setSample(JEVisSample sample){
-        initSample=sample;
+    public void setSample(JEVisSample sample) {
+        initSample = sample;
     }
 
-    public void setTarget(boolean targetEdible, JEVisAttribute target){
-        this.targetEdible=targetEdible;
-        this.target=target;
-        this.selectedObject=target.getObject();
+    public void setTarget(boolean traceable, JEVisAttribute target) {
+        this.traceable = traceable;
+        this.target = target;
+        this.selectedObject = target.getObject();
     }
 
-    public void setShowValuePrompt(boolean showValuePrompt){
-        this.showValuePrompt=showValuePrompt;
+    public void setShowValuePrompt(boolean showValuePrompt) {
+        this.showValuePrompt = showValuePrompt;
     }
 
 
@@ -170,85 +176,41 @@ public class EnterDataDialog {
         ScrollPane extendableSearchPane = new ScrollPane();
         extendableSearchPane.setContent(new TableView<>());
         extendableSearchPane.setMaxHeight(1);
-        extendableSearchPane.getTransforms().addAll(new Scale(0,0));
+        extendableSearchPane.getTransforms().addAll(new Scale(0, 0));
 
-        Rectangle clipRect=  new Rectangle();
+        Rectangle clipRect = new Rectangle();
         clipRect.setHeight(0);
         Button toggleSamples = new Button("+");
 
-
-        DoubleProperty height = new  SimpleDoubleProperty();
-        height.addListener((observable, oldValue, newValue) -> {
-            Platform.runLater(() -> {
-                final Rectangle outputClip = new Rectangle();
-                outputClip.setHeight(newValue.doubleValue());
-                extendableSearchPane.setClip(outputClip);
-                extendableSearchPane.setMinHeight(newValue.doubleValue());
-                extendableSearchPane.setMaxHeight(newValue.doubleValue());
-            });
-        });
+        DoubleProperty height = new SimpleDoubleProperty();
+        height.addListener((observable, oldValue, newValue) -> Platform.runLater(() -> {
+            final Rectangle outputClip = new Rectangle();
+            outputClip.setHeight(newValue.doubleValue());
+            extendableSearchPane.setClip(outputClip);
+            extendableSearchPane.setMinHeight(newValue.doubleValue());
+            extendableSearchPane.setMaxHeight(newValue.doubleValue());
+        }));
         final KeyValue keyValue1a = new KeyValue(height, 0);
         final KeyValue keyValue2a = new KeyValue(height, 100);
-        KeyFrame keyFramea  = new KeyFrame(Duration.millis(200), keyValue1a,keyValue2a);
+        KeyFrame keyFramea = new KeyFrame(Duration.millis(200), keyValue1a, keyValue2a);
         Timeline timelineUpa = new Timeline();
         timelineUpa.getKeyFrames().add(keyFramea);
-
 
         Timeline timelineUp = new Timeline();
         final KeyValue keyValue1 = new KeyValue(clipRect.heightProperty(), 0);
         final KeyValue keyValue2 = new KeyValue(clipRect.heightProperty(), 50);
-        //final KeyValue keyValue2 = new KeyValue(clipRect.translateYProperty(), 50);
-        KeyFrame keyFrame  = new KeyFrame(Duration.millis(200), keyValue1,keyValue2);
+        KeyFrame keyFrame = new KeyFrame(Duration.millis(200), keyValue1, keyValue2);
         timelineUp.getKeyFrames().add(keyFrame);
 
-        toggleSamples.setOnAction(event -> {
-            Platform.runLater(() -> {
-                //timelineUp.play();
-                timelineUpa.play();
-                //st.play();
-                //lipRect.setHeight(80);
-            });
-        });
-
-        /**
-
-        clipRect.setWidth(widthInitial);
-        clipRect.setHeight(0);
-        clipRect.translateYProperty().set(heightInitial);
-
-        // Animation for scroll up.
-        Timeline timelineUp = new Timeline();
-
-        // Animation of sliding the search pane up, implemented via
-        // clipping.
-        final KeyValue kvUp1 = new KeyValue(clipRect.heightProperty(), 0);
-        final KeyValue kvUp2 = new KeyValue(clipRect.translateYProperty(), extendableSearchPane.getHeight());
-
-        // The actual movement of the search pane. This makes the table
-        // grow.
-        final KeyValue kvUp4 = new KeyValue(extendableSearchPane.prefHeightProperty(), 0);
-        final KeyValue kvUp3 = new KeyValue(extendableSearchPane.translateYProperty(), -extendableSearchPane.getHeight());
-
-        final KeyFrame kfUp = new KeyFrame(Duration.millis(200), kvUp1, kvUp2, kvUp3, kvUp4);
-
-        toggleSamples.setOnAction(event -> {
-            Platform.runLater(() -> {
-                timelineUp.getKeyFrames().add(kfUp);
-                timelineUp.play();
-            });
-        });
-        **/
-
+        toggleSamples.setOnAction(event -> Platform.runLater(timelineUpa::play));
 
         try {
             if (initSample != null && showValuePrompt) {
 
                 doubleField.setPromptText(initSample.getValue().toString());
-                //oadLastValue(unitField, lastTSLabel, lastValueLabel);
                 loadLastValue();
-                //doubleField.setText(initSample.getValue().toString());
             }
-        }catch ( Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -269,7 +231,6 @@ public class EnterDataDialog {
                 JEConfig.getImage("folders_explorer.png", 18, 18));
 
         treeButton.setOnAction(event -> {
-
             TargetHelper th = null;
             if (selectedObject != null) {
                 th = new TargetHelper(ds, selectedObject.getID().toString());
@@ -280,7 +241,6 @@ public class EnterDataDialog {
             allFilter.add(allCurrentClassFilter);
 
             SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE);
-            //selectTargetDialog.setInitOwner(stage.getScene().getWindow());
 
             List<UserSelection> openList = new ArrayList<>();
 
@@ -305,28 +265,31 @@ public class EnterDataDialog {
                 treeButton.setText(selectedObject.getName());
                 searchIdField.setText(selectedObject.getID().toString());
 
-                //loadLastValue(unitField, lastTSLabel, lastValueLabel);
                 loadLastValue();
             }
 
         });
 
-        treeButton.setDisable(!targetEdible);
-        searchIdField.setDisable(!targetEdible);
-        if(selectedObject!=null){
-            //searchIdField.setText(selectedObject.getID().toString());
-            searchIdField.setText("["+selectedObject.getID().toString()+"] "+selectedObject.getName());
+        treeButton.setDisable(!traceable);
+        searchIdField.setDisable(!traceable);
+        if (selectedObject != null) {
+            searchIdField.setText("[" + selectedObject.getID().toString() + "] " + selectedObject.getName());
         }
 
+
+        DataTypeBox dataTypeBox = new DataTypeBox();
+
+        YearBox yearBox = new YearBox();
+        DayBox dayBox = new DayBox();
+        MonthBox monthBox = new MonthBox();
+
+        monthBox.setRelations(yearBox, dayBox);
+        yearBox.setRelations(monthBox, dayBox);
 
         Label dateLabel = new Label(I18n.getInstance().getString("graph.dialog.column.timestamp"));
         JFXDatePicker datePicker = new JFXDatePicker(LocalDate.now());
         JFXTimePicker timePicker = new JFXTimePicker(LocalTime.of(0, 0, 0));
-        /*
-        datePicker.setPrefWidth(120d);
-        timePicker.setPrefWidth(100d);
-        timePicker.setMaxWidth(100d);
-        */
+
         timePicker.set24HourView(true);
         timePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
@@ -354,10 +317,7 @@ public class EnterDataDialog {
         confirm.setDefaultButton(true);
         Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
         cancel.setCancelButton(true);
-        cancel.setOnAction(event -> {
-                   closeWindows(windows);
-                }
-        );
+        cancel.setOnAction(event -> closeWindows(windows));
         confirm.setOnAction(event -> {
             if (selectedObject != null) {
                 try {
@@ -375,14 +335,47 @@ public class EnterDataDialog {
                                 for (JEVisObject jeVisObject : selectedObject.getChildren(cleanDataClass, false)) {
                                     diffAttribute = jeVisObject.getAttribute("Conversion to Differential");
                                     CleanDataObject cleanDataObject = new CleanDataObject(jeVisObject, new ObjectHandler(ds));
-                                    limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
+                                    if (cleanDataObject.getLimitsConfig().size() > 0) {
+                                        limitsConfigs.put(cleanDataObject.getLimitsConfig().get(0), jeVisObject);
+                                    }
                                 }
                             } catch (Exception e) {
                                 logger.error("Could not get value attribute of object {}:{}", selectedObject.getName(), selectedObject.getID(), e);
                             }
-                            DateTime ts = new DateTime(
-                                    datePicker.valueProperty().get().getYear(), datePicker.valueProperty().get().getMonthValue(), datePicker.valueProperty().get().getDayOfMonth(),
-                                    timePicker.valueProperty().get().getHour(), timePicker.valueProperty().get().getMinute(), timePicker.valueProperty().get().getSecond());
+                            DateTime ts = null;
+
+                            Integer year = yearBox.getSelectionModel().getSelectedItem();
+                            Integer month = monthBox.getSelectionModel().getSelectedIndex() + 1;
+                            Integer day = dayBox.getSelectionModel().getSelectedItem();
+                            switch (dataTypeBox.getSelectionModel().getSelectedItem()) {
+                                case YEAR:
+                                    ts = new DateTime(year,
+                                            1,
+                                            1,
+                                            0, 0, 0);
+                                    break;
+                                case MONTH:
+                                    ts = new DateTime(year,
+                                            month,
+                                            1,
+                                            0, 0, 0);
+                                    break;
+                                case DAY:
+                                    ts = new DateTime(year,
+                                            month,
+                                            day,
+                                            0, 0, 0);
+                                    break;
+                                case SPECIFIC_DATETIME:
+                                    ts = new DateTime(
+                                            datePicker.valueProperty().get().getYear(),
+                                            datePicker.valueProperty().get().getMonthValue(),
+                                            datePicker.valueProperty().get().getDayOfMonth(),
+                                            timePicker.valueProperty().get().getHour(),
+                                            timePicker.valueProperty().get().getMinute(),
+                                            timePicker.valueProperty().get().getSecond());
+                                    break;
+                            }
 
                             if (valueAttribute != null) {
 
@@ -402,9 +395,10 @@ public class EnterDataDialog {
                                         Alert warning = new Alert(Alert.AlertType.CONFIRMATION, I18n.getInstance().getString("plugin.object.dialog.data.differror"));
                                         warning.setResizable(true);
                                         JEVisAttribute finalValueAttribute = valueAttribute;
+                                        DateTime finalTs = ts;
                                         Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
                                             if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                buildSample(finalValueAttribute, ts, newVal);
+                                                buildSample(finalValueAttribute, finalTs, newVal);
                                             } else {
 
                                             }
@@ -429,9 +423,10 @@ public class EnterDataDialog {
                                                         newDiff + " < " + Double.parseDouble(c.getKey().getMin()));
                                                 warning.setResizable(true);
                                                 JEVisAttribute finalValueAttribute = valueAttribute;
+                                                DateTime finalTs1 = ts;
                                                 Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
                                                     if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                        buildSample(finalValueAttribute, ts, newVal);
+                                                        buildSample(finalValueAttribute, finalTs1, newVal);
                                                     } else {
 
                                                     }
@@ -443,9 +438,10 @@ public class EnterDataDialog {
                                                         newDiff + " > " + Double.parseDouble(c.getKey().getMax()));
                                                 warning.setResizable(true);
                                                 JEVisAttribute finalValueAttribute = valueAttribute;
+                                                DateTime finalTs2 = ts;
                                                 Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
                                                     if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                        buildSample(finalValueAttribute, ts, newVal);
+                                                        buildSample(finalValueAttribute, finalTs2, newVal);
                                                     } else {
 
                                                     }
@@ -467,9 +463,10 @@ public class EnterDataDialog {
                                                     newVal + " < " + Double.parseDouble(c.getKey().getMin()));
                                             warning.setResizable(true);
                                             JEVisAttribute finalValueAttribute = valueAttribute;
+                                            DateTime finalTs3 = ts;
                                             Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
                                                 if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                    buildSample(finalValueAttribute, ts, newVal);
+                                                    buildSample(finalValueAttribute, finalTs3, newVal);
                                                 } else {
 
                                                 }
@@ -481,9 +478,10 @@ public class EnterDataDialog {
                                                     newVal + " > " + Double.parseDouble(c.getKey().getMax()));
                                             warning.setResizable(true);
                                             JEVisAttribute finalValueAttribute = valueAttribute;
+                                            DateTime finalTs4 = ts;
                                             Platform.runLater(() -> warning.showAndWait().ifPresent(response -> {
                                                 if (response.getButtonData().getTypeCode().equals(ButtonType.OK.getButtonData().getTypeCode())) {
-                                                    buildSample(finalValueAttribute, ts, newVal);
+                                                    buildSample(finalValueAttribute, finalTs4, newVal);
                                                 } else {
 
                                                 }
@@ -516,7 +514,7 @@ public class EnterDataDialog {
 
         });
 
-        HBox buttonBox = new HBox(cancel,confirm);
+        HBox buttonBox = new HBox(cancel, confirm);
         buttonBox.setAlignment(Pos.BASELINE_RIGHT);
         buttonBox.setSpacing(8);
 
@@ -525,43 +523,81 @@ public class EnterDataDialog {
         gridPane.setHgap(8);
         gridPane.setPadding(new Insets(10, 10, 10, 10));
 
+        int row = 0;
+        gridPane.addRow(row, idLabel, searchIdField, treeButton);
+        row++;
 
-        gridPane.addRow(0,idLabel,searchIdField,treeButton);
-        gridPane.addRow(1,dateLabel,datePicker,timePicker);
-        gridPane.addRow(2,valueLabel,doubleField,unitField);
-        gridPane.add(new Label("Last Value"), 0, 3,1,1);
-        gridPane.add(lastValueLabel, 1, 3,2,1);
+        gridPane.add(dataTypeBox, 0, row, 3, 1);
+        row++;
+        row++;
 
-       // gridPane.addRow(3,,lastValueLabel,unitFieldLastV);
+        gridPane.addRow(row, valueLabel, doubleField, unitField);
+        row++;
 
-        gridPane.add(sep, 0, 4,3,1);
-        gridPane.add(buttonBox, 0, 5,3,1);
+        gridPane.add(new Label("Last Value"), 0, row, 1, 1);
+        gridPane.add(lastValueLabel, 1, row, 2, 1);
+        row++;
 
+        dataTypeBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != oldValue) {
+                filterGridPane(gridPane, yearBox, dayBox, monthBox, dateLabel, datePicker, timePicker, newValue);
+            }
+        });
+
+        // gridPane.addRow(3,,lastValueLabel,unitFieldLastV);
+
+        gridPane.add(sep, 0, row, 3, 1);
+        row++;
+
+        gridPane.add(buttonBox, 0, row, 3, 1);
+
+        filterGridPane(gridPane, yearBox, dayBox, monthBox, dateLabel, datePicker, timePicker, dataTypeBox.getSelectionModel().getSelectedItem());
 
         ColumnConstraints col1 = new ColumnConstraints();
         ColumnConstraints col2 = new ColumnConstraints(120);
         ColumnConstraints col3 = new ColumnConstraints(80);
-        gridPane.getColumnConstraints().addAll(col1,col2,col3);
-
+        gridPane.getColumnConstraints().addAll(col1, col2, col3);
 
 
         GridPane.setHgrow(treeButton, Priority.ALWAYS);
         GridPane.setFillWidth(treeButton, true);
 
-        Platform.runLater(() -> {
-            doubleField.requestFocus();
-        });
+        Platform.runLater(doubleField::requestFocus);
 
         return gridPane;
     }
 
-    private void closeWindows(Object windows){
-        if(windows instanceof Stage){
-            ((Stage)windows).close();
+    private void filterGridPane(GridPane gridPane, YearBox yearBox, DayBox dayBox, MonthBox monthBox, Label dateLabel, JFXDatePicker datePicker, JFXTimePicker timePicker, EnterDataTypes newValue) {
+        switch (newValue) {
+            case YEAR:
+                Platform.runLater(() -> gridPane.getChildren().removeAll(dateLabel, datePicker, timePicker, yearBox, monthBox, dayBox));
+                Platform.runLater(() -> gridPane.add(yearBox, 0, 2, 3, 1));
+                break;
+            case MONTH:
+                Platform.runLater(() -> gridPane.getChildren().removeAll(dateLabel, datePicker, timePicker, yearBox, monthBox, dayBox));
+                Platform.runLater(() -> gridPane.add(yearBox, 0, 2, 1, 1));
+                Platform.runLater(() -> gridPane.add(monthBox, 1, 2, 1, 1));
+                break;
+            case DAY:
+                Platform.runLater(() -> gridPane.getChildren().removeAll(dateLabel, datePicker, timePicker, yearBox, monthBox, dayBox));
+                Platform.runLater(() -> gridPane.add(yearBox, 0, 2, 1, 1));
+                Platform.runLater(() -> gridPane.add(monthBox, 1, 2, 1, 1));
+                Platform.runLater(() -> gridPane.add(dayBox, 3, 2, 1, 1));
+                break;
+            case SPECIFIC_DATETIME:
+                Platform.runLater(() -> gridPane.getChildren().removeAll(dateLabel, datePicker, timePicker, yearBox, monthBox, dayBox));
+                gridPane.addRow(2, dateLabel, datePicker, timePicker);
+                break;
+        }
+    }
+
+    private void closeWindows(Object windows) {
+        if (windows instanceof Stage) {
+            ((Stage) windows).close();
             stage.close();
             stage = null;
-        }else if (windows instanceof JFXPopup){
-            ((JFXPopup)windows).hide();
+        } else if (windows instanceof JFXPopup) {
+            ((JFXPopup) windows).hide();
         }
     }
 
@@ -624,12 +660,12 @@ public class EnterDataDialog {
 
 
                                 /**
-                                if (!finalUnitString.equals("")) {
-                                    valueString+=" "+finalUnitString;
-                                }
-                                lastValueLabel.setText(valueString);
+                                 if (!finalUnitString.equals("")) {
+                                 valueString+=" "+finalUnitString;
+                                 }
+                                 lastValueLabel.setText(valueString);
                                  **/
-                                String valueString = numberFormat.format(finalLastValue)+finalUnitString+" @ "+ finalLastTS.toString("yyyy-MM-dd HH:mm");
+                                String valueString = numberFormat.format(finalLastValue) + finalUnitString + " @ " + finalLastTS.toString("yyyy-MM-dd HH:mm");
                                 lastValueLabel.setText(valueString);
                             });
                         }
