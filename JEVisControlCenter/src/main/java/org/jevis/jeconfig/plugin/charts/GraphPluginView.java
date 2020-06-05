@@ -81,7 +81,6 @@ import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.joda.time.DateTime;
 
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -796,36 +795,7 @@ public class GraphPluginView implements Plugin {
 
     private void formatCharts() {
         for (Map.Entry<Integer, Chart> entry : allCharts.entrySet()) {
-            if (entry.getValue().getChartType().equals(ChartType.BAR)) {
-                javafx.scene.chart.BarChart barChart = (javafx.scene.chart.BarChart) entry.getValue().getRegion();
-                try {
-                    barChart.getData().forEach(numberNumberSeries -> {
-                        javafx.scene.chart.BarChart.Series barChartSeries = (javafx.scene.chart.BarChart.Series) numberNumberSeries;
-                        barChartSeries.getData().forEach(data -> {
-                            int index = barChartSeries.getData().indexOf(data);
-                            final StackPane node = (StackPane) ((javafx.scene.chart.BarChart.Data) data).getNode();
-                            NumberFormat nf = NumberFormat.getInstance();
-                            nf.setMinimumFractionDigits(2);
-                            nf.setMaximumFractionDigits(2);
-                            String valueString = nf.format(((javafx.scene.chart.BarChart.Data) data).getXValue());
-                            final Text dataText = new Text(valueString + "");
-                            dataText.setPickOnBounds(false);
-                            dataText.setFont(new Font(12));
-                            dataText.setFill(ColorHelper.getHighlightColor(ColorHelper.toColor(entry.getValue().getChartDataRows().get(index).getColor())));
-
-                            node.getChildren().add(dataText);
-
-                            Bounds bounds = node.getBoundsInParent();
-                            dataText.setLayoutX(Math.round(bounds.getMinX() + bounds.getWidth() + 4));
-                            dataText.setLayoutY(Math.round(bounds.getMinY() - dataText.prefHeight(-1) * 0.5));
-                        });
-                    });
-                } catch (Exception e) {
-                    logger.error(e);
-                }
-
-                entry.getValue().applyColors();
-            } else if (entry.getValue().getChartType().equals(ChartType.HEAT_MAP)) {
+            if (entry.getValue().getChartType().equals(ChartType.HEAT_MAP)) {
                 ScrollPane sp = (ScrollPane) entry.getValue().getRegion();
                 VBox spVer = (VBox) sp.getContent();
                 MatrixPane<MatrixChartItem> matrixHeatMap = null;

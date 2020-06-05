@@ -345,7 +345,11 @@ public class ChartSelectionDialog {
         final ChartTypeComboBox chartTypeComboBox = new ChartTypeComboBox(cset);
 
         final Label labelGroupingInterval = new Label("grouping Interval");
-        final NumberSpinner groupingInterval = new NumberSpinner(new BigDecimal(cset.getGroupingInterval()), new BigDecimal(1));
+        Long gi = cset.getGroupingInterval();
+        if (gi == null) {
+            gi = 30L;
+        }
+        final NumberSpinner groupingInterval = new NumberSpinner(new BigDecimal(gi), new BigDecimal(1));
         groupingInterval.numberProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.equals(oldValue)) {
                 cset.setGroupingInterval(newValue.longValue());
