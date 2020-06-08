@@ -95,7 +95,7 @@ public class MonthBox extends ComboBox<Months> {
             }
         });
 
-        getSelectionModel().select(DateTime.now().getMonthOfYear());
+        getSelectionModel().select(DateTime.now().getMonthOfYear() - 1);
     }
 
 }
