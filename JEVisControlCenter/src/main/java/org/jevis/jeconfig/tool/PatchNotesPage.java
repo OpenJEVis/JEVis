@@ -51,7 +51,15 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.33------\n" +
+            "------Version 3.9.35------\n" +
+                    "JECC - EnterDataDialog - fixed some current date issues\n" +
+                    "JECC - EnterDataDialog - fixed some layout issues\n" +
+                    "JECC - EnterDataDialog - added simple options\n" +
+                    "JECC - SampleTableExtension - fixed timezone not working\n" +
+                    "JECC - SampleTableExtension - added adding uservalues in bulk or single to data/clean data\n\n" +
+                    "------Version 3.9.34------\n" +
+                    "JECC - AnalysisPlugin - fixed null pointer on creating new Analysis\n\n" +
+                    "------Version 3.9.33------\n" +
                     "JECC - Charts - BubbleChart - migrate to new library\n" +
                     "JECC - Charts - TableChart - something is grabbing cpu like crazy for big timeframes\n" +
                     "JECC - Charts - asking to save after saving\n" +
