@@ -582,11 +582,11 @@ public class EnterDataDialog {
                 Platform.runLater(() -> gridPane.getChildren().removeAll(dateLabel, datePicker, timePicker, yearBox, monthBox, dayBox));
                 Platform.runLater(() -> gridPane.add(yearBox, 0, 2, 1, 1));
                 Platform.runLater(() -> gridPane.add(monthBox, 1, 2, 1, 1));
-                Platform.runLater(() -> gridPane.add(dayBox, 3, 2, 1, 1));
+                Platform.runLater(() -> gridPane.add(dayBox, 2, 2, 1, 1));
                 break;
             case SPECIFIC_DATETIME:
                 Platform.runLater(() -> gridPane.getChildren().removeAll(dateLabel, datePicker, timePicker, yearBox, monthBox, dayBox));
-                gridPane.addRow(2, dateLabel, datePicker, timePicker);
+                Platform.runLater(() -> gridPane.addRow(2, dateLabel, datePicker, timePicker));
                 break;
         }
     }

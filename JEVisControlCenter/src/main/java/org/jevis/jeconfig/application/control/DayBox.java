@@ -22,7 +22,7 @@ public class DayBox extends ComboBox<Integer> {
         ObservableList<Integer> enterDataTypes = FXCollections.observableArrayList(list);
         setItems(enterDataTypes);
 
-        getSelectionModel().select(DateTime.now().getDayOfMonth());
+        getSelectionModel().select(DateTime.now().getDayOfMonth() - 1);
     }
 
     public void setDays(int days) {
