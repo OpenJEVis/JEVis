@@ -534,7 +534,7 @@ public class EnterDataDialog {
         gridPane.addRow(row, valueLabel, doubleField, unitField);
         row++;
 
-        gridPane.add(new Label("Last Value"), 0, row, 1, 1);
+        gridPane.add(new Label(I18n.getInstance().getString("status.table.captions.lastrawvalue")), 0, row, 1, 1);
         gridPane.add(lastValueLabel, 1, row, 2, 1);
         row++;
 
