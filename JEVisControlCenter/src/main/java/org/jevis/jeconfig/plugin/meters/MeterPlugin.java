@@ -87,6 +87,7 @@ public class MeterPlugin implements Plugin {
     private final TabPane tabPane = new TabPane();
     private boolean initialized = false;
     Map<JEVisAttribute, AttributeValueChange> changeMap = new HashMap<>();
+    private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
 
     public MeterPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
@@ -99,7 +100,15 @@ public class MeterPlugin implements Plugin {
                 Tab selectedItem = this.tabPane.getSelectionModel().getSelectedItem();
                 Platform.runLater(() -> {
                     if (selectedItem != null && selectedItem.getContent() instanceof TableView) {
+
                         TableView<MeterRow> tableView = (TableView<MeterRow>) selectedItem.getContent();
+
+                        if (tableView.getSelectionModel().getSelectedItem() != null) {
+                            Platform.runLater(() -> replaceButton.setDisable(false));
+                        } else {
+                            Platform.runLater(() -> replaceButton.setDisable(true));
+                        }
+
                         autoFitTable(tableView);
                     }
                 });
@@ -938,7 +947,6 @@ public class MeterPlugin implements Plugin {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newButton);
         newButton.setOnAction(event -> handleRequest(Constants.Plugin.Command.NEW));
 
-        ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(replaceButton);
         replaceButton.setOnAction(event -> {
             JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
@@ -949,6 +957,7 @@ public class MeterPlugin implements Plugin {
                 handleRequest(Constants.Plugin.Command.RELOAD);
             }
         });
+        replaceButton.setDisable(true);
 
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", toolBarIconSize, toolBarIconSize));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
@@ -1172,7 +1181,7 @@ public class MeterPlugin implements Plugin {
                 }
                 break;
             case Constants.Plugin.Command.RELOAD:
-                final String loading = I18n.getInstance().getString("plugin.alarms.reload.progress.message");
+                Platform.runLater(() -> replaceButton.setDisable(true));
 
                 Task clearCacheTask = new Task() {
                     @Override
@@ -1257,6 +1266,14 @@ public class MeterPlugin implements Plugin {
 
                             tab.setClosable(false);
                             createColumns(tableView, jeVisClass);
+
+                            tableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                                if (newValue != oldValue && newValue != null) {
+                                    Platform.runLater(() -> replaceButton.setDisable(false));
+                                } else {
+                                    Platform.runLater(() -> replaceButton.setDisable(true));
+                                }
+                            });
 
                             List<MeterRow> meterRows = new ArrayList<>();
                             JEVisType onlineIdType = jeVisClass.getType("Online ID");
