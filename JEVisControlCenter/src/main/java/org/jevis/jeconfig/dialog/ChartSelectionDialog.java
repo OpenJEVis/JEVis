@@ -315,7 +315,7 @@ public class ChartSelectionDialog {
     }
 
     private Tab createChartTab(ChartSetting cset) {
-        Tab newTab = new Tab(cset.getId().toString());
+        Tab newTab = new Tab(I18n.getInstance().getString("graph.table.selectchart") + cset.getId() + 1);
         newTab.setClosable(false);
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -344,7 +344,7 @@ public class ChartSelectionDialog {
         final Label labelChartType = new Label(I18n.getInstance().getString("graph.tabs.tab.charttype"));
         final ChartTypeComboBox chartTypeComboBox = new ChartTypeComboBox(cset);
 
-        final Label labelGroupingInterval = new Label("grouping Interval");
+        final Label labelGroupingInterval = new Label(I18n.getInstance().getString("graph.tabs.tab.groupinginterval"));
         Long gi = cset.getGroupingInterval();
         if (gi == null) {
             gi = 30L;
