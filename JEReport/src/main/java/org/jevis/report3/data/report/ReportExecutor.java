@@ -85,7 +85,6 @@ public class ReportExecutor {
             if (!reportLinkStatus.isSanityCheck()) {
                 logger.error("Report " + this.reportObject.getName() + ":" + this.reportObject.getID() + " - " + reportLinkStatus.getMessage());
                 isDataAvailable.set(false);
-                break;
             }
         }
         logger.info("Created report link stati.");
