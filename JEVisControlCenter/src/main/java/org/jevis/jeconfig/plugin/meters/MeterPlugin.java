@@ -130,6 +130,7 @@ public class MeterPlugin implements Plugin {
                 TableColumn<MeterRow, String> multiSiteColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnsite"));
                 multiSiteColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(objectRelations.getObjectPath(param.getValue().getObject())));
                 multiSiteColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+                multiSiteColumn.setSortable(false);
 
                 tableView.getColumns().add(multiSiteColumn);
             }
@@ -137,6 +138,7 @@ public class MeterPlugin implements Plugin {
             TableColumn<MeterRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnname"));
             nameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject().getName()));
             nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
+            nameColumn.setSortable(false);
 
             tableView.getColumns().add(nameColumn);
 
@@ -151,6 +153,7 @@ public class MeterPlugin implements Plugin {
             for (JEVisType type : jeVisClass.getTypes()) {
                 TableColumn<MeterRow, JEVisAttribute> column = new TableColumn<>(I18nWS.getInstance().getTypeName(jeVisClass.getName(), type.getName()));
                 column.setStyle("-fx-alignment: CENTER;");
+                column.setSortable(false);
                 if (type.equals(locationType) || type.equals(measuringPointIdType) || type.equals(measuringPointName)) {
                     column.setVisible(false);
                 }
