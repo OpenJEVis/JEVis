@@ -20,6 +20,11 @@
     },
     {
       "start": "Data Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Data Directory",
       "end": "Data Directory",
       "type": 3
     },
