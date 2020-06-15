@@ -13,14 +13,12 @@ public class CleanDataTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CleanDataTable.class);
     private final List<JEVisObject> dataServerObjects;
     private final List<JEVisObject> calcObjects;
-    private final DateTime furthestReported;
     private final DateTime latestReported;
 
-    public CleanDataTable(JEVisDataSource ds, DateTime furthestReported, DateTime latestReported, List<JEVisObject> calcObjects, List<JEVisObject> dataServerObjects) {
+    public CleanDataTable(JEVisDataSource ds, DateTime latestReported, List<JEVisObject> calcObjects, List<JEVisObject> dataServerObjects) {
         super(ds);
         this.calcObjects = calcObjects;
         this.dataServerObjects = dataServerObjects;
-        this.furthestReported = furthestReported;
         this.latestReported = latestReported;
 
         try {
@@ -57,7 +55,7 @@ public class CleanDataTable extends AlarmTable {
                 DateTime timestamp = lastSample.getTimestamp();
                 DateTime now = new DateTime();
 
-                if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)
+                if (lastSample.getTimestamp().isBefore(latestReported)
                         && (!timestamp.plus(period).equals(now) && !timestamp.plus(period).isAfter(now))) {
                     outOfBounds.add(obj);
                 }
