@@ -88,20 +88,12 @@ public class DataServerTable extends AlarmTable {
 
             try {
                 JEVisAttribute channelLRAtt = dataSource.getAttribute(LATEST_REPORTED);
-                JEVisAttribute channelFRAtt = dataSource.getAttribute(FURTHEST_REPORTED);
 
                 if (channelLRAtt.hasSample()) {
                     JEVisSample latestSample = channelLRAtt.getLatestSample();
                     if (latestSample != null) {
                         Long valueAsLong = latestSample.getValueAsLong();
                         lr = DateTime.now().minus(Period.hours(valueAsLong.intValue()));
-                    }
-                }
-
-                if (channelFRAtt.hasSample()) {
-                    JEVisSample latestSample = channelFRAtt.getLatestSample();
-                    if (latestSample != null) {
-                        Long valueAsLong = latestSample.getValueAsLong();
                     }
                 }
             } catch (Exception e) {
