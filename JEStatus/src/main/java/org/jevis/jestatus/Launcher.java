@@ -49,9 +49,8 @@ public class Launcher extends AbstractCliApp {
     private final String APP_SERVICE_CLASS_NAME = "JEStatus";
     private final Command commands = new Command();
     private Config config;
-    private Long furthestReported;
     private Long latestReported;
-    private String emergencyConfig = "";
+    private final String emergencyConfig = "";
     private JEVisObject serviceObject;
     private boolean firstRun = true;
 
@@ -78,7 +77,7 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runSingle(Long id) {
-        AlarmHandler ah = new AlarmHandler(ds, furthestReported, latestReported);
+        AlarmHandler ah = new AlarmHandler(ds, latestReported);
 
         try {
             ah.checkAlarm();
@@ -115,7 +114,7 @@ public class Launcher extends AbstractCliApp {
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                 logger.info("Service is enabled.");
                 try {
-                    AlarmHandler ah = new AlarmHandler(ds, furthestReported, latestReported);
+                    AlarmHandler ah = new AlarmHandler(ds, latestReported);
                     ah.checkAlarm();
                     finishCurrentRun(serviceObject);
 
@@ -150,7 +149,6 @@ public class Launcher extends AbstractCliApp {
         try {
             JEVisClass serviceClass = ds.getJEVisClass(APP_SERVICE_CLASS_NAME);
             List<JEVisObject> listServiceObjects = ds.getObjects(serviceClass, false);
-            furthestReported = listServiceObjects.get(0).getAttribute("Furthest reported").getLatestSample().getValueAsLong();
             latestReported = listServiceObjects.get(0).getAttribute("Latest reported").getLatestSample().getValueAsLong();
         } catch (Exception e) {
             logger.error("Couldn't get Service status from the JEVis System");

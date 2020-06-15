@@ -44,7 +44,7 @@ import java.util.Properties;
  */
 public class AlarmHandler {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(AlarmHandler.class);
-    private Long furthestReported;
+
     private Long latestReported;
     private final DateTime now;
 
@@ -55,12 +55,10 @@ public class AlarmHandler {
     /**
      * Create an AlarmHandler for the given Configuration
      *
-     * @param furthestReported
      * @param latestReported
      */
-    public AlarmHandler(JEVisDataSource ds, Long furthestReported, Long latestReported) {
+    public AlarmHandler(JEVisDataSource ds, Long latestReported) {
         _ds = ds;
-        this.furthestReported = furthestReported;
         this.latestReported = latestReported;
         this.now = DateTime.now();
     }
@@ -120,13 +118,13 @@ public class AlarmHandler {
         ServiceStatus serviceStatus = new ServiceStatus(_ds);
         sb.append(serviceStatus.getTableString());
 
-        DataServerTable dataServerTable = new DataServerTable(_ds, getFurthestReported(), getLatestReported());
+        DataServerTable dataServerTable = new DataServerTable(_ds, getLatestReported());
         sb.append(dataServerTable.getTableString());
 
-        CalculationTable calculationTable = new CalculationTable(_ds, getFurthestReported(), getLatestReported(), dataServerTable.getListCheckedData());
+        CalculationTable calculationTable = new CalculationTable(_ds, getLatestReported(), dataServerTable.getListCheckedData());
         sb.append(calculationTable.getTableString());
 
-        CleanDataTable cleanDataTable = new CleanDataTable(_ds, getFurthestReported(), getLatestReported(), calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
+        CleanDataTable cleanDataTable = new CleanDataTable(_ds, getLatestReported(), calculationTable.getListCheckedData(), dataServerTable.getListCheckedData());
         sb.append(cleanDataTable.getTableString());
 
         sb.append("</html>");
@@ -355,10 +353,6 @@ public class AlarmHandler {
             logger.info("could not send Email: " + ex);
         }
 
-    }
-
-    private DateTime getFurthestReported() {
-        return now.minus(Period.hours(furthestReported.intValue()));
     }
 
     private DateTime getLatestReported() {
