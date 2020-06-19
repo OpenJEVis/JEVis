@@ -2,8 +2,10 @@
   "jevisclass": "Equipment Register",
   "names": {
     "de": "Anlagenkataster",
-    "ru": "Equipment Register",
-    "en": "Equipment Register"
+    "ru": "Кадастр растений",
+    "en": "Equipment Register",
+    "uk": "Кадастр рослин",
+    "th": "อาคารโรงงาน"
   },
   "descriptions": {},
   "types": []

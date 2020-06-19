@@ -17,7 +17,7 @@ public class JEVisClassTab extends Tab {
         this.jeVisClass = jeVisClass;
     }
 
-    public JEVisClassTab(String className, TableView<MeterRow> tableView, JEVisClass jeVisClass) {
+    public JEVisClassTab(String className, TableView<RegisterTableRow> tableView, JEVisClass jeVisClass) {
         super(className, tableView);
         this.jeVisClass = jeVisClass;
     }
@@ -26,7 +26,7 @@ public class JEVisClassTab extends Tab {
         setText(className);
     }
 
-    public void setTableView(TableView<MeterRow> tableView) {
+    public void setTableView(TableView<RegisterTableRow> tableView) {
         setContent(tableView);
     }
 

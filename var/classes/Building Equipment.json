@@ -39,7 +39,7 @@
       "type": 0
     },
     {
-      "start": "Heater",
+      "start": "Heat Generation",
       "end": "Building Equipment",
       "type": 0
     },
@@ -107,7 +107,7 @@
     {
       "name": "Energy Source",
       "primitiveType": 0,
-      "guiType": "Object Target",
+      "guiType": "Text",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
@@ -133,6 +133,15 @@
     },
     {
       "name": "Nominal Power",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    },
+    {
+      "name": "Productivity",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 0,

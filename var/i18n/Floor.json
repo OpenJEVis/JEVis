@@ -1,144 +1,52 @@
 {
   "jevisclass": "Floor",
   "names": {
-    "de": "Floor",
-    "ru": "Floor",
-    "en": "Floor"
+    "de": "Etage",
+    "ru": "этаж",
+    "en": "Floor",
+    "th": "ชั้น",
+    "uk": "підлогу"
   },
   "descriptions": {
-    "de": "The class Floor contains data of the building equipment floor. Attributes of the class include a complete description of the specific floor. ",
-    "ru": "The class Floor contains data of the building equipment floor. Attributes of the class include a complete description of the specific floor. ",
-    "en": "The class Floor contains data of the building equipment floor. Attributes of the class include a complete description of the specific floor. "
+    "de": "Die Klasse Etage enthält Daten der Gebäudeausrüstung Etage. Zu den Attributen der Klasse gehört eine vollständige Beschreibung des jeweiligen Stockwerks.",
+    "ru": "Этаж класса содержит данные о этажах строительного оборудования. Атрибуты класса включают в себя полное описание соответствующего этажа.",
+    "en": "The class Floor contains data of the building equipment floor. Attributes of the class include a complete description of the specific floor.",
+    "th": "ชั้นชั้นมีข้อมูลของพื้นอุปกรณ์อาคาร คุณสมบัติของชั้นเรียนรวมถึงคำอธิบายที่สมบูรณ์ของชั้นที่เกี่ยวข้อง",
+    "uk": "Підлогу класу містить дані про підлогу будівельного обладнання. Атрибути класу включають повний опис відповідного поверху."
   },
   "types": [
     {
-      "type": "Daily Operating Hours",
-      "descriptions": {
-        "de": "Daily Operating Hours description",
-        "ru": "Daily Operating Hours description",
-        "en": "Daily Operating Hours description"
-      },
-      "names": {
-        "de": "Daily Operating Hours",
-        "ru": "Daily Operating Hours",
-        "en": "Daily Operating Hours"
-      }
-    },
-    {
-      "type": "Energy Source",
-      "descriptions": {
-        "de": "Energy Source description",
-        "ru": "Energy Source description",
-        "en": "Energy Source description"
-      },
-      "names": {
-        "de": "Energy Source",
-        "ru": "Energy Source",
-        "en": "Energy Source"
-      }
-    },
-    {
       "type": "Floor",
       "descriptions": {
-        "de": "Floor description",
-        "ru": "Floor description",
-        "en": "Floor description"
+        "de": "Etage",
+        "ru": "этаж",
+        "en": "Floor",
+        "th": "ชั้น",
+        "uk": "підлогу"
       },
       "names": {
-        "de": "Floor",
-        "ru": "Floor",
-        "en": "Floor"
-      }
-    },
-    {
-      "type": "Manufacturer",
-      "descriptions": {
-        "de": "Manufacturer description",
-        "ru": "Manufacturer description",
-        "en": "Manufacturer description"
-      },
-      "names": {
-        "de": "Manufacturer",
-        "ru": "Manufacturer",
-        "en": "Manufacturer"
-      }
-    },
-    {
-      "type": "Measuring Point",
-      "descriptions": {
-        "de": "Measuring Point description",
-        "ru": "Measuring Point description",
-        "en": "Measuring Point description"
-      },
-      "names": {
-        "de": "Measuring Point",
-        "ru": "Measuring Point",
-        "en": "Measuring Point"
-      }
-    },
-    {
-      "type": "Nominal Power",
-      "descriptions": {
-        "de": "Nominal Power description",
-        "ru": "Nominal Power description",
-        "en": "Nominal Power description"
-      },
-      "names": {
-        "de": "Nominal Power",
-        "ru": "Nominal Power",
-        "en": "Nominal Power"
+        "de": "Etage",
+        "ru": "этаж",
+        "en": "Floor",
+        "th": "ชั้น",
+        "uk": "підлогу"
       }
     },
     {
       "type": "Usage",
       "descriptions": {
-        "de": "Usage description",
-        "ru": "Usage description",
-        "en": "Usage description"
+        "de": "Nutzung",
+        "ru": "использование",
+        "en": "Usage",
+        "th": "ใช้",
+        "uk": "використання"
       },
       "names": {
-        "de": "Usage",
-        "ru": "Usage",
-        "en": "Usage"
-      }
-    },
-    {
-      "type": "Weighting Factor",
-      "descriptions": {
-        "de": "Weighting Factor description",
-        "ru": "Weighting Factor description",
-        "en": "Weighting Factor description"
-      },
-      "names": {
-        "de": "Weighting Factor",
-        "ru": "Weighting Factor",
-        "en": "Weighting Factor"
-      }
-    },
-    {
-      "type": "Work Weeks",
-      "descriptions": {
-        "de": "Work Weeks description",
-        "ru": "Work Weeks description",
-        "en": "Work Weeks description"
-      },
-      "names": {
-        "de": "Work Weeks",
-        "ru": "Work Weeks",
-        "en": "Work Weeks"
-      }
-    },
-    {
-      "type": "Working Days",
-      "descriptions": {
-        "de": "Working Days description",
-        "ru": "Working Days description",
-        "en": "Working Days description"
-      },
-      "names": {
-        "de": "Working Days",
-        "ru": "Working Days",
-        "en": "Working Days"
+        "de": "Nutzung",
+        "ru": "использование",
+        "en": "Usage",
+        "th": "ใช้",
+        "uk": "використання"
       }
     }
   ]

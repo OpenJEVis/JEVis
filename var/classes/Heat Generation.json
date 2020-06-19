@@ -1,20 +1,20 @@
 {
-  "name": "Heater",
-  "description": "The class Heater contains data of the building equipment heating. Attributes of the class include a complete description of the specific energy data of the heating. ",
+  "name": "Heat Generation",
+  "description": "The class Heat Generation contains data of the building equipment heating. Attributes of the class include a complete description of the specific energy data of the heating. ",
   "unique": false,
   "relationships": [
     {
-      "start": "Heater",
+      "start": "Heat Generation",
       "end": "Building Equipment",
       "type": 0
     },
     {
-      "start": "Heater",
+      "start": "Heat Generation",
       "end": "Floor",
       "type": 3
     },
     {
-      "start": "Heater",
+      "start": "Heat Generation",
       "end": "Heating Equipment Directory",
       "type": 3
     }
@@ -27,7 +27,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Heater"
+      "jevisClass": "Heat Generation"
     },
     {
       "name": "Standby Consumption",
@@ -36,7 +36,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Heater"
+      "jevisClass": "Heat Generation"
     },
     {
       "name": "Type",
@@ -45,7 +45,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Heater"
+      "jevisClass": "Heat Generation"
     },
     {
       "name": "Year of Construction",
@@ -54,7 +54,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Heater"
+      "jevisClass": "Heat Generation"
     }
   ]
 }

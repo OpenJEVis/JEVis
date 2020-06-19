@@ -2,286 +2,238 @@
   "jevisclass": "Cooler",
   "names": {
     "de": "Verdichter",
-    "ru": "Cooler",
-    "en": "Cooler"
+    "ru": "компрессор",
+    "en": "Cooler",
+    "th": "คอมเพรสเซอร์",
+    "uk": "компресор"
   },
   "descriptions": {
-    "de": "The class Cooler contains data of the building equipment cooler. Attributes of the class include a complete description of the specific energy data of the cooler. ",
-    "ru": "The class Cooler contains data of the building equipment cooler. Attributes of the class include a complete description of the specific energy data of the cooler. ",
-    "en": "The class Cooler contains data of the building equipment cooler. Attributes of the class include a complete description of the specific energy data of the cooler. "
+    "de": "Die Klasse Kühler enthält Daten des Gebäudeausrüstungskühlers. Zu den Attributen der Klasse gehört eine vollständige Beschreibung der spezifischen Energiedaten des Kühlers.",
+    "ru": "Класс кулера содержит данные от кулера для строительного оборудования. Атрибуты класса включают в себя полное описание удельных энергетических данных кулера.",
+    "en": "The class Cooler contains data of the building equipment cooler. Attributes of the class include a complete description of the specific energy data of the cooler.",
+    "th": "คลาสเครื่องทำความเย็นประกอบด้วยข้อมูลจากอุปกรณ์ทำความเย็นในอาคาร คุณลักษณะของคลาสรวมถึงคำอธิบายแบบเต็มของข้อมูลพลังงานเฉพาะของคูลเลอร์",
+    "uk": "Клас кулерів містить дані з охолоджувача будівельного обладнання. Атрибути класу включають повний опис конкретних енергетичних даних кулера."
   },
   "types": [
     {
       "type": "Chiller Control",
       "descriptions": {
-        "de": "Chiller Control description",
-        "ru": "Chiller Control description",
-        "en": "Chiller Control description"
+        "de": "Kühlaggregatregulierung",
+        "ru": "Регулирование блока охлаждения",
+        "en": "Chiller Control",
+        "th": "ระเบียบหน่วยทำความเย็น",
+        "uk": "Регулювання блоку охолодження"
       },
       "names": {
-        "de": "Chiller Control",
-        "ru": "Chiller Control",
-        "en": "Chiller Control"
+        "de": "Kühlaggregatregulierung",
+        "ru": "Регулирование блока охлаждения",
+        "en": "Chiller Control",
+        "th": "ระเบียบหน่วยทำความเย็น",
+        "uk": "Регулювання блоку охолодження"
       }
     },
     {
       "type": "Composite or single Plant",
       "descriptions": {
-        "de": "Composite or single Plant description",
-        "ru": "Composite or single Plant description",
-        "en": "Composite or single Plant description"
+        "de": "Gemischt- oder Einzelbetrieb",
+        "ru": "Смешанная или индивидуальная операция",
+        "en": "Composite or single Plant",
+        "th": "การทำงานแบบผสมหรือแบบเดี่ยว",
+        "uk": "Змішана або індивідуальна операція"
       },
       "names": {
-        "de": "Composite or single Plant",
-        "ru": "Composite or single Plant",
-        "en": "Composite or single Plant"
+        "de": "Gemischt- oder Einzelbetrieb",
+        "ru": "Смешанная или индивидуальная операция",
+        "en": "Composite or single Plant",
+        "th": "การทำงานแบบผสมหรือแบบเดี่ยว",
+        "uk": "Змішана або індивідуальна операція"
       }
     },
     {
       "type": "Cooling Capacity",
       "descriptions": {
-        "de": "Cooling Capacity description",
-        "ru": "Cooling Capacity description",
-        "en": "Cooling Capacity description"
+        "de": "Kälteleistung",
+        "ru": "Охлаждающая способность",
+        "en": "Cooling Capacity",
+        "th": "ความเย็น",
+        "uk": "Ємність охолодження"
       },
       "names": {
-        "de": "Cooling Capacity",
-        "ru": "Cooling Capacity",
-        "en": "Cooling Capacity"
-      }
-    },
-    {
-      "type": "Daily Operating Hours",
-      "descriptions": {
-        "de": "Daily Operating Hours description",
-        "ru": "Daily Operating Hours description",
-        "en": "Daily Operating Hours description"
-      },
-      "names": {
-        "de": "Daily Operating Hours",
-        "ru": "Daily Operating Hours",
-        "en": "Daily Operating Hours"
-      }
-    },
-    {
-      "type": "Energy Source",
-      "descriptions": {
-        "de": "Energy Source description",
-        "ru": "Energy Source description",
-        "en": "Energy Source description"
-      },
-      "names": {
-        "de": "Energy Source",
-        "ru": "Energy Source",
-        "en": "Energy Source"
+        "de": "Kälteleistung",
+        "ru": "Охлаждающая способность",
+        "en": "Cooling Capacity",
+        "th": "ความเย็น",
+        "uk": "Ємність охолодження"
       }
     },
     {
       "type": "Heat Recovery",
       "descriptions": {
-        "de": "Heat Recovery description",
-        "ru": "Heat Recovery description",
-        "en": "Heat Recovery description"
+        "de": "Wärmerückgewinnung",
+        "ru": "Рекуперация тепла",
+        "en": "Heat Recovery",
+        "th": "นำความร้อนกลับคืน",
+        "uk": "Відновлення тепла"
       },
       "names": {
-        "de": "Heat Recovery",
-        "ru": "Heat Recovery",
-        "en": "Heat Recovery"
-      }
-    },
-    {
-      "type": "Manufacturer",
-      "descriptions": {
-        "de": "Manufacturer description",
-        "ru": "Manufacturer description",
-        "en": "Manufacturer description"
-      },
-      "names": {
-        "de": "Manufacturer",
-        "ru": "Manufacturer",
-        "en": "Manufacturer"
-      }
-    },
-    {
-      "type": "Measuring Point",
-      "descriptions": {
-        "de": "Measuring Point description",
-        "ru": "Measuring Point description",
-        "en": "Measuring Point description"
-      },
-      "names": {
-        "de": "Measuring Point",
-        "ru": "Measuring Point",
-        "en": "Measuring Point"
-      }
-    },
-    {
-      "type": "Nominal Power",
-      "descriptions": {
-        "de": "Nominal Power description",
-        "ru": "Nominal Power description",
-        "en": "Nominal Power description"
-      },
-      "names": {
-        "de": "Nominal Power",
-        "ru": "Nominal Power",
-        "en": "Nominal Power"
+        "de": "Wärmerückgewinnung",
+        "ru": "Рекуперация тепла",
+        "en": "Heat Recovery",
+        "th": "นำความร้อนกลับคืน",
+        "uk": "Відновлення тепла"
       }
     },
     {
       "type": "Number of Compressors",
       "descriptions": {
-        "de": "Number of Compressors description",
-        "ru": "Number of Compressors description",
-        "en": "Number of Compressors description"
+        "de": "Anzahl der Kompressoren",
+        "ru": "Количество компрессоров",
+        "en": "Number of Compressors",
+        "th": "จำนวนคอมเพรสเซอร์",
+        "uk": "Кількість компресорів"
       },
       "names": {
-        "de": "Number of Compressors",
-        "ru": "Number of Compressors",
-        "en": "Number of Compressors"
+        "de": "Anzahl der Kompressoren",
+        "ru": "Количество компрессоров",
+        "en": "Number of Compressors",
+        "th": "จำนวนคอมเพรสเซอร์",
+        "uk": "Кількість компресорів"
       }
     },
     {
       "type": "Performance Number Compressor",
       "descriptions": {
-        "de": "Performance Number Compressor description",
-        "ru": "Performance Number Compressor description",
-        "en": "Performance Number Compressor description"
+        "de": "Leistungszahl des Kompressors",
+        "ru": "Коэффициент производительности компрессора",
+        "en": "Performance Number Compressor",
+        "th": "ค่าสัมประสิทธิ์สมรรถนะของคอมเพรสเซอร์",
+        "uk": "Коефіцієнт працездатності компресора"
       },
       "names": {
-        "de": "Performance Number Compressor",
-        "ru": "Performance Number Compressor",
-        "en": "Performance Number Compressor"
+        "de": "Leistungszahl des Kompressors",
+        "ru": "Коэффициент производительности компрессора",
+        "en": "Performance Number Compressor",
+        "th": "ค่าสัมประสิทธิ์สมรรถนะของคอมเพรสเซอร์",
+        "uk": "Коефіцієнт працездатності компресора"
       }
     },
     {
       "type": "Power",
       "descriptions": {
-        "de": "Power description",
-        "ru": "Power description",
-        "en": "Power description"
+        "de": "Leistung",
+        "ru": "сила",
+        "en": "Power",
+        "th": "อำนาจ",
+        "uk": "потужність"
       },
       "names": {
-        "de": "Power",
-        "ru": "Power",
-        "en": "Power"
+        "de": "Leistung",
+        "ru": "сила",
+        "en": "Power",
+        "th": "อำนาจ",
+        "uk": "потужність"
       }
     },
     {
       "type": "Refrigerant",
       "descriptions": {
-        "de": "Refrigerant description",
-        "ru": "Refrigerant description",
-        "en": "Refrigerant description"
+        "de": "Kältemittel",
+        "ru": "холодильный",
+        "en": "Refrigerant",
+        "th": "สารทำความเย็น",
+        "uk": "Холодоагент"
       },
       "names": {
-        "de": "Refrigerant",
-        "ru": "Refrigerant",
-        "en": "Refrigerant"
+        "de": "Kältemittel",
+        "ru": "холодильный",
+        "en": "Refrigerant",
+        "th": "สารทำความเย็น",
+        "uk": "Холодоагент"
       }
     },
     {
       "type": "Remark",
       "descriptions": {
-        "de": "Remark description",
-        "ru": "Remark description",
-        "en": "Remark description"
+        "de": "Anmerkung",
+        "ru": "аннотирование",
+        "en": "Remark",
+        "th": "คำอธิบายประกอบ",
+        "uk": "анотація"
       },
       "names": {
-        "de": "Remark",
-        "ru": "Remark",
-        "en": "Remark"
+        "de": "Anmerkung",
+        "ru": "аннотирование",
+        "en": "Remark",
+        "th": "คำอธิบายประกอบ",
+        "uk": "анотація"
       }
     },
     {
       "type": "Served Area",
       "descriptions": {
-        "de": "Served Area description",
-        "ru": "Served Area description",
-        "en": "Served Area description"
+        "de": "Der Bereich, der von der Kälteanlage versorgt wird",
+        "ru": "Площадь, которая снабжена системой охлаждения",
+        "en": "The Area, which is served bei this cooler",
+        "th": "พื้นที่ที่จัดทำโดยระบบทำความเย็น",
+        "uk": "Площа, яка постачається холодильною системою"
       },
       "names": {
-        "de": "Served Area",
-        "ru": "Served Area",
-        "en": "Served Area"
+        "de": "Bedienter Bereich",
+        "ru": "Обслуживаемая площадь",
+        "en": "Served Area",
+        "th": "พื้นที่ให้บริการ",
+        "uk": "Обслугована площа"
       }
     },
     {
       "type": "Standby Consumption",
       "descriptions": {
-        "de": "Standby Consumption description",
-        "ru": "Standby Consumption description",
-        "en": "Standby Consumption description"
+        "de": "Ruheleistung",
+        "ru": "Спокойное пособие",
+        "en": "Standby power",
+        "th": "ผลประโยชน์เงียบสงบ",
+        "uk": "Вигода у спокої"
       },
       "names": {
-        "de": "Standby Consumption",
-        "ru": "Standby Consumption",
-        "en": "Standby Consumption"
+        "de": "Ruheleistung",
+        "ru": "Спокойное пособие",
+        "en": "Standby power",
+        "th": "ผลประโยชน์เงียบสงบ",
+        "uk": "Вигода у спокої"
       }
     },
     {
       "type": "Type",
       "descriptions": {
-        "de": "Type description",
-        "ru": "Type description",
-        "en": "Type description"
+        "de": "Typ",
+        "ru": "Тип",
+        "en": "Type",
+        "th": "ชนิด",
+        "uk": "Тип"
       },
       "names": {
-        "de": "Type",
-        "ru": "Type",
-        "en": "Type"
-      }
-    },
-    {
-      "type": "Weighting Factor",
-      "descriptions": {
-        "de": "Weighting Factor description",
-        "ru": "Weighting Factor description",
-        "en": "Weighting Factor description"
-      },
-      "names": {
-        "de": "Weighting Factor",
-        "ru": "Weighting Factor",
-        "en": "Weighting Factor"
-      }
-    },
-    {
-      "type": "Work Weeks",
-      "descriptions": {
-        "de": "Work Weeks description",
-        "ru": "Work Weeks description",
-        "en": "Work Weeks description"
-      },
-      "names": {
-        "de": "Work Weeks",
-        "ru": "Work Weeks",
-        "en": "Work Weeks"
-      }
-    },
-    {
-      "type": "Working Days",
-      "descriptions": {
-        "de": "Working Days description",
-        "ru": "Working Days description",
-        "en": "Working Days description"
-      },
-      "names": {
-        "de": "Working Days",
-        "ru": "Working Days",
-        "en": "Working Days"
+        "de": "Typ",
+        "ru": "Тип",
+        "en": "Type",
+        "th": "ชนิด",
+        "uk": "Тип"
       }
     },
     {
       "type": "Year and Serial Number",
       "descriptions": {
-        "de": "Year and Serial Number description",
-        "ru": "Year and Serial Number description",
-        "en": "Year and Serial Number description"
+        "de": "Jahr und Seriennummer",
+        "ru": "Год и серийный номер",
+        "en": "Year and Serial Number",
+        "th": "ปีและหมายเลขซีเรียล",
+        "uk": "Рік та серійний номер"
       },
       "names": {
-        "de": "Year and Serial Number",
-        "ru": "Year and Serial Number",
-        "en": "Year and Serial Number"
+        "de": "Jahr und Seriennummer",
+        "ru": "Год и серийный номер",
+        "en": "Year and Serial Number",
+        "th": "ปีและหมายเลขซีเรียล",
+        "uk": "Рік та серійний номер"
       }
     }
   ]

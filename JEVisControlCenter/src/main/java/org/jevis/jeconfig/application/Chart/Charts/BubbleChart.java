@@ -115,6 +115,7 @@ public class BubbleChart extends XYChart {
         AtomicReference<Double> minY = new AtomicReference<>(Double.MAX_VALUE);
         AtomicReference<Double> maxY = new AtomicReference<>(-Double.MAX_VALUE);
         boolean isEnPI = false;
+        boolean async = false;
         ChartDataRow chartDataRowY = null;
 
         for (ChartDataRow model : chartDataRows) {
@@ -137,6 +138,10 @@ public class BubbleChart extends XYChart {
             if (model.getBubbleType() == BubbleType.Y && model.getEnPI()) {
                 isEnPI = true;
                 chartDataRowY = model;
+            } else {
+                if (model.getAttribute().getInputSampleRate().equals(Period.ZERO)) {
+                    async = true;
+                }
             }
         }
 
@@ -194,10 +199,17 @@ public class BubbleChart extends XYChart {
                 if (!isEnPI) {
                     for (JEVisSample sample : yList) {
                         try {
-                            if ((sample.getTimestamp().isAfter(firstBeforeDate) && sample.getTimestamp().isBefore(dt))
-                                    || sample.getTimestamp().equals(dt)) {
-                                value += sample.getValueAsDouble();
-                                size++;
+                            if (!async) {
+                                if ((sample.getTimestamp().isAfter(firstBeforeDate) && sample.getTimestamp().isBefore(dt))
+                                        || sample.getTimestamp().equals(dt)) {
+                                    value += sample.getValueAsDouble();
+                                    size++;
+                                }
+                            } else {
+                                if (sample.getTimestamp().equals(dt)) {
+                                    value += sample.getValueAsDouble();
+                                    size++;
+                                }
                             }
                         } catch (JEVisException e) {
                             e.printStackTrace();

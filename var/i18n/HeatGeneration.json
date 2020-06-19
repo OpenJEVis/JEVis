@@ -1,0 +1,87 @@
+{
+  "jevisclass": "Heat Generation",
+  "names": {
+    "de": "Wärmeerzeugung",
+    "ru": "Тепловыделение",
+    "en": "Heat Generation",
+    "th": "การสร้างความร้อน",
+    "uk": "Виробництво тепла"
+  },
+  "descriptions": {
+    "de": "Die Klasse Wärmeerzeugung enthält Daten zur Heizung der Gebäudeausrüstung. Zu den Attributen der Klasse gehört eine vollständige Beschreibung der spezifischen Energiedaten der Heizung.",
+    "ru": "Класс тепловыделения содержит данные для отопления строительного оборудования. Атрибуты класса включают в себя полное описание конкретных энергетических данных отопления.",
+    "en": "The class Heat Generation contains data of the building equipment heating. Attributes of the class include a complete description of the specific energy data of the heating.",
+    "th": "คลาสสร้างความร้อนประกอบด้วยข้อมูลเพื่อให้ความร้อนแก่อุปกรณ์ในอาคาร คุณสมบัติของชั้นเรียนรวมถึงคำอธิบายที่สมบูรณ์ของข้อมูลพลังงานเฉพาะของเครื่องทำความร้อน",
+    "uk": "Клас генерації тепла містить дані для обігріву будівельного обладнання. Атрибути класу включають повний опис конкретних даних про енергію опалення."
+  },
+  "types": [
+    {
+      "type": "Domain",
+      "descriptions": {
+        "de": "der Bereich, den die Wärmeerzeugungsanlage mit Wärme versorgt",
+        "ru": "область, которую теплогенератор снабжает теплом",
+        "en": "Domain, which is served heat by the heat generator",
+        "th": "บริเวณที่เครื่องกำเนิดความร้อนมีความร้อน",
+        "uk": "область, яку теплогенератор постачає теплом"
+      },
+      "names": {
+        "de": "Bereich",
+        "ru": "область",
+        "en": "Domain",
+        "th": "พื้นที่",
+        "uk": "область"
+      }
+    },
+    {
+      "type": "Standby Consumption",
+      "descriptions": {
+        "de": "Ruheleistung",
+        "ru": "Спокойное пособие",
+        "en": "Standby power",
+        "th": "ผลประโยชน์เงียบสงบ",
+        "uk": "Вигода у спокої"
+      },
+      "names": {
+        "de": "Ruheleistung",
+        "ru": "Спокойное пособие",
+        "en": "Standby power",
+        "th": "ผลประโยชน์เงียบสงบ",
+        "uk": "Вигода у спокої"
+      }
+    },
+    {
+      "type": "Type",
+      "descriptions": {
+        "de": "Typ",
+        "ru": "Тип",
+        "en": "Type",
+        "th": "ชนิด",
+        "uk": "Тип"
+      },
+      "names": {
+        "de": "Typ",
+        "ru": "Тип",
+        "en": "Type",
+        "th": "ชนิด",
+        "uk": "Тип"
+      }
+    },
+    {
+      "type": "Year of Construction",
+      "descriptions": {
+        "de": "Baujahr",
+        "ru": "Год постройки",
+        "en": "Year of Construction",
+        "th": "ปีก่อสร้าง",
+        "uk": "Рік будівництва"
+      },
+      "names": {
+        "de": "Baujahr",
+        "ru": "Год постройки",
+        "en": "Year of Construction",
+        "th": "ปีก่อสร้าง",
+        "uk": "Рік будівництва"
+      }
+    }
+  ]
+}

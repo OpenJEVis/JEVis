@@ -6,11 +6,11 @@ import org.jevis.api.JEVisType;
 
 import java.util.Map;
 
-public class MeterRow {
+public class RegisterTableRow {
     private JEVisObject object;
     private Map<JEVisType, JEVisAttribute> attributeMap;
 
-    public MeterRow(Map<JEVisType, JEVisAttribute> attributeMap, JEVisObject object) {
+    public RegisterTableRow(Map<JEVisType, JEVisAttribute> attributeMap, JEVisObject object) {
         this.object = object;
         this.attributeMap = attributeMap;
     }

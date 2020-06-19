@@ -16,16 +16,7 @@
   ],
   "types": [
     {
-      "name": "Measurement Type",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
-      "name": "Measurment Type",
+      "name": "Measurement",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 0,
@@ -70,7 +61,7 @@
       "jevisClass": "Pantry Equipment"
     },
     {
-      "name": "Type or Name",
+      "name": "Type",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 0,

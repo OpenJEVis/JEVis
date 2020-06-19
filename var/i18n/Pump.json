@@ -2,221 +2,153 @@
   "jevisclass": "Pump",
   "names": {
     "de": "Pumpe",
-    "ru": "Pump",
-    "en": "Pump"
+    "ru": "насос",
+    "en": "Pump",
+    "th": "ปั๊ม",
+    "uk": "насос"
   },
   "descriptions": {
-    "de": "The class Pump contains data of the building equipment pump. Attributes of the class include a complete description of the specific energy data of the pump. ",
-    "ru": "The class Pump contains data of the building equipment pump. Attributes of the class include a complete description of the specific energy data of the pump. ",
-    "en": "The class Pump contains data of the building equipment pump. Attributes of the class include a complete description of the specific energy data of the pump. "
+    "de": "Die Klasse Pumpe enthält Daten der Gebäudeausrüstung Pumpe. Zu den Attributen der Klasse gehört eine vollständige Beschreibung der spezifischen Energiedaten der Pumpe.",
+    "ru": "Класс насоса содержит данные о насосостроении. Атрибуты класса включают в себя полное описание данных конкретной энергии насоса.",
+    "en": "The class Pump contains data of the building equipment pump. Attributes of the class include a complete description of the specific energy data of the pump.",
+    "th": "คลาสปั๊มมีข้อมูลของอุปกรณ์สร้างปั๊ม คุณลักษณะของคลาสรวมถึงคำอธิบายแบบเต็มของข้อมูลพลังงานเฉพาะของปั๊ม",
+    "uk": "Клас насоса містить дані обладнання насосного будівництва. Атрибути класу включають повний опис конкретних енергетичних даних насоса."
   },
   "types": [
     {
-      "type": "Daily Operating Hours",
-      "descriptions": {
-        "de": "Daily Operating Hours description",
-        "ru": "Daily Operating Hours description",
-        "en": "Daily Operating Hours description"
-      },
-      "names": {
-        "de": "Daily Operating Hours",
-        "ru": "Daily Operating Hours",
-        "en": "Daily Operating Hours"
-      }
-    },
-    {
       "type": "Domain",
       "descriptions": {
-        "de": "Domain description",
-        "ru": "Domain description",
-        "en": "Domain description"
+        "de": "der Bereich, den die Wärmeerzeugungsanlage mit Wärme versorgt",
+        "ru": "область, которую теплогенератор снабжает теплом",
+        "en": "Domain, which is served heat by the heat generator",
+        "th": "บริเวณที่เครื่องกำเนิดความร้อนมีความร้อน",
+        "uk": "область, яку теплогенератор постачає теплом"
       },
       "names": {
-        "de": "Domain",
-        "ru": "Domain",
-        "en": "Domain"
-      }
-    },
-    {
-      "type": "Energy Source",
-      "descriptions": {
-        "de": "Energy Source description",
-        "ru": "Energy Source description",
-        "en": "Energy Source description"
-      },
-      "names": {
-        "de": "Energy Source",
-        "ru": "Energy Source",
-        "en": "Energy Source"
+        "de": "Bereich",
+        "ru": "область",
+        "en": "Domain",
+        "th": "พื้นที่",
+        "uk": "область"
       }
     },
     {
       "type": "Frequency Converter or Stepped",
       "descriptions": {
-        "de": "Frequency Converter or Stepped description",
-        "ru": "Frequency Converter or Stepped description",
-        "en": "Frequency Converter or Stepped description"
+        "de": "Frequenzkonverter oder Stufenkonverter",
+        "ru": "Преобразователь частоты или ступенчатый преобразователь",
+        "en": "Frequency Converter or Stepped",
+        "th": "ตัวแปลงความถี่หรือตัวแปลงขั้นตอน",
+        "uk": "Перетворювач частоти або перехідний ступінь"
       },
       "names": {
-        "de": "Frequency Converter or Stepped",
-        "ru": "Frequency Converter or Stepped",
-        "en": "Frequency Converter or Stepped"
-      }
-    },
-    {
-      "type": "Manufacturer",
-      "descriptions": {
-        "de": "Manufacturer description",
-        "ru": "Manufacturer description",
-        "en": "Manufacturer description"
-      },
-      "names": {
-        "de": "Manufacturer",
-        "ru": "Manufacturer",
-        "en": "Manufacturer"
-      }
-    },
-    {
-      "type": "Measuring Point",
-      "descriptions": {
-        "de": "Measuring Point description",
-        "ru": "Measuring Point description",
-        "en": "Measuring Point description"
-      },
-      "names": {
-        "de": "Measuring Point",
-        "ru": "Measuring Point",
-        "en": "Measuring Point"
-      }
-    },
-    {
-      "type": "Nominal Power",
-      "descriptions": {
-        "de": "Nominal Power description",
-        "ru": "Nominal Power description",
-        "en": "Nominal Power description"
-      },
-      "names": {
-        "de": "Nominal Power",
-        "ru": "Nominal Power",
-        "en": "Nominal Power"
+        "de": "Frequenzkonverter oder Stufenkonverter",
+        "ru": "Преобразователь частоты или ступенчатый преобразователь",
+        "en": "Frequency Converter or Stepped",
+        "th": "ตัวแปลงความถี่หรือตัวแปลงขั้นตอน",
+        "uk": "Перетворювач частоти або перехідний ступінь"
       }
     },
     {
       "type": "Nominal Power Step 1",
       "descriptions": {
-        "de": "Nominal Power Step 1 description",
-        "ru": "Nominal Power Step 1 description",
-        "en": "Nominal Power Step 1 description"
+        "de": "Leistung Stufe 1",
+        "ru": "Уровень производительности 1",
+        "en": "Nominal Power Step 1",
+        "th": "ระดับประสิทธิภาพ 1",
+        "uk": "Рівень продуктивності 1"
       },
       "names": {
-        "de": "Nominal Power Step 1",
-        "ru": "Nominal Power Step 1",
-        "en": "Nominal Power Step 1"
+        "de": "Leistung Stufe 1",
+        "ru": "Уровень производительности 1",
+        "en": "Nominal Power Step 1",
+        "th": "ระดับประสิทธิภาพ 1",
+        "uk": "Рівень продуктивності 1"
       }
     },
     {
       "type": "Nominal Power Step 2",
       "descriptions": {
-        "de": "Nominal Power Step 2 description",
-        "ru": "Nominal Power Step 2 description",
-        "en": "Nominal Power Step 2 description"
+        "de": "Leistung Stufe 2",
+        "ru": "Уровень производительности 2",
+        "en": "Nominal Power Step 2",
+        "th": "ระดับประสิทธิภาพ 2",
+        "uk": "Рівень продуктивності 2"
       },
       "names": {
-        "de": "Nominal Power Step 2",
-        "ru": "Nominal Power Step 2",
-        "en": "Nominal Power Step 2"
+        "de": "Leistung Stufe 2",
+        "ru": "Уровень производительности 2",
+        "en": "Nominal Power Step 2",
+        "th": "ระดับประสิทธิภาพ 2",
+        "uk": "Рівень продуктивності 2"
       }
     },
     {
       "type": "Nominal Power Step 3",
       "descriptions": {
-        "de": "Nominal Power Step 3 description",
-        "ru": "Nominal Power Step 3 description",
-        "en": "Nominal Power Step 3 description"
+        "de": "Leistung Stufe 3",
+        "ru": "Уровень производительности 3",
+        "en": "Nominal Power Step 3",
+        "th": "ระดับประสิทธิภาพ 3",
+        "uk": "Рівень продуктивності 3"
       },
       "names": {
-        "de": "Nominal Power Step 3",
-        "ru": "Nominal Power Step 3",
-        "en": "Nominal Power Step 3"
+        "de": "Leistung Stufe 3",
+        "ru": "Уровень производительности 3",
+        "en": "Nominal Power Step 3",
+        "th": "ระดับประสิทธิภาพ 3",
+        "uk": "Рівень продуктивності 3"
       }
     },
     {
       "type": "Standby Consumption",
       "descriptions": {
-        "de": "Standby Consumption description",
-        "ru": "Standby Consumption description",
-        "en": "Standby Consumption description"
+        "de": "Ruheleistung",
+        "ru": "Спокойное пособие",
+        "en": "Standby power",
+        "th": "ผลประโยชน์เงียบสงบ",
+        "uk": "Вигода у спокої"
       },
       "names": {
-        "de": "Standby Consumption",
-        "ru": "Standby Consumption",
-        "en": "Standby Consumption"
+        "de": "Ruheleistung",
+        "ru": "Спокойное пособие",
+        "en": "Standby power",
+        "th": "ผลประโยชน์เงียบสงบ",
+        "uk": "Вигода у спокої"
       }
     },
     {
       "type": "Type",
       "descriptions": {
-        "de": "Type description",
-        "ru": "Type description",
-        "en": "Type description"
+        "de": "Typ",
+        "ru": "Тип",
+        "en": "Type",
+        "th": "ชนิด",
+        "uk": "Тип"
       },
       "names": {
-        "de": "Type",
-        "ru": "Type",
-        "en": "Type"
-      }
-    },
-    {
-      "type": "Weighting Factor",
-      "descriptions": {
-        "de": "Weighting Factor description",
-        "ru": "Weighting Factor description",
-        "en": "Weighting Factor description"
-      },
-      "names": {
-        "de": "Weighting Factor",
-        "ru": "Weighting Factor",
-        "en": "Weighting Factor"
-      }
-    },
-    {
-      "type": "Work Weeks",
-      "descriptions": {
-        "de": "Work Weeks description",
-        "ru": "Work Weeks description",
-        "en": "Work Weeks description"
-      },
-      "names": {
-        "de": "Work Weeks",
-        "ru": "Work Weeks",
-        "en": "Work Weeks"
-      }
-    },
-    {
-      "type": "Working Days",
-      "descriptions": {
-        "de": "Working Days description",
-        "ru": "Working Days description",
-        "en": "Working Days description"
-      },
-      "names": {
-        "de": "Working Days",
-        "ru": "Working Days",
-        "en": "Working Days"
+        "de": "Typ",
+        "ru": "Тип",
+        "en": "Type",
+        "th": "ชนิด",
+        "uk": "Тип"
       }
     },
     {
       "type": "Year of Construction",
       "descriptions": {
-        "de": "Year of Construction description",
-        "ru": "Year of Construction description",
-        "en": "Year of Construction description"
+        "de": "Baujahr",
+        "ru": "Год постройки",
+        "en": "Year of Construction",
+        "th": "ปีก่อสร้าง",
+        "uk": "Рік будівництва"
       },
       "names": {
-        "de": "Year of Construction",
-        "ru": "Year of Construction",
-        "en": "Year of Construction"
+        "de": "Baujahr",
+        "ru": "Год постройки",
+        "en": "Year of Construction",
+        "th": "ปีก่อสร้าง",
+        "uk": "Рік будівництва"
       }
     }
   ]
