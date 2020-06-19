@@ -61,7 +61,7 @@
       "jevisClass": "Recooler or Condenser"
     },
     {
-      "name": "Year of Construction and Serial Number",
+      "name": "Year and Serial Number",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 0,

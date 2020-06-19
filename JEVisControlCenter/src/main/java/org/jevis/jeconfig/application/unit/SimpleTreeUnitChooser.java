@@ -86,7 +86,7 @@ public class SimpleTreeUnitChooser {
         Button cancel = new Button(I18n.getInstance().getString("plugin.units.baseunit.cancel"));
         cancel.setCancelButton(true);
 
-        uTree = new UnitTree(ds);
+        UnitTree uTree = new UnitTree(ds);
         uTree.setPrefSize(550, 600);
 
         VBox box = new VBox();
@@ -101,11 +101,13 @@ public class SimpleTreeUnitChooser {
         root.getChildren().setAll(header, new Separator(Orientation.HORIZONTAL), box, buttonPanel);
 
         ok.setOnAction(t -> {
+            if (uTree.getSelectedObject() != null) {
 //                logger.info("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
-            response = Response.YES;
-            logger.info("UnitTree.OK: " + uTree.getSelectedObject().getUnit());
-            _unit = uTree.getSelectedObject().getUnit();
-            stage.close();
+                response = Response.YES;
+                logger.info("UnitTree.OK: " + uTree.getSelectedObject().getUnit());
+                _unit = uTree.getSelectedObject().getUnit();
+                stage.close();
+            }
 
         });
 
@@ -137,7 +139,6 @@ public class SimpleTreeUnitChooser {
 
     private Response response = Response.CANCEL;
 
-    private UnitTree uTree;
     private JEVisUnit _unit = new JEVisUnitImp(Unit.ONE);
 
     public SimpleTreeUnitChooser() {

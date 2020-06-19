@@ -1,365 +1,341 @@
 {
   "jevisclass": "HVAC System Simplified",
   "names": {
-    "de": "HVAC System Simplified",
-    "ru": "HVAC System Simplified",
-    "en": "HVAC System Simplified"
+    "de": "Heizung Lüftung Klimatisierung vereinfacht",
+    "ru": "Отопление, вентиляция, кондиционирование воздуха упрощены",
+    "en": "HVAC System Simplified",
+    "th": "เครื่องทำความร้อนระบายอากาศได้ง่ายขึ้น",
+    "uk": "Опалення вентиляційного кондиціонера спрощено"
   },
   "descriptions": {
-    "de": "The class HVAC System Simplified contains data of the building equipment HVAC. Attributes of the class include a complete description of the specific HVAC.",
-    "ru": "The class HVAC System Simplified contains data of the building equipment HVAC. Attributes of the class include a complete description of the specific HVAC.",
-    "en": "The class HVAC System Simplified contains data of the building equipment HVAC. Attributes of the class include a complete description of the specific HVAC."
+    "de": "Die Klasse Heizung Lüftung Klimatisierung vereinfacht enthält Daten der Heizung, Lüftung und Klimatisierung der Gebäudeausrüstung. Zu den Attributen der Klasse gehört eine vollständige Beschreibung der spezifischen Heizung, Lüftung und Klimatisierung.",
+    "ru": "Класс отопления, вентиляции, кондиционирования воздуха упрощенного типа содержит данные по отоплению, вентиляции и кондиционированию строительного оборудования. Атрибуты класса включают в себя полное описание конкретного отопления, вентиляции и кондиционирования воздуха.",
+    "en": "The class HVAC System Simplified contains data of the building equipment HVAC. Attributes of the class include a complete description of the specific HVAC.",
+    "th": "เครื่องทำความร้อนระบายอากาศในชั้นเรียนประกอบด้วยข้อมูลการทำความร้อนการระบายอากาศและการปรับอากาศของอุปกรณ์ในอาคาร คุณลักษณะของคลาสประกอบด้วยคำอธิบายแบบเต็มของการทำความร้อนการระบายอากาศและการปรับอากาศเฉพาะ",
+    "uk": "Спрощений кондиціонер опалення вентиляції класу містить дані про опалення, вентиляцію та кондиціонування будівельного обладнання. Атрибути класу включають повний опис конкретного опалення, вентиляції та кондиціонування."
   },
   "types": [
     {
       "type": "Cooling set point Period Spring",
       "descriptions": {
-        "de": "Cooling set point Period Spring description",
-        "ru": "Cooling set point Period Spring description",
-        "en": "Cooling set point Period Spring description"
+        "de": "Kühlsollwert Zeitraum Frühling",
+        "ru": "Весна заданного периода охлаждения",
+        "en": "Cooling set point Period Spring",
+        "th": "ชุดทำความเย็นสำหรับสปริงจุดพัก",
+        "uk": "Весна періоду охолодження"
       },
       "names": {
-        "de": "Cooling set point Period Spring",
-        "ru": "Cooling set point Period Spring",
-        "en": "Cooling set point Period Spring"
+        "de": "Kühlsollwert Zeitraum Frühling",
+        "ru": "Весна заданного периода охлаждения",
+        "en": "Cooling set point Period Spring",
+        "th": "ชุดทำความเย็นสำหรับสปริงจุดพัก",
+        "uk": "Весна періоду охолодження"
       }
     },
     {
       "type": "Cooling set point Period Summer",
       "descriptions": {
-        "de": "Cooling set point Period Summer description",
-        "ru": "Cooling set point Period Summer description",
-        "en": "Cooling set point Period Summer description"
+        "de": "Kühlsollwert Zeitraum Sommer",
+        "ru": "Охлаждение заданного периода летом",
+        "en": "Cooling set point Period Summer",
+        "th": "ช่วงฤดูร้อนที่เย็นลง",
+        "uk": "Охолодження в період літа"
       },
       "names": {
-        "de": "Cooling set point Period Summer",
-        "ru": "Cooling set point Period Summer",
-        "en": "Cooling set point Period Summer"
+        "de": "Kühlsollwert Zeitraum Sommer",
+        "ru": "Охлаждение заданного периода летом",
+        "en": "Cooling set point Period Summer",
+        "th": "ช่วงฤดูร้อนที่เย็นลง",
+        "uk": "Охолодження в період літа"
       }
     },
     {
       "type": "Cooling set point Period Winter",
       "descriptions": {
-        "de": "Cooling set point Period Winter description",
-        "ru": "Cooling set point Period Winter description",
-        "en": "Cooling set point Period Winter description"
+        "de": "Kühlsollwert Zeitraum Winter",
+        "ru": "Охлаждение заданного периода зимы",
+        "en": "Cooling set point Period Winter",
+        "th": "ช่วงฤดูหนาว",
+        "uk": "Охолодження в заданий період зими"
       },
       "names": {
-        "de": "Cooling set point Period Winter",
-        "ru": "Cooling set point Period Winter",
-        "en": "Cooling set point Period Winter"
-      }
-    },
-    {
-      "type": "Daily Operating Hours",
-      "descriptions": {
-        "de": "Daily Operating Hours description",
-        "ru": "Daily Operating Hours description",
-        "en": "Daily Operating Hours description"
-      },
-      "names": {
-        "de": "Daily Operating Hours",
-        "ru": "Daily Operating Hours",
-        "en": "Daily Operating Hours"
+        "de": "Kühlsollwert Zeitraum Winter",
+        "ru": "Охлаждение заданного периода зимы",
+        "en": "Cooling set point Period Winter",
+        "th": "ช่วงฤดูหนาว",
+        "uk": "Охолодження в заданий період зими"
       }
     },
     {
       "type": "Dehumidification set point Period Spring",
       "descriptions": {
-        "de": "Dehumidification set point Period Spring description",
-        "ru": "Dehumidification set point Period Spring description",
-        "en": "Dehumidification set point Period Spring description"
+        "de": "Entfeuchtungssollwert Zeitraum Frühling",
+        "ru": "Пружинное заданное значение осушения",
+        "en": "Dehumidification set point Period Spring",
+        "th": "จุดลดความชื้นฤดูใบไม้ผลิ",
+        "uk": "Встановлене значення весняного осушення"
       },
       "names": {
-        "de": "Dehumidification set point Period Spring",
-        "ru": "Dehumidification set point Period Spring",
-        "en": "Dehumidification set point Period Spring"
+        "de": "Entfeuchtungssollwert Zeitraum Frühling",
+        "ru": "Пружинное заданное значение осушения",
+        "en": "Dehumidification set point Period Spring",
+        "th": "จุดลดความชื้นฤดูใบไม้ผลิ",
+        "uk": "Встановлене значення весняного осушення"
       }
     },
     {
       "type": "Dehumidification set point Period Summer",
       "descriptions": {
-        "de": "Dehumidification set point Period Summer description",
-        "ru": "Dehumidification set point Period Summer description",
-        "en": "Dehumidification set point Period Summer description"
+        "de": "Entfeuchtungssollwert Zeitraum Sommer",
+        "ru": "Осушение заданное значение периода лето",
+        "en": "Dehumidification set point Period Summer",
+        "th": "ลดความชื้นช่วงเวลาที่กำหนดฤดูร้อน",
+        "uk": "Осушувальний заданий період влітку"
       },
       "names": {
-        "de": "Dehumidification set point Period Summer",
-        "ru": "Dehumidification set point Period Summer",
-        "en": "Dehumidification set point Period Summer"
+        "de": "Entfeuchtungssollwert Zeitraum Sommer",
+        "ru": "Осушение заданное значение периода лето",
+        "en": "Dehumidification set point Period Summer",
+        "th": "ลดความชื้นช่วงเวลาที่กำหนดฤดูร้อน",
+        "uk": "Осушувальний заданий період влітку"
       }
     },
     {
       "type": "Dehumidification set point Period Winter",
       "descriptions": {
-        "de": "Dehumidification set point Period Winter description",
-        "ru": "Dehumidification set point Period Winter description",
-        "en": "Dehumidification set point Period Winter description"
+        "de": "Entfeuchtungssollwert Zeitraum Winter",
+        "ru": "Осушение заданного периода зимы",
+        "en": "Dehumidification set point Period Winter",
+        "th": "ลดความชื้นกำหนดช่วงฤดูหนาว",
+        "uk": "Осушення в заданий період зими"
       },
       "names": {
-        "de": "Dehumidification set point Period Winter",
-        "ru": "Dehumidification set point Period Winter",
-        "en": "Dehumidification set point Period Winter"
+        "de": "Entfeuchtungssollwert Zeitraum Winter",
+        "ru": "Осушение заданного периода зимы",
+        "en": "Dehumidification set point Period Winter",
+        "th": "ลดความชื้นกำหนดช่วงฤดูหนาว",
+        "uk": "Осушення в заданий період зими"
       }
     },
     {
       "type": "End Date Heating Period Spring",
       "descriptions": {
-        "de": "End Date Heating Period Spring description",
-        "ru": "End Date Heating Period Spring description",
-        "en": "End Date Heating Period Spring description"
+        "de": "Enddatum Heizperiode Frühling",
+        "ru": "Дата окончания нагрева пружины",
+        "en": "End Date Heating Period Spring",
+        "th": "วันที่ทำความร้อนของฤดูใบไม้ผลิ",
+        "uk": "Дата закінчення весняного опалення"
       },
       "names": {
-        "de": "End Date Heating Period Spring",
-        "ru": "End Date Heating Period Spring",
-        "en": "End Date Heating Period Spring"
+        "de": "Enddatum Heizperiode Frühling",
+        "ru": "Дата окончания нагрева пружины",
+        "en": "End Date Heating Period Spring",
+        "th": "วันที่ทำความร้อนของฤดูใบไม้ผลิ",
+        "uk": "Дата закінчення весняного опалення"
       }
     },
     {
       "type": "End Date Heating Period Winter",
       "descriptions": {
-        "de": "End Date Heating Period Winter description",
-        "ru": "End Date Heating Period Winter description",
-        "en": "End Date Heating Period Winter description"
+        "de": "Enddatum Heizperiode Winter",
+        "ru": "Дата окончания отопительного сезона зима",
+        "en": "End Date Heating Period Winter",
+        "th": "สิ้นสุดวันที่ฤดูร้อนฤดูหนาว",
+        "uk": "Дата закінчення опалювального сезону зима"
       },
       "names": {
-        "de": "End Date Heating Period Winter",
-        "ru": "End Date Heating Period Winter",
-        "en": "End Date Heating Period Winter"
-      }
-    },
-    {
-      "type": "Energy Source",
-      "descriptions": {
-        "de": "Energy Source description",
-        "ru": "Energy Source description",
-        "en": "Energy Source description"
-      },
-      "names": {
-        "de": "Energy Source",
-        "ru": "Energy Source",
-        "en": "Energy Source"
+        "de": "Enddatum Heizperiode Winter",
+        "ru": "Дата окончания отопительного сезона зима",
+        "en": "End Date Heating Period Winter",
+        "th": "สิ้นสุดวันที่ฤดูร้อนฤดูหนาว",
+        "uk": "Дата закінчення опалювального сезону зима"
       }
     },
     {
       "type": "Heat Recovery",
       "descriptions": {
-        "de": "Heat Recovery description",
-        "ru": "Heat Recovery description",
-        "en": "Heat Recovery description"
+        "de": "Wärmerückgewinnung",
+        "ru": "Рекуперация тепла",
+        "en": "Heat Recovery",
+        "th": "นำความร้อนกลับคืน",
+        "uk": "Відновлення тепла"
       },
       "names": {
-        "de": "Heat Recovery",
-        "ru": "Heat Recovery",
-        "en": "Heat Recovery"
+        "de": "Wärmerückgewinnung",
+        "ru": "Рекуперация тепла",
+        "en": "Heat Recovery",
+        "th": "นำความร้อนกลับคืน",
+        "uk": "Відновлення тепла"
       }
     },
     {
       "type": "Heat Recovery Efficiency",
       "descriptions": {
-        "de": "Heat Recovery Efficiency description",
-        "ru": "Heat Recovery Efficiency description",
-        "en": "Heat Recovery Efficiency description"
+        "de": "Wärmerückgewinnung Effizienz",
+        "ru": "Эффективность рекуперации тепла",
+        "en": "Heat Recovery Efficiency",
+        "th": "ประสิทธิภาพการคืนความร้อน",
+        "uk": "Ефективність відновлення тепла"
       },
       "names": {
-        "de": "Heat Recovery Efficiency",
-        "ru": "Heat Recovery Efficiency",
-        "en": "Heat Recovery Efficiency"
+        "de": "Wärmerückgewinnung Effizienz",
+        "ru": "Эффективность рекуперации тепла",
+        "en": "Heat Recovery Efficiency",
+        "th": "ประสิทธิภาพการคืนความร้อน",
+        "uk": "Ефективність відновлення тепла"
       }
     },
     {
       "type": "Heating Cooling",
       "descriptions": {
-        "de": "Heating Cooling description",
-        "ru": "Heating Cooling description",
-        "en": "Heating Cooling description"
+        "de": "Heizung Kühlung",
+        "ru": "Отопление охлаждениеg",
+        "en": "Heating Cooling",
+        "th": "เครื่องทำความร้อนเย็น",
+        "uk": "Опалення охолодження"
       },
       "names": {
-        "de": "Heating Cooling",
-        "ru": "Heating Cooling",
-        "en": "Heating Cooling"
+        "de": "Heizung Kühlung",
+        "ru": "Отопление охлаждениеg",
+        "en": "Heating Cooling",
+        "th": "เครื่องทำความร้อนเย็น",
+        "uk": "Опалення охолодження"
       }
     },
     {
       "type": "Heating set point Period Spring",
       "descriptions": {
-        "de": "Heating set point Period Spring description",
-        "ru": "Heating set point Period Spring description",
-        "en": "Heating set point Period Spring description"
+        "de": "Heizsollwert Zeitraum Frühling",
+        "ru": "Период уставки нагрева весной",
+        "en": "Heating set point Period Spring",
+        "th": "เครื่องทำความร้อนจุดที่กำหนดระยะเวลาฤดูใบไม้ผลิ",
+        "uk": "Період набору опалення весна"
       },
       "names": {
-        "de": "Heating set point Period Spring",
-        "ru": "Heating set point Period Spring",
-        "en": "Heating set point Period Spring"
+        "de": "Heizsollwert Zeitraum Frühling",
+        "ru": "Период уставки нагрева весной",
+        "en": "Heating set point Period Spring",
+        "th": "เครื่องทำความร้อนจุดที่กำหนดระยะเวลาฤดูใบไม้ผลิ",
+        "uk": "Період набору опалення весна"
       }
     },
     {
       "type": "Heating set point Period Summer",
       "descriptions": {
-        "de": "Heating set point Period Summer description",
-        "ru": "Heating set point Period Summer description",
-        "en": "Heating set point Period Summer description"
+        "de": "Heizsollwert Zeitraum Sommer",
+        "ru": "Отопление заданное время периода лето",
+        "en": "Heating set point Period Summer",
+        "th": "ช่วงฤดูร้อนที่กำหนดช่วงฤดูร้อน",
+        "uk": "Опалення встановленого періоду літо"
       },
       "names": {
-        "de": "Heating set point Period Summer",
-        "ru": "Heating set point Period Summer",
-        "en": "Heating set point Period Summer"
+        "de": "Heizsollwert Zeitraum Sommer",
+        "ru": "Отопление заданное время периода лето",
+        "en": "Heating set point Period Summer",
+        "th": "ช่วงฤดูร้อนที่กำหนดช่วงฤดูร้อน",
+        "uk": "Опалення встановленого періоду літо"
       }
     },
     {
       "type": "Heating set point Period Winter",
       "descriptions": {
-        "de": "Heating set point Period Winter description",
-        "ru": "Heating set point Period Winter description",
-        "en": "Heating set point Period Winter description"
+        "de": "Heizsollwert Zeitraum Winter",
+        "ru": "Уставка отопительного периода зима",
+        "en": "Heating set point Period Winter",
+        "th": "ช่วงฤดูหนาว",
+        "uk": "Період встановлення температури опалення взимку"
       },
       "names": {
-        "de": "Heating set point Period Winter",
-        "ru": "Heating set point Period Winter",
-        "en": "Heating set point Period Winter"
+        "de": "Heizsollwert Zeitraum Winter",
+        "ru": "Уставка отопительного периода зима",
+        "en": "Heating set point Period Winter",
+        "th": "ช่วงฤดูหนาว",
+        "uk": "Період встановлення температури опалення взимку"
       }
     },
     {
       "type": "Heating Temperature",
       "descriptions": {
-        "de": "Heating Temperature description",
-        "ru": "Heating Temperature description",
-        "en": "Heating Temperature description"
+        "de": "Heizungstemperatur",
+        "ru": "Температура нагрева",
+        "en": "Heating Temperature",
+        "th": "อุณหภูมิความร้อน",
+        "uk": "Температура нагріву"
       },
       "names": {
-        "de": "Heating Temperature",
-        "ru": "Heating Temperature",
-        "en": "Heating Temperature"
+        "de": "Heizungstemperatur",
+        "ru": "Температура нагрева",
+        "en": "Heating Temperature",
+        "th": "อุณหภูมิความร้อน",
+        "uk": "Температура нагріву"
       }
     },
     {
       "type": "Humidification set point Period Spring",
       "descriptions": {
-        "de": "Humidification set point Period Spring description",
-        "ru": "Humidification set point Period Spring description",
-        "en": "Humidification set point Period Spring description"
+        "de": "Befeuchtungssollwert Zeitraum Frühling",
+        "ru": "Период уставки увлажнения весной",
+        "en": "Humidification set point Period Spring",
+        "th": "ฤดูใบไม้ผลิจุดพักความชื้น",
+        "uk": "Зволоження періоду заданої весни"
       },
       "names": {
-        "de": "Humidification set point Period Spring",
-        "ru": "Humidification set point Period Spring",
-        "en": "Humidification set point Period Spring"
+        "de": "Befeuchtungssollwert Zeitraum Frühling",
+        "ru": "Период уставки увлажнения весной",
+        "en": "Humidification set point Period Spring",
+        "th": "ฤดูใบไม้ผลิจุดพักความชื้น",
+        "uk": "Зволоження періоду заданої весни"
       }
     },
     {
       "type": "Humidification set point Period Summer",
       "descriptions": {
-        "de": "Humidification set point Period Summer description",
-        "ru": "Humidification set point Period Summer description",
-        "en": "Humidification set point Period Summer description"
+        "de": "Befeuchtungssollwert Zeitraum Sommer",
+        "ru": "Период увлажнения заданный период лета",
+        "en": "Humidification set point Period Summer",
+        "th": "ช่วงฤดูร้อนความชื้นกำหนด",
+        "uk": "Зволоження заданого періоду літо"
       },
       "names": {
-        "de": "Humidification set point Period Summer",
-        "ru": "Humidification set point Period Summer",
-        "en": "Humidification set point Period Summer"
+        "de": "Befeuchtungssollwert Zeitraum Sommer",
+        "ru": "Период увлажнения заданный период лета",
+        "en": "Humidification set point Period Summer",
+        "th": "ช่วงฤดูร้อนความชื้นกำหนด",
+        "uk": "Зволоження заданого періоду літо"
       }
     },
     {
       "type": "Humidification set point Period Winter",
       "descriptions": {
-        "de": "Humidification set point Period Winter description",
-        "ru": "Humidification set point Period Winter description",
-        "en": "Humidification set point Period Winter description"
+        "de": "Befeuchtungssollwert Zeitraum Winter",
+        "ru": "Увлажнение заданного периода зимы",
+        "en": "Humidification set point Period Winter",
+        "th": "ช่วงฤดูหนาวความชื้นกำหนด",
+        "uk": "Зволоження заданого періоду взимку"
       },
       "names": {
-        "de": "Humidification set point Period Winter",
-        "ru": "Humidification set point Period Winter",
-        "en": "Humidification set point Period Winter"
-      }
-    },
-    {
-      "type": "Manufacturer",
-      "descriptions": {
-        "de": "Manufacturer description",
-        "ru": "Manufacturer description",
-        "en": "Manufacturer description"
-      },
-      "names": {
-        "de": "Manufacturer",
-        "ru": "Manufacturer",
-        "en": "Manufacturer"
-      }
-    },
-    {
-      "type": "Measuring Point",
-      "descriptions": {
-        "de": "Measuring Point description",
-        "ru": "Measuring Point description",
-        "en": "Measuring Point description"
-      },
-      "names": {
-        "de": "Measuring Point",
-        "ru": "Measuring Point",
-        "en": "Measuring Point"
-      }
-    },
-    {
-      "type": "Nominal Power",
-      "descriptions": {
-        "de": "Nominal Power description",
-        "ru": "Nominal Power description",
-        "en": "Nominal Power description"
-      },
-      "names": {
-        "de": "Nominal Power",
-        "ru": "Nominal Power",
-        "en": "Nominal Power"
+        "de": "Befeuchtungssollwert Zeitraum Winter",
+        "ru": "Увлажнение заданного периода зимы",
+        "en": "Humidification set point Period Winter",
+        "th": "ช่วงฤดูหนาวความชื้นกำหนด",
+        "uk": "Зволоження заданого періоду взимку"
       }
     },
     {
       "type": "Start Date Heating Period Winter",
       "descriptions": {
-        "de": "Start Date Heating Period Winter description",
-        "ru": "Start Date Heating Period Winter description",
-        "en": "Start Date Heating Period Winter description"
+        "de": "Startdatum Heizperiode Winter",
+        "ru": "Дата начала отопительного сезона зима",
+        "en": "Start Date Heating Period Winter",
+        "th": "วันที่เริ่มฤดูร้อนฤดูหนาว",
+        "uk": "Дата початку опалювального сезону зима"
       },
       "names": {
-        "de": "Start Date Heating Period Winter",
-        "ru": "Start Date Heating Period Winter",
-        "en": "Start Date Heating Period Winter"
-      }
-    },
-    {
-      "type": "Weighting Factor",
-      "descriptions": {
-        "de": "Weighting Factor description",
-        "ru": "Weighting Factor description",
-        "en": "Weighting Factor description"
-      },
-      "names": {
-        "de": "Weighting Factor",
-        "ru": "Weighting Factor",
-        "en": "Weighting Factor"
-      }
-    },
-    {
-      "type": "Work Weeks",
-      "descriptions": {
-        "de": "Work Weeks description",
-        "ru": "Work Weeks description",
-        "en": "Work Weeks description"
-      },
-      "names": {
-        "de": "Work Weeks",
-        "ru": "Work Weeks",
-        "en": "Work Weeks"
-      }
-    },
-    {
-      "type": "Working Days",
-      "descriptions": {
-        "de": "Working Days description",
-        "ru": "Working Days description",
-        "en": "Working Days description"
-      },
-      "names": {
-        "de": "Working Days",
-        "ru": "Working Days",
-        "en": "Working Days"
+        "de": "Startdatum Heizperiode Winter",
+        "ru": "Дата начала отопительного сезона зима",
+        "en": "Start Date Heating Period Winter",
+        "th": "วันที่เริ่มฤดูร้อนฤดูหนาว",
+        "uk": "Дата початку опалювального сезону зима"
       }
     }
   ]

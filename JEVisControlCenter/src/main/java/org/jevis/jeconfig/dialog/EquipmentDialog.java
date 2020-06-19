@@ -24,19 +24,19 @@ import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MeterDialog {
-    private static final Logger logger = LogManager.getLogger(MeterDialog.class);
+public class EquipmentDialog {
+    private static final Logger logger = LogManager.getLogger(EquipmentDialog.class);
     private final JEVisClass jeVisClass;
     private final List<JEVisClass> possibleParents = new ArrayList<>();
     private final JEVisDataSource ds;
+    private final List<AttributeEditor> attributeEditors = new ArrayList<>();
     private Response response;
     private Stage stage;
     private GridPane gp;
     private JEVisObject newObject;
-    private final List<AttributeEditor> attributeEditors = new ArrayList<>();
     private String name;
 
-    public MeterDialog(JEVisDataSource ds, JEVisClass jeVisClass) {
+    public EquipmentDialog(JEVisDataSource ds, JEVisClass jeVisClass) {
         this.ds = ds;
         this.jeVisClass = jeVisClass;
 
@@ -46,10 +46,8 @@ public class MeterDialog {
 
                 for (JEVisClassRelationship jeVisClassRelationship : relationships) {
                     if (jeVisClassRelationship.getStart() != null && jeVisClassRelationship.getEnd() != null) {
-                        if (jeVisClassRelationship.getStart() != null && jeVisClassRelationship.getEnd() != null) {
-                            if (jeVisClassRelationship.getStart().equals(jeVisClass) && jeVisClassRelationship.getEnd().equals(aClass)) {
-                                possibleParents.add(aClass);
-                            }
+                        if (jeVisClassRelationship.getStart().equals(jeVisClass) && jeVisClassRelationship.getEnd().equals(aClass)) {
+                            possibleParents.add(aClass);
                         }
                     }
                 }
@@ -130,11 +128,17 @@ public class MeterDialog {
         VBox.setVgrow(gp, Priority.ALWAYS);
         VBox.setVgrow(buttonRow, Priority.NEVER);
         vBox.setFillWidth(true);
-        vBox.getChildren().setAll(DialogHeader.getDialogHeader("measurement_instrument.png", I18n.getInstance().getString("plugin.meters.title")), targetBox, gp, sep1, buttonRow);
+        vBox.getChildren().setAll(DialogHeader.getDialogHeader("building_equipment.png", I18n.getInstance().getString("plugin.equipment.title")), targetBox, gp, sep1, buttonRow);
 
         treeButton.setOnAction(event -> {
             List<JEVisTreeFilter> allFilter = new ArrayList<>();
-            JEVisTreeFilter allCurrentClassFilter = SelectTargetDialog.buildMultiClassFilter(jeVisClass, possibleParents);
+            JEVisClass first = jeVisClass;
+            if (possibleParents.size() > 0) {
+                first = possibleParents.get(0);
+                possibleParents.remove(first);
+            }
+
+            JEVisTreeFilter allCurrentClassFilter = SelectTargetDialog.buildMultiClassFilter(first, possibleParents);
             allFilter.add(allCurrentClassFilter);
 
             SelectTargetDialog selectTargetDialog = new SelectTargetDialog(allFilter, allCurrentClassFilter, null, SelectionMode.SINGLE);
@@ -272,7 +276,7 @@ public class MeterDialog {
         VBox.setVgrow(gp, Priority.ALWAYS);
         VBox.setVgrow(buttonRow, Priority.NEVER);
         vBox.setFillWidth(true);
-        vBox.getChildren().setAll(DialogHeader.getDialogHeader("measurement_instrument.png", I18n.getInstance().getString("plugin.meters.title")), targetBox, gp, sep1, buttonRow);
+        vBox.getChildren().setAll(DialogHeader.getDialogHeader("building_equipment.png", I18n.getInstance().getString("plugin.equipment.title")), targetBox, gp, sep1, buttonRow);
 
         newObject = selectedMeter;
         updateGrid();

@@ -1,0 +1,19 @@
+{
+  "name": "Equipment Plugin",
+  "description": "",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "Equipment Plugin",
+      "end": "Control Center",
+      "type": 3
+    },
+    {
+      "start": "Equipment Plugin",
+      "end": "Control Center Plugin",
+      "type": 0
+    }
+  ],
+  "types": [
+  ]
+}

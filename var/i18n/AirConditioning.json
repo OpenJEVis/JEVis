@@ -2,118 +2,18 @@
   "jevisclass": "Air Conditioning",
   "names": {
     "de": "Klimaanlage",
-    "ru": "Air Conditioning",
-    "en": "Air Conditioning"
+    "ru": "кондиционер",
+    "en": "Air Conditioning",
+    "th": "เครื่องปรับอากาศ",
+    "uk": "кондиціонер"
   },
   "descriptions": {
-    "de": "The class Air Conditioning contains data of the building equipment air condition. Attributes of the class include a complete description of the specific energy data of the air condition. ",
-    "ru": "The class Air Conditioning contains data of the building equipment air condition. Attributes of the class include a complete description of the specific energy data of the air condition. ",
-    "en": "The class Air Conditioning contains data of the building equipment air condition. Attributes of the class include a complete description of the specific energy data of the air condition. "
+    "de": "Die Klasse Klimaanlage enthält Daten zur Gebäudeausrüstung. Zu den Attributen der Klasse gehört eine vollständige Beschreibung der spezifischen Energiedaten der Klimaanlage.",
+    "ru": "Класс кондиционирования воздуха содержит данные о строительном оборудовании. Атрибуты класса включают в себя полное описание конкретных энергетических данных системы кондиционирования воздуха.",
+    "en": "The class Air Conditioning contains data of the building equipment air condition. Attributes of the class include a complete description of the specific energy data of the air condition. ",
+    "th": "คลาสปรับอากาศมีข้อมูลเกี่ยวกับอุปกรณ์ในอาคาร คุณลักษณะของคลาสประกอบด้วยคำอธิบายแบบเต็มของข้อมูลพลังงานเฉพาะของระบบปรับอากาศ",
+    "uk": "Клас кондиціонування містить дані про будівельне обладнання. Атрибути класу включають повний опис конкретних даних про енергію системи кондиціонування."
   },
   "types": [
-    {
-      "type": "Daily Operating Hours",
-      "descriptions": {
-        "de": "Daily Operating Hours description",
-        "ru": "Daily Operating Hours description",
-        "en": "Daily Operating Hours description"
-      },
-      "names": {
-        "de": "Daily Operating Hours",
-        "ru": "Daily Operating Hours",
-        "en": "Daily Operating Hours"
-      }
-    },
-    {
-      "type": "Energy Source",
-      "descriptions": {
-        "de": "Energy Source description",
-        "ru": "Energy Source description",
-        "en": "Energy Source description"
-      },
-      "names": {
-        "de": "Energy Source",
-        "ru": "Energy Source",
-        "en": "Energy Source"
-      }
-    },
-    {
-      "type": "Manufacturer",
-      "descriptions": {
-        "de": "Manufacturer description",
-        "ru": "Manufacturer description",
-        "en": "Manufacturer description"
-      },
-      "names": {
-        "de": "Manufacturer",
-        "ru": "Manufacturer",
-        "en": "Manufacturer"
-      }
-    },
-    {
-      "type": "Measuring Point",
-      "descriptions": {
-        "de": "Measuring Point description",
-        "ru": "Measuring Point description",
-        "en": "Measuring Point description"
-      },
-      "names": {
-        "de": "Measuring Point",
-        "ru": "Measuring Point",
-        "en": "Measuring Point"
-      }
-    },
-    {
-      "type": "Nominal Power",
-      "descriptions": {
-        "de": "Nominal Power description",
-        "ru": "Nominal Power description",
-        "en": "Nominal Power description"
-      },
-      "names": {
-        "de": "Nominal Power",
-        "ru": "Nominal Power",
-        "en": "Nominal Power"
-      }
-    },
-    {
-      "type": "Weighting Factor",
-      "descriptions": {
-        "de": "Weighting Factor description",
-        "ru": "Weighting Factor description",
-        "en": "Weighting Factor description"
-      },
-      "names": {
-        "de": "Weighting Factor",
-        "ru": "Weighting Factor",
-        "en": "Weighting Factor"
-      }
-    },
-    {
-      "type": "Work Weeks",
-      "descriptions": {
-        "de": "Work Weeks description",
-        "ru": "Work Weeks description",
-        "en": "Work Weeks description"
-      },
-      "names": {
-        "de": "Work Weeks",
-        "ru": "Work Weeks",
-        "en": "Work Weeks"
-      }
-    },
-    {
-      "type": "Working Days",
-      "descriptions": {
-        "de": "Working Days description",
-        "ru": "Working Days description",
-        "en": "Working Days description"
-      },
-      "names": {
-        "de": "Working Days",
-        "ru": "Working Days",
-        "en": "Working Days"
-      }
-    }
   ]
 }

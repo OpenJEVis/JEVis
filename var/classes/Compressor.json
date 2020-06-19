@@ -48,7 +48,7 @@
       "jevisClass": "Compressor"
     },
     {
-      "name": "Normal Operating Preasure",
+      "name": "Normal Operating Pressure",
       "primitiveType": 1,
       "guiType": "Number with Unit",
       "guiposition": 0,

@@ -2,208 +2,136 @@
   "jevisclass": "Compressor",
   "names": {
     "de": "Kompressor",
-    "ru": "Compressor",
-    "en": "Compressor"
+    "ru": "компрессор",
+    "en": "Compressor",
+    "th": "คอมเพรสเซอร์",
+    "uk": "компресор"
   },
   "descriptions": {
-    "de": "The class Compressor contains data of the building equipment compressor. Attributes of the class include a complete description of the specific energy data of the compressor.",
-    "ru": "The class Compressor contains data of the building equipment compressor. Attributes of the class include a complete description of the specific energy data of the compressor.",
-    "en": "The class Compressor contains data of the building equipment compressor. Attributes of the class include a complete description of the specific energy data of the compressor."
+    "de": "Die Klasse Kompressor enthält Daten des Gebäudeausrüstungskompressors. Zu den Attributen der Klasse gehört eine vollständige Beschreibung der spezifischen Energiedaten des Kompressors.",
+    "ru": "Класс компрессора содержит данные от компрессора строительного оборудования. Атрибуты класса включают в себя полное описание конкретных энергетических данных компрессора.",
+    "en": "The class Compressor contains data of the building equipment compressor. Attributes of the class include a complete description of the specific energy data of the compressor.",
+    "th": "คลาสของคอมเพรสเซอร์ประกอบด้วยข้อมูลจากคอมเพรสเซอร์ของอุปกรณ์ในอาคาร คุณลักษณะของคลาสรวมถึงคำอธิบายแบบเต็มของข้อมูลพลังงานเฉพาะของคอมเพรสเซอร์",
+    "uk": "Клас компресорів містить дані компресора будівельного обладнання. Атрибути класу включають повний опис конкретних даних про енергію компресора."
   },
   "types": [
     {
-      "type": "Daily Operating Hours",
-      "descriptions": {
-        "de": "Daily Operating Hours description",
-        "ru": "Daily Operating Hours description",
-        "en": "Daily Operating Hours description"
-      },
-      "names": {
-        "de": "Daily Operating Hours",
-        "ru": "Daily Operating Hours",
-        "en": "Daily Operating Hours"
-      }
-    },
-    {
-      "type": "Energy Source",
-      "descriptions": {
-        "de": "Energy Source description",
-        "ru": "Energy Source description",
-        "en": "Energy Source description"
-      },
-      "names": {
-        "de": "Energy Source",
-        "ru": "Energy Source",
-        "en": "Energy Source"
-      }
-    },
-    {
       "type": "Flow",
       "descriptions": {
-        "de": "Flow description",
-        "ru": "Flow description",
-        "en": "Flow description"
+        "de": "Volumenstrom",
+        "ru": "Объем потока",
+        "en": "Flow",
+        "th": "ปริมาณการไหล",
+        "uk": "Об'ємний потік"
       },
       "names": {
-        "de": "Flow",
-        "ru": "Flow",
-        "en": "Flow"
+        "de": "Volumenstrom",
+        "ru": "Объем потока",
+        "en": "Flow",
+        "th": "ปริมาณการไหล",
+        "uk": "Об'ємний потік"
       }
     },
     {
       "type": "Fuel",
       "descriptions": {
-        "de": "Fuel description",
-        "ru": "Fuel description",
-        "en": "Fuel description"
+        "de": "Treibstoff, mit dem der Kompressor betrieben wird",
+        "ru": "Топливо, с которым работает компрессор",
+        "en": "Fuel which is used to power the compressor",
+        "th": "เชื้อเพลิงที่ใช้กับคอมเพรสเซอร์",
+        "uk": "Паливо, з яким працює компресор"
       },
       "names": {
-        "de": "Fuel",
-        "ru": "Fuel",
-        "en": "Fuel"
+        "de": "Treibstoff",
+        "ru": "топливо",
+        "en": "Fuel",
+        "th": "เชื้อเพลิง",
+        "uk": "пальне"
       }
     },
     {
       "type": "Full Load Speed",
       "descriptions": {
-        "de": "Full Load Speed description",
-        "ru": "Full Load Speed description",
-        "en": "Full Load Speed description"
+        "de": "Volllastgeschwindigkeit",
+        "ru": "Скорость полной нагрузки",
+        "en": "Full Load Speed",
+        "th": "โหลดเต็มความเร็ว",
+        "uk": "Повна швидкість навантаження"
       },
       "names": {
-        "de": "Full Load Speed",
-        "ru": "Full Load Speed",
-        "en": "Full Load Speed"
+        "de": "Volllastgeschwindigkeit",
+        "ru": "Скорость полной нагрузки",
+        "en": "Full Load Speed",
+        "th": "โหลดเต็มความเร็ว",
+        "uk": "Повна швидкість навантаження"
       }
     },
     {
-      "type": "Manufacturer",
+      "type": "Normal Operating Pressure",
       "descriptions": {
-        "de": "Manufacturer description",
-        "ru": "Manufacturer description",
-        "en": "Manufacturer description"
+        "de": "Normaler Betriebsdruck",
+        "ru": "Нормальное рабочее давление",
+        "en": "Normal Operating Pressure",
+        "th": "ความดันใช้งานปกติ",
+        "uk": "Нормальний робочий тиск"
       },
       "names": {
-        "de": "Manufacturer",
-        "ru": "Manufacturer",
-        "en": "Manufacturer"
-      }
-    },
-    {
-      "type": "Measuring Point",
-      "descriptions": {
-        "de": "Measuring Point description",
-        "ru": "Measuring Point description",
-        "en": "Measuring Point description"
-      },
-      "names": {
-        "de": "Measuring Point",
-        "ru": "Measuring Point",
-        "en": "Measuring Point"
-      }
-    },
-    {
-      "type": "Nominal Power",
-      "descriptions": {
-        "de": "Nominal Power description",
-        "ru": "Nominal Power description",
-        "en": "Nominal Power description"
-      },
-      "names": {
-        "de": "Nominal Power",
-        "ru": "Nominal Power",
-        "en": "Nominal Power"
-      }
-    },
-    {
-      "type": "Normal Operating Preasure",
-      "descriptions": {
-        "de": "Normal Operating Preasure description",
-        "ru": "Normal Operating Preasure description",
-        "en": "Normal Operating Preasure description"
-      },
-      "names": {
-        "de": "Normal Operating Preasure",
-        "ru": "Normal Operating Preasure",
-        "en": "Normal Operating Preasure"
+        "de": "Normaler Betriebsdruck",
+        "ru": "Нормальное рабочее давление",
+        "en": "Normal Operating Pressure",
+        "th": "ความดันใช้งานปกติ",
+        "uk": "Нормальний робочий тиск"
       }
     },
     {
       "type": "Power at Full Load",
       "descriptions": {
-        "de": "Power at Full Load description",
-        "ru": "Power at Full Load description",
-        "en": "Power at Full Load description"
+        "de": "Vollastleistung",
+        "ru": "Полная нагрузка",
+        "en": "Full-load power",
+        "th": "โหลดเต็ม",
+        "uk": "Повне навантаження"
       },
       "names": {
-        "de": "Power at Full Load",
-        "ru": "Power at Full Load",
-        "en": "Power at Full Load"
+        "de": "Vollastleistung",
+        "ru": "Полная нагрузка",
+        "en": "Full-load power",
+        "th": "โหลดเต็ม",
+        "uk": "Повне навантаження"
       }
     },
     {
       "type": "Standby Consumption",
       "descriptions": {
-        "de": "Standby Consumption description",
-        "ru": "Standby Consumption description",
-        "en": "Standby Consumption description"
+        "de": "Ruheleistung",
+        "ru": "Спокойное пособие",
+        "en": "Standby power",
+        "th": "ผลประโยชน์เงียบสงบ",
+        "uk": "Вигода у спокої"
       },
       "names": {
-        "de": "Standby Consumption",
-        "ru": "Standby Consumption",
-        "en": "Standby Consumption"
+        "de": "Ruheleistung",
+        "ru": "Спокойное пособие",
+        "en": "Standby power",
+        "th": "ผลประโยชน์เงียบสงบ",
+        "uk": "Вигода у спокої"
       }
     },
     {
       "type": "Type",
       "descriptions": {
-        "de": "Type description",
-        "ru": "Type description",
-        "en": "Type description"
+        "de": "Typ",
+        "ru": "Тип",
+        "en": "Type",
+        "th": "ชนิด",
+        "uk": "Тип"
       },
       "names": {
-        "de": "Type",
-        "ru": "Type",
-        "en": "Type"
-      }
-    },
-    {
-      "type": "Weighting Factor",
-      "descriptions": {
-        "de": "Weighting Factor description",
-        "ru": "Weighting Factor description",
-        "en": "Weighting Factor description"
-      },
-      "names": {
-        "de": "Weighting Factor",
-        "ru": "Weighting Factor",
-        "en": "Weighting Factor"
-      }
-    },
-    {
-      "type": "Work Weeks",
-      "descriptions": {
-        "de": "Work Weeks description",
-        "ru": "Work Weeks description",
-        "en": "Work Weeks description"
-      },
-      "names": {
-        "de": "Work Weeks",
-        "ru": "Work Weeks",
-        "en": "Work Weeks"
-      }
-    },
-    {
-      "type": "Working Days",
-      "descriptions": {
-        "de": "Working Days description",
-        "ru": "Working Days description",
-        "en": "Working Days description"
-      },
-      "names": {
-        "de": "Working Days",
-        "ru": "Working Days",
-        "en": "Working Days"
+        "de": "Typ",
+        "ru": "Тип",
+        "en": "Type",
+        "th": "ชนิด",
+        "uk": "Тип"
       }
     }
   ]

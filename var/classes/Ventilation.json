@@ -25,7 +25,7 @@
       "jevisClass": "Ventilation"
     },
     {
-      "name": "Controling Air Conditioning System with Time manually and Temperature",
+      "name": "Controlling Air Conditioning System with Time manually and Temperature",
       "primitiveType": 0,
       "guiType": "Text",
       "guiposition": 0,

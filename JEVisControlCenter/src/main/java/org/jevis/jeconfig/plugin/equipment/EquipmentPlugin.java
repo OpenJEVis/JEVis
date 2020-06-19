@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.meters;
+package org.jevis.jeconfig.plugin.equipment;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
@@ -20,6 +20,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -35,6 +36,7 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.Constants;
@@ -46,7 +48,11 @@ import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.type.GUIConstants;
 import org.jevis.jeconfig.dialog.*;
+import org.jevis.jeconfig.plugin.meters.AttributeValueChange;
+import org.jevis.jeconfig.plugin.meters.JEVisClassTab;
+import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
+import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
@@ -60,16 +66,12 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
 
-public class MeterPlugin implements Plugin {
-    public static final String MEASUREMENT_INSTRUMENT_CLASS = "Measurement Instrument";
-    private static final Logger logger = LogManager.getLogger(MeterPlugin.class);
+public class EquipmentPlugin implements Plugin {
+    public static final String EQUIPMENT_CLASS = "Building Equipment";
+    private static final Logger logger = LogManager.getLogger(EquipmentPlugin.class);
     private static final double EDITOR_MAX_HEIGHT = 50;
-    private final int toolBarIconSize = 20;
-    private final int tableIconSize = 18;
-    public static String PLUGIN_NAME = "Meter Plugin";
+    public static String PLUGIN_NAME = "Equipment Plugin";
     private static Method columnToFitMethod;
-    private final Image taskImage = JEConfig.getImage("measurement_instrument.png");
-    private final ObjectRelations objectRelations;
 
     static {
         try {
@@ -80,16 +82,20 @@ public class MeterPlugin implements Plugin {
         }
     }
 
+    private final int toolBarIconSize = 20;
+    private final int tableIconSize = 18;
+    private final Image taskImage = JEConfig.getImage("building_equipment.png");
+    private final ObjectRelations objectRelations;
     private final JEVisDataSource ds;
     private final String title;
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
     private final TabPane tabPane = new TabPane();
-    private boolean initialized = false;
-    Map<JEVisAttribute, AttributeValueChange> changeMap = new HashMap<>();
     private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
+    Map<JEVisAttribute, AttributeValueChange> changeMap = new HashMap<>();
+    private boolean initialized = false;
 
-    public MeterPlugin(JEVisDataSource ds, String title) {
+    public EquipmentPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
         this.borderPane.setCenter(tabPane);
@@ -151,21 +157,12 @@ public class MeterPlugin implements Plugin {
 
             tableView.getColumns().add(nameColumn);
 
-            JEVisType onlineIdType = jeVisClass.getType("Online ID");
-            JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
-            JEVisType multiplierType = cleanDataClass.getType("Value Multiplier");
-            JEVisType locationType = jeVisClass.getType("Location");
-            JEVisType pictureType = jeVisClass.getType("Picture");
-            JEVisType measuringPointIdType = jeVisClass.getType("Measuring Point ID");
-            JEVisType measuringPointName = jeVisClass.getType("Measuring Point Name");
 
             for (JEVisType type : jeVisClass.getTypes()) {
                 TableColumn<RegisterTableRow, JEVisAttribute> column = new TableColumn<>(I18nWS.getInstance().getTypeName(jeVisClass.getName(), type.getName()));
                 column.setStyle("-fx-alignment: CENTER;");
                 column.setSortable(false);
-                if (type.equals(locationType) || type.equals(measuringPointIdType) || type.equals(measuringPointName)) {
-                    column.setVisible(false);
-                }
+
                 column.setId(type.getName());
                 column.setCellValueFactory(param -> {
                     try {
@@ -181,7 +178,7 @@ public class MeterPlugin implements Plugin {
                         column.setCellFactory(valueCellInteger());
                         break;
                     case JEVisConstants.PrimitiveType.DOUBLE:
-                        column.setCellFactory(valueCellDouble());
+                        column.setCellFactory(valueCellDouble(type.getGUIDisplayType()));
                         break;
                     case JEVisConstants.PrimitiveType.FILE:
                         column.setCellFactory(valueCellFile());
@@ -208,38 +205,6 @@ public class MeterPlugin implements Plugin {
 
                 tableView.getColumns().add(column);
 
-                if (type.equals(onlineIdType) && true == false) {
-                    TableColumn<RegisterTableRow, Object> multiplierColumn = new TableColumn<>(I18nWS.getInstance().getTypeName(cleanDataClass.getName(), multiplierType.getName()));
-                    multiplierColumn.setStyle("-fx-alignment: CENTER;");
-                    multiplierColumn.setId(multiplierType.getName());
-                    multiplierColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject()));
-                    multiplierColumn.setCellFactory(new Callback<TableColumn<RegisterTableRow, Object>, TableCell<RegisterTableRow, Object>>() {
-                        @Override
-                        public TableCell<RegisterTableRow, Object> call(TableColumn<RegisterTableRow, Object> param) {
-                            return new TableCell<RegisterTableRow, Object>() {
-                                @Override
-                                protected void updateItem(Object item, boolean empty) {
-                                    super.updateItem(item, empty);
-
-                                    if (item == null || empty || getTableRow() == null || getTableRow().getItem() == null) {
-                                        setText(null);
-                                        setGraphic(null);
-                                    } else {
-                                        RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
-                                        JEVisAttribute jeVisAttribute = registerTableRow.getAttributeMap().get(multiplierType);
-
-                                        if (jeVisAttribute != null) {
-                                            String hash = jeVisAttribute.getObject().getID() + ":" + jeVisAttribute.getName();
-
-                                        }
-                                    }
-                                }
-                            };
-                        }
-                    });
-
-                    tableView.getColumns().add(multiplierColumn);
-                }
             }
         } catch (JEVisException e) {
             e.printStackTrace();
@@ -249,8 +214,8 @@ public class MeterPlugin implements Plugin {
     private boolean isMultiSite() {
 
         try {
-            JEVisClass measurementInstrumentDirectoryClass = ds.getJEVisClass("Measurement Directory");
-            List<JEVisObject> objects = ds.getObjects(measurementInstrumentDirectoryClass, true);
+            JEVisClass equipmentRegisterClass = ds.getJEVisClass("Equipment Register");
+            List<JEVisObject> objects = ds.getObjects(equipmentRegisterClass, true);
 
             List<JEVisObject> buildingParents = new ArrayList<>();
             for (JEVisObject jeVisObject : objects) {
@@ -782,7 +747,7 @@ public class MeterPlugin implements Plugin {
         });
     }
 
-    private Callback<TableColumn<RegisterTableRow, JEVisAttribute>, TableCell<RegisterTableRow, JEVisAttribute>> valueCellDouble() {
+    private Callback<TableColumn<RegisterTableRow, JEVisAttribute>, TableCell<RegisterTableRow, JEVisAttribute>> valueCellDouble(String guiDisplayType) {
         return new Callback<TableColumn<RegisterTableRow, JEVisAttribute>, TableCell<RegisterTableRow, JEVisAttribute>>() {
             @Override
             public TableCell<RegisterTableRow, JEVisAttribute> call(TableColumn<RegisterTableRow, JEVisAttribute> param) {
@@ -798,10 +763,17 @@ public class MeterPlugin implements Plugin {
                             RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
 
                             JFXTextField textField = new JFXTextField();
+                            JFXTextField unitValue = new JFXTextField();
                             try {
                                 JEVisAttribute attribute = registerTableRow.getAttributeMap().get(item.getType());
                                 if (attribute != null && attribute.hasSample()) {
                                     textField.setText(attribute.getLatestSample().getValueAsDouble().toString());
+
+                                    if (attribute.getDisplayUnit() != null && !attribute.getInputUnit().getLabel().isEmpty()) {
+                                        unitValue.setText(UnitManager.getInstance().format(attribute.getDisplayUnit().getLabel()));
+                                    } else {
+                                        unitValue.setText(UnitManager.getInstance().format(attribute.getInputUnit().getLabel()));
+                                    }
                                 }
                             } catch (JEVisException e) {
                                 e.printStackTrace();
@@ -846,9 +818,87 @@ public class MeterPlugin implements Plugin {
                                 }
                             });
 
+                            if (guiDisplayType.equals(GUIConstants.NUMBER_WITH_UNIT.getId())) {
+                                unitValue.setOnMouseClicked(event -> {
+                                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                                    alert.setTitle(I18n.getInstance().getString("jevistree.dialog.setUnitAndPeriodRecursive.title"));
+                                    alert.setHeaderText(null);
+                                    alert.setResizable(true);
 
-                            setGraphic(textField);
+                                    final Label l_prefixL = new Label(I18n.getInstance().getString("attribute.editor.unit.prefix"));
+                                    final Label l_unitL = new Label(I18n.getInstance().getString("attribute.editor.unit.unit"));
+                                    final Label l_example = new Label(I18n.getInstance().getString("attribute.editor.unit.symbol"));
 
+                                    GridPane gp = new GridPane();
+                                    gp.setHgap(4);
+                                    gp.setVgap(6);
+
+                                    gp.add(l_prefixL, 0, 0);
+                                    gp.add(l_unitL, 0, 1);
+                                    gp.add(l_example, 0, 2);
+
+
+                                    try {
+                                        final UnitSelectUI unitUI = new UnitSelectUI(ds, item.getInputUnit());
+
+                                        unitUI.getPrefixBox().setPrefWidth(95);
+                                        unitUI.getUnitButton().setPrefWidth(95);
+                                        unitUI.getSymbolField().setPrefWidth(95);
+
+                                        gp.add(unitUI.getPrefixBox(), 1, 0);
+                                        gp.add(unitUI.getUnitButton(), 1, 1);
+                                        gp.add(unitUI.getSymbolField(), 1, 2);
+
+                                        alert.getDialogPane().setContent(gp);
+
+                                        alert.showAndWait().ifPresent(buttonType -> {
+                                            if (buttonType.equals(ButtonType.OK)) {
+                                                try {
+                                                    item.setDisplayUnit(unitUI.getUnit());
+                                                    item.setInputUnit(unitUI.getUnit());
+                                                    item.commit();
+
+                                                    if (item.getDisplayUnit() != null && !item.getInputUnit().getLabel().isEmpty()) {
+                                                        Platform.runLater(() -> {
+                                                            try {
+                                                                unitValue.setText(UnitManager.getInstance().format(item.getDisplayUnit().getLabel()));
+                                                            } catch (JEVisException e) {
+                                                                e.printStackTrace();
+                                                            }
+                                                        });
+                                                    } else {
+                                                        Platform.runLater(() -> {
+                                                            try {
+                                                                unitValue.setText(UnitManager.getInstance().format(item.getInputUnit().getLabel()));
+                                                            } catch (JEVisException e) {
+                                                                e.printStackTrace();
+                                                            }
+                                                        });
+                                                    }
+                                                } catch (JEVisException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        });
+                                    } catch (JEVisException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+
+                                textField.setAlignment(Pos.CENTER_RIGHT);
+                                unitValue.setAlignment(Pos.CENTER_LEFT);
+                                unitValue.setPrefWidth(40);
+                                unitValue.setEditable(false);
+
+                                HBox hBox = new HBox(2, textField, unitValue);
+                                VBox vBox = new VBox(hBox);
+                                vBox.setAlignment(Pos.CENTER);
+                                setGraphic(vBox);
+                            } else {
+                                VBox vBox = new VBox(textField);
+                                vBox.setAlignment(Pos.CENTER);
+                                setGraphic(vBox);
+                            }
                         }
 
                     }
@@ -952,7 +1002,7 @@ public class MeterPlugin implements Plugin {
             JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
             TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
 
-            MeterDialog meterDialog = new MeterDialog(ds, selectedItem.getJeVisClass());
+            EquipmentDialog meterDialog = new EquipmentDialog(ds, selectedItem.getJeVisClass());
             if (meterDialog.showReplaceWindow(tableView.getSelectionModel().getSelectedItem().getObject()) == Response.OK) {
                 handleRequest(Constants.Plugin.Command.RELOAD);
             }
@@ -1025,7 +1075,6 @@ public class MeterPlugin implements Plugin {
             }
         });
 
-        // -delete
         toolBar.getItems().setAll(reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
     }
 
@@ -1175,8 +1224,8 @@ public class MeterPlugin implements Plugin {
             case Constants.Plugin.Command.EXPAND:
                 break;
             case Constants.Plugin.Command.NEW:
-                MeterDialog meterDialog = new MeterDialog(ds, ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
-                if (meterDialog.showNewWindow() == Response.OK) {
+                EquipmentDialog equipmentDialog = new EquipmentDialog(ds, ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
+                if (equipmentDialog.showNewWindow() == Response.OK) {
                     handleRequest(Constants.Plugin.Command.RELOAD);
                 }
                 break;
@@ -1204,7 +1253,7 @@ public class MeterPlugin implements Plugin {
                         return null;
                     }
                 };
-                JEConfig.getStatusBar().addTask(PLUGIN_NAME, clearCacheTask, JEConfig.getImage("measurement_instrument.png"), true);
+                JEConfig.getStatusBar().addTask(PLUGIN_NAME, clearCacheTask, JEConfig.getImage("building_equipment.png"), true);
 
                 break;
             case Constants.Plugin.Command.ADD_TABLE:
@@ -1231,12 +1280,12 @@ public class MeterPlugin implements Plugin {
         return borderPane;
     }
 
-    private void loadTabs(Map<JEVisClass, List<JEVisObject>> allMeters, List<JEVisClass> classes) throws InterruptedException {
+    private void loadTabs(Map<JEVisClass, List<JEVisObject>> allEquipment, List<JEVisClass> classes) throws InterruptedException {
         AtomicBoolean hasActiveLoadTask = new AtomicBoolean(false);
         for (Map.Entry<Task, String> entry : JEConfig.getStatusBar().getTaskList().entrySet()) {
             Task task = entry.getKey();
             String s = entry.getValue();
-            if (s.equals(MeterPlugin.class.getName() + "Load")) {
+            if (s.equals(EquipmentPlugin.class.getName() + "Load")) {
                 hasActiveLoadTask.set(true);
                 break;
             }
@@ -1248,7 +1297,7 @@ public class MeterPlugin implements Plugin {
                     protected JEVisClassTab call() {
                         TableView<RegisterTableRow> tableView = new TableView<>();
                         JEVisClassTab tab = new JEVisClassTab();
-                        List<JEVisObject> listObjects = allMeters.get(jeVisClass);
+                        List<JEVisObject> listObjects = allEquipment.get(jeVisClass);
 
                         try {
                             tab.setClassName(I18nWS.getInstance().getClassName(jeVisClass));
@@ -1331,11 +1380,11 @@ public class MeterPlugin implements Plugin {
                         return tab;
                     }
                 };
-                JEConfig.getStatusBar().addTask(MeterPlugin.class.getName(), task, taskImage, true);
+                JEConfig.getStatusBar().addTask(EquipmentPlugin.class.getName(), task, taskImage, true);
             });
         } else {
             Thread.sleep(500);
-            loadTabs(allMeters, classes);
+            loadTabs(allEquipment, classes);
         }
     }
 
@@ -1345,13 +1394,13 @@ public class MeterPlugin implements Plugin {
         changeMap.clear();
 
         List<JEVisClass> classes = new ArrayList<>();
-        Map<JEVisClass, List<JEVisObject>> allMeters = new HashMap<>();
+        Map<JEVisClass, List<JEVisObject>> allEquipment = new HashMap<>();
         Task load = new Task() {
             @Override
             protected Object call() throws Exception {
-                allMeters.putAll(getAllMeters());
+                allEquipment.putAll(getAllEquipment());
 
-                allMeters.forEach((key, list) -> classes.add(key));
+                allEquipment.forEach((key, list) -> classes.add(key));
                 AlphanumComparator ac = new AlphanumComparator();
                 classes.sort((o1, o2) -> {
                     try {
@@ -1365,13 +1414,13 @@ public class MeterPlugin implements Plugin {
             }
         };
 
-        JEConfig.getStatusBar().addTask(MeterPlugin.class.getName() + "Load", load, taskImage, true);
+        JEConfig.getStatusBar().addTask(EquipmentPlugin.class.getName() + "Load", load, taskImage, true);
 
         Task loadTabs = new Task() {
             @Override
             protected Object call() throws Exception {
                 try {
-                    loadTabs(allMeters, classes);
+                    loadTabs(allEquipment, classes);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -1379,14 +1428,14 @@ public class MeterPlugin implements Plugin {
             }
         };
 
-        JEConfig.getStatusBar().addTask(MeterPlugin.class.getName(), loadTabs, taskImage, true);
+        JEConfig.getStatusBar().addTask(EquipmentPlugin.class.getName(), loadTabs, taskImage, true);
     }
 
-    private Map<JEVisClass, List<JEVisObject>> getAllMeters() {
+    private Map<JEVisClass, List<JEVisObject>> getAllEquipment() {
         Map<JEVisClass, List<JEVisObject>> map = new HashMap<>();
         try {
-            JEVisClass meterClass = ds.getJEVisClass(MEASUREMENT_INSTRUMENT_CLASS);
-            List<JEVisObject> allObjects = ds.getObjects(meterClass, true);
+            JEVisClass equipmentClass = ds.getJEVisClass(EQUIPMENT_CLASS);
+            List<JEVisObject> allObjects = ds.getObjects(equipmentClass, true);
             for (JEVisObject object : allObjects) {
                 if (!map.containsKey(object.getJEVisClass())) {
                     List<JEVisObject> objectArrayList = new ArrayList<>();
@@ -1405,7 +1454,7 @@ public class MeterPlugin implements Plugin {
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("measurement_instrument.png", 20, 20);
+        return JEConfig.getImage("building_equipment.png", 20, 20);
     }
 
     @Override
@@ -1434,7 +1483,7 @@ public class MeterPlugin implements Plugin {
                 return null;
             }
         };
-        JEConfig.getStatusBar().addTask(PLUGIN_NAME, loadTask, JEConfig.getImage("measurement_instrument.png"), true);
+        JEConfig.getStatusBar().addTask(PLUGIN_NAME, loadTask, JEConfig.getImage("building_equipment.png"), true);
 
     }
 
@@ -1445,7 +1494,7 @@ public class MeterPlugin implements Plugin {
 
     @Override
     public int getPrefTapPos() {
-        return 5;
+        return 6;
     }
 
 }

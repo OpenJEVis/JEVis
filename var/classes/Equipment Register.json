@@ -24,6 +24,11 @@
     },
     {
       "start": "Equipment Register",
+      "end": "Building",
+      "type": 3
+    },
+    {
+      "start": "Equipment Register",
       "end": "Register",
       "type": 0
     },
