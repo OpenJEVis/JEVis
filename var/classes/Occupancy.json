@@ -19,7 +19,7 @@
       "name": "Occupancy",
       "primitiveType": 1,
       "guiType": "Number",
-      "guiposition": 0,
+      "guiposition": 10,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Occupancy"

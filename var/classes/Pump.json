@@ -19,70 +19,7 @@
       "name": "Domain",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pump"
-    },
-    {
-      "name": "Frequency Converter or Stepped",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pump"
-    },
-    {
-      "name": "Nominal Power Step 1",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pump"
-    },
-    {
-      "name": "Nominal Power Step 2",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pump"
-    },
-    {
-      "name": "Nominal Power Step 3",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pump"
-    },
-    {
-      "name": "Standby Consumption",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pump"
-    },
-    {
-      "name": "Type",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pump"
-    },
-    {
-      "name": "Year of Construction",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "guiposition": 0,
+      "guiposition": 10,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Pump"

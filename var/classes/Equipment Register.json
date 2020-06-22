@@ -38,6 +38,16 @@
       "type": 3
     },
     {
+      "start": "Facade",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
+      "start": "Floor",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
       "start": "Lighting Equipment Directory",
       "end": "Equipment Register",
       "type": 3

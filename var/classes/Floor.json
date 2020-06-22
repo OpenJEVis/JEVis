@@ -53,7 +53,7 @@
     {
       "name": "Floor",
       "primitiveType": 2,
-      "guiposition": 0,
+      "guiposition": 10,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Floor"
@@ -61,7 +61,7 @@
     {
       "name": "Usage",
       "primitiveType": 0,
-      "guiposition": 0,
+      "guiposition": 11,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Floor"

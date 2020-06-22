@@ -16,40 +16,6 @@
   },
   "types": [
     {
-      "type": "Current",
-      "descriptions": {
-        "de": "Elektrischer Strom",
-        "ru": "Электрический ток",
-        "en": "Current",
-        "th": "กระแสไฟฟ้า",
-        "uk": "Електричний струм"
-      },
-      "names": {
-        "de": "Elektrischer Strom",
-        "ru": "Электрический ток",
-        "en": "Current",
-        "th": "กระแสไฟฟ้า",
-        "uk": "Електричний струм"
-      }
-    },
-    {
-      "type": "Voltage",
-      "descriptions": {
-        "de": "Spannung",
-        "ru": "Электрическое напряжение",
-        "en": "Voltage",
-        "th": "แรงดันไฟฟ้า",
-        "uk": "Електрична напруга"
-      },
-      "names": {
-        "de": "Spannung",
-        "ru": "Электрическое напряжение",
-        "en": "Voltage",
-        "th": "แรงดันไฟฟ้า",
-        "uk": "Електрична напруга"
-      }
-    },
-    {
       "type": "Efficiency Class",
       "descriptions": {
         "de": "Effizienzklasse",

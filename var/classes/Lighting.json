@@ -21,10 +21,19 @@
   ],
   "types": [
     {
+      "name": "Domain",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 10,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Lighting"
+    },
+    {
       "name": "Ballast Power",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "guiposition": 0,
+      "guiposition": 11,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Lighting"
@@ -33,16 +42,7 @@
       "name": "Bulbs per Lamp",
       "primitiveType": 1,
       "guiType": "Number",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Lighting"
-    },
-    {
-      "name": "Domain",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
+      "guiposition": 12,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Lighting"
@@ -51,16 +51,7 @@
       "name": "Lamp Power",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Lighting"
-    },
-    {
-      "name": "Measurement",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
+      "guiposition": 13,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Lighting"
@@ -69,25 +60,7 @@
       "name": "Number of Lamps",
       "primitiveType": 1,
       "guiType": "Number",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Lighting"
-    },
-    {
-      "name": "Standby Consumption",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Lighting"
-    },
-    {
-      "name": "Type",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
+      "guiposition": 14,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Lighting"

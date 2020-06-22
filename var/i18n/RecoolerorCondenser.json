@@ -16,23 +16,6 @@
   },
   "types": [
     {
-      "type": "Drive Power",
-      "descriptions": {
-        "de": "Antriebsleistung",
-        "ru": "Мощность привода",
-        "en": "Drive Power",
-        "th": "พลังขับเคลื่อน",
-        "uk": "Потужність приводу"
-      },
-      "names": {
-        "de": "Antriebsleistung",
-        "ru": "Мощность привода",
-        "en": "Drive Power",
-        "th": "พลังขับเคลื่อน",
-        "uk": "Потужність приводу"
-      }
-    },
-    {
       "type": "Recooling Capacity",
       "descriptions": {
         "de": "Rückkühlleistung",
@@ -64,57 +47,6 @@
         "en": "Remark",
         "th": "คำอธิบายประกอบ",
         "uk": "анотація"
-      }
-    },
-    {
-      "type": "Standby Consumption",
-      "descriptions": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      },
-      "names": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      }
-    },
-    {
-      "type": "Type",
-      "descriptions": {
-        "de": "Typ",
-        "ru": "Тип",
-        "en": "Type",
-        "th": "ชนิด",
-        "uk": "Тип"
-      },
-      "names": {
-        "de": "Typ",
-        "ru": "Тип",
-        "en": "Type",
-        "th": "ชนิด",
-        "uk": "Тип"
-      }
-    },
-    {
-      "type": "Year and Serial Number",
-      "descriptions": {
-        "de": "Jahr und Seriennummer",
-        "ru": "Год и серийный номер",
-        "en": "Year and Serial Number",
-        "th": "ปีและหมายเลขซีเรียล",
-        "uk": "Рік та серійний номер"
-      },
-      "names": {
-        "de": "Jahr und Seriennummer",
-        "ru": "Год и серийный номер",
-        "en": "Year and Serial Number",
-        "th": "ปีและหมายเลขซีเรียล",
-        "uk": "Рік та серійний номер"
       }
     }
   ]
