@@ -47,6 +47,11 @@
       "start": "Administration Directory",
       "end": "Monitored Object",
       "type": 3
+    },
+    {
+      "start": "Analyses Directory",
+      "end": "Monitored Object",
+      "type": 3
     }
   ]
 }
