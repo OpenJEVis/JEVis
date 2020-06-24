@@ -51,7 +51,30 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.35------\n" +
+            "------Version 3.9.36------\n" +
+                    "JECC - Charts - ColorColumn - centered ColorPicker in column\n" +
+                    "JECC - Charts - allow different chart types in one chart  \n" +
+                    "JECC - Charts - BubbleChart - some problem with asynchronous data\n" +
+                    "JECC - Chart - Settings Dialog\n" +
+                    "JECC - Dashboard - WidgetTreePlugin - centered ColorPicker in column\n" +
+                    "JECC - Dashboard - need column chart as chart type \n" +
+                    "JECC - EnterDataDialog - changed translation\n" +
+                    "JECC - EnterDataDialog - fixed some current date issues\n" +
+                    "JECC - EnterDataDialog - fixed some layout issues  \n" +
+                    "JECC - EnterDataDialog - added simple options\n" +
+                    "JECC - EquipmentRegister\n" +
+                    "JECC - MeterPlugin - disable meter change when no selection\n" +
+                    "JECC - MeterPlugin - disabled manual sorting\n" +
+                    "JECC - SampleTableExtension - fixed timezone not working\n" +
+                    "JECC - SampleTableExtension - added adding uservalues in bulk or single to data/clean data\n" +
+                    "\n" +
+                    "Classes - Equipment Register - simplified all building equipment children\n" +
+                    "Classes - allowing data and calc dir under organizations\n" +
+                    "\n" +
+                    "JEReport - added more logging for available data\n" +
+                    "\n" +
+                    "JEStatus - removed furthest reported\n\n" +
+                    "------Version 3.9.35------\n" +
                     "JECC - EnterDataDialog - fixed some current date issues\n" +
                     "JECC - EnterDataDialog - fixed some layout issues\n" +
                     "JECC - EnterDataDialog - added simple options\n" +
