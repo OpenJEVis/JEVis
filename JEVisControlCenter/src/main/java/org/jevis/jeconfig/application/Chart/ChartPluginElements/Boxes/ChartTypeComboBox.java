@@ -9,11 +9,6 @@ public class ChartTypeComboBox extends DisabledItemsComboBox {
     public ChartTypeComboBox(ChartSetting currentChartSetting) {
         super(ChartType.getlistNamesChartTypes());
 
-        //I18n.getInstance().getString("plugin.graph.charttype.scatter.name"),
-//        List<String> disabledItems = Arrays.asList(
-//                I18n.getInstance().getString("plugin.graph.charttype.bubble.name"));
-//        this.setDisabledItems(disabledItems);
-
         this.getSelectionModel().select(ChartType.parseChartIndex(currentChartSetting.getChartType()).intValue());
 
         this.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -24,5 +19,12 @@ public class ChartTypeComboBox extends DisabledItemsComboBox {
 
             }
         });
+    }
+
+    public ChartTypeComboBox(ChartType chartType) {
+        super(ChartType.getlistNamesChartTypes());
+
+        this.getSelectionModel().select(ChartType.parseChartIndex(chartType).intValue());
+
     }
 }

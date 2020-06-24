@@ -130,11 +130,7 @@ public class JEVisTreeFactory {
                     TreeHelper.EventSetUnitAndPeriodRecursive(tree);
                     t.consume();
                 } else if ((enableAll.match(t) || disableAll.match(t)) && JEConfig.getExpert()) {
-                    if (enableAll.match(t)) {
-                        TreeHelper.EventSetEnableAll(tree, true);
-                    } else {
-                        TreeHelper.EventSetEnableAll(tree, false);
-                    }
+                    TreeHelper.EventSetEnableAll(tree, enableAll.match(t));
                     t.consume();
                 } else if (copyObj.match(t)) {
                     tree.setCopyObject(selectedObj.getValue().getJEVisObject(), false);
@@ -284,6 +280,7 @@ public class JEVisTreeFactory {
 
         cellFilter.addFilter(WidgetTreePlugin.COLUMN, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_SELECTED, dataFilter);
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_CHART_TYPE, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_COLOR, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_MANIPULATION, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_AGGREGATION, dataFilter);
@@ -330,6 +327,7 @@ public class JEVisTreeFactory {
         dataBasicFilter.addItemFilter(stringDataObjectFilter);
 
         dataBasicFilter.addFilter(SelectionColumn.COLUMN_ID, dataObjectFilter);
+        dataBasicFilter.addFilter(ChartTypeColumn.COLUMN_ID, dataObjectFilter);
         dataBasicFilter.addFilter(NameColumn.COLUMN_ID, dataObjectFilter);
         dataBasicFilter.addFilter(UnitColumn.COLUMN_ID, dataObjectFilter);
         dataBasicFilter.addFilter(DateColumn.COLUMN_ID, dataObjectFilter);
@@ -339,6 +337,7 @@ public class JEVisTreeFactory {
         dataBasicFilter.addFilter(AxisColumn.COLUMN_ID, dataObjectFilter);
 
         dataBasicFilter.addFilter(SelectionColumn.COLUMN_ID, stringDataObjectFilter);
+        dataBasicFilter.addFilter(ChartTypeColumn.COLUMN_ID, stringDataObjectFilter);
         dataBasicFilter.addFilter(NameColumn.COLUMN_ID, stringDataObjectFilter);
         dataBasicFilter.addFilter(UnitColumn.COLUMN_ID, stringDataObjectFilter);
         dataBasicFilter.addFilter(DateColumn.COLUMN_ID, stringDataObjectFilter);

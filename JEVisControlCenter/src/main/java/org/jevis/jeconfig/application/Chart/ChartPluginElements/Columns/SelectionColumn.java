@@ -14,7 +14,6 @@ import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
@@ -37,8 +36,8 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
     private final TreeTableColumn<JEVisTreeRow, Long> allColumns;
     private TreeTableColumn<JEVisTreeRow, Boolean> selectionColumn;
     private AnalysisDataModel data;
-    private JEVisTree tree;
-    private ColorColumn colorColumn;
+    private final JEVisTree tree;
+    private final ColorColumn colorColumn;
     private Integer chartId;
     private final JEVisDataSource dataSource;
 
@@ -108,11 +107,12 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
         textFieldChartName.setEditable(false);
         textFieldChartName.setDisable(true);
 
-        ChartTypeComboBox comboBoxChartType = new ChartTypeComboBox(currentChartSetting);
-        comboBoxChartType.setDisable(true);
-        comboBoxChartType.setPrefWidth(114);
+//        ChartTypeComboBox comboBoxChartType = new ChartTypeComboBox(currentChartSetting);
+//        comboBoxChartType.setDisable(true);
+//        comboBoxChartType.setPrefWidth(114);
 
-        vbox.getChildren().addAll(textFieldChartName, comboBoxChartType);
+//        vbox.getChildren().addAll(textFieldChartName, comboBoxChartType);
+        vbox.getChildren().addAll(textFieldChartName);
 
         column.setGraphic(vbox);
 
@@ -227,7 +227,8 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                                         }
                                     });
 
-                                    setFieldsEditable(textFieldChartName, comboBoxChartType, checkBox.isSelected());
+//                                    setFieldsEditable(textFieldChartName, comboBoxChartType, checkBox.isSelected());
+                                    setFieldsEditable(textFieldChartName, checkBox.isSelected());
 
                                     setText(null);
                                     setGraphic(stackPane);
@@ -238,11 +239,12 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                         }
                     }
 
-                    private void setFieldsEditable(TextField textFieldChartName, ChartTypeComboBox comboBoxChartType, Boolean item) {
+                    //                    private void setFieldsEditable(TextField textFieldChartName, ChartTypeComboBox comboBoxChartType, Boolean item) {
+                    private void setFieldsEditable(TextField textFieldChartName, Boolean item) {
                         if (item) {
                             textFieldChartName.setEditable(true);
                             textFieldChartName.setDisable(false);
-                            comboBoxChartType.setDisable(false);
+//                            comboBoxChartType.setDisable(false);
                         } else {
                             boolean foundSelected = false;
                             for (ChartDataRow mdl : getData().getSelectedData()) {
@@ -256,11 +258,11 @@ public class SelectionColumn extends TreeTableColumn<JEVisTreeRow, Boolean> impl
                             if (foundSelected) {
                                 textFieldChartName.setEditable(true);
                                 textFieldChartName.setDisable(false);
-                                comboBoxChartType.setDisable(false);
+//                                comboBoxChartType.setDisable(false);
                             } else {
                                 textFieldChartName.setEditable(false);
                                 textFieldChartName.setDisable(true);
-                                comboBoxChartType.setDisable(true);
+//                                comboBoxChartType.setDisable(true);
                             }
                         }
                     }

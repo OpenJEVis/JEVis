@@ -241,6 +241,11 @@ public class SaveAnalysisDialog {
                     if (mdl.getBubbleType() != null) {
                         json.setBubbleType(mdl.getBubbleType().toString());
                     }
+
+                    if (mdl.getChartType() != null) {
+                        json.setChartType(mdl.getChartType().toString());
+                    }
+
                     jsonDataModels.add(json);
                 }
             }
@@ -256,7 +261,6 @@ public class SaveAnalysisDialog {
                 JsonChartSetting set = new JsonChartSetting();
                 if (cset.getId() != null) set.setId(cset.getId().toString());
                 if (cset.getName() != null) set.setName(cset.getName());
-                if (cset.getChartType() != null) set.setChartType(cset.getChartType().toString());
                 if (cset.getColorMapping() != null) set.setColorMapping(cset.getColorMapping().toString());
                 if (cset.getGroupingInterval() != null) set.setGroupingInterval(cset.getGroupingInterval().toString());
                 if (cset.getHeight() != null) set.setHeight(cset.getHeight().toString());

@@ -17,6 +17,7 @@ import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.jeconfig.application.Chart.ChartType;
 import org.joda.time.DateTime;
 
 import java.util.*;
@@ -30,6 +31,7 @@ public class ChartDataRow {
     private DateTime selectedEnd;
     private JEVisObject object;
     private JEVisAttribute attribute;
+    private ChartType chartType;
     private String color = "#1FBED6";
     private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
@@ -746,6 +748,7 @@ public class ChartDataRow {
         newModel.setAbsolute(this.getAbsolute());
         newModel.setScaleFactor(this.getScaleFactor());
         newModel.setCustomWorkDay(this.isCustomWorkDay());
+        newModel.setChartType(this.getChartType());
         newModel.setSomethingChanged(false);
 
         return newModel;
@@ -832,5 +835,13 @@ public class ChartDataRow {
 
     public void setCustomWorkDay(boolean customWorkDay) {
         this.customWorkDay = customWorkDay;
+    }
+
+    public ChartType getChartType() {
+        return chartType;
+    }
+
+    public void setChartType(ChartType chartType) {
+        this.chartType = chartType;
     }
 }

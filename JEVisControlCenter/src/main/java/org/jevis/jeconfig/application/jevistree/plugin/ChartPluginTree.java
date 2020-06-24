@@ -29,15 +29,15 @@ import java.util.List;
  * @author
  */
 public class ChartPluginTree implements TreePlugin {
-    public static int NO_OF_COLUMNS = 6;
+    public static int NO_OF_COLUMNS = 7;
     private final Image img = new Image(ChartPluginTree.class.getResourceAsStream("/icons/" + "list-add.png"));
     private final ImageView image = new ImageView(img);
     private final String chartTitle = I18n.getInstance().getString("graph.title");
     private JEVisTree jeVisTree;
-    private AnalysisDataModel data;
+    private final AnalysisDataModel data;
     private List<TreeTableColumn<JEVisTreeRow, Long>> allColumns;
     private JEVisDataSource dataSource;
-    private SimpleBooleanProperty addedChart = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty addedChart = new SimpleBooleanProperty(false);
     private ColorColumn colorColumn;
 
     public ChartPluginTree(AnalysisDataModel data) {
@@ -140,6 +140,9 @@ public class ChartPluginTree implements TreePlugin {
             selectionColumns.add(selectColumn.getSelectionColumn());
         }
 
+        ChartTypeColumn chartTypeColumnColumn = new ChartTypeColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.tabs.tab.charttype"));
+        chartTypeColumnColumn.setGraphDataModel(data);
+
         AggregationColumn aggregationColumn = new AggregationColumn(jeVisTree, dataSource, I18n.getInstance().getString("graph.table.interval"));
         aggregationColumn.setGraphDataModel(data);
 
@@ -162,7 +165,7 @@ public class ChartPluginTree implements TreePlugin {
         axisColumn.setGraphDataModel(data);
 
         for (TreeTableColumn<JEVisTreeRow, Boolean> ttc : selectionColumns) column.getColumns().add(ttc);
-        column.getColumns().addAll(colorColumn.getColorColumn(), nameColumn.getNameColumn(),
+        column.getColumns().addAll(chartTypeColumnColumn.getChartTypeColumn(), colorColumn.getColorColumn(), nameColumn.getNameColumn(),
                 aggregationColumn.getAggregationColumn(), dataProcessorColumn.getDataProcessorColumn(),
                 unitColumn.getUnitColumn(), axisColumn.getAxisColumn());
 

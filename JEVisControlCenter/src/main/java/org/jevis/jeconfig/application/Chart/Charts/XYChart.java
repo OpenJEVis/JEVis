@@ -400,9 +400,55 @@ public class XYChart implements Chart {
     }
 
     public void addSeriesToChart() {
-        ErrorDataSetRenderer rendererY1 = new ErrorDataSetRenderer();
+        ErrorDataSetRenderer rendererAreaY1 = new ErrorDataSetRenderer();
+        ErrorDataSetRenderer rendererAreaY2 = new ErrorDataSetRenderer();
 
-        ErrorDataSetRenderer rendererY2 = new ErrorDataSetRenderer();
+        rendererAreaY1.setPolyLineStyle(LineStyle.AREA);
+        rendererAreaY1.setDrawMarker(false);
+        rendererAreaY2.setPolyLineStyle(LineStyle.AREA);
+        rendererAreaY2.setDrawMarker(false);
+
+        ErrorDataSetRenderer rendererLogicalY1 = new ErrorDataSetRenderer();
+        ErrorDataSetRenderer rendererLogicalY2 = new ErrorDataSetRenderer();
+
+        rendererLogicalY1.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
+        rendererLogicalY1.setDrawMarker(false);
+        rendererLogicalY2.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
+        rendererLogicalY2.setDrawMarker(false);
+
+        ErrorDataSetRenderer rendererBarY1 = new ErrorDataSetRenderer();
+        ErrorDataSetRenderer rendererBarY2 = new ErrorDataSetRenderer();
+
+        rendererBarY1.setPolyLineStyle(LineStyle.NONE);
+        rendererBarY1.setDrawBars(true);
+        rendererBarY1.setDrawMarker(false);
+        rendererBarY2.setPolyLineStyle(LineStyle.NONE);
+        rendererBarY2.setDrawBars(true);
+        rendererBarY2.setDrawMarker(false);
+
+        ErrorDataSetRenderer rendererColumnY1 = new ErrorDataSetRenderer();
+        ErrorDataSetRenderer rendererColumnY2 = new ErrorDataSetRenderer();
+
+        rendererColumnY1.setPolyLineStyle(LineStyle.NONE);
+        rendererColumnY1.setDrawBars(true);
+        rendererColumnY1.setDrawMarker(false);
+        rendererColumnY2.setPolyLineStyle(LineStyle.NONE);
+        rendererColumnY2.setDrawBars(true);
+        rendererColumnY2.setDrawMarker(false);
+
+        ErrorDataSetRenderer rendererScatterY1 = new ErrorDataSetRenderer();
+        ErrorDataSetRenderer rendererScatterY2 = new ErrorDataSetRenderer();
+
+        rendererScatterY1.setPolyLineStyle(LineStyle.NONE);
+        rendererScatterY2.setPolyLineStyle(LineStyle.NONE);
+
+        ErrorDataSetRenderer rendererLineY1 = new ErrorDataSetRenderer();
+        ErrorDataSetRenderer rendererLineY2 = new ErrorDataSetRenderer();
+        rendererLineY1.setPolyLineStyle(LineStyle.NORMAL);
+        rendererLineY1.setDrawMarker(false);
+        rendererLineY2.setPolyLineStyle(LineStyle.NORMAL);
+        rendererLineY2.setDrawMarker(false);
+
 
         CustomMarkerRenderer labelledMarkerRenderer = new CustomMarkerRenderer(xyChartSerieList);
 
@@ -412,60 +458,48 @@ public class XYChart implements Chart {
         trendLineRenderer.setMarkerSize(0);
         trendLineRenderer.setAssumeSortedData(false);
 
-        switch (chartType) {
-            case AREA:
-                rendererY1.setPolyLineStyle(LineStyle.AREA);
-                rendererY1.setDrawMarker(false);
-                rendererY2.setPolyLineStyle(LineStyle.AREA);
-                rendererY2.setDrawMarker(false);
-                break;
-            case LOGICAL:
-                rendererY1.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
-                rendererY1.setDrawMarker(false);
-                rendererY2.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
-                rendererY2.setDrawMarker(false);
-                break;
-            case BAR:
-                rendererY1.setPolyLineStyle(LineStyle.NONE);
-                rendererY1.setDrawBars(true);
-                rendererY1.setDrawMarker(false);
-                rendererY2.setPolyLineStyle(LineStyle.NONE);
-                rendererY2.setDrawBars(true);
-                rendererY2.setDrawMarker(false);
-                break;
-            case COLUMN:
-                rendererY1.setPolyLineStyle(LineStyle.NONE);
-                rendererY1.setDrawBars(true);
-                rendererY1.setDrawMarker(false);
-                rendererY2.setPolyLineStyle(LineStyle.NONE);
-                rendererY2.setDrawBars(true);
-                rendererY2.setDrawMarker(false);
-                break;
-            case BUBBLE:
-                break;
-            case SCATTER:
-                rendererY1.setPolyLineStyle(LineStyle.NONE);
-                rendererY2.setPolyLineStyle(LineStyle.NONE);
-                break;
-            case PIE:
-                break;
-            case TABLE:
-                break;
-            case HEAT_MAP:
-                break;
-            case LINE:
-            default:
-                rendererY1.setPolyLineStyle(LineStyle.NORMAL);
-                rendererY1.setDrawMarker(false);
-                rendererY2.setPolyLineStyle(LineStyle.NORMAL);
-                rendererY2.setDrawMarker(false);
-                break;
-        }
-
         xyChartSerieList.sort(Comparator.comparingDouble(XYChartSerie::getSortCriteria));
 
         for (XYChartSerie xyChartSerie : xyChartSerieList) {
             int index = xyChartSerieList.indexOf(xyChartSerie);
+
+            ErrorDataSetRenderer rendererY1;
+            ErrorDataSetRenderer rendererY2;
+
+            ChartType ct;
+            if (xyChartSerie.getSingleRow().getChartType() == null) {
+                ct = this.chartType;
+            } else {
+                ct = xyChartSerie.getSingleRow().getChartType();
+            }
+
+            switch (ct) {
+                case AREA:
+                    rendererY1 = rendererAreaY1;
+                    rendererY2 = rendererAreaY2;
+                    break;
+                case LOGICAL:
+                    rendererY1 = rendererLogicalY1;
+                    rendererY2 = rendererLogicalY2;
+                    break;
+                case BAR:
+                    rendererY1 = rendererBarY1;
+                    rendererY2 = rendererBarY2;
+                    break;
+                case COLUMN:
+                    rendererY1 = rendererColumnY1;
+                    rendererY2 = rendererColumnY2;
+                    break;
+                case SCATTER:
+                    rendererY1 = rendererScatterY1;
+                    rendererY2 = rendererScatterY1;
+                    break;
+                case LINE:
+                default:
+                    rendererY1 = rendererLineY1;
+                    rendererY2 = rendererLineY1;
+                    break;
+            }
 
             if (showSum && index < xyChartSerieList.size() - 2) {
                 rendererY1.getDatasets().add(xyChartSerie.getValueDataSet());
@@ -490,8 +524,8 @@ public class XYChart implements Chart {
         }
 
         AlphanumComparator ac = new AlphanumComparator();
-        Platform.runLater(() -> chart.getRenderers().add(rendererY1));
-        Platform.runLater(() -> chart.getRenderers().add(rendererY2));
+        Platform.runLater(() -> chart.getRenderers().addAll(rendererAreaY1, rendererLogicalY1, rendererColumnY1, rendererBarY1, rendererScatterY1, rendererLineY1));
+        Platform.runLater(() -> chart.getRenderers().addAll(rendererAreaY2, rendererLogicalY2, rendererColumnY2, rendererBarY2, rendererScatterY2, rendererLineY2));
 
         Platform.runLater(() -> tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
 
