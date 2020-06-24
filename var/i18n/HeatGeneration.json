@@ -1,7 +1,7 @@
 {
   "jevisclass": "Heat Generation",
   "names": {
-    "de": "Wärmeerzeugung",
+    "de": "Heizung",
     "ru": "Тепловыделение",
     "en": "Heat Generation",
     "th": "การสร้างความร้อน",
@@ -30,57 +30,6 @@
         "en": "Domain",
         "th": "พื้นที่",
         "uk": "область"
-      }
-    },
-    {
-      "type": "Standby Consumption",
-      "descriptions": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      },
-      "names": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      }
-    },
-    {
-      "type": "Type",
-      "descriptions": {
-        "de": "Typ",
-        "ru": "Тип",
-        "en": "Type",
-        "th": "ชนิด",
-        "uk": "Тип"
-      },
-      "names": {
-        "de": "Typ",
-        "ru": "Тип",
-        "en": "Type",
-        "th": "ชนิด",
-        "uk": "Тип"
-      }
-    },
-    {
-      "type": "Year of Construction",
-      "descriptions": {
-        "de": "Baujahr",
-        "ru": "Год постройки",
-        "en": "Year of Construction",
-        "th": "ปีก่อสร้าง",
-        "uk": "Рік будівництва"
-      },
-      "names": {
-        "de": "Baujahr",
-        "ru": "Год постройки",
-        "en": "Year of Construction",
-        "th": "ปีก่อสร้าง",
-        "uk": "Рік будівництва"
       }
     }
   ]

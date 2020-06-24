@@ -16,6 +16,74 @@
   },
   "types": [
     {
+      "type": "Type",
+      "descriptions": {
+        "de": "Typ",
+        "ru": "Тип",
+        "en": "Type",
+        "th": "ชนิด",
+        "uk": "Тип"
+      },
+      "names": {
+        "de": "Typ",
+        "ru": "Тип",
+        "en": "Type",
+        "th": "ชนิด",
+        "uk": "Тип"
+      }
+    },
+    {
+      "type": "Year of Construction",
+      "descriptions": {
+        "de": "Baujahr",
+        "ru": "Год постройки",
+        "en": "Year of Construction",
+        "th": "ปีก่อสร้าง",
+        "uk": "Рік будівництва"
+      },
+      "names": {
+        "de": "Baujahr",
+        "ru": "Год постройки",
+        "en": "Year of Construction",
+        "th": "ปีก่อสร้าง",
+        "uk": "Рік будівництва"
+      }
+    },
+    {
+      "type": "Number",
+      "descriptions": {
+        "de": "Anzahl",
+        "ru": "число",
+        "en": "Number",
+        "th": "จำนวน",
+        "uk": "число"
+      },
+      "names": {
+        "de": "Anzahl",
+        "ru": "число",
+        "en": "Number",
+        "th": "จำนวน",
+        "uk": "число"
+      }
+    },
+    {
+      "type": "Standby Consumption",
+      "descriptions": {
+        "de": "Ruheleistung",
+        "ru": "Спокойное пособие",
+        "en": "Standby power",
+        "th": "ผลประโยชน์เงียบสงบ",
+        "uk": "Вигода у спокої"
+      },
+      "names": {
+        "de": "Ruheleistung",
+        "ru": "Спокойное пособие",
+        "en": "Standby power",
+        "th": "ผลประโยชน์เงียบสงบ",
+        "uk": "Вигода у спокої"
+      }
+    },
+    {
       "type": "Daily Operating Hours",
       "descriptions": {
         "de": "Tägliche Betriebsstunden der Anlage",

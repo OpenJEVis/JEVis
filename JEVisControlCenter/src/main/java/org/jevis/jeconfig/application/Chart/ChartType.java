@@ -64,31 +64,32 @@ public enum ChartType {
     }
 
     public static Integer parseChartIndex(ChartType chartType) {
-
-        switch (chartType.toString()) {
-            case ("AREA"):
-                return 0;
-            case ("LOGICAL"):
-                return 1;
-            case ("LINE"):
-                return 2;
-            case ("BAR"):
-                return 3;
-            case ("COLUMN"):
-                return 4;
-            case ("BUBBLE"):
-                return 5;
-            case ("SCATTER"):
-                return 6;
-            case ("PIE"):
-                return 7;
-            case ("TABLE"):
-                return 8;
-            case ("HEAT_MAP"):
-                return 9;
-            default:
-                return 0;
-        }
+        if (chartType != null) {
+            switch (chartType.toString()) {
+                case ("AREA"):
+                    return 0;
+                case ("LOGICAL"):
+                    return 1;
+                case ("LINE"):
+                    return 2;
+                case ("BAR"):
+                    return 3;
+                case ("COLUMN"):
+                    return 4;
+                case ("BUBBLE"):
+                    return 5;
+                case ("SCATTER"):
+                    return 6;
+                case ("PIE"):
+                    return 7;
+                case ("TABLE"):
+                    return 8;
+                case ("HEAT_MAP"):
+                    return 9;
+                default:
+                    return 2;
+            }
+        } else return 2;
     }
 
     public static ObservableList<String> getlistNamesChartTypes() {

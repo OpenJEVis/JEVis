@@ -17,8 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
-import org.jevis.jeconfig.application.Chart.ChartType;
-import org.jevis.jeconfig.application.Chart.Charts.LineChart;
+import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
@@ -42,7 +41,7 @@ public class ChartWidget extends Widget {
     private static final Logger logger = LogManager.getLogger(ChartWidget.class);
     public static String WIDGET_ID = "Chart";
 
-    private LineChart lineChart;
+    private XYChart xyChart;
     private DataModelDataHandler sampleHandler;
     private final WidgetLegend legend = new WidgetLegend();
     private final BorderPane borderPane = new BorderPane();
@@ -108,15 +107,15 @@ public class ChartWidget extends Widget {
                  */
                 AnalysisDataModel model = new AnalysisDataModel(getDataSource(), null);
                 ChartSetting chartSetting = new ChartSetting(0, "");
-                chartSetting.setChartType(ChartType.LINE);
+                chartSetting.setChartType(null);
                 model.getCharts().setListSettings(Collections.singletonList(chartSetting));
                 this.borderPane.setCenter(null);
-                this.lineChart = new LineChart();
-                this.lineChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting, true);
+                this.xyChart = new XYChart();
+                this.xyChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting, true);
 
-                this.borderPane.setCenter(this.lineChart.getChart());
+                this.borderPane.setCenter(this.xyChart.getChart());
                 Size configSize = getConfig().getSize();
-                lineChart.getChart().setPrefSize(configSize.getWidth() - 20, configSize.getHeight());
+                xyChart.getChart().setPrefSize(configSize.getWidth() - 20, configSize.getHeight());
                 updateConfig();/** workaround because we make a new chart every time**/
             } catch (Exception ex) {
                 logger.error(ex);
@@ -143,21 +142,21 @@ public class ChartWidget extends Widget {
                 this.borderPane.setBackground(bgColor);
 
                 try {
-                    if (lineChart != null) {
+                    if (xyChart != null) {
                         //lineChart.getChart().getPlotBackground().setBackground(bgColor);
                         //lineChart.setBackGround(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
                         String cssBGColor = ColorHelper.toRGBCode(Color.TRANSPARENT);
-                        lineChart.getChart().getPlotBackground().setStyle("-fx-background-color: " + cssBGColor + ";");
+                        xyChart.getChart().getPlotBackground().setStyle("-fx-background-color: " + cssBGColor + ";");
 
-                        lineChart.getChart().setStyle("-fx-background-color: " + cssBGColor + ";");
-                        this.lineChart.getChart().getAxes().forEach(axis -> {
+                        xyChart.getChart().setStyle("-fx-background-color: " + cssBGColor + ";");
+                        this.xyChart.getChart().getAxes().forEach(axis -> {
                             if (axis instanceof DefaultNumericAxis) {
                                 DefaultNumericAxis defaultNumericAxis = (DefaultNumericAxis) axis;
                                 defaultNumericAxis.getAxisLabel().setVisible(false);
                                 defaultNumericAxis.setStyle("-fx-text-color: " + ColorHelper.toRGBCode(this.config.getFontColor()) + ";");
                             }
                         });
-                        lineChart.getChart().requestLayout();
+                        xyChart.getChart().requestLayout();
                     }
                 } catch (Exception ex) {
                     logger.error(ex);

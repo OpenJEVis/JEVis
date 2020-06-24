@@ -33,40 +33,6 @@
       }
     },
     {
-      "type": "Fuel",
-      "descriptions": {
-        "de": "Treibstoff, mit dem der Kompressor betrieben wird",
-        "ru": "Топливо, с которым работает компрессор",
-        "en": "Fuel which is used to power the compressor",
-        "th": "เชื้อเพลิงที่ใช้กับคอมเพรสเซอร์",
-        "uk": "Паливо, з яким працює компресор"
-      },
-      "names": {
-        "de": "Treibstoff",
-        "ru": "топливо",
-        "en": "Fuel",
-        "th": "เชื้อเพลิง",
-        "uk": "пальне"
-      }
-    },
-    {
-      "type": "Full Load Speed",
-      "descriptions": {
-        "de": "Volllastgeschwindigkeit",
-        "ru": "Скорость полной нагрузки",
-        "en": "Full Load Speed",
-        "th": "โหลดเต็มความเร็ว",
-        "uk": "Повна швидкість навантаження"
-      },
-      "names": {
-        "de": "Volllastgeschwindigkeit",
-        "ru": "Скорость полной нагрузки",
-        "en": "Full Load Speed",
-        "th": "โหลดเต็มความเร็ว",
-        "uk": "Повна швидкість навантаження"
-      }
-    },
-    {
       "type": "Normal Operating Pressure",
       "descriptions": {
         "de": "Normaler Betriebsdruck",
@@ -81,57 +47,6 @@
         "en": "Normal Operating Pressure",
         "th": "ความดันใช้งานปกติ",
         "uk": "Нормальний робочий тиск"
-      }
-    },
-    {
-      "type": "Power at Full Load",
-      "descriptions": {
-        "de": "Vollastleistung",
-        "ru": "Полная нагрузка",
-        "en": "Full-load power",
-        "th": "โหลดเต็ม",
-        "uk": "Повне навантаження"
-      },
-      "names": {
-        "de": "Vollastleistung",
-        "ru": "Полная нагрузка",
-        "en": "Full-load power",
-        "th": "โหลดเต็ม",
-        "uk": "Повне навантаження"
-      }
-    },
-    {
-      "type": "Standby Consumption",
-      "descriptions": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      },
-      "names": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      }
-    },
-    {
-      "type": "Type",
-      "descriptions": {
-        "de": "Typ",
-        "ru": "Тип",
-        "en": "Type",
-        "th": "ชนิด",
-        "uk": "Тип"
-      },
-      "names": {
-        "de": "Typ",
-        "ru": "Тип",
-        "en": "Type",
-        "th": "ชนิด",
-        "uk": "Тип"
       }
     }
   ]

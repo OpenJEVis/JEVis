@@ -19,6 +19,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.unit.ChartUnits.ChartUnits;
+import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.plugin.SimpleTargetPlugin;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -42,21 +43,21 @@ public class DataModelDataHandler {
 
     public final static String TYPE = "SimpleDataHandler";
     private static final Logger logger = LogManager.getLogger(DataModelDataHandler.class);
-    private JEVisDataSource jeVisDataSource;
+    private final JEVisDataSource jeVisDataSource;
     public ObjectProperty<DateTime> lastUpdate = new SimpleObjectProperty<>();
-    private Map<String, JEVisAttribute> attributeMap = new HashMap<>();
-    private BooleanProperty enableMultiSelect = new SimpleBooleanProperty(false);
-    private StringProperty unitProperty = new SimpleStringProperty("");
-    private SimpleTargetPlugin simpleTargetPlugin = new SimpleTargetPlugin();
-    private List<ChartDataRow> chartDataRows = new ArrayList<>();
-    private ObjectProperty<Interval> durationProperty = new SimpleObjectProperty<>();
+    private final Map<String, JEVisAttribute> attributeMap = new HashMap<>();
+    private final BooleanProperty enableMultiSelect = new SimpleBooleanProperty(false);
+    private final StringProperty unitProperty = new SimpleStringProperty("");
+    private final SimpleTargetPlugin simpleTargetPlugin = new SimpleTargetPlugin();
+    private final List<ChartDataRow> chartDataRows = new ArrayList<>();
+    private final ObjectProperty<Interval> durationProperty = new SimpleObjectProperty<>();
     private DataModelNode dataModelNode = new DataModelNode();
     private boolean autoAggregation = false;
     private boolean forcedInterval = false;
-    private TimeFrames timeFrames;
-    private List<TimeFrameFactory> timeFrameFactories = new ArrayList<>();
+    private final TimeFrames timeFrames;
+    private final List<TimeFrameFactory> timeFrameFactories = new ArrayList<>();
     private String forcedPeriod;
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
     private TimeFrameFactory timeFrameFactory;
 
     public void debug() {
@@ -120,7 +121,6 @@ public class DataModelDataHandler {
                 ex.printStackTrace();
             }
         }
-
 
         setData(this.dataModelNode.getData());
         this.timeFrames = new TimeFrames(jeVisDataSource);
@@ -190,6 +190,12 @@ public class DataModelDataHandler {
                             chartDataRow.setColor(ColorHelper.toRGBCode(dataPointNode.getColor()));
                         } else {
                             chartDataRow.setColor(ColorHelper.toRGBCode(Color.LIGHTBLUE));
+                        }
+
+                        if (dataPointNode.getChartType() != null) {
+                            chartDataRow.setChartType(dataPointNode.getChartType());
+                        } else {
+                            chartDataRow.setChartType(ChartType.LINE);
                         }
 
                         if (dataPointNode.getUnit() != null) {
@@ -356,6 +362,11 @@ public class DataModelDataHandler {
                 dataNode.put("objectID", dataPointNode.getObjectID());
                 dataNode.put("attribute", dataPointNode.getAttribute());
                 dataNode.put("calculationID", dataPointNode.getCalculationID());
+                if (dataPointNode.getChartType() != null) {
+                    dataNode.put("chartType", dataPointNode.getChartType().toString());
+                } else {
+                    dataNode.put("chartType", ChartType.LINE.toString());
+                }
                 dataNode.put("aggregationPeriod", dataPointNode.getAggregationPeriod().toString());
                 dataNode.put("manipulationMode", dataPointNode.getManipulationMode().toString());
                 dataNode.put("absolute", dataPointNode.isAbsolute());

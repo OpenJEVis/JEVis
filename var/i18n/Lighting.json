@@ -84,23 +84,6 @@
       }
     },
     {
-      "type": "Measurement",
-      "descriptions": {
-        "de": "Auf welche Art und Weise Daten erhoben werden, automatisch oder elektronische Erfassung",
-        "ru": "Как данные собираются, автоматически или в электронном виде",
-        "en": "How data is collected, automatically or electronically",
-        "th": "วิธีการรวบรวมข้อมูลโดยอัตโนมัติหรือทางอิเล็กทรอนิกส์",
-        "uk": "Як збираються дані, автоматично або в електронному вигляді"
-      },
-      "names": {
-        "de": "Messdatenerfassung",
-        "ru": "Сбор данных измерений",
-        "en": "Measurement",
-        "th": "การเก็บข้อมูลการวัด",
-        "uk": "Збір даних про вимірювання"
-      }
-    },
-    {
       "type": "Number of Lamps",
       "descriptions": {
         "de": "Anzahl der Leuchten",
@@ -115,40 +98,6 @@
         "en": "Number of Lights",
         "th": "จำนวนไฟ",
         "uk": "Кількість вогнів"
-      }
-    },
-    {
-      "type": "Standby Consumption",
-      "descriptions": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      },
-      "names": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      }
-    },
-    {
-      "type": "Type",
-      "descriptions": {
-        "de": "Typ",
-        "ru": "Тип",
-        "en": "Type",
-        "th": "ชนิด",
-        "uk": "Тип"
-      },
-      "names": {
-        "de": "Typ",
-        "ru": "Тип",
-        "en": "Type",
-        "th": "ชนิด",
-        "uk": "Тип"
       }
     }
   ]

@@ -4,8 +4,10 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.jevis.api.*;
@@ -18,6 +20,8 @@ import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.Benchmark;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
+import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeItem;
@@ -35,6 +39,7 @@ public class WidgetTreePlugin implements TreePlugin {
 
     public static String COLUMN = "DataModel";
     public static String COLUMN_COLOR = I18n.getInstance().getString("plugin.dashboard.datatree.color");
+    public static String COLUMN_CHART_TYPE = I18n.getInstance().getString("graph.tabs.tab.charttype");
     public static String COLUMN_SELECTED = I18n.getInstance().getString("plugin.dashboard.datatree.selection");
     public static String COLUMN_ENPI = I18n.getInstance().getString("plugin.dashboard.datatree.math");
     public static String COLUMN_AGGREGATION = I18n.getInstance().getString("plugin.graph.interval.label");
@@ -54,11 +59,11 @@ public class WidgetTreePlugin implements TreePlugin {
     private JEVisTree jeVisTree;
     private JEVisClass cleanDataClass = null;
 
-    private List<JEVisTreeItem> selectedTreeItems = new ArrayList<>();
+    private final List<JEVisTreeItem> selectedTreeItems = new ArrayList<>();
 
     private Map<Long, Long> targetCalcMap = new HashMap<>();
 
-    private List<ManipulationMode> customList = new ArrayList<ManipulationMode>() {
+    private final List<ManipulationMode> customList = new ArrayList<ManipulationMode>() {
         {
             add(ManipulationMode.NONE);
             add(ManipulationMode.RUNNING_MEAN);
@@ -148,6 +153,7 @@ public class WidgetTreePlugin implements TreePlugin {
 
         pluginHeader.getColumns().addAll(
                 buildSelection(),
+                buildChartType(),
                 buildColorColumn(),
                 buildManipulationColumn(),
                 buildAggregationColumn(),
@@ -157,6 +163,74 @@ public class WidgetTreePlugin implements TreePlugin {
         list.add(pluginHeader);
 
         return list;
+    }
+
+    private TreeTableColumn<JEVisTreeRow, ChartType> buildChartType() {
+        TreeTableColumn<JEVisTreeRow, ChartType> column = new TreeTableColumn<>(COLUMN_CHART_TYPE);
+        column.setPrefWidth(114);
+        column.setEditable(true);
+        column.setId(COLUMN_CHART_TYPE);
+
+        column.setCellValueFactory(param -> {
+            DataPointNode dataPoint = getDataPointNode(param.getValue().getValue());
+            if (dataPoint != null && dataPoint.getChartType() != null) {
+                return new ReadOnlyObjectWrapper<>(dataPoint.getChartType());
+            }
+            return new ReadOnlyObjectWrapper<>(ChartType.LINE);
+        });
+
+        column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, ChartType>, TreeTableCell<JEVisTreeRow, ChartType>>() {
+
+            @Override
+            public TreeTableCell<JEVisTreeRow, ChartType> call(TreeTableColumn<JEVisTreeRow, ChartType> param) {
+
+
+                TreeTableCell<JEVisTreeRow, ChartType> cell = new TreeTableCell<JEVisTreeRow, ChartType>() {
+                    @Override
+                    public void commitEdit(ChartType chartType) {
+
+                        super.commitEdit(chartType);
+                        DataPointNode dataPoint = getDataPointNode(getTreeTableRow().getItem());
+                        dataPoint.setChartType(chartType);
+                    }
+
+                    @Override
+                    protected void updateItem(ChartType item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        setText(null);
+                        setGraphic(null);
+
+                        if (!empty) {
+                            try {
+                                boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+
+                                if (show) {
+
+                                    ChartTypeComboBox comboBoxChartType = new ChartTypeComboBox(item);
+                                    comboBoxChartType.setPrefWidth(114);
+
+                                    comboBoxChartType.valueProperty().addListener((observable, oldValue, newValue) -> {
+                                        if (oldValue == null || newValue != oldValue) {
+                                            ChartType type = ChartType.parseChartType(comboBoxChartType.getSelectionModel().getSelectedIndex());
+                                            commitEdit(type);
+                                        }
+                                    });
+
+                                    setGraphic(comboBoxChartType);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                };
+
+                return cell;
+            }
+        });
+        return column;
     }
 
     private TreeTableColumn<JEVisTreeRow, JEVisUnit> buildUnitColumn() {
@@ -695,7 +769,9 @@ public class WidgetTreePlugin implements TreePlugin {
                                         ex.printStackTrace();
                                     }
                                 });
-                                setGraphic(new BorderPane(colorPicker));
+                                HBox hBox = new HBox(colorPicker);
+                                hBox.setAlignment(Pos.CENTER);
+                                setGraphic(hBox);
                             }
                         }
                     }

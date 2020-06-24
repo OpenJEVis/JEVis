@@ -11,28 +11,10 @@
   ],
   "types": [
     {
-      "name": "Current",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Engine"
-    },
-    {
-      "name": "Voltage",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Engine"
-    },
-    {
       "name": "Efficiency Class",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 0,
+      "guiposition": 10,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Engine"
@@ -41,7 +23,7 @@
       "name": "Power Factor",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "guiposition": 0,
+      "guiposition": 11,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Engine"

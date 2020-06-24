@@ -150,7 +150,7 @@ public class EquipmentPlugin implements Plugin {
                 tableView.getColumns().add(multiSiteColumn);
             }
 
-            TableColumn<RegisterTableRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnname"));
+            TableColumn<RegisterTableRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.equipment.table.equipment.columnname"));
             nameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject().getName()));
             nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
             nameColumn.setSortable(false);
@@ -1109,7 +1109,7 @@ public class EquipmentPlugin implements Plugin {
 
     @Override
     public String getToolTip() {
-        return I18n.getInstance().getString("plugin.meters.tooltip");
+        return I18n.getInstance().getString("plugin.equipment.tooltip");
     }
 
     @Override

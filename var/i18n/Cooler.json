@@ -1,7 +1,7 @@
 {
   "jevisclass": "Cooler",
   "names": {
-    "de": "Verdichter",
+    "de": "Kühlung",
     "ru": "компрессор",
     "en": "Cooler",
     "th": "คอมเพรสเซอร์",
@@ -15,40 +15,6 @@
     "uk": "Клас кулерів містить дані з охолоджувача будівельного обладнання. Атрибути класу включають повний опис конкретних енергетичних даних кулера."
   },
   "types": [
-    {
-      "type": "Chiller Control",
-      "descriptions": {
-        "de": "Kühlaggregatregulierung",
-        "ru": "Регулирование блока охлаждения",
-        "en": "Chiller Control",
-        "th": "ระเบียบหน่วยทำความเย็น",
-        "uk": "Регулювання блоку охолодження"
-      },
-      "names": {
-        "de": "Kühlaggregatregulierung",
-        "ru": "Регулирование блока охлаждения",
-        "en": "Chiller Control",
-        "th": "ระเบียบหน่วยทำความเย็น",
-        "uk": "Регулювання блоку охолодження"
-      }
-    },
-    {
-      "type": "Composite or single Plant",
-      "descriptions": {
-        "de": "Gemischt- oder Einzelbetrieb",
-        "ru": "Смешанная или индивидуальная операция",
-        "en": "Composite or single Plant",
-        "th": "การทำงานแบบผสมหรือแบบเดี่ยว",
-        "uk": "Змішана або індивідуальна операція"
-      },
-      "names": {
-        "de": "Gemischt- oder Einzelbetrieb",
-        "ru": "Смешанная или индивидуальная операция",
-        "en": "Composite or single Plant",
-        "th": "การทำงานแบบผสมหรือแบบเดี่ยว",
-        "uk": "Змішана або індивідуальна операція"
-      }
-    },
     {
       "type": "Cooling Capacity",
       "descriptions": {
@@ -67,40 +33,6 @@
       }
     },
     {
-      "type": "Heat Recovery",
-      "descriptions": {
-        "de": "Wärmerückgewinnung",
-        "ru": "Рекуперация тепла",
-        "en": "Heat Recovery",
-        "th": "นำความร้อนกลับคืน",
-        "uk": "Відновлення тепла"
-      },
-      "names": {
-        "de": "Wärmerückgewinnung",
-        "ru": "Рекуперация тепла",
-        "en": "Heat Recovery",
-        "th": "นำความร้อนกลับคืน",
-        "uk": "Відновлення тепла"
-      }
-    },
-    {
-      "type": "Number of Compressors",
-      "descriptions": {
-        "de": "Anzahl der Kompressoren",
-        "ru": "Количество компрессоров",
-        "en": "Number of Compressors",
-        "th": "จำนวนคอมเพรสเซอร์",
-        "uk": "Кількість компресорів"
-      },
-      "names": {
-        "de": "Anzahl der Kompressoren",
-        "ru": "Количество компрессоров",
-        "en": "Number of Compressors",
-        "th": "จำนวนคอมเพรสเซอร์",
-        "uk": "Кількість компресорів"
-      }
-    },
-    {
       "type": "Performance Number Compressor",
       "descriptions": {
         "de": "Leistungszahl des Kompressors",
@@ -115,23 +47,6 @@
         "en": "Performance Number Compressor",
         "th": "ค่าสัมประสิทธิ์สมรรถนะของคอมเพรสเซอร์",
         "uk": "Коефіцієнт працездатності компресора"
-      }
-    },
-    {
-      "type": "Power",
-      "descriptions": {
-        "de": "Leistung",
-        "ru": "сила",
-        "en": "Power",
-        "th": "อำนาจ",
-        "uk": "потужність"
-      },
-      "names": {
-        "de": "Leistung",
-        "ru": "сила",
-        "en": "Power",
-        "th": "อำนาจ",
-        "uk": "потужність"
       }
     },
     {
@@ -183,57 +98,6 @@
         "en": "Served Area",
         "th": "พื้นที่ให้บริการ",
         "uk": "Обслугована площа"
-      }
-    },
-    {
-      "type": "Standby Consumption",
-      "descriptions": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      },
-      "names": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      }
-    },
-    {
-      "type": "Type",
-      "descriptions": {
-        "de": "Typ",
-        "ru": "Тип",
-        "en": "Type",
-        "th": "ชนิด",
-        "uk": "Тип"
-      },
-      "names": {
-        "de": "Typ",
-        "ru": "Тип",
-        "en": "Type",
-        "th": "ชนิด",
-        "uk": "Тип"
-      }
-    },
-    {
-      "type": "Year and Serial Number",
-      "descriptions": {
-        "de": "Jahr und Seriennummer",
-        "ru": "Год и серийный номер",
-        "en": "Year and Serial Number",
-        "th": "ปีและหมายเลขซีเรียล",
-        "uk": "Рік та серійний номер"
-      },
-      "names": {
-        "de": "Jahr und Seriennummer",
-        "ru": "Год и серийный номер",
-        "en": "Year and Serial Number",
-        "th": "ปีและหมายเลขซีเรียล",
-        "uk": "Рік та серійний номер"
       }
     }
   ]

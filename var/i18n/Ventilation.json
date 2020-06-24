@@ -1,7 +1,7 @@
 {
   "jevisclass": "Ventilation",
   "names": {
-    "de": "Belüftung",
+    "de": "Lüftung",
     "ru": "вентиляция",
     "en": "Ventilation",
     "th": "การระบายอากาศ",
@@ -30,40 +30,6 @@
         "en": "Air Exchange Rate",
         "th": "อัตราแลกเปลี่ยนอากาศ",
         "uk": "Обмінний курс"
-      }
-    },
-    {
-      "type": "Controlling Air Conditioning System with Time manually and Temperature",
-      "descriptions": {
-        "de": "Steuerung der Klimaanlage mit Zeit manuell und Temperatur",
-        "ru": "Управление кондиционером со временем вручную и температурой",
-        "en": "Controling Air Conditioning System with Time manually and Temperature",
-        "th": "การควบคุมเครื่องปรับอากาศด้วยเวลาด้วยตนเองและอุณหภูมิ",
-        "uk": "Управління кондиціонером з часом вручну та температурою"
-      },
-      "names": {
-        "de": "Steuerung der Klimaanlage mit Zeit manuell und Temperatur",
-        "ru": "Управление кондиционером со временем вручную и температурой",
-        "en": "Controling Air Conditioning System with Time manually and Temperature",
-        "th": "การควบคุมเครื่องปรับอากาศด้วยเวลาด้วยตนเองและอุณหภูมิ",
-        "uk": "Управління кондиціонером з часом вручну та температурою"
-      }
-    },
-    {
-      "type": "Ducted Airflow",
-      "descriptions": {
-        "de": "Geführter Luftstrom",
-        "ru": "Управляемый поток воздуха",
-        "en": "Ducted Airflow",
-        "th": "การไหลเวียนของอากาศ",
-        "uk": "Керований потік повітря"
-      },
-      "names": {
-        "de": "Geführter Luftstrom",
-        "ru": "Управляемый поток воздуха",
-        "en": "Ducted Airflow",
-        "th": "การไหลเวียนของอากาศ",
-        "uk": "Керований потік повітря"
       }
     },
     {
@@ -101,91 +67,6 @@
       }
     },
     {
-      "type": "Heat Recovery",
-      "descriptions": {
-        "de": "Wärmerückgewinnung",
-        "ru": "Рекуперация тепла",
-        "en": "Heat Recovery",
-        "th": "นำความร้อนกลับคืน",
-        "uk": "Відновлення тепла"
-      },
-      "names": {
-        "de": "Wärmerückgewinnung",
-        "ru": "Рекуперация тепла",
-        "en": "Heat Recovery",
-        "th": "นำความร้อนกลับคืน",
-        "uk": "Відновлення тепла"
-      }
-    },
-    {
-      "type": "Power Condenser",
-      "descriptions": {
-        "de": "Leistung Kondensator",
-        "ru": "Силовой конденсатор",
-        "en": "Power Condenser",
-        "th": "ตัวเก็บประจุไฟ",
-        "uk": "Силовий конденсатор"
-      },
-      "names": {
-        "de": "Leistung Kondensator",
-        "ru": "Силовой конденсатор",
-        "en": "Power Condenser",
-        "th": "ตัวเก็บประจุไฟ",
-        "uk": "Силовий конденсатор"
-      }
-    },
-    {
-      "type": "Power Preheater",
-      "descriptions": {
-        "de": "Leistung Vorerhitzer",
-        "ru": "Производительность подогревателя",
-        "en": "Power Preheater",
-        "th": "preheater ประสิทธิภาพ",
-        "uk": "Підігрівач продуктивності"
-      },
-      "names": {
-        "de": "Leistung Vorerhitzer",
-        "ru": "Производительность подогревателя",
-        "en": "Power Preheater",
-        "th": "preheater ประสิทธิภาพ",
-        "uk": "Підігрівач продуктивності"
-      }
-    },
-    {
-      "type": "Power Reheater",
-      "descriptions": {
-        "de": "Leistung Nacherwärmer",
-        "ru": "Производительный подогреватель",
-        "en": "Power Reheater",
-        "th": "นักแสดงประสิทธิภาพ",
-        "uk": "Підігрівач продуктивності"
-      },
-      "names": {
-        "de": "Leistung Nacherwärmer",
-        "ru": "Производительный подогреватель",
-        "en": "Power Reheater",
-        "th": "นักแสดงประสิทธิภาพ",
-        "uk": "Підігрівач продуктивності"
-      }
-    },
-    {
-      "type": "Proportion of Recirculated Air",
-      "descriptions": {
-        "de": "Anteil des Umluftbetriebs",
-        "ru": "Доля режима рециркуляции",
-        "en": "Proportion of Recirculated Air",
-        "th": "แบ่งปันโหมดการหมุนเวียน",
-        "uk": "Частка режиму рециркуляції"
-      },
-      "names": {
-        "de": "Anteil des Umluftbetriebs",
-        "ru": "Доля режима рециркуляции",
-        "en": "Proportion of Recirculated Air",
-        "th": "แบ่งปันโหมดการหมุนเวียน",
-        "uk": "Частка режиму рециркуляції"
-      }
-    },
-    {
       "type": "Remark",
       "descriptions": {
         "de": "Anmerkung",
@@ -203,40 +84,6 @@
       }
     },
     {
-      "type": "Standby Consumption",
-      "descriptions": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      },
-      "names": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      }
-    },
-    {
-      "type": "Supply Air Volume Flow",
-      "descriptions": {
-        "de": "Luftvolumenstrom Zuführung",
-        "ru": "Объем подачи воздуха",
-        "en": "Supply Air Volume Flow",
-        "th": "ปริมาณการไหลของอากาศ",
-        "uk": "Подача об'ємного потоку повітря"
-      },
-      "names": {
-        "de": "Luftvolumenstrom Zuführung",
-        "ru": "Объем подачи воздуха",
-        "en": "Supply Air Volume Flow",
-        "th": "ปริมาณการไหลของอากาศ",
-        "uk": "Подача об'ємного потоку повітря"
-      }
-    },
-    {
       "type": "Supply Area",
       "descriptions": {
         "de": "Versorgungsbereich",
@@ -251,40 +98,6 @@
         "en": "Supply Area",
         "th": "พื้นที่ครอบคลุม",
         "uk": "Площа покриття"
-      }
-    },
-    {
-      "type": "Type of Control",
-      "descriptions": {
-        "de": "Art der Steuerung",
-        "ru": "Тип управления",
-        "en": "Type of Control",
-        "th": "ประเภทการควบคุม",
-        "uk": "Тип управління"
-      },
-      "names": {
-        "de": "Art der Steuerung",
-        "ru": "Тип управления",
-        "en": "Type of Control",
-        "th": "ประเภทการควบคุม",
-        "uk": "Тип управління"
-      }
-    },
-    {
-      "type": "Uptime",
-      "descriptions": {
-        "de": "Betriebszeit",
-        "ru": "Рабочее время",
-        "en": "Uptime",
-        "th": "เวลาทำงาน",
-        "uk": "Час роботи"
-      },
-      "names": {
-        "de": "Betriebszeit",
-        "ru": "Рабочее время",
-        "en": "Uptime",
-        "th": "เวลาทำงาน",
-        "uk": "Час роботи"
       }
     }
   ]

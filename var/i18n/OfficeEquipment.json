@@ -16,74 +16,6 @@
   },
   "types": [
     {
-      "type": "Measurement",
-      "descriptions": {
-        "de": "Auf welche Art und Weise Daten erhoben werden, automatisch oder elektronische Erfassung",
-        "ru": "Как данные собираются, автоматически или в электронном виде",
-        "en": "How data is collected, automatically or electronically",
-        "th": "วิธีการรวบรวมข้อมูลโดยอัตโนมัติหรือทางอิเล็กทรอนิกส์",
-        "uk": "Як збираються дані, автоматично або в електронному вигляді"
-      },
-      "names": {
-        "de": "Messdatenerfassung",
-        "ru": "Сбор данных измерений",
-        "en": "Measurement",
-        "th": "การเก็บข้อมูลการวัด",
-        "uk": "Збір даних про вимірювання"
-      }
-    },
-    {
-      "type": "Name",
-      "descriptions": {
-        "de": "Name",
-        "ru": "имя",
-        "en": "Name",
-        "th": "ชื่อ",
-        "uk": "Ім'я"
-      },
-      "names": {
-        "de": "Name",
-        "ru": "имя",
-        "en": "Name",
-        "th": "ชื่อ",
-        "uk": "Ім'я"
-      }
-    },
-    {
-      "type": "Number",
-      "descriptions": {
-        "de": "Anzahl",
-        "ru": "число",
-        "en": "Number",
-        "th": "จำนวน",
-        "uk": "число"
-      },
-      "names": {
-        "de": "Anzahl",
-        "ru": "число",
-        "en": "Number",
-        "th": "จำนวน",
-        "uk": "число"
-      }
-    },
-    {
-      "type": "Power",
-      "descriptions": {
-        "de": "Leistung",
-        "ru": "сила",
-        "en": "Power",
-        "th": "อำนาจ",
-        "uk": "потужність"
-      },
-      "names": {
-        "de": "Leistung",
-        "ru": "сила",
-        "en": "Power",
-        "th": "อำนาจ",
-        "uk": "потужність"
-      }
-    },
-    {
       "type": "Sector",
       "descriptions": {
         "de": "Bereich",
@@ -98,23 +30,6 @@
         "en": "Sector",
         "th": "พื้นที่",
         "uk": "Площа"
-      }
-    },
-    {
-      "type": "Standby Consumption",
-      "descriptions": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
-      },
-      "names": {
-        "de": "Ruheleistung",
-        "ru": "Спокойное пособие",
-        "en": "Standby power",
-        "th": "ผลประโยชน์เงียบสงบ",
-        "uk": "Вигода у спокої"
       }
     }
   ]
