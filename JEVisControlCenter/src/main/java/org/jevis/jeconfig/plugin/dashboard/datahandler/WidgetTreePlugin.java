@@ -4,8 +4,10 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.jevis.api.*;
@@ -767,7 +769,9 @@ public class WidgetTreePlugin implements TreePlugin {
                                         ex.printStackTrace();
                                     }
                                 });
-                                setGraphic(new BorderPane(colorPicker));
+                                HBox hBox = new HBox(colorPicker);
+                                hBox.setAlignment(Pos.CENTER);
+                                setGraphic(hBox);
                             }
                         }
                     }
