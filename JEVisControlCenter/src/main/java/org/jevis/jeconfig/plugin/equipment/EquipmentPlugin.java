@@ -369,7 +369,7 @@ public class EquipmentPlugin implements Plugin {
                                     JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataFilter();
                                     allFilter.add(allDataFilter);
 
-                                    selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.SINGLE);
+                                    selectTargetDialog = new SelectTargetDialog(allFilter, allDataFilter, null, SelectionMode.MULTIPLE);
                                     selectTargetDialog.setInitOwner(treeButton.getScene().getWindow());
 
                                     List<UserSelection> openList = new ArrayList<>();
