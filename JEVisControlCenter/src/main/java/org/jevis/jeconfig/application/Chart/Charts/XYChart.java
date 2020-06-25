@@ -467,7 +467,7 @@ public class XYChart implements Chart {
             ErrorDataSetRenderer rendererY2;
 
             ChartType ct;
-            if (xyChartSerie.getSingleRow().getChartType() == null) {
+            if (xyChartSerie.getSingleRow().getChartType() == null || xyChartSerie.getSingleRow().getChartType() == ChartType.DEFAULT) {
                 ct = this.chartType;
             } else {
                 ct = xyChartSerie.getSingleRow().getChartType();

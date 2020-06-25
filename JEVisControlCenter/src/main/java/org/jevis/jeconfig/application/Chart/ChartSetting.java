@@ -10,7 +10,7 @@ public class ChartSetting {
     private String name;
     private ChartType chartType;
     private Double height;
-    private ColorMapping colorMapping;
+    private ColorMapping colorMapping = ColorMapping.GREEN_YELLOW_RED;
     private Long groupingInterval;
 
     private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);

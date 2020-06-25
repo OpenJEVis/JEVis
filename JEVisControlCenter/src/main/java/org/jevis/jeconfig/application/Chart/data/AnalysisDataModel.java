@@ -327,7 +327,7 @@ public class AnalysisDataModel {
 
                     if (settings.getChartType() != null) {
                         newSettings.setChartType(ChartType.parseChartType(settings.getChartType()));
-                    } else newSettings.setChartType(ChartType.AREA);
+                    } else newSettings.setChartType(ChartType.LINE);
 
                     if (settings.getColorMapping() != null) {
                         newSettings.setColorMapping(parseColorMapping(settings.getColorMapping()));
@@ -1066,13 +1066,10 @@ public class AnalysisDataModel {
                     }
 
                     if (mdl.getChartType() != null) {
-                        newData.setChartType(ChartType.parseChartType(mdl.getChartType()));
+                        ChartType chartType = ChartType.parseChartType(mdl.getChartType());
+                        newData.setChartType(chartType);
                     } else {
-                        getCharts().getListSettings().forEach(chartSetting -> {
-                            if (newData.getSelectedcharts().contains(chartSetting.getId())) {
-                                newData.setChartType(chartSetting.getChartType());
-                            }
-                        });
+                        newData.setChartType(ChartType.DEFAULT);
                     }
 
                     newData.setCustomWorkDay(isCustomWorkDay());
