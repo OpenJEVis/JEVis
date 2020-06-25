@@ -17,6 +17,10 @@ import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
  */
@@ -102,6 +106,14 @@ public class ChartTypeColumn extends TreeTableColumn<JEVisTreeRow, ChartType> im
                                     ChartDataRow data = getData(getTreeTableRow().getItem());
 
                                     ChartTypeComboBox comboBoxChartType = new ChartTypeComboBox(data.getChartType());
+                                    List<String> disabledItems = new ArrayList<>();
+                                    comboBoxChartType.getItems().forEach(o -> {
+                                        int i = comboBoxChartType.getItems().indexOf(o);
+                                        if (i == 1 || i == 3 || i == 5 || i == 7 || i == 8 || i == 9) {
+                                            disabledItems.add(o);
+                                        }
+                                    });
+                                    comboBoxChartType.setDisabledItems(disabledItems);
                                     comboBoxChartType.setDisable(true);
                                     comboBoxChartType.setPrefWidth(114);
 
@@ -136,8 +148,17 @@ public class ChartTypeColumn extends TreeTableColumn<JEVisTreeRow, ChartType> im
                                     stackPane.getChildren().add(hbox);
                                     StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
 
-                                    comboBoxChartType.setDisable(!data.isSelectable());
-                                    tb.setDisable(!data.isSelectable());
+                                    AtomicBoolean selectable = new AtomicBoolean(false);
+                                    getData().getCharts().getListSettings().forEach(chartSetting -> {
+                                        ChartType chartType = chartSetting.getChartType();
+                                        if (data.getSelectedcharts().contains(chartSetting.getId()) &&
+                                                (chartType == ChartType.LINE || chartType == ChartType.AREA
+                                                        || chartType == ChartType.COLUMN || chartType == ChartType.SCATTER)) {
+                                            selectable.set(true);
+                                        }
+                                    });
+                                    comboBoxChartType.setDisable(!selectable.get());
+                                    tb.setDisable(!selectable.get());
                                     setGraphic(stackPane);
                                 }
                             } catch (Exception e) {

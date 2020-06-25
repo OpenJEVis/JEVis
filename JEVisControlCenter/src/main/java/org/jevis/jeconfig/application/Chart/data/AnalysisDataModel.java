@@ -1068,20 +1068,8 @@ public class AnalysisDataModel {
                     if (mdl.getChartType() != null) {
                         ChartType chartType = ChartType.parseChartType(mdl.getChartType());
                         newData.setChartType(chartType);
-                        if (chartType == ChartType.BUBBLE || chartType == ChartType.PIE || chartType == ChartType.HEAT_MAP
-                                || chartType == ChartType.TABLE || chartType == ChartType.BAR || chartType == ChartType.LOGICAL) {
-                            getCharts().getListSettings().forEach(chartSetting -> {
-                                if (newData.getSelectedcharts().contains(chartSetting.getId())) {
-                                    chartSetting.setChartType(chartType);
-                                }
-                            });
-                        }
                     } else {
-                        getCharts().getListSettings().forEach(chartSetting -> {
-                            if (newData.getSelectedcharts().contains(chartSetting.getId())) {
-                                newData.setChartType(chartSetting.getChartType());
-                            }
-                        });
+                        newData.setChartType(ChartType.DEFAULT);
                     }
 
                     newData.setCustomWorkDay(isCustomWorkDay());

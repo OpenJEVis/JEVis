@@ -31,7 +31,7 @@ public class ChartDataRow {
     private DateTime selectedEnd;
     private JEVisObject object;
     private JEVisAttribute attribute;
-    private ChartType chartType;
+    private ChartType chartType = ChartType.DEFAULT;
     private String color = "#1FBED6";
     private AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
     private ManipulationMode manipulationMode = ManipulationMode.NONE;
