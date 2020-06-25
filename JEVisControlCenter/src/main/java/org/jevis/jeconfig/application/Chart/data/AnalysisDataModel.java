@@ -1066,7 +1066,16 @@ public class AnalysisDataModel {
                     }
 
                     if (mdl.getChartType() != null) {
-                        newData.setChartType(ChartType.parseChartType(mdl.getChartType()));
+                        ChartType chartType = ChartType.parseChartType(mdl.getChartType());
+                        newData.setChartType(chartType);
+                        if (chartType == ChartType.BUBBLE || chartType == ChartType.PIE || chartType == ChartType.HEAT_MAP
+                                || chartType == ChartType.TABLE || chartType == ChartType.BAR || chartType == ChartType.LOGICAL) {
+                            getCharts().getListSettings().forEach(chartSetting -> {
+                                if (newData.getSelectedcharts().contains(chartSetting.getId())) {
+                                    chartSetting.setChartType(chartType);
+                                }
+                            });
+                        }
                     } else {
                         getCharts().getListSettings().forEach(chartSetting -> {
                             if (newData.getSelectedcharts().contains(chartSetting.getId())) {

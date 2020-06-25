@@ -75,6 +75,15 @@ public class ChartTypeColumn extends TreeTableColumn<JEVisTreeRow, ChartType> im
                         ChartDataRow data = getData(getTreeTableRow().getItem());
 
                         data.setChartType(newValue);
+
+                        if (newValue == ChartType.BUBBLE || newValue == ChartType.PIE || newValue == ChartType.HEAT_MAP
+                                || newValue == ChartType.TABLE || newValue == ChartType.BAR || newValue == ChartType.LOGICAL) {
+                            getData().getCharts().getListSettings().forEach(chartSetting -> {
+                                if (data.getSelectedcharts().contains(chartSetting.getId())) {
+                                    chartSetting.setChartType(newValue);
+                                }
+                            });
+                        }
                     }
 
                     @Override
