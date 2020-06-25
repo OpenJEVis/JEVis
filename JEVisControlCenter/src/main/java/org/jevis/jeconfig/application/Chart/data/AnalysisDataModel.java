@@ -327,7 +327,7 @@ public class AnalysisDataModel {
 
                     if (settings.getChartType() != null) {
                         newSettings.setChartType(ChartType.parseChartType(settings.getChartType()));
-                    } else newSettings.setChartType(ChartType.AREA);
+                    } else newSettings.setChartType(ChartType.LINE);
 
                     if (settings.getColorMapping() != null) {
                         newSettings.setColorMapping(parseColorMapping(settings.getColorMapping()));

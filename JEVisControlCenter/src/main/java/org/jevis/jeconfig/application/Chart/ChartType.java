@@ -62,6 +62,7 @@ public enum ChartType {
             case ("DEFAULT"):
                 return DEFAULT;
             case ("AREA"):
+                return AREA;
             default:
                 return LINE;
         }
