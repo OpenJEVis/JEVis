@@ -142,12 +142,14 @@ public class DataModelDataHandler {
         return dateTimes;
     }
 
+    private final List<AggregationPeriod> initialAggregation = new ArrayList<>();
+
     public void setData(List<DataPointNode> data) {
         this.dataModelNode.setData(data);
         this.chartDataRows.clear();
         this.attributeMap.clear();
 
-        this.dataModelNode.getData().forEach(dataPointNode -> {
+        for (DataPointNode dataPointNode : this.dataModelNode.getData()) {
             try {
 //                logger.error("Add node: " + dataPointNode.toString());
 //                logger.debug("Add attribute: {}:{}", dataPointNode.getObjectID(), dataPointNode.getAttribute());
@@ -181,6 +183,7 @@ public class DataModelDataHandler {
 
                         chartDataRow.setManipulationMode(dataPointNode.getManipulationMode());
                         chartDataRow.setAggregationPeriod(dataPointNode.getAggregationPeriod());
+                        initialAggregation.add(dataPointNode.getAggregationPeriod());
                         List<Integer> integerList = new ArrayList<>();
                         integerList.add(0);
                         chartDataRow.setSelectedCharts(integerList);
@@ -227,8 +230,7 @@ public class DataModelDataHandler {
                 ex.printStackTrace();
             }
 
-        });
-
+        }
     }
 
     /**
@@ -341,13 +343,20 @@ public class DataModelDataHandler {
 
 
         for (ChartDataRow chartDataRow : getDataModel()) {
-            AggregationPeriod aggregationPeriod = getAggregationPeriod(interval);
-            ManipulationMode manipulationMode = getManipulationMode(interval);
+            int i = getDataModel().indexOf(chartDataRow);
+            AggregationPeriod initialAggregation = this.initialAggregation.get(i);
 
-            chartDataRow.setAggregationPeriod(aggregationPeriod);
-            chartDataRow.setManipulationMode(manipulationMode);
+            if (initialAggregation == AggregationPeriod.NONE) {
+                AggregationPeriod aggregationPeriod = getAggregationPeriod(interval);
+                chartDataRow.setAggregationPeriod(aggregationPeriod);
+            }
+
+            if (chartDataRow.getManipulationMode() == ManipulationMode.NONE) {
+                ManipulationMode manipulationMode = getManipulationMode(interval);
+                chartDataRow.setManipulationMode(manipulationMode);
+            }
+
             if (autoAggregation) chartDataRow.setAbsolute(true);
-
         }
     }
 

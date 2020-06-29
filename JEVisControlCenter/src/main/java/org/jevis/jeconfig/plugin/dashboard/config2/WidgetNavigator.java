@@ -32,7 +32,7 @@ import org.jevis.jeconfig.tool.ScreenSize;
 
 
 public class WidgetNavigator {
-    private double iconSize = 16;
+    private final double iconSize = 16;
     final ImageView lockIcon = JEConfig.getImage("eye_visible.png", this.iconSize, this.iconSize);
     final ImageView unlockIcon = JEConfig.getImage("eye_hidden.png", this.iconSize, this.iconSize);
 
@@ -89,7 +89,7 @@ public class WidgetNavigator {
             stage.hide();
         });
         stage.setOnHiding(event -> {
-            this.control.enableHightlightGlow(false);
+            this.control.enableHighlightGlow(false);
         });
 
 
@@ -261,7 +261,7 @@ public class WidgetNavigator {
         ToggleButton highlightButton = new ToggleButton("", this.unlockIcon);
 //        highlightButton.selectedProperty().bindBidirectional(this.control.highlightProperty);
         highlightButton.setOnAction(event -> {
-            control.enableHightlightGlow(highlightButton.isSelected());
+            control.enableHighlightGlow(highlightButton.isSelected());
         });
 
         highlightButton.selectedProperty().addListener((observable, oldValue, newValue) -> {

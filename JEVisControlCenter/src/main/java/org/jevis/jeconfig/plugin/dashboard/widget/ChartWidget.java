@@ -74,6 +74,7 @@ public class ChartWidget extends Widget {
     public void updateData(Interval interval) {
         logger.debug("Chart.Update: {}", interval);
         this.lastInterval = interval;
+
         if (sampleHandler == null) {
             showProgressIndicator(false);
             return;
@@ -87,28 +88,29 @@ public class ChartWidget extends Widget {
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
 
-        Platform.runLater(() -> {
-            try {
-                this.legend.getItems().clear();
-                this.sampleHandler.getDataModel().forEach(chartDataModel -> {
-                    try {
-                        String dataName = chartDataModel.getObject().getName();
-                        this.legend.getItems().add(
-                                this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), ColorHelper.toColor(chartDataModel.getColor()),
-                                        this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
-                                        chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata"), false));
 
-                    } catch (Exception ex) {
-                        logger.error(ex);
-                    }
-                });
-                /**
-                 * LineChart does not support updateData so we need to create an new one every time;
-                 */
-                AnalysisDataModel model = new AnalysisDataModel(getDataSource(), null);
-                ChartSetting chartSetting = new ChartSetting(0, "");
-                chartSetting.setChartType(null);
-                model.getCharts().setListSettings(Collections.singletonList(chartSetting));
+        try {
+            Platform.runLater(() -> this.legend.getItems().clear());
+            this.sampleHandler.getDataModel().forEach(chartDataModel -> {
+                try {
+                    String dataName = chartDataModel.getObject().getName();
+                    Platform.runLater(() -> this.legend.getItems().add(
+                            this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), ColorHelper.toColor(chartDataModel.getColor()),
+                                    this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
+                                    chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata"), false)));
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            });
+            /**
+             * LineChart does not support updateData so we need to create an new one every time;
+             */
+            AnalysisDataModel model = new AnalysisDataModel(getDataSource(), null);
+            ChartSetting chartSetting = new ChartSetting(0, "");
+            chartSetting.setChartType(null);
+            model.getCharts().setListSettings(Collections.singletonList(chartSetting));
+
+            Platform.runLater(() -> {
                 this.borderPane.setCenter(null);
                 this.xyChart = new XYChart();
                 this.xyChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting, true);
@@ -116,13 +118,14 @@ public class ChartWidget extends Widget {
                 this.borderPane.setCenter(this.xyChart.getChart());
                 Size configSize = getConfig().getSize();
                 xyChart.getChart().setPrefSize(configSize.getWidth() - 20, configSize.getHeight());
-                updateConfig();/** workaround because we make a new chart every time**/
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
+                updateConfig();
+            });
+            /** workaround because we make a new chart every time**/
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
 
-            showProgressIndicator(false);
-        });
+        showProgressIndicator(false);
     }
 
 
@@ -209,9 +212,9 @@ public class ChartWidget extends Widget {
         this.legend.setAlignment(Pos.CENTER);
 
 
-        bottomBorderPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("bottomBorderPane: " + newValue);
-        });
+//        bottomBorderPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+//            System.out.println("bottomBorderPane: " + newValue);
+//        });
         this.borderPane.setBottom(bottomBorderPane);
         this.borderPane.setBottom(this.legend);
         setGraphic(this.borderPane);

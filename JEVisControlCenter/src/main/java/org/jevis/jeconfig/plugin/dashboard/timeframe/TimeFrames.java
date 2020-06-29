@@ -30,7 +30,7 @@ public class TimeFrames {
     private static final Logger logger = LogManager.getLogger(TimeFrames.class);
     private JEVisDataSource ds;
     private WorkDays workDays = new WorkDays(null);
-    private ObservableList<TimeFrameFactory> list = FXCollections.observableArrayList();
+    private final ObservableList<TimeFrameFactory> list = FXCollections.observableArrayList();
 
     public TimeFrames(JEVisDataSource ds) {
         this.ds = ds;
@@ -47,6 +47,10 @@ public class TimeFrames {
         list.add(week());
         list.add(month());
         list.add(year());
+        list.add(threeYears());
+        list.add(fiveYears());
+        list.add(tenYears());
+
 
         list.add(new LastPeriod(new Period("PT24H"), I18n.getInstance().getString("plugin.dashboard.timefactory.pt24h")));
         list.add(new LastPeriod(new Period("P7D"), I18n.getInstance().getString("plugin.dashboard.timefactory.p7d")));
@@ -516,6 +520,207 @@ public class TimeFrames {
                 }
                 DateTime start = dateTime.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 DateTime end = new DateTime(dateTime.getYear(), 12, 31, 23, 59, 59, 999);
+
+                return getWorkdayInterval(start, end);
+            }
+
+            @Override
+            public boolean hasNextPeriod(Interval interval) {
+                return interval.getEnd().isBeforeNow();
+            }
+
+            @Override
+            public boolean hasPreviousPeriod(Interval interval) {
+                return true;
+            }
+
+
+        };
+    }
+
+    public TimeFrameFactory threeYears() {
+        return new TimeFrameFactory() {
+
+            @Override
+            public boolean equals(Object obj) {
+                return timeFrameEqual(obj);
+            }
+
+            @Override
+            public String toString() {
+                return getID();
+            }
+
+            @Override
+            public String getID() {
+                return Period.years(3).toString();
+            }
+
+            @Override
+            public String getListName() {
+                return I18n.getInstance().getString("plugin.object.report.dialog.period.last") + " "
+                        + I18n.getInstance().getString("plugin.object.report.dialog.aggregation.threeyears");
+            }
+
+            @Override
+            public Interval nextPeriod(Interval interval, int addAmount) {
+                Interval normalized = removeWorkdayInterval(interval);
+                return getInterval(normalized.getEnd().plus(Period.years(addAmount)));
+            }
+
+            @Override
+            public Interval previousPeriod(Interval interval, int addAmount) {
+                Interval normalized = removeWorkdayInterval(interval);
+                return getInterval(normalized.getStart().minus(Period.years(addAmount)));
+            }
+
+
+            @Override
+            public String format(Interval interval) {
+                return DateTimeFormat.forPattern("yyyy").print(interval.getEnd());
+            }
+
+            @Override
+            public Interval getInterval(DateTime dateTime) {
+                if (dateTime.isAfterNow()) {
+                    dateTime = DateTime.now();
+                }
+                DateTime start = dateTime.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusYears(3);
+                DateTime end = new DateTime(dateTime.getYear(), 12, 31, 23, 59, 59, 999).minusYears(1);
+
+                return getWorkdayInterval(start, end);
+            }
+
+            @Override
+            public boolean hasNextPeriod(Interval interval) {
+                return interval.getEnd().isBeforeNow();
+            }
+
+            @Override
+            public boolean hasPreviousPeriod(Interval interval) {
+                return true;
+            }
+
+
+        };
+    }
+
+    public TimeFrameFactory fiveYears() {
+        return new TimeFrameFactory() {
+
+            @Override
+            public boolean equals(Object obj) {
+                return timeFrameEqual(obj);
+            }
+
+            @Override
+            public String toString() {
+                return getID();
+            }
+
+            @Override
+            public String getID() {
+                return Period.years(5).toString();
+            }
+
+            @Override
+            public String getListName() {
+                return I18n.getInstance().getString("plugin.object.report.dialog.period.last") + " "
+                        + I18n.getInstance().getString("plugin.object.report.dialog.aggregation.fiveyears");
+            }
+
+            @Override
+            public Interval nextPeriod(Interval interval, int addAmount) {
+                Interval normalized = removeWorkdayInterval(interval);
+                return getInterval(normalized.getEnd().plus(Period.years(addAmount)));
+            }
+
+            @Override
+            public Interval previousPeriod(Interval interval, int addAmount) {
+                Interval normalized = removeWorkdayInterval(interval);
+                return getInterval(normalized.getStart().minus(Period.years(addAmount)));
+            }
+
+
+            @Override
+            public String format(Interval interval) {
+                return DateTimeFormat.forPattern("yyyy").print(interval.getEnd());
+            }
+
+            @Override
+            public Interval getInterval(DateTime dateTime) {
+                if (dateTime.isAfterNow()) {
+                    dateTime = DateTime.now();
+                }
+                DateTime start = dateTime.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusYears(5);
+                DateTime end = new DateTime(dateTime.getYear(), 12, 31, 23, 59, 59, 999).minusYears(1);
+
+                return getWorkdayInterval(start, end);
+            }
+
+            @Override
+            public boolean hasNextPeriod(Interval interval) {
+                return interval.getEnd().isBeforeNow();
+            }
+
+            @Override
+            public boolean hasPreviousPeriod(Interval interval) {
+                return true;
+            }
+
+
+        };
+    }
+
+    public TimeFrameFactory tenYears() {
+        return new TimeFrameFactory() {
+
+            @Override
+            public boolean equals(Object obj) {
+                return timeFrameEqual(obj);
+            }
+
+            @Override
+            public String toString() {
+                return getID();
+            }
+
+            @Override
+            public String getID() {
+                return Period.years(10).toString();
+            }
+
+            @Override
+            public String getListName() {
+                return I18n.getInstance().getString("plugin.object.report.dialog.period.last") + " "
+                        + I18n.getInstance().getString("plugin.object.report.dialog.aggregation.tenyears");
+            }
+
+            @Override
+            public Interval nextPeriod(Interval interval, int addAmount) {
+                Interval normalized = removeWorkdayInterval(interval);
+                return getInterval(normalized.getEnd().plus(Period.years(addAmount)));
+            }
+
+            @Override
+            public Interval previousPeriod(Interval interval, int addAmount) {
+                Interval normalized = removeWorkdayInterval(interval);
+                return getInterval(normalized.getStart().minus(Period.years(addAmount)));
+            }
+
+
+            @Override
+            public String format(Interval interval) {
+                return DateTimeFormat.forPattern("yyyy").print(interval.getEnd());
+            }
+
+            @Override
+            public Interval getInterval(DateTime dateTime) {
+                if (dateTime.isAfterNow()) {
+                    dateTime = DateTime.now();
+                }
+                DateTime start = dateTime.withMonthOfYear(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusYears(5);
+                DateTime end = new DateTime(dateTime.getYear(), 12, 31, 23, 59, 59, 999).minusYears(1);
 
                 return getWorkdayInterval(start, end);
             }

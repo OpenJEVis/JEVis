@@ -33,7 +33,6 @@ import org.jevis.jeconfig.plugin.dashboard.config.BackgroundMode;
 import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrames;
-import org.jevis.jeconfig.plugin.dashboard.widget.SampleEditorWidget;
 import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -50,22 +49,22 @@ public class DashboardControl {
 
     private static final Logger logger = LogManager.getLogger(DashboardControl.class);
     private double zoomFactor = 1.0d;
-    private double defaultZoom = 1.0d;
+    private final double defaultZoom = 1.0d;
     private final DashBordPlugIn dashBordPlugIn;
     private final ConfigManager configManager;
     private final JEVisDataSource jevisDataSource;
     private TimerTask updateTask;
     private final ObservableList<Task> runningUpdateTaskList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
-    private ObservableList<Widget> widgetList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
+    private final ObservableList<Widget> widgetList = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
     private Timer updateTimer = new Timer(true);
     private DashboardPojo activeDashboard;
     private ExecutorService executor;
     private boolean isUpdateRunning = false;
     private java.io.File newBackgroundFile;
-    private Image widgetTaskIcon = JEConfig.getImage("if_dashboard_46791.png");
+    private final Image widgetTaskIcon = JEConfig.getImage("if_dashboard_46791.png");
 
     private Interval activeInterval = new Interval(new DateTime(), new DateTime());
-    private ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
+    private final ObjectProperty<Interval> activeIntervalProperty = new SimpleObjectProperty<>(activeInterval);
     private TimeFrameFactory activeTimeFrame;
     private TimeFrames timeFrames;
     private List<JEVisObject> dashboardObjects = new ArrayList<>();
@@ -76,8 +75,8 @@ public class DashboardControl {
     private DashBoardPane dashboardPane = new DashBoardPane();
     private DashBoardToolbar toolBar;
     private String firstLoadedConfigHash = null;
-    private WidgetNavigator widgetNavigator;
-    private boolean fitToParent = false;
+    private final WidgetNavigator widgetNavigator;
+    private final boolean fitToParent = false;
     public static double MAX_ZOOM = 3;
     public static double MIN_ZOOM = -0.2;
     public static double zoomSteps = 0.05d;
@@ -91,8 +90,8 @@ public class DashboardControl {
      * we want to keep some changes when switching dashboard, this are the workaround variables
      **/
     private boolean firstDashboard = true;
-    private TimeFrameFactory previusActiveTimeFrame = null;
-    private Interval previusActiveInterval = null;
+    private final TimeFrameFactory previusActiveTimeFrame = null;
+    private final Interval previusActiveInterval = null;
 
 
     public DashboardControl(DashBordPlugIn plugin) {
@@ -105,9 +104,6 @@ public class DashboardControl {
         widgetNavigator = new WidgetNavigator(this);
         initTimeFrameFactory();
         this.activeDashboard = this.configManager.createEmptyDashboard();
-        this.activeTimeFrame = this.timeFrames.day();
-
-
     }
 
     /**
@@ -146,7 +142,7 @@ public class DashboardControl {
         return this.timeFrames;
     }
 
-    public void enableHightlightGlow(boolean disable) {
+    public void enableHighlightGlow(boolean disable) {
         highlightProperty.setValue(disable);
         this.widgetList.forEach(widget -> {
             Platform.runLater(() -> {
@@ -170,7 +166,6 @@ public class DashboardControl {
 
         /** init default states **/
         this.activeDashboard = this.configManager.createEmptyDashboard();
-        this.activeTimeFrame = this.timeFrames.day();
         setZoomFactor(1);
     }
 
@@ -231,7 +226,7 @@ public class DashboardControl {
 
     public Widget createNewWidget(WidgetPojo widgetPojo) {
         widgetPojo.setUuid(getNextFreeUUID());
-        System.out.println("createNewWidget: "+widgetPojo.getUuid());
+//        System.out.println("createNewWidget: "+widgetPojo.getUuid());
         return configManager.createWidget(this, widgetPojo);
     }
 
@@ -450,60 +445,24 @@ public class DashboardControl {
                 }
             });
 
-            /** sollten die Widgets autostarten? **/
-//            this.widgetList.forEach(widget -> {
-//                addWidgetUpdateTask(widget, this.getInterval());
-//            });
-//            this.dashBordPlugIn.getDashBoardToolbar().updateView(this.activeDashboard);
-
-//            if(!firstDashboard){
-//
-//                setInterval(getInterval());
-//            }else{
-//                if (activeDashboard.getTimeFrame() != null) {
-//
-//                }
-//
-//            }
-//            firstDashboard=false;
-
-            /** the user wants to have the same time frame if the switches dashboards ...**/
-//            if(previusActiveTimeFrame!= null){
-//                this.activeTimeFrame = previusActiveTimeFrame;
-//            }else{
-//                this.activeTimeFrame = activeDashboard.getTimeFrame();
+//            if (activeTimeFrame == null) {
+            this.activeTimeFrame = activeDashboard.getTimeFrame();
 //            }
 
-
-            /** the user wants to have the same time frame if the switches dashboards ...**/
-//            if(previusActiveInterval != null){
-//                setInterval(previusActiveInterval);
-//            }else{
-//                setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
+//            if (activeInterval != null) {
+//                setInterval(activeInterval);
+//            } else {
+            setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
 //            }
-
-
-            if (activeTimeFrame == null) {
-                this.activeTimeFrame = activeDashboard.getTimeFrame();
-
-            }
-            if (activeInterval != null) {
-                setInterval(activeInterval);
-            } else {
-                setInterval(this.activeTimeFrame.getInterval(getStartDateByData()));
-            }
 
             setActiveTimeFrame(activeTimeFrame);
 
             firstLoadedConfigHash = configManager.getMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this.configManager.toJson(activeDashboard, this.widgetList));
 
-
             Platform.runLater(() -> {
                 setZoomFactor(activeDashboard.getZoomFactor());
                 toolBar.updateView(activeDashboard);
             });
-
-
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
@@ -620,7 +579,7 @@ public class DashboardControl {
             logger.error("SetInterval to: {}", interval);
             this.activeInterval = interval;
             activeIntervalProperty.setValue(activeInterval);//workaround
-            rundataUpdateTasks(false);
+            runDataUpdateTasks(false);
 
         } catch (Exception ex) {
             logger.error(ex);
@@ -649,7 +608,7 @@ public class DashboardControl {
     public void switchUpdating() {
         this.isUpdateRunning = !this.isUpdateRunning;
         if (this.isUpdateRunning) {
-            rundataUpdateTasks(isUpdateRunning);
+            runDataUpdateTasks(isUpdateRunning);
         } else {
             stopAllUpdates();
         }
@@ -673,9 +632,9 @@ public class DashboardControl {
                 } catch (Exception ex) {
 
                 }
-            }
-            this.updateTimer.cancel();
-            if (this.executor != null) this.executor.shutdownNow();
+             }
+             this.updateTimer.cancel();
+             if (this.executor != null) this.executor.shutdownNow();
 
              */
         } catch (Exception ex) {
@@ -683,8 +642,8 @@ public class DashboardControl {
         }
     }
 
-    public void rundataUpdateTasks(boolean reStartUpdateDeamon) {
-        this.isUpdateRunning = reStartUpdateDeamon;
+    public void runDataUpdateTasks(boolean reStartUpdateDaemon) {
+        this.isUpdateRunning = reStartUpdateDaemon;
 
         stopAllUpdates();
 
@@ -736,9 +695,8 @@ public class DashboardControl {
         };
 
 
-
-        if (reStartUpdateDeamon) {
-            this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(reStartUpdateDeamon);
+        if (reStartUpdateDaemon) {
+            this.dashBordPlugIn.getDashBoardToolbar().setUpdateRunning(reStartUpdateDaemon);
             logger.info("Start updateData scheduler: {} sec", this.activeDashboard.getUpdateRate());
             this.updateTimer.scheduleAtFixedRate(this.updateTask, 1000, this.activeDashboard.getUpdateRate() * 1000);
         } else {
