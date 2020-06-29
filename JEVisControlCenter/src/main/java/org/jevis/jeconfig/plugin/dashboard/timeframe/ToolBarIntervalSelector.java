@@ -6,7 +6,6 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
@@ -18,14 +17,14 @@ import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 public class ToolBarIntervalSelector extends HBox {
 
     private static final Logger logger = LogManager.getLogger(ToolBarIntervalSelector.class);
-    private TimeFrameEdior timeFrameEdior;
+    private final TimeFrameEdior timeFrameEdior;
     Double iconSize = 20d;
     ToggleButton prevButton = new ToggleButton("", JEConfig.getImage("arrow_left.png", iconSize, iconSize));
     ToggleButton nextButton = new ToggleButton("", JEConfig.getImage("arrow_right.png", iconSize, iconSize));
     TimeFactoryBox timeFactoryBox = new TimeFactoryBox(false);
     ObservableList<TimeFrameFactory> timeFrames;
-    private boolean disableEventListener=false;
-    private DashboardControl controller;
+    private boolean disableEventListener = false;
+    private final DashboardControl controller;
 
     public ToolBarIntervalSelector(DashboardControl controller) {
         super();
@@ -43,8 +42,8 @@ public class ToolBarIntervalSelector extends HBox {
         timeFrames = FXCollections.observableArrayList(controller.getAllTimeFrames().getAll());
         timeFactoryBox.getItems().setAll(timeFrames);
 
-        dateButton.setText(controller.getActiveTimeFrame().format(controller.getInterval()));
-        dateButton.setTooltip(new Tooltip(controller.getInterval().toString()));
+//        dateButton.setText(controller.getActiveTimeFrame().format(controller.getInterval()));
+//        dateButton.setTooltip(new Tooltip(controller.getInterval().toString()));
 
         this.timeFrameEdior = new TimeFrameEdior(controller.getActiveTimeFrame(), controller.getInterval());
         this.timeFrameEdior.getIntervalProperty().addListener((observable, oldValue, newValue) -> {
