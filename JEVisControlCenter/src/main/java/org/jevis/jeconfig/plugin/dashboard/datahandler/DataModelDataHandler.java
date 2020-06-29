@@ -341,13 +341,17 @@ public class DataModelDataHandler {
 
 
         for (ChartDataRow chartDataRow : getDataModel()) {
-            AggregationPeriod aggregationPeriod = getAggregationPeriod(interval);
-            ManipulationMode manipulationMode = getManipulationMode(interval);
+            if (chartDataRow.getAggregationPeriod() == AggregationPeriod.NONE) {
+                AggregationPeriod aggregationPeriod = getAggregationPeriod(interval);
+                chartDataRow.setAggregationPeriod(aggregationPeriod);
+            }
 
-            chartDataRow.setAggregationPeriod(aggregationPeriod);
-            chartDataRow.setManipulationMode(manipulationMode);
+            if (chartDataRow.getManipulationMode() == ManipulationMode.NONE) {
+                ManipulationMode manipulationMode = getManipulationMode(interval);
+                chartDataRow.setManipulationMode(manipulationMode);
+            }
+
             if (autoAggregation) chartDataRow.setAbsolute(true);
-
         }
     }
 
