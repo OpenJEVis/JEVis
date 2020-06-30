@@ -1326,6 +1326,7 @@ public class MeterPlugin implements Plugin {
                         } finally {
                             Platform.runLater(() -> tabPane.getTabs().add(tab));
                             Platform.runLater(() -> autoFitTable(tableView));
+                            Platform.runLater(tableView::sort);
                             this.done();
                         }
                         return tab;
