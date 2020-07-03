@@ -1008,9 +1008,12 @@ public class WidgetTreePlugin implements TreePlugin {
                     for (JEVisObject output : outputs) {
                         JEVisAttribute targetAttribute = output.getAttribute("Output");
                         if (targetAttribute != null) {
-                            TargetHelper th = new TargetHelper(this.jeVisTree.getJEVisDataSource(), targetAttribute);
-                            if (th.getObject() != null && !th.getObject().isEmpty()) {
-                                calcAndResult.put(th.getObject().get(0).getID(), calculationObj.getID());
+                            try {
+                                TargetHelper th = new TargetHelper(this.jeVisTree.getJEVisDataSource(), targetAttribute);
+                                if (th.getObject() != null && !th.getObject().isEmpty()) {
+                                    calcAndResult.put(th.getObject().get(0).getID(), calculationObj.getID());
+                                }
+                            } catch (Exception ignored) {
                             }
                         }
                     }
