@@ -115,6 +115,19 @@
       }
     },
     {
+      "type": "Start Weeks",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Anfang +/- Wochen",
+        "ru": "Start +/- Weeks",
+        "en": "Start +/- Weeks"
+      }
+    },
+    {
       "type": "Start Days",
       "descriptions": {
         "de": "",
@@ -217,21 +230,28 @@
           "descriptions" : null,
           "names" : {
             "de" : "Aktuelle Woche",
-            "en" : "Current week"
+            "en": "Current week"
           }
         },
-        "CURRENT_MONTH" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Aktueller Monat",
-            "en" : "Current month"
+        "CURRENT_MONTH": {
+          "descriptions": null,
+          "names": {
+            "de": "Aktueller Monat",
+            "en": "Current month"
           }
         },
-        "SPECIFIED_DATE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Fester Zeitpunkt",
-            "en" : "Fixed date"
+        "CURRENT_YEAR": {
+          "descriptions": null,
+          "names": {
+            "de": "Aktuelles Jahr",
+            "en": "Current year"
+          }
+        },
+        "SPECIFIED_DATE": {
+          "descriptions": null,
+          "names": {
+            "de": "Fester Zeitpunkt",
+            "en": "Fixed date"
           }
         }
       }
@@ -260,6 +280,19 @@
         "de": "Ende +/- Monate",
         "ru": "End +/- Months",
         "en": "End +/- Months"
+      }
+    },
+    {
+      "type": "End Weeks",
+      "descriptions": {
+        "de": "",
+        "ru": "",
+        "en": ""
+      },
+      "names": {
+        "de": "Ende +/- Wochen",
+        "ru": "End +/- Weeks",
+        "en": "End +/- Weeks"
       }
     },
     {
