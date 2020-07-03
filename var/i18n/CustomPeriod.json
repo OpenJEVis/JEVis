@@ -62,21 +62,28 @@
           "descriptions" : null,
           "names" : {
             "de" : "Aktuelle Woche",
-            "en" : "Current week"
+            "en": "Current week"
           }
         },
-        "CURRENT_MONTH" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Aktueller Monat",
-            "en" : "Current month"
+        "CURRENT_MONTH": {
+          "descriptions": null,
+          "names": {
+            "de": "Aktueller Monat",
+            "en": "Current month"
           }
         },
-        "SPECIFIED_DATE" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Fester Zeitpunkt",
-            "en" : "Fixed date"
+        "CURRENT_YEAR": {
+          "descriptions": null,
+          "names": {
+            "de": "Aktuelles Jahr",
+            "en": "Current year"
+          }
+        },
+        "SPECIFIED_DATE": {
+          "descriptions": null,
+          "names": {
+            "de": "Fester Zeitpunkt",
+            "en": "Fixed date"
           }
         }
       }
