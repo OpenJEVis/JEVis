@@ -730,7 +730,7 @@ public class AlarmPlugin implements Plugin {
 
         checkAllBox.setOnMouseClicked(event -> {
             getAllAlarmConfigs().forEach(alarmConfiguration -> alarmConfiguration.setChecked(true));
-            tableView.refresh();
+            reload.fire();
         });
 
         toolBar.getItems().setAll(timeFrameComboBox, sep1, startDatePicker, endDatePicker, sep2, reload, sep3, viewComboBox, sep4, checkAllBox);

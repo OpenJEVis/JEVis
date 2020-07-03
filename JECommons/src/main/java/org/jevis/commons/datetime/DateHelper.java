@@ -182,6 +182,10 @@ public class DateHelper {
                                         startTime.getHour(), startTime.getMinute(), startTime.getSecond())
                                         .minusDays(now.getDayOfMonth());
                                 break;
+                            case "CURRENT_YEAR":
+                                now = DateTime.now();
+                                startDate = new DateTime(now.getYear(), 1, 1, 0, 0, 0, 0);
+                                break;
                             case "CURRENT_DAY":
                                 now = DateTime.now();
                                 startDate = new DateTime(now.getYear(), now.getMonthOfYear(), now.getDayOfMonth(),
@@ -432,6 +436,10 @@ public class DateHelper {
                                 endDate = endDate.minusDays(now.getDayOfMonth() - 1);
                                 endDate = endDate.plusMonths(1);
                                 endDate = endDate.minusDays(1);
+                                break;
+                            case "CURRENT_YEAR":
+                                now = DateTime.now();
+                                endDate = new DateTime(now.getYear(), 12, 31, 23, 59, 59, 999);
                                 break;
                             case "CURRENT_DAY":
                                 now = DateTime.now();
