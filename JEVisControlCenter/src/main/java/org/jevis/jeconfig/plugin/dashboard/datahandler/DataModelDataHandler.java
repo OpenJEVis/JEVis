@@ -251,8 +251,13 @@ public class DataModelDataHandler {
                 dataPointNode.setAbsolute(true);
 //                System.out.println("dataPointNode abolut: " + dataPointNode.getObjectID());
             }
-
         });
+
+        this.chartDataRows.forEach(chartDataRow -> {
+            chartDataRow.setAbsolute(true);
+            chartDataRow.setSomethingChanged(true);
+        });
+
     }
 
 
@@ -356,7 +361,7 @@ public class DataModelDataHandler {
                 chartDataRow.setManipulationMode(manipulationMode);
             }
 
-            if (autoAggregation) chartDataRow.setAbsolute(true);
+            chartDataRow.setAbsolute(autoAggregation);
         }
     }
 
