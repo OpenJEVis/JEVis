@@ -42,9 +42,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
     private static final Logger logger = LogManager.getLogger(ValueWidget.class);
     public static String WIDGET_ID = "Value";
     private final Label label = new Label();
-    private NumberFormat nf = NumberFormat.getInstance();
+    private final NumberFormat nf = NumberFormat.getInstance();
     private DataModelDataHandler sampleHandler;
-    private DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
+    private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private Limit limit;
     private Interval lastInterval = null;
 
@@ -97,8 +97,8 @@ public class ValueWidget extends Widget implements DataModelWidget {
         AtomicDouble total = new AtomicDouble(Double.MIN_VALUE);
         try {
             widgetUUID = getConfig().getUuid() + "";
-            this.sampleHandler.setInterval(interval);
             this.sampleHandler.setAutoAggregation(true);
+            this.sampleHandler.setInterval(interval);
             this.sampleHandler.update();
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
