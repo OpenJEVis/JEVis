@@ -51,7 +51,23 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.36------\n" +
+            "------Version 3.9.37------\n" +
+                    "JECC - AlarmPlugin - reload after checking all alarms  \n" +
+                    "JECC - Charts - fixed default chart type\n" +
+                    "JECC - Charts - NewAnalysis - cannot create new bubble, pie, heatmap, table and bar charts\n" +
+                    "JECC - Charts - fixed problem with one raw in multiple charts\n" +
+                    "JECC - Dashboard - fixed some problem with value widget  \n" +
+                    "JECC - Dashboard - WidgetTreePlugin - removed another null pointer \n" +
+                    "JECC - Dashboard - WidgetTreePlugin - fixed null pointer\n" +
+                    "JECC - Dashboard - Default timerange does not work\n" +
+                    "JECC - Dashboard - fixed aggregation for custom selection in tree\n" +
+                    "JECC - Dashboard - added timeframes for management boards\n" +
+                    "JECC - EquipmentPlugin, MeterPlugin - sort after load\n" +
+                    "JECC - EquipmentPlugin - measurement point selection doesn't allow multi-selection\n" +
+                    "\n" +
+                    "Classes - CustomPeriod.json - added missing start/end weeks translation\n" +
+                    "Classes - CustomPeriod.json - added current year to options\n\n" +
+                    "------Version 3.9.36------\n" +
                     "JECC - Charts - ColorColumn - centered ColorPicker in column\n" +
                     "JECC - Charts - allow different chart types in one chart  \n" +
                     "JECC - Charts - BubbleChart - some problem with asynchronous data\n" +
