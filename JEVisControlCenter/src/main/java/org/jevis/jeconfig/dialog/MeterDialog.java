@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
@@ -170,7 +171,7 @@ public class MeterDialog {
                     }
                 });
 
-                updateGrid();
+                updateGrid(false);
             }
 
         });
@@ -275,7 +276,7 @@ public class MeterDialog {
         vBox.getChildren().setAll(DialogHeader.getDialogHeader("measurement_instrument.png", I18n.getInstance().getString("plugin.meters.title")), targetBox, gp, sep1, buttonRow);
 
         newObject = selectedMeter;
-        updateGrid();
+        updateGrid(true);
 
         ok.setOnAction(event -> {
             for (AttributeEditor attributeEditor : attributeEditors) {
@@ -309,16 +310,29 @@ public class MeterDialog {
         return response;
     }
 
-    private void updateGrid() {
+    private void updateGrid(boolean showCounterValues) {
         if (newObject != null) {
             gp.getChildren().clear();
             attributeEditors.clear();
             try {
                 int column = 0;
                 int row = 0;
+                boolean isLinked = false;
                 List<JEVisAttribute> attributes = newObject.getAttributes();
+
                 for (JEVisAttribute attribute : attributes) {
                     int index = attributes.indexOf(attribute);
+                    if (attribute.getName().equals("Online ID")) {
+                        if (attribute.hasSample()) {
+                            JEVisSample latestSample = attribute.getLatestSample();
+                            if (latestSample != null) {
+                                TargetHelper th = new TargetHelper(ds, latestSample.getValueAsString());
+                                if (th.isValid() && th.targetAccessible()) {
+                                    isLinked = true;
+                                }
+                            }
+                        }
+                    }
 
                     if (index == 2 || (index > 2 && index % 2 == 0)) {
                         column = 0;
@@ -352,6 +366,7 @@ public class MeterDialog {
 
                 Separator separator = new Separator(Orientation.VERTICAL);
                 gp.add(separator, 2, 0, 1, row + 1);
+
 
             } catch (JEVisException e) {
                 e.printStackTrace();
