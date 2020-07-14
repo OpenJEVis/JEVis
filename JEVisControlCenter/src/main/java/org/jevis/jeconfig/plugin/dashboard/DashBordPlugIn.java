@@ -144,7 +144,7 @@ public class DashBordPlugIn implements Plugin {
     }
 
     public Size getPluginSize() {
-        return new Size(rootPane.getHeight() - scrollBarSize, rootPane.getWidth() - scrollBarSize);
+        return new Size(rootPane.getHeight() , rootPane.getWidth() );
     }
 
     public DashBoardToolbar getDashBoardToolbar() {
