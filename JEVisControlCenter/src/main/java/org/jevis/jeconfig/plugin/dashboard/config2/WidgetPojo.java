@@ -20,6 +20,7 @@ public class WidgetPojo {
     private Color fontColor = Color.BLACK;
     private Color fontColorSecondary = Color.WHITESMOKE;
     private String title = "Title";
+    private String tooltip = "";
     private Color backgroundColor = Color.web("#126597");
     private Double xPosition = 100d;
     private Double yPosition = 100d;
@@ -48,6 +49,12 @@ public class WidgetPojo {
                 this.title = jsonNode.get(TITLE).asText("");
             } catch (Exception ex) {
                 logger.debug("Could not parse {}: {}", TITLE, ex.getMessage());
+            }
+
+            try {
+                this.tooltip = jsonNode.get(TOOLTIP).asText("");
+            } catch (Exception ex) {
+                logger.debug("Could not parse {}: {}", TOOLTIP, ex.getMessage());
             }
 
             try {
@@ -182,8 +189,16 @@ public class WidgetPojo {
         return this.title;
     }
 
+    public String getTooltip() {
+        return this.tooltip;
+    }
+
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public void setTooltip(String tooltip) {
+        this.tooltip = tooltip;
     }
 
     public Color getBackgroundColor() {

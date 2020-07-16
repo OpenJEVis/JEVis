@@ -22,30 +22,32 @@ import org.jevis.jeconfig.plugin.dashboard.timeframe.TimeFrameFactory;
 
 public class GenericConfigNode extends Tab implements ConfigTab {
 
-    private Label nameLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.title"));
-    private Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
-    private Label fColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontcolor"));
-    private Label idLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.id"));
-    private Label idField = new Label("");
-    private Label shadowLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.shadow"));
-    private Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));
-    private Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
-    private Label timeFrameLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.forcedtime"));
-    private Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
-    private Label borderSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.bordersize"));
+    private final Label nameLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.title"));
+    private final Label tooltipLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.tooltip"));
+    private final Label bgColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.color"));
+    private final Label fColorLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontcolor"));
+    private final Label idLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.id"));
+    private final Label idField = new Label("");
+    private final Label shadowLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.shadow"));
+    private final Label yPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.ypos"));
+    private final Label xPosLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.xpos"));
+    private final Label timeFrameLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.forcedtime"));
+    private final Label fontSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.fontsize"));
+    private final Label borderSizeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.edit.general.bordersize"));
 
 
-    private JFXTextField nameField = new JFXTextField();
-    private JFXTextField yPosField = new JFXTextField();
-    private JFXTextField xPosField = new JFXTextField();
-    private CheckBox showShadowField = new CheckBox();
-    private Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
-    private Spinner<Integer> borderSizeSpinner = new Spinner<Integer>(0, 20, 0);
-    private ColorPickerAdv bgColorPicker = new ColorPickerAdv();
-    private ColorPickerAdv fColorPicker = new ColorPickerAdv();
-    private TimeFactoryBox timeFrameBox;
-    private Widget widget;
-    private DataModelDataHandler dataModelDataHandler;
+    private final JFXTextField nameField = new JFXTextField();
+    private final JFXTextField tooltipField = new JFXTextField();
+    private final JFXTextField yPosField = new JFXTextField();
+    private final JFXTextField xPosField = new JFXTextField();
+    private final CheckBox showShadowField = new CheckBox();
+    private final Spinner<Integer> fontSizeSpinner = new Spinner<Integer>(5, 50, 12);
+    private final Spinner<Integer> borderSizeSpinner = new Spinner<Integer>(0, 20, 0);
+    private final ColorPickerAdv bgColorPicker = new ColorPickerAdv();
+    private final ColorPickerAdv fColorPicker = new ColorPickerAdv();
+    private final TimeFactoryBox timeFrameBox;
+    private final Widget widget;
+    private final DataModelDataHandler dataModelDataHandler;
 
     public GenericConfigNode(JEVisDataSource ds, Widget widget, DataModelDataHandler dataModelDataHandler) {
         super(I18n.getInstance().getString("plugin.dashboard.edit.general.tab"));
@@ -67,9 +69,9 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         gridPane.setVgap(8);
         gridPane.setHgap(8);
 
-        gridPane.addColumn(0, idLabel, nameLabel, bgColorLabel, fColorLabel, yPosLabel, xPosLabel,
+        gridPane.addColumn(0, idLabel, nameLabel, tooltipLabel, bgColorLabel, fColorLabel, yPosLabel, xPosLabel,
                 shadowLabel, borderSizeLabel, fontSizeLabel, timeFrameLabel);
-        gridPane.addColumn(1, idField, nameField, bgColorPicker, fColorPicker, yPosField, xPosField,
+        gridPane.addColumn(1, idField, nameField, tooltipField, bgColorPicker, fColorPicker, yPosField, xPosField,
                 showShadowField, borderSizeSpinner, fontSizeSpinner, timeFrameBox);
 
         setContent(gridPane);
@@ -81,6 +83,7 @@ public class GenericConfigNode extends Tab implements ConfigTab {
     public void updateData() {
         /** ----------------------------------- set Values ---------------------------------------------**/
         nameField.setText(widget.getConfig().getTitle());
+        tooltipField.setText(widget.getConfig().getTooltip());
         idField.setText(widget.getConfig().getUuid() + "");
         bgColorPicker.setValue(widget.getConfig().getBackgroundColor());
         fColorPicker.setValue(widget.getConfig().getFontColor());
@@ -117,6 +120,13 @@ public class GenericConfigNode extends Tab implements ConfigTab {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        try {
+            widget.getConfig().setTooltip(tooltipField.getText());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
         try {
             widget.getConfig().setxPosition(Double.parseDouble(xPosField.getText()));
             widget.getConfig().setyPosition(Double.parseDouble(yPosField.getText()));
