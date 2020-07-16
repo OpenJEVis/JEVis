@@ -83,7 +83,7 @@
         <dependency>
             <groupId>de.gsi.chart</groupId>
             <artifactId>chartfx-chart</artifactId>
-            <version>8.1.4</version>
+            <version>8.1.5</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

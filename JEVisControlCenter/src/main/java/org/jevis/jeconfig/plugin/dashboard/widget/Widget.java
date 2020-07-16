@@ -39,19 +39,20 @@ public abstract class Widget extends Region {
     private final org.jevis.api.JEVisDataSource jeVisDataSource;
     public WidgetPojo config;
     public Size previewSize = new Size(28, 28);
-    private Size size = new Size(100, 150);
-    private AnchorPane contentRoot = new AnchorPane();
-    private AnchorPane editPane = new AnchorPane();
-    private AnchorPane alertPane = new AnchorPane();
-    private StackPane loadingPane = new StackPane();
+    private final Size size = new Size(100, 150);
+    private final AnchorPane contentRoot = new AnchorPane();
+    private final AnchorPane editPane = new AnchorPane();
+    private final AnchorPane alertPane = new AnchorPane();
+    private final StackPane loadingPane = new StackPane();
     public final DashboardControl control;
-    private BooleanProperty editable = new SimpleBooleanProperty(false);
-    private ProgressIndicator progressIndicator = new ProgressIndicator();
-    private Label label = new Label();
+    private final BooleanProperty editable = new SimpleBooleanProperty(false);
+    private final ProgressIndicator progressIndicator = new ProgressIndicator();
+    private final Label label = new Label();
+    private final Tooltip tt = new Tooltip("");
 
 //    private BooleanProperty snapToGrid = new SimpleBooleanProperty(false);
 
-    private DragResizeMod.OnDragResizeEventListener onDragResizeEventListener = DragResizeMod.defaultListener;
+    private final DragResizeMod.OnDragResizeEventListener onDragResizeEventListener = DragResizeMod.defaultListener;
 
     double widthCache;
     double heightCache;
@@ -160,6 +161,15 @@ public abstract class Widget extends Region {
             this.contentRoot.setEffect(null);
 //            this.setEffect(null);
         }
+
+        if (!config.getTooltip().equals("")) {
+            tt.setText(config.getTooltip());
+            Tooltip.install(this, this.tt);
+        } else {
+            tt.setText("");
+            Tooltip.uninstall(this, this.tt);
+        }
+
         try {
             updateConfig();
         } catch (Exception ex) {
@@ -450,6 +460,7 @@ public abstract class Widget extends Region {
                 .put(JsonNames.Widget.UUID, this.config.getUuid())
                 .put(JsonNames.Widget.TYPE, typeID())
                 .put(JsonNames.Widget.TITLE, this.config.getTitle())
+                .put(JsonNames.Widget.TOOLTIP, this.config.getTooltip())
                 .put(JsonNames.Widget.BACKGROUND_COLOR, this.config.getBackgroundColor().toString())
                 .put(JsonNames.Widget.FONT_COLOR, this.config.getFontColor().toString())
                 .put(JsonNames.Widget.FONT_SIZE, this.config.getFontSize())
@@ -469,7 +480,7 @@ public abstract class Widget extends Region {
 //        Class cls = Class.forName(this.getcl);
 
         try {
-            Widget newWidget = (Widget) this.getClass().getDeclaredConstructor(DashboardControl.class).newInstance(control);
+            Widget newWidget = this.getClass().getDeclaredConstructor(DashboardControl.class).newInstance(control);
             //TODO clone WidgetPojo
             return newWidget;
         } catch (InstantiationException e) {

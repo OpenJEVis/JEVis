@@ -24,7 +24,7 @@ import java.util.Map;
 public class CalcJob {
 
     private static final Logger logger = LogManager.getLogger(CalcJob.class);
-    private List<CalcInputObject> calcObjects;
+    private List<CalcInputObject> calcInputObjects;
     private String expression;
     private List<JEVisAttribute> outputs;
     private long calcObjID;
@@ -36,8 +36,8 @@ public class CalcJob {
     public CalcJob() {
     }
 
-    CalcJob(List<CalcInputObject> calcObjects, String expression, List<JEVisAttribute> outputObjects, long calcObjID) {
-        this.calcObjects = calcObjects;
+    CalcJob(List<CalcInputObject> calcInputObjects, String expression, List<JEVisAttribute> outputObjects, long calcObjID) {
+        this.calcInputObjects = calcInputObjects;
         this.expression = expression;
         this.outputs = outputObjects;
         this.calcObjID = calcObjID;
@@ -46,7 +46,7 @@ public class CalcJob {
     public void execute() {
         try {
             SampleMerger sampleMerger = new SampleMerger();
-            calcObjects.forEach(calcObject -> {
+            calcInputObjects.forEach(calcObject -> {
                 sampleMerger.addSamples(calcObject.getSamples(), calcObject.getIdentifier(), calcObject.getInputType());
                 logger.debug("added {} samples with identifier {} to merger", calcObject.getSamples().size(), calcObject.getIdentifier());
             });
@@ -66,7 +66,7 @@ public class CalcJob {
 
     public List<JEVisSample> getResults() {
         SampleMerger sampleMerger = new SampleMerger();
-        calcObjects.forEach(calcObject -> {
+        calcInputObjects.forEach(calcObject -> {
             sampleMerger.addSamples(calcObject.getSamples(), calcObject.getIdentifier(), calcObject.getInputType());
             logger.debug("added {} samples with identifier {} to merger", calcObject.getSamples().size(), calcObject.getIdentifier());
         });
@@ -127,8 +127,8 @@ public class CalcJob {
         return processedAllInputSamples;
     }
 
-    public void setCalcInputObjects(List<CalcInputObject> calcInputObjects) {
-        this.calcObjects = calcInputObjects;
+    public List<CalcInputObject> getCalcInputObjects() {
+        return calcInputObjects;
     }
 
     public void setExpression(String expression) {
@@ -165,5 +165,13 @@ public class CalcJob {
 
     public void setDIV0Handling(String div0Handling) {
         this.DIV0Handling = div0Handling;
+    }
+
+    public void setCalcInputObjects(List<CalcInputObject> calcInputObjects) {
+        this.calcInputObjects = calcInputObjects;
+    }
+
+    public String getExpression() {
+        return expression;
     }
 }

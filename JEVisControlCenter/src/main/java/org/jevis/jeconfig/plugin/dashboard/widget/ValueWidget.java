@@ -2,10 +2,12 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.util.concurrent.AtomicDouble;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
@@ -13,14 +15,22 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.calculation.CalcInputObject;
+import org.jevis.commons.calculation.CalcJob;
+import org.jevis.commons.calculation.CalcJobFactory;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
+import org.jevis.jeconfig.application.jevistree.methods.CommonMethods;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
@@ -302,6 +312,79 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
         this.label.setPadding(new Insets(0, 8, 0, 8));
         setGraphic(this.label);
+
+        setOnMouseClicked(event -> {
+            int row = 0;
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            GridPane gp = new GridPane();
+            gp.setHgap(4);
+            gp.setVgap(8);
+
+            for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
+                if (chartDataRow.getEnPI()) {
+                    try {
+                        CalcJobFactory calcJobCreator = new CalcJobFactory();
+
+                        CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), chartDataRow.getObject().getDataSource(), chartDataRow.getCalculationObject(),
+                                control.getInterval().getStart(), control.getInterval().getStart(), true);
+                        alert.setHeaderText(getTranslatedFormula(calcJob.getCalcInputObjects(), calcJob.getExpression()));
+
+                        for (CalcInputObject calcInputObject : calcJob.getCalcInputObjects()) {
+
+                            Label objectName = new Label();
+                            if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Clean Data")) {
+                                JEVisObject parent = CommonMethods.getFirstParentalDataObject(calcInputObject.getValueAttribute().getObject());
+                                if (parent != null) {
+                                    objectName.setText(parent.getName());
+                                }
+                            } else if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Data")) {
+                                objectName.setText(calcInputObject.getValueAttribute().getObject().getName());
+                            }
+
+                            JFXTextField value = new JFXTextField(calcInputObject.getSamples().get(0).getValueAsString() + " " +
+                                    UnitManager.getInstance().format(calcInputObject.getValueAttribute().getDisplayUnit()));
+
+                            gp.addRow(row, objectName, value);
+                            row++;
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+            }
+
+            alert.getDialogPane().setContent(gp);
+            alert.showAndWait();
+        });
+    }
+
+    public String getTranslatedFormula(List<CalcInputObject> calcInputObjects, String expression) {
+        try {
+            for (CalcInputObject calcInputObject : calcInputObjects) {
+                String name = "";
+                if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Clean Data")) {
+                    JEVisObject parent = CommonMethods.getFirstParentalDataObject(calcInputObject.getValueAttribute().getObject());
+                    if (parent != null) {
+                        name = parent.getName();
+                    }
+                } else if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Data")) {
+                    name = calcInputObject.getValueAttribute().getObject().getName();
+                }
+
+                if (!name.equals("")) {
+                    expression = expression.replace(calcInputObject.getIdentifier(), name);
+                }
+            }
+
+            expression = expression.replace("#", "");
+            expression = expression.replace("{", "");
+            expression = expression.replace("}", "");
+        } catch (Exception e) {
+
+        }
+
+        return expression;
     }
 
 

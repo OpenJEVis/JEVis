@@ -15,6 +15,17 @@ import java.util.List;
 public class CommonMethods {
     private static final Logger logger = LogManager.getLogger(CommonMethods.class);
 
+    public static JEVisObject getFirstParentalDataObject(JEVisObject jeVisObject) throws JEVisException {
+        for (JEVisObject object : jeVisObject.getParents()) {
+            if (object.getJEVisClassName().equals("Data")) {
+                return object;
+            } else {
+                return getFirstParentalDataObject(object);
+            }
+        }
+        return jeVisObject;
+    }
+
     public static JEVisObject getFirstCleanObject(JEVisObject jeVisObject) throws JEVisException {
         for (JEVisObject object : jeVisObject.getChildren()) {
             if (object.getJEVisClassName().equals("Data") || object.getJEVisClassName().equals("Clean data")) {

@@ -191,6 +191,7 @@ public class CalcInputObject {
 
                     if (!tempList.isEmpty()) {
                         boolean isQuantity = qu.isQuantityUnit(valueAttribute.getDisplayUnit());
+                        isQuantity = qu.isQuantityIfCleanData(valueAttribute, isQuantity);
 
                         double sum = 0.0;
                         for (JEVisSample sample : tempList) {

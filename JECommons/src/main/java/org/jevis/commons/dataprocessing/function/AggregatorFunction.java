@@ -21,7 +21,10 @@ package org.jevis.commons.dataprocessing.function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
+import org.jevis.api.JEVisUnit;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.datetime.WorkDays;
@@ -160,7 +163,7 @@ public class AggregatorFunction implements ProcessFunction {
 
                 QuantityUnits qu = new QuantityUnits();
                 boolean isQuantity = qu.isQuantityUnit(unit);
-                isQuantity = isQuantityIfCleanData(attribute, isQuantity);
+                isQuantity = qu.isQuantityIfCleanData(attribute, isQuantity);
 
                 if (hasSamples && !isQuantity) {
                     sum = sum / samplesInPeriod.size();
@@ -212,28 +215,6 @@ public class AggregatorFunction implements ProcessFunction {
         });
 
         return result;
-    }
-
-    private boolean isQuantityIfCleanData(JEVisAttribute attribute, boolean isQuantity) {
-        if (attribute != null) {
-            JEVisObject object = attribute.getObject();
-            if (object != null) {
-                try {
-                    if (object.getJEVisClassName().equals(CleanDataObject.CLASS_NAME)) {
-                        JEVisAttribute quantityAttribute = object.getAttribute(CleanDataObject.AttributeName.VALUE_QUANTITY.getAttributeName());
-                        if (quantityAttribute != null && quantityAttribute.hasSample()) {
-                            JEVisSample latestSample = quantityAttribute.getLatestSample();
-                            if (latestSample != null) {
-                                isQuantity = latestSample.getValueAsBoolean();
-                            }
-                        }
-                    }
-                } catch (JEVisException e) {
-                    logger.error(e);
-                }
-            }
-        }
-        return isQuantity;
     }
 
     @Override

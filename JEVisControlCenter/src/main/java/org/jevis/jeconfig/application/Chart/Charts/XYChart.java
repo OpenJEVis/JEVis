@@ -402,55 +402,63 @@ public class XYChart implements Chart {
     public void addSeriesToChart() {
         ErrorDataSetRenderer rendererAreaY1 = new ErrorDataSetRenderer();
         ErrorDataSetRenderer rendererAreaY2 = new ErrorDataSetRenderer();
-
         rendererAreaY1.setPolyLineStyle(LineStyle.AREA);
         rendererAreaY1.setDrawMarker(false);
+        rendererAreaY1.getAxes().add(y1Axis);
         rendererAreaY2.setPolyLineStyle(LineStyle.AREA);
         rendererAreaY2.setDrawMarker(false);
+        rendererAreaY2.getAxes().add(y2Axis);
 
         ErrorDataSetRenderer rendererLogicalY1 = new ErrorDataSetRenderer();
         ErrorDataSetRenderer rendererLogicalY2 = new ErrorDataSetRenderer();
-
         rendererLogicalY1.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
         rendererLogicalY1.setDrawMarker(false);
+        rendererLogicalY1.getAxes().add(y1Axis);
         rendererLogicalY2.setPolyLineStyle(LineStyle.HISTOGRAM_FILLED);
         rendererLogicalY2.setDrawMarker(false);
+        rendererLogicalY2.getAxes().add(y2Axis);
 
         ErrorDataSetRenderer rendererBarY1 = new ErrorDataSetRenderer();
         ErrorDataSetRenderer rendererBarY2 = new ErrorDataSetRenderer();
-
         rendererBarY1.setPolyLineStyle(LineStyle.NONE);
         rendererBarY1.setDrawBars(true);
         rendererBarY1.setDrawMarker(false);
+        rendererBarY1.getAxes().add(y1Axis);
         rendererBarY2.setPolyLineStyle(LineStyle.NONE);
         rendererBarY2.setDrawBars(true);
         rendererBarY2.setDrawMarker(false);
+        rendererBarY2.getAxes().add(y2Axis);
 
         ErrorDataSetRenderer rendererColumnY1 = new ErrorDataSetRenderer();
         ErrorDataSetRenderer rendererColumnY2 = new ErrorDataSetRenderer();
-
         rendererColumnY1.setPolyLineStyle(LineStyle.NONE);
         rendererColumnY1.setDrawBars(true);
         rendererColumnY1.setDrawMarker(false);
+        rendererColumnY1.getAxes().add(y1Axis);
         rendererColumnY2.setPolyLineStyle(LineStyle.NONE);
         rendererColumnY2.setDrawBars(true);
         rendererColumnY2.setDrawMarker(false);
+        rendererColumnY2.getAxes().add(y2Axis);
 
         ErrorDataSetRenderer rendererScatterY1 = new ErrorDataSetRenderer();
         ErrorDataSetRenderer rendererScatterY2 = new ErrorDataSetRenderer();
-
         rendererScatterY1.setPolyLineStyle(LineStyle.NONE);
+        rendererScatterY1.getAxes().add(y1Axis);
         rendererScatterY2.setPolyLineStyle(LineStyle.NONE);
+        rendererScatterY2.getAxes().add(y2Axis);
 
         ErrorDataSetRenderer rendererLineY1 = new ErrorDataSetRenderer();
         ErrorDataSetRenderer rendererLineY2 = new ErrorDataSetRenderer();
         rendererLineY1.setPolyLineStyle(LineStyle.NORMAL);
         rendererLineY1.setDrawMarker(false);
+        rendererLineY1.getAxes().add(y1Axis);
         rendererLineY2.setPolyLineStyle(LineStyle.NORMAL);
         rendererLineY2.setDrawMarker(false);
-
+        rendererLineY2.getAxes().add(y2Axis);
 
         CustomMarkerRenderer labelledMarkerRenderer = new CustomMarkerRenderer(xyChartSerieList);
+        labelledMarkerRenderer.getAxes().add(y1Axis);
+        ColumnChartLabelRenderer columnChartLabelRenderer = new ColumnChartLabelRenderer(xyChartSerieList);
 
         ErrorDataSetRenderer trendLineRenderer = new ErrorDataSetRenderer();
         trendLineRenderer.setPolyLineStyle(LineStyle.NORMAL);
@@ -492,12 +500,12 @@ public class XYChart implements Chart {
                     break;
                 case SCATTER:
                     rendererY1 = rendererScatterY1;
-                    rendererY2 = rendererScatterY1;
+                    rendererY2 = rendererScatterY2;
                     break;
                 case LINE:
                 default:
                     rendererY1 = rendererLineY1;
-                    rendererY2 = rendererLineY1;
+                    rendererY2 = rendererLineY2;
                     break;
             }
 
@@ -510,13 +518,16 @@ public class XYChart implements Chart {
                 rendererY1.getDatasets().addAll(drawL1L2(xyChartSerie));
                 trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             } else {
-                rendererY2.getAxes().add(y2Axis);
                 rendererY2.getDatasets().add(xyChartSerie.getValueDataSet());
                 rendererY2.getDatasets().addAll(drawL1L2(xyChartSerie));
-                trendLineRenderer.getDatasets().addAll(drawRegression(xyChartSerie));
             }
 
-            if (showIcons) {
+            if (showIcons && chartType != null && chartType.equals(ChartType.COLUMN)) {
+                if (xyChartSerie.getSingleRow().getSamples().size() <= 60) {
+                    columnChartLabelRenderer.getDatasets().addAll(xyChartSerie.getValueDataSet());
+                }
+                labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
+            } else if (showIcons) {
                 labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
             }
 
@@ -527,16 +538,15 @@ public class XYChart implements Chart {
         Platform.runLater(() -> chart.getRenderers().addAll(rendererAreaY1, rendererLogicalY1, rendererColumnY1, rendererBarY1, rendererScatterY1, rendererLineY1));
         Platform.runLater(() -> chart.getRenderers().addAll(rendererAreaY2, rendererLogicalY2, rendererColumnY2, rendererBarY2, rendererScatterY2, rendererLineY2));
 
+        if (calcRegression && showIcons && chartType != null && chartType.equals(ChartType.COLUMN)) {
+            Platform.runLater(() -> chart.getRenderers().addAll(trendLineRenderer, labelledMarkerRenderer, columnChartLabelRenderer));
+        } else if (chartType != null && chartType.equals(ChartType.COLUMN) && showIcons) {
+            Platform.runLater(() -> chart.getRenderers().addAll(labelledMarkerRenderer, columnChartLabelRenderer));
+        } else if (showIcons) {
+            Platform.runLater(() -> chart.getRenderers().addAll(labelledMarkerRenderer));
+        }
+
         Platform.runLater(() -> tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
-
-        if (calcRegression) {
-            Platform.runLater(() -> chart.getRenderers().add(trendLineRenderer));
-        }
-
-        if (showIcons) {
-            Platform.runLater(() -> chart.getRenderers().add(labelledMarkerRenderer));
-        }
-
     }
 
     private List<DataSet> drawRegression(XYChartSerie xyChartSerie) {
@@ -718,13 +728,33 @@ public class XYChart implements Chart {
 
     public void initializeChart() {
 
-
         setChart(new de.gsi.chart.XYChart(dateAxis, y1Axis));
 
         chart.getRenderers().clear();
         chart.setLegend(null);
         chart.legendVisibleProperty().set(false);
         chart.getToolBar().setVisible(false);
+
+        CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2);
+
+        CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(2);
+
+        y1Axis.setForceZeroInRange(true);
+        y1Axis.setAutoGrowRanging(true);
+        y1Axis.setAutoRanging(true);
+
+        y2Axis.setForceZeroInRange(true);
+        y2Axis.setAutoRanging(true);
+        y2Axis.setAutoGrowRanging(true);
+
+        y1Axis.setTickLabelFormatter(tickLabelFormatter1);
+        y1Axis.setAnimated(false);
+        y1Axis.setName("");
+
+        y2Axis.setTickLabelFormatter(tickLabelFormatter2);
+        y2Axis.setAnimated(false);
+        y2Axis.setSide(Side.RIGHT);
+        y2Axis.setName("");
     }
 
     public XYChartSerie generateSerie(Boolean[] changedBoth, ChartDataRow singleRow) throws JEVisException {
@@ -785,29 +815,6 @@ public class XYChart implements Chart {
     }
 
     public void generateYAxis() {
-
-        CustomStringConverter tickLabelFormatter1 = new CustomStringConverter(2);
-
-        CustomStringConverter tickLabelFormatter2 = new CustomStringConverter(2);
-
-        Platform.runLater(() -> {
-            y1Axis.setForceZeroInRange(true);
-            y1Axis.setAutoGrowRanging(true);
-            y1Axis.setAutoRanging(true);
-
-            y2Axis.setForceZeroInRange(true);
-            y2Axis.setAutoRanging(true);
-            y2Axis.setAutoGrowRanging(true);
-
-            y1Axis.setTickLabelFormatter(tickLabelFormatter1);
-            y1Axis.setAnimated(false);
-            y1Axis.setName("");
-
-            y2Axis.setTickLabelFormatter(tickLabelFormatter2);
-            y2Axis.setAnimated(false);
-            y2Axis.setSide(Side.RIGHT);
-            y2Axis.setName("");
-        });
 
         for (XYChartSerie serie : xyChartSerieList) {
             if (serie.getUnit() != null) {

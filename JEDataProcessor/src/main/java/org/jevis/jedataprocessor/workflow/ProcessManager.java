@@ -36,13 +36,13 @@ public class ProcessManager {
     private static final Logger logger = LogManager.getLogger(ProcessManager.class);
     private final ResourceManager resourceManager;
     private List<ProcessStep> processSteps = new ArrayList<>();
-    private String name;
-    private Long id;
+    private final String name;
+    private final Long id;
     private boolean isClean = true;
-    private boolean missingSamples = true;
-    private boolean rerun = false;
+    private final boolean missingSamples = true;
+    private final boolean rerun = false;
     private DateTime lastFirstDate;
-    private boolean isWorking = true;
+    private final boolean isWorking = true;
 
     public ProcessManager(JEVisObject cleanObject, ObjectHandler objectHandler, int processingSize) {
         this.resourceManager = new ResourceManager();
@@ -151,7 +151,11 @@ public class ProcessManager {
 
     private void reRun() throws Exception {
 
-        resourceManager.getCleanDataObject().reloadAttributes();
+        if (isClean) {
+            resourceManager.getCleanDataObject().reloadAttributes();
+        } else {
+            resourceManager.getForecastDataObject().reloadAttributes();
+        }
         for (ProcessStep ps : processSteps) {
 //            if (rerun && ps.getClass().equals(PrepareStep.class)) {
 //                JEVisDataSource ds = resourceManager.getCleanDataObject().getCleanObject().getDataSource();
