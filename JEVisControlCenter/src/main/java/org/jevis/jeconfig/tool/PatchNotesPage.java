@@ -51,7 +51,20 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.37------\n" +
+            "------Version 3.9.38------\n" +
+                    "JECC - ChartPlugin - right y-axis doesn't scale correcty\n" +
+                    "JECC - DashboardPlugin - ChartWidget - removed markers  \n" +
+                    "JECC - DashboardPlugin - add popup for math objects on value widgets on left mouse click\n" +
+                    "JECC - DashboardPlugin - add text tooltip to all widgets on mouse hover\n" +
+                    "JECC - MeterPlugin - changing a measurement instrument needs old/new counter value\n" +
+                    "\n" +
+                    "JECC - Charts - ColumnChart - added values to columns\n" +
+                    "JECC - Dashboard - fixed size bug\n" +
+                    "\n" +
+                    "JECalc - sample generation for input objects ignores clean data quantity setting\n" +
+                    "\n" +
+                    "JEDataProcessor - fixed null pointer in forecast\n\n" +
+                    "------Version 3.9.37------\n" +
                     "JECC - AlarmPlugin - reload after checking all alarms  \n" +
                     "JECC - Charts - fixed default chart type\n" +
                     "JECC - Charts - NewAnalysis - cannot create new bubble, pie, heatmap, table and bar charts\n" +
