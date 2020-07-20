@@ -106,6 +106,7 @@ public class ChartWidget extends Widget {
              * LineChart does not support updateData so we need to create an new one every time;
              */
             AnalysisDataModel model = new AnalysisDataModel(getDataSource(), null);
+            model.setHideShowIconsNO_EVENT(false);
             ChartSetting chartSetting = new ChartSetting(0, "");
             chartSetting.setChartType(null);
             model.getCharts().setListSettings(Collections.singletonList(chartSetting));

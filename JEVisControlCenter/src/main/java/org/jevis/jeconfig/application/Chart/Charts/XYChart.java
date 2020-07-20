@@ -529,6 +529,10 @@ public class XYChart implements Chart {
                 labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
             } else if (showIcons) {
                 labelledMarkerRenderer.getDatasets().addAll(xyChartSerie.getNoteDataSet());
+            } else if (chartType != null && chartType.equals(ChartType.COLUMN)) {
+                if (xyChartSerie.getSingleRow().getSamples().size() <= 60) {
+                    columnChartLabelRenderer.getDatasets().addAll(xyChartSerie.getValueDataSet());
+                }
             }
 
             tableData.add(xyChartSerie.getTableEntry());
