@@ -140,6 +140,7 @@ public class Statusbar extends ToolBar {
             }
 
         });
+
         taskProgressView.setGraphicFactory(new Callback() {
             @Override
             public Object call(Object param) {
@@ -165,12 +166,10 @@ public class Statusbar extends ToolBar {
                 while (c.next()) {
                     if (c.wasRemoved()) {
                         if (taskProgressView.getTasks().isEmpty()) {
-                            if (popup.isShowing()) {
-                                Platform.runLater(() -> {
-                                    hideTaskListPane.setVisible(true);
-                                    popup.hide();
-                                });
-                            }
+                            Platform.runLater(() -> {
+                                hideTaskListPane.setVisible(true);
+                                popup.hide();
+                            });
                         }
                     }
 
