@@ -103,15 +103,15 @@ public abstract class Widget extends Region {
         logger.debug("initLayout() {}", config.getTitle());
         makeDragDropOverlay();
         makeWindowForm();
-        /** disabled because the animation eats al lot of performance for bigger Dashboards**/
+        /** disabled because the animation eats a lot of performance for bigger Dashboards**/
         //makeLoadingOverlay();
         makeAlertOverlay();
 
         this.getChildren().addAll(
                 this.contentRoot,
                 this.alertPane,
-                this.editPane,
-                this.loadingPane
+                this.editPane
+                //this.loadingPane
         );
         onDragResizeEventListener.setDashBoardPane(control.getDashboardPane());
         DragResizeMod.makeResizable(this, onDragResizeEventListener);
@@ -130,7 +130,9 @@ public abstract class Widget extends Region {
             }
         });
 
+
         updateConfig(this.config);
+        logger.debug("initLayout() done {}", config.getTitle());
     }
 
     abstract public void debug();
@@ -300,6 +302,7 @@ public abstract class Widget extends Region {
 
         this.editPane.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
+                System.out.println("Widget doppleklick");
                 try {
                     Widget.this.openConfig();
                 } catch (Exception ex) {
@@ -313,7 +316,6 @@ public abstract class Widget extends Region {
                 contextMenu.show(this.editPane, event.getScreenX(), event.getScreenY());
             }
         });
-
 
     }
 

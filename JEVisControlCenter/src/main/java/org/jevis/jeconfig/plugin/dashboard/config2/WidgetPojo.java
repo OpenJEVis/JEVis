@@ -21,7 +21,7 @@ public class WidgetPojo {
     private Color fontColorSecondary = Color.WHITESMOKE;
     private String title = "Title";
     private String tooltip = "";
-    private Color backgroundColor = Color.web("#126597");
+    private Color backgroundColor = Color.web("#ffffff");
     private Double xPosition = 100d;
     private Double yPosition = 100d;
     private Size size = Size.DEFAULT;

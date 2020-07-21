@@ -101,14 +101,15 @@ public class DashBordPlugIn implements Plugin {
         };
         this.scrollPane.widthProperty().addListener(sizeListener);
         this.scrollPane.heightProperty().addListener(sizeListener);
-        scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.hbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.ALWAYS);
+        scrollPane.vbarPolicyProperty().setValue(ScrollPane.ScrollBarPolicy.ALWAYS);
 
 
         dashBoardPane.boundsInParentProperty().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() -> {
                 /** Minus 10pix to account for the common use case of shadows **/
-                Layouts.setSize(zoomPane,dashBoardPane.getBoundsInParent().getWidth()-10,dashBoardPane.getBoundsInParent().getHeight()-10);
+                //Layouts.setSize(zoomPane,dashBoardPane.getBoundsInParent().getWidth()-10,dashBoardPane.getBoundsInParent().getHeight()-10);
+                Layouts.setSize(zoomPane,dashBoardPane.getBoundsInParent().getWidth(),dashBoardPane.getBoundsInParent().getHeight());
             });
         });
 
@@ -143,8 +144,11 @@ public class DashBordPlugIn implements Plugin {
         scrollPane.setMinHeight(height);
     }
 
+
     public Size getPluginSize() {
-        return new Size(rootPane.getHeight() , rootPane.getWidth() );
+        logger.error("getPluginSize in bounds: {}/{}",rootPane.getBoundsInParent().getWidth(),rootPane.getBoundsInParent().getHeight());
+
+        return new Size(rootPane.getBoundsInParent().getHeight()-scrollBarSize , rootPane.getBoundsInParent().getWidth()-scrollBarSize );
     }
 
     public DashBoardToolbar getDashBoardToolbar() {

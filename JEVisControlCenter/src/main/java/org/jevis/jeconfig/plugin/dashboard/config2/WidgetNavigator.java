@@ -15,6 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
@@ -250,6 +251,34 @@ public class WidgetNavigator {
         modeList.addAll(BackgroundMode.defaultMode,BackgroundMode.repeat,BackgroundMode.stretch);
         ComboBox<String> comboBox = new ComboBox<>(modeList);
         comboBox.setValue(control.getActiveDashboard().backgroundMode);
+
+
+        Callback<ListView<String>, ListCell<String>> factory = new Callback<ListView<String>, ListCell<String>>() {
+            @Override
+            public ListCell<String> call(ListView<String> param) {
+                return new ListCell<String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        String text = item;
+
+                        if (item ==BackgroundMode.defaultMode) {
+                            text=I18n.getInstance().getString("dashboard.navigator.bgmode.default");
+                        }else if(item ==BackgroundMode.repeat) {
+                            text=I18n.getInstance().getString("dashboard.navigator.bgmode.repeat");
+                        }else if(item ==BackgroundMode.stretch) {
+                            text=I18n.getInstance().getString("dashboard.navigator.bgmode.stretch");
+                        }
+
+                        setText(text);
+
+                    }
+                };
+            }
+        };
+        comboBox.setCellFactory(factory);
+        comboBox.setButtonCell(factory.call(null));
+
         return comboBox;
 
     }
