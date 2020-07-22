@@ -365,6 +365,14 @@ public class DataModelDataHandler {
         }
     }
 
+    public Interval getDurationProperty() {
+        return durationProperty.get();
+    }
+
+    public ObjectProperty<Interval> durationPropertyProperty() {
+        return durationProperty;
+    }
+
     public JsonNode toJsonNode() {
         ArrayNode dataArrayNode = JsonNodeFactory.instance.arrayNode();
 

@@ -12,6 +12,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -314,48 +315,51 @@ public class ValueWidget extends Widget implements DataModelWidget {
         setGraphic(this.label);
 
         setOnMouseClicked(event -> {
-            int row = 0;
+            if (event.getButton().equals(MouseButton.PRIMARY)
+                    && event.getClickCount() == 1) {
+                int row = 0;
 
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            GridPane gp = new GridPane();
-            gp.setHgap(4);
-            gp.setVgap(8);
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                GridPane gp = new GridPane();
+                gp.setHgap(4);
+                gp.setVgap(8);
 
-            for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
-                if (chartDataRow.getEnPI()) {
-                    try {
-                        CalcJobFactory calcJobCreator = new CalcJobFactory();
+                for (ChartDataRow chartDataRow : sampleHandler.getDataModel()) {
+                    if (chartDataRow.getEnPI()) {
+                        try {
+                            CalcJobFactory calcJobCreator = new CalcJobFactory();
 
-                        CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), chartDataRow.getObject().getDataSource(), chartDataRow.getCalculationObject(),
-                                control.getInterval().getStart(), control.getInterval().getStart(), true);
-                        alert.setHeaderText(getTranslatedFormula(calcJob.getCalcInputObjects(), calcJob.getExpression()));
+                            CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), chartDataRow.getObject().getDataSource(), chartDataRow.getCalculationObject(),
+                                    this.getDataHandler().getDurationProperty().getStart(), this.getDataHandler().getDurationProperty().getEnd(), true);
+                            alert.setHeaderText(getTranslatedFormula(calcJob.getCalcInputObjects(), calcJob.getExpression()));
 
-                        for (CalcInputObject calcInputObject : calcJob.getCalcInputObjects()) {
+                            for (CalcInputObject calcInputObject : calcJob.getCalcInputObjects()) {
 
-                            Label objectName = new Label();
-                            if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Clean Data")) {
-                                JEVisObject parent = CommonMethods.getFirstParentalDataObject(calcInputObject.getValueAttribute().getObject());
-                                if (parent != null) {
-                                    objectName.setText(parent.getName());
+                                Label objectName = new Label();
+                                if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Clean Data")) {
+                                    JEVisObject parent = CommonMethods.getFirstParentalDataObject(calcInputObject.getValueAttribute().getObject());
+                                    if (parent != null) {
+                                        objectName.setText(parent.getName());
+                                    }
+                                } else if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Data")) {
+                                    objectName.setText(calcInputObject.getValueAttribute().getObject().getName());
                                 }
-                            } else if (calcInputObject.getValueAttribute().getObject().getJEVisClassName().equals("Data")) {
-                                objectName.setText(calcInputObject.getValueAttribute().getObject().getName());
+
+                                JFXTextField value = new JFXTextField(calcInputObject.getSamples().get(0).getValueAsString() + " " +
+                                        UnitManager.getInstance().format(calcInputObject.getValueAttribute().getDisplayUnit()));
+
+                                gp.addRow(row, objectName, value);
+                                row++;
                             }
+                        } catch (Exception e) {
 
-                            JFXTextField value = new JFXTextField(calcInputObject.getSamples().get(0).getValueAsString() + " " +
-                                    UnitManager.getInstance().format(calcInputObject.getValueAttribute().getDisplayUnit()));
-
-                            gp.addRow(row, objectName, value);
-                            row++;
                         }
-                    } catch (Exception e) {
-
                     }
                 }
-            }
 
-            alert.getDialogPane().setContent(gp);
-            alert.showAndWait();
+                alert.getDialogPane().setContent(gp);
+                alert.showAndWait();
+            }
         });
     }
 
