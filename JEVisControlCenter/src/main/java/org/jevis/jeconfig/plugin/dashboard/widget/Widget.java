@@ -256,7 +256,7 @@ public abstract class Widget extends Region {
         this.editPane.setVisible(false);
 
         this.editPane.setBackground(new Background(new BackgroundFill(Color.GREY, new CornerRadii(0), new Insets(0, 0, 0, 0))));
-        this.editPane.setOpacity(0.7);
+        this.editPane.setOpacity(0.0);//0.7
 
 
         final ContextMenu contextMenu = new ContextMenu();
