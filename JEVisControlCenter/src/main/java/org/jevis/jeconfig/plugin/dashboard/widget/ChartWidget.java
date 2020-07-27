@@ -50,6 +50,7 @@ public class ChartWidget extends Widget {
 
     public ChartWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
+        setId(WIDGET_ID);
     }
 
     public ChartWidget(DashboardControl control) {
@@ -66,6 +67,7 @@ public class ChartWidget extends Widget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle("new Chart Widget");
         widgetPojo.setType(typeID());
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*12,control.getActiveDashboard().xGridInterval*20));
 
         return widgetPojo;
     }

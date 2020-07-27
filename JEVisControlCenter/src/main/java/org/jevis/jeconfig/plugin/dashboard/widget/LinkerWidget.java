@@ -25,6 +25,7 @@ import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.GraphAnalysisLinker;
 import org.jevis.jeconfig.plugin.dashboard.config.GraphAnalysisLinkerNode;
+import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
@@ -66,6 +67,7 @@ public class LinkerWidget extends Widget {
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.linkerwidget.newname"));
         widgetPojo.setType(typeID());
         widgetPojo.setBorderSize(new BorderWidths(0));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*1,control.getActiveDashboard().xGridInterval*1));
 
         return widgetPojo;
     }

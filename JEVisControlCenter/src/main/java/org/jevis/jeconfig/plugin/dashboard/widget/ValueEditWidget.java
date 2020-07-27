@@ -21,10 +21,7 @@ import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
-import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
-import org.jevis.jeconfig.plugin.dashboard.config2.Limit;
-import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
-import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.joda.time.DateTime;
@@ -69,6 +66,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.newname"));
         widgetPojo.setType(typeID());
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*1,control.getActiveDashboard().xGridInterval*6));
 
 
         return widgetPojo;

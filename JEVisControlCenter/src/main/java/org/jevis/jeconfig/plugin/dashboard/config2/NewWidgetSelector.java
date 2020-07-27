@@ -18,11 +18,11 @@ import java.util.List;
 public class NewWidgetSelector extends GridPane {
 
     public enum SIZE {
-        SMALL, LARGE, MEDIUM
+        S_1x4, LARGE, S_16x16, S_16x24,S_1x6
     }
 
     final ComboBox<Widget> widgetComboBox;
-    final ComboBox<SIZE> sizeComboBox;
+    //final ComboBox<SIZE> sizeComboBox;
     final ObjectProperty<Widget> selectedWidgetProperty = new SimpleObjectProperty<>();
 
     public NewWidgetSelector(List<Widget> widgets) {
@@ -37,15 +37,16 @@ public class NewWidgetSelector extends GridPane {
         widgetComboBox.getSelectionModel().selectFirst();
 
         Label labelType = new Label(I18n.getInstance().getString("plugin.dashboard.toolbar.new.type"));
+        /**
         Label sizeType = new Label(I18n.getInstance().getString("plugin.dashboard.toolbar.new.size"));
 
 
-        ObservableList<SIZE> sizeOptions = FXCollections.observableArrayList(SIZE.SMALL, SIZE.MEDIUM, SIZE.LARGE);
+        ObservableList<SIZE> sizeOptions = FXCollections.observableArrayList(SIZE.S_1x4, SIZE.S_16x16, SIZE.LARGE);
         sizeComboBox = new ComboBox<>(sizeOptions);
         sizeComboBox.getSelectionModel().selectFirst();
         sizeComboBox.setCellFactory(buildSizeCellFactory());
         sizeComboBox.setButtonCell(buildSizeCellFactory().call(null));
-
+        **/
         ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", 18, 18));
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
 
@@ -58,8 +59,8 @@ public class NewWidgetSelector extends GridPane {
         this.setHgap(8d);
         this.add(labelType, 0, 0);
         this.add(widgetComboBox, 1, 0);
-        this.add(sizeType, 2, 0);
-        this.add(sizeComboBox, 3, 0);
+        //this.add(sizeType, 2, 0);
+        //this.add(sizeComboBox, 3, 0);
         this.add(newB, 4, 0);
     }
 
@@ -69,10 +70,10 @@ public class NewWidgetSelector extends GridPane {
 
     public Widget getSelectedWidget() {
         Widget selectedWidget = widgetComboBox.getSelectionModel().getSelectedItem();
-        Size size = getSize(sizeComboBox.getSelectionModel().getSelectedItem());
+        //Size size = getSize(sizeComboBox.getSelectionModel().getSelectedItem());
 
         Widget newWidget = selectedWidget.getControl().createNewWidget(selectedWidget.createDefaultConfig());
-        newWidget.getConfig().setSize(size);
+        //newWidget.getConfig().setSize(size);
 
         return newWidget;
     }
@@ -80,14 +81,18 @@ public class NewWidgetSelector extends GridPane {
 
     private Size getSize(SIZE size) {
         switch (size) {
-            case SMALL:
-                return new Size(100, 100);
-            case MEDIUM:
-                return new Size(300, 600);
+            case S_1x4:
+                return new Size(25, 100);  //1x4
+            case S_16x16:
+                return new Size(400, 400); //16x16
+            case S_16x24:
+                return new Size(400, 600); //16x16
+            case S_1x6:
+                return new Size(25, 150); //16x16
             case LARGE:
-                return new Size(500, 1000);
+                return new Size(500, 1000); //20x40
             default:
-                return new Size(100, 100);
+                return new Size(400, 400); //16x16
         }
     }
 
@@ -103,9 +108,9 @@ public class NewWidgetSelector extends GridPane {
                         String text = "";
 
                         if (item != null && !empty) {
-                            if (item.equals(SIZE.SMALL)) {
+                            if (item.equals(SIZE.S_1x4)) {
                                 text = I18n.getInstance().getString("plugin.dashboard.toolbar.size.small");
-                            } else if (item.equals(SIZE.MEDIUM)) {
+                            } else if (item.equals(SIZE.S_16x16)) {
                                 text = I18n.getInstance().getString("plugin.dashboard.toolbar.size.medium");
                             } else if (item.equals(SIZE.LARGE)) {
                                 text = I18n.getInstance().getString("plugin.dashboard.toolbar.size.large");
