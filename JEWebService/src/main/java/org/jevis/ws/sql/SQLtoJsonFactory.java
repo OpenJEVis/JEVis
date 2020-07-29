@@ -145,7 +145,6 @@ public class SQLtoJsonFactory {
      * @return
      */
     public static JsonObject buildObject(ResultSet rs) throws SQLException {
-        System.out.println("buildObject: "+rs.toString());
         JsonObject json = new JsonObject();
         json.setName(rs.getString(ObjectTable.COLUMN_NAME));
         json.setId(rs.getLong(ObjectTable.COLUMN_ID));
@@ -153,20 +152,10 @@ public class SQLtoJsonFactory {
         json.setisPublic(rs.getBoolean(ObjectTable.COLUMN_PUBLIC));
 
         String i18njsonString = rs.getString(ObjectTable.COLUMN_I18N);
-        System.out.println("i18njsonString: "+i18njsonString);
         if(i18njsonString!=null && !i18njsonString.isEmpty()){
             try {
-                System.out.println("--exists");
                 JsonI18n[] jsons = objectMapper.readValue(i18njsonString, JsonI18n[].class);
-                System.out.println("-jsons: "+jsons);
                 json.setI18n(Arrays.asList(jsons));
-               // List<JsonI18n> i18ns = new ArrayList<>();
-            //    for (JsonI18n i18n : jsons) {
-//                logger.trace("Type: {}", type);
-
-           //         i18ns.add(new JEVisTypeWS(this, type, jclass.getName()));
-           //     }
-
             }catch (Exception ex){
                 logger.error(ex);
             }
