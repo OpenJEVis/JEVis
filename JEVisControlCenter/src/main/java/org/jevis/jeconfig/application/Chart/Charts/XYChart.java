@@ -103,6 +103,7 @@ public class XYChart implements Chart {
     private final StringBuilder regressionFormula = new StringBuilder();
     public static final Image taskImage = JEConfig.getImage("Analysis.png");
     public static String JOB_NAME = "Create series";
+    ChartSetting chartSetting;
 
     public XYChart() {
 
@@ -139,6 +140,7 @@ public class XYChart implements Chart {
     public void buildChart(AnalysisDataModel dataModel, List<ChartDataRow> dataRows, ChartSetting chartSetting) {
         this.analysisDataModel = dataModel;
         this.chartDataRows = dataRows;
+        this.chartSetting = chartSetting;
 
         double totalJob = chartDataRows.size();
 

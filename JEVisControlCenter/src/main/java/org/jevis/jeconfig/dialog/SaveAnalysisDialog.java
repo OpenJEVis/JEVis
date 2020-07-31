@@ -263,6 +263,7 @@ public class SaveAnalysisDialog {
                 if (cset.getName() != null) set.setName(cset.getName());
                 if (cset.getChartType() != null) set.setChartType(cset.getChartType().toString());
                 if (cset.getColorMapping() != null) set.setColorMapping(cset.getColorMapping().toString());
+                if (cset.getOrientation() != null) set.setOrientation(cset.getOrientation().toString());
                 if (cset.getGroupingInterval() != null) set.setGroupingInterval(cset.getGroupingInterval().toString());
                 if (cset.getHeight() != null) set.setHeight(cset.getHeight().toString());
 
