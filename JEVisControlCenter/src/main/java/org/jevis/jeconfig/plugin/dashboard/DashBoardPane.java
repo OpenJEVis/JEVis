@@ -36,13 +36,11 @@ public class DashBoardPane extends Pane {
     private DashboardPojo analysis;
     private List<Double> xGrids = new ArrayList<>();
     private List<Double> yGrids = new ArrayList<>();
-    private List<Line> gridLines = new ArrayList<>();
     private Scale scale = new Scale();
     private List<Line> visibleGrid = new ArrayList<>();
     private final JEVisDataSource jeVisDataSource;
     private final DashboardControl control;
     private final Background defaultBackground;
-    private boolean snapToGrid = false;
     private boolean gridIsVisible = false;
 
     /** Dummy Pane fif no Dashboard is loaded **/
@@ -50,6 +48,7 @@ public class DashBoardPane extends Pane {
         jeVisDataSource=null;
         control=null;
         defaultBackground=null;
+        setBorder(null);
     }
 
     public DashBoardPane(DashboardControl control) {

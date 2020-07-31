@@ -14,6 +14,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
@@ -83,6 +84,8 @@ public class DashboardControl {
     public static double fitToScreen = 99;
     public static double fitToWidth = 98;
     public static double fitToHeight = 97;
+    public static double YGridSize = 25;
+    public static double XGridSize = 25;
     private Image backgroundImage;
     private Timer timer;
 
@@ -301,8 +304,10 @@ public class DashboardControl {
         double relWidthDiff = parentSize.getWidth() / dashboardPane.getWidth();
         double relHeightDiff = parentSize.getHeight() / dashboardPane.getHeight();
 
+        logger.error("SetZoom: Factor:{}\nparent: {}/{}\ndashboard: {}/{}\nrel: {}/{}",zoomFactor,parentSize.getWidth(),zoomFactor,parentSize.getHeight(),dashboardPane.getWidth(),dashboardPane.getHeight(),relWidthDiff,relHeightDiff);
+        logger.error("Dashboard in bounds: {}/{}",dashboardPane.getBoundsInParent().getWidth(),dashboardPane.getBoundsInParent().getHeight());
 
-//        if(dashboardPane.getHeight()<dashboardPane.getBoundsInParent().getHeight() || dashboardPane.getWidth()<dashboardPane.getBoundsInParent().getWidth()){
+        //        if(dashboardPane.getHeight()<dashboardPane.getBoundsInParent().getHeight() || dashboardPane.getWidth()<dashboardPane.getBoundsInParent().getWidth()){
 //            Size size= new Size( dashboardPane.getBoundsInParent().getHeight(),dashboardPane.getBoundsInParent().getWidth());
 //            dashboardPane.setSize(size);
 //        }
@@ -317,6 +322,7 @@ public class DashboardControl {
             dashboardPane.setZoom(zoomFactor);
         }
         toolBar.updateZoomLevelView(zoomFactor);
+        logger.error("Fine Size: dashboard: {}/{}",dashboardPane.getWidth(),dashboardPane.getHeight());
 
     }
 

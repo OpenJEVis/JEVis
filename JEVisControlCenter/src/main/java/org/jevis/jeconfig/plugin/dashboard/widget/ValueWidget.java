@@ -34,10 +34,7 @@ import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.methods.CommonMethods;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
-import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
-import org.jevis.jeconfig.plugin.dashboard.config2.Limit;
-import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
-import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.joda.time.DateTime;
@@ -64,6 +61,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
     public ValueWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
+        setId(WIDGET_ID);
     }
 
     public ValueWidget(DashboardControl control) {
@@ -75,6 +73,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.newname"));
         widgetPojo.setType(typeID());
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*1,control.getActiveDashboard().xGridInterval*4));
 
 
         return widgetPojo;
