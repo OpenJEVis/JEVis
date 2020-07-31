@@ -45,6 +45,7 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ColorMappingBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.OrientationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
@@ -359,8 +360,15 @@ public class ChartSelectionDialog {
         Label labelColorMapping = null;
         ColorMappingBox colorMappingBox = null;
         if (cset.getChartType() == ChartType.HEAT_MAP) {
-            labelColorMapping = new Label("graph.tabs.tab.colormapping");
+            labelColorMapping = new Label(I18n.getInstance().getString("plugin.graph.tabs.tab.colormapping"));
             colorMappingBox = new ColorMappingBox(cset);
+        }
+
+        Label orientationLabel = null;
+        OrientationBox orientationBox = null;
+        if (cset.getChartType() == ChartType.TABLE) {
+            orientationLabel = new Label(I18n.getInstance().getString("plugin.graph.tabs.tab.orientation"));
+            orientationBox = new OrientationBox(cset);
         }
 
         final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
@@ -431,6 +439,12 @@ public class ChartSelectionDialog {
         if (cset.getChartType() == ChartType.HEAT_MAP) {
             gridPane.add(labelColorMapping, 0, row);
             gridPane.add(colorMappingBox, 1, row);
+            row++;
+        }
+
+        if (cset.getChartType() == ChartType.TABLE) {
+            gridPane.add(orientationLabel, 0, row);
+            gridPane.add(orientationBox, 1, row);
             row++;
         }
 

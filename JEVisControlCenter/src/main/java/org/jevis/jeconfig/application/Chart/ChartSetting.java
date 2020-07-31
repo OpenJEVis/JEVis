@@ -1,6 +1,7 @@
 package org.jevis.jeconfig.application.Chart;
 
 import eu.hansolo.fx.charts.tools.ColorMapping;
+import javafx.geometry.Orientation;
 
 import static org.jevis.jeconfig.application.Chart.ChartType.AREA;
 
@@ -12,6 +13,7 @@ public class ChartSetting {
     private Double height;
     private ColorMapping colorMapping = ColorMapping.GREEN_YELLOW_RED;
     private Long groupingInterval;
+    private Orientation orientation;
 
     private AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.TODAY);
 
@@ -80,5 +82,13 @@ public class ChartSetting {
 
     public void setAnalysisTimeFrame(AnalysisTimeFrame analysisTimeFrame) {
         this.analysisTimeFrame = analysisTimeFrame;
+    }
+
+    public Orientation getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(Orientation orientation) {
+        this.orientation = orientation;
     }
 }

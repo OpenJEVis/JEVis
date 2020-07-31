@@ -14,6 +14,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.geometry.Orientation;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import org.apache.logging.log4j.LogManager;
@@ -333,6 +334,10 @@ public class AnalysisDataModel {
                         newSettings.setColorMapping(parseColorMapping(settings.getColorMapping()));
                     } else newSettings.setColorMapping(ColorMapping.GREEN_YELLOW_RED);
 
+                    if (settings.getOrientation() != null) {
+                        newSettings.setOrientation(parseOrientation(settings.getOrientation()));
+                    } else newSettings.setOrientation(Orientation.HORIZONTAL);
+
                     if (settings.getGroupingInterval() != null) {
                         newSettings.setGroupingInterval(Long.parseLong(settings.getGroupingInterval()));
                     } else newSettings.setGroupingInterval(30L);
@@ -407,6 +412,20 @@ public class AnalysisDataModel {
         }
 
         return colorMapping;
+    }
+
+    private Orientation parseOrientation(String orientationString) {
+        Orientation orientation = Orientation.HORIZONTAL;
+        switch (orientationString) {
+            case "HORIZONTAL":
+                orientation = Orientation.HORIZONTAL;
+                break;
+            case "VERTICAL":
+                orientation = Orientation.VERTICAL;
+                break;
+        }
+
+        return orientation;
     }
 
     public void update() {

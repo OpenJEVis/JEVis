@@ -69,6 +69,7 @@ import org.jevis.jeconfig.application.Chart.*;
 import org.jevis.jeconfig.application.Chart.ChartElements.MultiChartZoomer;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableHeader;
+import org.jevis.jeconfig.application.Chart.ChartElements.TableHeaderTable;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDialog;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointTableViewPointer;
@@ -553,7 +554,7 @@ public class GraphPluginView implements Plugin {
                 } else if (chart != null) {
                     ScrollPane scrollPane = new ScrollPane();
 
-                    TableHeader tableHeader = new TableHeader(chartSetting.getId(), chartSetting.getChartType(), chart.getTableData());
+                    TableHeader tableHeader = new TableHeader(chartSetting, chart.getTableData());
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
                     scrollPane.setContent(tableHeader);
@@ -566,7 +567,7 @@ public class GraphPluginView implements Plugin {
 
                 if (chartSetting.getChartType() != ChartType.PIE && chartSetting.getChartType() != ChartType.HEAT_MAP
                         && chartSetting.getChartType() != ChartType.LOGICAL && chart != null) {
-                    TableHeader tableHeader = new TableHeader(chartSetting.getId(), chartSetting.getChartType(), chart.getTableData());
+                    TableHeader tableHeader = new TableHeader(chartSetting, chart.getTableData());
                     tableHeader.maxWidthProperty().bind(bp.widthProperty());
 
                     if (chartSetting.getChartType() != ChartType.TABLE) {
@@ -574,7 +575,14 @@ public class GraphPluginView implements Plugin {
                     } else {
                         TableChart tableChart = (TableChart) chart;
 
-                        bp.setTop(tableChart.getTopPicker());
+                        if (chartSetting.getOrientation() == Orientation.HORIZONTAL) {
+                            bp.setTop(tableChart.getTopPicker());
+                        } else {
+                            TableHeaderTable tableHeaderTable = new TableHeaderTable(tableChart.getXyChartSerieList());
+                            tableChart.setTableHeader(tableHeaderTable);
+                            tableHeaderTable.maxWidthProperty().bind(bp.widthProperty());
+                            bp.setCenter(tableHeaderTable);
+                        }
                     }
                 } else if (chartSetting.getChartType() != ChartType.LOGICAL) {
                     bp.setTop(null);
@@ -1320,7 +1328,7 @@ public class GraphPluginView implements Plugin {
         }
 
         allEntries.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
-        TableHeader tableHeader = new TableHeader(chartSetting.getId(), ChartType.LOGICAL, allEntries);
+        TableHeader tableHeader = new TableHeader(chartSetting, allEntries);
         bp.setTop(tableHeader);
 
         if (!minValue.equals(Double.MAX_VALUE) && !maxValue.equals(-Double.MAX_VALUE)) {

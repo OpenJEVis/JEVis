@@ -5,6 +5,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -19,6 +20,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.tools.TableViewUtils;
 import org.jevis.jeconfig.plugin.charts.TableViewContextMenuHelper;
@@ -28,19 +30,17 @@ import java.util.Collections;
 public class TableHeader extends TableView<TableEntry> {
     private final double VALUE_COLUMNS_PREF_SIZE = 200;
     private final double VALUE_COLUMNS_MIN_SIZE = VALUE_COLUMNS_PREF_SIZE - 60;
-    private final ChartType chartType;
-    private final Integer chartId;
     private final TableColumn<TableEntry, String> nameCol;
     private final TableColumn<TableEntry, Color> colorCol;
+    private final ChartSetting chartSetting;
     private TableColumn<TableEntry, String> periodCol;
     private TableColumn<TableEntry, String> dateCol;
     private TableColumn<TableEntry, String> noteCol;
     private TableViewContextMenuHelper contextMenuHelper;
     private final AlphanumComparator alphanumComparator = new AlphanumComparator();
 
-    public TableHeader(Integer chartId, ChartType chartType, final ObservableList<TableEntry> tableData) {
-        this.chartId = chartId;
-        this.chartType = chartType;
+    public TableHeader(ChartSetting chartSetting, final ObservableList<TableEntry> tableData) {
+        this.chartSetting = chartSetting;
         setBorder(null);
         setStyle(
                 ".table-view:focused {" +
@@ -48,7 +48,7 @@ public class TableHeader extends TableView<TableEntry> {
                         "-fx-background-color: transparent, -fx-box-border, -fx-control-inner-background; " +
                         "-fx-background-insets: -1.4,0,1;" +
                         "}");
-        if (chartType != ChartType.TABLE) {
+        if (chartSetting.getChartType() != ChartType.TABLE) {
             getStylesheets().add(TableHeader.class.getResource("/styles/TableViewNoScrollbar.css").toExternalForm());
             setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
         } else {
@@ -94,7 +94,7 @@ public class TableHeader extends TableView<TableEntry> {
 
         setItems(tableData);
 
-        switch (chartType) {
+        switch (chartSetting.getChartType()) {
             case BUBBLE:
                 /**
                  * Table Column 2
@@ -255,11 +255,11 @@ public class TableHeader extends TableView<TableEntry> {
                 break;
         }
 
-        setColumns(chartType);
+        setColumns();
     }
 
-    private void setColumns(ChartType chartType) {
-        switch (chartType) {
+    private void setColumns() {
+        switch (chartSetting.getChartType()) {
             case LOGICAL:
                 setTableStandard();
                 getColumns().get(2).setVisible(false);
@@ -287,6 +287,7 @@ public class TableHeader extends TableView<TableEntry> {
             case TABLE:
                 setTableStandard();
                 getColumns().get(0).setVisible(false);
+                getColumns().get(1).setVisible(chartSetting.getOrientation() == Orientation.HORIZONTAL);
                 getColumns().get(2).setVisible(false);
                 getColumns().get(5).setVisible(false);
                 getColumns().get(6).setVisible(false);
@@ -380,10 +381,10 @@ public class TableHeader extends TableView<TableEntry> {
     }
 
     public ChartType getChartType() {
-        return chartType;
+        return chartSetting.getChartType();
     }
 
     public Integer getChartId() {
-        return chartId;
+        return chartSetting.getId();
     }
 }
