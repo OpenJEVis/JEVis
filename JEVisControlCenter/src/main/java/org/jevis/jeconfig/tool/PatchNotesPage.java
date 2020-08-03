@@ -51,7 +51,19 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.38------\n" +
+            "------Version 3.9.39------\n" +
+                    "JECC - Charts - TableChart - enable vertical table\n" +
+                    "JECC - DashboardPlugin - ValueWidget - only open calc message when not editable\n" +
+                    "JECC - DashboardPlugin - ValueWidget - calculation values are wrong timeframe\n" +
+                    "JECC - DashboardPlugin - Add Dashboard translations\n" +
+                    "JECC - DashboardPlugin - Removed grey dashboard edit overlay\n" +
+                    "JECC - DashboardPlugin - New default size logic for widgets\n" +
+                    "JECC - DashboardPlugin - Dasboard would not fill the whole dashboard space\n" +
+                    "JECC - Permission templates for user rights management\n" +
+                    "JECC - Fixed an bug where the ProcessMonitor will not hide with an empty list\n" +
+                    "\n" +
+                    "JEWebService - Removed useless debug messages.\n\n" +
+                    "------Version 3.9.38------\n" +
                     "JECC - ChartPlugin - right y-axis doesn't scale correcty\n" +
                     "JECC - DashboardPlugin - ChartWidget - removed markers  \n" +
                     "JECC - DashboardPlugin - add popup for math objects on value widgets on left mouse click\n" +
