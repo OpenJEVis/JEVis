@@ -314,7 +314,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
         setGraphic(this.label);
 
         setOnMouseClicked(event -> {
-            if (event.getButton().equals(MouseButton.PRIMARY)
+            if (!control.editableProperty.get() && event.getButton().equals(MouseButton.PRIMARY)
                     && event.getClickCount() == 1) {
                 int row = 0;
 
