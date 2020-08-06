@@ -22,6 +22,7 @@ import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
+import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.text.NumberFormat;
@@ -140,6 +141,7 @@ public class TableChart extends XYChart {
                     String normalPattern = "yyyy-MM-dd HH:mm:ss";
 
                     JEVisSample jeVisSample = xyChartSerieList.get(maxSampleSeries).getSingleRow().getSamples().get(i);
+                    DateTime dateTime = jeVisSample.getTimestamp();
 
                     if (jeVisSample.getAttribute().getDisplaySampleRate().equals(Period.days(1))) {
                         normalPattern = "dd. MMMM yyyy";
@@ -156,8 +158,12 @@ public class TableChart extends XYChart {
 
 
                     for (XYChartSerie xyChartSerie : xyChartSerieList) {
-
-                        values.add(nf.format(xyChartSerie.getSingleRow().getSamples().get(i).getValueAsDouble()) + " " + singleRow.getUnit());
+                        JEVisSample sample = xyChartSerie.getSingleRow().getSamplesMap().get(dateTime);
+                        if (sample != null) {
+                            values.add(nf.format(sample.getValueAsDouble() + " " + singleRow.getUnit()));
+                        } else {
+                            values.add("");
+                        }
 
                     }
 

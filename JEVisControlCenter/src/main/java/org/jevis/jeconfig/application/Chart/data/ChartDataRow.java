@@ -388,6 +388,14 @@ public class ChartDataRow {
         return samples;
     }
 
+    public Map<DateTime, JEVisSample> getSamplesMap() throws JEVisException {
+        Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
+        for (JEVisSample sample : getSamples()) {
+            sampleMap.put(sample.getTimestamp(), sample);
+        }
+        return sampleMap;
+    }
+
     public List<JEVisSample> getForecastSamples() {
 
         try {
