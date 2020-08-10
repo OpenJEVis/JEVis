@@ -9,6 +9,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -62,7 +63,10 @@ import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
 import java.util.prefs.Preferences;
@@ -375,21 +379,14 @@ public class MeterPlugin implements Plugin {
     private void createColumns(TableView<RegisterTableRow> tableView, JEVisClass jeVisClass) {
 
         try {
-            if (isMultiSite()) {
-                TableColumn<RegisterTableRow, String> multiSiteColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnsite"));
-                multiSiteColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(objectRelations.getObjectPath(param.getValue().getObject())));
-                multiSiteColumn.setStyle("-fx-alignment: CENTER-LEFT;");
-                multiSiteColumn.setSortable(false);
-
-                tableView.getColumns().add(multiSiteColumn);
-            }
-
             TableColumn<RegisterTableRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnname"));
-            nameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject().getName()));
+            nameColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getName()));
             nameColumn.setStyle("-fx-alignment: CENTER-LEFT;");
-            nameColumn.setSortable(false);
+            nameColumn.setSortable(true);
+            nameColumn.setSortType(TableColumn.SortType.ASCENDING);
 
             tableView.getColumns().add(nameColumn);
+            tableView.getSortOrder().addAll(nameColumn);
 
             JEVisType onlineIdType = jeVisClass.getType("Online ID");
             JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
@@ -1306,6 +1303,7 @@ public class MeterPlugin implements Plugin {
                     @Override
                     protected JEVisClassTab call() {
                         TableView<RegisterTableRow> tableView = new TableView<>();
+
                         JEVisClassTab tab = new JEVisClassTab();
                         List<JEVisObject> listObjects = allMeters.get(jeVisClass);
 
@@ -1323,14 +1321,8 @@ public class MeterPlugin implements Plugin {
                             tab.setClassName(I18nWS.getInstance().getClassName(jeVisClass));
                             tab.setTableView(tableView);
                             tab.setJEVisClass(jeVisClass);
-                            AlphanumComparator ac = new AlphanumComparator();
 
                             tableView.setFixedCellSize(EDITOR_MAX_HEIGHT);
-                            tableView.setSortPolicy(param -> {
-                                Comparator<RegisterTableRow> comparator = (t1, t2) -> ac.compare(t1.getObject().getName(), t2.getObject().getName());
-                                FXCollections.sort(tableView.getItems(), comparator);
-                                return true;
-                            });
                             tableView.setTableMenuButtonVisible(true);
 
                             tab.setClosable(false);
@@ -1344,7 +1336,7 @@ public class MeterPlugin implements Plugin {
                                 }
                             });
 
-                            List<RegisterTableRow> registerTableRows = new ArrayList<>();
+                            ObservableList<RegisterTableRow> registerTableRows = FXCollections.observableArrayList();
                             JEVisType onlineIdType = jeVisClass.getType("Online ID");
                             JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
                             JEVisType multiplierType = cleanDataClass.getType("Value Multiplier");
@@ -1383,7 +1375,7 @@ public class MeterPlugin implements Plugin {
                                     }
                                 }
 
-                                RegisterTableRow tableData = new RegisterTableRow(map, meterObject);
+                                RegisterTableRow tableData = new RegisterTableRow(map, meterObject, isMultiSite());
                                 registerTableRows.add(tableData);
                             }
 

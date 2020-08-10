@@ -1374,7 +1374,7 @@ public class EquipmentPlugin implements Plugin {
                                     }
                                 }
 
-                                RegisterTableRow tableData = new RegisterTableRow(map, meterObject);
+                                RegisterTableRow tableData = new RegisterTableRow(map, meterObject, isMultiSite());
                                 registerTableRows.add(tableData);
                             }
 
