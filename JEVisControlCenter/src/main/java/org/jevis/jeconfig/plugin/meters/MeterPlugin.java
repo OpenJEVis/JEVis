@@ -37,6 +37,7 @@ import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.JEVisDates;
 import org.jevis.jeconfig.Constants;
@@ -53,6 +54,8 @@ import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -452,12 +455,14 @@ public class MeterPlugin implements Plugin {
 
                 tableView.getColumns().add(column);
 
-                if (type.equals(onlineIdType) && true == false) {
-                    TableColumn<RegisterTableRow, Object> multiplierColumn = new TableColumn<>(I18nWS.getInstance().getTypeName(cleanDataClass.getName(), multiplierType.getName()));
-                    multiplierColumn.setStyle("-fx-alignment: CENTER;");
-                    multiplierColumn.setId(multiplierType.getName());
-                    multiplierColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject()));
-                    multiplierColumn.setCellFactory(new Callback<TableColumn<RegisterTableRow, Object>, TableCell<RegisterTableRow, Object>>() {
+                if (type.equals(onlineIdType)) {
+                    NumberFormat numberFormat = NumberFormat.getNumberInstance(I18n.getInstance().getLocale());
+                    numberFormat.setMinimumFractionDigits(2);
+                    numberFormat.setMaximumFractionDigits(2);
+                    TableColumn<RegisterTableRow, Object> lastValueColumn = new TableColumn<>(I18n.getInstance().getString("status.table.captions.lastrawvalue"));
+                    lastValueColumn.setStyle("-fx-alignment: CENTER;");
+                    lastValueColumn.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().getObject()));
+                    lastValueColumn.setCellFactory(new Callback<TableColumn<RegisterTableRow, Object>, TableCell<RegisterTableRow, Object>>() {
                         @Override
                         public TableCell<RegisterTableRow, Object> call(TableColumn<RegisterTableRow, Object> param) {
                             return new TableCell<RegisterTableRow, Object>() {
@@ -470,11 +475,43 @@ public class MeterPlugin implements Plugin {
                                         setGraphic(null);
                                     } else {
                                         RegisterTableRow registerTableRow = (RegisterTableRow) getTableRow().getItem();
-                                        JEVisAttribute jeVisAttribute = registerTableRow.getAttributeMap().get(multiplierType);
+                                        JEVisAttribute jeVisAttribute = registerTableRow.getAttributeMap().get(onlineIdType);
 
                                         if (jeVisAttribute != null) {
-                                            String hash = jeVisAttribute.getObject().getID() + ":" + jeVisAttribute.getName();
+                                            try {
+                                                TargetHelper th = new TargetHelper(ds, jeVisAttribute);
 
+                                                if (th.isValid() && th.targetAccessible()) {
+                                                    JEVisAttribute att = th.getObject().get(0).getAttribute("Value");
+
+                                                    if (att != null && att.hasSample()) {
+                                                        JEVisSample latestSample = att.getLatestSample();
+                                                        JEVisUnit displayUnit = att.getDisplayUnit();
+                                                        String unitString = UnitManager.getInstance().format(displayUnit);
+                                                        String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
+
+                                                        try {
+                                                            if (att.getDisplaySampleRate().equals(Period.days(1))) {
+                                                                normalPattern = "dd. MMMM yyyy";
+                                                            } else if (att.getDisplaySampleRate().equals(Period.weeks(1))) {
+                                                                normalPattern = "dd. MMMM yyyy";
+                                                            } else if (att.getDisplaySampleRate().equals(Period.months(1))) {
+                                                                normalPattern = "MMMM yyyy";
+                                                            } else if (att.getDisplaySampleRate().equals(Period.years(1))) {
+                                                                normalPattern = "yyyy";
+                                                            }
+                                                        } catch (Exception e) {
+                                                            logger.error("Could not determine sample rate, fall back to standard", e);
+                                                        }
+
+                                                        String timeString = latestSample.getTimestamp().toString(normalPattern);
+
+                                                        setText(numberFormat.format(latestSample.getValueAsDouble()) + " " + unitString + " @ " + timeString);
+                                                    }
+                                                }
+                                            } catch (JEVisException e) {
+                                                e.printStackTrace();
+                                            }
                                         }
                                     }
                                 }
@@ -482,7 +519,7 @@ public class MeterPlugin implements Plugin {
                         }
                     });
 
-                    tableView.getColumns().add(multiplierColumn);
+                    tableView.getColumns().add(lastValueColumn);
                 }
             }
         } catch (JEVisException e) {
