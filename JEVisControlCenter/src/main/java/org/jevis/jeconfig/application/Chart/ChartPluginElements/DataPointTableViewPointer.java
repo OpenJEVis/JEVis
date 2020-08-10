@@ -20,6 +20,7 @@ import javafx.util.Pair;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.alarm.Alarm;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.ChartElements.Note;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartElements.XYChartSerie;
@@ -28,6 +29,7 @@ import org.jevis.jeconfig.application.Chart.Charts.BubbleChart;
 import org.jevis.jeconfig.application.Chart.Charts.LogicalChart;
 import org.jevis.jeconfig.application.Chart.Charts.TableChart;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
@@ -245,9 +247,23 @@ public class DataPointTableViewPointer extends AbstractDataFormattingPlugin {
                 Note formattedNote = new Note(sample, noteMap.get(sample.getTimestamp()), alarmMap.get(sample.getTimestamp()));
 
                 if (!asDuration) {
+                    String normalPattern;
+
+                    if (this.currentChart.getPeriod().equals(Period.days(1))) {
+                        normalPattern = "dd. MMMM yyyy";
+                    } else if (this.currentChart.getPeriod().equals(Period.weeks(1))) {
+                        normalPattern = "dd. MMMM yyyy";
+                    } else if (this.currentChart.getPeriod().equals(Period.months(1))) {
+                        normalPattern = "MMMM yyyy";
+                    } else if (this.currentChart.getPeriod().equals(Period.years(1))) {
+                        normalPattern = "yyyy";
+                    } else {
+                        normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
+                    }
+
                     Platform.runLater(() -> {
                         tableEntry.setDate(finalDateTime
-                                .toString(DateTimeFormat.forPattern("dd.MM.yyyy HH:mm:ss")));
+                                .toString(normalPattern));
                     });
                 } else {
                     Platform.runLater(() -> tableEntry.setDate((finalDateTime.getMillis() -

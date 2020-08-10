@@ -8,9 +8,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableHeaderTable;
@@ -24,6 +24,7 @@ import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -138,20 +139,19 @@ public class TableChart extends XYChart {
 
                 dateTimes.sort(DateTimeComparator.getInstance());
 
-                String normalPattern = "yyyy-MM-dd HH:mm:ss";
+                String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
 
                 try {
-                    JEVisAttribute att = xyChartSerieList.get(0).getSingleRow().getAttribute();
-                    if (att.getDisplaySampleRate().equals(Period.days(1))) {
+                    if (getPeriod().equals(Period.days(1))) {
                         normalPattern = "dd. MMMM yyyy";
                         Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
-                    } else if (att.getDisplaySampleRate().equals(Period.weeks(1))) {
+                    } else if (getPeriod().equals(Period.weeks(1))) {
                         normalPattern = "dd. MMMM yyyy";
                         Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
-                    } else if (att.getDisplaySampleRate().equals(Period.months(1))) {
+                    } else if (getPeriod().equals(Period.months(1))) {
                         normalPattern = "MMMM yyyy";
                         Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
-                    } else if (att.getDisplaySampleRate().equals(Period.years(1))) {
+                    } else if (getPeriod().equals(Period.years(1))) {
                         normalPattern = "yyyy";
                         Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
                     }

@@ -268,26 +268,6 @@ public class MultiChartZoomer extends ChartPlugin {
         zoomRectangle.getStyleClass().add(STYLE_CLASS_ZOOM_RECT);
         getChartChildren().add(zoomRectangle);
         registerMouseHandlers();
-
-//        chartProperty().addListener((change, o, n) -> {
-//            if (o != null) {
-//                o.getToolBar().getChildren().remove(zoomButtons);
-//                o.getPlotArea().setBottom(null);
-//                xRangeSlider.prefWidthProperty().unbind();
-//            }
-//            if (n != null) {
-//                if (isAddButtonsToToolBar()) {
-//                    n.getToolBar().getChildren().add(zoomButtons);
-//                }
-//                /* always create the slider, even if not visible at first */
-//                final ZoomRangeSlider slider = new ZoomRangeSlider(n);
-//                if (isSliderVisible()) {
-//                    n.getPlotArea().setBottom(slider);
-//                    xRangeSlider.prefWidthProperty().bind(n.getCanvasForeground().widthProperty());
-//                }
-//
-//            }
-//        });
     }
 
     /**
@@ -362,19 +342,6 @@ public class MultiChartZoomer extends ChartPlugin {
         if (currentChart != null && isHorizontal) {
 
             currentChart.updateTableZoom(lowerBound, higherBound);
-//
-//            if (!followUpZoom) {
-//                notActive.forEach(chart -> {
-//                    chart.getChart().getPlugins().forEach(naChartPlugin -> {
-//                        if (naChartPlugin instanceof MultiChartZoomer) {
-//                            MultiChartZoomer zoomer = (MultiChartZoomer) naChartPlugin;
-//                            zoomer.setFollowUpZoom(true);
-//                            zoomOnAxis(lowerBound, higherBound);
-//                            zoomer.setFollowUpZoom(false);
-//                        }
-//                    });
-//                });
-//            }
         }
     }
 
