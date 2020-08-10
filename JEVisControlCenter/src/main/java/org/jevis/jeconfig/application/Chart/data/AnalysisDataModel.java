@@ -781,14 +781,15 @@ public class AnalysisDataModel {
 
             for (ChartDataRow chartDataRow : chartDataRows) {
                 JEVisAttribute valueAtt = chartDataRow.getAttribute();
-                if (valueAtt != null) {
-                    if (valueAtt.getTimestampFromLastSample().isBefore(end.get()))
+                if (valueAtt != null && valueAtt.getTimestampFromLastSample() != null) {
+                    if (valueAtt.getTimestampFromLastSample().isBefore(end.get())) {
                         end.set(valueAtt.getTimestampFromLastSample());
+                    }
                 }
 
                 start.set(end.get().minusDays(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0));
 
-                if (valueAtt != null) {
+                if (valueAtt != null && valueAtt.getTimestampFromFirstSample() != null) {
                     if (valueAtt.getTimestampFromFirstSample().isAfter(start.get()))
                         start.set(valueAtt.getTimestampFromFirstSample());
                 }
