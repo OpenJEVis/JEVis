@@ -2,14 +2,13 @@ package org.jevis.jeconfig.application.Chart.Charts;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.geometry.Orientation;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.HBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -23,6 +22,7 @@ import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeComparator;
 import org.joda.time.Period;
 
 import java.text.NumberFormat;
@@ -107,77 +107,91 @@ public class TableChart extends XYChart {
 
             Platform.runLater(() -> tableData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName())));
         } else {
-            NumberFormat nf = NumberFormat.getNumberInstance();
-            nf.setMaximumFractionDigits(2);
-            nf.setMinimumFractionDigits(2);
-            tableHeader.getItems().clear();
+            try {
+                NumberFormat nf = NumberFormat.getNumberInstance();
+                nf.setMaximumFractionDigits(2);
+                nf.setMinimumFractionDigits(2);
+                tableHeader.getItems().clear();
 
-            int sampleSize = 0;
-            int lastSampleSize = 0;
-            int maxSampleSeries = 0;
+                List<TableColumn<List<String>, String>> tableColumns = new ArrayList<>();
+                List<DateTime> dateTimes = new ArrayList<>();
+                for (XYChartSerie xyChartSerie : xyChartSerieList) {
+                    int index = xyChartSerieList.indexOf(xyChartSerie);
 
-            List<TableColumn<ObservableList<String>, String>> tableColumns = new ArrayList<>();
-            for (XYChartSerie xyChartSerie : xyChartSerieList) {
-                int index = xyChartSerieList.indexOf(xyChartSerie);
-
-                sampleSize = Math.max(sampleSize, xyChartSerie.getSingleRow().getSamples().size());
-
-                if (sampleSize != lastSampleSize) {
-                    maxSampleSeries = index;
-                }
-
-                lastSampleSize = sampleSize;
-
-                TableColumn<ObservableList<String>, String> column = new TableColumn<>(xyChartSerie.getTableEntryName());
-                column.setStyle("-fx-alignment: CENTER-RIGHT;");
-                column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().get(index + 1)));
-                tableColumns.add(column);
-            }
-
-            List<ObservableList<String>> valueList = new ArrayList<>();
-            for (int i = 0; i < sampleSize; i++) {
-                try {
-                    List<String> values = new ArrayList<>();
-                    String normalPattern = "yyyy-MM-dd HH:mm:ss";
-
-                    JEVisSample jeVisSample = xyChartSerieList.get(maxSampleSeries).getSingleRow().getSamples().get(i);
-                    DateTime dateTime = jeVisSample.getTimestamp();
-
-                    if (jeVisSample.getAttribute().getDisplaySampleRate().equals(Period.days(1))) {
-                        normalPattern = "dd. MMMM yyyy";
-                    } else if (jeVisSample.getAttribute().getDisplaySampleRate().equals(Period.weeks(1))) {
-                        normalPattern = "dd. MMMM yyyy";
-                    } else if (jeVisSample.getAttribute().getDisplaySampleRate().equals(Period.months(1))) {
-                        normalPattern = "MMMM yyyy";
-                        Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
-                    } else if (jeVisSample.getAttribute().getDisplaySampleRate().equals(Period.years(1))) {
-                        normalPattern = "yyyy";
+                    for (JEVisSample jeVisSample : xyChartSerie.getSingleRow().getSamples()) {
+                        try {
+                            if (!dateTimes.contains(jeVisSample.getTimestamp())) {
+                                dateTimes.add(jeVisSample.getTimestamp());
+                            }
+                        } catch (JEVisException e) {
+                            logger.error(e);
+                        }
                     }
 
-                    values.add(jeVisSample.getTimestamp().toString(normalPattern));
+                    TableColumn<List<String>, String> column = new TableColumn<>(xyChartSerie.getTableEntryName());
+                    column.setStyle("-fx-alignment: CENTER-RIGHT;");
+                    column.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue().get(index + 1)));
+                    tableColumns.add(column);
+                }
 
+                Platform.runLater(() -> tableHeader.getColumns().addAll(tableColumns));
+
+                dateTimes.sort(DateTimeComparator.getInstance());
+
+                String normalPattern = "yyyy-MM-dd HH:mm:ss";
+
+                try {
+                    JEVisAttribute att = xyChartSerieList.get(0).getSingleRow().getAttribute();
+                    if (att.getDisplaySampleRate().equals(Period.days(1))) {
+                        normalPattern = "dd. MMMM yyyy";
+                        Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
+                    } else if (att.getDisplaySampleRate().equals(Period.weeks(1))) {
+                        normalPattern = "dd. MMMM yyyy";
+                        Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
+                    } else if (att.getDisplaySampleRate().equals(Period.months(1))) {
+                        normalPattern = "MMMM yyyy";
+                        Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
+                    } else if (att.getDisplaySampleRate().equals(Period.years(1))) {
+                        normalPattern = "yyyy";
+                        Platform.runLater(() -> tableHeader.getColumns().get(0).setStyle("-fx-alignment: CENTER-RIGHT;"));
+                    }
+                } catch (Exception e) {
+                    logger.error("Could not determine sample rate, fall back to standard", e);
+                }
+
+                for (DateTime dateTime : dateTimes) {
+                    List<String> values = new ArrayList<>();
+
+                    values.add(dateTime.toString(normalPattern));
 
                     for (XYChartSerie xyChartSerie : xyChartSerieList) {
                         JEVisSample sample = xyChartSerie.getSingleRow().getSamplesMap().get(dateTime);
-                        if (sample != null) {
-                            values.add(nf.format(sample.getValueAsDouble() + " " + singleRow.getUnit()));
+                        if (sample != null && !xyChartSerie.getSingleRow().isStringData()) {
+                            if (!xyChartSerie.getSingleRow().getUnit().toString().equals("")) {
+                                values.add(nf.format(sample.getValueAsDouble()) + " " + xyChartSerie.getSingleRow().getUnit());
+                            } else {
+                                values.add(nf.format(sample.getValueAsDouble()));
+                            }
+                        } else if (sample != null && xyChartSerie.getSingleRow().isStringData()) {
+                            if (!xyChartSerie.getSingleRow().getUnit().toString().equals("")) {
+                                values.add(sample.getValueAsString() + " " + xyChartSerie.getSingleRow().getUnit());
+                            } else {
+                                values.add(sample.getValueAsString());
+                            }
                         } else {
                             values.add("");
                         }
-
                     }
 
-                    valueList.add(FXCollections.observableArrayList(values));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+                    tableHeader.getItems().add(values);
 
-            Platform.runLater(() -> {
-                tableHeader.getColumns().addAll(tableColumns);
-                tableHeader.getItems().addAll(valueList);
-                tableHeader.autoFitTable();
-            });
+                    if (dateTimes.indexOf(dateTime) == dateTimes.size() - 1) {
+                        Platform.runLater(() -> tableHeader.autoFitTable());
+                    }
+                }
+            } catch (JEVisException e) {
+                logger.error("Error while adding Series to chart", e);
+            }
         }
     }
 
