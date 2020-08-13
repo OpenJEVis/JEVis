@@ -88,9 +88,9 @@ public class SampleEditor {
         try {
             JEVisClass objectClass = attribute.getObject().getJEVisClass();
             if (objectClass.getName().equals("Clean Data")) {
-                headerString += " " + attribute.getObject().getParents().get(0).getName() + " / " + attribute.getObject().getName();
+                headerString += ": " + attribute.getObject().getParents().get(0).getName() + " / " + attribute.getObject().getName();
             } else {
-                headerString += " " + attribute.getObject().getName();
+                headerString += ": " + attribute.getObject().getName();
             }
         } catch (JEVisException e) {
             logger.error("Could not get class", e);
