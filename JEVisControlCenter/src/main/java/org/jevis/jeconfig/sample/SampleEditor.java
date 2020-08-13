@@ -44,6 +44,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.tool.ScreenSize;
+import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
@@ -215,7 +216,29 @@ public class SampleEditor {
         });
 
         if (attribute.hasSample()) {
-            controlPane.initTimeRange(attribute.getTimestampFromLastSample().minus(Period.days(7)), attribute.getTimestampFromLastSample());
+
+            DateTime start = attribute.getTimestampFromLastSample().minus(Period.days(7));
+            DateTime end = attribute.getTimestampFromLastSample();
+
+            Period displaySampleRate = attribute.getDisplaySampleRate();
+
+            if (displaySampleRate.equals(Period.years(1))) {
+                start = attribute.getTimestampFromLastSample().minusYears(10);
+            } else if (displaySampleRate.equals(Period.months(1))) {
+                start = attribute.getTimestampFromLastSample().minusMonths(12);
+            } else if (displaySampleRate.equals(Period.weeks(1))) {
+                start = attribute.getTimestampFromLastSample().minusWeeks(10);
+            } else if (displaySampleRate.equals(Period.days(1))) {
+                start = attribute.getTimestampFromLastSample().minusDays(14);
+            } else if (displaySampleRate.equals(Period.hours(1))) {
+                start = attribute.getTimestampFromLastSample().minusDays(2);
+            } else if (displaySampleRate.equals(Period.minutes(15))) {
+                start = attribute.getTimestampFromLastSample().minusHours(24);
+            } else if (displaySampleRate.equals(Period.minutes(1))) {
+                start = attribute.getTimestampFromLastSample().minusHours(6);
+            }
+
+            controlPane.initTimeRange(start, end);
         }
 
         stage.showAndWait();
