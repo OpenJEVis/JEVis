@@ -56,8 +56,14 @@ public class PeriodAlignmentStep implements ProcessStep {
             long start = rawInterval.getInterval().getStartMillis();
             long end = rawInterval.getInterval().getEndMillis();
             long halfDiff = (end - start) / 2;
-            snapToGridStart = date.minus(halfDiff);
-            snapToGridEnd = date.plus(halfDiff);
+
+            if (cleanDataObject.getIsPeriodAligned()) {
+                snapToGridStart = date.minus(halfDiff);
+                snapToGridEnd = date.plus(halfDiff);
+            } else {
+                snapToGridStart = rawInterval.getInterval().getStart();
+                snapToGridEnd = rawInterval.getInterval().getEnd();
+            }
 
             while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
                 JEVisSample rawSample = rawSamples.get(currentSamplePointer);

@@ -179,7 +179,16 @@ public class ResourceManager {
                 for (JEVisSample sample : cleanDataObject.getRawSamplesDown()) {
                     try {
                         DateTime timestamp = sample.getTimestamp();
-                        Interval interval = new Interval(timestamp.minusMillis(1), timestamp);
+
+                        DateTime start = timestamp.minusMillis(1);
+                        DateTime end = timestamp;
+
+                        if (rawPeriodAlignment.equals(Period.months(1))) {
+                            start = timestamp.plusMillis(1);
+                            end = timestamp.plusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        }
+
+                        Interval interval = new Interval(start, end);
                         CleanInterval cleanInterval = new CleanInterval(interval, timestamp);
                         rawIntervals.add(cleanInterval);
                     } catch (JEVisException e) {

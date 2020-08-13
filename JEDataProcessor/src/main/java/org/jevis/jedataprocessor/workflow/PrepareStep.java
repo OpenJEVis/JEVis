@@ -183,8 +183,12 @@ public class PrepareStep implements ProcessStep {
                     }
                 }
 
-                if (startInterval != null && endInterval != null) {
+                if (!periodCleanHasMonths) {
                     Interval interval = new Interval(startInterval, endInterval);
+                    CleanInterval currentInterval = new CleanInterval(interval, startInterval);
+                    cleanIntervals.add(currentInterval);
+                } else {
+                    Interval interval = new Interval(startInterval.plusMillis(1), endInterval.plusSeconds(1));
                     CleanInterval currentInterval = new CleanInterval(interval, startInterval);
                     cleanIntervals.add(currentInterval);
                 }

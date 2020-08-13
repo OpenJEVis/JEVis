@@ -33,7 +33,7 @@ public class ExporterLauncher extends AbstractCliApp {
     private static final String APP_INFO = "JENotifier";
     private final String APP_SERVICE_CLASS_NAME = "JENotifier";
     private final Command commands = new Command();
-    private JENotifierConfig jeNotifierConfig = new JENotifierConfig();
+    private final JENotifierConfig jeNotifierConfig = new JENotifierConfig();
 
     public ExporterLauncher(String[] args, String appname) {
         super(args, appname);
@@ -145,21 +145,23 @@ public class ExporterLauncher extends AbstractCliApp {
     }
 
     @Override
-    protected void runSingle(Long id) {
+    protected void runSingle(List<Long> ids) {
         logger.info("Start Single Mode");
-        JEVisObject reportObject = null;
 
-        try {
-            logger.info("Try adding Single Mode for ID " + id);
-            reportObject = ds.getObject(id);
-        } catch (Exception ex) {
-            logger.error("Could not find Object with id: " + id);
+        for (Long id : ids) {
+            JEVisObject reportObject = null;
+
+            try {
+                logger.info("Try adding Single Mode for ID " + id);
+                reportObject = ds.getObject(id);
+            } catch (Exception ex) {
+                logger.error("Could not find Object with id: " + id);
+            }
+
+            if (reportObject != null) {
+                //TODO
+            }
         }
-
-        if (reportObject != null) {
-            //TODO
-        }
-
     }
 
     @Override

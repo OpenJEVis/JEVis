@@ -166,24 +166,26 @@ public class CalcLauncher extends AbstractCliApp {
     }
 
     @Override
-    protected void runSingle(Long id) {
+    protected void runSingle(List<Long> ids) {
         logger.info("Start Single Mode");
-        try {
-            JEVisObject calcObject = ds.getObject(id);
-
+        for (Long id : ids) {
             try {
-                CalcJob calcJob;
-                CalcJobFactory calcJobCreator = new CalcJobFactory();
-                do {
-                    calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, calcObject);
-                    calcJob.execute();
-                } while (!calcJob.hasProcessedAllInputSamples());
+                JEVisObject calcObject = ds.getObject(id);
 
-            } catch (Exception e) {
-                logger.error(e);
+                try {
+                    CalcJob calcJob;
+                    CalcJobFactory calcJobCreator = new CalcJobFactory();
+                    do {
+                        calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, calcObject);
+                        calcJob.execute();
+                    } while (!calcJob.hasProcessedAllInputSamples());
+
+                } catch (Exception e) {
+                    logger.error(e);
+                }
+            } catch (Exception ex) {
+                logger.error("JECalc: Single mode failed", ex);
             }
-        } catch (Exception ex) {
-            logger.error("JECalc: Single mode failed", ex);
         }
     }
 

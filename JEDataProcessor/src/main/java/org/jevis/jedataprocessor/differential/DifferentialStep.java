@@ -169,6 +169,10 @@ public class DifferentialStep implements ProcessStep {
                                             tmpTimeStamp = currentTmpSamples.get(index).getTimestamp();
                                         }
 
+                                        if (currentTmpSamples.size() == 1) {
+                                            tmpTimeStamp = currentInt.getDate();
+                                        }
+
                                         Double rawValue = curSample.getValueAsDouble();
                                         double cleanedVal = rawValue - lastDiffVal;
                                         String note = curSample.getNote();
