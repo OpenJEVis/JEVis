@@ -658,7 +658,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
         JEVisAttributeWS newAttribute = new JEVisAttributeWS(this, jSonAttribute);
         this.attributeCache.get(jSonAttribute.getObjectID()).add(newAttribute);
-        logger.debug("add new attribute: {}.{}", jSonAttribute.getObjectID(), jSonAttribute.getType());
+//        logger.debug("add new attribute: {}.{}", jSonAttribute.getObjectID(), jSonAttribute.getType());
 
         return newAttribute;
 
