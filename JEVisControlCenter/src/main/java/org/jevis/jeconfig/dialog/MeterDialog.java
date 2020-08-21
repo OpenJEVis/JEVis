@@ -19,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.constants.EnterDataTypes;
+import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.jeconfig.JEConfig;
@@ -51,7 +52,7 @@ public class MeterDialog {
     private final List<AttributeEditor> attributeEditors = new ArrayList<>();
     private String name;
     private final DataTypeBox dataTypeBox = new DataTypeBox();
-    private final YearBox yearBox = new YearBox();
+    private final YearBox yearBox = new YearBox(null);
     private final DayBox dayBox = new DayBox();
     private final MonthBox monthBox = new MonthBox();
     private final JFXDatePicker datePicker = new JFXDatePicker(LocalDate.now());
@@ -71,7 +72,7 @@ public class MeterDialog {
         this.jeVisClass = jeVisClass;
 
         dataTypeBox.getSelectionModel().select(EnterDataTypes.DAY);
-        monthBox.setRelations(yearBox, dayBox);
+        monthBox.setRelations(yearBox, dayBox, null);
         yearBox.setRelations(monthBox, dayBox);
 
         timePicker.set24HourView(true);
@@ -414,10 +415,13 @@ public class MeterDialog {
                                 Double oldVal = validator.validate(oldCounterValue.getText(), I18n.getInstance().getLocale());
 
                                 if (newVal != null && oldVal != null) {
-                                    JEVisSample oldCounterValue = valueAttribute.buildSample(ts.minusMillis(1), oldVal);
-                                    oldCounterValue.commit();
-                                    JEVisSample newCounterValue = valueAttribute.buildSample(ts, newVal);
-                                    newCounterValue.commit();
+                                    List<JEVisSample> newSamples = new ArrayList<>();
+                                    JEVisSample oldCounterValue = valueAttribute.buildSample(ts.minusSeconds(1), oldVal, NoteConstants.Differential.COUNTER_CHANGE + "," + I18n.getInstance().getString("menu.file.import.manual") + " " + DateTime.now());
+                                    newSamples.add(oldCounterValue);
+                                    JEVisSample newCounterValue = valueAttribute.buildSample(ts, newVal, I18n.getInstance().getString("menu.file.import.manual") + " " + DateTime.now());
+                                    newSamples.add(newCounterValue);
+
+                                    valueAttribute.addSamples(newSamples);
                                 }
                             }
                         }

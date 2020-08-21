@@ -78,6 +78,7 @@ public class JEVisTreeFactory {
         final KeyCombination deleteAllCleanAndRaw = new KeyCodeCombination(KeyCode.DELETE, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination deleteAllCalculations = new KeyCodeCombination(KeyCode.J, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 //        final KeyCombination deleteBrokenTS = new KeyCodeCombination(KeyCode.T, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+                final KeyCombination moveToDiffTS = new KeyCodeCombination(KeyCode.T, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination createMultiplierAndDifferential = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination setLimitsRecursive = new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination enableAll = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
@@ -120,6 +121,8 @@ public class JEVisTreeFactory {
                     t.consume();
 //                } else if (deleteBrokenTS.match(t) && JEConfig.getExpert()) {
 //                    TreeHelper.EventDeleteBrokenTS(tree);
+                } else if (moveToDiffTS.match(t) && JEConfig.getExpert()) {
+                    TreeHelper.EventMoveAllToDiffCleanTS(tree);
                 } else if (createMultiplierAndDifferential.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventCreateMultiplierAndDifferential(tree);
                     t.consume();

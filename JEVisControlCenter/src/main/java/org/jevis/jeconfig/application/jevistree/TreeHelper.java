@@ -44,6 +44,7 @@ import org.jevis.api.*;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
 import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.export.ExportMaster;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.json.JsonLimitsConfig;
@@ -1076,62 +1077,62 @@ public class TreeHelper {
     }
 
     /**
-    public static void EventRename(final JEVisTree tree, JEVisObject object) {
-        logger.trace("EventRename");
-
-        NewObjectDialog dia = new NewObjectDialog();
-        if (object != null) {
-            try {
-                if (dia.show(
-                        object.getJEVisClass(),
-                        object,
-                        true,
-                        NewObjectDialog.Type.RENAME,
-                        object.getName()
-                ) == NewObjectDialog.Response.YES) {
-
-                    final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.menu.rename") + "...");
-
-                    Task<Void> reload = new Task<Void>() {
-                        @Override
-                        protected Void call() {
-                            try {
-                                if (!dia.getCreateName().isEmpty()) {
-                                    object.setName(dia.getCreateName());
-                                    object.commit();
-                                }
-
-                            } catch (JEVisException ex) {
-                                logger.catching(ex);
-                            }
-
-                            return null;
-                        }
-                    };
-                    reload.setOnSucceeded(event -> pForm.getDialogStage().close());
-
-                    reload.setOnCancelled(event -> {
-                        logger.debug("Rename Cancelled");
-                        pForm.getDialogStage().hide();
-                    });
-
-                    reload.setOnFailed(event -> {
-                        logger.debug("Rename failed");
-                        pForm.getDialogStage().hide();
-                    });
-
-                    pForm.activateProgressBar(reload);
-                    pForm.getDialogStage().show();
-
-                    new Thread(reload).start();
-                }
-            } catch (JEVisException ex) {
-                logger.catching(ex);
-            }
-        }
-
-    }
-**/
+     * public static void EventRename(final JEVisTree tree, JEVisObject object) {
+     * logger.trace("EventRename");
+     * <p>
+     * NewObjectDialog dia = new NewObjectDialog();
+     * if (object != null) {
+     * try {
+     * if (dia.show(
+     * object.getJEVisClass(),
+     * object,
+     * true,
+     * NewObjectDialog.Type.RENAME,
+     * object.getName()
+     * ) == NewObjectDialog.Response.YES) {
+     * <p>
+     * final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.menu.rename") + "...");
+     * <p>
+     * Task<Void> reload = new Task<Void>() {
+     *
+     * @Override protected Void call() {
+     * try {
+     * if (!dia.getCreateName().isEmpty()) {
+     * object.setName(dia.getCreateName());
+     * object.commit();
+     * }
+     * <p>
+     * } catch (JEVisException ex) {
+     * logger.catching(ex);
+     * }
+     * <p>
+     * return null;
+     * }
+     * };
+     * reload.setOnSucceeded(event -> pForm.getDialogStage().close());
+     * <p>
+     * reload.setOnCancelled(event -> {
+     * logger.debug("Rename Cancelled");
+     * pForm.getDialogStage().hide();
+     * });
+     * <p>
+     * reload.setOnFailed(event -> {
+     * logger.debug("Rename failed");
+     * pForm.getDialogStage().hide();
+     * });
+     * <p>
+     * pForm.activateProgressBar(reload);
+     * pForm.getDialogStage().show();
+     * <p>
+     * new Thread(reload).start();
+     * }
+     * } catch (JEVisException ex) {
+     * logger.catching(ex);
+     * }
+     * }
+     * <p>
+     * }
+     **/
     private final static Pattern lastIntPattern = Pattern.compile("[^0-9]+([0-9]+)$");
 
     public static void EventDrop(final JEVisTree tree, JEVisObject dragObj, JEVisObject targetParent, CopyObjectDialog.DefaultAction mode) {
@@ -1721,5 +1722,83 @@ public class TreeHelper {
         } catch (JEVisException e) {
             logger.error("Could not delete value samples for {}:{}", object.getName(), object.getID());
         }
+    }
+
+    public static void EventMoveAllToDiffCleanTS(JEVisTree tree) {
+        Alert warning = new Alert(AlertType.WARNING, "You really sure you know what you're doing?");
+        Alert info = new Alert(AlertType.INFORMATION);
+        info.setResizable(true);
+        info.setHeight(450);
+        info.setWidth(600);
+        TextArea textArea = new TextArea();
+        textArea.setPrefRowCount(20);
+
+        info.getDialogPane().setContent(textArea);
+        ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
+
+        warning.showAndWait().ifPresent(buttonType -> {
+            if (buttonType.equals(ButtonType.OK)) {
+                info.show();
+                JEVisDataSource ds = tree.getJEVisDataSource();
+
+                try {
+                    JEVisClass dataClass = ds.getJEVisClass("Data");
+                    JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
+
+                    List<JEVisObject> dataObjects = CalculationMethods.getAllRawDataRec(items.get(0).getValue().getJEVisObject(), dataClass);
+                    List<JEVisObject> ctdObjects = new ArrayList<>();
+                    for (JEVisObject dataObject : dataObjects) {
+                        JEVisAttribute valueAttribute = dataObject.getAttribute("Value");
+                        Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " Check"));
+
+                        List<JEVisObject> cleanDataChildren = dataObject.getChildren(cleanDataClass, false);
+                        if (!cleanDataChildren.isEmpty() && valueAttribute != null) {
+                            JEVisObject cleanDataObject = cleanDataChildren.get(0);
+                            JEVisAttribute ctdAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
+                            if (ctdAttribute != null) {
+                                JEVisSample latestSample = ctdAttribute.getLatestSample();
+                                if (latestSample != null && latestSample.getValueAsBoolean() && valueAttribute.getDisplaySampleRate().equals(Period.months(1))) {
+                                    ctdObjects.add(dataObject);
+                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " added to list"));
+                                }
+                            }
+                        }
+                    }
+
+                    final String formatStr = "yyyy-MM-dd HH:mm:ss";
+                    for (JEVisObject dataObject : ctdObjects) {
+                        Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " moving samples"));
+
+                        JEVisAttribute value = dataObject.getAttribute("Value");
+                        if (value != null) {
+                            List<JEVisSample> allSamples = value.getAllSamples();
+                            List<JEVisSample> virtualSamples = new ArrayList<>();
+
+                            for (JEVisSample sample : allSamples) {
+                                DateTime oldTS = sample.getTimestamp();
+                                DateTime movedTimeStamp = oldTS.plusMonths(1).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                JEVisSample virtualSample = new VirtualSample(movedTimeStamp, sample.getValueAsDouble());
+                                virtualSample.setNote(sample.getNote());
+                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + movedTimeStamp.toString(formatStr)));
+                                virtualSamples.add(virtualSample);
+                            }
+
+                            Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found " + allSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
+
+                            if (allSamples.size() == virtualSamples.size()) {
+                                value.deleteAllSample();
+                                value.addSamples(virtualSamples);
+                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " finished moving samples"));
+                            }
+                        }
+                    }
+
+
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
     }
 }

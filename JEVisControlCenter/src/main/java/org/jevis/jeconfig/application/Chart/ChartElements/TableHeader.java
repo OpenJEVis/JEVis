@@ -242,6 +242,13 @@ public class TableHeader extends TableView<TableEntry> {
                 getColumns().addAll(colorCol, nameCol, periodCol, value, dateCol, noteCol, minCol, maxCol, avgCol, enPICol, sumCol);
                 setTableMenuButtonVisible(true);
                 contextMenuHelper = new TableViewContextMenuHelper(this);
+                if (contextMenuHelper.getTableHeaderRow() != null) {
+                    contextMenuHelper.getTableHeaderRow().setOnMouseClicked(event -> {
+                        if (event.getButton() == MouseButton.SECONDARY) {
+                            contextMenuHelper.showContextMenu();
+                        }
+                    });
+                }
 
                 widthProperty().addListener((observable, oldValue, newValue) -> {
                     Platform.runLater(this::updateColumnCaptionWidths);
@@ -323,13 +330,6 @@ public class TableHeader extends TableView<TableEntry> {
     public void updateColumnCaptionWidths() {
         TableViewUtils.allToMin(this);
         TableViewUtils.growColumns(this, Collections.singletonList(nameCol));
-        if (contextMenuHelper.getTableHeaderRow() != null) {
-            contextMenuHelper.getTableHeaderRow().setOnMouseClicked(event -> {
-                if (event.getButton() == MouseButton.SECONDARY) {
-                    contextMenuHelper.showContextMenu();
-                }
-            });
-        }
     }
 
     private TableColumn<TableEntry, Color> buildColorColumn() {

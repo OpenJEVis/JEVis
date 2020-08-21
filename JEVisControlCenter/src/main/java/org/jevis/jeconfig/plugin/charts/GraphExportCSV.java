@@ -27,6 +27,7 @@ import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeComparator;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -506,8 +507,10 @@ public class GraphExportCSV {
         }
 
         try {
-            workbook.write(new FileOutputStream(destinationFile));
+            FileOutputStream fileOutputStream = new FileOutputStream(destinationFile);
+            workbook.write(fileOutputStream);
             workbook.close();
+            fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -581,7 +584,11 @@ public class GraphExportCSV {
             Cell unitHeader = getOrCreateCell(sheet, 3, columnIndex);
             String currentUnit = UnitManager.getInstance().format(mdl.getUnit());
             if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
-                currentUnit = mdl.getUnit().getLabel();
+                try {
+                    currentUnit = mdl.getUnit().getLabel();
+                } catch (Exception e) {
+                    logger.error("Could not get unit.", e);
+                }
             }
             unitHeader.setCellValue(currentUnit);
             columnIndex++;
@@ -648,22 +655,24 @@ public class GraphExportCSV {
         }
 
         List<String> dateColumn = new ArrayList<>();
+        List<DateTime> dates = new ArrayList<>();
         Map<DateTime, Long> dateTimes = new HashMap<>();
-        boolean firstSet = true;
         long dateCounter = 0;
         for (ChartDataRow mdl : selectedData) {
-            if (firstSet) {
-                for (JEVisSample sample : mdl.getSamples()) {
-                    if (sample.getTimestamp().equals(minDate)
-                            || (sample.getTimestamp().isAfter(minDate) && sample.getTimestamp().isBefore(maxDate))
-                            || sample.getTimestamp().equals(maxDate)) {
-                        dateColumn.add(standard.print(sample.getTimestamp()));
-                        dateTimes.put(sample.getTimestamp(), dateCounter);
-                        dateCounter++;
-                    }
+            for (JEVisSample sample : mdl.getSamples()) {
+                if (!dates.contains(sample.getTimestamp()) && (sample.getTimestamp().equals(minDate)
+                        || (sample.getTimestamp().isAfter(minDate) && sample.getTimestamp().isBefore(maxDate))
+                        || sample.getTimestamp().equals(maxDate))) {
+                    dates.add(sample.getTimestamp());
                 }
-                firstSet = false;
             }
+        }
+
+        dates.sort(DateTimeComparator.getInstance());
+        for (DateTime dateTime : dates) {
+            dateColumn.add(standard.print(dateTime));
+            dateTimes.put(dateTime, dateCounter);
+            dateCounter++;
         }
 
         Map<String, Map<DateTime, JEVisSample>> mapNotes = new HashMap<>();
@@ -715,7 +724,11 @@ public class GraphExportCSV {
             for (JEVisSample sample : jeVisSamples) {
                 DateTime timeStamp = sample.getTimestamp();
                 Cell valueCell = getOrCreateCell(sheet, dateTimes.get(timeStamp).intValue() + 10, columnIndex);
-                valueCell.setCellValue(sample.getValueAsDouble());
+                if (!mdl.isStringData()) {
+                    valueCell.setCellValue(sample.getValueAsDouble());
+                } else {
+                    valueCell.setCellValue(sample.getValueAsString());
+                }
                 valueCell.setCellStyle(cellStyleValues);
             }
             columnIndex++;
@@ -735,8 +748,10 @@ public class GraphExportCSV {
         }
 
         try {
-            workbook.write(new FileOutputStream(destinationFile));
+            FileOutputStream fileOutputStream = new FileOutputStream(destinationFile);
+            workbook.write(fileOutputStream);
             workbook.close();
+            fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -936,7 +951,13 @@ public class GraphExportCSV {
                 if (i < jeVisSamples.size()) {
                     JEVisSample sample = jeVisSamples.get(i);
                     timeStamp = sample.getTimestamp();
-                    String formattedValue = numberFormat.format(sample.getValueAsDouble());
+                    String formattedValue;
+                    if (!mdl.isStringData()) {
+                        formattedValue = numberFormat.format(sample.getValueAsDouble());
+                    } else {
+                        formattedValue = sample.getValueAsString();
+                    }
+
                     s.append(formattedValue);
                 }
                 s.append(COL_SEP);

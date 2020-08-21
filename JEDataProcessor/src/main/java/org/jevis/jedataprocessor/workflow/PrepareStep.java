@@ -183,8 +183,12 @@ public class PrepareStep implements ProcessStep {
                     }
                 }
 
-                if (startInterval != null && endInterval != null) {
+                if (!periodCleanHasMonths) {
                     Interval interval = new Interval(startInterval, endInterval);
+                    CleanInterval currentInterval = new CleanInterval(interval, startInterval);
+                    cleanIntervals.add(currentInterval);
+                } else {
+                    Interval interval = new Interval(startInterval.plusMillis(1), endInterval.plusSeconds(1));
                     CleanInterval currentInterval = new CleanInterval(interval, startInterval);
                     cleanIntervals.add(currentInterval);
                 }
@@ -203,17 +207,24 @@ public class PrepareStep implements ProcessStep {
         return cleanIntervals;
     }
 
-    private List<CleanInterval> getIntervalsFromRawSamples(CleanDataObject
-                                                                   calcAttribute, List<JEVisSample> rawSamples) throws Exception {
+    private List<CleanInterval> getIntervalsFromRawSamples(CleanDataObject calcAttribute, List<JEVisSample> rawSamples) throws Exception {
         List<CleanInterval> cleanIntervals = new ArrayList<>();
         for (JEVisSample curSample : rawSamples) {
-            DateTime startInterval = curSample.getTimestamp().plusSeconds(calcAttribute.getPeriodOffset());
-            DateTime endInterval = startInterval.plusMillis(1);
-            Interval interval = new Interval(startInterval, endInterval);
 
-            CleanInterval currentInterval = new CleanInterval(interval, startInterval);
-            cleanIntervals.add(currentInterval);
+            DateTime timestamp = curSample.getTimestamp().plusSeconds(calcAttribute.getPeriodOffset());
 
+            DateTime start = timestamp.minusMillis(1);
+            DateTime end = timestamp;
+
+            if (calcAttribute.getRawDataPeriodAlignment().equals(Period.months(1))) {
+                timestamp = timestamp.minusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                start = timestamp.plusMillis(1);
+                end = timestamp.plusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+            }
+
+            Interval interval = new Interval(start, end);
+            CleanInterval cleanInterval = new CleanInterval(interval, timestamp);
+            cleanIntervals.add(cleanInterval);
         }
         logger.info("[{}] {} intervals calculated", calcAttribute.getCleanObject().getID(), cleanIntervals.size());
         return cleanIntervals;

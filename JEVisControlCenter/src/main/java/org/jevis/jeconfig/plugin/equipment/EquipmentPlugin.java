@@ -65,6 +65,7 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
+import java.util.prefs.Preferences;
 
 public class EquipmentPlugin implements Plugin {
     public static final String EQUIPMENT_CLASS = "Building Equipment";
@@ -72,6 +73,7 @@ public class EquipmentPlugin implements Plugin {
     private static final double EDITOR_MAX_HEIGHT = 50;
     public static String PLUGIN_NAME = "Equipment Plugin";
     private static Method columnToFitMethod;
+    private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.EquipmentPlugin");
 
     static {
         try {
@@ -162,6 +164,15 @@ public class EquipmentPlugin implements Plugin {
                 TableColumn<RegisterTableRow, JEVisAttribute> column = new TableColumn<>(I18nWS.getInstance().getTypeName(jeVisClass.getName(), type.getName()));
                 column.setStyle("-fx-alignment: CENTER;");
                 column.setSortable(false);
+
+                column.setVisible(pref.getBoolean(type.getName(), true));
+                column.visibleProperty().addListener((observable, oldValue, newValue) -> {
+                    try {
+                        pref.putBoolean(type.getName(), newValue);
+                    } catch (JEVisException e) {
+                        e.printStackTrace();
+                    }
+                });
 
                 column.setId(type.getName());
                 column.setCellValueFactory(param -> {
@@ -332,7 +343,7 @@ public class EquipmentPlugin implements Plugin {
 
                             try {
                                 if (item.hasSample()) {
-                                    addEventManSampleAction(item.getLatestSample(), manSampleButton);
+                                    addEventManSampleAction(item.getLatestSample(), manSampleButton, registerTableRow.getName());
                                     Platform.runLater(() -> manSampleButton.setDisable(false));
                                 }
 
@@ -406,7 +417,7 @@ public class EquipmentPlugin implements Plugin {
                                         JEVisSample newTargetSample = item.buildSample(new DateTime(), newTarget);
                                         newTargetSample.commit();
                                         try {
-                                            addEventManSampleAction(newTargetSample, manSampleButton);
+                                            addEventManSampleAction(newTargetSample, manSampleButton, registerTableRow.getName());
                                             manSampleButton.setDisable(false);
                                         } catch (Exception ex) {
                                             ex.printStackTrace();
@@ -440,7 +451,7 @@ public class EquipmentPlugin implements Plugin {
         };
     }
 
-    private void addEventManSampleAction(JEVisSample targetSample, Button buttonToAddEvent) {
+    private void addEventManSampleAction(JEVisSample targetSample, Button buttonToAddEvent, String headerText) {
         EnterDataDialog enterDataDialog = new EnterDataDialog(getDataSource());
         if (targetSample != null) {
             try {
@@ -458,7 +469,7 @@ public class EquipmentPlugin implements Plugin {
 
 
         buttonToAddEvent.setOnAction(event -> {
-            enterDataDialog.showPopup(buttonToAddEvent);
+            enterDataDialog.showPopup(buttonToAddEvent, headerText);
         });
     }
 
@@ -1363,7 +1374,7 @@ public class EquipmentPlugin implements Plugin {
                                     }
                                 }
 
-                                RegisterTableRow tableData = new RegisterTableRow(map, meterObject);
+                                RegisterTableRow tableData = new RegisterTableRow(map, meterObject, isMultiSite());
                                 registerTableRows.add(tableData);
                             }
 

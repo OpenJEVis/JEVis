@@ -15,6 +15,7 @@ import org.jevis.jedataprocessor.data.CleanInterval;
 import org.jevis.jedataprocessor.data.ResourceManager;
 import org.jevis.jedataprocessor.workflow.ProcessStep;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +67,7 @@ public class ImportStep implements ProcessStep {
         Map<DateTime, JEVisSample> listOldSamples = new HashMap<>();
         DateTime firstDateTimeOfResults = null;
         DateTime lastDateTimeOfResults = null;
-        if (!resourceManager.getIntervals().isEmpty()) {
+        if (!resourceManager.getIntervals().isEmpty() && !resourceManager.getCleanDataObject().getCleanDataPeriodAlignment().equals(Period.months(1))) {
             resourceManager.getIntervals().remove(0);
             firstDateTimeOfResults = resourceManager.getIntervals().get(0).getInterval().getStart();
             lastDateTimeOfResults = resourceManager.getIntervals().get(resourceManager.getIntervals().size() - 1).getInterval().getEnd();

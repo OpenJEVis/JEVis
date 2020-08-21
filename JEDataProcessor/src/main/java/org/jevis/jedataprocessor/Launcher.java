@@ -102,14 +102,15 @@ public class Launcher extends AbstractCliApp {
     }
 
     @Override
-    protected void runSingle(Long id) {
-
-        try {
-            JEVisObject object = ds.getObject(id);
-            ProcessManager currentProcess = new ProcessManager(object, new ObjectHandler(ds), getProcessingSizeFromService(APP_SERVICE_CLASS_NAME));
-            currentProcess.start();
-        } catch (Exception e) {
-            e.printStackTrace();
+    protected void runSingle(List<Long> ids) {
+        for (Long l : ids) {
+            try {
+                JEVisObject object = ds.getObject(l);
+                ProcessManager currentProcess = new ProcessManager(object, new ObjectHandler(ds), getProcessingSizeFromService(APP_SERVICE_CLASS_NAME));
+                currentProcess.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

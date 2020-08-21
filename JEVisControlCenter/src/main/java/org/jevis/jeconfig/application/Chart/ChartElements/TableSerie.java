@@ -8,7 +8,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
@@ -67,9 +66,6 @@ public class TableSerie extends XYChartSerie {
             JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
         });
 
-    }
-
-    public void setDataNodeColor(MultiAxisChart.Data<Number, Number> data) {
     }
 
     public String generateNote(JEVisSample sample) throws JEVisException {

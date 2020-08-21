@@ -13,7 +13,7 @@ public class YearBox extends ComboBox<Integer> {
     private MonthBox monthBox;
     private DayBox dayBox;
 
-    public YearBox() {
+    public YearBox(DateTime nextTS) {
         super();
 
         List<Integer> list = new ArrayList<>();
@@ -26,7 +26,16 @@ public class YearBox extends ComboBox<Integer> {
         setItems(integers);
 
         Integer year = DateTime.now().getYear();
-        getSelectionModel().select(year);
+
+        if (nextTS != null) {
+            getSelectionModel().select(Integer.valueOf(nextTS.getYear()));
+        } else {
+            getSelectionModel().select(year);
+        }
+    }
+
+    public YearBox() {
+        this(null);
     }
 
     public void setRelations(MonthBox monthBox, DayBox dayBox) {
@@ -44,5 +53,11 @@ public class YearBox extends ComboBox<Integer> {
                 monthBox.getSelectionModel().select(newValue);
             }
         });
+    }
+
+    public void setTS(DateTime nextTS) {
+        if (nextTS != null) {
+            getSelectionModel().select(Integer.valueOf(nextTS.getYear()));
+        }
     }
 }

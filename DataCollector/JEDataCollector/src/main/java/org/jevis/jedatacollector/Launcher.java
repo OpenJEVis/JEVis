@@ -172,7 +172,7 @@ public class Launcher extends AbstractCliApp {
     }
 
     @Override
-    protected void runSingle(Long id) {
+    protected void runSingle(List<Long> ids) {
         logger.info("Start Single Mode");
 
         if (!firstRun) {
@@ -184,14 +184,16 @@ public class Launcher extends AbstractCliApp {
             }
         } else firstRun = false;
 
-        try {
-            logger.info("Try adding Single Mode for ID " + id);
-            JEVisObject dataSourceObject = ds.getObject(id);
-            DataSource dataSource = DataSourceFactory.getDataSource(dataSourceObject);
-            dataSource.initialize(dataSourceObject);
-            dataSource.run();
-        } catch (Exception ex) {
-            logger.error(ex);
+        for (Long id : ids) {
+            try {
+                logger.info("Try adding Single Mode for ID " + id);
+                JEVisObject dataSourceObject = ds.getObject(id);
+                DataSource dataSource = DataSourceFactory.getDataSource(dataSourceObject);
+                dataSource.initialize(dataSourceObject);
+                dataSource.run();
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
         }
     }
 

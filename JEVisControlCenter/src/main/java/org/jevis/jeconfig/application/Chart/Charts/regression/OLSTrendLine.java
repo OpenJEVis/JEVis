@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression;
+package org.jevis.jeconfig.application.Chart.Charts.regression;
 
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;

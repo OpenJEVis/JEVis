@@ -41,6 +41,7 @@ public class DifferentialStep implements ProcessStep {
             List<Interval> ctdList = getIntervalsFromConversionToDifferentialList(listConversionToDifferential);
 
             boolean downSampling = true;
+            boolean isCounterChange = false;
             Period periodCleanData = cleanDataObject.getCleanDataPeriodAlignment();
             Period periodRawData = cleanDataObject.getRawDataPeriodAlignment();
 
@@ -52,6 +53,8 @@ public class DifferentialStep implements ProcessStep {
 
             if (intervals.size() > 0) {
                 Double lastDiffVal = null;
+                DateTime lastDiffTS = null;
+                CleanInterval lastInterval = null;
 
                 List<JEVisSample> rawSamples = new ArrayList<>();
 
@@ -67,6 +70,7 @@ public class DifferentialStep implements ProcessStep {
                         DateTime timestamp = smp.getTimestamp();
                         if (lastSample != null && (timestamp.equals(firstTS) || timestamp.isAfter(firstTS)) && timeStampInIntervals(timestamp, ctdList)) {
                             lastDiffVal = lastSample.getValueAsDouble();
+                            lastDiffTS = lastSample.getTimestamp();
                             break;
                         } else lastSample = smp;
                     }
@@ -91,6 +95,7 @@ public class DifferentialStep implements ProcessStep {
                                 double stepSize = diffFirstTwoRawSamples / stepsInPeriod;
 
                                 lastDiffVal = firstIntervalValue - stepSize;
+                                lastDiffTS = firstTmpSample.getTimestamp();
                             }
                         }
                     }
@@ -101,6 +106,7 @@ public class DifferentialStep implements ProcessStep {
                         for (JEVisSample smp : rawSamples) {
                             if (smp.getTimestamp().isBefore(firstTS)) {
                                 lastDiffVal = smp.getValueAsDouble();
+                                lastDiffTS = smp.getTimestamp();
                             }
                         }
                     }
@@ -117,31 +123,34 @@ public class DifferentialStep implements ProcessStep {
                             }
 
                             Double value2 = null;
+                            DateTime value2TS = null;
+
                             if (intervals.get(0).getRawSamples().size() > 1) {
                                 if (!intervals.get(0).getRawSamples().isEmpty()) {
                                     value2 = intervals.get(0).getRawSamples().get(1).getValueAsDouble();
+                                    value2TS = intervals.get(0).getRawSamples().get(1).getTimestamp();
                                 } else if (!intervals.get(0).getTmpSamples().isEmpty()) {
                                     value2 = intervals.get(0).getTmpSamples().get(1).getValueAsDouble();
+                                    value2TS = intervals.get(0).getTmpSamples().get(1).getTimestamp();
                                 }
                             } else {
                                 if (!intervals.get(1).getRawSamples().isEmpty()) {
                                     value2 = intervals.get(1).getRawSamples().get(0).getValueAsDouble();
+                                    value2TS = intervals.get(1).getRawSamples().get(0).getTimestamp();
                                 } else if (!intervals.get(1).getTmpSamples().isEmpty()) {
                                     value2 = intervals.get(1).getTmpSamples().get(0).getValueAsDouble();
+                                    value2TS = intervals.get(1).getTmpSamples().get(0).getTimestamp();
                                 }
                             }
                             if (value1 != null && value2 != null) {
                                 lastDiffVal = value1 - (value2 - value1);
+                                lastDiffTS = value2TS;
                             }
                         }
                     }
                 }
 
                 logger.info("[{}] use differential mode with starting value {}", cleanDataObject.getCleanObject().getID(), lastDiffVal);
-
-                //get last Value which is smaller than the first interval val
-                boolean wasEmpty = false;
-                List<CleanInterval> emptyIntervals = new ArrayList<>();
 
                 for (CleanInterval currentInt : intervals) {
                     for (int i = 0; i < listConversionToDifferential.size(); i++) {
@@ -160,17 +169,75 @@ public class DifferentialStep implements ProcessStep {
                                     || currentInt.getDate().isAfter(timeStampOfConversion)
                                     && ((nextTimeStampOfConversion == null) || currentInt.getDate().isBefore(nextTimeStampOfConversion))) {
                                 if (!currentInt.getRawSamples().isEmpty()) {
-                                    List<JEVisSample> currentTmpSamples = new ArrayList<>(currentInt.getTmpSamples());
                                     currentInt.getTmpSamples().clear();
                                     for (JEVisSample curSample : currentInt.getRawSamples()) {
+
                                         int index = currentInt.getRawSamples().indexOf(curSample);
                                         DateTime tmpTimeStamp = curSample.getTimestamp();
-                                        if (currentTmpSamples.size() > index) {
-                                            tmpTimeStamp = currentTmpSamples.get(index).getTimestamp();
+                                        if (currentInt.getTmpSamples().size() > index) {
+                                            tmpTimeStamp = currentInt.getTmpSamples().get(index).getTimestamp();
+                                        }
+
+                                        if (currentInt.getTmpSamples().size() == 1) {
+                                            tmpTimeStamp = currentInt.getDate();
                                         }
 
                                         Double rawValue = curSample.getValueAsDouble();
+
+                                        if (isCounterChange) {
+                                            lastDiffVal = rawValue;
+                                            isCounterChange = false;
+                                            continue;
+                                        }
+
                                         double cleanedVal = rawValue - lastDiffVal;
+                                        isCounterChange = curSample.getNote().contains("cc");
+
+                                        if (cleanDataObject.getRawDataPeriodAlignment().equals(Period.months(1)) && !isCounterChange) {
+
+                                            int dayOfMonth = curSample.getTimestamp().getDayOfMonth();
+
+                                            int maxDaysLastMonth = curSample.getTimestamp().minusMonths(1).dayOfMonth().getMaximumValue();
+
+                                            int daysOfLastMonth = 0;
+                                            if (lastDiffTS != null && lastDiffTS.getDayOfMonth() == 1) {
+                                                daysOfLastMonth = maxDaysLastMonth - (lastDiffTS.getDayOfMonth() - 1);
+                                            } else if (lastDiffTS != null && lastDiffTS.getDayOfMonth() > 1) {
+                                                daysOfLastMonth = maxDaysLastMonth - lastDiffTS.getDayOfMonth();
+                                            } else {
+                                                daysOfLastMonth = maxDaysLastMonth;
+                                            }
+
+                                            double divisor = dayOfMonth + daysOfLastMonth;
+
+                                            if (dayOfMonth == 1 && daysOfLastMonth == maxDaysLastMonth && divisor > 1) {
+                                                divisor -= 1;
+                                            }
+
+                                            double dayValue = cleanedVal / divisor;
+                                            tmpTimeStamp = tmpTimeStamp.withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+
+                                            if (dayOfMonth > 1 && index == 0 && lastInterval != null && lastInterval.getTmpSamples().isEmpty()) {
+
+                                                double lastValue = dayValue * daysOfLastMonth;
+                                                cleanedVal = dayValue * dayOfMonth;
+
+                                                JEVisSample newTmpSample = new VirtualSample(tmpTimeStamp.minusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0), lastValue);
+                                                newTmpSample.setNote("");
+                                                lastInterval.getTmpSamples().add(newTmpSample);
+
+                                            } else if (dayOfMonth > 1 && index == 0 && lastInterval != null && !lastInterval.getTmpSamples().isEmpty()) {
+
+                                                cleanedVal = dayValue * dayOfMonth;
+
+                                                JEVisSample lastSample = lastInterval.getTmpSamples().get(0);
+                                                double lastValue = (dayValue * daysOfLastMonth) + lastSample.getValueAsDouble();
+
+                                                lastSample.setValue(lastValue);
+
+                                            }
+                                        }
+
                                         String note = curSample.getNote();
 
                                         if (cleanedVal < 0) {
@@ -187,24 +254,22 @@ public class DifferentialStep implements ProcessStep {
 
                                         note += "," + NoteConstants.Differential.DIFFERENTIAL_ON;
 
-                                        JEVisSample newTmpSample = new VirtualSample(tmpTimeStamp, cleanedVal);
-                                        newTmpSample.setNote(note);
+                                        if (currentInt.getTmpSamples().isEmpty()) {
+                                            JEVisSample newTmpSample = new VirtualSample(currentInt.getDate(), cleanedVal);
+                                            newTmpSample.setNote(note);
+                                            currentInt.addTmpSample(newTmpSample);
+                                        } else {
+                                            JEVisSample tmpSample = currentInt.getTmpSamples().get(0);
+                                            tmpSample.setValue(tmpSample.getValueAsDouble() + cleanedVal);
+                                        }
                                         lastDiffVal = rawValue;
-
-                                        currentInt.addTmpSample(newTmpSample);
+                                        lastDiffTS = curSample.getTimestamp();
                                     }
                                 }
                             }
-                        } else {
-//                            if (currentInt.getDate().equals(timeStampOfConversion)
-//                                    || currentInt.getDate().isAfter(timeStampOfConversion)
-//                                    && ((nextTimeStampOfConversion == null) || currentInt.getDate().isBefore(nextTimeStampOfConversion))) {
-//                                if (!currentInt.getRawSamples().isEmpty() && compare != 0) {
-//                                    currentInt.getTmpSamples().addAll(currentInt.getRawSamples());
-//                                }
-//                            }
                         }
                     }
+                    lastInterval = currentInt;
                 }
             }
         }

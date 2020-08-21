@@ -102,14 +102,15 @@ public class Launcher extends AbstractCliApp {
     }
 
     @Override
-    protected void runSingle(Long id) {
-
-        try {
-            AlarmConfiguration ac = new AlarmConfiguration(ds, ds.getObject(id));
-            AlarmProcess ap = new AlarmProcess(ac);
-            ap.start();
-        } catch (Exception e) {
-            e.printStackTrace();
+    protected void runSingle(List<Long> ids) {
+        for (Long id : ids) {
+            try {
+                AlarmConfiguration ac = new AlarmConfiguration(ds, ds.getObject(id));
+                AlarmProcess ap = new AlarmProcess(ac);
+                ap.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

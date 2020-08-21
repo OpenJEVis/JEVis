@@ -129,22 +129,24 @@ public class ReportLauncher extends AbstractCliApp {
     }
 
     @Override
-    protected void runSingle(Long id) {
+    protected void runSingle(List<Long> ids) {
         logger.info("Start Single Mode");
-        JEVisObject reportObject = null;
 
-        try {
-            logger.info("Try adding Single Mode for ID " + id);
-            reportObject = ds.getObject(id);
-        } catch (Exception ex) {
-            logger.error("Could not find Object with id: " + id);
+        for (Long id : ids) {
+            JEVisObject reportObject = null;
+
+            try {
+                logger.info("Try adding Single Mode for ID " + id);
+                reportObject = ds.getObject(id);
+            } catch (Exception ex) {
+                logger.error("Could not find Object with id: " + id);
+            }
+
+            if (reportObject != null) {
+                ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
+                Objects.requireNonNull(executor).executeReport();
+            }
         }
-
-        if (reportObject != null) {
-            ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
-            Objects.requireNonNull(executor).executeReport();
-        }
-
     }
 
     @Override

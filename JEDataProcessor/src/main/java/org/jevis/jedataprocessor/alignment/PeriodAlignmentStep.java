@@ -56,8 +56,14 @@ public class PeriodAlignmentStep implements ProcessStep {
             long start = rawInterval.getInterval().getStartMillis();
             long end = rawInterval.getInterval().getEndMillis();
             long halfDiff = (end - start) / 2;
-            snapToGridStart = date.minus(halfDiff);
-            snapToGridEnd = date.plus(halfDiff);
+
+            if (cleanDataObject.getIsPeriodAligned()) {
+                snapToGridStart = date.minus(halfDiff);
+                snapToGridEnd = date.plus(halfDiff);
+            } else {
+                snapToGridStart = rawInterval.getInterval().getStart();
+                snapToGridEnd = rawInterval.getInterval().getEnd();
+            }
 
             while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
                 JEVisSample rawSample = rawSamples.get(currentSamplePointer);
@@ -129,7 +135,11 @@ public class PeriodAlignmentStep implements ProcessStep {
                     try {
                         if (!cleanDataObject.getIsPeriodAligned()) { //no alignment
                             for (JEVisSample sample : currentRawSamples) {
-                                sample.setNote("alignment(no)");
+                                if (sample.getNote() != null && !sample.getNote().equals("")) {
+                                    sample.setNote(sample.getNote() + "," + "alignment(no)");
+                                } else {
+                                    sample.setNote("alignment(no)");
+                                }
                                 if (userDataMap.containsKey(sample.getTimestamp())) {
                                     sample.setNote(sample.getNote() + "," + USER_VALUE);
                                 }

@@ -2,7 +2,6 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import org.jevis.commons.i18n.I18n;
@@ -12,7 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class TableHeaderTable extends TableView<ObservableList<String>> {
+public class TableHeaderTable extends TableView<List<String>> {
     private static Method columnToFitMethod;
 
     static {
@@ -40,7 +39,7 @@ public class TableHeaderTable extends TableView<ObservableList<String>> {
 
         setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
-        TableColumn<ObservableList<String>, String> dateColumn = new TableColumn<>(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.time"));
+        TableColumn<List<String>, String> dateColumn = new TableColumn<>(I18n.getInstance().getString("sampleeditor.confirmationdialog.column.time"));
         dateColumn.setCellValueFactory(param ->
                 new ReadOnlyObjectWrapper<>(param.getValue().get(0))
         );

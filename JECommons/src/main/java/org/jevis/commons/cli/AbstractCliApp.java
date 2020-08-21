@@ -96,7 +96,14 @@ public abstract class AbstractCliApp {
 
         switch (settings.servicemode) {
             case BasicSettings.SINGLE:
-                runSingle(settings.jevisid);
+                List<String> tempList = new ArrayList<>(Arrays.asList(settings.jevisid.split(",")));
+                List<Long> idList = new ArrayList<>();
+
+                for (String str : tempList) {
+                    idList.add(Long.parseLong(str));
+                }
+
+                runSingle(idList);
                 break;
             case BasicSettings.SERVICE:
                 runService();
@@ -201,7 +208,7 @@ public abstract class AbstractCliApp {
     /**
      * run for single mode business logic in this method
      */
-    protected abstract void runSingle(Long id);
+    protected abstract void runSingle(List<Long> ids);
 
     /**
      * runs the service mode of the current service

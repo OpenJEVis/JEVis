@@ -76,13 +76,16 @@ public class Launcher extends AbstractCliApp {
     }
 
     @Override
-    protected void runSingle(Long id) {
-        AlarmHandler ah = new AlarmHandler(ds, latestReported);
+    protected void runSingle(List<Long> ids) {
 
-        try {
-            ah.checkAlarm();
-        } catch (JEVisException e) {
-            logger.error(e);
+        for (Long id : ids) {
+            AlarmHandler ah = new AlarmHandler(ds, latestReported);
+
+            try {
+                ah.checkAlarm();
+            } catch (JEVisException e) {
+                logger.error(e);
+            }
         }
     }
 
