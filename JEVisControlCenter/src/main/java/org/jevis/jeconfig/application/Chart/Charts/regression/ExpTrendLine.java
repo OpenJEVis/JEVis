@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression;
+package org.jevis.jeconfig.application.Chart.Charts.regression;
 
 
 public class ExpTrendLine extends OLSTrendLine {

@@ -184,6 +184,7 @@ public class ResourceManager {
                         DateTime end = timestamp;
 
                         if (rawPeriodAlignment.equals(Period.months(1))) {
+                            timestamp = timestamp.minusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                             start = timestamp.plusMillis(1);
                             end = timestamp.plusMonths(1).withDayOfMonth(1).withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                         }

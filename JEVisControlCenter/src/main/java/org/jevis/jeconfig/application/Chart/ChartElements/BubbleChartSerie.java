@@ -18,7 +18,6 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
 import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
@@ -299,14 +298,6 @@ public class BubbleChartSerie extends XYChartSerie {
         singleRow.setMax(max);
         singleRow.setAvg(avg);
         singleRow.setSum(sum);
-    }
-
-
-    public void setDataNodeColor(MultiAxisChart.Data<Number, Number> data) {
-        if (data.getNode() != null) {
-            String hexColor = singleRow.getColor();
-            data.getNode().setStyle("-fx-background-color: " + hexColor + ";");
-        }
     }
 
     public String generateNote(JEVisSample sample) throws JEVisException {

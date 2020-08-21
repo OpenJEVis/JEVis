@@ -1,6 +1,6 @@
-package org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression;
+package org.jevis.jeconfig.application.Chart.Charts.regression;
 
-public class LogTrendLine extends OLSTrendLine {
+public class PowerTrendLine extends OLSTrendLine {
     @Override
     protected double[] xVector(double x) {
         return new double[]{1, Math.log(x)};
@@ -8,6 +8,7 @@ public class LogTrendLine extends OLSTrendLine {
 
     @Override
     protected boolean logY() {
-        return false;
+        return true;
     }
+
 }

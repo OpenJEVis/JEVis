@@ -135,7 +135,11 @@ public class PeriodAlignmentStep implements ProcessStep {
                     try {
                         if (!cleanDataObject.getIsPeriodAligned()) { //no alignment
                             for (JEVisSample sample : currentRawSamples) {
-                                sample.setNote("alignment(no)");
+                                if (sample.getNote() != null && !sample.getNote().equals("")) {
+                                    sample.setNote(sample.getNote() + "," + "alignment(no)");
+                                } else {
+                                    sample.setNote("alignment(no)");
+                                }
                                 if (userDataMap.containsKey(sample.getTimestamp())) {
                                     sample.setNote(sample.getNote() + "," + USER_VALUE);
                                 }

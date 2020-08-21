@@ -343,7 +343,7 @@ public class EquipmentPlugin implements Plugin {
 
                             try {
                                 if (item.hasSample()) {
-                                    addEventManSampleAction(item.getLatestSample(), manSampleButton);
+                                    addEventManSampleAction(item.getLatestSample(), manSampleButton, registerTableRow.getName());
                                     Platform.runLater(() -> manSampleButton.setDisable(false));
                                 }
 
@@ -417,7 +417,7 @@ public class EquipmentPlugin implements Plugin {
                                         JEVisSample newTargetSample = item.buildSample(new DateTime(), newTarget);
                                         newTargetSample.commit();
                                         try {
-                                            addEventManSampleAction(newTargetSample, manSampleButton);
+                                            addEventManSampleAction(newTargetSample, manSampleButton, registerTableRow.getName());
                                             manSampleButton.setDisable(false);
                                         } catch (Exception ex) {
                                             ex.printStackTrace();
@@ -451,7 +451,7 @@ public class EquipmentPlugin implements Plugin {
         };
     }
 
-    private void addEventManSampleAction(JEVisSample targetSample, Button buttonToAddEvent) {
+    private void addEventManSampleAction(JEVisSample targetSample, Button buttonToAddEvent, String headerText) {
         EnterDataDialog enterDataDialog = new EnterDataDialog(getDataSource());
         if (targetSample != null) {
             try {
@@ -469,7 +469,7 @@ public class EquipmentPlugin implements Plugin {
 
 
         buttonToAddEvent.setOnAction(event -> {
-            enterDataDialog.showPopup(buttonToAddEvent);
+            enterDataDialog.showPopup(buttonToAddEvent, headerText);
         });
     }
 

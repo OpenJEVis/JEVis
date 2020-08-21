@@ -40,17 +40,17 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     public static String WIDGET_ID = "Value Editor";
     private final TextField labelValue = new TextField();
     private final Label labelTimeStamp = new Label();
-    private NumberFormat nf = NumberFormat.getInstance();
+    private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     private DataModelDataHandler sampleHandler;
-    private DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
-    private ImageView imageView = JEConfig.getImage("add_table.png",18,18);
+    private final NumberFormat nf = NumberFormat.getInstance();
+    private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private Limit limit;
     private Interval lastInterval = null;
-    private EnterDataDialog enterDataDialog=null;
-    private Button addButton = new Button("",JEConfig.getImage("AddValue.png",34,34));
-    private static DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
-    private boolean forceLastValue=true;
-    private JEVisSample lastSample=null;
+    private EnterDataDialog enterDataDialog = null;
+    private final ImageView imageView = JEConfig.getImage("add_table.png", 18, 18);
+    private final Button addButton = new Button("", JEConfig.getImage("AddValue.png", 34, 34));
+    private final boolean forceLastValue = true;
+    private JEVisSample lastSample = null;
 
 
     public ValueEditWidget(DashboardControl control, WidgetPojo config) {
@@ -288,7 +288,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         labelValue.setOnMouseClicked(event -> {
             System.out.println("event: " + event);
             if (event.getButton() == MouseButton.PRIMARY) {
-                enterDataDialog.showPopup(labelTimeStamp);
+                enterDataDialog.showPopup(labelTimeStamp, this.getConfig().getTitle());
             }
 
         });

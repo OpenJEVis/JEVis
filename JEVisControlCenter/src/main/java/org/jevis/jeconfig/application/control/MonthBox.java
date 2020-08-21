@@ -83,7 +83,7 @@ public class MonthBox extends ComboBox<Months> {
 
     }
 
-    public void setRelations(YearBox yearBox, DayBox dayBox) {
+    public void setRelations(YearBox yearBox, DayBox dayBox, DateTime nextTS) {
         this.yearBox = yearBox;
         this.dayBox = dayBox;
 
@@ -95,7 +95,12 @@ public class MonthBox extends ComboBox<Months> {
             }
         });
 
-        getSelectionModel().select(DateTime.now().getMonthOfYear() - 1);
+        if (nextTS != null) {
+            getSelectionModel().select(nextTS.getMonthOfYear() - 1);
+            dayBox.getSelectionModel().select(Integer.valueOf(nextTS.getDayOfMonth()));
+        } else {
+            getSelectionModel().select(DateTime.now().getMonthOfYear() - 1);
+        }
     }
 
 }

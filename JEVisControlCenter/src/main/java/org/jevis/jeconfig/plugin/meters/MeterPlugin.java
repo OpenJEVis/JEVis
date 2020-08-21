@@ -35,6 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.relationship.ObjectRelations;
@@ -268,7 +269,7 @@ public class MeterPlugin implements Plugin {
 
                             try {
                                 if (item.hasSample()) {
-                                    addEventManSampleAction(item.getLatestSample(), manSampleButton);
+                                    addEventManSampleAction(item.getLatestSample(), manSampleButton, registerTableRow.getName());
                                     Platform.runLater(() -> manSampleButton.setDisable(false));
                                 }
 
@@ -342,7 +343,7 @@ public class MeterPlugin implements Plugin {
                                         JEVisSample newTargetSample = item.buildSample(new DateTime(), newTarget);
                                         newTargetSample.commit();
                                         try {
-                                            addEventManSampleAction(newTargetSample, manSampleButton);
+                                            addEventManSampleAction(newTargetSample, manSampleButton, registerTableRow.getName());
                                             manSampleButton.setDisable(false);
                                         } catch (Exception ex) {
                                             ex.printStackTrace();
@@ -479,10 +480,12 @@ public class MeterPlugin implements Plugin {
                                                 TargetHelper th = new TargetHelper(ds, jeVisAttribute);
 
                                                 if (th.isValid() && th.targetAccessible()) {
+
                                                     JEVisAttribute att = th.getObject().get(0).getAttribute("Value");
 
                                                     if (att != null && att.hasSample()) {
                                                         JEVisSample latestSample = att.getLatestSample();
+                                                        boolean isCounter = isCounter(att.getObject(), latestSample);
                                                         JEVisUnit displayUnit = att.getDisplayUnit();
                                                         String unitString = UnitManager.getInstance().format(displayUnit);
                                                         String normalPattern = DateTimeFormat.patternForStyle("SS", I18n.getInstance().getLocale());
@@ -492,10 +495,16 @@ public class MeterPlugin implements Plugin {
                                                                 normalPattern = "dd. MMMM yyyy";
                                                             } else if (att.getDisplaySampleRate().equals(Period.weeks(1))) {
                                                                 normalPattern = "dd. MMMM yyyy";
-                                                            } else if (att.getDisplaySampleRate().equals(Period.months(1))) {
+                                                            } else if (att.getDisplaySampleRate().equals(Period.months(1)) && !isCounter) {
                                                                 normalPattern = "MMMM yyyy";
-                                                            } else if (att.getDisplaySampleRate().equals(Period.years(1))) {
+                                                            } else if (att.getDisplaySampleRate().equals(Period.months(1)) && isCounter) {
+                                                                normalPattern = "dd. MMMM yyyy";
+                                                            } else if (att.getDisplaySampleRate().equals(Period.years(1)) && !isCounter) {
                                                                 normalPattern = "yyyy";
+                                                            } else if (att.getDisplaySampleRate().equals(Period.years(1)) && isCounter) {
+                                                                normalPattern = "dd. MMMM yyyy";
+                                                            } else {
+                                                                normalPattern = "yyyy-MM-dd HH:mm:ss";
                                                             }
                                                         } catch (Exception e) {
                                                             logger.error("Could not determine sample rate, fall back to standard", e);
@@ -524,30 +533,72 @@ public class MeterPlugin implements Plugin {
         }
     }
 
-    private void addEventManSampleAction(JEVisSample targetSample, Button buttonToAddEvent) {
-        EnterDataDialog enterDataDialog = new EnterDataDialog(getDataSource());
+    private boolean isCounter(JEVisObject object, JEVisSample latestSample) {
+        boolean isCounter = false;
+        try {
+            JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
+            if (object.getJEVisClassName().equals("Data")) {
+                JEVisObject cleanDataObject = object.getChildren(cleanDataClass, true).get(0);
+                JEVisAttribute conversionToDiffAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
 
-        if (targetSample != null) {
-            try {
-                TargetHelper th = new TargetHelper(getDataSource(), targetSample.getValueAsString());
-                if (th.isValid() && th.targetAccessible()) {
-                    JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
-                    enterDataDialog.setTarget(false, th.getAttribute().get(0));
-                    enterDataDialog.setSample(lastValue);
-                    enterDataDialog.setShowValuePrompt(true);
+                if (conversionToDiffAttribute != null) {
+                    List<JEVisSample> conversionDifferential = conversionToDiffAttribute.getAllSamples();
+
+                    for (int i = 0; i < conversionDifferential.size(); i++) {
+                        JEVisSample cd = conversionDifferential.get(i);
+
+                        DateTime timeStampOfConversion = cd.getTimestamp();
+
+                        DateTime nextTimeStampOfConversion = null;
+                        Boolean conversionToDifferential = cd.getValueAsBoolean();
+                        if (conversionDifferential.size() > (i + 1)) {
+                            nextTimeStampOfConversion = (conversionDifferential.get(i + 1)).getTimestamp();
+                        }
+
+                        if (conversionToDifferential) {
+                            if (latestSample.getTimestamp().equals(timeStampOfConversion)
+                                    || latestSample.getTimestamp().isAfter(timeStampOfConversion)
+                                    && ((nextTimeStampOfConversion == null) || latestSample.getTimestamp().isBefore(nextTimeStampOfConversion))) {
+                                isCounter = true;
+                                break;
+                            }
+                        }
+                    }
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
             }
+        } catch (JEVisException e) {
+            logger.error("Could not determine diff or not", e);
         }
 
+        return isCounter;
+    }
+
+    private void addEventManSampleAction(JEVisSample targetSample, Button buttonToAddEvent, String headerText) {
 
         buttonToAddEvent.setOnAction(event -> {
             if (!openedDataDialog.get()) {
                 openedDataDialog.set(true);
-                enterDataDialog.setOnCloseRequest(event1 -> openedDataDialog.set(false));
-                enterDataDialog.getPopup().setOnHiding(event1 -> openedDataDialog.set(false));
-                enterDataDialog.showPopup(buttonToAddEvent);
+
+                if (targetSample != null) {
+                    try {
+                        TargetHelper th = new TargetHelper(getDataSource(), targetSample.getValueAsString());
+                        if (th.isValid() && th.targetAccessible() && !th.getAttribute().isEmpty()) {
+                            JEVisSample lastValue = th.getAttribute().get(0).getLatestSample();
+
+                            EnterDataDialog enterDataDialog = new EnterDataDialog(getDataSource());
+                            enterDataDialog.setTarget(false, th.getAttribute().get(0));
+                            enterDataDialog.setSample(lastValue);
+                            enterDataDialog.setShowValuePrompt(true);
+
+                            enterDataDialog.setOnCloseRequest(event1 -> openedDataDialog.set(false));
+                            enterDataDialog.showPopup(buttonToAddEvent, headerText);
+                        } else {
+                            openedDataDialog.set(false);
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
             }
         });
     }

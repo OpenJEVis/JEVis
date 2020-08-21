@@ -39,7 +39,7 @@ import org.jevis.commons.ws.json.JsonUnit;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.application.Chart.*;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns.ColorColumn;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
+import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
