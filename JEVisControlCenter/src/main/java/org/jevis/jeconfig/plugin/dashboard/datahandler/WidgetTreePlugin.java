@@ -3,11 +3,11 @@ package org.jevis.jeconfig.plugin.dashboard.datahandler;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.jevis.api.*;
@@ -21,6 +21,7 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.Benchmark;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ProcessorBox;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.control.ColorPickerAdv;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
@@ -470,84 +471,42 @@ public class WidgetTreePlugin implements TreePlugin {
                 TreeTableCell<JEVisTreeRow, JEVisObject> cell = new TreeTableCell<JEVisTreeRow, JEVisObject>() {
 
                     @Override
+                    public void commitEdit(JEVisObject newValue) {
+                        super.commitEdit(newValue);
+
+                        getDataPointNode(getTreeTableRow()).setCleanObjectID(newValue.getID());
+                    }
+
+                    @Override
                     protected void updateItem(JEVisObject item, boolean empty) {
                         super.updateItem(item, empty);
 
                         setText(null);
                         setGraphic(null);
 
-                        if (!empty) {
+                        boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
 
-                            boolean show = WidgetTreePlugin.this.jeVisTree.getFilter().showCell(column, getTreeTableRow().getItem());
+                        if (show && item != null) {
+                            try {
 
-                            if (show && item != null) {
-
-                                ObservableList<JEVisObject> processors = FXCollections.observableArrayList();
-
+                                StackPane stackPane = new StackPane();
 
                                 JEVisObject rawObject = getTreeTableRow().getTreeItem().getValue().getJEVisObject();
-                                try {
-                                    processors.add(rawObject);
-                                    processors.addAll(rawObject.getChildren(WidgetTreePlugin.this.cleanDataClass, true));
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
-                                }
 
-                                ComboBox<JEVisObject> processorBox = new ComboBox<>();
-                                processorBox.setPrefWidth(180);
-                                processorBox.setMinWidth(120);
+                                ProcessorBox box = new ProcessorBox(rawObject, item);
 
-                                processorBox.setItems(processors);
+                                box.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> commitEdit(newValue));
 
+                                stackPane.getChildren().setAll(box);
 
-                                Callback<javafx.scene.control.ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<javafx.scene.control.ListView<JEVisObject>, ListCell<JEVisObject>>() {
-                                    @Override
-                                    public ListCell<JEVisObject> call(javafx.scene.control.ListView<JEVisObject> param) {
-                                        return new ListCell<JEVisObject>() {
-                                            @Override
-                                            protected void updateItem(JEVisObject jeVisObject, boolean empty) {
-                                                super.updateItem(jeVisObject, empty);
-                                                try {
-                                                    if (empty || jeVisObject == null) {
-                                                        setText("");
-                                                    } else {
-                                                        String text = "";
-                                                        if (jeVisObject.getID().equals(rawObject.getID())) {
-                                                            text = WidgetTreePlugin.this.rawDataString;
-                                                        } else {
-                                                            text = jeVisObject.getName();
-                                                        }
-                                                        setText(text);
-                                                    }
-                                                } catch (Exception ex) {
-                                                    setText("Error");
-                                                }
-                                            }
-                                        };
-                                    }
-                                };
-                                processorBox.setCellFactory(cellFactory);
-                                processorBox.setButtonCell(cellFactory.call(null));
+                                StackPane.setAlignment(stackPane, Pos.CENTER_LEFT);
 
-
-                                if (item != null) {
-                                    processorBox.getSelectionModel().select(item);
-                                } else {
-                                    processorBox.getSelectionModel().selectFirst();
-                                }
-
-                                processorBox.setOnAction(event -> {
-                                    if (getTreeTableRow() != null && getTreeTableRow().getItem() != null) {
-//                                        System.out.println("getDataPointNode(getTreeTableRow()): " + getDataPointNode(getTreeTableRow()));
-//                                        System.out.println("processorBox.getSelectionModel().getSelectedItem(): " + processorBox.getSelectionModel().getSelectedItem());
-//                                        System.out.println("+.getid: " + processorBox.getSelectionModel().getSelectedItem().getID());
-                                        getDataPointNode(getTreeTableRow()).setCleanObjectID(processorBox.getSelectionModel().getSelectedItem().getID());
-                                    }
-                                });
-
-                                setGraphic(new BorderPane(processorBox));
+                                setGraphic(stackPane);
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
                         }
+
                     }
 
                 };
