@@ -75,7 +75,7 @@ public class EnterDataDialog extends Dialog implements EventTarget {
     private JEVisSample initSample = null;
     private final SimpleBooleanProperty isConversionToDifferential = new SimpleBooleanProperty(false);
     private JEVisAttribute target = null;
-    private final Label messageLabel = new Label();
+    private final Label messageLabel = new Label(I18n.getInstance().getString("plugin.object.dialog.data.message.notdifferential"));
     private final DataTypeBox dataTypeBox = new DataTypeBox();
     private final Label idLabel = new Label(I18n.getInstance().getString("plugin.graph.export.text.id"));
     private final Label valueLabel = new Label(I18n.getInstance().getString("plugin.dashboard.tablewidget.column.value"));
