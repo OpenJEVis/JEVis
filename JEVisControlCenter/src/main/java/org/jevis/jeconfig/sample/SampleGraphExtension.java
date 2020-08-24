@@ -107,7 +107,7 @@ public class SampleGraphExtension implements SampleEditorExtension {
                 ZoneOffset currentOffsetForMyZone = systemZone.getRules().getOffset(instant);
                 axisLabelFormatter.setTimeZoneOffset(currentOffsetForMyZone);
 
-                final DefaultNumericAxis yAxis = new DefaultNumericAxis(null, null);
+                final DefaultNumericAxis yAxis = new DefaultNumericAxis();
 
                 final XYChart chart = new XYChart(xAxis, yAxis);
                 chart.legendVisibleProperty().set(false);
