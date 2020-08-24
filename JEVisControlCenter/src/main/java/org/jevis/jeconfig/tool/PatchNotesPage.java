@@ -51,7 +51,28 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.39------\n" +
+            "------Version 3.9.40------\n" +
+                    "JECC - Charts - TableChart - improved performance \n" +
+                    "JECC - Charts - TableChart - added date formats for different periods\n" +
+                    "JECC - Charts - fixed a null pointer in preview settings on empty data rows\n" +
+                    "JECC - Charts - Export to xlsx - fixed some problem with save to file\n" +
+                    "JECC - DashboardPlugin - WidgetTreePlugin - dataprocessor column using standard processor box\n" +
+                    "JECC - MeterPlugin - EnterDataDialog - added standard message \n" +
+                    "JECC - MeterPlugin - sorting is not working properly\n" +
+                    "JECC - MeterPlugin - add column for last value\n" +
+                    "JECC - MeterPlugin - save column settings\n" +
+                    "JECC - SampleEditor - timeframe on opening should change on data row period\n" +
+                    "JECC - SampleEditor - should show object name in title or changing selected object should change sample editor\n" +
+                    "JECC - TableHeader - optimized datetime formatting\n" +
+                    "JECC - TableChart - fixed null pointer in case of mismatching timestamps\n" +
+                    "JECC - TableChart - fixed null pointer in case of mismatching timestamps\n" +
+                    "JECC - Manual Data Input - reworked dialog\n" +
+                    "\n" +
+                    "JEDataProcessor - fixed some problems with monthly counter values\n" +
+                    "JEDataProcessor - fixed some problems with monthly values\n" +
+                    "\n" +
+                    "JEAPI-WS - removed unneccessary debug message\n\n" +
+                    "------Version 3.9.39------\n" +
                     "JECC - Charts - TableChart - enable vertical table\n" +
                     "JECC - DashboardPlugin - ValueWidget - only open calc message when not editable\n" +
                     "JECC - DashboardPlugin - ValueWidget - calculation values are wrong timeframe\n" +
