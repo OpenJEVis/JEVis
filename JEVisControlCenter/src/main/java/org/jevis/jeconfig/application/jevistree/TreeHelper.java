@@ -1725,11 +1725,18 @@ public class TreeHelper {
     }
 
     public static void EventMoveAllToDiffCleanTS(JEVisTree tree) {
-        Alert warning = new Alert(AlertType.WARNING, "You really sure you know what you're doing?");
+        Alert warning = new Alert(AlertType.WARNING);
         Alert info = new Alert(AlertType.INFORMATION);
         info.setResizable(true);
         info.setHeight(450);
         info.setWidth(600);
+
+        TextField textField = new TextField();
+        Label message = new Label("You really sure you know what you're doing?");
+
+        VBox vBox = new VBox(message, textField);
+        warning.getDialogPane().setContent(vBox);
+
         TextArea textArea = new TextArea();
         textArea.setPrefRowCount(20);
 
@@ -1744,6 +1751,7 @@ public class TreeHelper {
                 try {
                     JEVisClass dataClass = ds.getJEVisClass("Data");
                     JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
+                    Integer periodIncrease = Integer.parseInt(textField.getText());
 
                     List<JEVisObject> dataObjects = CalculationMethods.getAllRawDataRec(items.get(0).getValue().getJEVisObject(), dataClass);
                     List<JEVisObject> ctdObjects = new ArrayList<>();
@@ -1757,7 +1765,7 @@ public class TreeHelper {
                             JEVisAttribute ctdAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
                             if (ctdAttribute != null) {
                                 JEVisSample latestSample = ctdAttribute.getLatestSample();
-                                if (latestSample != null && latestSample.getValueAsBoolean() && valueAttribute.getDisplaySampleRate().equals(Period.months(1))) {
+                                if (latestSample != null && latestSample.getValueAsBoolean()) {
                                     ctdObjects.add(dataObject);
                                     Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " added to list"));
                                 }
@@ -1776,10 +1784,20 @@ public class TreeHelper {
 
                             for (JEVisSample sample : allSamples) {
                                 DateTime oldTS = sample.getTimestamp();
-                                DateTime movedTimeStamp = oldTS.plusMonths(1).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                DateTime movedTimeStamp = null;
+
+                                if (value.getInputSampleRate().equals(Period.years(1))) {
+                                    movedTimeStamp = oldTS.plusYears(periodIncrease).withMonthOfYear(oldTS.getMonthOfYear()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                } else if (value.getInputSampleRate().equals(Period.months(1))) {
+                                    movedTimeStamp = oldTS.plusMonths(periodIncrease).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                } else {
+                                    movedTimeStamp = oldTS.plusMillis(Math.toIntExact(value.getInputSampleRate().toStandardDuration().getMillis() * periodIncrease));
+                                }
+
                                 JEVisSample virtualSample = new VirtualSample(movedTimeStamp, sample.getValueAsDouble());
                                 virtualSample.setNote(sample.getNote());
-                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + movedTimeStamp.toString(formatStr)));
+                                DateTime finalMovedTimeStamp = movedTimeStamp;
+                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr)));
                                 virtualSamples.add(virtualSample);
                             }
 

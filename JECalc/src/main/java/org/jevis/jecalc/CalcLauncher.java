@@ -47,6 +47,12 @@ public class CalcLauncher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
+        try {
+            checkConnection();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
             if (!firstRun) {
                 try {

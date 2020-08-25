@@ -52,44 +52,57 @@ public class Launcher extends AbstractCliApp {
         logger.info("{} cleaning task found starting", processes.size());
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
-        processes.parallelStream().forEach(currentCleanDataObject -> {
+        processes.forEach(currentCleanDataObject -> {
             if (!runningJobs.containsKey(currentCleanDataObject.getID())) {
-                executor.submit(() -> {
-                            Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
-                            runningJobs.put(currentCleanDataObject.getID(), "true");
+                Runnable runnable = () -> {
+                    try {
+                        Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
+                        runningJobs.put(currentCleanDataObject.getID(), "true");
 
-                            ProcessManager currentProcess = null;
-                            try {
-                                LogTaskManager.getInstance().buildNewTask(currentCleanDataObject.getID(), currentCleanDataObject.getName());
-                                LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.STARTED);
+                        ProcessManager currentProcess = null;
+                        try {
+                            LogTaskManager.getInstance().buildNewTask(currentCleanDataObject.getID(), currentCleanDataObject.getName());
+                            LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.STARTED);
 
-                                currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds), processingSize);
-                                currentProcess.start();
-                            } catch (Exception ex) {
-                                logger.debug(ex);
-                                LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
-                            }
-
-                            LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
-                            runningJobs.remove(currentCleanDataObject.getID());
-                            plannedJobs.remove(currentCleanDataObject.getID());
-
-                            logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
-
-                            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                                logger.info("Last job. Clearing cache.");
-                                setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                                ds.clearCache();
-                            }
-
+                            currentProcess = new ProcessManager(currentCleanDataObject, new ObjectHandler(ds), processingSize);
+                            currentProcess.start();
+                        } catch (Exception ex) {
+                            logger.debug(ex);
+                            LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
                         }
-                );
+                    } catch (Exception e) {
+                        LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
+                        runningJobs.remove(currentCleanDataObject.getID());
+                        plannedJobs.remove(currentCleanDataObject.getID());
+
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                            logger.info("Last job. Clearing cache.");
+                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
+                            ds.clearCache();
+                        }
+                    } finally {
+                        LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
+                        runningJobs.remove(currentCleanDataObject.getID());
+                        plannedJobs.remove(currentCleanDataObject.getID());
+
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                            logger.info("Last job. Clearing cache.");
+                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
+                            ds.clearCache();
+                        }
+                    }
+                };
+
+                executor.submit(runnable);
             } else {
                 logger.info("Still processing Job {}:{}", currentCleanDataObject.getName(), currentCleanDataObject.getID());
             }
         });
     }
-
 
     @Override
     protected void addCommands() {
@@ -117,6 +130,12 @@ public class Launcher extends AbstractCliApp {
     @Override
     protected void runServiceHelp() {
         List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
+
+        try {
+            checkConnection();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
 
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
             if (!firstRun) {

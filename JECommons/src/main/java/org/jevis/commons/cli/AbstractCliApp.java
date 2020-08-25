@@ -131,10 +131,38 @@ public abstract class AbstractCliApp {
         }
     }
 
+    protected boolean checkConnection() throws JEVisException {
+        while (!ds.isConnectionAlive()) {
+            DataSourceLoader dsl = new DataSourceLoader();
+
+            try {
+                ds = dsl.getDataSource(optMap.get(DS));
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+                logger.fatal("JEVisDataSource not created. Сheck the configuration file data.", ex);
+            }
+
+            ds.setConfiguration(new ArrayList<>(optMap.values()));
+
+            try {
+                active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
+                return true;
+            } catch (Exception ex) {
+                logger.fatal("Could not connect! Check login and password.", ex);
+            }
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
     /**
      * Handles all commands from @see BasicSettings
      */
-    private void handleBasic() {
+    protected void handleBasic() {
         if (settings.help) {
             comm.usage();
         } else {
