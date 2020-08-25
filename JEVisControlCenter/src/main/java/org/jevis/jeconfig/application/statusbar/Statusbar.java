@@ -169,6 +169,7 @@ public class Statusbar extends ToolBar {
                             Platform.runLater(() -> {
                                 hideTaskListPane.setVisible(true);
                                 popup.hide();
+                                progressBar.setVisible(false);
                             });
                         }
                     }
@@ -179,6 +180,7 @@ public class Statusbar extends ToolBar {
                                 hideTaskListPane.setVisible(false);
                                 if (!hideTaskList && !popup.isShowing()) {
                                     popup.show(onlineInfo);
+                                    progressBar.setVisible(true);
                                 }
 
                             } catch (Exception ex) {
@@ -383,7 +385,7 @@ public class Statusbar extends ToolBar {
 
         progressbox.setAlignment(Pos.CENTER_RIGHT);
         progressbox.setSpacing(8);
-        progressbox.getChildren().setAll(messageBox, sep1, loadStatus, progressBar, showTaskViewButton);
+        progressbox.getChildren().setAll(messageBox, sep1, loadStatus, showTaskViewButton, progressBar);
         //TODO implement notification
         root.getChildren().setAll(userIcon, this.userName, spacerLeft, progressbox, spacer, versionLabel, versionNumber, spacer2, this.conBox, this.onlineInfo);
 
