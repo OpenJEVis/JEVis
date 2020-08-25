@@ -91,6 +91,11 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
+        try {
+            checkConnection();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
 
         JEVisClass serviceClass = null;
         try {

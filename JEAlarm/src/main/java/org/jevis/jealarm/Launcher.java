@@ -116,6 +116,13 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
+
+        try {
+            checkConnection();
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
+
         List<AlarmConfiguration> enabledAlarmConfigurations = new ArrayList<>();
 
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
