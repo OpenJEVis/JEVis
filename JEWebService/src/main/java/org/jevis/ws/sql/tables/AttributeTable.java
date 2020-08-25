@@ -112,7 +112,7 @@ public class AttributeTable {
 
         try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
 
-            logger.error("SQL {}", ps);
+            logger.debug("SQL {}", ps);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 try {
