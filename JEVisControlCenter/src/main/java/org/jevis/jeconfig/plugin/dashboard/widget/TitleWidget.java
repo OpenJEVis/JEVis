@@ -114,7 +114,6 @@ public class TitleWidget extends Widget {
 
     @Override
     public void openConfig() {
-        System.out.println("Title openConfig");
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
         widgetConfigDialog.addGeneralTabsDataModel(null);
 

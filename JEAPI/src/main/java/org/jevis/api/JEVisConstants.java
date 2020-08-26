@@ -92,6 +92,7 @@ public interface JEVisConstants {
          * from nested to parent
          */
         int NESTED_CLASS = 8;
+
         /**
          * From object to group
          */
@@ -116,6 +117,30 @@ public interface JEVisConstants {
          * From user to group
          */
         int MEMBER_DELETE = 105;
+        /**
+         * From role to user
+         */
+        int ROLE_MEMBER = 200;
+        /**
+         * From role to group
+         */
+        int ROLE_READ = 201;
+        /**
+         * From role to group
+         */
+        int ROLE_WRITE = 202;
+        /**
+         * From role to group
+         */
+        int ROLE_EXECUTE = 203;
+        /**
+         * From role to group
+         */
+        int ROLE_CREATE = 204;
+        /**
+         * From role to group
+         */
+        int ROLE_DELETE = 205;
         
     }
 
