@@ -895,8 +895,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         List<JsonSample> jsons = new ArrayList<>();
         try {
             InputStream inputStream = this.con.getInputStreamRequest(resource);
-            jsons = new ArrayList<>(Arrays.asList(this.objectMapper.readValue(inputStream, JsonSample[].class)));
-            inputStream.close();
+            if (inputStream != null) {
+                jsons = new ArrayList<>(Arrays.asList(this.objectMapper.readValue(inputStream, JsonSample[].class)));
+                inputStream.close();
+            }
         } catch (IllegalArgumentException ex) {
             logger.error("Illegal argument exception. Error in getting samples.", ex);
             return new ArrayList<>();
