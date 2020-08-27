@@ -49,7 +49,7 @@ public class CalcLauncher extends AbstractCliApp {
     protected void runServiceHelp() {
         try {
             checkConnection();
-        } catch (JEVisException e) {
+        } catch (JEVisException | InterruptedException e) {
             e.printStackTrace();
         }
 

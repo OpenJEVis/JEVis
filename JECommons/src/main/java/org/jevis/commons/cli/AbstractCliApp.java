@@ -131,32 +131,24 @@ public abstract class AbstractCliApp {
         }
     }
 
-    protected boolean checkConnection() throws JEVisException {
-        while (!ds.isConnectionAlive()) {
-            DataSourceLoader dsl = new DataSourceLoader();
+    protected boolean checkConnection() throws JEVisException, InterruptedException {
 
-            try {
-                ds = dsl.getDataSource(optMap.get(DS));
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                logger.fatal("JEVisDataSource not created. Сheck the configuration file data.", ex);
-            }
+        connect(0);
 
-            ds.setConfiguration(new ArrayList<>(optMap.values()));
+        return false;
+    }
 
-            try {
-                active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
-                return true;
-            } catch (Exception ex) {
-                logger.fatal("Could not connect! Check login and password.", ex);
-            }
+    private void connect(int counter) throws JEVisException, InterruptedException {
 
-            try {
+        if (counter < 5) {
+            active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
+
+            if (!active) {
                 Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                counter++;
+                connect(counter);
             }
         }
-        return false;
     }
 
     /**
@@ -189,7 +181,7 @@ public abstract class AbstractCliApp {
             ds.setConfiguration(new ArrayList<>(optMap.values()));
 
             try {
-                active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
+                connect(0);
             } catch (Exception ex) {
                 logger.fatal("Could not connect! Check login and password.", ex);
             }

@@ -119,7 +119,7 @@ public class Launcher extends AbstractCliApp {
 
         try {
             checkConnection();
-        } catch (JEVisException e) {
+        } catch (JEVisException | InterruptedException e) {
             e.printStackTrace();
         }
 

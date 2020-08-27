@@ -96,6 +96,13 @@ public class CleanDataObject {
      * Check if the configuration is valid. Returns false if configuration is not valid.
      */
     public boolean checkConfig() {
+
+        try {
+            reloadAttributes();
+        } catch (JEVisException e) {
+            logger.error("Could not reload attributes. ", e);
+        }
+
         List<String> errors = new ArrayList<>();
         if (getLimitsEnabled() && getLimitsConfig().isEmpty()) {
             errors.add("Missing Limit configuration");

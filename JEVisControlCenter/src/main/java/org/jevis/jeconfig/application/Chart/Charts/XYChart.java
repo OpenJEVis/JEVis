@@ -882,7 +882,6 @@ public class XYChart implements Chart {
 //        }
         Platform.runLater(() -> dateAxis.setName(""));
 
-        Period realPeriod = Period.minutes(15);
         if (chartDataRows != null && chartDataRows.size() > 0) {
 
             if (chartDataRows.get(0).getSamples().size() > 1) {
@@ -892,10 +891,8 @@ public class XYChart implements Chart {
                             samples.get(1).getTimestamp());
                     timeStampOfFirstSample.set(samples.get(0).getTimestamp());
                     timeStampOfLastSample.set(samples.get(samples.size() - 1).getTimestamp());
-                    realPeriod = new Period(samples.get(0).getTimestamp(),
-                            samples.get(1).getTimestamp());
-                } catch (JEVisException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    logger.error("Could not get period from samples", e);
                 }
             }
         }
@@ -938,6 +935,11 @@ public class XYChart implements Chart {
     @Override
     public Period getPeriod() {
         return period;
+    }
+
+    @Override
+    public void setPeriod(Period period) {
+        this.period = period;
     }
 
     String getUpdatedChartName() {

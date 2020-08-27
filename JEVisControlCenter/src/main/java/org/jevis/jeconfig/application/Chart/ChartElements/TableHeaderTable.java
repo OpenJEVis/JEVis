@@ -7,7 +7,6 @@ import javafx.scene.control.TableView;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.utils.AlphanumComparator;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -54,7 +53,7 @@ public class TableHeaderTable extends TableView<List<String>> {
         for (Object column : getColumns()) {
             try {
                 columnToFitMethod.invoke(getSkin(), column, -1);
-            } catch (IllegalAccessException | InvocationTargetException ignored) {
+            } catch (Exception ignored) {
             }
         }
     }

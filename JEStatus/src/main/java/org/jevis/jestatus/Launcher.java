@@ -93,7 +93,7 @@ public class Launcher extends AbstractCliApp {
     protected void runServiceHelp() {
         try {
             checkConnection();
-        } catch (JEVisException e) {
+        } catch (JEVisException | InterruptedException e) {
             e.printStackTrace();
         }
 
