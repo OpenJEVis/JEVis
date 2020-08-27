@@ -270,8 +270,6 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         this.sampleHandler.setMultiSelect(false);
         enterDataDialog = new EnterDataDialog(getDataSource());
         enterDataDialog.getNewSampleProperty().addListener((observable, oldValue, newValue) -> {
-            //control.updateWidget(this);
-            System.out.println("update sample:"+newValue);
             this.updateData(lastInterval);
         });
 
@@ -286,7 +284,6 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
 
 
         labelValue.setOnMouseClicked(event -> {
-            System.out.println("event: " + event);
             if (event.getButton() == MouseButton.PRIMARY) {
                 enterDataDialog.showPopup(labelTimeStamp, this.getConfig().getTitle());
             }

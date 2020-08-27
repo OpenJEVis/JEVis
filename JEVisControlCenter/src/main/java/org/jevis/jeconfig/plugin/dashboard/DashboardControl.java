@@ -304,8 +304,8 @@ public class DashboardControl {
         double relWidthDiff = parentSize.getWidth() / dashboardPane.getWidth();
         double relHeightDiff = parentSize.getHeight() / dashboardPane.getHeight();
 
-        logger.error("SetZoom: Factor:{}\nparent: {}/{}\ndashboard: {}/{}\nrel: {}/{}",zoomFactor,parentSize.getWidth(),zoomFactor,parentSize.getHeight(),dashboardPane.getWidth(),dashboardPane.getHeight(),relWidthDiff,relHeightDiff);
-        logger.error("Dashboard in bounds: {}/{}",dashboardPane.getBoundsInParent().getWidth(),dashboardPane.getBoundsInParent().getHeight());
+        logger.debug("SetZoom: Factor:{}\nparent: {}/{}\ndashboard: {}/{}\nrel: {}/{}",zoomFactor,parentSize.getWidth(),zoomFactor,parentSize.getHeight(),dashboardPane.getWidth(),dashboardPane.getHeight(),relWidthDiff,relHeightDiff);
+        logger.debug("Dashboard in bounds: {}/{}",dashboardPane.getBoundsInParent().getWidth(),dashboardPane.getBoundsInParent().getHeight());
 
         //        if(dashboardPane.getHeight()<dashboardPane.getBoundsInParent().getHeight() || dashboardPane.getWidth()<dashboardPane.getBoundsInParent().getWidth()){
 //            Size size= new Size( dashboardPane.getBoundsInParent().getHeight(),dashboardPane.getBoundsInParent().getWidth());
@@ -322,7 +322,7 @@ public class DashboardControl {
             dashboardPane.setZoom(zoomFactor);
         }
         toolBar.updateZoomLevelView(zoomFactor);
-        logger.error("Fine Size: dashboard: {}/{}",dashboardPane.getWidth(),dashboardPane.getHeight());
+        logger.debug("Fine Size: dashboard: {}/{}",dashboardPane.getWidth(),dashboardPane.getHeight());
 
     }
 

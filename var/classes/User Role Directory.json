@@ -1,0 +1,22 @@
+{
+  "name": "User Role Directory",
+  "description": "The class User Role Directory represents a specific directory for the role management of users.",
+  "unique": true,
+  "relationships": [
+    {
+      "start": "User",
+      "end": "User Directory",
+      "type": 3
+    },
+    {
+      "start": "User Directory",
+      "end": "Administration Directory",
+      "type": 3
+    },
+    {
+      "start": "User Directory",
+      "end": "Directory",
+      "type": 0
+    }
+  ]
+}

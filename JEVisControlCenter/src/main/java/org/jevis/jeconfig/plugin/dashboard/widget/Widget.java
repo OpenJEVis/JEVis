@@ -302,7 +302,6 @@ public abstract class Widget extends Region {
 
         this.editPane.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
-                System.out.println("Widget doppleklick");
                 try {
                     Widget.this.openConfig();
                 } catch (Exception ex) {

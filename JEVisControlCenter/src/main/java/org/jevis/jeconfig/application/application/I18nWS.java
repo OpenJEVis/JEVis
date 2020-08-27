@@ -140,7 +140,7 @@ public class I18nWS {
 
             return translatedString;
         } catch (Exception ex) {
-            logger.error(ex);
+            logger.error("Error while loading Type name: {}.{}: {}",jevisClass,typeName,ex);
         }
 
         return typeName;

@@ -146,7 +146,7 @@ public class DashBordPlugIn implements Plugin {
 
 
     public Size getPluginSize() {
-        logger.error("getPluginSize in bounds: {}/{}",rootPane.getBoundsInParent().getWidth(),rootPane.getBoundsInParent().getHeight());
+        logger.debug("getPluginSize in bounds: {}/{}",rootPane.getBoundsInParent().getWidth(),rootPane.getBoundsInParent().getHeight());
 
         return new Size(rootPane.getBoundsInParent().getHeight()-scrollBarSize , rootPane.getBoundsInParent().getWidth()-scrollBarSize );
     }
