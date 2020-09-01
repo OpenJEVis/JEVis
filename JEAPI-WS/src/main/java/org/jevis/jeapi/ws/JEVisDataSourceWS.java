@@ -1335,7 +1335,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public boolean connect(String username, String password) throws JEVisException {
-        logger.error("Connect with user {} to: {}", username, this.host);
+        logger.debug("Connect with user {} to: {}", username, this.host);
 
         this.con = new HTTPConnection(this.host, username, password, sslTrustMode);
 
@@ -1360,7 +1360,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 this.preload();
 
                 this.user = new JEVisUserWS(this, new JEVisObjectWS(this, json));
-                logger.trace("User.object: " + this.user.getUserObject());
+                logger.debug("User.object: " + this.user.getUserObject());
                 return true;
             } else {
                 logger.error("Login failed: [{}] {}", conn.getResponseCode(), conn.getResponseMessage());

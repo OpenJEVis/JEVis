@@ -82,8 +82,8 @@ public class Launcher extends AbstractCliApp {
                         } else {
                             logger.info("DataSource {}:{} is not ready.", object.getName(), object.getID());
                             if (plannedJobs.containsKey(object.getID())) {
-                                String value = plannedJobs.get(object.getID());
-                                if (value.equals("manual")) {
+                                Boolean manualTrigger = sampleHandler.getLastSample(object, DataCollectorTypes.DataSource.MANUAL_TRIGGER, false);
+                                if (manualTrigger) {
                                     logger.info("DataSource {}:{} has active manual trigger.", object.getName(), object.getID());
                                     runDataSource(object, dataSource, false);
                                     try {
@@ -100,7 +100,6 @@ public class Launcher extends AbstractCliApp {
                                 removeWaiting(object);
                             }
                         }
-
                     }).get(maxTime, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
                     logger.error("Job {}:{} interrupted. ", object.getName(), object.getID());
@@ -128,7 +127,7 @@ public class Launcher extends AbstractCliApp {
     }
 
     private void runDataSource(JEVisObject object, DataSource dataSource, boolean finish) {
-        runningJobs.put(object.getID(), DateTime.now().toString());
+        runningJobs.put(object.getID(), new DateTime());
         LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
 
         logger.info("----------------Execute DataSource " + object.getName() + "-----------------");
@@ -262,17 +261,9 @@ public class Launcher extends AbstractCliApp {
                     Boolean enabled = sampleHandler.getLastSample(dataSource, DataCollectorTypes.DataSource.ENABLE, false);
                     Boolean manualTrigger = sampleHandler.getLastSample(dataSource, DataCollectorTypes.DataSource.MANUAL_TRIGGER, false);
                     if (enabled && DataSourceFactory.containDataSource(dataSource) || (manualTrigger && DataSourceFactory.containDataSource(dataSource))) {
-                        enabledDataSources.add(dataSource);
                         if (!plannedJobs.containsKey(dataSource.getID())) {
-                            if (enabled) {
-                                if (!manualTrigger) {
-                                    plannedJobs.put(dataSource.getID(), "true");
-                                } else {
-                                    plannedJobs.put(dataSource.getID(), "manual");
-                                }
-                            } else if (manualTrigger) {
-                                plannedJobs.put(dataSource.getID(), "manual");
-                            }
+                            enabledDataSources.add(dataSource);
+                            plannedJobs.put(dataSource.getID(), new DateTime());
                         }
                     }
                 } catch (Exception ex) {

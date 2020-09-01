@@ -129,8 +129,11 @@ public class CleanDataObject {
 
             JEVisAttribute rawAtt = getRawAttribute();
             JEVisSample latestRawSample = null;
-            if (rawAtt.hasSample())
+            if (rawAtt.hasSample()) {
                 latestRawSample = rawAtt.getLatestSample();
+            } else {
+                errors.add(("No raw samples"));
+            }
             DateTime timestampLatestRawSample = null;
             if (latestRawSample != null)
                 timestampLatestRawSample = latestRawSample.getTimestamp();
@@ -149,12 +152,12 @@ public class CleanDataObject {
         if (!errors.isEmpty()) {
             StringBuilder stringBuilder = new StringBuilder();
             errors.forEach(s -> {
-                stringBuilder.append(" -");
+                if (errors.indexOf(s) > 0) {
+                    stringBuilder.append("-");
+                }
                 stringBuilder.append(s);
-                stringBuilder.append("\n");
             });
-            String exception = String.format("[%s] Error in configuration, stopping: %s", getCleanObject().getID(), stringBuilder.toString().replace("\n", ""));
-            LogTaskManager.getInstance().getTask(getCleanObject().getID()).setException(new Exception(exception));
+            LogTaskManager.getInstance().getTask(getCleanObject().getID()).setException(new Exception(stringBuilder.toString()));
 
             return false;
         }
@@ -226,56 +229,56 @@ public class CleanDataObject {
             enabled = null;
         }
 
-        if (enabledAttribute != null) {
+        if (limitsEnabledAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(limitsEnabledAttribute);
             limitsEnabled = null;
         }
-        if (enabledAttribute != null) {
+        if (limitsConfigurationAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(limitsConfigurationAttribute);
             jsonLimitsConfig = null;
         }
-        if (enabledAttribute != null) {
+        if (gapFillingEnabledAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(gapFillingEnabledAttribute);
             gapFillingEnabled = null;
         }
-        if (enabledAttribute != null) {
+        if (gapFillingConfigAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(gapFillingConfigAttribute);
             jsonGapFillingConfig = null;
         }
-        if (enabledAttribute != null) {
+        if (alarmEnabledAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(alarmEnabledAttribute);
         }
-        if (enabledAttribute != null) {
+        if (alarmConfigAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(alarmConfigAttribute);
         }
-        if (enabledAttribute != null) {
+        if (alarmLogAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(alarmLogAttribute);
         }
-        if (enabledAttribute != null) {
+        if (periodAlignmentAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(periodAlignmentAttribute);
             isPeriodAligned = null;
         }
-        if (enabledAttribute != null) {
+        if (periodOffsetAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(periodOffsetAttribute);
             periodOffset = null;
         }
-        if (enabledAttribute != null) {
+        if (valueIsAQuantityAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(valueIsAQuantityAttribute);
             valueIsQuantity = null;
         }
-        if (enabledAttribute != null) {
+        if (valueMultiplierAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(valueMultiplierAttribute);
             multiplier = null;
         }
-        if (enabledAttribute != null) {
+        if (valueOffsetAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(valueOffsetAttribute);
             offset = null;
         }
-        if (enabledAttribute != null) {
+        if (counterOverflowAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(counterOverflowAttribute);
             counterOverflow = null;
         }
-        if (enabledAttribute != null) {
+        if (valueAttribute != null) {
             getCleanObject().getDataSource().reloadAttribute(valueAttribute);
         }
 

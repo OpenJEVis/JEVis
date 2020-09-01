@@ -64,10 +64,10 @@ public class HTTPConnection {
     private final String baseURL;
     private final String username;
     private final String password;
-    private int readTimeout = 88140;//mils
-    enum Trust
-    {
-        ALWAYS, SYSTEM;
+    private final int readTimeout = 120000;//millis
+
+    enum Trust {
+        ALWAYS, SYSTEM
     }
     private Trust trustmode=Trust.ALWAYS;
 

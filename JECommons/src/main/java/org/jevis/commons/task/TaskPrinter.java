@@ -50,9 +50,9 @@ public class TaskPrinter {
                 data[i][2] = task.getStatus();
                 data[i][3] = FORMATTER.print(task.getStartTime());
 
-                data[i][4] = task.getRunTime().toPeriod().getMillis() < 1000
-                        ? task.getRunTime().toPeriod().getMillis() + " msec"
-                        : task.getRunTime().toPeriod().getSeconds() + "  sec";
+                if (task.getRunTime().toStandardDuration().getMillis() < 1000)
+                    data[i][4] = task.getRunTime().toStandardDuration().getMillis() + " msec";
+                else data[i][4] = task.getRunTime().toStandardDuration().getStandardSeconds() + "  sec";
 
                 String shortError = "";
                 if (task.getException() != null) {
@@ -73,6 +73,8 @@ public class TaskPrinter {
                 }
 
                 data[i][5] = shortError;
+
+                data[i][6] = task.getID();
 
                 //Dynamic Steps info
                 for (TaskStep tStep : task.getSteps()) {

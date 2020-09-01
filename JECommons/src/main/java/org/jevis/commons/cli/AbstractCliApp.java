@@ -58,8 +58,8 @@ public abstract class AbstractCliApp {
     protected ForkJoinPool forkJoinPool;
     protected int cycleTime = 900000;
 
-    protected ConcurrentHashMap<Long, String> runningJobs = new ConcurrentHashMap();
-    protected ConcurrentHashMap<Long, String> plannedJobs = new ConcurrentHashMap();
+    protected ConcurrentHashMap<Long, DateTime> runningJobs = new ConcurrentHashMap();
+    protected ConcurrentHashMap<Long, DateTime> plannedJobs = new ConcurrentHashMap();
     private int threadCount = 4;
     private String emergency_config;
 

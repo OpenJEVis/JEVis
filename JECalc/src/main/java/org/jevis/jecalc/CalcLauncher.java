@@ -17,6 +17,7 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +98,7 @@ public class CalcLauncher extends AbstractCliApp {
                 if (!runningJobs.containsKey(object.getID())) {
 
                     Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
-                    runningJobs.put(object.getID(), "true");
+                    runningJobs.put(object.getID(), new DateTime());
 
                     try {
                         LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
@@ -154,7 +155,7 @@ public class CalcLauncher extends AbstractCliApp {
             if (valueAsBoolean) {
                 enabledObjects.add(curObj);
                 if (!plannedJobs.containsKey(curObj.getID())) {
-                    plannedJobs.put(curObj.getID(), "true");
+                    plannedJobs.put(curObj.getID(), new DateTime());
                 }
             }
         }

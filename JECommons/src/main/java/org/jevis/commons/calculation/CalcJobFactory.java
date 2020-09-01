@@ -237,6 +237,13 @@ public class CalcJobFactory {
         for (JEVisObject obj : inputDataObjects) {
             JEVisAttribute targetAttr = null;
             try {
+                JEVisAttribute attribute = obj.getAttribute(Calculation.INPUT_TYPE.getName());
+                if (attribute != null) {
+                    JEVisSample latestSample = attribute.getLatestSample();
+                    if (latestSample != null && latestSample.getValueAsString().equals(ASYNC.toString())) {
+                        continue;
+                    }
+                }
 
                 targetAttr = obj.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
@@ -332,7 +339,7 @@ public class CalcJobFactory {
                     fromTo = new Interval(startTime, endTime);
                     period = valueAttribute.getInputSampleRate();
 
-                    if (PeriodArithmetic.periodsInAnInterval(fromTo, period) < 10000) {
+                    if (PeriodArithmetic.periodsInAnInterval(fromTo, period) < 20000) {
                         calcJob.setHasProcessedAllInputSamples(true);
                         /**
                          * is this minus really necessary? do tests...
@@ -344,7 +351,7 @@ public class CalcJobFactory {
                         calcJob.setHasProcessedAllInputSamples(false);
                         DateTime limitedMaxDate = startTime;
                         int i = 0;
-                        while (i < 10000) {
+                        while (i < 20000) {
                             limitedMaxDate = limitedMaxDate.plus(period.toStandardDuration());
                             i++;
                         }

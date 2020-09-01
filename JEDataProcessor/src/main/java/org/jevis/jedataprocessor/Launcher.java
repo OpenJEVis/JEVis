@@ -19,9 +19,14 @@ import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jedataprocessor.workflow.ProcessManager;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.FutureTask;
 
 /**
  * @author broder
@@ -35,6 +40,7 @@ public class Launcher extends AbstractCliApp {
     private final Command commands = new Command();
     private int processingSize = 10000;
     private boolean firstRun = true;
+    private final ConcurrentHashMap<Long, FutureTask<?>> runnables = new ConcurrentHashMap();
 
     private Launcher(String[] args, String appname) {
         super(args, appname);
@@ -54,10 +60,11 @@ public class Launcher extends AbstractCliApp {
 
         processes.forEach(currentCleanDataObject -> {
             if (!runningJobs.containsKey(currentCleanDataObject.getID())) {
+
                 Runnable runnable = () -> {
                     try {
                         Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
-                        runningJobs.put(currentCleanDataObject.getID(), "true");
+                        runningJobs.put(currentCleanDataObject.getID(), new DateTime());
 
                         ProcessManager currentProcess = null;
                         try {
@@ -69,11 +76,15 @@ public class Launcher extends AbstractCliApp {
                         } catch (Exception ex) {
                             logger.debug(ex);
                             LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
+                            runningJobs.remove(currentCleanDataObject.getID());
+                            plannedJobs.remove(currentCleanDataObject.getID());
+                            runnables.remove(currentCleanDataObject.getID());
                         }
                     } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
                         runningJobs.remove(currentCleanDataObject.getID());
                         plannedJobs.remove(currentCleanDataObject.getID());
+                        runnables.remove(currentCleanDataObject.getID());
 
                         logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
 
@@ -86,6 +97,7 @@ public class Launcher extends AbstractCliApp {
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
                         runningJobs.remove(currentCleanDataObject.getID());
                         plannedJobs.remove(currentCleanDataObject.getID());
+                        runnables.remove(currentCleanDataObject.getID());
 
                         logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
 
@@ -97,7 +109,10 @@ public class Launcher extends AbstractCliApp {
                     }
                 };
 
-                executor.submit(runnable);
+                FutureTask<?> ft = new FutureTask<Void>(runnable, null);
+
+                runnables.put(currentCleanDataObject.getID(), ft);
+                executor.submit(ft);
             } else {
                 logger.info("Still processing Job {}:{}", currentCleanDataObject.getName(), currentCleanDataObject.getID());
             }
@@ -116,14 +131,40 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runSingle(List<Long> ids) {
+        List<JEVisObject> processes = new ArrayList<>();
+
+        try {
+            checkConnection();
+        } catch (JEVisException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
         for (Long l : ids) {
             try {
                 JEVisObject object = ds.getObject(l);
-                ProcessManager currentProcess = new ProcessManager(object, new ObjectHandler(ds), getProcessingSizeFromService(APP_SERVICE_CLASS_NAME));
-                currentProcess.start();
+                if (!plannedJobs.containsKey(object.getID())) {
+                    plannedJobs.put(object.getID(), new DateTime());
+                    processes.add(object);
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+
+
+        this.processingSize = getProcessingSizeFromService(APP_SERVICE_CLASS_NAME);
+
+        this.executeProcesses(processes);
+
+        try {
+            logger.info("Entering Sleep mode for " + 30000 + "ms.");
+            Thread.sleep(30000);
+
+            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
+            runSingle(ids);
+        } catch (InterruptedException e) {
+            logger.error("Interrupted sleep: ", e);
         }
     }
 
@@ -135,6 +176,18 @@ public class Launcher extends AbstractCliApp {
             checkConnection();
         } catch (JEVisException | InterruptedException e) {
             e.printStackTrace();
+        }
+
+        if (!runningJobs.isEmpty()) {
+            for (Map.Entry<Long, DateTime> entry : runningJobs.entrySet()) {
+                Interval interval = new Interval(entry.getValue(), new DateTime());
+                if (interval.toDurationMillis() > 5 * 60000) {
+                    logger.warn("Task for {} is out of time, trying to cancel", entry.getKey());
+                    runnables.get(entry.getKey()).cancel(true);
+                    runningJobs.remove(entry.getKey());
+                    plannedJobs.remove(entry.getKey());
+                }
+            }
         }
 
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
@@ -187,7 +240,7 @@ public class Launcher extends AbstractCliApp {
             if (sizeAtt != null && sizeAtt.hasSample()) {
                 size = sizeAtt.getLatestSample().getValueAsLong().intValue();
             }
-            logger.info("Processing size from service: " + size);
+
         } catch (Exception e) {
             logger.error("Couldn't get processsing size from the JEVis System. Using standard Size of {}", processingSize, e);
         }
@@ -197,20 +250,24 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runComplete() {
+
         List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
         try {
             enabledCleanDataObjects = getAllCleaningObjects();
         } catch (Exception e) {
             logger.error("Could not get enabled clean data objects. " + e);
         }
-        enabledCleanDataObjects.forEach(jeVisObject -> {
-            try {
-                ProcessManager currentProcess = new ProcessManager(jeVisObject, new ObjectHandler(ds), getProcessingSizeFromService(APP_SERVICE_CLASS_NAME));
-                currentProcess.start();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        for (JEVisObject jeVisObject : enabledCleanDataObjects) {
+            if (jeVisObject.getID() > 19700)
+                try {
+                    ProcessManager currentProcess = new ProcessManager(jeVisObject, new ObjectHandler(ds), getProcessingSizeFromService(APP_SERVICE_CLASS_NAME));
+                    currentProcess.start();
+                } catch (Exception e) {
+                    logger.error("Error in process of object {}", jeVisObject.getID(), e);
+                }
+        }
+
+        runComplete();
     }
 
     private List<JEVisObject> getAllCleaningObjects() throws Exception {
@@ -232,7 +289,7 @@ public class Launcher extends AbstractCliApp {
                 if (isEnabled(jeVisObject)) {
                     filteredObjects.add(jeVisObject);
                     if (!plannedJobs.containsKey(jeVisObject.getID())) {
-                        plannedJobs.put(jeVisObject.getID(), "true");
+                        plannedJobs.put(jeVisObject.getID(), new DateTime());
                     }
                 }
             });
@@ -240,7 +297,7 @@ public class Launcher extends AbstractCliApp {
                 if (isEnabled(object)) {
                     filteredObjects.add(object);
                     if (!plannedJobs.containsKey(object.getID())) {
-                        plannedJobs.put(object.getID(), "true");
+                        plannedJobs.put(object.getID(), new DateTime());
                     }
                 }
             });

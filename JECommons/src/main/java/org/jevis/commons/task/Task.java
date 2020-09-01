@@ -1,7 +1,7 @@
 package org.jevis.commons.task;
 
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
+import org.joda.time.Period;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public interface Task {
 
     String getErrors();
 
-    Duration getRunTime();
+    Period getRunTime();
 
     Exception getException();
 
