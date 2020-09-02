@@ -142,11 +142,11 @@ public abstract class AbstractCliApp {
 
     private void connect(int counter) throws JEVisException, InterruptedException {
 
-        if (counter < 5) {
+        if (counter < 12) {
             active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
 
             if (!active) {
-                Thread.sleep(5000);
+                Thread.sleep(10000);
                 counter++;
                 connect(counter);
             }
