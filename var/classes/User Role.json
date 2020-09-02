@@ -28,7 +28,7 @@
       "validity": 0,
       "description": "Enable/Disable the user. Only an enabled user can login.",
       "inherited": false,
-      "jevisClass": "User"
+      "jevisClass": "User Role"
     },
     {
       "name": "Sys Admin",
@@ -38,7 +38,7 @@
       "validity": 0,
       "description": "Configure if this user hast the \u0027Sys Admin\u0027 privilege. If true the user can manage Classes. ",
       "inherited": false,
-      "jevisClass": "User"
+      "jevisClass": "User Role"
     },
     {
       "name": "E-Mail",
@@ -48,7 +48,7 @@
       "validity": 0,
       "description": "E-Mail Address of the User.",
       "inherited": false,
-      "jevisClass": "User"
+      "jevisClass": "User Role"
     },
     {
       "name": "Last Name",
@@ -58,7 +58,7 @@
       "validity": 0,
       "description": "Last name of the user.",
       "inherited": false,
-      "jevisClass": "User"
+      "jevisClass": "User Role"
     },
     {
       "name": "First Name",
@@ -68,7 +68,7 @@
       "validity": 0,
       "description": "First name of the user.",
       "inherited": false,
-      "jevisClass": "User"
+      "jevisClass": "User Role"
     },
     {
       "name": "Title",
@@ -78,7 +78,7 @@
       "validity": 0,
       "description": "Title of the User.",
       "inherited": false,
-      "jevisClass": "User"
+      "jevisClass": "User Role"
     },
     {
       "name": "Position",
@@ -88,7 +88,7 @@
       "validity": 0,
       "description": "Position of the User in the company.",
       "inherited": false,
-      "jevisClass": "User"
+      "jevisClass": "User Role"
     },
     {
       "name": "Phone",
@@ -98,7 +98,7 @@
       "validity": 0,
       "description": "Phone number of the User.",
       "inherited": false,
-      "jevisClass": "User"
+      "jevisClass": "User Role"
     },
     {
       "name": "Timezone",
@@ -107,7 +107,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "User"
+      "jevisClass": "User Role"
     },
     {
       "name": "Start Dashboard",
@@ -116,20 +116,7 @@
       "guiposition": 0,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "User"
-    },
-    {
-      "type": "Memberships",
-      "descriptions": {
-        "de": "Beeinhaltet das Datenmodell der Gruppen",
-        "ru": "Includes the data model for stored memberships",
-        "en": "Includes the data model for stored memberships"
-      },
-      "names": {
-        "de": "Mitglieder",
-        "ru": "Memberships",
-        "en": "Memberships"
-      }
+      "jevisClass": "User Role"
     }
   ]
 }
