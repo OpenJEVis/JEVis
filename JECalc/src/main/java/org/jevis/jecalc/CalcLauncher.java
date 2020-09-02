@@ -118,17 +118,6 @@ public class CalcLauncher extends AbstractCliApp {
                             calcJob.execute();
                         } while (!calcJob.hasProcessedAllInputSamples());
 
-                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
-                        runningJobs.remove(object.getID());
-                        plannedJobs.remove(object.getID());
-
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
-
-                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                            logger.info("Last job. Clearing cache.");
-                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                            ds.clearCache();
-                        }
                     } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
                         removeJob(object);
