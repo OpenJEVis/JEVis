@@ -46,26 +46,26 @@ public class PieChart implements Chart {
     private final Boolean showSum;
     private String chartName;
     private String unit;
-    private AnalysisDataModel analysisDataModel;
-    private List<ChartDataRow> chartDataRows;
-    private Boolean hideShowIcons;
+    private final AnalysisDataModel analysisDataModel;
+    private final List<ChartDataRow> chartDataRows;
+    private final Boolean hideShowIcons;
     private List<javafx.scene.chart.PieChart.Data> series = new ArrayList<>();
     private PieChartExtended pieChart;
-    private List<Color> hexColors = new ArrayList<>();
+    private final List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
-    private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
+    private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region pieChartRegion;
     private Period period;
-    private ChartType chartType = ChartType.PIE;
+    private final ChartType chartType = ChartType.PIE;
     private boolean legendMode = false;
 
-    private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
+    private final ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
         @Override
         public void applySetting(javafx.scene.chart.Chart chart) {
 
         }
     };
-    private List<String> seriesNames = new ArrayList<>();
+    private final List<String> seriesNames = new ArrayList<>();
 
     public PieChart(AnalysisDataModel analysisDataModel, List<ChartDataRow> chartDataRows, ChartSetting chartSetting) {
         this.analysisDataModel = analysisDataModel;
@@ -419,6 +419,11 @@ public class PieChart implements Chart {
     @Override
     public Period getPeriod() {
         return period;
+    }
+
+    @Override
+    public void setPeriod(Period period) {
+        this.period = period;
     }
 
     @Override

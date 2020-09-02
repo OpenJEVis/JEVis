@@ -40,6 +40,7 @@ import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.map.MapViewPlugin;
 import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
+import org.jevis.jeconfig.plugin.basedata.BaseDataPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
@@ -98,6 +99,7 @@ public class PluginManager {
         plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
         plugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
         plugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
+        plugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
         plugins.add(new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")));
         plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
 
@@ -204,6 +206,12 @@ public class PluginManager {
                                                 JEVisClass measurementInstrumentClass = this._ds.getJEVisClass(MeterPlugin.MEASUREMENT_INSTRUMENT_CLASS);
                                                 List<JEVisObject> allMeasurementInstruments = this._ds.getObjects(measurementInstrumentClass, true);
                                                 if (allMeasurementInstruments.size() == 0) {
+                                                    continue;
+                                                }
+                                            } else if (plugObj.getJEVisClassName().equals(BaseDataPlugin.PLUGIN_NAME)) {
+                                                JEVisClass baseDataClass = this._ds.getJEVisClass(BaseDataPlugin.BASE_DATA_CLASS);
+                                                List<JEVisObject> allBaseData = this._ds.getObjects(baseDataClass, true);
+                                                if (allBaseData.size() == 0) {
                                                     continue;
                                                 }
                                             } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {

@@ -46,7 +46,6 @@ public class Launcher extends AbstractCliApp {
     private final static Options options = new Options();
     private static final String APP_INFO = "JEStatus";
     public static String KEY = "process-id";
-    private final String APP_SERVICE_CLASS_NAME = "JEStatus";
     private final Command commands = new Command();
     private Config config;
     private Long latestReported;
@@ -72,6 +71,7 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
+        APP_SERVICE_CLASS_NAME = "JEStatus";
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
     }
 
@@ -93,7 +93,7 @@ public class Launcher extends AbstractCliApp {
     protected void runServiceHelp() {
         try {
             checkConnection();
-        } catch (JEVisException e) {
+        } catch (JEVisException | InterruptedException e) {
             e.printStackTrace();
         }
 

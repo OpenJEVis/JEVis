@@ -39,20 +39,20 @@ public class BarChart implements Chart {
     AtomicReference<DateTime> timeStampOfLastSample = new AtomicReference<>(new DateTime(2001, 1, 1, 0, 0, 0));
     NumberAxis y1Axis = new NumberAxis();
     NumberAxis y2Axis = new NumberAxis();
-    private String chartName;
+    private final String chartName;
     private String unit;
-    private AnalysisDataModel analysisDataModel;
-    private List<ChartDataRow> chartDataRows;
-    private Boolean hideShowIcons;
-    private List<BarChartSerie> barChartSerieList = new ArrayList<>();
+    private final AnalysisDataModel analysisDataModel;
+    private final List<ChartDataRow> chartDataRows;
+    private final Boolean hideShowIcons;
+    private final List<BarChartSerie> barChartSerieList = new ArrayList<>();
     private javafx.scene.chart.BarChart barChart;
-    private List<Color> hexColors = new ArrayList<>();
+    private final List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
-    private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
+    private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region barChartRegion;
     private Period period;
     private Region areaChartRegion;
-    private boolean asDuration = false;
+    private final boolean asDuration = false;
     private AtomicReference<ManipulationMode> manipulationMode;
     private DateTime nearest;
 
@@ -128,6 +128,11 @@ public class BarChart implements Chart {
     @Override
     public Period getPeriod() {
         return period;
+    }
+
+    @Override
+    public void setPeriod(Period period) {
+        this.period = period;
     }
 
     @Override

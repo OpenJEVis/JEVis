@@ -116,10 +116,30 @@ public class TableChart extends XYChart {
 
                 List<TableColumn<List<String>, String>> tableColumns = new ArrayList<>();
                 List<DateTime> dateTimes = new ArrayList<>();
+                Period p = null;
+
                 for (XYChartSerie xyChartSerie : xyChartSerieList) {
                     int index = xyChartSerieList.indexOf(xyChartSerie);
+                    List<JEVisSample> samples = xyChartSerie.getSingleRow().getSamples();
 
-                    for (JEVisSample jeVisSample : xyChartSerie.getSingleRow().getSamples()) {
+                    if (p == null && samples.size() > 1) {
+                        try {
+                            p = new Period(samples.get(0).getTimestamp(),
+                                    samples.get(1).getTimestamp());
+                            setPeriod(p);
+                        } catch (Exception e) {
+                            logger.error("Could not get period from samples", e);
+                        }
+                    } else if (p == null && samples.size() == 1) {
+                        try {
+                            p = samples.get(0).getAttribute().getDisplaySampleRate();
+                            setPeriod(p);
+                        } catch (Exception e) {
+                            logger.error("Could not get period from attribute", e);
+                        }
+                    }
+
+                    for (JEVisSample jeVisSample : samples) {
                         try {
                             if (!dateTimes.contains(jeVisSample.getTimestamp())) {
                                 dateTimes.add(jeVisSample.getTimestamp());
@@ -135,6 +155,8 @@ public class TableChart extends XYChart {
                     tableColumns.add(column);
                 }
 
+                AlphanumComparator ac = new AlphanumComparator();
+                tableColumns.sort((o1, o2) -> ac.compare(o1.getText(), o2.getText()));
                 Platform.runLater(() -> tableHeader.getColumns().addAll(tableColumns));
 
                 dateTimes.sort(DateTimeComparator.getInstance());
@@ -159,6 +181,9 @@ public class TableChart extends XYChart {
                     logger.error("Could not determine sample rate, fall back to standard", e);
                 }
 
+                List<Double> sums = new ArrayList<>();
+                for (int i = 0; i < xyChartSerieList.size(); i++) sums.add(0d);
+
                 for (DateTime dateTime : dateTimes) {
                     List<String> values = new ArrayList<>();
 
@@ -171,6 +196,11 @@ public class TableChart extends XYChart {
                                 values.add(nf.format(sample.getValueAsDouble()) + " " + xyChartSerie.getSingleRow().getUnit());
                             } else {
                                 values.add(nf.format(sample.getValueAsDouble()));
+                            }
+
+                            if (showSum) {
+                                Double oldValue = sums.get(xyChartSerieList.indexOf(xyChartSerie));
+                                sums.set(xyChartSerieList.indexOf(xyChartSerie), oldValue + sample.getValueAsDouble());
                             }
                         } else if (sample != null && xyChartSerie.getSingleRow().isStringData()) {
                             if (!xyChartSerie.getSingleRow().getUnit().toString().equals("")) {
@@ -188,6 +218,16 @@ public class TableChart extends XYChart {
                     if (dateTimes.indexOf(dateTime) == dateTimes.size() - 1) {
                         Platform.runLater(() -> tableHeader.autoFitTable());
                     }
+                }
+
+                if (showSum) {
+                    List<String> values = new ArrayList<>();
+                    values.add(I18n.getInstance().getString("plugin.graph.table.sum"));
+                    for (Double sum : sums) {
+                        values.add(nf.format(sum));
+                    }
+
+                    tableHeader.getItems().add(values);
                 }
             } catch (JEVisException e) {
                 logger.error("Error while adding Series to chart", e);

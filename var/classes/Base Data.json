@@ -1,0 +1,33 @@
+{
+  "name": "Base Data",
+  "description": "The class Base Data represents a container for a series of numeric values.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Clean Data",
+      "end": "Base Data",
+      "type": 0
+    },
+    {
+      "start": "Clean Data",
+      "end": "Base Data",
+      "type": 3
+    },
+    {
+      "start": "Base Data",
+      "end": "Base Data Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Value",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Base Data"
+    }
+  ]
+}

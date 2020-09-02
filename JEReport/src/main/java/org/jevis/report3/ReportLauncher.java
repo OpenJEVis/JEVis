@@ -18,10 +18,12 @@ import org.jevis.commons.task.TaskPrinter;
 import org.jevis.report3.data.report.ReportAttributes;
 import org.jevis.report3.data.report.ReportExecutor;
 import org.jevis.report3.policy.ReportPolicy;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.FutureTask;
 
 
 /**
@@ -32,7 +34,6 @@ public class ReportLauncher extends AbstractCliApp {
     private static final Logger logger = LogManager.getLogger(ReportLauncher.class);
     private static Injector injector;
     private static final String APP_INFO = "JEReport";
-    private final String APP_SERVICE_CLASS_NAME = "JEReport";
     private final Command commands = new Command();
     private boolean firstRun = true;
 
@@ -63,59 +64,54 @@ public class ReportLauncher extends AbstractCliApp {
         logger.info("Number of Reports: " + reportObjects.size());
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
-        reportObjects.parallelStream().forEach(reportObject -> {
-            forkJoinPool.submit(() -> {
-                if (!runningJobs.containsKey(reportObject.getID())) {
-                    Thread.currentThread().setName(reportObject.getName() + ":" + reportObject.getID().toString());
-                    runningJobs.put(reportObject.getID(), "true");
+        reportObjects.forEach(reportObject -> {
+            if (!runningJobs.containsKey(reportObject.getID())) {
+                Runnable runnable = () -> {
+                    try {
+                        Thread.currentThread().setName(reportObject.getName() + ":" + reportObject.getID().toString());
+                        runningJobs.put(reportObject.getID(), new DateTime());
 
-                    LogTaskManager.getInstance().buildNewTask(reportObject.getID(), reportObject.getName());
-                    LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.STARTED);
-
-                    logger.info("---------------------------------------------------------------------");
-                    logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
-                    //check if the report is enabled
-                    ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
-                    Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
-                    if (!reportEnabled) {
-                        logger.info("Report is not enabled");
-                    } else {
-
-                        ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
-
-                        try {
-                            if (executor != null) {
-                                executor.executeReport();
-                            }
-                        } catch (Exception e) {
-                            logger.error(e);
-                            LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
-                            LogTaskManager.getInstance().getTask(reportObject.getID()).setException(e);
-                        }
+                        LogTaskManager.getInstance().buildNewTask(reportObject.getID(), reportObject.getName());
+                        LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.STARTED);
 
                         logger.info("---------------------------------------------------------------------");
-                        logger.info("finished report object: " + reportObject.getName() + " with id: " + reportObject.getID());
+                        logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
+                        //check if the report is enabled
+                        ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
+                        Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
+                        if (!reportEnabled) {
+                            logger.info("Report is not enabled");
+                        } else {
+
+                            ReportExecutor executor = ReportExecutorFactory.getReportExecutor(reportObject);
+
+                            executor.executeReport();
+                        }
+                    } catch (Exception e) {
+                        LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
+                        removeJob(reportObject);
+
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        checkLastJob();
+                    } finally {
+                        LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
+                        removeJob(reportObject);
+
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        checkLastJob();
                     }
+                };
 
-                    LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
-                    runningJobs.remove(reportObject.getID());
-                    plannedJobs.remove(reportObject.getID());
+                FutureTask<?> ft = new FutureTask<Void>(runnable, null);
 
-                    logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
-
-                    if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                        logger.info("Last job. Clearing cache.");
-                        setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                        ds.clearCache();
-                    }
-
-                } else {
-                    logger.error("Still processing Report " + reportObject.getName() + ":" + reportObject.getID());
-                }
-            });
+                runnables.put(reportObject.getID(), ft);
+                executor.submit(ft);
+            } else {
+                logger.info("Still processing Job {}:{}", reportObject.getName(), reportObject.getID());
+            }
         });
-
-        logger.info("---------------------finish------------------------");
     }
 
     @Override
@@ -125,6 +121,7 @@ public class ReportLauncher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
+        APP_SERVICE_CLASS_NAME = "JEReport";
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
     }
 
@@ -153,9 +150,11 @@ public class ReportLauncher extends AbstractCliApp {
     protected void runServiceHelp() {
         try {
             checkConnection();
-        } catch (JEVisException e) {
+        } catch (JEVisException | InterruptedException e) {
             e.printStackTrace();
         }
+
+        checkForTimeout();
 
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
             if (!firstRun) {
@@ -212,7 +211,7 @@ public class ReportLauncher extends AbstractCliApp {
                     if (reportPolicy.isReportEnabled(jeVisObject)) {
                         enabledReports.add(jeVisObject);
                         if (!plannedJobs.containsKey(jeVisObject.getID())) {
-                            plannedJobs.put(jeVisObject.getID(), "true");
+                            plannedJobs.put(jeVisObject.getID(), new DateTime());
                         }
                     }
                 }

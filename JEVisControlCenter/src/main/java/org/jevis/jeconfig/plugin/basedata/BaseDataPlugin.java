@@ -1,20 +1,16 @@
-package org.jevis.jeconfig.plugin.equipment;
+package org.jevis.jeconfig.plugin.basedata;
 
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXTextField;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.print.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -24,8 +20,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.Scale;
-import javafx.scene.transform.Translate;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import org.apache.commons.io.FilenameUtils;
@@ -47,9 +41,12 @@ import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.type.GUIConstants;
-import org.jevis.jeconfig.dialog.*;
+import org.jevis.jeconfig.dialog.EnterDataDialog;
+import org.jevis.jeconfig.dialog.ImageViewerDialog;
+import org.jevis.jeconfig.dialog.PDFViewerDialog;
+import org.jevis.jeconfig.dialog.SelectTargetDialog;
+import org.jevis.jeconfig.plugin.equipment.EquipmentPlugin;
 import org.jevis.jeconfig.plugin.meters.AttributeValueChange;
-import org.jevis.jeconfig.plugin.meters.JEVisClassTab;
 import org.jevis.jeconfig.plugin.meters.RegisterTableRow;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
@@ -65,15 +62,13 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.UnaryOperator;
-import java.util.prefs.Preferences;
 
-public class EquipmentPlugin implements Plugin {
-    public static final String EQUIPMENT_CLASS = "Building Equipment";
+public class BaseDataPlugin implements Plugin {
+    public static final String BASE_DATA_CLASS = "Base Data";
     private static final Logger logger = LogManager.getLogger(EquipmentPlugin.class);
     private static final double EDITOR_MAX_HEIGHT = 50;
-    public static String PLUGIN_NAME = "Equipment Plugin";
+    public static String PLUGIN_NAME = "Base Data Plugin";
     private static Method columnToFitMethod;
-    private final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.EquipmentPlugin");
 
     static {
         try {
@@ -92,36 +87,14 @@ public class EquipmentPlugin implements Plugin {
     private final String title;
     private final BorderPane borderPane = new BorderPane();
     private final ToolBar toolBar = new ToolBar();
-    private final TabPane tabPane = new TabPane();
-    private final ToggleButton replaceButton = new ToggleButton("", JEConfig.getImage("text_replace.png", toolBarIconSize, toolBarIconSize));
     Map<JEVisAttribute, AttributeValueChange> changeMap = new HashMap<>();
     private boolean initialized = false;
+    private JEVisClass baseDataClass;
 
-    public EquipmentPlugin(JEVisDataSource ds, String title) {
+    public BaseDataPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
-        this.borderPane.setCenter(tabPane);
         this.objectRelations = new ObjectRelations(ds);
-
-        this.tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != oldValue) {
-                Tab selectedItem = this.tabPane.getSelectionModel().getSelectedItem();
-                Platform.runLater(() -> {
-                    if (selectedItem != null && selectedItem.getContent() instanceof TableView) {
-
-                        TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
-
-                        if (tableView.getSelectionModel().getSelectedItem() != null) {
-                            Platform.runLater(() -> replaceButton.setDisable(false));
-                        } else {
-                            Platform.runLater(() -> replaceButton.setDisable(true));
-                        }
-
-                        autoFitTable(tableView);
-                    }
-                });
-            }
-        });
 
         initToolBar();
 
@@ -140,7 +113,7 @@ public class EquipmentPlugin implements Plugin {
         }
     }
 
-    private void createColumns(TableView<RegisterTableRow> tableView, JEVisClass jeVisClass) {
+    private void createColumns(TableView<RegisterTableRow> tableView) {
 
         try {
             TableColumn<RegisterTableRow, String> nameColumn = new TableColumn<>(I18n.getInstance().getString("plugin.meters.table.measurementpoint.columnname"));
@@ -153,19 +126,10 @@ public class EquipmentPlugin implements Plugin {
             tableView.getSortOrder().addAll(nameColumn);
 
 
-            for (JEVisType type : jeVisClass.getTypes()) {
-                TableColumn<RegisterTableRow, JEVisAttribute> column = new TableColumn<>(I18nWS.getInstance().getTypeName(jeVisClass.getName(), type.getName()));
+            for (JEVisType type : baseDataClass.getTypes()) {
+                TableColumn<RegisterTableRow, JEVisAttribute> column = new TableColumn<>(I18nWS.getInstance().getTypeName(baseDataClass.getName(), type.getName()));
                 column.setStyle("-fx-alignment: CENTER;");
                 column.setSortable(false);
-
-                column.setVisible(pref.getBoolean(type.getName(), true));
-                column.visibleProperty().addListener((observable, oldValue, newValue) -> {
-                    try {
-                        pref.putBoolean(type.getName(), newValue);
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
-                    }
-                });
 
                 column.setId(type.getName());
                 column.setCellValueFactory(param -> {
@@ -218,8 +182,8 @@ public class EquipmentPlugin implements Plugin {
     private boolean isMultiSite() {
 
         try {
-            JEVisClass equipmentRegisterClass = ds.getJEVisClass("Equipment Register");
-            List<JEVisObject> objects = ds.getObjects(equipmentRegisterClass, true);
+            JEVisClass baseDataClass = ds.getJEVisClass(BASE_DATA_CLASS);
+            List<JEVisObject> objects = ds.getObjects(baseDataClass, true);
 
             List<JEVisObject> buildingParents = new ArrayList<>();
             for (JEVisObject jeVisObject : objects) {
@@ -988,103 +952,13 @@ public class EquipmentPlugin implements Plugin {
 
         reload.setOnAction(event -> handleRequest(Constants.Plugin.Command.RELOAD));
 
-        Separator sep1 = new Separator(Orientation.VERTICAL);
 
-        ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", toolBarIconSize, toolBarIconSize));
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
-
-        save.setOnAction(event -> handleRequest(Constants.Plugin.Command.SAVE));
-
-        Separator sep2 = new Separator(Orientation.VERTICAL);
-
-        ToggleButton newButton = new ToggleButton("", JEConfig.getImage("list-add.png", toolBarIconSize, toolBarIconSize));
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(newButton);
-        newButton.setOnAction(event -> handleRequest(Constants.Plugin.Command.NEW));
-
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(replaceButton);
-        replaceButton.setOnAction(event -> {
-            JEVisClassTab selectedItem = (JEVisClassTab) tabPane.getSelectionModel().getSelectedItem();
-            TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
-
-            EquipmentDialog meterDialog = new EquipmentDialog(ds, selectedItem.getJeVisClass());
-            if (meterDialog.showReplaceWindow(tableView.getSelectionModel().getSelectedItem().getObject()) == Response.OK) {
-                handleRequest(Constants.Plugin.Command.RELOAD);
-            }
-        });
-        replaceButton.setDisable(true);
-
-        ToggleButton delete = new ToggleButton("", JEConfig.getImage("if_trash_(delete)_16x16_10030.gif", toolBarIconSize, toolBarIconSize));
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
-        delete.setOnAction(event -> handleRequest(Constants.Plugin.Command.DELETE));
-
-        Separator sep3 = new Separator(Orientation.VERTICAL);
-
-        ToggleButton printButton = new ToggleButton("", JEConfig.getImage("Print_1493286.png", toolBarIconSize, toolBarIconSize));
-        Tooltip printTooltip = new Tooltip(I18n.getInstance().getString("plugin.reports.toolbar.tooltip.print"));
-        printButton.setTooltip(printTooltip);
-        GlobalToolBar.changeBackgroundOnHoverUsingBinding(printButton);
-
-        printButton.setOnAction(event -> {
-            Tab selectedItem = tabPane.getSelectionModel().getSelectedItem();
-            TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
-
-            Printer printer = null;
-            ObservableSet<Printer> printers = Printer.getAllPrinters();
-            printer = printers.stream().findFirst().orElse(printer);
-
-            if (printer != null) {
-                PageLayout pageLayout = printer.createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, Printer.MarginType.DEFAULT);
-                PrinterJob job = PrinterJob.createPrinterJob(printer);
-
-                if (job.showPrintDialog(JEConfig.getStage().getOwner())) {
-                    double pagePrintableWidth = job.getJobSettings().getPageLayout().getPrintableWidth();
-                    double pagePrintableHeight = job.getJobSettings().getPageLayout().getPrintableHeight();
-
-                    double prefHeight = tableView.getPrefHeight();
-                    double minHeight = tableView.getMinHeight();
-                    double maxHeight = tableView.getMaxHeight();
-
-                    tableView.prefHeightProperty().bind(Bindings.size(tableView.getItems()).multiply(EDITOR_MAX_HEIGHT));
-                    tableView.minHeightProperty().bind(tableView.prefHeightProperty());
-                    tableView.maxHeightProperty().bind(tableView.prefHeightProperty());
-
-                    double scaleX = pagePrintableWidth / tableView.getBoundsInParent().getWidth();
-                    double scaleY = scaleX;
-                    double localScale = scaleX;
-
-                    double numberOfPages = Math.ceil((tableView.getPrefHeight() * localScale) / pagePrintableHeight);
-
-                    tableView.getTransforms().add(new Scale(scaleX, (scaleY)));
-                    tableView.getTransforms().add(new Translate(0, 0));
-
-                    Translate gridTransform = new Translate();
-                    tableView.getTransforms().add(gridTransform);
-
-                    for (int i = 0; i < numberOfPages; i++) {
-                        gridTransform.setY(-i * (pagePrintableHeight / localScale));
-                        job.printPage(pageLayout, tableView);
-                    }
-
-                    job.endJob();
-
-                    tableView.prefHeightProperty().unbind();
-                    tableView.minHeightProperty().unbind();
-                    tableView.maxHeightProperty().unbind();
-                    tableView.getTransforms().clear();
-
-                    tableView.setMinHeight(minHeight);
-                    tableView.setMaxHeight(maxHeight);
-                    tableView.setPrefHeight(prefHeight);
-                }
-            }
-        });
-
-        toolBar.getItems().setAll(reload, sep1, save, sep2, newButton, replaceButton, sep3, printButton);
+        toolBar.getItems().setAll(reload);
     }
 
     @Override
     public String getClassName() {
-        return "Meter Plugin";
+        return "Base Data Plugin";
     }
 
     @Override
@@ -1113,7 +987,7 @@ public class EquipmentPlugin implements Plugin {
 
     @Override
     public String getToolTip() {
-        return I18n.getInstance().getString("plugin.equipment.tooltip");
+        return I18n.getInstance().getString("plugin.basedata.tooltip");
     }
 
     @Override
@@ -1184,57 +1058,14 @@ public class EquipmentPlugin implements Plugin {
     public void handleRequest(int cmdType) {
         switch (cmdType) {
             case Constants.Plugin.Command.SAVE:
-                DateTime saveTime = new DateTime();
-                for (Map.Entry<JEVisAttribute, AttributeValueChange> entry : changeMap.entrySet()) {
-                    JEVisAttribute a = entry.getKey();
-                    AttributeValueChange attributeValueChange = entry.getValue();
-                    try {
-                        attributeValueChange.commit(saveTime);
-                    } catch (JEVisException e) {
-                        logger.error("Could not save {} for attribute {} of object {}:{}", attributeValueChange.toString(), a.getName(), a.getObject().getName(), a.getObject().getID(), e);
-                    }
-
-                }
                 break;
             case Constants.Plugin.Command.DELETE:
-                Tab selectedItem = tabPane.getSelectionModel().getSelectedItem();
-                TableView<RegisterTableRow> tableView = (TableView<RegisterTableRow>) selectedItem.getContent();
-
-                JEVisObject object = tableView.getSelectionModel().getSelectedItem().getObject();
-
-                Dialog<ButtonType> reallyDelete = new Dialog<>();
-                reallyDelete.setTitle(I18n.getInstance().getString("plugin.graph.dialog.delete.title"));
-                final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.delete.ok"), ButtonBar.ButtonData.YES);
-                final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.delete.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-
-                reallyDelete.setContentText(I18n.getInstance().getString("plugin.meters.dialog.delete.message"));
-                reallyDelete.getDialogPane().getButtonTypes().addAll(ok, cancel);
-                reallyDelete.showAndWait().ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode().equals(ButtonType.YES.getButtonData().getTypeCode())) {
-                        try {
-                            if (ds.getCurrentUser().canDelete(object.getID())) {
-                                ds.deleteObject(object.getID());
-                                handleRequest(Constants.Plugin.Command.RELOAD);
-                            } else {
-                                Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.meters.dialog.delete.error"), cancel);
-                                alert.showAndWait();
-                            }
-                        } catch (JEVisException e) {
-                            logger.error("Error: could not delete current meter", e);
-                        }
-                    }
-                });
                 break;
             case Constants.Plugin.Command.EXPAND:
                 break;
             case Constants.Plugin.Command.NEW:
-                EquipmentDialog equipmentDialog = new EquipmentDialog(ds, ((JEVisClassTab) tabPane.getSelectionModel().getSelectedItem()).getJeVisClass());
-                if (equipmentDialog.showNewWindow() == Response.OK) {
-                    handleRequest(Constants.Plugin.Command.RELOAD);
-                }
                 break;
             case Constants.Plugin.Command.RELOAD:
-                Platform.runLater(() -> replaceButton.setDisable(true));
 
                 Task clearCacheTask = new Task() {
                     @Override
@@ -1284,7 +1115,7 @@ public class EquipmentPlugin implements Plugin {
         return borderPane;
     }
 
-    private void loadTabs(Map<JEVisClass, List<JEVisObject>> allEquipment, List<JEVisClass> classes) throws InterruptedException {
+    private void loadData(List<JEVisObject> allBaseData) throws InterruptedException {
         AtomicBoolean hasActiveLoadTask = new AtomicBoolean(false);
         for (Map.Entry<Task, String> entry : JEConfig.getStatusBar().getTaskList().entrySet()) {
             Task task = entry.getKey();
@@ -1295,137 +1126,84 @@ public class EquipmentPlugin implements Plugin {
             }
         }
         if (!hasActiveLoadTask.get()) {
-            classes.forEach(jeVisClass -> {
-                Task<JEVisClassTab> task = new Task<JEVisClassTab>() {
-                    @Override
-                    protected JEVisClassTab call() {
-                        TableView<RegisterTableRow> tableView = new TableView<>();
-                        JEVisClassTab tab = new JEVisClassTab();
-                        List<JEVisObject> listObjects = allEquipment.get(jeVisClass);
+            Task<TableView> task = new Task<TableView>() {
+                @Override
+                protected TableView call() {
+                    TableView<RegisterTableRow> tableView = new TableView<>();
 
-                        try {
-                            tab.setClassName(I18nWS.getInstance().getClassName(jeVisClass));
-                            tab.setTableView(tableView);
-                            tab.setJEVisClass(jeVisClass);
-                            AlphanumComparator ac = new AlphanumComparator();
+                    try {
+                        AlphanumComparator ac = new AlphanumComparator();
 
-                            tableView.setFixedCellSize(EDITOR_MAX_HEIGHT);
-                            tableView.setSortPolicy(param -> {
-                                Comparator<RegisterTableRow> comparator = (t1, t2) -> ac.compare(t1.getObject().getName(), t2.getObject().getName());
-                                FXCollections.sort(tableView.getItems(), comparator);
-                                return true;
-                            });
-                            tableView.setTableMenuButtonVisible(true);
+                        tableView.setFixedCellSize(EDITOR_MAX_HEIGHT);
+                        tableView.setSortPolicy(param -> {
+                            Comparator<RegisterTableRow> comparator = (t1, t2) -> ac.compare(t1.getObject().getName(), t2.getObject().getName());
+                            FXCollections.sort(tableView.getItems(), comparator);
+                            return true;
+                        });
+                        tableView.setTableMenuButtonVisible(true);
 
-                            tab.setClosable(false);
-                            createColumns(tableView, jeVisClass);
 
-                            tableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                                if (newValue != oldValue && newValue != null) {
-                                    Platform.runLater(() -> replaceButton.setDisable(false));
-                                } else {
-                                    Platform.runLater(() -> replaceButton.setDisable(true));
+                        createColumns(tableView);
+
+                        List<RegisterTableRow> registerTableRows = new ArrayList<>();
+
+                        JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
+                        JEVisType multiplierType = cleanDataClass.getType("Value Multiplier");
+
+                        for (JEVisObject meterObject : allBaseData) {
+                            Map<JEVisType, JEVisAttribute> map = new HashMap<>();
+
+                            for (JEVisAttribute meterObjectAttribute : meterObject.getAttributes()) {
+                                JEVisType type = null;
+
+                                try {
+                                    type = meterObjectAttribute.getType();
+
+                                    map.put(type, meterObjectAttribute);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                            });
-
-                            List<RegisterTableRow> registerTableRows = new ArrayList<>();
-                            JEVisType onlineIdType = jeVisClass.getType("Online ID");
-                            JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
-                            JEVisType multiplierType = cleanDataClass.getType("Value Multiplier");
-
-                            for (JEVisObject meterObject : listObjects) {
-                                Map<JEVisType, JEVisAttribute> map = new HashMap<>();
-
-                                for (JEVisAttribute meterObjectAttribute : meterObject.getAttributes()) {
-                                    JEVisType type = null;
-
-                                    try {
-                                        type = meterObjectAttribute.getType();
-
-                                        map.put(type, meterObjectAttribute);
-
-                                        if (type.equals(onlineIdType)) {
-                                            if (meterObjectAttribute.hasSample()) {
-                                                TargetHelper th = new TargetHelper(ds, meterObjectAttribute);
-
-                                                if (!th.getObject().isEmpty()) {
-                                                    List<JEVisObject> children = th.getObject().get(0).getChildren(cleanDataClass, true);
-
-                                                    for (JEVisObject cleanObject : children) {
-                                                        JEVisAttribute cleanObjectAttribute = cleanObject.getAttribute(multiplierType);
-
-                                                        if (cleanObjectAttribute != null) {
-                                                            map.put(multiplierType, cleanObjectAttribute);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-
-                                RegisterTableRow tableData = new RegisterTableRow(map, meterObject, isMultiSite());
-                                registerTableRows.add(tableData);
                             }
 
-                            tableView.getItems().setAll(registerTableRows);
-                            this.succeeded();
-                        } catch (Exception e) {
-                            logger.error(e);
-                            this.failed();
-                        } finally {
-                            Platform.runLater(() -> tabPane.getTabs().add(tab));
-                            Platform.runLater(() -> autoFitTable(tableView));
-                            Platform.runLater(tableView::sort);
-                            this.done();
+                            RegisterTableRow tableData = new RegisterTableRow(map, meterObject, isMultiSite());
+                            registerTableRows.add(tableData);
                         }
-                        return tab;
+
+                        tableView.getItems().setAll(registerTableRows);
+                        this.succeeded();
+                    } catch (Exception e) {
+                        logger.error(e);
+                        this.failed();
+                    } finally {
+                        Platform.runLater(() -> borderPane.setCenter(tableView));
+                        Platform.runLater(() -> autoFitTable(tableView));
+                        Platform.runLater(tableView::sort);
+                        this.done();
                     }
-                };
-                JEConfig.getStatusBar().addTask(EquipmentPlugin.class.getName(), task, taskImage, true);
-            });
+                    return tableView;
+                }
+            };
+            JEConfig.getStatusBar().addTask(EquipmentPlugin.class.getName(), task, taskImage, true);
+
         } else {
             Thread.sleep(500);
-            loadTabs(allEquipment, classes);
+            loadData(allBaseData);
         }
     }
 
     private void updateList() {
 
-        Platform.runLater(() -> tabPane.getTabs().clear());
         changeMap.clear();
 
-        List<JEVisClass> classes = new ArrayList<>();
-        Map<JEVisClass, List<JEVisObject>> allEquipment = new HashMap<>();
-        Task load = new Task() {
-            @Override
-            protected Object call() throws Exception {
-                allEquipment.putAll(getAllEquipment());
+        List<JEVisObject> allBaseData = getAllBaseData();
+        AlphanumComparator ac = new AlphanumComparator();
+        allBaseData.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
 
-                allEquipment.forEach((key, list) -> classes.add(key));
-                AlphanumComparator ac = new AlphanumComparator();
-                classes.sort((o1, o2) -> {
-                    try {
-                        return ac.compare(I18nWS.getInstance().getClassName(o1.getName()), I18nWS.getInstance().getClassName(o2.getName()));
-                    } catch (JEVisException e) {
-                        e.printStackTrace();
-                    }
-                    return 1;
-                });
-                return null;
-            }
-        };
-
-        JEConfig.getStatusBar().addTask(EquipmentPlugin.class.getName() + "Load", load, taskImage, true);
-
-        Task loadTabs = new Task() {
+        Task loadData = new Task() {
             @Override
             protected Object call() throws Exception {
                 try {
-                    loadTabs(allEquipment, classes);
+                    loadData(allBaseData);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -1433,33 +1211,24 @@ public class EquipmentPlugin implements Plugin {
             }
         };
 
-        JEConfig.getStatusBar().addTask(EquipmentPlugin.class.getName(), loadTabs, taskImage, true);
+        JEConfig.getStatusBar().addTask(EquipmentPlugin.class.getName(), loadData, taskImage, true);
     }
 
-    private Map<JEVisClass, List<JEVisObject>> getAllEquipment() {
-        Map<JEVisClass, List<JEVisObject>> map = new HashMap<>();
+    private List<JEVisObject> getAllBaseData() {
+        List<JEVisObject> list = new ArrayList<>();
         try {
-            JEVisClass equipmentClass = ds.getJEVisClass(EQUIPMENT_CLASS);
-            List<JEVisObject> allObjects = ds.getObjects(equipmentClass, true);
-            for (JEVisObject object : allObjects) {
-                if (!map.containsKey(object.getJEVisClass())) {
-                    List<JEVisObject> objectArrayList = new ArrayList<>();
-                    objectArrayList.add(object);
-                    map.put(object.getJEVisClass(), objectArrayList);
-                } else {
-                    map.get(object.getJEVisClass()).add(object);
-                }
-            }
+            baseDataClass = ds.getJEVisClass(BASE_DATA_CLASS);
+            list.addAll(ds.getObjects(baseDataClass, true));
         } catch (JEVisException e) {
             e.printStackTrace();
         }
 
-        return map;
+        return list;
     }
 
     @Override
     public ImageView getIcon() {
-        return JEConfig.getImage("building_equipment.png", 20, 20);
+        return JEConfig.getImage("base_data.png", 20, 20);
     }
 
     @Override
@@ -1488,7 +1257,7 @@ public class EquipmentPlugin implements Plugin {
                 return null;
             }
         };
-        JEConfig.getStatusBar().addTask(PLUGIN_NAME, loadTask, JEConfig.getImage("building_equipment.png"), true);
+        JEConfig.getStatusBar().addTask(PLUGIN_NAME, loadTask, JEConfig.getImage("base_data.png"), true);
 
     }
 
@@ -1499,7 +1268,7 @@ public class EquipmentPlugin implements Plugin {
 
     @Override
     public int getPrefTapPos() {
-        return 6;
+        return 7;
     }
 
 }

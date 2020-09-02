@@ -1,7 +1,7 @@
 package org.jevis.commons.task;
 
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
+import org.joda.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ public class CommonTask implements Task {
     private String name = "";
     private String error;
     private Exception exception;
-    private List<TaskStep> steps = new ArrayList<>();
+    private final List<TaskStep> steps = new ArrayList<>();
 
     public CommonTask(Long id) {
         taskID = id;
@@ -45,19 +45,19 @@ public class CommonTask implements Task {
     }
 
     @Override
-    public Duration getRunTime() {
+    public Period getRunTime() {
         try {
             if (startDate == null) {
-                return Duration.ZERO;
+                return Period.ZERO;
             } else if (endDate == null) {
-                Duration duration = new Duration(startDate, (new DateTime()));
-                return duration;
+                Period period = new Period(startDate, (new DateTime()));
+                return period;
             } else {
-                Duration duration = new Duration(startDate, endDate);
-                return duration;
+                Period period = new Period(startDate, endDate);
+                return period;
             }
         } catch (Exception ex) {
-            return Duration.ZERO;
+            return Period.ZERO;
         }
 
 
