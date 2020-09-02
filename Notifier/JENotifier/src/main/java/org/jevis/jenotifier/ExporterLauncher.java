@@ -19,9 +19,11 @@ import org.jevis.jenotifier.config.JENotifierConfig;
 import org.jevis.jenotifier.exporter.CSVExport;
 import org.jevis.jenotifier.exporter.Export;
 import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.FutureTask;
 
 
 /**
@@ -31,7 +33,6 @@ public class ExporterLauncher extends AbstractCliApp {
 
     private static final Logger logger = LogManager.getLogger(ExporterLauncher.class);
     private static final String APP_INFO = "JENotifier";
-    private final String APP_SERVICE_CLASS_NAME = "JENotifier";
     private final Command commands = new Command();
     private final JENotifierConfig jeNotifierConfig = new JENotifierConfig();
 
@@ -50,86 +51,66 @@ public class ExporterLauncher extends AbstractCliApp {
     }
 
 
-    private void executeReports(List<JEVisObject> reportObjects) {
+    private void executeReports(List<JEVisObject> exportObjects) {
 
 
-        logger.info("Number of Reports: " + reportObjects.size());
+        logger.info("Number of Exports: " + exportObjects.size());
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         List<Export> exportJobs = new ArrayList<>();
-        reportObjects.forEach(exporterObject -> {
+        exportObjects.forEach(exporterObject -> {
             Export exporter = null;
             try {
                 if (exporterObject.getJEVisClassName().equals(CSVExport.CLASS_NAME)) {
                     exporter = new CSVExport(jeNotifierConfig, exporterObject);
                     exportJobs.add(exporter);
-                    if (!plannedJobs.containsKey(exporterObject.getID())) {
-                        plannedJobs.put(exporterObject.getID(), "true");
-                    }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
 
-
         exportJobs.forEach(exporterObject -> {
-            forkJoinPool.submit(() -> {
-                if (!runningJobs.containsKey(exporterObject.getObjectID())) {
-                    Thread.currentThread().setName(exporterObject.toString());
-                    runningJobs.put(exporterObject.getObjectID(), "true");
-
-
-                    LogTaskManager.getInstance().buildNewTask(exporterObject.getObjectID(), exporterObject.toString());
-                    LogTaskManager.getInstance().getTask(exporterObject.getObjectID()).setStatus(Task.Status.STARTED);
-
-                    logger.info("---------------------------------------------------------------------");
-                    logger.info("current report object: " + exporterObject.toString() + " with id: " + exporterObject.getObjectID());
-                    //check if the report is enabled
-
-
+            if (!runningJobs.containsKey(exporterObject.getObjectID())) {
+                Runnable runnable = () -> {
                     try {
+                        Thread.currentThread().setName(exporterObject.toString());
+                        runningJobs.put(exporterObject.getObjectID(), new DateTime());
 
-                        if (exporterObject.isEnabled()) {
-                            try {
-                                exporterObject.executeExport();
-                                if (exporterObject.hasNewData()) {
-                                    exporterObject.sendNotification();
-                                }
+                        LogTaskManager.getInstance().buildNewTask(exporterObject.getObjectID(), exporterObject.toString());
+                        LogTaskManager.getInstance().getTask(exporterObject.getObjectID()).setStatus(Task.Status.STARTED);
 
-                                LogTaskManager.getInstance().getTask(exporterObject.getObjectID()).setStatus(Task.Status.FINISHED);
+                        exporterObject.executeExport();
 
-                            } catch (Exception ex) {
-                                LogTaskManager.getInstance().getTask(exporterObject.getObjectID()).setStatus(Task.Status.FAILED);
-                                LogTaskManager.getInstance().getTask(exporterObject.getObjectID()).setException(ex);
-                            }
+                        if (exporterObject.hasNewData()) {
+                            exporterObject.sendNotification();
                         }
 
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                    } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(exporterObject.getObjectID()).setStatus(Task.Status.FAILED);
-                        LogTaskManager.getInstance().getTask(exporterObject.getObjectID()).setException(ex);
+                        removeJob(exporterObject.getExportObject());
+
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        checkLastJob();
+                    } finally {
+                        LogTaskManager.getInstance().getTask(exporterObject.getObjectID()).setStatus(Task.Status.FINISHED);
+                        removeJob(exporterObject.getExportObject());
+
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        checkLastJob();
                     }
+                };
 
-                    runningJobs.remove(exporterObject.getObjectID());
-                    plannedJobs.remove(exporterObject.getObjectID());
+                FutureTask<?> ft = new FutureTask<Void>(runnable, null);
 
-                    logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
-
-                    if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                        logger.info("Last job. Clearing cache.");
-                        setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                        ds.clearCache();
-                    }
-
-                } else {
-                    logger.error("Still processing Report " + exporterObject.toString() + ":" + exporterObject.getObjectID());
-                }
-            });
+                runnables.put(exporterObject.getObjectID(), ft);
+                executor.submit(ft);
+            } else {
+                logger.info("Still processing Job {}:{}", exporterObject.getExportObject().getName(), exporterObject.getExportObject().getID());
+            }
         });
-
-        logger.info("---------------------finish------------------------");
     }
 
     @Override
@@ -139,9 +120,8 @@ public class ExporterLauncher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
+        APP_SERVICE_CLASS_NAME = "JENotifier";
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
-
-
     }
 
     @Override
@@ -172,16 +152,19 @@ public class ExporterLauncher extends AbstractCliApp {
             e.printStackTrace();
         }
 
+        checkForTimeout();
+
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
             try {
                 ds.clearCache();
                 ds.preload();
-                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
             } catch (JEVisException e) {
                 e.printStackTrace();
             }
 
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+
+                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
 
                 /** reload drivers and set Config context drivers **/
                 try {
@@ -196,7 +179,7 @@ public class ExporterLauncher extends AbstractCliApp {
 
                                 EmailNotificationDriver emailNotificationDriver = new EmailNotificationDriver();
                                 emailNotificationDriver.setNotificationDriverObject(eDriverObject);
-                                logger.info("---------------------- user: " + emailNotificationDriver.getUser());
+                                logger.debug("---------------------- user: " + emailNotificationDriver.getUser());
                                 this.jeNotifierConfig.setDefaultEmailNotificationDriver(emailNotificationDriver);
                             }
                         }
@@ -208,9 +191,6 @@ public class ExporterLauncher extends AbstractCliApp {
 
                 List<JEVisObject> reports = getAllExports();
                 executeReports(reports);
-
-                logger.info("Queued all report objects, entering sleep mode for " + cycleTime + " ms.");
-
             } else {
                 logger.info("Service was disabled.");
             }
@@ -221,7 +201,12 @@ public class ExporterLauncher extends AbstractCliApp {
         try {
             Thread.sleep(cycleTime);
 
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
+            try {
+                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
+            } catch (Exception e) {
+                logger.error("Could not print task list", e);
+            }
+
             runServiceHelp();
         } catch (InterruptedException e) {
             logger.fatal("Thread was interrupted: " + e);
@@ -234,15 +219,23 @@ public class ExporterLauncher extends AbstractCliApp {
     }
 
     private List<JEVisObject> getAllExports() {
-        JEVisClass exportClass = null;
-        List<JEVisObject> reportObjects = new ArrayList<>();
+        List<JEVisObject> filteredObjects = new ArrayList<>();
         try {
-            exportClass = ds.getJEVisClass(Export.CLASS_NAME);
-            reportObjects = ds.getObjects(exportClass, true);
+            JEVisClass exportClass = ds.getJEVisClass(Export.CLASS_NAME);
+            List<JEVisObject> reportObjects = ds.getObjects(exportClass, true);
+
+            reportObjects.forEach(jeVisObject -> {
+                if (isEnabled(jeVisObject)) {
+                    filteredObjects.add(jeVisObject);
+                    if (!plannedJobs.containsKey(jeVisObject.getID())) {
+                        plannedJobs.put(jeVisObject.getID(), new DateTime());
+                    }
+                }
+            });
         } catch (JEVisException e) {
             e.printStackTrace();
         }
 
-        return reportObjects;
+        return filteredObjects;
     }
 }

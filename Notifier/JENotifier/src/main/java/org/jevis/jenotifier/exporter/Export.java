@@ -23,8 +23,7 @@ public abstract class Export {
     protected JENotifierConfig jeNotifierConfig;
 
     public Export(JENotifierConfig jeNotifierConfig, JEVisObject object) {
-        System.out.println("Export: " + object);
-        exportObject = object;
+        this.exportObject = object;
         this.jeNotifierConfig = jeNotifierConfig;
 //        init();
     }
@@ -110,6 +109,10 @@ public abstract class Export {
 
     public long getObjectID() {
         return exportObject.getID();
+    }
+
+    public JEVisObject getExportObject() {
+        return exportObject;
     }
 
     public abstract void setOnSuccess();

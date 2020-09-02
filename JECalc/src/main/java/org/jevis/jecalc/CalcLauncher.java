@@ -21,6 +21,7 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.FutureTask;
 
 /**
  * @author broder
@@ -30,7 +31,7 @@ public class CalcLauncher extends AbstractCliApp {
     private static final Logger logger = LogManager.getLogger(CalcLauncher.class);
     private final Command commands = new Command();
     private static final String APP_INFO = "JECalc";
-    private final String APP_SERVICE_CLASS_NAME = "JECalc";
+
     private boolean firstRun = true;
 
     public CalcLauncher(String[] args, String appname) {
@@ -53,6 +54,8 @@ public class CalcLauncher extends AbstractCliApp {
         } catch (JEVisException | InterruptedException e) {
             e.printStackTrace();
         }
+
+        checkForTimeout();
 
         if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
             if (!firstRun) {
@@ -81,7 +84,12 @@ public class CalcLauncher extends AbstractCliApp {
             logger.info("Entering sleep mode for " + cycleTime + " ms.");
             Thread.sleep(cycleTime);
 
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
+            try {
+                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
+            } catch (Exception e) {
+                logger.error("Could not print task list", e);
+            }
+
             runServiceHelp();
         } catch (InterruptedException e) {
             logger.error("Interrupted sleep: ", e);
@@ -93,14 +101,13 @@ public class CalcLauncher extends AbstractCliApp {
         logger.info("Number of Calc Jobs: " + enabledCalcObject.size());
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
-        enabledCalcObject.parallelStream().forEach(object -> {
-            forkJoinPool.submit(() -> {
-                if (!runningJobs.containsKey(object.getID())) {
-
-                    Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
-                    runningJobs.put(object.getID(), new DateTime());
-
+        enabledCalcObject.forEach(object -> {
+            if (!runningJobs.containsKey(object.getID())) {
+                Runnable runnable = () -> {
                     try {
+                        Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
+                        runningJobs.put(object.getID(), new DateTime());
+
                         LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
 
@@ -111,30 +118,42 @@ public class CalcLauncher extends AbstractCliApp {
                             calcJob.execute();
                         } while (!calcJob.hasProcessedAllInputSamples());
 
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
+                        runningJobs.remove(object.getID());
+                        plannedJobs.remove(object.getID());
+
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                            logger.info("Last job. Clearing cache.");
+                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
+                            ds.clearCache();
+                        }
                     } catch (Exception e) {
-                        logger.debug(e);
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
+                        removeJob(object);
+
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        checkLastJob();
+                    } finally {
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
+                        removeJob(object);
+
+                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+
+                        checkLastJob();
                     }
+                };
 
-                    LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
-                    runningJobs.remove(object.getID());
-                    plannedJobs.remove(object.getID());
+                FutureTask<?> ft = new FutureTask<Void>(runnable, null);
 
-                    logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
-
-                    if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                        logger.info("Last job. Clearing cache.");
-                        setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                        ds.clearCache();
-                    }
-
-                } else {
-                    logger.error("Still processing Calc Object " + object.getName() + ":" + object.getID());
-                }
-            });
+                runnables.put(object.getID(), ft);
+                executor.submit(ft);
+            } else {
+                logger.info("Still processing Job {}:{}", object.getName(), object.getID());
+            }
         });
-
-        logger.info("---------------------finish------------------------");
     }
 
     private List<JEVisObject> getEnabledCalcObjects() {
@@ -169,6 +188,7 @@ public class CalcLauncher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
+        APP_SERVICE_CLASS_NAME = "JECalc";
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
     }
 

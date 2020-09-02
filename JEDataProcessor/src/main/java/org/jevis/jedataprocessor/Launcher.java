@@ -25,7 +25,6 @@ import org.joda.time.Interval;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
 
 /**
@@ -36,11 +35,9 @@ public class Launcher extends AbstractCliApp {
     private static final Logger logger = LogManager.getLogger(Launcher.class);
     private static final String APP_INFO = "JEDataProcessor";
     public static String KEY = "process-id";
-    private final String APP_SERVICE_CLASS_NAME = "JEDataProcessor";
     private final Command commands = new Command();
     private int processingSize = 10000;
     private boolean firstRun = true;
-    private final ConcurrentHashMap<Long, FutureTask<?>> runnables = new ConcurrentHashMap();
 
     private Launcher(String[] args, String appname) {
         super(args, appname);
@@ -60,7 +57,6 @@ public class Launcher extends AbstractCliApp {
 
         processes.forEach(currentCleanDataObject -> {
             if (!runningJobs.containsKey(currentCleanDataObject.getID())) {
-
                 Runnable runnable = () -> {
                     try {
                         Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
@@ -76,36 +72,22 @@ public class Launcher extends AbstractCliApp {
                         } catch (Exception ex) {
                             logger.debug(ex);
                             LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
-                            runningJobs.remove(currentCleanDataObject.getID());
-                            plannedJobs.remove(currentCleanDataObject.getID());
-                            runnables.remove(currentCleanDataObject.getID());
+                            removeJob(currentCleanDataObject);
                         }
                     } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
-                        runningJobs.remove(currentCleanDataObject.getID());
-                        plannedJobs.remove(currentCleanDataObject.getID());
-                        runnables.remove(currentCleanDataObject.getID());
+                        removeJob(currentCleanDataObject);
 
                         logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
 
-                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                            logger.info("Last job. Clearing cache.");
-                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                            ds.clearCache();
-                        }
+                        checkLastJob();
                     } finally {
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
-                        runningJobs.remove(currentCleanDataObject.getID());
-                        plannedJobs.remove(currentCleanDataObject.getID());
-                        runnables.remove(currentCleanDataObject.getID());
+                        removeJob(currentCleanDataObject);
 
                         logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
 
-                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                            logger.info("Last job. Clearing cache.");
-                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                            ds.clearCache();
-                        }
+                        checkLastJob();
                     }
                 };
 
@@ -126,6 +108,7 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
+        APP_SERVICE_CLASS_NAME = "JEDataProcessor";
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
     }
 
@@ -222,10 +205,14 @@ public class Launcher extends AbstractCliApp {
             logger.info("Entering Sleep mode for " + cycleTime + "ms.");
             Thread.sleep(cycleTime);
 
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
+            try {
+                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
+            } catch (Exception e) {
+                logger.error("Could not print task list", e);
+            }
+
             runServiceHelp();
-        } catch (
-                InterruptedException e) {
+        } catch (InterruptedException e) {
             logger.error("Interrupted sleep: ", e);
         }
 
@@ -308,18 +295,5 @@ public class Launcher extends AbstractCliApp {
         }
         logger.info("{} cleaning objects found", cleanDataObjects.size());
         return filteredObjects;
-    }
-
-    private boolean isEnabled(JEVisObject jeVisObject) {
-        JEVisAttribute enabledAtt = null;
-        try {
-            enabledAtt = jeVisObject.getAttribute("Enabled");
-            if (enabledAtt != null && enabledAtt.hasSample()) {
-                return enabledAtt.getLatestSample().getValueAsBoolean();
-            }
-        } catch (Exception e) {
-            logger.error("Could not get enabled status of {} with id {}", jeVisObject.getName(), jeVisObject.getID(), e);
-        }
-        return false;
     }
 }
