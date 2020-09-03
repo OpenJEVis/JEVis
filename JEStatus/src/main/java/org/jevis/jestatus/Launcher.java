@@ -91,66 +91,58 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
-        try {
-            checkConnection();
-        } catch (JEVisException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        if (checkConnection()) {
 
-        JEVisClass serviceClass = null;
-        try {
-            serviceClass = ds.getJEVisClass(APP_SERVICE_CLASS_NAME);
-            List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
-            serviceObject = listServices.get(0);
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
-
-        if (isActive() && isReady(serviceObject)) {
-            if (!firstRun) {
-                try {
-                    ds.clearCache();
-                    ds.preload();
-                } catch (JEVisException e) {
-                    logger.error(e);
-                }
-            } else firstRun = false;
-
-            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-            getTimeConstraints();
-
-            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-                logger.info("Service is enabled.");
-                try {
-                    AlarmHandler ah = new AlarmHandler(ds, latestReported);
-                    ah.checkAlarm();
-                    finishCurrentRun(serviceObject);
-
-                } catch (JEVisException ex) {
-                    logger.fatal(ex);
-                }
-            } else {
-                logger.info("Service is disabled.");
-            }
-        } else if (getEmergency_config() != null) {
-            AlarmHandler ah = new AlarmHandler();
-            Config conf = null;
+            JEVisClass serviceClass = null;
             try {
-                conf = new Config(getEmergency_config());
-                ah.sendAlarm(conf, "Webservice is offline.");
-            } catch (ConfigurationException e) {
+                serviceClass = ds.getJEVisClass(APP_SERVICE_CLASS_NAME);
+                List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
+                serviceObject = listServices.get(0);
+            } catch (JEVisException e) {
                 e.printStackTrace();
             }
+
+            if (isActive() && isReady(serviceObject)) {
+                if (!firstRun) {
+                    try {
+                        ds.clearCache();
+                        ds.preload();
+                    } catch (JEVisException e) {
+                        logger.error(e);
+                    }
+                } else firstRun = false;
+
+                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+                getTimeConstraints();
+
+                if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                    logger.info("Service is enabled.");
+                    try {
+                        AlarmHandler ah = new AlarmHandler(ds, latestReported);
+                        ah.checkAlarm();
+                        finishCurrentRun(serviceObject);
+
+                    } catch (JEVisException ex) {
+                        logger.fatal(ex);
+                    }
+                } else {
+                    logger.info("Service is disabled.");
+                }
+            } else if (getEmergency_config() != null) {
+                AlarmHandler ah = new AlarmHandler();
+                Config conf = null;
+                try {
+                    conf = new Config(getEmergency_config());
+                    ah.sendAlarm(conf, "Webservice is offline.");
+                } catch (ConfigurationException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                logger.info("Still running queue. Going to sleep again.");
+            }
         }
 
-        try {
-            logger.info("Entering sleep mode for " + cycleTime + " ms.");
-            Thread.sleep(cycleTime);
-
-            runServiceHelp();
-        } catch (InterruptedException e) {
-            logger.error("Interrupted sleep: ", e);
-        }
+        sleep();
     }
 
     private void getTimeConstraints() {

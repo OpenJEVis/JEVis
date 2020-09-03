@@ -339,7 +339,7 @@ public class CalcJobFactory {
                     fromTo = new Interval(startTime, endTime);
                     period = valueAttribute.getInputSampleRate();
 
-                    if (PeriodArithmetic.periodsInAnInterval(fromTo, period) < 20000) {
+                    if (PeriodArithmetic.periodsInAnInterval(fromTo, period) < 10000) {
                         calcJob.setHasProcessedAllInputSamples(true);
                         /**
                          * is this minus really necessary? do tests...
@@ -351,7 +351,7 @@ public class CalcJobFactory {
                         calcJob.setHasProcessedAllInputSamples(false);
                         DateTime limitedMaxDate = startTime;
                         int i = 0;
-                        while (i < 20000) {
+                        while (i < 10000) {
                             limitedMaxDate = limitedMaxDate.plus(period.toStandardDuration());
                             i++;
                         }

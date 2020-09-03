@@ -28,6 +28,7 @@ public class ProgressForm {
     private final Stage dialogStage;
     private final ProgressBar pb = new ProgressBar();
     private final TextArea textArea = new TextArea();
+    private final StringBuilder stringBuilder = new StringBuilder();
 
     public ProgressForm(String text) {
         dialogStage = new Stage();
@@ -82,7 +83,6 @@ public class ProgressForm {
     }
 
     public void addMessage(String message) {
-        String text = textArea.getText();
 
         if (!textArea.isVisible()) {
             Platform.runLater(() -> {
@@ -91,13 +91,12 @@ public class ProgressForm {
                 textArea.setPrefHeight(150);
             });
         }
-        if (text.length() > 0) {
-            text += System.getProperty("line.separator");
+        if (stringBuilder.toString().length() > 0) {
+            stringBuilder.append(System.getProperty("line.separator"));
         }
-        text += message;
-        String finalText = text;
+        stringBuilder.append(message);
         Platform.runLater(() -> {
-            textArea.setText(finalText);
+            textArea.setText(stringBuilder.toString());
             textArea.setScrollTop(Double.MAX_VALUE);
         });
     }

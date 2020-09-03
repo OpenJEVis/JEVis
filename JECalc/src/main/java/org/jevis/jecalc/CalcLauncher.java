@@ -16,7 +16,6 @@ import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
-import org.jevis.commons.task.TaskPrinter;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -49,52 +48,38 @@ public class CalcLauncher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
-        try {
-            checkConnection();
-        } catch (JEVisException | InterruptedException e) {
-            e.printStackTrace();
-        }
 
-        checkForTimeout();
+        if (checkConnection()) {
 
-        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            if (!firstRun) {
-                try {
-                    ds.clearCache();
-                    ds.preload();
-                } catch (JEVisException e) {
-                    logger.error(e);
+            checkForTimeout();
+
+            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                if (!firstRun) {
+                    try {
+                        ds.clearCache();
+                        ds.preload();
+                    } catch (JEVisException e) {
+                        logger.error(e);
+                    }
+                } else firstRun = false;
+
+                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+
+                if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                    logger.info("Service is enabled.");
+                    List<JEVisObject> dataSources = getEnabledCalcObjects();
+                    this.executeCalcJobs(dataSources);
+                } else {
+                    logger.info("Service is disabled.");
                 }
-            } else firstRun = false;
-
-            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-
-            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-                logger.info("Service is enabled.");
-                List<JEVisObject> dataSources = getEnabledCalcObjects();
-                this.executeCalcJobs(dataSources);
             } else {
-                logger.info("Service is disabled.");
+                logger.info("Still running queue. Going to sleep again.");
             }
-        } else {
-            logger.info("Still running queue. Going to sleep again.");
         }
 
-        try {
-            logger.info("Entering sleep mode for " + cycleTime + " ms.");
-            Thread.sleep(cycleTime);
-
-            try {
-                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-            } catch (Exception e) {
-                logger.error("Could not print task list", e);
-            }
-
-            runServiceHelp();
-        } catch (InterruptedException e) {
-            logger.error("Interrupted sleep: ", e);
-        }
+        sleep();
     }
+
 
     private void executeCalcJobs(List<JEVisObject> enabledCalcObject) {
 

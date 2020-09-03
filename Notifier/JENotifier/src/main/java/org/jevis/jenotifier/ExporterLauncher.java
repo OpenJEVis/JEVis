@@ -14,7 +14,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
-import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jenotifier.config.JENotifierConfig;
 import org.jevis.jenotifier.exporter.CSVExport;
 import org.jevis.jenotifier.exporter.Export;
@@ -146,21 +145,17 @@ public class ExporterLauncher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
-        try {
-            checkConnection();
-        } catch (JEVisException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        if (checkConnection()) {
 
-        checkForTimeout();
+            checkForTimeout();
 
-        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            try {
-                ds.clearCache();
-                ds.preload();
-            } catch (JEVisException e) {
-                e.printStackTrace();
-            }
+            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                try {
+                    ds.clearCache();
+                    ds.preload();
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
 
             if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
 
@@ -197,20 +192,9 @@ public class ExporterLauncher extends AbstractCliApp {
         } else {
             logger.info("Still running queue. Going to sleep again.");
         }
-
-        try {
-            Thread.sleep(cycleTime);
-
-            try {
-                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-            } catch (Exception e) {
-                logger.error("Could not print task list", e);
-            }
-
-            runServiceHelp();
-        } catch (InterruptedException e) {
-            logger.fatal("Thread was interrupted: " + e);
         }
+
+        sleep();
     }
 
     @Override

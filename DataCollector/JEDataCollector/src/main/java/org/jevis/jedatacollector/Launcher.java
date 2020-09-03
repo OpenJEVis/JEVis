@@ -15,7 +15,6 @@ import org.jevis.commons.driver.DataSourceFactory;
 import org.jevis.commons.driver.DriverHelper;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
-import org.jevis.commons.task.TaskPrinter;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -187,50 +186,34 @@ public class Launcher extends AbstractCliApp {
     @Override
     protected void runServiceHelp() {
 
-        try {
-            checkConnection();
-        } catch (JEVisException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        if (checkConnection()) {
 
-        checkForTimeout();
+            checkForTimeout();
 
-        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            if (!firstRun) {
-                try {
-                    ds.clearCache();
-                    ds.preload();
-                } catch (JEVisException e) {
-                    logger.error(e);
+            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                if (!firstRun) {
+                    try {
+                        ds.clearCache();
+                        ds.preload();
+                    } catch (JEVisException e) {
+                        logger.error(e);
+                    }
+                } else firstRun = false;
+
+                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+
+                if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                    List<JEVisObject> dataSources = getEnabledDataSources(ds);
+                    this.executeDataSources(dataSources);
+                } else {
+                    logger.info("Service is disabled.");
                 }
-            } else firstRun = false;
-
-            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-
-            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-                List<JEVisObject> dataSources = getEnabledDataSources(ds);
-                this.executeDataSources(dataSources);
             } else {
-                logger.info("Service is disabled.");
+                logger.info("Still running queue. Going to sleep again.");
             }
-        } else {
-            logger.info("Cycle not finished.");
         }
 
-        try {
-            logger.info("Entering Sleep mode for " + cycleTime + "ms.");
-            Thread.sleep(cycleTime);
-
-            try {
-                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-            } catch (Exception e) {
-                logger.error("Could not print task list", e);
-            }
-
-            runServiceHelp();
-        } catch (InterruptedException e) {
-            logger.error("Interrupted sleep: ", e);
-        }
+        sleep();
     }
 
     @Override

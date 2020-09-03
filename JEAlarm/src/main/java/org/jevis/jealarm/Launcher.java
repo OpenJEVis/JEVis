@@ -14,7 +14,6 @@ import org.jevis.commons.alarm.AlarmConfiguration;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
-import org.jevis.commons.task.TaskPrinter;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -116,51 +115,40 @@ public class Launcher extends AbstractCliApp {
     @Override
     protected void runServiceHelp() {
 
-        try {
-            checkConnection();
-        } catch (JEVisException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        if (checkConnection()) {
 
-        checkForTimeout();
+            checkForTimeout();
 
-        List<AlarmConfiguration> enabledAlarmConfigurations = new ArrayList<>();
+            List<AlarmConfiguration> enabledAlarmConfigurations = new ArrayList<>();
 
-        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            if (!firstRun) {
-                try {
-                    ds.clearCache();
-                    ds.preload();
-                    getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-                } catch (JEVisException e) {
-                    logger.error(e);
+            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                if (!firstRun) {
+                    try {
+                        ds.clearCache();
+                        ds.preload();
+                        getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+                    } catch (JEVisException e) {
+                        logger.error(e);
+                    }
+                } else firstRun = false;
+
+                if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                    try {
+                        enabledAlarmConfigurations = getAllAlarmObjects();
+                    } catch (Exception e) {
+                        logger.error("Could not get cleaning objects. " + e);
+                    }
+
+                    this.executeProcesses(enabledAlarmConfigurations);
+                } else {
+                    logger.info("Service is disabled.");
                 }
-            } else firstRun = false;
-
-            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-                try {
-                    enabledAlarmConfigurations = getAllAlarmObjects();
-                } catch (Exception e) {
-                    logger.error("Could not get cleaning objects. " + e);
-                }
-
-                this.executeProcesses(enabledAlarmConfigurations);
             } else {
-                logger.info("Service is disabled.");
+                logger.info("Still running queue. Going to sleep again.");
             }
-        } else {
-            logger.info("Still running queue. Going to sleep again.");
         }
 
-        try {
-            logger.info("Entering Sleep mode for " + cycleTime + "ms.");
-            Thread.sleep(cycleTime);
-
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-            runServiceHelp();
-        } catch (InterruptedException e) {
-            logger.error("Interrupted sleep: ", e);
-        }
+        sleep();
     }
 
     @Override

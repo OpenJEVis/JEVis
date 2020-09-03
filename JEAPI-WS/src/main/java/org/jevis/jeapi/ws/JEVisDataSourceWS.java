@@ -584,17 +584,20 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 //
 
             InputStream inputStream = this.con.getInputStreamRequest(resource);
-            JsonAttribute[] jsons = this.objectMapper.readValue(inputStream, JsonAttribute[].class);
-            inputStream.close();
-            for (JsonAttribute att : jsons) {
-                try {
-                    attributes.add(updateAttributeCache(att));
-                } catch (Exception ex) {
-                    logger.error(ex);
+            if (inputStream != null) {
+                JsonAttribute[] jsons = this.objectMapper.readValue(inputStream, JsonAttribute[].class);
+                inputStream.close();
+                for (JsonAttribute att : jsons) {
+                    try {
+                        attributes.add(updateAttributeCache(att));
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
                 }
+                fixMissingAttributes(getObject(objectID), attributes);
+            } else {
+                logger.warn("Could not get attributes for object with id {}", objectID);
             }
-            fixMissingAttributes(getObject(objectID), attributes);
-
         } catch (Exception ex) {
             logger.error(ex);
         }
