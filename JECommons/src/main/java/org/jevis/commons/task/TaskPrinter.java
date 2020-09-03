@@ -22,7 +22,7 @@ public class TaskPrinter {
         Map<String, Integer> stepHeader = new HashMap<>();
 
         try {
-            int nextInt = 6;
+            int nextInt = 7;
             /**
              * Find all used Steps and give them an header number
              */
