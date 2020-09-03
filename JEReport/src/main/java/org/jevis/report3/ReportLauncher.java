@@ -14,7 +14,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
-import org.jevis.commons.task.TaskPrinter;
 import org.jevis.report3.data.report.ReportAttributes;
 import org.jevis.report3.data.report.ReportExecutor;
 import org.jevis.report3.policy.ReportPolicy;
@@ -148,47 +147,37 @@ public class ReportLauncher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
-        try {
-            checkConnection();
-        } catch (JEVisException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        if (checkConnection()) {
 
-        checkForTimeout();
+            checkForTimeout();
 
-        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            if (!firstRun) {
-                try {
-                    ds.clearCache();
-                    ds.preload();
-                } catch (JEVisException e) {
+            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                if (!firstRun) {
+                    try {
+                        ds.clearCache();
+                        ds.preload();
+                    } catch (JEVisException e) {
+                    }
+                } else firstRun = false;
+
+                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+
+                if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+
+                    List<JEVisObject> reports = getEnabledReports();
+                    executeReports(reports);
+
+                    logger.info("Queued all report objects, entering sleep mode for " + cycleTime + " ms.");
+
+                } else {
+                    logger.info("Service was disabled.");
                 }
-            } else firstRun = false;
-
-            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-
-            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-
-                List<JEVisObject> reports = getEnabledReports();
-                executeReports(reports);
-
-                logger.info("Queued all report objects, entering sleep mode for " + cycleTime + " ms.");
-
             } else {
-                logger.info("Service was disabled.");
+                logger.info("Still running queue. Going to sleep again.");
             }
-        } else {
-            logger.info("Still running queue. Going to sleep again.");
         }
 
-        try {
-            Thread.sleep(cycleTime);
-
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-            runServiceHelp();
-        } catch (InterruptedException e) {
-            logger.fatal("Thread was interrupted: " + e);
-        }
+        sleep();
     }
 
     @Override

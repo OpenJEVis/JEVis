@@ -17,14 +17,11 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
-import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jedataprocessor.workflow.ProcessManager;
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.FutureTask;
 
 /**
@@ -116,106 +113,69 @@ public class Launcher extends AbstractCliApp {
     protected void runSingle(List<Long> ids) {
         List<JEVisObject> processes = new ArrayList<>();
 
-        try {
-            checkConnection();
-        } catch (JEVisException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        if (checkConnection()) {
 
-        for (Long l : ids) {
-            try {
-                JEVisObject object = ds.getObject(l);
-                if (!plannedJobs.containsKey(object.getID())) {
-                    plannedJobs.put(object.getID(), new DateTime());
-                    processes.add(object);
+            for (Long l : ids) {
+                try {
+                    JEVisObject object = ds.getObject(l);
+                    if (!plannedJobs.containsKey(object.getID())) {
+                        plannedJobs.put(object.getID(), new DateTime());
+                        processes.add(object);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+
+
+            this.processingSize = getProcessingSizeFromService(APP_SERVICE_CLASS_NAME);
+
+            this.executeProcesses(processes);
+
         }
 
-
-        this.processingSize = getProcessingSizeFromService(APP_SERVICE_CLASS_NAME);
-
-        this.executeProcesses(processes);
-
-        try {
-            logger.info("Entering Sleep mode for " + 30000 + "ms.");
-            Thread.sleep(30000);
-
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-            runSingle(ids);
-        } catch (InterruptedException e) {
-            logger.error("Interrupted sleep: ", e);
-        }
+        sleep();
     }
 
     @Override
     protected void runServiceHelp() {
         List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
 
-        try {
-            checkConnection();
-        } catch (JEVisException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        if (checkConnection()) {
 
-        if (!runningJobs.isEmpty()) {
-            for (Map.Entry<Long, DateTime> entry : runningJobs.entrySet()) {
-                Interval interval = new Interval(entry.getValue(), new DateTime());
-                if (interval.toDurationMillis() > 5 * 60000) {
-                    logger.warn("Task for {} is out of time, trying to cancel", entry.getKey());
-                    runnables.get(entry.getKey()).cancel(true);
-                    runningJobs.remove(entry.getKey());
-                    plannedJobs.remove(entry.getKey());
+            checkForTimeout();
+
+            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                if (!firstRun) {
+                    try {
+                        ds.clearCache();
+                        ds.preload();
+                    } catch (JEVisException e) {
+                        logger.error("Could not preload.");
+                    }
+                } else firstRun = false;
+
+                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+                this.processingSize = getProcessingSizeFromService(APP_SERVICE_CLASS_NAME);
+
+                if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                    try {
+                        enabledCleanDataObjects = getAllCleaningObjects();
+                    } catch (Exception e) {
+                        logger.error("Could not get cleaning objects. " + e);
+                    }
+
+                    this.executeProcesses(enabledCleanDataObjects);
+                } else {
+                    logger.info("Service is disabled.");
                 }
-            }
-        }
-
-        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            if (!firstRun) {
-                try {
-                    ds.clearCache();
-                    ds.preload();
-                } catch (JEVisException e) {
-                    logger.error("Could not preload.");
-                }
-            } else firstRun = false;
-
-            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-            this.processingSize = getProcessingSizeFromService(APP_SERVICE_CLASS_NAME);
-
-            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-                try {
-                    enabledCleanDataObjects = getAllCleaningObjects();
-                } catch (Exception e) {
-                    logger.error("Could not get cleaning objects. " + e);
-                }
-
-                this.executeProcesses(enabledCleanDataObjects);
             } else {
-                logger.info("Service is disabled.");
+                logger.info("Still running queue. Going to sleep again.");
             }
-        } else {
-            logger.info("Still running queue. Going to sleep again.");
         }
 
-        try {
-            logger.info("Entering Sleep mode for " + cycleTime + "ms.");
-            Thread.sleep(cycleTime);
-
-            try {
-                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-            } catch (Exception e) {
-                logger.error("Could not print task list", e);
-            }
-
-            runServiceHelp();
-        } catch (InterruptedException e) {
-            logger.error("Interrupted sleep: ", e);
-        }
-
+        sleep();
     }
 
     private int getProcessingSizeFromService(String serviceClassName) {

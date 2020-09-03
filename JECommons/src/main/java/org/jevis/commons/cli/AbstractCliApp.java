@@ -29,6 +29,8 @@ import org.jevis.api.*;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datasource.DataSourceLoader;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.task.LogTaskManager;
+import org.jevis.commons.task.TaskPrinter;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -133,23 +135,50 @@ public abstract class AbstractCliApp {
         }
     }
 
-    protected boolean checkConnection() throws JEVisException, InterruptedException {
+    protected boolean checkConnection() {
 
         connect(0);
 
-        return false;
+        return active;
     }
 
-    private void connect(int counter) throws JEVisException, InterruptedException {
+    private boolean connect(int counter) {
 
         if (counter < 12) {
-            active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
+            try {
+                active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
 
             if (!active) {
-                Thread.sleep(10000);
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 counter++;
                 connect(counter);
             }
+        }
+
+        return active;
+    }
+
+    protected void sleep() {
+        try {
+            logger.info("Entering sleep mode for " + cycleTime + " ms.");
+            Thread.sleep(cycleTime);
+
+            try {
+                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
+            } catch (Exception e) {
+                logger.error("Could not print task list", e);
+            }
+
+            runServiceHelp();
+        } catch (InterruptedException e) {
+            logger.error("Interrupted sleep: ", e);
         }
     }
 
