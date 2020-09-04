@@ -143,12 +143,14 @@ public class ResourceSample {
             return Response.status(Status.NOT_FOUND)
                     .entity("No such Attribute").build();
 
-        } catch (JEVisException jex) {
-            jex.printStackTrace();
-            return Response.serverError().entity(jex).build();
-        } catch (AuthenticationException ex) {
+        }  catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
-        } finally {
+        } catch (Exception jex) {
+            logger.error("Error while fetching sample: {}-{} {}->{}",id,attribute,start,end);
+            logger.error(jex);
+            //jex.printStackTrace();
+            return Response.serverError().entity(jex).build();
+        }finally {
             Config.CloseDS(ds);
         }
 

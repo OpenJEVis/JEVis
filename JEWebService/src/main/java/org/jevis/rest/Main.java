@@ -16,7 +16,6 @@ import org.jevis.ws.sql.ConnectionFactory;
 
 import javax.security.sasl.AuthenticationException;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -114,13 +113,17 @@ public class Main {
         // run
         try {
             server.start();
-        } catch (IOException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Server error: {}",e);
             throw new RuntimeException(e);
         }
         try {
             logger.info("Press CTRL^C to exit..");
             Thread.currentThread().join();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Server error: {}",e);
             throw new RuntimeException(e);
         }
     }
