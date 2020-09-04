@@ -102,7 +102,7 @@ public class CalcJob {
                         if (hasSamples) {
                             JEVisSample smp = listOldSamples.get(date);
                             if (smp != null) {
-                                output.deleteSamplesBetween(date.minusMillis(1), date.plusMillis(1));
+                                output.deleteSamplesBetween(date, date);
                             }
                         }
                     }

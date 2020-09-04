@@ -48,7 +48,7 @@ public class ResultCalculator {
                 value.forEach(sample -> template.put(sample.getVariable(), sample.getValue()));
 
                 BigDecimal evaluate = template.evaluate();
-//                if (Double.isInfinite(evaluate.doubleValue()) || Double.isNaN(evaluate.doubleValue())) {
+
                 if (evaluate == null) {
                     //TODO implement different handling switch...
 
@@ -71,7 +71,7 @@ public class ResultCalculator {
 
             } else {
                 VirtualSample newSample = new VirtualSample(key, allZeroReplacementValue);
-                newSample.setNote("");
+                newSample.setNote("AllZero");
                 resultList.add(newSample);
             }
         });

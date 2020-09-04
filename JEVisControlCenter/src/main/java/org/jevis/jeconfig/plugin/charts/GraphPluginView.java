@@ -578,10 +578,20 @@ public class GraphPluginView implements Plugin {
                         if (chartSetting.getOrientation() == Orientation.HORIZONTAL) {
                             bp.setTop(tableChart.getTopPicker());
                         } else {
+                            Label titleLabel = new Label(chartSetting.getName());
+                            titleLabel.setStyle("-fx-font-size: 14px;-fx-font-weight: bold;");
+                            titleLabel.setAlignment(Pos.CENTER);
+                            HBox hBox = new HBox(titleLabel);
+                            hBox.setAlignment(Pos.CENTER);
+
                             TableHeaderTable tableHeaderTable = new TableHeaderTable(tableChart.getXyChartSerieList());
                             tableChart.setTableHeader(tableHeaderTable);
                             tableHeaderTable.maxWidthProperty().bind(bp.widthProperty());
-                            bp.setCenter(tableHeaderTable);
+
+                            VBox vBox = new VBox(hBox, tableHeaderTable);
+                            VBox.setVgrow(hBox, Priority.NEVER);
+                            VBox.setVgrow(tableHeaderTable, Priority.ALWAYS);
+                            bp.setCenter(vBox);
                         }
                     }
                 } else if (chartSetting.getChartType() != ChartType.LOGICAL) {

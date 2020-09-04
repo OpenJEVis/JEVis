@@ -34,7 +34,7 @@ public class CalcTemplate {
         try {
             value = evaluator.evaluate(expression);
         } catch (EvaluationException ex) {
-            logger.error("Cant evaluate expression {}", expression, ex);
+            logger.error("Cant evaluate expression {} for calculation {}", expression, calcObjectId, ex);
         }
 
         BigDecimal returnVal = null;

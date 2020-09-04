@@ -22,7 +22,7 @@ public class TaskPrinter {
         Map<String, Integer> stepHeader = new HashMap<>();
 
         try {
-            int nextInt = 6;
+            int nextInt = 7;
             /**
              * Find all used Steps and give them an header number
              */
@@ -40,7 +40,7 @@ public class TaskPrinter {
             ex.printStackTrace();
         }
 
-        Object[][] data = new Object[allTasks.size()][6 + stepHeader.size()];
+        Object[][] data = new Object[allTasks.size()][7 + stepHeader.size()];
 
         if (allTasks.size() > 0) {
             for (int i = 0; i < allTasks.size(); i++) {

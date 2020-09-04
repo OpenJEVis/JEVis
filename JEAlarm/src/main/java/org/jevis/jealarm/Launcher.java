@@ -126,11 +126,12 @@ public class Launcher extends AbstractCliApp {
                     try {
                         ds.clearCache();
                         ds.preload();
-                        getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
                     } catch (JEVisException e) {
                         logger.error(e);
                     }
                 } else firstRun = false;
+
+                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
 
                 if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
                     try {
@@ -189,7 +190,7 @@ public class Launcher extends AbstractCliApp {
             });
             logger.info("Amount of enabled Alarm Configurations: " + filteredObjects.size());
         } catch (JEVisException ex) {
-            throw new Exception("Process classes missing", ex);
+            logger.error("Process classes missing", ex);
         }
         return filteredObjects;
     }
