@@ -63,6 +63,7 @@ public interface REQUEST {
                     String FROM = "from=";
                     String UNTIL = "until=";
                     String LASTEST = "onlyLatest=";
+                    String LIMIT = "limit";
                 }
 
                 interface FILES {
