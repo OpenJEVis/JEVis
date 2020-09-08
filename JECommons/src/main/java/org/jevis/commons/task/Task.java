@@ -36,6 +36,6 @@ public interface Task {
 
     DateTime getEndTime();
 
-    enum Status {UNKOWN, IDLE, STOPPED, STARTED, SCHEDULED, RUNNING, FINISHED, FAILED}
+    enum Status {UNKNOWN, IDLE, STOPPED, STARTED, SCHEDULED, RUNNING, FINISHED, FAILED}
 
 }

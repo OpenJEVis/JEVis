@@ -62,6 +62,7 @@ public class SamplingRateUI extends ComboBox<Period> {
         this.getItems().add(Period.minutes(1));
         this.getItems().add(Period.hours(1));
         this.getItems().add(Period.days(1));
+        this.getItems().add(Period.months(1));
         this.getItems().add(Period.years(1));
         this.getItems().add(Period.ZERO);
         this.getItems().add(FREE_SELECTION);//free Section workaround
@@ -159,7 +160,7 @@ public class SamplingRateUI extends ComboBox<Period> {
 
         if (period.getMonths() > 0) {
             if (Period.months(1).equals(period)) {
-                return "Monthly";
+                return I18n.getInstance().getString("plugin.unit.samplingrate.monthly");
             }
 
             if (isFirst) {
