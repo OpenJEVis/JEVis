@@ -9,7 +9,7 @@ import java.util.List;
 public class CommonTask implements Task {
 
     private final Long taskID;
-    private Status status = Status.UNKOWN;
+    private Status status = Status.UNKNOWN;
     private DateTime startDate;
     private DateTime endDate;
     private String name = "";

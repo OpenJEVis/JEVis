@@ -30,6 +30,7 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datasource.DataSourceLoader;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.task.LogTaskManager;
+import org.jevis.commons.task.Task;
 import org.jevis.commons.task.TaskPrinter;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -396,6 +397,7 @@ public abstract class AbstractCliApp {
                         runnables.get(entry.getKey()).cancel(true);
                         runningJobs.remove(entry.getKey());
                         plannedJobs.remove(entry.getKey());
+                        LogTaskManager.getInstance().getTask(entry.getKey()).setStatus(Task.Status.FAILED);
                     }
                 } catch (Exception e) {
                     logger.error("Could not stop object with id {}", entry.getKey(), e);
