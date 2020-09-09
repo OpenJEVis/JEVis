@@ -47,6 +47,10 @@ public class CalcJobFactory {
         logger.info("Create calc job for object with JEVis id {}", calcObjID);
 
         String expression = sampleHandler.getLastSample(jevisObject, Calculation.EXPRESSION.getName(), "");
+        if (expression == null || expression.equals("")) {
+            throw new RuntimeException("No expression");
+        }
+
         List<JEVisAttribute> outputAttributes = getAllOutputAttributes(jevisObject);
         if (outputAttributes.isEmpty()) {
             throw new RuntimeException("No output target");
@@ -55,6 +59,10 @@ public class CalcJobFactory {
         logger.debug("start time is: " + startTime);
 
         List<CalcInputObject> calcInputObjects = getInputDataObjects(jevisObject, ds, startTime, endTime, aggregationPeriod);
+        if (calcInputObjects.isEmpty()) {
+            throw new RuntimeException("No input objects");
+        }
+
         logger.debug("{} inputs found", calcInputObjects.size());
         String div0Handling = null;
         Double staticValue = null;
@@ -91,11 +99,22 @@ public class CalcJobFactory {
         logger.info("Create calc job for object with jevis id {}", calcObjID);
 
         String expression = sampleHandler.getLastSample(jevisObject, Calculation.EXPRESSION.getName(), "");
+        if (expression == null || expression.equals("")) {
+            throw new RuntimeException("No expression");
+        }
+
         List<JEVisAttribute> outputAttributes = getAllOutputAttributes(jevisObject);
+        if (outputAttributes.isEmpty()) {
+            throw new RuntimeException("No output target");
+        }
 
         logger.debug("start time is: " + startTime);
 
         List<CalcInputObject> calcInputObjects = getInputDataObjects(jevisObject, ds, startTime, endTime, absolute);
+        if (calcInputObjects.isEmpty()) {
+            throw new RuntimeException("No input objects");
+        }
+
         logger.debug("{} inputs found", calcInputObjects.size());
         String div0Handling = null;
         Double staticValue = null;
@@ -131,7 +150,14 @@ public class CalcJobFactory {
         logger.info("Create calc job for object with jevis id {}", calcObjID);
 
         String expression = sampleHandler.getLastSample(jevisObject, Calculation.EXPRESSION.getName(), "");
+        if (expression == null || expression.equals("")) {
+            throw new RuntimeException("No expression");
+        }
+
         List<JEVisAttribute> outputAttributes = getAllOutputAttributes(jevisObject);
+        if (outputAttributes.isEmpty()) {
+            throw new RuntimeException("No output target");
+        }
 
         DateTime startTime;
         if (lastEndTime == null) {
@@ -144,6 +170,10 @@ public class CalcJobFactory {
         logger.debug("start time is: " + startTime);
 
         List<CalcInputObject> calcInputObjects = getInputDataObjects(jevisObject, startTime, ds);
+        if (calcInputObjects.isEmpty()) {
+            throw new RuntimeException("No input objects");
+        }
+
         logger.debug("{} inputs found", calcInputObjects.size());
         String div0Handling = null;
         Double staticValue = null;
@@ -237,6 +267,13 @@ public class CalcJobFactory {
         for (JEVisObject obj : inputDataObjects) {
             JEVisAttribute targetAttr = null;
             try {
+                JEVisAttribute attribute = obj.getAttribute(Calculation.INPUT_TYPE.getName());
+                if (attribute != null) {
+                    JEVisSample latestSample = attribute.getLatestSample();
+                    if (latestSample != null && latestSample.getValueAsString().equals(ASYNC.toString())) {
+                        continue;
+                    }
+                }
 
                 targetAttr = obj.getAttribute(Calculation.INPUT_DATA.getName());
                 TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
@@ -305,10 +342,20 @@ public class CalcJobFactory {
                     JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
                     TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                     JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);
-                    JEVisSample latestSample = valueAttribute.getLatestSample();
-                    DateTime latestTimeStamp = latestSample.getTimestamp();
-                    if (latestTimeStamp.isBefore(endTime)) {
-                        endTime = latestTimeStamp;
+                    if (valueAttribute != null) {
+                        JEVisSample latestSample = valueAttribute.getLatestSample();
+                        if (latestSample != null) {
+                            DateTime latestTimeStamp = latestSample.getTimestamp();
+                            if (latestTimeStamp.isBefore(endTime)) {
+                                endTime = latestTimeStamp;
+                            }
+                        } else {
+                            calcJob.setHasProcessedAllInputSamples(true);
+                            throw new IllegalStateException("Cant find valid latest sample for input data with id " + child.getID());
+                        }
+                    } else {
+                        calcJob.setHasProcessedAllInputSamples(true);
+                        throw new IllegalStateException("Cant find valid attribute for input data with id " + child.getID());
                     }
                 }
 

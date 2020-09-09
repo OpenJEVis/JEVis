@@ -22,7 +22,7 @@ public class TaskPrinter {
         Map<String, Integer> stepHeader = new HashMap<>();
 
         try {
-            int nextInt = 6;
+            int nextInt = 7;
             /**
              * Find all used Steps and give them an header number
              */
@@ -40,7 +40,7 @@ public class TaskPrinter {
             ex.printStackTrace();
         }
 
-        Object[][] data = new Object[allTasks.size()][6 + stepHeader.size()];
+        Object[][] data = new Object[allTasks.size()][7 + stepHeader.size()];
 
         if (allTasks.size() > 0) {
             for (int i = 0; i < allTasks.size(); i++) {
@@ -50,9 +50,9 @@ public class TaskPrinter {
                 data[i][2] = task.getStatus();
                 data[i][3] = FORMATTER.print(task.getStartTime());
 
-                data[i][4] = task.getRunTime().toPeriod().getMillis() < 1000
-                        ? task.getRunTime().toPeriod().getMillis() + " msec"
-                        : task.getRunTime().toPeriod().getSeconds() + "  sec";
+                if (task.getRunTime().toStandardDuration().getMillis() < 1000)
+                    data[i][4] = task.getRunTime().toStandardDuration().getMillis() + " msec";
+                else data[i][4] = task.getRunTime().toStandardDuration().getStandardSeconds() + "  sec";
 
                 String shortError = "";
                 if (task.getException() != null) {
@@ -73,6 +73,8 @@ public class TaskPrinter {
                 }
 
                 data[i][5] = shortError;
+
+                data[i][6] = task.getID();
 
                 //Dynamic Steps info
                 for (TaskStep tStep : task.getSteps()) {

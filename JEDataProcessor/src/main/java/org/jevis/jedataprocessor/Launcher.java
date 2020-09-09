@@ -17,11 +17,12 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.ForecastDataObject;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
-import org.jevis.commons.task.TaskPrinter;
 import org.jevis.jedataprocessor.workflow.ProcessManager;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.FutureTask;
 
 /**
  * @author broder
@@ -31,7 +32,6 @@ public class Launcher extends AbstractCliApp {
     private static final Logger logger = LogManager.getLogger(Launcher.class);
     private static final String APP_INFO = "JEDataProcessor";
     public static String KEY = "process-id";
-    private final String APP_SERVICE_CLASS_NAME = "JEDataProcessor";
     private final Command commands = new Command();
     private int processingSize = 10000;
     private boolean firstRun = true;
@@ -57,7 +57,7 @@ public class Launcher extends AbstractCliApp {
                 Runnable runnable = () -> {
                     try {
                         Thread.currentThread().setName(currentCleanDataObject.getName() + ":" + currentCleanDataObject.getID().toString());
-                        runningJobs.put(currentCleanDataObject.getID(), "true");
+                        runningJobs.put(currentCleanDataObject.getID(), new DateTime());
 
                         ProcessManager currentProcess = null;
                         try {
@@ -69,35 +69,29 @@ public class Launcher extends AbstractCliApp {
                         } catch (Exception ex) {
                             logger.debug(ex);
                             LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
+                            removeJob(currentCleanDataObject);
                         }
                     } catch (Exception e) {
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
-                        runningJobs.remove(currentCleanDataObject.getID());
-                        plannedJobs.remove(currentCleanDataObject.getID());
+                        removeJob(currentCleanDataObject);
 
                         logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
 
-                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                            logger.info("Last job. Clearing cache.");
-                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                            ds.clearCache();
-                        }
+                        checkLastJob();
                     } finally {
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
-                        runningJobs.remove(currentCleanDataObject.getID());
-                        plannedJobs.remove(currentCleanDataObject.getID());
+                        removeJob(currentCleanDataObject);
 
                         logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
 
-                        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                            logger.info("Last job. Clearing cache.");
-                            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                            ds.clearCache();
-                        }
+                        checkLastJob();
                     }
                 };
 
-                executor.submit(runnable);
+                FutureTask<?> ft = new FutureTask<Void>(runnable, null);
+
+                runnables.put(currentCleanDataObject.getID(), ft);
+                executor.submit(ft);
             } else {
                 logger.info("Still processing Job {}:{}", currentCleanDataObject.getName(), currentCleanDataObject.getID());
             }
@@ -111,71 +105,77 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
+        APP_SERVICE_CLASS_NAME = "JEDataProcessor";
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
     }
 
     @Override
     protected void runSingle(List<Long> ids) {
-        for (Long l : ids) {
-            try {
-                JEVisObject object = ds.getObject(l);
-                ProcessManager currentProcess = new ProcessManager(object, new ObjectHandler(ds), getProcessingSizeFromService(APP_SERVICE_CLASS_NAME));
-                currentProcess.start();
-            } catch (Exception e) {
-                e.printStackTrace();
+        List<JEVisObject> processes = new ArrayList<>();
+
+        if (checkConnection()) {
+
+            for (Long l : ids) {
+                try {
+                    JEVisObject object = ds.getObject(l);
+                    if (!plannedJobs.containsKey(object.getID())) {
+                        plannedJobs.put(object.getID(), new DateTime());
+                        processes.add(object);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+
+
+            this.processingSize = getProcessingSizeFromService(APP_SERVICE_CLASS_NAME);
+
+            this.executeProcesses(processes);
+
         }
+
+        sleep();
     }
 
     @Override
     protected void runServiceHelp() {
         List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
 
-        try {
-            checkConnection();
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
+        if (checkConnection()) {
 
-        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            if (!firstRun) {
-                try {
-                    ds.clearCache();
-                    ds.preload();
-                } catch (JEVisException e) {
-                    logger.error("Could not preload.");
+            checkForTimeout();
+
+            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                if (!firstRun) {
+                    try {
+                        ds.clearCache();
+                        ds.preload();
+                    } catch (JEVisException e) {
+                        logger.error("Could not preload.");
+                    }
+                } else firstRun = false;
+
+                getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
+                this.processingSize = getProcessingSizeFromService(APP_SERVICE_CLASS_NAME);
+
+                if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                    try {
+                        enabledCleanDataObjects = getAllCleaningObjects();
+                    } catch (Exception e) {
+                        logger.error("Could not get cleaning objects. " + e);
+                    }
+
+                    this.executeProcesses(enabledCleanDataObjects);
+                } else {
+                    logger.info("Service is disabled.");
                 }
-            } else firstRun = false;
-
-            getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-            this.processingSize = getProcessingSizeFromService(APP_SERVICE_CLASS_NAME);
-
-            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-                try {
-                    enabledCleanDataObjects = getAllCleaningObjects();
-                } catch (Exception e) {
-                    logger.error("Could not get cleaning objects. " + e);
-                }
-
-                this.executeProcesses(enabledCleanDataObjects);
             } else {
-                logger.info("Service is disabled.");
+                logger.info("Still running queue. Going to sleep again.");
             }
-        } else {
-            logger.info("Still running queue. Going to sleep again.");
         }
 
-        try {
-            logger.info("Entering Sleep mode for " + cycleTime + "ms.");
-            Thread.sleep(cycleTime);
-
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-            runServiceHelp();
-        } catch (
-                InterruptedException e) {
-            logger.error("Interrupted sleep: ", e);
-        }
-
+        sleep();
     }
 
     private int getProcessingSizeFromService(String serviceClassName) {
@@ -187,7 +187,7 @@ public class Launcher extends AbstractCliApp {
             if (sizeAtt != null && sizeAtt.hasSample()) {
                 size = sizeAtt.getLatestSample().getValueAsLong().intValue();
             }
-            logger.info("Processing size from service: " + size);
+
         } catch (Exception e) {
             logger.error("Couldn't get processsing size from the JEVis System. Using standard Size of {}", processingSize, e);
         }
@@ -197,20 +197,24 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void runComplete() {
+
         List<JEVisObject> enabledCleanDataObjects = new ArrayList<>();
         try {
             enabledCleanDataObjects = getAllCleaningObjects();
         } catch (Exception e) {
             logger.error("Could not get enabled clean data objects. " + e);
         }
-        enabledCleanDataObjects.forEach(jeVisObject -> {
-            try {
-                ProcessManager currentProcess = new ProcessManager(jeVisObject, new ObjectHandler(ds), getProcessingSizeFromService(APP_SERVICE_CLASS_NAME));
-                currentProcess.start();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        for (JEVisObject jeVisObject : enabledCleanDataObjects) {
+            if (jeVisObject.getID() > 19700)
+                try {
+                    ProcessManager currentProcess = new ProcessManager(jeVisObject, new ObjectHandler(ds), getProcessingSizeFromService(APP_SERVICE_CLASS_NAME));
+                    currentProcess.start();
+                } catch (Exception e) {
+                    logger.error("Error in process of object {}", jeVisObject.getID(), e);
+                }
+        }
+
+        runComplete();
     }
 
     private List<JEVisObject> getAllCleaningObjects() throws Exception {
@@ -232,7 +236,7 @@ public class Launcher extends AbstractCliApp {
                 if (isEnabled(jeVisObject)) {
                     filteredObjects.add(jeVisObject);
                     if (!plannedJobs.containsKey(jeVisObject.getID())) {
-                        plannedJobs.put(jeVisObject.getID(), "true");
+                        plannedJobs.put(jeVisObject.getID(), new DateTime());
                     }
                 }
             });
@@ -240,7 +244,7 @@ public class Launcher extends AbstractCliApp {
                 if (isEnabled(object)) {
                     filteredObjects.add(object);
                     if (!plannedJobs.containsKey(object.getID())) {
-                        plannedJobs.put(object.getID(), "true");
+                        plannedJobs.put(object.getID(), new DateTime());
                     }
                 }
             });
@@ -251,18 +255,5 @@ public class Launcher extends AbstractCliApp {
         }
         logger.info("{} cleaning objects found", cleanDataObjects.size());
         return filteredObjects;
-    }
-
-    private boolean isEnabled(JEVisObject jeVisObject) {
-        JEVisAttribute enabledAtt = null;
-        try {
-            enabledAtt = jeVisObject.getAttribute("Enabled");
-            if (enabledAtt != null && enabledAtt.hasSample()) {
-                return enabledAtt.getLatestSample().getValueAsBoolean();
-            }
-        } catch (Exception e) {
-            logger.error("Could not get enabled status of {} with id {}", jeVisObject.getName(), jeVisObject.getID(), e);
-        }
-        return false;
     }
 }

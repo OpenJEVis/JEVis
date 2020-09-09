@@ -35,6 +35,8 @@ public interface Chart {
 
     Period getPeriod();
 
+    void setPeriod(Period period);
+
     void setRegion(Region region);
 
     List<ChartDataRow> getChartDataRows();

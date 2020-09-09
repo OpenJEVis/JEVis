@@ -1,0 +1,36 @@
+{
+  "jevisclass": "Base Data",
+  "names": {
+    "de": "Stammdaten",
+    "ru": "базовые данные",
+    "uk": "базові дані",
+    "th": "ข้อมูลพื้นฐาน",
+    "en": "Base Data"
+  },
+  "descriptions": {
+    "de": "In Stammdaten werden numerische Datenreihen gespeichert.",
+    "ru": "Ряды числовых данных хранятся в основных данных.",
+    "uk": "Числові ряди даних зберігаються в основних даних.",
+    "th": "ชุดข้อมูลตัวเลขจะถูกเก็บไว้ในข้อมูลหลัก",
+    "en": "Storage of numerical data."
+  },
+  "types": [
+    {
+      "type": "Value",
+      "descriptions": {
+        "de": "Wert der Datenreihe",
+        "ru": "Значение ряда данных",
+        "uk": "Значення ряду даних",
+        "th": "ค่าของชุดข้อมูล",
+        "en": "Value of the data series"
+      },
+      "names": {
+        "de": "Wert",
+        "ru": "ценность",
+        "uk": "Значення",
+        "th": "ความคุ้มค่า",
+        "en": "Value"
+      }
+    }
+  ]
+}

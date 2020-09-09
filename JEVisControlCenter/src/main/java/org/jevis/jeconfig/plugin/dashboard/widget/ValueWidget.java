@@ -62,6 +62,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
     public ValueWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
         setId(WIDGET_ID);
+        this.label.setStyle("-fx-alignment: CENTER-RIGHT;");
     }
 
     public ValueWidget(DashboardControl control) {

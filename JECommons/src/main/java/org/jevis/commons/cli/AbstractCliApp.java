@@ -26,15 +26,20 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
+import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datasource.DataSourceLoader;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.task.LogTaskManager;
+import org.jevis.commons.task.Task;
+import org.jevis.commons.task.TaskPrinter;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.FutureTask;
 
 /**
  * @author Artur Iablokov
@@ -47,6 +52,7 @@ public abstract class AbstractCliApp {
     private static final String DS = "datasource";
     private static final String JEVUSER = "jevisuser";
     private static final String JEVPW = "jevispass";
+    protected final ConcurrentHashMap<Long, DateTime> runningJobs = new ConcurrentHashMap<>();
 
     private final Map<String, JEVisOption> optMap;
     private boolean active = false;
@@ -55,11 +61,10 @@ public abstract class AbstractCliApp {
     protected BasicSettings settings = new BasicSettings();
     protected String[] args;
     protected ExecutorService executor;
-    protected ForkJoinPool forkJoinPool;
     protected int cycleTime = 900000;
-
-    protected ConcurrentHashMap<Long, String> runningJobs = new ConcurrentHashMap();
-    protected ConcurrentHashMap<Long, String> plannedJobs = new ConcurrentHashMap();
+    protected final ConcurrentHashMap<Long, DateTime> plannedJobs = new ConcurrentHashMap<>();
+    protected final ConcurrentHashMap<Long, FutureTask<?>> runnables = new ConcurrentHashMap<>();
+    protected String APP_SERVICE_CLASS_NAME;
     private int threadCount = 4;
     private String emergency_config;
 
@@ -131,32 +136,51 @@ public abstract class AbstractCliApp {
         }
     }
 
-    protected boolean checkConnection() throws JEVisException {
-        while (!ds.isConnectionAlive()) {
-            DataSourceLoader dsl = new DataSourceLoader();
+    protected boolean checkConnection() {
 
-            try {
-                ds = dsl.getDataSource(optMap.get(DS));
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                logger.fatal("JEVisDataSource not created. Сheck the configuration file data.", ex);
-            }
+        connect(0);
 
-            ds.setConfiguration(new ArrayList<>(optMap.values()));
+        return active;
+    }
 
+    private boolean connect(int counter) {
+
+        if (counter < 12) {
             try {
                 active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
-                return true;
-            } catch (Exception ex) {
-                logger.fatal("Could not connect! Check login and password.", ex);
-            }
-
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
+            } catch (JEVisException e) {
                 e.printStackTrace();
             }
+
+            if (!active) {
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                counter++;
+                connect(counter);
+            }
         }
-        return false;
+
+        return active;
+    }
+
+    protected void sleep() {
+        try {
+            logger.info("Entering sleep mode for " + cycleTime + " ms.");
+            Thread.sleep(cycleTime);
+
+            try {
+                TaskPrinter.printJobStatus(LogTaskManager.getInstance());
+            } catch (Exception e) {
+                logger.error("Could not print task list", e);
+            }
+
+            runServiceHelp();
+        } catch (InterruptedException e) {
+            logger.error("Interrupted sleep: ", e);
+        }
     }
 
     /**
@@ -189,7 +213,7 @@ public abstract class AbstractCliApp {
             ds.setConfiguration(new ArrayList<>(optMap.values()));
 
             try {
-                active = ds.connect(optMap.get(JEVUSER).getValue(), optMap.get(JEVPW).getValue());
+                connect(0);
             } catch (Exception ex) {
                 logger.fatal("Could not connect! Check login and password.", ex);
             }
@@ -262,6 +286,14 @@ public abstract class AbstractCliApp {
         }
     }
 
+    protected void checkLastJob() {
+        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+            logger.info("Last job. Clearing cache.");
+            setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
+            ds.clearCache();
+        }
+    }
+
     /**
      * used for override in extended apps for service mode
      */
@@ -289,7 +321,6 @@ public abstract class AbstractCliApp {
             logger.error("Couldn't get Service thread count from the JEVis System");
         }
         executor = Executors.newFixedThreadPool(threadCount);
-        forkJoinPool = new ForkJoinPool(threadCount);
     }
 
     /**
@@ -346,6 +377,47 @@ public abstract class AbstractCliApp {
         }
     }
 
+    protected void removeJob(JEVisObject object) {
+        runningJobs.remove(object.getID());
+        plannedJobs.remove(object.getID());
+        runnables.remove(object.getID());
+    }
+
+    protected void checkForTimeout() {
+        if (!runningJobs.isEmpty()) {
+            SampleHandler sampleHandler = new SampleHandler();
+            for (Map.Entry<Long, DateTime> entry : runningJobs.entrySet()) {
+                try {
+                    Interval interval = new Interval(entry.getValue(), new DateTime());
+                    JEVisObject object = ds.getObject(entry.getKey());
+
+                    Long maxTime = sampleHandler.getLastSample(object, "Max thread time", 900000L);
+                    if (interval.toDurationMillis() > maxTime) {
+                        logger.warn("Task for {} is out of time, trying to cancel", entry.getKey());
+                        runnables.get(entry.getKey()).cancel(true);
+                        runningJobs.remove(entry.getKey());
+                        plannedJobs.remove(entry.getKey());
+                        LogTaskManager.getInstance().getTask(entry.getKey()).setStatus(Task.Status.FAILED);
+                    }
+                } catch (Exception e) {
+                    logger.error("Could not stop object with id {}", entry.getKey(), e);
+                }
+            }
+        }
+    }
+
+    protected boolean isEnabled(JEVisObject jeVisObject) {
+        JEVisAttribute enabledAtt = null;
+        try {
+            enabledAtt = jeVisObject.getAttribute("Enabled");
+            if (enabledAtt != null && enabledAtt.hasSample()) {
+                return enabledAtt.getLatestSample().getValueAsBoolean();
+            }
+        } catch (Exception e) {
+            logger.error("Could not get enabled status of {} with id {}", jeVisObject.getName(), jeVisObject.getID(), e);
+        }
+        return false;
+    }
 
     public class Command {
 

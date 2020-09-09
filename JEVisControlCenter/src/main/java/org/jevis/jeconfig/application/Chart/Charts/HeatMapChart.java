@@ -47,9 +47,9 @@ public class HeatMapChart implements Chart {
     private final Integer chartId;
     private final WorkDays workDays;
     private final ColorMapping colorMapping;
-    private List<ChartDataRow> chartDataRows;
-    private String chartTitle;
-    private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
+    private final List<ChartDataRow> chartDataRows;
+    private final String chartTitle;
+    private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Long ROWS;
     private Long COLS;
 
@@ -58,11 +58,12 @@ public class HeatMapChart implements Chart {
     private String Y_FORMAT;
     private String Y2_FORMAT;
     private double maxValue;
-    private Map<MatrixXY, Double> matrixData = new HashMap<>();
+    private final Map<MatrixXY, Double> matrixData = new HashMap<>();
     private String unit;
-    private org.jevis.jeconfig.application.Chart.ChartType chartType = org.jevis.jeconfig.application.Chart.ChartType.HEAT_MAP;
+    private final org.jevis.jeconfig.application.Chart.ChartType chartType = org.jevis.jeconfig.application.Chart.ChartType.HEAT_MAP;
     private List<DateTime> xAxisList;
     private List<DateTime> yAxisList;
+    private Period period;
 
     public HeatMapChart(List<ChartDataRow> chartDataRows, ChartSetting chartSetting) {
         this.chartDataRows = chartDataRows;
@@ -391,6 +392,11 @@ public class HeatMapChart implements Chart {
     @Override
     public Period getPeriod() {
         return null;
+    }
+
+    @Override
+    public void setPeriod(Period period) {
+        this.period = period;
     }
 
     private HeatMapXY getHeatMapXY(Period period, Period inputSampleRate) {
