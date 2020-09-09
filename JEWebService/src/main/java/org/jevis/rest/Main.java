@@ -24,7 +24,7 @@ import java.sql.SQLException;
  * Main class.
  */
 public class Main {
-    public static final String VERSION = "JEWebService Version 1.9.0 2019-11-12";
+    public static final String VERSION = "JEWebService Version 1.9.2 2020-09-09";
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     /**
@@ -119,6 +119,7 @@ public class Main {
             throw new RuntimeException(e);
         }
         try {
+            logger.info("{} is now running",VERSION);
             logger.info("Press CTRL^C to exit..");
             Thread.currentThread().join();
         } catch (Exception e) {
