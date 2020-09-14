@@ -65,115 +65,9 @@ public class ResourceSample {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * Get the samples from an object/Attribute
-     *
-     * @param httpHeaders
-     * @param id
-     * @param attribute
-     * @param start
-     * @param end
-     * @param onlyLatest
-     * @return
-     */
-    @GET
-    @Logged
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getSamples(
-            @Context HttpHeaders httpHeaders,
-            @Context Request request,
-            @Context UriInfo url,
-            @PathParam("id") long id,
-            @PathParam("attribute") String attribute,
-            @QueryParam("from") String start,
-            @QueryParam("until") String end,
-            @DefaultValue("false") @QueryParam("cwd") boolean customWorkDay,
-            @DefaultValue("") @QueryParam("ap") String aggregationPeriod,
-            @DefaultValue("") @QueryParam("mm") String manipulationMode,
-            @DefaultValue("1000000") @QueryParam("limit") long limit,
-            @DefaultValue("false") @QueryParam("onlyLatest") boolean onlyLatest
-    ) {
-
-        try {
-            ds = new SQLDataSource(httpHeaders, request, url);
-
-            JsonObject obj = ds.getObject(id);
-            if (obj == null) {
-                return Response.status(Status.NOT_FOUND)
-                        .entity("Object is not accessible").build();
-            }
-
-            if (obj.getJevisClass().equals("User") && obj.getId() == ds.getCurrentUser().getUserID()) {
-                if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
-                    throw new JEVisException("permission denied", 3022);
-                }
-            } else {
-                ds.getUserManager().canRead(obj);
-            }
-
-            logger.trace("got Object: {}", obj);
-
-            List<JsonAttribute> attributes = ds.getAttributes(id);
-            for (JsonAttribute att : attributes) {
-                if (att.getType().equals(attribute)) {
-                    DateTime startDate = null;
-                    DateTime endDate = null;
-                    if (start != null) {
-                        startDate = fmt.parseDateTime(start);
-                        if (startDate.getYear() < 1980) {
-                            Response.ok(new ArrayList<JsonSample>()).build();
-                        }
-                    }
-                    if (end != null) {
-                        endDate = fmt.parseDateTime(end);
-                        if (endDate.getYear() < 1980) {
-                            Response.ok(new ArrayList<JsonSample>()).build();
-                        }
-                    }
-
-                    if (onlyLatest) {
-                        logger.trace("Last sample mode");
-
-                        JsonSample sample = ds.getLastSample(id, attribute);
-                        if (sample != null) {
-                            return Response.ok(sample).build();
-                        } else {
-                            return Response.status(Status.NOT_FOUND).entity("Has no samples").build();
-                        }
-
-                    }
-
-                    if (!aggregationPeriod.equals("") && !manipulationMode.equals("")) {
-                        AggregationPeriod ap = AggregationPeriod.parseAggregation(aggregationPeriod);
-                        ManipulationMode mm = ManipulationMode.parseManipulation(manipulationMode);
-                        JsonSampleGenerator sg = new JsonSampleGenerator(ds, obj, att, startDate, endDate, customWorkDay, mm, ap);
-                        try {
-                            list = sg.getAggregatedSamples();
-                        } catch (Exception e) {
-                            logger.error(e);
-                        }
-                    } else {
-                        list = ds.getSamples(id, attribute, startDate, endDate, limit);
-                    }
-
-                    return Response.ok(list).build();
-
-                }
-            }
-            return Response.status(Status.NOT_FOUND)
-                    .entity("No such Attribute").build();
-
-        } catch (AuthenticationException ex) {
-            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
-        } catch (Exception jex) {
-            logger.error("Error while fetching sample: {}-{} {}->{}", id, attribute, start, end);
-            logger.error(jex);
-            //jex.printStackTrace();
-            return Response.serverError().entity(jex).build();
-        } finally {
-            Config.CloseDS(ds);
-        }
-
-    }
+     * List of classes which can be updated with the execute permission
+     **/
+    public final List<String> executeUpdateExceptions = Lists.newArrayList("Data Notes", "User Data", "Clean Data");
 
 
     //JEWebService/v1/files/8598/attributes/File/samples/files/20180604T141441?filename=nb-configuration.xml
@@ -344,9 +238,114 @@ public class ResourceSample {
 
     }
 
+    /**
+     * Get the samples from an object/Attribute
+     *
+     * @param httpHeaders
+     * @param id
+     * @param attribute
+     * @param start
+     * @param end
+     * @param onlyLatest
+     * @return
+     */
+    @GET
+    @Logged
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSamples(
+            @Context HttpHeaders httpHeaders,
+            @Context Request request,
+            @Context UriInfo url,
+            @PathParam("id") long id,
+            @PathParam("attribute") String attribute,
+            @QueryParam("from") String start,
+            @QueryParam("until") String end,
+            @DefaultValue("false") @QueryParam("cwd") boolean customWorkDay,
+            @DefaultValue("") @QueryParam("ap") String aggregationPeriod,
+            @DefaultValue("") @QueryParam("mm") String manipulationMode,
+            @DefaultValue("1000000") @QueryParam("limit") long limit,
+            @DefaultValue("false") @QueryParam("onlyLatest") boolean onlyLatest
+    ) {
 
-    /** List of classes which can be updated with the execute permission **/
-    public final List<String> executeUpdateExceptions = Lists.newArrayList(new String[]{"Data Notes","User Data","Clean Data"});
+        try {
+            ds = new SQLDataSource(httpHeaders, request, url);
+
+            JsonObject obj = ds.getObject(id);
+            if (obj == null) {
+                return Response.status(Status.NOT_FOUND)
+                        .entity("Object is not accessible").build();
+            }
+
+            if (obj.getJevisClass().equals("User") && obj.getId() == ds.getCurrentUser().getUserID()) {
+                if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
+                    throw new JEVisException("permission denied", 3022);
+                }
+            } else {
+                ds.getUserManager().canRead(obj);
+            }
+
+            logger.trace("got Object: {}", obj);
+
+            List<JsonAttribute> attributes = ds.getAttributes(id);
+            for (JsonAttribute att : attributes) {
+                if (att.getType().equals(attribute)) {
+                    DateTime startDate = null;
+                    DateTime endDate = null;
+                    if (start != null) {
+                        startDate = fmt.parseDateTime(start);
+                        if (startDate.getYear() < 1980) {
+                            Response.ok(new ArrayList<JsonSample>()).build();
+                        }
+                    }
+                    if (end != null) {
+                        endDate = fmt.parseDateTime(end);
+                        if (endDate.getYear() < 1980) {
+                            Response.ok(new ArrayList<JsonSample>()).build();
+                        }
+                    }
+
+                    if (onlyLatest) {
+                        logger.trace("Last sample mode");
+
+                        JsonSample sample = ds.getLastSample(id, attribute);
+                        if (sample != null) {
+                            return Response.ok(sample).build();
+                        } else {
+                            return Response.status(Status.NOT_FOUND).entity("Has no samples").build();
+                        }
+
+                    }
+
+                    if (!aggregationPeriod.equals("") && !manipulationMode.equals("")) {
+                        AggregationPeriod ap = AggregationPeriod.parseAggregation(aggregationPeriod);
+                        ManipulationMode mm = ManipulationMode.parseManipulation(manipulationMode);
+                        JsonSampleGenerator sg = new JsonSampleGenerator(ds, obj, att, startDate, endDate, customWorkDay, mm, ap);
+
+                        list = sg.getAggregatedSamples();
+
+                    } else {
+                        list = ds.getSamples(id, attribute, startDate, endDate, limit);
+                    }
+
+                    return Response.ok(list).build();
+
+                }
+            }
+            return Response.status(Status.NOT_FOUND)
+                    .entity("No such Attribute").build();
+
+        } catch (AuthenticationException ex) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+        } catch (Exception jex) {
+            logger.error("Error while fetching sample: {}-{} {}->{}", id, attribute, start, end);
+            logger.error(jex);
+            //jex.printStackTrace();
+            return Response.serverError().entity(jex).build();
+        } finally {
+            Config.CloseDS(ds);
+        }
+
+    }
 
     @POST
     @Logged
@@ -362,7 +361,7 @@ public class ResourceSample {
         if (input != null && input.length() > 0) {
             try {
                 ds = new SQLDataSource(httpHeaders, request, url);
-                logger.error("Post: {}-{}  input: {}",id,attribute,input);
+                logger.error("Post: {}-{}  input: {}", id, attribute, input);
                 JsonObject object = ds.getObject(id);
                 boolean canExecute = false;
                 boolean canWrite = false;
@@ -384,11 +383,11 @@ public class ResourceSample {
                      * hotfix implementation to allow users to update notes if they have execute permission but not write
                      */
                     canWrite = ds.getUserManager().canWriteWOE(object);
-                    logger.debug("canWrite {}",canWrite);
-                    if(!canWrite){
-                        if(ds.getUserManager().canExecuteWOE(object) && executeUpdateExceptions.contains(object.getJevisClass())){
-                            canExecute=true;
-                            logger.debug("canExecute {}",canExecute);
+                    logger.debug("canWrite {}", canWrite);
+                    if (!canWrite) {
+                        if (ds.getUserManager().canExecuteWOE(object) && executeUpdateExceptions.contains(object.getJevisClass())) {
+                            canExecute = true;
+                            logger.debug("canExecute {}", canExecute);
                         }
 
                     }
@@ -397,7 +396,6 @@ public class ResourceSample {
                         throw new JEVisException("permission denied", 3021);
                     }
                 }
-
 
 
                 List<JsonAttribute> attributes = ds.getAttributes(id);
@@ -410,28 +408,28 @@ public class ResourceSample {
                         // If user can write -> OK
                         // If user can execute and only Note changed -> OK
                         int result = 0;
-                        if(canWrite){
+                        if (canWrite) {
                             logger.debug("canWrite import");
                             result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
-                        }else if(canExecute){
+                        } else if (canExecute) {
                             /** update notes but not samples **/
-                            logger.debug("canExecute Sample: {}-{} for: {}",id,att,ds.getCurrentUser().getAccountName());
-                            for(JsonSample jsonSample:samples){
-                                logger.debug("jsonSample: {}",jsonSample);
+                            logger.debug("canExecute Sample: {}-{} for: {}", id, att, ds.getCurrentUser().getAccountName());
+                            for (JsonSample jsonSample : samples) {
+                                logger.debug("jsonSample: {}", jsonSample);
                                 List<JsonSample> sampleList = new ArrayList<>();
                                 try {
                                     List<JsonSample> onDB = ds.getSampleTable().getSamples(id, attribute, JsonFactory.sampleDTF.parseDateTime(jsonSample.getTs()), JsonFactory.sampleDTF.parseDateTime(jsonSample.getTs()), 1);
-                                    for(JsonSample dbSample:onDB){
-                                        if(dbSample.getValue().equals(jsonSample.getValue())){
+                                    for (JsonSample dbSample : onDB) {
+                                        if (dbSample.getValue().equals(jsonSample.getValue())) {
                                             sampleList.add(jsonSample);
-                                            logger.debug("dbSample: {}",dbSample);
+                                            logger.debug("dbSample: {}", dbSample);
                                         }
                                     }
 
-                                }catch (JEVisException jex){
+                                } catch (JEVisException jex) {
                                     logger.error(jex);
                                 }
-                                logger.debug("Add Notes: {}",sampleList);
+                                logger.debug("Add Notes: {}", sampleList);
                                 result += ds.setSamples(id, attribute, type.getPrimitiveType(), sampleList);
                             }
                         }

@@ -369,7 +369,13 @@ public abstract class AbstractCliApp {
             JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
             List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
             JEVisAttribute statusAttribute = listServices.get(0).getAttribute("Status");
-            logger.info("Set status of" + serviceClassName + " " + status);
+
+            if (status == 1L) {
+                logger.info("Clearing old stati of {}", serviceClassName);
+                statusAttribute.deleteSamplesBetween(new DateTime(0), new DateTime().minusDays(30));
+            }
+
+            logger.info("Set status of {} to {}", serviceClassName, status);
             JEVisSample newStatus = statusAttribute.buildSample(DateTime.now(), status);
             newStatus.commit();
         } catch (Exception e) {
