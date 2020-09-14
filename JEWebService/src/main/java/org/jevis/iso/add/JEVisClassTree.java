@@ -3,7 +3,7 @@ package org.jevis.iso.add;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonClassRelationship;
 import org.jevis.commons.ws.json.JsonJEVisClass;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +18,9 @@ public class JEVisClassTree {
 
     private final String closeElement = "</li>";
     private String _bauth = "";
-    private SQLDataSource _ds;
+    private final SQLDataSource _ds;
     private Long id = 0L;
-    private JsonJEVisClass parent;
+    private final JsonJEVisClass parent;
     private String output = "";
     private List<JsonJEVisClass> list = new ArrayList<>();
 

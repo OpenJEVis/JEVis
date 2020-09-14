@@ -18,7 +18,7 @@
  * JEWebService is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.ws.sql.tables;
+package org.jevis.commons.ws.sql.tables;
 
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.logging.log4j.LogManager;
@@ -27,12 +27,11 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisFile;
 import org.jevis.commons.JEVisFileImp;
-import org.jevis.commons.utils.Benchmark;
 import org.jevis.commons.ws.json.JsonFactory;
 import org.jevis.commons.ws.json.JsonSample;
-import org.jevis.ws.sql.PasswordHash;
-import org.jevis.ws.sql.SQLDataSource;
-import org.jevis.ws.sql.SQLtoJsonFactory;
+import org.jevis.commons.ws.sql.PasswordHash;
+import org.jevis.commons.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLtoJsonFactory;
 import org.joda.time.DateTime;
 
 import java.io.ByteArrayInputStream;
@@ -60,7 +59,7 @@ public class SampleTable {
     public final static String COLUMN_FILE = "file";
     public final static String COLUMN_FILE_NAME = "filename";
     private static final Logger logger = LogManager.getLogger(SampleTable.class);
-    private SQLDataSource _connection;
+    private final SQLDataSource _connection;
 
     public SampleTable(SQLDataSource ds) {
         _connection = ds;

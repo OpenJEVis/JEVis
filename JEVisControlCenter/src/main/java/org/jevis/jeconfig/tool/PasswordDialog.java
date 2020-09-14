@@ -183,7 +183,7 @@ public class PasswordDialog {
 
         newPass.requestFocus();
         stage.showAndWait();
-        logger.info("return " + response);
+        logger.info("return {}", response);
 
         return response;
     }

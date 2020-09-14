@@ -22,7 +22,7 @@ package org.jevis.iso.add;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonSample;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 /**
  * @author fs & <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -32,7 +32,7 @@ public class TargetHelper {
     private final static String SEPERATOR = ":";
     private JsonObject targetObject;
     private JsonAttribute targetAttribute;
-    private SQLDataSource ds;
+    private final SQLDataSource ds;
     private String sourceValue = "";
     private boolean isAttribute = false;
     private boolean isObject = false;
@@ -107,7 +107,7 @@ public class TargetHelper {
                 }
 
                 if ((seperator + 1) < sourceValue.length()) {
-                    targetAttibute = sourceValue.substring(seperator + 1, sourceValue.length());
+                    targetAttibute = sourceValue.substring(seperator + 1);
                 } else {
                     isValid = false;
                 }

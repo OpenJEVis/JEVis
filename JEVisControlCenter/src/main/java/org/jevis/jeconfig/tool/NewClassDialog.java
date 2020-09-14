@@ -225,7 +225,7 @@ public class NewClassDialog {
 //            response = Response.YES;
 //        }
 
-        logger.info("return " + response);
+        logger.info("return {}", response);
 
         return response;
     }

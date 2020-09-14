@@ -57,7 +57,7 @@ public class Config {
     private int smtpPort;
     private String smtpSignatur;
     private boolean smtpStartTLS;
-    private List<Alarm> alarms = new ArrayList<>();
+    private final List<Alarm> alarms = new ArrayList<>();
 
     /**
      * Create an new Configuration out of an xml file
@@ -118,7 +118,7 @@ public class Config {
 //                logger.info("recipient: " + configFile.getStringArray("alarm(" + i + ").recipient").length);
                     alarms.add(alarm);
                 } catch (Exception ex) {
-                    logger.info("Configiration error: " + ex);
+                    logger.info("Configuration error: ", ex);
                 }
                 i++;
             }

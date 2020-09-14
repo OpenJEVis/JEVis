@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.joda.time.DateTime;
@@ -147,14 +146,7 @@ public class CalcInputObject {
         switch (inputType) {
             case ASYNC:
             case PERIODIC:
-                try {
-
-                    SampleGenerator sampleGenerator = new SampleGenerator(valueAttribute.getDataSource(), valueAttribute.getObject(), valueAttribute, startTime, endTime, ManipulationMode.NONE, aggregationPeriod);
-
-                    returnSamples = sampleGenerator.getAggregatedSamples();
-                } catch (JEVisException e) {
-                    logger.error("Could not generate samples: " + e);
-                }
+                returnSamples = valueAttribute.getSamples(startTime, endTime, true, aggregationPeriod.toString(), ManipulationMode.NONE.toString());
                 break;
             case STATIC:
                 JEVisSample constant = valueAttribute.getLatestSample();
@@ -184,10 +176,8 @@ public class CalcInputObject {
             case ASYNC:
             case PERIODIC:
                 try {
-
-                    SampleGenerator sampleGenerator = new SampleGenerator(valueAttribute.getDataSource(), valueAttribute.getObject(), valueAttribute, startTime, endTime, ManipulationMode.NONE, AggregationPeriod.NONE);
                     QuantityUnits qu = new QuantityUnits();
-                    List<JEVisSample> tempList = sampleGenerator.getAggregatedSamples();
+                    List<JEVisSample> tempList = valueAttribute.getSamples(startTime, endTime, true, AggregationPeriod.NONE.toString(), ManipulationMode.NONE.toString());
 
                     if (!tempList.isEmpty()) {
                         boolean isQuantity = qu.isQuantityUnit(valueAttribute.getDisplayUnit());
@@ -205,7 +195,7 @@ public class CalcInputObject {
                         returnSamples.add(virtualSample);
                     }
                 } catch (JEVisException e) {
-                    logger.error("Could not generate samples: " + e);
+                    logger.error("Could not generate samples: ", e);
                 }
                 break;
             case STATIC:

@@ -191,7 +191,7 @@ public class JEVisHTTPDataSource implements DataSource {
 
             List<Long> counterCheckForErrorInAPI = new ArrayList<>();
             List<JEVisObject> channels = channelDir.getChildren(channelClass, false);
-            logger.info("Found " + channels.size() + " channel objects in " + channelDir.getName() + ":" + channelDir.getID());
+            logger.info("Found {} channel objects in {}:{}", channels.size(), channelDir.getName(), channelDir.getID());
 
             channels.forEach(channelObject -> {
                 if (!counterCheckForErrorInAPI.contains(channelObject.getID())) {
@@ -200,7 +200,7 @@ public class JEVisHTTPDataSource implements DataSource {
                 }
             });
 
-            logger.info(channelDir.getName() + ":" + channelDir.getID() + " has " + _channels.size() + " channels.");
+            logger.info("{}:{} has {} channels.", channelDir.getName(), channelDir.getID(), _channels.size());
         } catch (Exception ex) {
             logger.error(ex);
         }

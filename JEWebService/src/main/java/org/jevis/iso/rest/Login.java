@@ -6,11 +6,11 @@
 package org.jevis.iso.rest;
 
 import org.jevis.api.JEVisDataSource;
+import org.jevis.commons.ws.sql.Config;
 import org.jevis.iso.add.LangHelper;
 import org.jevis.iso.add.TemplateChooser;
 import org.jevis.iso.add.ThemeHelper;
 import org.jevis.iso.add.Translations;
-import org.jevis.rest.Config;
 import sun.misc.Launcher;
 
 import javax.ws.rs.*;
@@ -88,8 +88,8 @@ public class Login {
     ) throws Exception {
         JEVisDataSource ds = null;
         try {
-            String nh = new String();
-            String nh2 = new String();
+            String nh = "";
+            String nh2 = "";
             List<ThemeHelper> listThemes = new ArrayList<>();
             List<LangHelper> listLangs = new ArrayList<>();
 

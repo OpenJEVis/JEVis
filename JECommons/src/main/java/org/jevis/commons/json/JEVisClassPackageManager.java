@@ -47,8 +47,8 @@ import java.util.zip.ZipOutputStream;
 public class JEVisClassPackageManager {
     private static final Logger logger = LogManager.getLogger(JEVisClassPackageManager.class);
 
-    private File file;
-    private JEVisDataSource ds;
+    private final File file;
+    private final JEVisDataSource ds;
 
     public JEVisClassPackageManager(String jcfp, JEVisDataSource ds) {
         logger.info("readFiless");
@@ -70,7 +70,7 @@ public class JEVisClassPackageManager {
                 while ((entry = zis.getNextEntry()) != null) {
 
                     try {
-                        logger.info("File: " + entry.getName());
+                        logger.info("File: {}", entry.getName());
                         if (entry.getName().endsWith(".jcf")) {
 //                            Gson gson = new GsonBuilder().setPrettyPrinting().create();
                             StringBuilder sb = new StringBuilder();
@@ -79,14 +79,14 @@ public class JEVisClassPackageManager {
                             }
                             JsonJEVisClass newJClass = JsonTools.objectMapper().readValue(sb.toString(), JsonJEVisClass.class);
                             classes.put(newJClass.getName(), newJClass);
-                            logger.info("new Class: " + newJClass.getName());
+                            logger.info("new Class: {}", newJClass.getName());
                         } else if (entry.getName().endsWith(".icon")) {
                             logger.info("is icon");
                             Image newImage = ImageIO.read(zis);
                             icons.put(entry.getName(), newImage);
                         }
                     } catch (IOException ex) {
-                        logger.error("exeption while reading file, skip to next: " + ex.getMessage());
+                        logger.error("exeption while reading file, skip to next: ", ex);
                     }
 
                 }
@@ -94,7 +94,7 @@ public class JEVisClassPackageManager {
             checkContent(classes, icons);
 
         } catch (IOException ioe) {
-            logger.fatal("Error creating zip file: " + ioe);
+            logger.fatal("Error creating zip file: ", ioe);
             return false;
         }
         return true;
@@ -152,7 +152,7 @@ public class JEVisClassPackageManager {
                 jclasses.add(dbClass);
 
             } catch (Exception ex) {
-                logger.fatal("Faild to create class: " + ex);
+                logger.fatal("Faild to create class: ", ex);
             }
         }
         return jclasses;
@@ -167,7 +167,7 @@ public class JEVisClassPackageManager {
     public boolean checkContent(Map<String, JsonJEVisClass> classes, Map<String, Image> icons) {
 //        for (JsonJEVisClass jclass : classes) {
         for (Map.Entry<String, JsonJEVisClass> entry : classes.entrySet()) {
-            logger.info("Check class: " + entry.getKey());
+            logger.info("Check class: {}", entry.getKey());
             for (JsonRelationship rel : entry.getValue().getRelationships()) {
 
                 if (classExists(ds, classes, rel.getFrom())) {
@@ -236,7 +236,7 @@ public class JEVisClassPackageManager {
             }
 
         } catch (IOException ioe) {
-            logger.fatal("Error creating zip file: " + ioe);
+            logger.fatal("Error creating zip file: ", ioe);
         }
     }
 

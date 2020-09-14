@@ -156,7 +156,7 @@ public class sFTPDataSource implements DataSource {
         List<String> fileNames = DataSourceHelper.getSFTPMatchedFileNames(_channel, lastReadout, filePath);
 //        String currentFilePath = Paths.get(filePath).getParent().toString();
         for (String fileName : fileNames) {
-            logger.info("FileInputName: " + fileName);
+            logger.info("FileInputName: {}", fileName);
 
 //                ByteArrayOutputStream out = new ByteArrayOutputStream();
 //                String query = Paths.get(fileName);

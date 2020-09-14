@@ -26,10 +26,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
-import org.jevis.commons.ws.json.JsonI18n;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;
@@ -219,7 +219,7 @@ public class ResourceObject {
             @DefaultValue("-999") @QueryParam("copy") long copyObject,
             String object) {
         if (object != null && object.length() > 0) {
-            logger.error("postObject: "+object);
+            logger.error("postObject: {}", object);
             try {
                 this.ds = new SQLDataSource(httpHeaders, request, url);
 
@@ -260,7 +260,7 @@ public class ResourceObject {
                 }
 
             } catch (AuthenticationException ex) {
-                logger.error("AuthenticationException: "+ex);
+                logger.error("AuthenticationException: ", ex);
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
             } catch (JsonParseException jex) {
                 logger.error("Json parse exception. Error while creating/updating object.", jex);

@@ -3,7 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.ws.sql;
+package org.jevis.commons.ws.sql;
+
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
@@ -31,7 +32,7 @@ public class ConnectionFactory {
 //                    + "user=" + dbUser + "&password=" + dbPW;
 
             ds = new BasicDataSource();
-            ds.setDriverClassName("com.mysql.jdbc.Driver");
+            ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
             ds.setUrl(conSring);
             ds.setUsername(dbUser);
             ds.setPassword(dbPW);

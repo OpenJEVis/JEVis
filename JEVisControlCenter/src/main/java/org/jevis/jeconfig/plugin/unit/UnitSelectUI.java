@@ -126,7 +126,7 @@ public class UnitSelectUI {
         changeBaseUnit.setOnAction(event -> {
             SimpleTreeUnitChooser stc = new SimpleTreeUnitChooser();
             if (stc.show(new Point2D(100, 100), ds) == SimpleTreeUnitChooser.Response.YES) {
-                logger.info("Unit selected: " + stc.getUnit().getFormula());
+                logger.info("Unit selected: {}", stc.getUnit().getFormula());
                 jeVisUnit = stc.getUnit();
                 prefixBox.getSelectionModel().select(null);
                 changeBaseUnit.setText(jeVisUnit.getFormula());

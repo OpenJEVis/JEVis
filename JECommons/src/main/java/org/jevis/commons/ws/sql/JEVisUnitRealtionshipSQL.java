@@ -17,7 +17,7 @@
   JEAPI-SQL is part of the OpenJEVis project, further project information are
   published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.ws.sql;
+package org.jevis.commons.ws.sql;
 
 import org.jevis.api.JEVisUnit;
 import org.jevis.api.JEVisUnitRelationship;

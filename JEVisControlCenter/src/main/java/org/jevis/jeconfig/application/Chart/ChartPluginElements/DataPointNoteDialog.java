@@ -552,8 +552,12 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
                     if (!foundNoteObject) {
                         for (JEVisObject parent : listParents) {
-                            correspondingNoteObject = parent.buildObject(obj.getName() + " Notes", dataNoteClass);
-                            correspondingNoteObject.commit();
+                            if (currentUser.canCreate(parent.getID(), dataNoteClass.getName())) {
+                                correspondingNoteObject = parent.buildObject(obj.getName() + " Notes", dataNoteClass);
+                                correspondingNoteObject.commit();
+                            } else {
+                                warningNotAllowed();
+                            }
                         }
                     }
 
@@ -632,11 +636,12 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
                     if (!foundUserDataObject) {
                         for (JEVisObject parent : listParents) {
-                            if (currentUser.canCreate(parent.getID())) {
+                            if (currentUser.canCreate(parent.getID(), userDataClass.getName())) {
                                 correspondingUserDataObject = parent.buildObject(obj.getName() + " User Data", userDataClass);
                                 correspondingUserDataObject.commit();
+                            } else {
+                                warningNotAllowed();
                             }
-
                         }
                     }
 
@@ -698,21 +703,20 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
                         }
                     }
-                    //} else {
-
-                    //}
-
-                } catch (Exception ignored) {
-                    ignored.printStackTrace();
-                    Platform.runLater(() -> {
-                        Alert alert1 = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
-                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
-                        alert1.showAndWait();
-                    });
+                } catch (Exception e) {
+                    warningNotAllowed();
                 }
             }
         }
         return savedValues;
+    }
+
+    private void warningNotAllowed() {
+        Platform.runLater(() -> {
+            Alert alert1 = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+            alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+            alert1.showAndWait();
+        });
     }
 
     private void saveUserEntry(JEVisAttribute att, JEVisSample sample, Double value) {
@@ -751,21 +755,21 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
 
             if (!foundUserDataObject && obj.getJEVisClassName().equals("Clean Data")) {
                 for (JEVisObject parent : listParents) {
-                    if (currentUser.canCreate(parent.getID())) {
+                    if (currentUser.canCreate(parent.getID(), userDataClass.getName())) {
                         correspondingUserDataObject = parent.buildObject(obj.getName() + " User Data", userDataClass);
                         correspondingUserDataObject.commit();
-                    }
+                    } else warningNotAllowed();
 
                 }
             } else if (!foundUserDataObject && obj.getJEVisClassName().equals("Data")) {
-                if (currentUser.canCreate(obj.getID())) {
+                if (currentUser.canCreate(obj.getID(), userDataClass.getName())) {
                     JEVisClass cleanDataClass = obj.getDataSource().getJEVisClass("Clean Data");
                     List<JEVisObject> cleanObjects = obj.getChildren(cleanDataClass, true);
                     if (cleanObjects.size() == 1) {
                         correspondingUserDataObject = obj.buildObject(cleanObjects.get(0).getName() + " User Data", userDataClass);
                         correspondingUserDataObject.commit();
                     }
-                }
+                } else warningNotAllowed();
             }
 
             JEVisClass cleanDataClass = obj.getDataSource().getJEVisClass("Clean Data");
@@ -828,13 +832,8 @@ public class DataPointNoteDialog extends AbstractDataFormattingPlugin {
                 }
             }
 
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
-            Platform.runLater(() -> {
-                Alert alert1 = new Alert(Alert.AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
-                alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
-                alert1.showAndWait();
-            });
+        } catch (Exception e) {
+            warningNotAllowed();
         }
     }
 

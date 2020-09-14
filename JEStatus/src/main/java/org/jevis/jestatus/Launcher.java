@@ -179,7 +179,7 @@ public class Launcher extends AbstractCliApp {
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source last run time: " + e);
+            logger.error("Could not get data source last run time: ", e);
         }
 
         return dateTime;
@@ -196,7 +196,7 @@ public class Launcher extends AbstractCliApp {
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source last run time: " + e);
+            logger.error("Could not get data source last run time: ", e);
         }
     }
 }

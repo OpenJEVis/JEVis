@@ -29,8 +29,8 @@ public class BasicCellFilter implements JEVisTreeFilter {
      * handled like one.
      */
     public static String TREE_ITEM_COLUMN = "TREE_ITEM_COLUMN";
-    private Map<String, List<ObjectAttributeFilter>> filters = new HashMap<>();
-    private List<ObjectAttributeFilter> itemFilters = new ArrayList<>();
+    private final Map<String, List<ObjectAttributeFilter>> filters = new HashMap<>();
+    private final List<ObjectAttributeFilter> itemFilters = new ArrayList<>();
     private String name = "";
 
 
@@ -72,7 +72,7 @@ public class BasicCellFilter implements JEVisTreeFilter {
     }
 
     public void addFilter(TreeTableColumn column, ObjectAttributeFilter filter) {
-        logger.trace("Add new filter column: {} filter: {}" + column.getId(), filter);
+        logger.trace("Add new filter column: {} filter: {}", column.getId(), filter);
         getColumnFilter(column).add(filter);
     }
 
@@ -91,7 +91,7 @@ public class BasicCellFilter implements JEVisTreeFilter {
     @Override
     public boolean showCell(TreeTableColumn column, JEVisTreeRow row) {
         try {
-            logger.trace("showCell?: \n-- '" + column.getId() + "' " + column.getClass() + " --- " + row);
+            logger.trace("showCell?: \n-- '{}' ---{} {}", column.getId(), column.getClass(), row);
             List<ObjectAttributeFilter> fLtst = filters.get(column.getId());
             if (fLtst != null) {
                 for (ObjectAttributeFilter objectAttributeFilter : fLtst) {

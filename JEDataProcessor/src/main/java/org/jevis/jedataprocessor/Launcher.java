@@ -75,14 +75,14 @@ public class Launcher extends AbstractCliApp {
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FAILED);
                         removeJob(currentCleanDataObject);
 
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
 
                         checkLastJob();
                     } finally {
                         LogTaskManager.getInstance().getTask(currentCleanDataObject.getID()).setStatus(Task.Status.FINISHED);
                         removeJob(currentCleanDataObject);
 
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
 
                         checkLastJob();
                     }
@@ -163,7 +163,7 @@ public class Launcher extends AbstractCliApp {
                     try {
                         enabledCleanDataObjects = getAllCleaningObjects();
                     } catch (Exception e) {
-                        logger.error("Could not get cleaning objects. " + e);
+                        logger.error("Could not get cleaning objects. ", e);
                     }
 
                     this.executeProcesses(enabledCleanDataObjects);
@@ -202,7 +202,7 @@ public class Launcher extends AbstractCliApp {
         try {
             enabledCleanDataObjects = getAllCleaningObjects();
         } catch (Exception e) {
-            logger.error("Could not get enabled clean data objects. " + e);
+            logger.error("Could not get enabled clean data objects. ", e);
         }
         for (JEVisObject jeVisObject : enabledCleanDataObjects) {
             if (jeVisObject.getID() > 19700)
@@ -227,10 +227,10 @@ public class Launcher extends AbstractCliApp {
         try {
             cleanDataClass = ds.getJEVisClass(CleanDataObject.CLASS_NAME);
             cleanDataObjects = ds.getObjects(cleanDataClass, false);
-            logger.info("Total amount of Clean Data Objects: " + cleanDataObjects.size());
+            logger.info("Total amount of Clean Data Objects: {}", cleanDataObjects.size());
             forecastDataClass = ds.getJEVisClass(ForecastDataObject.CLASS_NAME);
             forecastDataObjects = ds.getObjects(forecastDataClass, false);
-            logger.info("Total amount of Forecast Data Objects: " + forecastDataObjects.size());
+            logger.info("Total amount of Forecast Data Objects: {}", forecastDataObjects.size());
 
             cleanDataObjects.forEach(jeVisObject -> {
                 if (isEnabled(jeVisObject)) {
@@ -249,7 +249,7 @@ public class Launcher extends AbstractCliApp {
                 }
             });
 
-            logger.info("Amount of enabled Clean Data Objects: " + cleanDataObjects.size());
+            logger.info("Amount of enabled Clean Data Objects: {}", cleanDataObjects.size());
         } catch (JEVisException ex) {
             throw new Exception("Process classes missing", ex);
         }

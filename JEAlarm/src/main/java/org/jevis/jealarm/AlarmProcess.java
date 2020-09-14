@@ -343,7 +343,7 @@ public class AlarmProcess {
                                 }
 
                                 if (compareSample == null) {
-                                    logger.error("Could not find sample to compare with value." + ts);
+                                    logger.error("Could not find sample to compare with value: {}", ts);
                                     continue;
                                 }
                             }

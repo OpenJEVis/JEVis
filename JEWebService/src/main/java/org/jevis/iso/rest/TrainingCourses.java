@@ -5,13 +5,13 @@
  */
 package org.jevis.iso.rest;
 
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.iso.add.TemplateChooser;
 import org.jevis.iso.add.Translations;
 import org.jevis.iso.classes.DocumentsDirectory;
 import org.jevis.iso.classes.ISO50001;
 import org.jevis.iso.classes.TrainingCourse;
-import org.jevis.rest.Config;
-import org.jevis.ws.sql.SQLDataSource;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;

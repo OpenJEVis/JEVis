@@ -83,7 +83,7 @@ public class CalcLauncher extends AbstractCliApp {
 
     private void executeCalcJobs(List<JEVisObject> enabledCalcObject) {
 
-        logger.info("Number of Calc Jobs: " + enabledCalcObject.size());
+        logger.info("Number of Calc Jobs: {}", enabledCalcObject.size());
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         enabledCalcObject.forEach(object -> {
@@ -107,14 +107,14 @@ public class CalcLauncher extends AbstractCliApp {
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
                         removeJob(object);
 
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
 
                         checkLastJob();
                     } finally {
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
                         removeJob(object);
 
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
 
                         checkLastJob();
                     }

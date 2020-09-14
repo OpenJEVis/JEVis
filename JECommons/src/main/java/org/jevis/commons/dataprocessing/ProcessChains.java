@@ -76,7 +76,7 @@ public class ProcessChains {
     }
 
     public static Process BuildProcessChain(JEVisDataSource ds, String functionName, String id, Process parent) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        logger.info("BuildTask(): " + ds + "    " + functionName + "  " + id);
+        logger.info("BuildTask(): {}    {}  {}", ds, functionName, id);
         ProcessFunction newFunction = BuildFunction(functionName);
 
         if (newFunction != null) {
@@ -161,9 +161,9 @@ public class ProcessChains {
     /**
      * Delevlopment helper to create an new compley Example for testing purpose
      *
-     * @deprecated
      * @param ds
      * @return
+     * @deprecated
      */
     public static Process BuildExampleTask(JEVisDataSource ds) {
 
@@ -230,7 +230,6 @@ public class ProcessChains {
      * Returns an list of allavilable funtions.
      *
      * @param ds
-     *
      * @return
      */
     public static List<ProcessFunction> getAvailableFunctions(JEVisDataSource ds) {

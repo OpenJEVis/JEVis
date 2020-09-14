@@ -43,7 +43,7 @@ import java.util.zip.ZipInputStream;
 public class ClassImporter {
     private static final Logger logger = LogManager.getLogger(ClassImporter.class);
 
-    private JEVisDataSource ds;
+    private final JEVisDataSource ds;
     private boolean delete = false;
 
     public ClassImporter(JEVisDataSource ds) {
@@ -126,7 +126,7 @@ public class ClassImporter {
             } catch (JEVisException ex) {
                 faildClasses.add(myclass);
 
-                logger.error("-->[ERROR] Cound not build class: " + myclass.getName(), ex);
+                logger.error("-->[ERROR] Could not build class: {}", myclass.getName(), ex);
 
 //                Logger.getLogger(ClassImporter.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -205,14 +205,14 @@ public class ClassImporter {
         logger.info("\nCreated Relationships");
         for (JEVisClassRelationship crel : newRelasionships) {
             try {
-                logger.info("--> [" + crel.getType() + "]  " + crel.getStart().getName() + "  -->  " + crel.getEnd().getName());
+                logger.info("--> [{}]  {}  -->  {}", crel.getType(), crel.getStart().getName(), crel.getEnd().getName());
             } catch (JEVisException jex) {
-                logger.error("--> [ERROR] Unknow error in the createt relationship: " + jex);
+                logger.error("--> [ERROR] Unknown error in the created relationship: ", jex);
             }
         }
 
         if (!notImportet.isEmpty()) {
-            logger.info("\nRelationships which are not importet:");
+            logger.info("\nRelationships which were not imported:");
             for (JsonRelationship rel : notImportet) {
                 try {
                     logger.info(rel.toString());
@@ -221,13 +221,13 @@ public class ClassImporter {
                     JEVisClass toObject = ds.getJEVisClass(rel.getTo());
 
                     if (fromObject == null) {
-                        logger.error("--> [ERROR] Missing from class relationship: " + rel.getFrom());
+                        logger.error("--> [ERROR] Missing from class relationship: {}", rel.getFrom());
                     }
                     if (toObject == null) {
-                        logger.error("--> [ERROR] Missing to class relationship: " + rel.getTo());
+                        logger.error("--> [ERROR] Missing to class relationship: {}", rel.getTo());
                     }
                 } catch (Exception ex) {
-                    logger.error("--> [ERROR] Unknow error: " + ex);
+                    logger.error("--> [ERROR] Unknown error: ", ex);
                 }
             }
         }
@@ -289,7 +289,7 @@ public class ClassImporter {
             logger.info("Failed Types:");
             for (JsonType fail : faildType) {
                 try {
-                    logger.info("----> " + fail);
+                    logger.info("----> {}", fail);
                 } catch (Exception ex) {
                     logger.error(ex);
                 }
@@ -338,7 +338,7 @@ public class ClassImporter {
 //        logger.info("Commit class");
         dbClass.commit();
 
-        logger.info("\n--> New JEVisClass: " + dbClass.getName());
+        logger.info("\n--> New JEVisClass: {}", dbClass.getName());
 
         buildTypes(dbClass, jclass.getTypes());
 
@@ -346,7 +346,7 @@ public class ClassImporter {
 
     }
 
-    private Comparator<JsonJEVisClass> getComperator(final List<JsonJEVisClass> allClassInImport) {
+    private Comparator<JsonJEVisClass> getComparator(final List<JsonJEVisClass> allClassInImport) {
         return new Comparator<JsonJEVisClass>() {
 
             @Override
@@ -417,7 +417,7 @@ public class ClassImporter {
             if (jsonC.equals(jclass.getInheritance())) {
                 parent = jsonC;
                 parents.add(jsonC);
-                logger.info("Inheretd class is in Import JobList: " + jsonC);
+                logger.info("Inherited class is in Import JobList: {}", jsonC);
                 return getParents(allInImport, jsonC, parents);
             }
         }
@@ -430,7 +430,7 @@ public class ClassImporter {
         }
         if (inDBClass != null) {
             try {
-                logger.info("Class is in DB: " + inDBClass.getName());
+                logger.info("Class is in DB: {}", inDBClass.getName());
             } catch (JEVisException ex) {
                 logger.fatal(ex);
             }

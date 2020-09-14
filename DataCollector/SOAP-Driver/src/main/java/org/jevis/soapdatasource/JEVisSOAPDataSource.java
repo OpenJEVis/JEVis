@@ -44,7 +44,7 @@ public class JEVisSOAPDataSource implements DataSource {
 
     @Override
     public void run() {
-        logger.info("Nr channels: " + _channels.size() + " for datasource: " + _dataSource.getID());
+        logger.info("Nr channels: {} for datasource: {}", _channels.size(), _dataSource.getID());
 
         for (JEVisObject channel : _channels) {
 
@@ -62,7 +62,7 @@ public class JEVisSOAPDataSource implements DataSource {
                         _parser.initialize(parser);
                         this.parse(input);
                     } else {
-                        logger.error("no connection results for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
+                        logger.error("no connection results for channel: {} and datasource: {}", channel.getID(), _dataSource.getID());
                         continue;
                     }
 
@@ -80,10 +80,10 @@ public class JEVisSOAPDataSource implements DataSource {
                                 logger.warn("could not close input stream: {}", ex.getMessage());
                             }
                         }
-                        logger.info("import results: " + _result.size() + " for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
+                        logger.info("import results: {} for channel: {} and datasource: {}", _result.size(), channel.getID(), _dataSource.getID());
 
                     } else {
-                        logger.error("no parsing results for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
+                        logger.error("no parsing results for channel: {} and datasource: {}", channel.getID(), _dataSource.getID());
                     }
                 } catch (
                         MalformedURLException ex) {

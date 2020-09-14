@@ -17,7 +17,7 @@
   JECommons is part of the OpenJEVis project, further project information are
   published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.ws.sql;
+package org.jevis.commons.ws.sql;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,12 +37,12 @@ import java.util.List;
 public class UserRightManagerForWS {
 
     private final JEVisUserNew user;
-    private SQLDataSource ds;
-    private List<Long> readGIDS = new ArrayList<>();
-    private List<Long> createGIDS = new ArrayList<>();
-    private List<Long> deleteGIDS = new ArrayList<>();
-    private List<Long> exeGIDS = new ArrayList<>();
-    private List<Long> writeGIDS = new ArrayList<>();
+    private final SQLDataSource ds;
+    private final List<Long> readGIDS = new ArrayList<>();
+    private final List<Long> createGIDS = new ArrayList<>();
+    private final List<Long> deleteGIDS = new ArrayList<>();
+    private final List<Long> exeGIDS = new ArrayList<>();
+    private final List<Long> writeGIDS = new ArrayList<>();
     private static final Logger logger = LogManager.getLogger(UserRightManagerForWS.class);
 
     public UserRightManagerForWS(SQLDataSource ds) {

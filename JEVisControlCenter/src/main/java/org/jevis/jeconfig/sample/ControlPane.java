@@ -25,7 +25,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
@@ -288,9 +287,7 @@ public class ControlPane extends GridPane {
                             fromDate = fromDate.minusDays(1);
                         }
 
-                        SampleGenerator sg = new SampleGenerator(ControlPane.this.attribute.getDataSource(), attribute.getObject(), attribute, fromDate, untilDate, ManipulationMode.NONE, period);
-
-                        return sg.getAggregatedSamples();
+                        return ControlPane.this.attribute.getSamples(fromDate, untilDate, true, period.toString(), ManipulationMode.NONE.toString());
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }

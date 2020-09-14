@@ -83,7 +83,7 @@ public class AttributeOptionExtension implements SampleEditorExtension {
                     TreeItem<JEVisOption> newItem = new TreeItem<>(newOption);
                     treeItem.getChildren().add(newItem);
                 } catch (Exception ex) {
-                    logger.info("Error while deleting option: " + ex);
+                    logger.info("Error while deleting option: ", ex);
                 }
             }
         });
@@ -102,7 +102,7 @@ public class AttributeOptionExtension implements SampleEditorExtension {
                             treeItem.getParent().getChildren().remove(treeItem);
                         }
                     } catch (Exception ex) {
-                        logger.error("Error while adding option: " + ex);
+                        logger.error("Error while adding option: ", ex);
                     }
 
                 }

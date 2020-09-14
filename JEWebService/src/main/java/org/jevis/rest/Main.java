@@ -12,7 +12,8 @@ import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.EncodingFilter;
 import org.jevis.api.JEVisException;
-import org.jevis.ws.sql.ConnectionFactory;
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.ConnectionFactory;
 
 import javax.security.sasl.AuthenticationException;
 import java.io.File;
@@ -60,11 +61,7 @@ public class Main {
 //
 //            // }
 //        }
-        logger.info("DBHost: " + Config.getDBHost()
-                + "\nDBPort: " + Config.getDBPort()
-                + "\nDBSchema: " + Config.getSchema()
-                + "\nDBUSer: " + Config.getDBUser()
-                + "\nDBPW: " + Config.getDBPW());
+        logger.info("DBHost: {}\nDBPort: {}\nDBSchema: {}\nDBUSer: {}\nDBPW: {}", Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
         ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
 
         Connection dbConn = ConnectionFactory.getInstance().getConnection();

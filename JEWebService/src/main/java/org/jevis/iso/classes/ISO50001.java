@@ -20,8 +20,8 @@
  */
 package org.jevis.iso.classes;
 
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.iso.add.JEVisClasses;
-import org.jevis.ws.sql.SQLDataSource;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>
@@ -29,7 +29,7 @@ import org.jevis.ws.sql.SQLDataSource;
 public class ISO50001 {
     private static JEVisClasses jc;
     private Organisation _Organisation;
-    private SQLDataSource ds;
+    private final SQLDataSource ds;
 
     public ISO50001(SQLDataSource input) throws Exception {
 

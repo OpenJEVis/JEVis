@@ -37,7 +37,7 @@ import java.util.Map;
 public class CSVReport {
 
     private static final Logger logger = LogManager.getLogger(CSVReport.class);
-    private Map<Integer, List<LineError>> errorMap = new HashMap<>();
+    private final Map<Integer, List<LineError>> errorMap = new HashMap<>();
     private int total = 0;
     private int totalOK = 0;
 
@@ -69,7 +69,7 @@ public class CSVReport {
     public void print() {
 //        Level level = Logger.getLogger(this.getClass().getName()).getLevel();
 
-        logger.info(total + " errors total in " + errorMap.size() + " lines");
+        logger.info(total + " errors total in {} lines", errorMap.size());
 
         //all other
 //        if (!level.equals(Level.INFO) && !level.equals(Level.OFF)) {
@@ -80,15 +80,15 @@ public class CSVReport {
             List<LineError> lineErrors = entrySet.getValue();
 
             if (lineErrors != null && !lineErrors.isEmpty()) {
-                logger.debug("[" + key + "] Total errors:  " + lineErrors.size()
-                        + " First error: " + lineErrors.get(0).getMessage() + " Detail:" + lineErrors.get(0).getError().toString());
+                logger.debug("[{}] Total errors:  {} First error: {} Detail:", key, lineErrors.size(),
+                        lineErrors.get(0).getMessage() + "" + lineErrors.get(0).getError().toString());
             }
 
         }
 //        }
 
         //TODO debug level with all errors
-        logger.info(totalOK + " Values are OK");
+        logger.info("{} Values are OK", totalOK);
 
     }
 

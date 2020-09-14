@@ -326,7 +326,7 @@ public class DifferentialStep implements ProcessStep {
                 if (!tempList.contains(newInterval)) tempList.add(newInterval);
             }
         } catch (Exception e) {
-            logger.error("Could not create Interval list from conversion to differential configuration: " + e);
+            logger.error("Could not create Interval list from conversion to differential configuration: ", e);
         }
 
         return tempList;

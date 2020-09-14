@@ -17,7 +17,7 @@
  * JEAPI-SQL is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.ws.sql.tables;
+package org.jevis.commons.ws.sql.tables;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.logging.log4j.LogManager;
@@ -26,8 +26,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.JsonAttribute;
-import org.jevis.ws.sql.SQLDataSource;
-import org.jevis.ws.sql.SQLtoJsonFactory;
+import org.jevis.commons.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLtoJsonFactory;
 import org.joda.time.Period;
 
 import javax.measure.unit.Unit;
@@ -67,10 +67,7 @@ public class AttributeTable {
         logger.trace("getAttributes ");
         List<JsonAttribute> attributes = new ArrayList<>();
 
-        String sql = String.format("select o.type,a.*,s.* " +
-                "FROM attribute a " +
-                "left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts ) " +
-                "left join object o on (o.id=a.object) where a.object=?;");
+        String sql = "select o.type,a.*,s.* FROM attribute a left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts ) left join object o on (o.id=a.object) where a.object=?;";
 
 
         try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
@@ -105,10 +102,7 @@ public class AttributeTable {
         logger.trace("getAllAttributes ");
         List<JsonAttribute> attributes = new ArrayList<>();
 
-        String sql = String.format("select o.type,a.*,s.* " +
-                "FROM attribute a " +
-                "left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts ) " +
-                "left join object o on (o.id=a.object)");
+        String sql = "select o.type,a.*,s.* FROM attribute a left join sample s on(s.object=a.object and s.attribute=a.name and s.timestamp=a.maxts ) left join object o on (o.id=a.object)";
 
         try (PreparedStatement ps = ds.getConnection().prepareStatement(sql)) {
 
@@ -262,9 +256,9 @@ public class AttributeTable {
 
             ps.executeUpdate();
         } catch (SQLException ex) {
-            logger.error(ex);
+            logger.error("SQLException.", ex);
         } catch (JsonProcessingException e) {
-            logger.error(e);
+            logger.error("JsonProcessingException.", e);
         }
 
 
