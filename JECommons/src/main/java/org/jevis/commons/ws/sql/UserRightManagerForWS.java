@@ -19,6 +19,7 @@
  */
 package org.jevis.commons.ws.sql;
 
+import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
@@ -283,6 +284,15 @@ public class UserRightManagerForWS {
         return this.user.isSysAdmin();
     }
 
+
+    public boolean canWriteWOE(JsonObject object) {
+        try {
+            return canWrite(object);
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     public boolean canWrite(JsonObject object) throws JEVisException {
         //Sys Admin can read it all
         if (isSysAdmin()) {
@@ -296,18 +306,30 @@ public class UserRightManagerForWS {
             }
         }
 
-        if(object.getJevisClass().equals("Data Notes") && canRead(object)){
+        /**
+        if (object.getJevisClass().equals("Data Notes") && canRead(object)) {
             logger.error("Can write because special rule");
             return true;
         }
+         **/
 
         //no permission
         throw new JEVisException("permission denied", 3021);
 
     }
 
-    public boolean canCreate(JsonObject object, String jevisclass) throws JEVisException {
-        logger.error("canCreate: {} ,'{}'",object,jevisclass);
+    public boolean canCreateWOE(JsonObject object, String jevisclass) {
+        try {
+            return canCreate(object, jevisclass);
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    public final List<String> exceptionClass = Lists.newArrayList(new String[]{"Data Notes","User Data"});
+
+    public boolean canCreate(JsonObject object, String jevisClass) throws JEVisException {
+        logger.error("canCreate: {} ,'{}'", object, jevisClass);
         //Sys Admin can read it all
         if (isSysAdmin()) {
             return true;
@@ -320,9 +342,8 @@ public class UserRightManagerForWS {
             }
         }
 
-        //Rule exception , to allow all users to create notes if they can see the Data Object
-
-        if(jevisclass.equals("Data Notes") && canRead(object)){
+        /** Rule exception , to allow all users to create notes if they can see the Data Object **/
+        if (exceptionClass.contains(jevisClass) && canExecuteWOE(object)) {
             logger.error("Can create because special rule");
             return true;
         }
@@ -346,6 +367,14 @@ public class UserRightManagerForWS {
 
         //no permission
         throw new JEVisException("permission denied", 3021);
+    }
+
+    public boolean canExecuteWOE(JsonObject object) {
+        try {
+            return canExecute(object);
+        } catch (Exception ex) {
+            return false;
+        }
     }
 
     public boolean canExecute(JsonObject object) throws JEVisException {
