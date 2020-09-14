@@ -34,6 +34,7 @@ import org.jevis.commons.utils.Optimization;
 import org.jevis.commons.utils.PrettyError;
 import org.jevis.commons.ws.json.*;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 import javax.net.ssl.SSLHandshakeException;
 import java.awt.image.BufferedImage;
@@ -81,6 +82,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
+    /** Amount of Samples in one request **/
+    private final int SAMPLE_REQUEST_SIZE=10000;
     private HTTPConnection.Trust sslTrustMode = HTTPConnection.Trust.SYSTEM;
 
     /**
@@ -963,6 +966,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
             resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL + HTTPConnection.FMT.print(until);
         }
+        String prefix ="&";
+        if (!resource.contains("?")){
+            prefix = "?";
+        }
+        resource += prefix+REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.LIMIT+"="+SAMPLE_REQUEST_SIZE;
 
         List<JsonSample> jsons = new ArrayList<>();
         try {
@@ -995,6 +1003,18 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
         }
 
+        if(!samples.isEmpty() && samples.size()==SAMPLE_REQUEST_SIZE){
+            JEVisSample lastInList= samples.get(samples.size()-1);
+            try {
+                List<JEVisSample> nextList = getSamples(att, lastInList.getTimestamp().plus(Duration.standardSeconds(1)), until);
+                logger.debug("Add additonal samples: {}",nextList.size());
+                samples.addAll(nextList);
+            }catch (Exception ex){
+                logger.error(ex);
+            }
+        }
+
+        //logger.error("GetSamples: {} total: {} from/until {}....{}",att,samples.size(),from,until);
         return samples;
     }
 

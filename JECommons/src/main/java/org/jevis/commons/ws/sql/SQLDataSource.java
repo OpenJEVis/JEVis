@@ -109,7 +109,7 @@ public class SQLDataSource {
             return;
         }
         try {
-            logger.error("Event '{}'| {}: {} ", getCurrentUser().getAccountName(), event, msg);
+            logger.debug("Event '{}'| {}: {} ", getCurrentUser().getAccountName(), event, msg);
             JsonSample newSample = new JsonSample();
             newSample.setTs(JsonFactory.sampleDTF.print(DateTime.now()));
             newSample.setValue(String.format("%s|%s|%s", user.getAccountName(), event, msg));

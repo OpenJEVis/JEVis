@@ -5,16 +5,16 @@
   "relationships": [
     {
       "start": "User",
-      "end": "User Directory",
+      "end": "User Role Directory",
       "type": 3
     },
     {
-      "start": "User Directory",
+      "start": "User Role Directory",
       "end": "Administration Directory",
       "type": 3
     },
     {
-      "start": "User Directory",
+      "start": "User Role Directory",
       "end": "Directory",
       "type": 0
     }

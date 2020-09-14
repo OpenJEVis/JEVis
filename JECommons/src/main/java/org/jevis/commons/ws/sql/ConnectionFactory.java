@@ -7,6 +7,7 @@ package org.jevis.commons.ws.sql;
 
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.logging.log4j.LogManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
  */
 public class ConnectionFactory {
 
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(ConnectionFactory.class);
     private static ConnectionFactory instance;
     private BasicDataSource ds;
 
@@ -39,7 +41,8 @@ public class ConnectionFactory {
             ds.setMaxTotal(100);
             ds.setMinIdle(5);
             ds.setMaxIdle(10);
-
+            ds.setTestOnBorrow(true);
+            ds.setTestWhileIdle(true);
 
         }
 
@@ -47,12 +50,52 @@ public class ConnectionFactory {
 
     public Connection getConnection() throws SQLException {
         if (ds != null) {
-            return ds.getConnection();
+
+            try{
+                return ds.getConnection();
+            }catch (SQLException ex){
+                return getConnection(0);
+            }
         } else {
+
+
             throw new SQLException("No database driver registered");
+        }
+    }
+
+    public Connection getConnection(int retry) throws SQLException {
+        logger.error("Retry SQL connection: {}",retry);
+
+        if(retry<5){
+            try
+            {
+                logger.error("Wait 3 seconds");
+                Thread.sleep(3000);
+                try{
+                    logger.error("done wait");
+                    return ds.getConnection();
+
+                }catch (SQLException sqlex){
+                    logger.error("SQL Connection error: {}",sqlex.toString(),sqlex);
+                    return getConnection(++retry);
+                }
+
+            }
+            catch(InterruptedException ex)
+            {
+                Thread.currentThread().interrupt();
+                logger.error(ex);
+                throw new SQLException("Thread Interrupted, No SQL Connection");
+            }
+        }else{
+            logger.error("Max SQL retry reached stopping");
+            throw new SQLException("No SQL Connection");
         }
 
     }
+
+
+
 
     public static ConnectionFactory getInstance() {
         if (ConnectionFactory.instance == null) {

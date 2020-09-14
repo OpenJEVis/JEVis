@@ -229,8 +229,9 @@ public class ResourceObject {
                 }
 
                 JsonObject parentObj = this.ds.getObject(json.getParent());
-                if (parentObj != null && this.ds.getUserManager().canCreate(parentObj,json.getJevisClass())) {
-                    logger.error("can");
+                boolean canCreate = this.ds.getUserManager().canCreateWOE(parentObj,json.getJevisClass());
+
+                if (parentObj != null && canCreate) {
 
                     //restful way of moving and object to an other parent while keeping the IDs?
                     if (copyObject > 0) {
@@ -244,12 +245,12 @@ public class ResourceObject {
                         }
                     } else {
 
-                        String jsonstring=null;
+                        String jsonString=null;
                         if(json.getI18n()!=null && !json.getI18n().isEmpty()){
-                           jsonstring = objectMapper.writeValueAsString(json.getI18n());
+                           jsonString = objectMapper.writeValueAsString(json.getI18n());
                         }
 
-                        JsonObject newObj = this.ds.buildObject(json, parentObj.getId(),jsonstring);
+                        JsonObject newObj = this.ds.buildObject(json, parentObj.getId(),jsonString);
                         ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_OBJECT, String.format("%s:%s", newObj.getId(), newObj.getName()));
                         return Response.ok(newObj).build();
                     }

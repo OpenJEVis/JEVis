@@ -23,6 +23,7 @@ package org.jevis.rest;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
@@ -111,8 +112,8 @@ public class ResourceSample {
 
             logger.trace("got Object: {}", obj);
 
-            List<JsonAttribute> atts = ds.getAttributes(id);
-            for (JsonAttribute att : atts) {
+            List<JsonAttribute> attributes = ds.getAttributes(id);
+            for (JsonAttribute att : attributes) {
                 if (att.getType().equals(attribute)) {
                     DateTime startDate = null;
                     DateTime endDate = null;
@@ -161,11 +162,13 @@ public class ResourceSample {
             return Response.status(Status.NOT_FOUND)
                     .entity("No such Attribute").build();
 
-        } catch (JEVisException jex) {
-            jex.printStackTrace();
-            return Response.serverError().entity(jex).build();
         } catch (AuthenticationException ex) {
             return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
+        } catch (Exception jex) {
+            logger.error("Error while fetching sample: {}-{} {}->{}", id, attribute, start, end);
+            logger.error(jex);
+            //jex.printStackTrace();
+            return Response.serverError().entity(jex).build();
         } finally {
             Config.CloseDS(ds);
         }
@@ -342,6 +345,9 @@ public class ResourceSample {
     }
 
 
+    /** List of classes which can be updated with the execute permission **/
+    public final List<String> executeUpdateExceptions = Lists.newArrayList(new String[]{"Data Notes","User Data","Clean Data"});
+
     @POST
     @Logged
     @Consumes(MediaType.APPLICATION_JSON)
@@ -356,16 +362,11 @@ public class ResourceSample {
         if (input != null && input.length() > 0) {
             try {
                 ds = new SQLDataSource(httpHeaders, request, url);
-
+                logger.error("Post: {}-{}  input: {}",id,attribute,input);
                 JsonObject object = ds.getObject(id);
+                boolean canExecute = false;
+                boolean canWrite = false;
 
-                if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
-                    if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
-                        throw new JEVisException("permission denied", 3022);
-                    }
-                } else {
-                    ds.getUserManager().canWrite(object);//can throw exception
-                }
 
                 if (object.getJevisClass().equals("User") && !ds.getUserManager().isSysAdmin()) {
                     if (attribute.equals("Sys Admin")) {
@@ -373,12 +374,67 @@ public class ResourceSample {
                     }
                 }
 
-                List<JsonAttribute> atts = ds.getAttributes(id);
-                for (JsonAttribute att : atts) {
+                if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
+                    if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
+                        throw new JEVisException("permission denied", 3022);
+                    }
+                } else {
+
+                    /**
+                     * hotfix implementation to allow users to update notes if they have execute permission but not write
+                     */
+                    canWrite = ds.getUserManager().canWriteWOE(object);
+                    logger.debug("canWrite {}",canWrite);
+                    if(!canWrite){
+                        if(ds.getUserManager().canExecuteWOE(object) && executeUpdateExceptions.contains(object.getJevisClass())){
+                            canExecute=true;
+                            logger.debug("canExecute {}",canExecute);
+                        }
+
+                    }
+
+                    if (!canWrite && !canExecute) {
+                        throw new JEVisException("permission denied", 3021);
+                    }
+                }
+
+
+
+                List<JsonAttribute> attributes = ds.getAttributes(id);
+                for (JsonAttribute att : attributes) {
                     if (att.getType().equals(attribute)) {
                         List<JsonSample> samples = new ArrayList<>(Arrays.asList(objectMapper.readValue(input, JsonSample[].class)));
                         JsonType type = JEVisClassHelper.getType(object.getJevisClass(), att.getType());
-                        int result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
+
+
+                        // If user can write -> OK
+                        // If user can execute and only Note changed -> OK
+                        int result = 0;
+                        if(canWrite){
+                            logger.debug("canWrite import");
+                            result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
+                        }else if(canExecute){
+                            /** update notes but not samples **/
+                            logger.debug("canExecute Sample: {}-{} for: {}",id,att,ds.getCurrentUser().getAccountName());
+                            for(JsonSample jsonSample:samples){
+                                logger.debug("jsonSample: {}",jsonSample);
+                                List<JsonSample> sampleList = new ArrayList<>();
+                                try {
+                                    List<JsonSample> onDB = ds.getSampleTable().getSamples(id, attribute, JsonFactory.sampleDTF.parseDateTime(jsonSample.getTs()), JsonFactory.sampleDTF.parseDateTime(jsonSample.getTs()), 1);
+                                    for(JsonSample dbSample:onDB){
+                                        if(dbSample.getValue().equals(jsonSample.getValue())){
+                                            sampleList.add(jsonSample);
+                                            logger.debug("dbSample: {}",dbSample);
+                                        }
+                                    }
+
+                                }catch (JEVisException jex){
+                                    logger.error(jex);
+                                }
+                                logger.debug("Add Notes: {}",sampleList);
+                                result += ds.setSamples(id, attribute, type.getPrimitiveType(), sampleList);
+                            }
+                        }
 
                         ds.logUserAction(SQLDataSource.LOG_EVENT.CREATE_SAMPLE, String.format("%s:%s|%s|%s", id, attribute, result, Samples.getDuration(samples)));
                         samples.clear();

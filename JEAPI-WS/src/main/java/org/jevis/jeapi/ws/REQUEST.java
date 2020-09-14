@@ -66,6 +66,7 @@ public interface REQUEST {
                     String customWorkDay = "cwd=";
                     String aggregationPeriod = "ap=";
                     String manipulationMode = "mm=";
+                    String LIMIT = "limit";
                 }
 
                 interface FILES {
