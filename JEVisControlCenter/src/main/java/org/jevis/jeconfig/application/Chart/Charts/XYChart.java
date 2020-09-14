@@ -542,7 +542,9 @@ public class XYChart implements Chart {
 
         AlphanumComparator ac = new AlphanumComparator();
         Platform.runLater(() -> chart.getRenderers().addAll(rendererAreaY1, rendererLogicalY1, rendererColumnY1, rendererBarY1, rendererScatterY1, rendererLineY1));
-        Platform.runLater(() -> chart.getRenderers().addAll(rendererAreaY2, rendererLogicalY2, rendererColumnY2, rendererBarY2, rendererScatterY2, rendererLineY2));
+        if (hasSecondAxis) {
+            Platform.runLater(() -> chart.getRenderers().addAll(rendererAreaY2, rendererLogicalY2, rendererColumnY2, rendererBarY2, rendererScatterY2, rendererLineY2));
+        }
 
         if (calcRegression && showIcons && chartType != null && chartType.equals(ChartType.COLUMN)) {
             Platform.runLater(() -> chart.getRenderers().addAll(trendLineRenderer, labelledMarkerRenderer, columnChartLabelRenderer));

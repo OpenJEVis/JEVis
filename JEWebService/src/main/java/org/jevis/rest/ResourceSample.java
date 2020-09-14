@@ -26,10 +26,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.utils.Samples;
 import org.jevis.commons.ws.json.*;
-import org.jevis.ws.sql.JEVisClassHelper;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.JEVisClassHelper;
+import org.jevis.commons.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.sg.JsonSampleGenerator;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -82,6 +86,9 @@ public class ResourceSample {
             @PathParam("attribute") String attribute,
             @QueryParam("from") String start,
             @QueryParam("until") String end,
+            @DefaultValue("false") @QueryParam("cwd") boolean customWorkDay,
+            @DefaultValue("") @QueryParam("ap") String aggregationPeriod,
+            @DefaultValue("") @QueryParam("mm") String manipulationMode,
             @DefaultValue("1000000") @QueryParam("limit") long limit,
             @DefaultValue("false") @QueryParam("onlyLatest") boolean onlyLatest
     ) {
@@ -123,9 +130,8 @@ public class ResourceSample {
                         }
                     }
 
-
-                    if (onlyLatest == true) {
-                        logger.trace("Lastsample mode");
+                    if (onlyLatest) {
+                        logger.trace("Last sample mode");
 
                         JsonSample sample = ds.getLastSample(id, attribute);
                         if (sample != null) {
@@ -135,7 +141,19 @@ public class ResourceSample {
                         }
 
                     }
-                    list = ds.getSamples(id, attribute, startDate, endDate, limit);
+
+                    if (!aggregationPeriod.equals("") && !manipulationMode.equals("")) {
+                        AggregationPeriod ap = AggregationPeriod.parseAggregation(aggregationPeriod);
+                        ManipulationMode mm = ManipulationMode.parseManipulation(manipulationMode);
+                        JsonSampleGenerator sg = new JsonSampleGenerator(ds, obj, att, startDate, endDate, customWorkDay, mm, ap);
+                        try {
+                            list = sg.getAggregatedSamples();
+                        } catch (Exception e) {
+                            logger.error(e);
+                        }
+                    } else {
+                        list = ds.getSamples(id, attribute, startDate, endDate, limit);
+                    }
 
                     return Response.ok(list).build();
 

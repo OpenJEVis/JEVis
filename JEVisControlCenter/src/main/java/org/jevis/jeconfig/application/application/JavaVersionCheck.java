@@ -39,7 +39,7 @@ public class JavaVersionCheck {
     public JavaVersionCheck() {
 
         String version = System.getProperty("java.version");
-        logger.info("Your JAVA Version: " + version);
+        logger.info("Your JAVA Version: {}", version);
         String[] split = version.split("\\.");
         int first = Integer.parseInt(split[0]);
         int majorV = Integer.parseInt(split[1]);

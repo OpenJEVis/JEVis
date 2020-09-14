@@ -8,8 +8,8 @@ package org.jevis.iso.classes;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.iso.add.Snippets;
-import org.jevis.ws.sql.SQLDataSource;
 
 import java.io.File;
 import java.util.ArrayList;

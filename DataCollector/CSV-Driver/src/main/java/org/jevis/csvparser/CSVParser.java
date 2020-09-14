@@ -56,10 +56,10 @@ public class CSVParser {
     private Integer _currLineIndex;
     private Charset charset;
 
-    private List<Result> _results = new ArrayList<Result>();
+    private final List<Result> _results = new ArrayList<Result>();
     private List<DataPoint> _dataPoints = new ArrayList<DataPoint>();
     private Converter _converter;
-    private CSVReport _report = new CSVReport();
+    private final CSVReport _report = new CSVReport();
 
     private void calculateColumns(String stringArrayInput) {
         String[] line = stringArrayInput.split(String.valueOf(_delim), -1);
@@ -86,7 +86,7 @@ public class CSVParser {
                 sb.append(',').append(' ');
             }
         }
-        logger.info("MAP: " + sb.toString());
+        logger.info("MAP: {}", sb.toString());
 
 
         for (DataPoint dp : _dataPoints) {
@@ -106,7 +106,7 @@ public class CSVParser {
         Integer result;
         result = columnMap.get(mapIdent);
         if (result == null) {
-            logger.info("FIND MAP failed: " + mapIdent);
+            logger.info("FIND MAP failed: {}", mapIdent);
             mapIdent = mapIdent.replace("ä", "?");
             mapIdent = mapIdent.replace("Ä", "?");
             mapIdent = mapIdent.replace("ü", "?");
@@ -114,9 +114,9 @@ public class CSVParser {
             mapIdent = mapIdent.replace("ö", "?");
             mapIdent = mapIdent.replace("Ö", "?");
             mapIdent = mapIdent.replace("ß", "?");
-            logger.info("FIND MAP replaced: " + mapIdent);
+            logger.info("FIND MAP replaced: {}", mapIdent);
             result = columnMap.get(mapIdent);
-            logger.info("FIND MAP result: " + result);
+            logger.info("FIND MAP result: {}", result);
         }
         return result;
     }
@@ -152,7 +152,7 @@ public class CSVParser {
                     }
                 } catch (Exception ex) {
                     _report.addError(new LineError(_currLineIndex, valueIndex, ex, "Mapping Exception"));
-                    logger.warn("This line in the file is not valid: " + _currLineIndex);
+                    logger.warn("This line in the file is not valid: {}", _currLineIndex);
                 }
 
                 Boolean valueValid = false;
@@ -215,7 +215,7 @@ public class CSVParser {
 
             _converter.convertInput(inputStream, charset);
             String[] stringArrayInput = (String[]) _converter.getConvertedInput(String[].class);
-            logger.info("Total count of lines " + stringArrayInput.length);
+            logger.info("Total count of lines {}", stringArrayInput.length);
             if (dpType != null && dpType.equals("ROW")) {
                 calculateColumns(stringArrayInput[_dpIndex]);
             }
@@ -276,13 +276,13 @@ public class CSVParser {
 
             return TimeConverter.parserDateTime(input, pattern, timeZone);
         } catch (Exception ex) {
-            logger.warn("Date not parsable: " + input);
-            logger.warn("LINE not parsable: " + Arrays.toString(line));
-            logger.warn("DateFormat: " + _dateFormat);
-            logger.warn("DateIndex: " + _dateIndex);
-            logger.warn("TimeFormat: " + _timeFormat);
-            logger.warn("TimeIndex: " + _timeIndex);
-            logger.warn("Exception: " + ex);
+            logger.warn("Date not parsable: {}", input);
+            logger.warn("LINE not parsable: {}", Arrays.toString(line));
+            logger.warn("DateFormat: {}", _dateFormat);
+            logger.warn("DateIndex: {}", _dateIndex);
+            logger.warn("TimeFormat: {}", _timeFormat);
+            logger.warn("TimeIndex: {}", _timeIndex);
+            logger.warn("Exception: ", ex);
             return null;
         }
 

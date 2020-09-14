@@ -403,7 +403,7 @@ public class CalculationViewController {
 
 
     public void setData(JEVisObject obj, Button buttonOutput) {
-        logger.info("setData: " + buttonOutput);
+        logger.info("setData: {}", buttonOutput);
         formulaBox.setCalculation(obj);
 
         formulaBox.setOutputButton(buttonOutput);

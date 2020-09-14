@@ -17,7 +17,7 @@
  * JEAPI-SQL is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.ws.sql.tables;
+package org.jevis.commons.ws.sql.tables;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,8 +25,8 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
-import org.jevis.ws.sql.SQLDataSource;
-import org.jevis.ws.sql.SQLtoJsonFactory;
+import org.jevis.commons.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLtoJsonFactory;
 
 import java.sql.*;
 import java.util.*;
@@ -47,7 +47,7 @@ public class ObjectTable {
     public final static String COLUMN_I18N = "i18n";
     public final static String COLUMN_GROUP = "groupid";//remove ID from name
     private static final Logger logger = LogManager.getLogger(ObjectTable.class);
-    private SQLDataSource _connection;
+    private final SQLDataSource _connection;
 
     public ObjectTable(SQLDataSource ds) {
         _connection = ds;

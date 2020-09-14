@@ -8,7 +8,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventTarget;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -381,13 +380,13 @@ public class EnterDataDialog extends Dialog implements EventTarget {
         this.setHeaderText(headerText);
         this.getDialogPane().setContent(buildForm());
 
-        Button pButton = (Button) parent;
-        Bounds layoutBounds = pButton.localToScene(pButton.getLayoutBounds());
+//        Button pButton = (Button) parent;
+//        Bounds layoutBounds = pButton.localToScene(pButton.getLayoutBounds());
 
 //        System.out.println("X: " + layoutBounds.getMinX() + " Y:" + layoutBounds.getMinY());
 
-        this.getDialogPane().getScene().getWindow().setX(layoutBounds.getMinX() + (layoutBounds.getWidth() / 2));
-        this.getDialogPane().getScene().getWindow().setX(layoutBounds.getMinY() + (layoutBounds.getHeight() / 2));
+//        this.getDialogPane().getScene().getWindow().setX(layoutBounds.getMinX() + (layoutBounds.getWidth() / 2));
+//        this.getDialogPane().getScene().getWindow().setX(layoutBounds.getMinY() + (layoutBounds.getHeight() / 2));
 
         this.showAndWait();
     }

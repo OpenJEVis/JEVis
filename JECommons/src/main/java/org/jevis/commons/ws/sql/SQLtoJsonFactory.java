@@ -18,19 +18,18 @@
  * JEWebService is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.ws.sql;
+package org.jevis.commons.ws.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisType;
 import org.jevis.commons.ws.json.*;
-import org.jevis.ws.sql.tables.AttributeTable;
-import org.jevis.ws.sql.tables.ObjectTable;
-import org.jevis.ws.sql.tables.RelationshipTable;
-import org.jevis.ws.sql.tables.SampleTable;
+import org.jevis.commons.ws.sql.tables.AttributeTable;
+import org.jevis.commons.ws.sql.tables.ObjectTable;
+import org.jevis.commons.ws.sql.tables.RelationshipTable;
+import org.jevis.commons.ws.sql.tables.SampleTable;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;

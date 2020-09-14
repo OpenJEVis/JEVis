@@ -65,7 +65,7 @@ public class MemberExtension implements ObjectEditorExtension {
     private ObjectRelations objectRelations;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     //    AnchorPane _view = new AnchorPane();
-    private BorderPane _view = new BorderPane();
+    private final BorderPane _view = new BorderPane();
     private String lastFilterInput = "";
 
     public MemberExtension(JEVisObject obj) {
@@ -143,7 +143,7 @@ public class MemberExtension implements ObjectEditorExtension {
             for (JEVisRelationship rel : obj.getRelationships()) {
                 try {
                     if (rel == null || rel.getStartObject() == null || rel.getEndObject() == null) {
-                        logger.info("Incorrect relationship: " + rel);
+                        logger.info("Incorrect relationship: {}", rel);
                         continue;
                     }
                     if (rel.isType(MEMBER_CREATE)
@@ -172,7 +172,7 @@ public class MemberExtension implements ObjectEditorExtension {
         }
 
         boolean userCanEdit = obj.getDataSource().getCurrentUser().canWrite(obj.getID());
-        logger.info("User is allowed to edit the object: " + obj.getID());
+        logger.info("User is allowed to edit the object: {}", obj.getID());
 
         for (final Map.Entry<JEVisObject, List<JEVisRelationship>> member : members.entrySet()) {
             yAxis++;
@@ -203,7 +203,7 @@ public class MemberExtension implements ObjectEditorExtension {
              */
             for (JEVisRelationship rel : member.getValue()) {
                 try {
-                    logger.info("###### Check re: " + rel);
+                    logger.info("###### Check re: {}", rel);
                     aRelationship = rel;//we need one of the relationship to test if we can delete all this relationships. Doesnt matter which one of this.
                     switch (rel.getType()) {
 

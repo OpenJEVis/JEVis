@@ -9,7 +9,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonSample;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;

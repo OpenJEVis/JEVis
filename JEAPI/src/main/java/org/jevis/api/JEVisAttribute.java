@@ -19,9 +19,10 @@
  */
 package org.jevis.api;
 
-import java.util.List;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
+
+import java.util.List;
 
 /**
  * The JEVisAttribute is the basis of a JEVisType. A JEVisAttribute is always
@@ -80,11 +81,22 @@ public interface JEVisAttribute extends JEVisComponent, JEVisCommittable, Compar
      * Get all samples from ">=" to "<=" a certain date
      *
      * @param from (>=)
-     * @param to (<=)
-     *
+     * @param to   (<=)
      * @return
      */
     List<JEVisSample> getSamples(DateTime from, DateTime to);
+
+    /**
+     * Get all samples from ">=" to "<=" a certain date in defined aggregation and manipulation
+     *
+     * @param from              (>=)
+     * @param to                (<=)
+     * @param customWorkDay     custom work day parameter
+     * @param aggregationPeriod aggregation period
+     * @param manipulationMode  manipulation mode
+     * @return
+     */
+    List<JEVisSample> getSamples(DateTime from, DateTime to, boolean customWorkDay, String aggregationPeriod, String manipulationMode);
 
     /**
      * Add and commit all samples

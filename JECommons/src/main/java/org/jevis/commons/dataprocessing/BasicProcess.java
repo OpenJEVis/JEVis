@@ -25,12 +25,15 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.function.NullFunction;
+import org.jevis.commons.ws.json.JsonAttribute;
+import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class BasicProcess implements Process {
@@ -39,12 +42,17 @@ public class BasicProcess implements Process {
     private ProcessFunction _processor = new NullFunction(ManipulationMode.NONE, AggregationPeriod.NONE);
     private List<ProcessOption> _options = new ArrayList<>();
     private List<JEVisSample> _result;
+    private List<JsonSample> _jsonResult;
     private List<Process> tasks = new ArrayList<>();
     private boolean isDone = false;
     private String _id = "*MISSING*";
     private JEVisDataSource _ds;
+    private SQLDataSource _sqlDS;
     private JEVisObject _originalObject = null;
+    private JsonObject _originalSQLObject = null;
+    private JsonAttribute _originalSQLAttribute = null;
     private Process _parent;
+    private boolean sql = false;
 
     public BasicProcess() {
     }
@@ -130,6 +138,26 @@ public class BasicProcess implements Process {
     }
 
     @Override
+    public JsonObject getJsonObject() {
+        return _originalSQLObject;
+    }
+
+    @Override
+    public void setJsonObject(JsonObject object) {
+        _originalSQLObject = object;
+    }
+
+    @Override
+    public JsonAttribute getJsonAttribute() {
+        return _originalSQLAttribute;
+    }
+
+    @Override
+    public void setJsonAttribute(JsonAttribute object) {
+        _originalSQLAttribute = object;
+    }
+
+    @Override
     public List<JEVisSample> getResult() {
         if (_result != null) {
             return _result;
@@ -161,13 +189,55 @@ public class BasicProcess implements Process {
     }
 
     @Override
+    public List<JsonSample> getJsonResult() {
+        if (_jsonResult != null) {
+            return _jsonResult;
+        }
+
+        logger.info("Begin task " + getID());
+
+        if (!isDone) {
+            if (getSubProcesses().isEmpty()) {
+//            logger.info("[" + _id + "]  No more sub tasks!");
+
+            } else {
+                for (Process task : getSubProcesses()) {
+                    task.getJsonResult();
+                }
+//            logger.info("[" + _id + "] All subtask are done!");
+            }
+            isDone = true;
+            logger.info(getID() + " task is done");
+
+        }
+
+        _jsonResult = getFunction().getJsonResult(this);
+
+        logger.info("[" + _id + "] [" + _processor.getName() + "]  Result size: " + _jsonResult.size());
+
+        return _jsonResult;
+
+    }
+
+    @Override
     public void setJEVisDataSource(JEVisDataSource ds) {
         _ds = ds;
     }
 
     @Override
+    public void setSQLDataSource(SQLDataSource ds) {
+        sql = true;
+        _sqlDS = ds;
+    }
+
+    @Override
     public JEVisDataSource getJEVisDataSource() {
         return _ds;
+    }
+
+    @Override
+    public SQLDataSource getSqlDataSource() {
+        return _sqlDS;
     }
 
     @Override
@@ -207,4 +277,7 @@ public class BasicProcess implements Process {
         }
     }
 
+    public boolean isSql() {
+        return sql;
+    }
 }

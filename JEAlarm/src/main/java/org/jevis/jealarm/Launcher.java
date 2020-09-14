@@ -44,7 +44,7 @@ public class Launcher extends AbstractCliApp {
     }
 
     private void executeProcesses(List<AlarmConfiguration> processes) {
-        logger.info("Number of Alarm Jobs: " + processes.size());
+        logger.info("Number of Alarm Jobs: {}", processes.size());
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         processes.forEach(alarmConfiguration -> {
@@ -64,14 +64,14 @@ public class Launcher extends AbstractCliApp {
                         LogTaskManager.getInstance().getTask(alarmConfiguration.getObject().getID()).setStatus(Task.Status.FAILED);
                         removeJob(alarmConfiguration.getObject());
 
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
 
                         checkLastJob();
                     } finally {
                         LogTaskManager.getInstance().getTask(alarmConfiguration.getObject().getID()).setStatus(Task.Status.FINISHED);
                         removeJob(alarmConfiguration.getObject());
 
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
 
                         checkLastJob();
                     }
@@ -137,7 +137,7 @@ public class Launcher extends AbstractCliApp {
                     try {
                         enabledAlarmConfigurations = getAllAlarmObjects();
                     } catch (Exception e) {
-                        logger.error("Could not get cleaning objects. " + e);
+                        logger.error("Could not get cleaning objects. ", e);
                     }
 
                     this.executeProcesses(enabledAlarmConfigurations);
@@ -158,7 +158,7 @@ public class Launcher extends AbstractCliApp {
         try {
             enabledAlarmConfigurations = getAllAlarmObjects();
         } catch (Exception e) {
-            logger.error("Could not get enabled alarm configurations objects. " + e);
+            logger.error("Could not get enabled alarm configurations objects. ", e);
         }
         enabledAlarmConfigurations.forEach(alarmConfiguration -> {
             try {
@@ -178,7 +178,7 @@ public class Launcher extends AbstractCliApp {
         try {
             alarmConfig = ds.getJEVisClass(AlarmConfiguration.CLASS_NAME);
             alarmConfigs = ds.getObjects(alarmConfig, false);
-            logger.info("Total amount of Alarm Configuration Objects: " + alarmConfigs.size());
+            logger.info("Total amount of Alarm Configuration Objects: {}", alarmConfigs.size());
             alarmConfigs.forEach(jeVisObject -> {
                 AlarmConfiguration alarmConfiguration = new AlarmConfiguration(ds, jeVisObject);
                 if (alarmConfiguration.isEnabled()) {
@@ -188,7 +188,7 @@ public class Launcher extends AbstractCliApp {
                     }
                 }
             });
-            logger.info("Amount of enabled Alarm Configurations: " + filteredObjects.size());
+            logger.info("Amount of enabled Alarm Configurations: {}", filteredObjects.size());
         } catch (JEVisException ex) {
             logger.error("Process classes missing", ex);
         }

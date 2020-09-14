@@ -18,7 +18,7 @@
   JEWebService is part of the OpenJEVis project, further project information
   are published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.rest;
+package org.jevis.commons.ws.sql;
 
 import org.jevis.commons.ws.json.JSonError;
 

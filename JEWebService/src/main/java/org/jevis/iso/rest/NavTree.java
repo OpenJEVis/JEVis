@@ -5,10 +5,10 @@
  */
 package org.jevis.iso.rest;
 
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.iso.add.JEVisClassTree;
 import org.jevis.iso.add.JEVisObjectTree;
-import org.jevis.rest.Config;
-import org.jevis.ws.sql.SQLDataSource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

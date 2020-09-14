@@ -5,10 +5,10 @@
  */
 package org.jevis.iso.rest;
 
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.iso.add.*;
 import org.jevis.iso.classes.*;
-import org.jevis.rest.Config;
-import org.jevis.ws.sql.SQLDataSource;
 import org.joda.time.DateTime;
 
 import javax.ws.rs.*;
@@ -117,11 +117,11 @@ public class Dashboard {
             List<org.jevis.iso.classes.Produce> production3 = new ArrayList<>();
             production3 = energyPlanning.getProduction(lastYear - 2);
 
-            String energysource1name = new String();
-            String energysource2name = new String();
-            String energysource3name = new String();
-            String energysource4name = new String();
-            String energysource5name = new String();
+            String energysource1name = "";
+            String energysource2name = "";
+            String energysource3name = "";
+            String energysource4name = "";
+            String energysource5name = "";
 
             List<EnergySource> listES = iso.getOrganisation().getSite(site).getenergyplanning().getEnergySources();
 

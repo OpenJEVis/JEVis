@@ -61,14 +61,14 @@ public class GapFillingEditor implements AttributeEditor {
     private static final Logger logger = LogManager.getLogger(GapFillingEditor.class);
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private final BooleanProperty _readOnly = new SimpleBooleanProperty(false);
-    private final ObservableList<GapFillingReferencePeriod> optionsReferencePeriods = FXCollections.observableArrayList(GapFillingReferencePeriod.NONE, GapFillingReferencePeriod.DAY,
+    public static final ObservableList<GapFillingReferencePeriod> optionsReferencePeriods = FXCollections.observableArrayList(GapFillingReferencePeriod.NONE, GapFillingReferencePeriod.DAY,
             GapFillingReferencePeriod.WEEK, GapFillingReferencePeriod.MONTH, GapFillingReferencePeriod.YEAR, GapFillingReferencePeriod.ALL);
-    private final ObservableList<GapFillingBoundToSpecific> optionsBoundSpecifics = FXCollections.observableArrayList(GapFillingBoundToSpecific.NONE, GapFillingBoundToSpecific.WEEKDAY,
+    public static final ObservableList<GapFillingBoundToSpecific> optionsBoundSpecifics = FXCollections.observableArrayList(GapFillingBoundToSpecific.NONE, GapFillingBoundToSpecific.WEEKDAY,
             GapFillingBoundToSpecific.WEEKOFYEAR, GapFillingBoundToSpecific.MONTHOFYEAR);
-    private final ObservableList<GapFillingType> optionsType = FXCollections.observableArrayList(GapFillingType.NONE, GapFillingType.INTERPOLATION, GapFillingType.AVERAGE,
+    public static final ObservableList<GapFillingType> optionsType = FXCollections.observableArrayList(GapFillingType.NONE, GapFillingType.INTERPOLATION, GapFillingType.AVERAGE,
             GapFillingType.DEFAULT_VALUE, GapFillingType.STATIC, GapFillingType.MINIMUM, GapFillingType.MAXIMUM, GapFillingType.MEDIAN, GapFillingType.DELETE);
     public JEVisAttribute _attribute;
-    private HBox box = new HBox(12);
+    private final HBox box = new HBox(12);
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private List<JsonGapFillingConfig> _listConfig;
@@ -164,103 +164,13 @@ public class GapFillingEditor implements AttributeEditor {
         return _attribute;
     }
 
-    @Override
-    public void commit() throws JEVisException {
-
-        if (hasChanged() && _newSample != null) {
-            //TODO: check if type is ok, maybe better at input time
-            logger.debug("Commit: " + _newSample.getValueAsString());
-            _newSample.commit();
-            _lastSample = _newSample;
-            _newSample = null;
-            _changed.setValue(false);
-        }
-    }
-
-    /**
-     * Parse an JsonString with an JsonGapFillingConfig configuration.
-     *
-     * @param jsonstring
-     * @return
-     */
-    private List<JsonGapFillingConfig> parseJson(String jsonstring) throws IOException {
-        List<JsonGapFillingConfig> list = new ArrayList<>();
-
-
-        if (jsonstring.endsWith("]")) {
-            list = Arrays.asList(JsonTools.objectMapper().readValue(jsonstring, JsonGapFillingConfig[].class));
-
-        } else {
-            list.add(JsonTools.objectMapper().readValue(jsonstring, JsonGapFillingConfig.class));
-        }
-
-        return list;
-    }
-
-    /**
-     * Show the configuration dialog
-     *
-     * @throws JEVisException
-     */
-    private void show() throws JEVisException {
-        if (_lastSample != null && !_lastSample.getValueAsString().isEmpty()) {
-            try {
-                _listConfig = parseJson(_lastSample.getValueAsString());
-            } catch (IOException e) {
-                logger.error("Could not parse Json: {}", _lastSample.getValueAsString(), e);
-            }
-        } else {
-            _listConfig = createDefaultConfig();
-        }
-
-        TabPane tabPane = new TabPane();
-        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setResizable(true);
-        dialog.setHeight(450);
-        dialog.setWidth(620);
-        dialog.setTitle(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.title"));
-        dialog.setHeaderText(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.header"));
-        dialog.setGraphic(JEConfig.getImage("fill_gap.png", 48, 48));
-        dialog.getDialogPane().getButtonTypes().setAll();
-
-        for (JsonGapFillingConfig config : _listConfig) {
-            Tab newTab = new Tab(config.getName());
-            tabPane.getTabs().add(newTab);
-            fillTab(newTab, config);
-
-        }
-
-        dialog.getDialogPane().contentProperty().setValue(tabPane);
-
-        final ButtonType ok = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
-        final ButtonType cancel = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
-
-
-        dialog.showAndWait()
-                .ifPresent(response -> {
-                    if (response.getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
-                        try {
-                            _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
-                            _changed.setValue(true);
-                            commit();
-                        } catch (JEVisException e) {
-                            logger.error("Could not write gap config to JEVis System: " + e);
-                        }
-                    }
-                });
-
-    }
-
     /**
      * Fills the given tab content with an gui for the given gap configuration
      *
      * @param tab
      * @param config
      */
-    private void fillTab(Tab tab, JsonGapFillingConfig config) {
+    public static void fillTab(Tab tab, JsonGapFillingConfig config) {
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(10));
         gridPane.setHgap(10);
@@ -495,6 +405,95 @@ public class GapFillingEditor implements AttributeEditor {
 
 
         tab.setContent(gridPane);
+    }
+
+    /**
+     * Parse an JsonString with an JsonGapFillingConfig configuration.
+     *
+     * @param jsonstring
+     * @return
+     */
+    private List<JsonGapFillingConfig> parseJson(String jsonstring) throws IOException {
+        List<JsonGapFillingConfig> list = new ArrayList<>();
+
+
+        if (jsonstring.endsWith("]")) {
+            list = Arrays.asList(JsonTools.objectMapper().readValue(jsonstring, JsonGapFillingConfig[].class));
+
+        } else {
+            list.add(JsonTools.objectMapper().readValue(jsonstring, JsonGapFillingConfig.class));
+        }
+
+        return list;
+    }
+
+    @Override
+    public void commit() throws JEVisException {
+
+        if (hasChanged() && _newSample != null) {
+            //TODO: check if type is ok, maybe better at input time
+            logger.debug("Commit: {}", _newSample.getValueAsString());
+            _newSample.commit();
+            _lastSample = _newSample;
+            _newSample = null;
+            _changed.setValue(false);
+        }
+    }
+
+    /**
+     * Show the configuration dialog
+     *
+     * @throws JEVisException
+     */
+    private void show() throws JEVisException {
+        if (_lastSample != null && !_lastSample.getValueAsString().isEmpty()) {
+            try {
+                _listConfig = parseJson(_lastSample.getValueAsString());
+            } catch (IOException e) {
+                logger.error("Could not parse Json: {}", _lastSample.getValueAsString(), e);
+            }
+        } else {
+            _listConfig = createDefaultConfig();
+        }
+
+        TabPane tabPane = new TabPane();
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setResizable(true);
+        dialog.setHeight(450);
+        dialog.setWidth(620);
+        dialog.setTitle(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.title"));
+        dialog.setHeaderText(I18n.getInstance().getString("plugin.object.attribute.gapfillingeditor.dialog.header"));
+        dialog.setGraphic(JEConfig.getImage("fill_gap.png", 48, 48));
+        dialog.getDialogPane().getButtonTypes().setAll();
+
+        for (JsonGapFillingConfig config : _listConfig) {
+            Tab newTab = new Tab(config.getName());
+            tabPane.getTabs().add(newTab);
+            fillTab(newTab, config);
+        }
+
+        dialog.getDialogPane().contentProperty().setValue(tabPane);
+
+        final ButtonType ok = new ButtonType(I18n.getInstance().getString("newobject.ok"), ButtonBar.ButtonData.OK_DONE);
+        final ButtonType cancel = new ButtonType(I18n.getInstance().getString("newobject.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(ok, cancel);
+
+
+        dialog.showAndWait()
+                .ifPresent(response -> {
+                    if (response.getButtonData().equals(ButtonBar.ButtonData.OK_DONE)) {
+                        try {
+                            _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
+                            _changed.setValue(true);
+                            commit();
+                        } catch (JEVisException e) {
+                            logger.error("Could not write gap config to JEVis System: ", e);
+                        }
+                    }
+                });
+
     }
 
     @Override

@@ -23,8 +23,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.Process;
+import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.ws.json.JsonSample;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Period;
@@ -43,7 +44,7 @@ public class ImpulseFunction implements ProcessFunction {
     private Period _period;
     private List<Interval> _durations;
 
-    private DateTime _offset = ProcessOptions.getOffset(null);
+    private final DateTime _offset = ProcessOptions.getOffset(null);
 
     public ImpulseFunction() {
     }
@@ -211,6 +212,11 @@ public class ImpulseFunction implements ProcessFunction {
         options.add(new BasicProcessOption("Workflow"));
 
         return options;
+    }
+
+    @Override
+    public List<JsonSample> getJsonResult(BasicProcess basicProcess) {
+        return null;
     }
 
 }

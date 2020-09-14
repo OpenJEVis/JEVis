@@ -19,8 +19,10 @@
  */
 package org.jevis.commons.dataprocessing;
 
-import java.util.List;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.ws.json.JsonSample;
+
+import java.util.List;
 
 /**
  * An ProcessFunction can process the samples from an task an return the result.
@@ -32,7 +34,7 @@ public interface ProcessFunction {
     /**
      * Rertuns the result list from this processor.
      *
-     * @param task Task with the options and previus tasks
+     * @param task Task with the options and previous tasks
      * @return List of JEVisSamples with the result
      */
     List<JEVisSample> getResult(Process task);
@@ -47,8 +49,9 @@ public interface ProcessFunction {
     /**
      * Request an reset od the result
      */
-    public void resetResult();
+    void resetResult();
 
     List<ProcessOption> getAvailableOptions();
 
+    List<JsonSample> getJsonResult(BasicProcess basicProcess);
 }

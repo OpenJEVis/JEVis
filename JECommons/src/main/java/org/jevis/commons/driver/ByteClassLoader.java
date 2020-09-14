@@ -37,7 +37,7 @@ import java.net.URLClassLoader;
 public class ByteClassLoader extends URLClassLoader {
     private static final Logger logger = LogManager.getLogger(ByteClassLoader.class);
 
-    private URL url;
+    private final URL url;
 
     public ByteClassLoader(URL url) {
         super(new URL[]{url});
@@ -45,7 +45,7 @@ public class ByteClassLoader extends URLClassLoader {
     }
 
     public static Class loadDriver(JEVisFile parserFile, String className) throws ClassNotFoundException, IOException {
-        logger.info("load Driver: " + className);
+        logger.info("load Driver: {}", className);
 
         // Write jar from JEVis to temporary file
         File tmpJar = File.createTempFile(parserFile.getFilename(), ".jar");

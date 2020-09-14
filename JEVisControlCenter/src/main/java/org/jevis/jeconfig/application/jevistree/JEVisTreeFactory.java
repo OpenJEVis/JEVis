@@ -81,6 +81,7 @@ public class JEVisTreeFactory {
                 final KeyCombination moveToDiffTS = new KeyCodeCombination(KeyCode.T, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination createMultiplierAndDifferential = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination setLimitsRecursive = new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+        final KeyCombination setSubstitutionSettingsRecursive = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination enableAll = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination disableAll = new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination setUnitAndPeriod = new KeyCodeCombination(KeyCode.U, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
@@ -128,6 +129,9 @@ public class JEVisTreeFactory {
                     t.consume();
                 } else if (setLimitsRecursive.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventSetLimitsRecursive(tree);
+                    t.consume();
+                } else if (setSubstitutionSettingsRecursive.match(t) && JEConfig.getExpert()) {
+                    TreeHelper.EventSetSubstitutionSettingsRecursive(tree);
                     t.consume();
                 } else if (setUnitAndPeriod.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventSetUnitAndPeriodRecursive(tree);

@@ -12,7 +12,7 @@ import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonSample;
 import org.jevis.commons.ws.json.JsonType;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -29,15 +29,15 @@ import java.util.Objects;
  */
 public class FormAttribute {
 
-    private String name = new String();
-    private String transname = new String();
-    private String value = new String();
-    private String unit = new String();
+    private String name = "";
+    private String transname = "";
+    private String value = "";
+    private String unit = "";
     private File file = new File("");
     private Double doubleValue = 0.0;
     private Boolean booleanValue = false;
     private Long longValue = 0L;
-    private String targetname = new String();
+    private String targetname = "";
     private int IntValue = 0;
     private DateTime dateTimeValue = new DateTime();
     private List<ObjectTargetHelper> othelp = new ArrayList<>();

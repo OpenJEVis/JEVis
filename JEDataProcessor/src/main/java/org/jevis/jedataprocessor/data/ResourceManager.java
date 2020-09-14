@@ -93,7 +93,7 @@ public class ResourceManager {
 
                 sampleCache = getCleanDataObject().getValueAttribute().getSamples(minDateForCache, lastDateForCache);
             } catch (Exception e) {
-                logger.error("No caching possible: " + e);
+                logger.error("No caching possible: ", e);
             }
         }
         return sampleCache;

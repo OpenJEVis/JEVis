@@ -17,11 +17,11 @@
   JEAPI-SQL is part of the OpenJEVis project, further project information are
   published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.ws.sql.tables;
+package org.jevis.commons.ws.sql.tables;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

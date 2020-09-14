@@ -50,7 +50,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
                     setTimeStampFromLastSample(modifiedList.get(modifiedList.size() - 1).getTimestamp());
 
             } catch (Exception e) {
-                logger.error("Couldn't get timestamps from samples. " + e);
+                logger.error("Couldn't get timestamps from samples. ", e);
             }
         }
 

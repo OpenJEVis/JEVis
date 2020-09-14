@@ -30,13 +30,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class AlarmFunction implements ReportData {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(AlarmFunction.class);
-    private static String COLUMN_FROM = "from";
-    private static String COLUMN_UNTIL = "until";
-    private static String COLUMN_DIFF = "diff";
-    private static String COLUMN_SHOULDBE = "reff";
-    private static String COLUMN_TOLERANCE = "tol";
-    private static String COLUMN_IS = "value";
-    private static String COLUMN_OBJECTNAME = "objectname";
+    private static final String COLUMN_FROM = "from";
+    private static final String COLUMN_UNTIL = "until";
+    private static final String COLUMN_DIFF = "diff";
+    private static final String COLUMN_SHOULDBE = "reff";
+    private static final String COLUMN_TOLERANCE = "tol";
+    private static final String COLUMN_IS = "value";
+    private static final String COLUMN_OBJECTNAME = "objectname";
     private String templateName = "";
     private String alarmLinkName = "";
     private JEVisObject alarmObj = null;
@@ -75,7 +75,7 @@ public class AlarmFunction implements ReportData {
         DateTime end = interval.getEnd();
 
         try {
-            logger.debug("\n\nCheck Alarm: [" + alarmObj.getID() + "]" + alarmObj.getName());
+            logger.debug("\n\nCheck Alarm: [{}]{}", alarmObj.getID(), alarmObj.getName());
 
             CleanDataObject cleanDataObject = new CleanDataObject(alarmObj, new ObjectHandler(alarmObj.getDataSource()));
             cleanDataObject.getAttributes();
@@ -181,7 +181,7 @@ public class AlarmFunction implements ReportData {
                             return new LinkStatus(true, "ok");
                         }
                     } catch (JEVisException e) {
-                        logger.error("Could not parse time stamp: " + e);
+                        logger.error("Could not parse time stamp: ", e);
                     }
                 }
             }
@@ -196,7 +196,7 @@ public class AlarmFunction implements ReportData {
 
             return getAlarmConfiguration(ds, alarmObj, alarmDirectoryClass);
         } catch (JEVisException e) {
-            logger.error("Could not get corresponding alarm configuration: " + e);
+            logger.error("Could not get corresponding alarm configuration: ", e);
         }
         return null;
     }

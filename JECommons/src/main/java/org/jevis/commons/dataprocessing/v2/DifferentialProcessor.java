@@ -104,7 +104,7 @@ public class DifferentialProcessor implements Function {
 
         }
 
-        logger.info("sample.size: " + samples.size());
+        logger.info("sample.size: {}", samples.size());
         result.setSamples(samples);
         return result;
     }

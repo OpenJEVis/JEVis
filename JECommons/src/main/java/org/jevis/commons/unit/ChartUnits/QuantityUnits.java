@@ -6,6 +6,10 @@ import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.ws.json.JsonAttribute;
+import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jscience.economics.money.Currency;
 
 import javax.measure.unit.NonSI;
@@ -225,6 +229,30 @@ public class QuantityUnits {
                     }
                 } catch (JEVisException e) {
                     logger.error(e);
+                }
+            }
+        }
+        return isQuantity;
+    }
+
+    public boolean isQuantityIfCleanData(SQLDataSource sqlDataSource, JsonAttribute attribute, boolean isQuantity) {
+        if (attribute != null) {
+            JsonObject object = null;
+            try {
+                object = sqlDataSource.getObject(attribute.getObjectID());
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+            if (object != null) {
+                if (object.getJevisClass().equals(CleanDataObject.CLASS_NAME)) {
+                    for (JsonAttribute jsonAttribute : object.getAttributes()) {
+                        if (jsonAttribute.getType().equals(CleanDataObject.AttributeName.VALUE_QUANTITY.getAttributeName())) {
+                            if (jsonAttribute.getLatestValue() != null) {
+                                JsonSample latestSample = jsonAttribute.getLatestValue();
+                                isQuantity = Boolean.parseBoolean(latestSample.getValue());
+                            }
+                        }
+                    }
                 }
             }
         }

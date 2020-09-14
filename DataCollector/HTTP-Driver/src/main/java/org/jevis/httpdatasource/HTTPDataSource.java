@@ -42,7 +42,7 @@ public class HTTPDataSource {
     private Long id;
 
     public void setDateTimeZone(DateTimeZone timeZone) {
-        logger.info("TIMEZONE: " + timeZone);
+        logger.info("TIMEZONE: {}", timeZone);
         _timeZone = timeZone;
     }
 
@@ -94,7 +94,7 @@ public class HTTPDataSource {
                 if (_ssl) {
                     DataSourceHelper.doTrustToCertificates();
                 }
-                logger.info("Connection URL: " + requestUrl);
+                logger.info("Connection URL: {}", requestUrl);
                 request = (HttpURLConnection) requestUrl.openConnection();
 
 //                    if (_connectionTimeout == null) {

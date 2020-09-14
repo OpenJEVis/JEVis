@@ -13,12 +13,12 @@ import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 import org.jevis.commons.ws.json.JsonType;
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.iso.add.Form;
 import org.jevis.iso.add.*;
 import org.jevis.iso.classes.Equipment;
 import org.jevis.iso.classes.MeasuringPoint;
-import org.jevis.rest.Config;
-import org.jevis.ws.sql.SQLDataSource;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;

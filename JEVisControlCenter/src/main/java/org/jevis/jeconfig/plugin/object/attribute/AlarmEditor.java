@@ -69,11 +69,11 @@ public class AlarmEditor implements AttributeEditor {
     private final ObservableList<AlarmConstants.Operator> operator = FXCollections.observableArrayList(AlarmConstants.Operator.SMALLER, AlarmConstants.Operator.BIGGER, AlarmConstants.Operator.EQUALS,
             AlarmConstants.Operator.SMALLER_EQUALS, AlarmConstants.Operator.BIGGER_EQUALS, AlarmConstants.Operator.NOT_EQUALS);
     public JEVisAttribute _attribute;
-    private HBox box = new HBox(12);
+    private final HBox box = new HBox(12);
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private List<JsonAlarmConfig> _listConfig;
-    private boolean delete = false;
+    private final boolean delete = false;
 
     public AlarmEditor(JEVisAttribute att) {
         logger.debug("==init== for: {}", att.getName());
@@ -247,7 +247,7 @@ public class AlarmEditor implements AttributeEditor {
                         try {
                             _newSample = _attribute.buildSample(new DateTime(), _listConfig.toString());
                             _changed.setValue(true);
-                            logger.debug("Commit: " + _newSample.getValueAsString());
+                            logger.debug("Commit: {}", _newSample.getValueAsString());
                             commit();
                         } catch (JEVisException e) {
                             logger.error("Could not commit.");

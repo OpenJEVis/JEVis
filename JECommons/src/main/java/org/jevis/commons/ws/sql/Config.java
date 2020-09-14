@@ -18,8 +18,9 @@
  * JEWebService is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.rest;
+package org.jevis.commons.ws.sql;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.logging.log4j.LogManager;
@@ -27,13 +28,10 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.ws.json.JsonClassRelationship;
 import org.jevis.commons.ws.json.JsonJEVisClass;
-import org.jevis.ws.sql.SQLDataSource;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.io.FileFilter;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -62,7 +60,7 @@ public class Config {
     public static long _demoGroup = -1;
     public static String _registratioKey = "";
 
-    private static boolean _loadFromFile = true;
+    private static final boolean _loadFromFile = true;
     private static boolean _fileIsLoaded = false;
 
     private static File _i18nDir;
@@ -93,7 +91,7 @@ public class Config {
         return _schema;
     }
 
-    private static Map<String, JsonClassRelationship> _relationshipCache = Collections.synchronizedMap(new HashMap<String, JsonClassRelationship>());
+    private static final Map<String, JsonClassRelationship> _relationshipCache = Collections.synchronizedMap(new HashMap<String, JsonClassRelationship>());
 
     public static File getClassDir() {
         return _classDir;
@@ -127,11 +125,38 @@ public class Config {
         Config._freemarkerDir = _freemarkerDir;
     }
 
+
     public static synchronized Map<String, JsonJEVisClass> getClassCache() {
         if (_classCache.isEmpty()) {
             logger.info("initialize class cache");
             try {
-                _classCache = (new ResourceClasses()).loadJsonClasses();
+                //        Gson gson = new GsonBuilder().create();
+
+                File classDir = Config.getClassDir();
+
+                if (classDir.exists()) {
+                    FileFilter jsonFilter = new FileFilter() {
+                        @Override
+                        public boolean accept(File pathname) {
+                            return pathname.getName().endsWith(".json");
+                        }
+                    };
+                    final ObjectMapper objectMapper = new ObjectMapper();
+                    Arrays.stream(Objects.requireNonNull(classDir.listFiles(jsonFilter))).parallel().forEach(jsonFile -> {
+                        try {
+//                    JsonReader reader = new JsonReader(new FileReader(jsonFile));
+//                    JsonJEVisClass data = gson.fromJson(reader, JsonJEVisClass.class);
+
+                            JsonJEVisClass data = objectMapper.readValue(jsonFile, JsonJEVisClass.class);
+                            _classCache.put(data.getName(), data);
+
+                        } catch (Exception ex) {
+                            logger.error("Error while loading Classfile: " + jsonFile.getName(), ex);
+                        }
+                    });
+                }
+
+                JEVisClassHelper.completeClasses(_classCache);
                 logger.info("Done");
             } catch (Exception ex) {
                 logger.error("Error while caching classes", ex);

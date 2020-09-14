@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.ws.json.JsonUser;
+import org.jevis.commons.ws.sql.Config;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -137,7 +138,7 @@ public class ResourceUserRegistration {
             rs = ps.executeQuery();
 
             while (rs.next()) {
-                logger.fatal("User allready exists: " + username);
+                logger.fatal("User allready exists: {}", username);
                 return true;
             }
             return false;
@@ -158,7 +159,7 @@ public class ResourceUserRegistration {
             @Context HttpHeaders httpHeaders,
             @PathParam("name") String name
     ) {
-        logger.fatal("GET User: " + name);
+        logger.fatal("GET User: {}", name);
         if (!hasAccess(httpHeaders)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }

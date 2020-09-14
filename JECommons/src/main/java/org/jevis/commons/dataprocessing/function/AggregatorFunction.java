@@ -29,6 +29,9 @@ import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
+import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.commons.ws.json.JsonAttribute;
+import org.jevis.commons.ws.json.JsonSample;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeComparator;
 import org.joda.time.Interval;
@@ -37,8 +40,7 @@ import org.joda.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jevis.commons.dataprocessing.ProcessOptions.CUSTOM;
-import static org.jevis.commons.dataprocessing.ProcessOptions.getAllTimestamps;
+import static org.jevis.commons.dataprocessing.ProcessOptions.*;
 
 /**
  * @author Florian Simon <florian.simon@envidatec.com>
@@ -100,7 +102,7 @@ public class AggregatorFunction implements ProcessFunction {
                 try {
                     attribute = samples.get(0).getAttribute();
                 } catch (JEVisException e) {
-                    logger.error("Could not get Attribute: " + e);
+                    logger.error("Could not get Attribute: ", e);
                 }
             }
         }
@@ -118,7 +120,7 @@ public class AggregatorFunction implements ProcessFunction {
                     try {
                         oldPeriod = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
                     } catch (JEVisException e) {
-                        logger.error("Could not get old Period: " + e);
+                        logger.error("Could not get old Period: ", e);
                     }
                 }
 
@@ -126,7 +128,7 @@ public class AggregatorFunction implements ProcessFunction {
                 try {
                     newPeriod = new Period(interval.getStart(), interval.getEnd());
                 } catch (Exception e) {
-                    logger.error("Could not get new Period: " + e);
+                    logger.error("Could not get new Period: ", e);
                 }
 
                 for (int i = lastPos; i < samples.size(); i++) {
@@ -140,7 +142,7 @@ public class AggregatorFunction implements ProcessFunction {
                             break;
                         }
                     } catch (JEVisException ex) {
-                        logger.fatal("JEVisException while going through sample: " + ex.getMessage(), ex);
+                        logger.fatal("JEVisException while going through sample: ", ex);
                     }
                 }
 
@@ -175,7 +177,7 @@ public class AggregatorFunction implements ProcessFunction {
                         try {
                             resultSum.setNote("Aggregation(" + oldPeriod.toString() + "/" + newPeriod.toString() + ")");
                         } catch (JEVisException e) {
-                            logger.error("Could not set new Note to sample: " + e);
+                            logger.error("Could not set new Note to sample: ", e);
                         }
                     }
                     result.add(resultSum);
@@ -198,7 +200,7 @@ public class AggregatorFunction implements ProcessFunction {
                     try {
                         resultSum.setNote("Aggregation(" + emptyInterval.getStart().toString() + "/" + emptyInterval.getEnd().toString() + ")");
                     } catch (JEVisException e) {
-                        logger.error("Could not set new Note to sample: " + e);
+                        logger.error("Could not set new Note to sample: ", e);
                     }
                     result.add(resultSum);
                 }
@@ -231,6 +233,144 @@ public class AggregatorFunction implements ProcessFunction {
         List<ProcessOption> options = new ArrayList<>();
 
         return options;
+    }
+
+    @Override
+    public List<JsonSample> getJsonResult(BasicProcess mainTask) {
+        List<JsonSample> result = new ArrayList<>();
+
+        List<List<JsonSample>> allSamples = new ArrayList<>();
+        for (Process task : mainTask.getSubProcesses()) {
+            allSamples.add(task.getJsonResult());
+        }
+
+        List<DateTime> allTimestamps = getAllJsonTimestamps(allSamples);
+        if (allTimestamps.isEmpty()) {
+            return result;
+        }
+
+        StartAndEndDates startAndEndDates = new StartAndEndDates(mainTask).invoke();
+
+//        List<Interval> intervals = ProcessOptions.getIntervals(mainTask, allTimestamps.get(0), allTimestamps.get(allTimestamps.size() - 1));
+        List<Interval> intervals = ProcessOptions.getIntervals(mainTask, startAndEndDates.getStart(), startAndEndDates.getEnd());
+
+        boolean isCustomWorkDay = true;
+        for (ProcessOption option : mainTask.getOptions()) {
+            if (option.getKey().equals(CUSTOM)) {
+                isCustomWorkDay = Boolean.parseBoolean(option.getValue());
+                break;
+            }
+        }
+
+        WorkDays workDays = new WorkDays(mainTask.getObject());
+        workDays.setEnabled(isCustomWorkDay);
+
+        if (workDays.getWorkdayEnd().isBefore(workDays.getWorkdayStart())) {
+            Period period = intervals.get(0).toPeriod();
+            if (period.getDays() > 0 || period.getWeeks() > 0 || period.getMonths() > 0 || period.getYears() > 0) {
+                List<Interval> newIntervals = new ArrayList<>();
+                for (Interval interval : intervals) {
+                    newIntervals.add(new Interval(interval.getStart().minusDays(1), interval.getEnd().minusDays(1)));
+                }
+                if (newIntervals.size() > 0) {
+                    Interval lastInterval = newIntervals.get(newIntervals.size() - 1);
+                    newIntervals.add(new Interval(lastInterval.getEnd(), lastInterval.getEnd().plus(period)));
+                    intervals = newIntervals;
+                }
+            }
+        }
+
+
+        JsonAttribute jsonAttribute = mainTask.getJsonAttribute();
+
+        int lastPos = 0;
+        List<Interval> emptyIntervals = new ArrayList<>();
+        JEVisUnit unit = new JEVisUnitImp(jsonAttribute.getDisplayUnit());
+        for (Interval interval : intervals) {
+            List<JsonSample> samplesInPeriod = new ArrayList<>();
+            //logger.info("interval: " + interval);
+
+            for (List<JsonSample> samples : allSamples) {
+                Period oldPeriod = null;
+                if (samples.size() > 1) {
+                    oldPeriod = new Period(new DateTime(samples.get(0).getTs()), new DateTime(samples.get(1).getTs()));
+                }
+
+                Period newPeriod = null;
+                try {
+                    newPeriod = new Period(interval.getStart(), interval.getEnd());
+                } catch (Exception e) {
+                    logger.error("Could not get new Period: ", e);
+                }
+
+                for (int i = lastPos; i < samples.size(); i++) {
+                    if (interval.contains(new DateTime(samples.get(i).getTs()).plusMillis(1))) {
+                        //logger.info("add sample: " + samples.get(i));
+                        samplesInPeriod.add(samples.get(i));
+                    } else if (new DateTime(samples.get(i).getTs()).equals(interval.getEnd())
+                            || new DateTime(samples.get(i).getTs()).isAfter(interval.getEnd())) {
+                        lastPos = i;
+                        break;
+                    }
+                }
+
+                boolean hasSamples = false;
+                Double sum = 0d;
+
+                for (JsonSample sample : samplesInPeriod) {
+                    sum += Double.parseDouble(sample.getValue());
+                    hasSamples = true;
+                }
+
+                /**
+                 * if its not a quantity the aggregated total value results from the mean value of all samples in a period, not their sum
+                 */
+
+                QuantityUnits qu = new QuantityUnits();
+                boolean isQuantity = qu.isQuantityUnit(unit);
+                isQuantity = qu.isQuantityIfCleanData(mainTask.getSqlDataSource(), jsonAttribute, isQuantity);
+
+                if (hasSamples && !isQuantity) {
+                    sum = sum / samplesInPeriod.size();
+                }
+
+                if (hasSamples) {
+                    JsonSample resultSum = new JsonSample();
+                    resultSum.setTs(interval.getStart().toString());
+                    resultSum.setValue(sum.toString());
+                    if (oldPeriod != null && newPeriod != null) {
+                        resultSum.setNote("Aggregation(" + oldPeriod.toString() + "/" + newPeriod.toString() + ")");
+                    }
+                    result.add(resultSum);
+                } else {
+                    emptyIntervals.add(interval);
+                }
+            }
+        }
+
+//        StartAndEndDates startAndEndDates = new StartAndEndDates(mainTask).invoke();
+        DateTime start = startAndEndDates.getStart();
+        DateTime end = startAndEndDates.getEnd();
+
+        if (start != null && end != null) {
+            for (Interval emptyInterval : emptyIntervals) {
+                if (emptyInterval.getStart().equals(start)
+                        || (emptyInterval.getStart().isAfter(start) && emptyInterval.getStart().isBefore(end))
+                        || emptyInterval.getStart().equals(end)) {
+                    JsonSample resultSum = new JsonSample();
+                    resultSum.setTs(emptyInterval.getStart().toString());
+                    resultSum.setValue(Double.toString(0d));
+
+                    resultSum.setNote("Aggregation(" + emptyInterval.getStart().toString() + "/" + emptyInterval.getEnd().toString() + ")");
+                    result.add(resultSum);
+                }
+            }
+        }
+
+        result.sort((o1, o2) -> DateTimeComparator.getInstance().compare(new DateTime(o1.getTs()), new DateTime(o2.getTs())));
+
+        return result;
+
     }
 
 

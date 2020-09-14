@@ -6,7 +6,8 @@
 package org.jevis.rest;
 
 import org.apache.logging.log4j.LogManager;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;

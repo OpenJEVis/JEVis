@@ -240,7 +240,7 @@ public class JEVisItemLoader {
             if (this.itemObjectLinker.containsKey(obj)) {
                 this.itemObjectLinker.get(obj).setParentForFilter(true);
             } else {
-                logger.error("Parent item not found: " + obj);
+                logger.error("Parent item not found: {}", obj);
             }
         }
 

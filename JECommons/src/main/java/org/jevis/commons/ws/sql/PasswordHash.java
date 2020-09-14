@@ -1,4 +1,4 @@
-package org.jevis.ws.sql;
+package org.jevis.commons.ws.sql;
 
 /*
   Password Hashing With PBKDF2 (http://crackstation.net/hashing-security.htm).

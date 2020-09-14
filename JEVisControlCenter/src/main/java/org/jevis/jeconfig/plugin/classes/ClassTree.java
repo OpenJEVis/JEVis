@@ -60,8 +60,8 @@ import java.util.Map;
 public class ClassTree extends TreeView<JEVisClass> {
     private static final Logger logger = LogManager.getLogger(ClassTree.class);
 
-    private ClassEditor _editor = new ClassEditor();
-    private boolean _editable = false;
+    private final ClassEditor _editor = new ClassEditor();
+    private final boolean _editable = false;
     private JEVisDataSource _ds;
 
     private HashMap<String, TreeItem<JEVisClass>> _itemCache;
@@ -131,7 +131,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                             _editor.setJEVisClass(t1.getValue());
                         }
                     } catch (Exception ex) {
-                        logger.error("Error while changing editor: " + ex);
+                        logger.error("Error while changing editor: ", ex);
                     }
 
                 }
@@ -348,7 +348,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                 if (dia.show(I18n.getInstance().getString("plugin.classes.tree.delete.title"),
                         I18n.getInstance().getString("plugin.classes.tree.delete.title_long"), question) == ConfirmDialog.Response.YES) {
                     try {
-                        logger.info("User want to delete: " + jclass.getName());
+                        logger.info("User want to delete: {}", jclass.getName());
 
                         //done by datasource(server)
 //                        if (jclass.getInheritance() != null) {

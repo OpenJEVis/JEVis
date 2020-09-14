@@ -130,7 +130,7 @@ public class Configuration {
         configuration = ParameterHelper.ParseJEVisConfiguration(args);
         for (JEVisOption opt : configuration) {
             if (opt.equals(JECONFIG)) {
-                logger.info("Found " + JECONFIG.getKey());
+                logger.info("Found {}", JECONFIG.getKey());
                 options = opt;
             }
         }

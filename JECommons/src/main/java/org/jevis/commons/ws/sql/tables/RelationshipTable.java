@@ -17,14 +17,14 @@
  * JEAPI-SQL is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.ws.sql.tables;
+package org.jevis.commons.ws.sql.tables;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonRelationship;
-import org.jevis.ws.sql.SQLDataSource;
-import org.jevis.ws.sql.SQLtoJsonFactory;
+import org.jevis.commons.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLtoJsonFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,7 +42,7 @@ public class RelationshipTable {
     public final static String COLUMN_END = "endobject";
     public final static String COLUMN_TYPE = "relationtype";
     private static final Logger logger = LogManager.getLogger(RelationshipTable.class);
-    private SQLDataSource _connection;
+    private final SQLDataSource _connection;
 
     public RelationshipTable(SQLDataSource ds) {
         _connection = ds;

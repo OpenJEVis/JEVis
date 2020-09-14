@@ -19,7 +19,6 @@ import static org.jevis.report3.data.attribute.AttributeConfigurationFactory.Rep
 import static org.jevis.report3.data.attribute.AttributeConfigurationFactory.ReportConfigurationType.SampleGenerator;
 
 /**
- *
  * @author broder
  */
 public class AttributeConfigurationFactory {
@@ -60,7 +59,7 @@ public class AttributeConfigurationFactory {
             }
             config = new AttributeConfiguration(configName, configType, attributeMap);
         } catch (JEVisException ex) {
-            logger.error("Error while parsing the attribute configuration with name:" + configObject.getName() + " and id " + configObject.getID(), ex);
+            logger.error("Error while parsing the attribute configuration with name: {} and id {}", configObject.getName(), configObject.getID(), ex);
             throw new InvalidParameterException("Error while parsing the attribute configuration with name:" + configObject.getName() + " and id " + configObject.getID());
         }
         return config;
@@ -117,7 +116,7 @@ public class AttributeConfigurationFactory {
                 case ReportAttributeConfiguration.ReportAttributeSpecificValueConfiguration.NAME:
                     return SpecificValue;
                 default:
-                    logger.error(value + " is no valid report attribute configuration");
+                    logger.error("{} is no valid report attribute configuration", value);
                     throw new InvalidParameterException(value + " is no valid report attribute configuration");
             }
         }

@@ -1,11 +1,10 @@
-package org.jevis.ws.sql;
+package org.jevis.commons.ws.sql;
 
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisConstants;
 import org.jevis.commons.ws.json.JsonClassRelationship;
 import org.jevis.commons.ws.json.JsonJEVisClass;
 import org.jevis.commons.ws.json.JsonType;
-import org.jevis.rest.Config;
 
 import java.util.ArrayList;
 import java.util.HashMap;

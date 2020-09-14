@@ -22,7 +22,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class DimpEX {
 
-    private static org.apache.logging.log4j.Logger logger = LogManager.getLogger(DimpEX.class);
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(DimpEX.class);
 
 
     public static DimpexObject export(JEVisObject exObj, boolean includeChildren, DimpExfactory.SampleMode smode) throws JEVisException {
@@ -82,17 +82,17 @@ public class DimpEX {
             try {
                 JEVisClass jclass = ds.getJEVisClass(obj.getJclass());
                 if (jclass == null) {
-                    logger.error("class does not exists: " + obj.getJclass());
+                    logger.error("class does not exists: {}", obj.getJclass());
                     continue;
                 }
                 if (!jclass.isAllowedUnder(parent.getJEVisClass())) {
-                    logger.error("class is not allowed under parent: " + obj.getJclass());
+                    logger.error("class is not allowed under parent: {}", obj.getJclass());
                     continue;
                 }
 
                 JEVisObject newObject = parent.buildObject(obj.getName(), jclass);
                 newObject.commit();
-                logger.info("New ID: " + newObject.getID());
+                logger.info("New ID: {}", newObject.getID());
 
                 if (obj.getChildren() != null) {
                     importALL(ds, obj.getChildren(), newObject);
@@ -104,7 +104,7 @@ public class DimpEX {
                         try {
                             JEVisAttribute att = newObject.getAttribute(datt.getName());
                             if (att == null) {
-                                logger.warn("Attribute does not exists: " + datt.getName());
+                                logger.warn("Attribute does not exists: {}", datt.getName());
                                 continue;
                             }
                             att.setDisplayUnit(new JEVisUnitImp(datt.getDisplayUnit()));

@@ -83,7 +83,7 @@ public class AlarmHandler {
                 try {
                     JEVisObject obj = _ds.getObject(Long.parseLong(dp));
                     if (obj != null && obj.getJEVisClass().getName().equals("Data")) {
-                        logger.info("Add dP: " + obj.getName());
+                        logger.info("Add dP: {}", obj.getName());
                         dps.add(obj);
                     }
                 } catch (Exception ex) {
@@ -350,7 +350,7 @@ public class AlarmHandler {
 
             Transport.send(msg);
         } catch (Exception ex) {
-            logger.info("could not send Email: " + ex);
+            logger.info("could not send Email: ", ex);
         }
 
     }

@@ -38,8 +38,8 @@ public class NumberSpinner extends HBox {
     public static final String SPINNER_BUTTON_UP = "SpinnerButtonUp";
     public static final String SPINNER_BUTTON_DOWN = "SpinnerButtonDown";
     private final String BUTTONS_BOX = "ButtonsBox";
-    private NumberTextField numberField;
-    private ObjectProperty<BigDecimal> stepWitdhProperty = new SimpleObjectProperty<>();
+    private final NumberTextField numberField;
+    private final ObjectProperty<BigDecimal> stepWitdhProperty = new SimpleObjectProperty<>();
     private final double ARROW_SIZE = 4;
     private final Button incrementButton;
     private final Button decrementButton;
@@ -190,11 +190,11 @@ public class NumberSpinner extends HBox {
 
     // debugging layout bounds
     public void dumpSizes() {
-        logger.info("numberField (layout)=" + numberField.getLayoutBounds());
-        logger.info("buttonInc (layout)=" + incrementButton.getLayoutBounds());
-        logger.info("buttonDec (layout)=" + decrementButton.getLayoutBounds());
-        logger.info("binding=" + buttonHeight.toString());
-        logger.info("spacing=" + spacing.toString());
+        logger.info("numberField (layout)={}", numberField.getLayoutBounds());
+        logger.info("buttonInc (layout)={}", incrementButton.getLayoutBounds());
+        logger.info("buttonDec (layout)={}", decrementButton.getLayoutBounds());
+        logger.info("binding={}", buttonHeight.toString());
+        logger.info("spacing={}", spacing.toString());
     }
 
 }

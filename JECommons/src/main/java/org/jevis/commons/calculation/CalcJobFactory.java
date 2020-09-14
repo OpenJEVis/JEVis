@@ -56,7 +56,7 @@ public class CalcJobFactory {
             throw new RuntimeException("No output target");
         }
 
-        logger.debug("start time is: " + startTime);
+        logger.debug("start time is: {}", startTime);
 
         List<CalcInputObject> calcInputObjects = getInputDataObjects(jevisObject, ds, startTime, endTime, aggregationPeriod);
         if (calcInputObjects.isEmpty()) {
@@ -108,7 +108,7 @@ public class CalcJobFactory {
             throw new RuntimeException("No output target");
         }
 
-        logger.debug("start time is: " + startTime);
+        logger.debug("start time is: {}", startTime);
 
         List<CalcInputObject> calcInputObjects = getInputDataObjects(jevisObject, ds, startTime, endTime, absolute);
         if (calcInputObjects.isEmpty()) {
@@ -167,7 +167,7 @@ public class CalcJobFactory {
             }
 
         } else startTime = lastEndTime;
-        logger.debug("start time is: " + startTime);
+        logger.debug("start time is: {}", startTime);
 
         List<CalcInputObject> calcInputObjects = getInputDataObjects(jevisObject, startTime, ds);
         if (calcInputObjects.isEmpty()) {

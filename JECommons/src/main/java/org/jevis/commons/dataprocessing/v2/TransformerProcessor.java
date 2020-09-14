@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author Florian Simon
  */
 public class TransformerProcessor implements Function {
@@ -58,7 +57,7 @@ public class TransformerProcessor implements Function {
 
     @Override
     public void setObject(JEVisObject object) {
-        logger.info("SetObject: " + object.getName());
+        logger.info("SetObject: {}", object.getName());
         this.dataProcessorObject = object;
     }
 
@@ -99,7 +98,7 @@ public class TransformerProcessor implements Function {
 //        } else {
 //
 //        }
-        logger.info("Using M:" + m + "  B:" + b);
+        logger.info("Using M: {} B: {}", m, b);
         for (JEVisSample sample : inputs.get(0).getSamples()) {
 
             try {

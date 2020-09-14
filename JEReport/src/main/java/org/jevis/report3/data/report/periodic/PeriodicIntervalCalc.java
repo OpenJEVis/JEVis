@@ -115,7 +115,7 @@ public class PeriodicIntervalCalc implements IntervalCalculator {
             intervalMap.put(nameFixedToReportEnd, intervalFixedToReportEnd);
         }
 
-        logger.info("Initialized Interval Map. Created " + intervalMap.size() + " entries.");
+        logger.info("Initialized Interval Map. Created {} entries", intervalMap.size());
     }
 
     private DateTime getEndForFixed(Period schedule, DateTime start) {

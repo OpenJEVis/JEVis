@@ -114,7 +114,7 @@ public interface DataSource {
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source last run time: " + e);
+            logger.error("Could not get data source last run time: ", e);
         }
 
         return dateTime;
@@ -133,7 +133,7 @@ public interface DataSource {
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source cycle time: " + e);
+            logger.error("Could not get data source cycle time: ", e);
         }
 
         return aLong;
@@ -151,7 +151,7 @@ public interface DataSource {
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source last run time: " + e);
+            logger.error("Could not get data source last run time: ", e);
         }
     }
 }

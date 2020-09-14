@@ -37,7 +37,7 @@ public class FunctionPane extends Region {
     Button newB = new Button("", JEConfig.getImage("list-add.png", 12, 12));
 
     public FunctionPane(Process thisTask) {
-        logger.info("FunctionPane: " + thisTask.getFunction().getName());
+        logger.info("FunctionPane: {}", thisTask.getFunction().getName());
         GridPane layout = new GridPane();
         layout.setHgap(7);
         layout.setVgap(7);
@@ -156,7 +156,7 @@ public class FunctionPane extends Region {
 
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                logger.info("Select GUI Tpye: " + newValue);
+                logger.info("Select GUI Tpye: {}", newValue);
                 try {
 
                 } catch (Exception ex) {

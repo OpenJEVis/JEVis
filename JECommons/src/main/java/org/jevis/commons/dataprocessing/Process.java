@@ -5,10 +5,15 @@
  */
 package org.jevis.commons.dataprocessing;
 
-import java.util.List;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.ws.json.JsonAttribute;
+import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.SQLDataSource;
+
+import java.util.List;
 
 /**
  *
@@ -24,11 +29,25 @@ public interface Process {
     void setJEVisDataSource(JEVisDataSource ds);
 
     /**
+     * Set the SQLDatasource
+     *
+     * @param ds
+     */
+    void setSQLDataSource(SQLDataSource ds);
+
+    /**
      * Returns the JEVisDatasource
      *
      * @return
      */
     JEVisDataSource getJEVisDataSource();
+
+    /**
+     * Returns the SQLDatasource
+     *
+     * @return
+     */
+    SQLDataSource getSqlDataSource();
 
     /**
      * Set the ID of this Task. The ID should be Unique unter the parent task.
@@ -80,24 +99,34 @@ public interface Process {
      */
     List<JEVisSample> getResult();
 
+    List<JsonSample> getJsonResult();
+
     void setSubProcesses(List<Process> processes);
 
     List<Process> getSubProcesses();
 
-    public void setObject(JEVisObject object);
+    JEVisObject getObject();
 
-    public JEVisObject getObject();
+    void setObject(JEVisObject object);
 
-    public void restResult();
+    JsonObject getJsonObject();
 
-    public Process getParent();
+    void setJsonObject(JsonObject object);
+
+    JsonAttribute getJsonAttribute();
+
+    void setJsonAttribute(JsonAttribute object);
+
+    void restResult();
+
+    Process getParent();
 
     /**
      * Note will not set the child in the parent....
      *
      * @param parent
      */
-    public void setParent(Process parent);
+    void setParent(Process parent);
 
 //    public Task setParent(Task parent);
 }

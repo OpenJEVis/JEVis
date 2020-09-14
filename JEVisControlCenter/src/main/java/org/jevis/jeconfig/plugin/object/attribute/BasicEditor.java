@@ -50,10 +50,10 @@ public abstract class BasicEditor implements AttributeEditor {
     private final double height = 28;
     private final double maxWidth = GenericAttributeExtension.editorWidth.getValue();
     private final HBox editorNode = new HBox();
-    private JEVisSample orgSample;
+    private final JEVisSample orgSample;
     private boolean readonly = false;
     private Object finalNewValue;
-    private BooleanProperty isValid = new SimpleBooleanProperty(false);
+    private final BooleanProperty isValid = new SimpleBooleanProperty(false);
 
     /**
      * @param att
@@ -125,7 +125,7 @@ public abstract class BasicEditor implements AttributeEditor {
         try {
             if (att.getInputUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
                 JFXTextField ubutton = new JFXTextField();
-                ubutton.setPrefWidth(40);
+                ubutton.setPrefWidth(45);
                 ubutton.setEditable(false);
                 if (att.getDisplayUnit() != null && !att.getInputUnit().getLabel().isEmpty()) {
                     ubutton.setText(UnitManager.getInstance().format(this.attribute.getDisplayUnit().getLabel()));
