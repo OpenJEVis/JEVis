@@ -51,7 +51,53 @@ import java.util.prefs.Preferences;
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.40------\n" +
+            "------Version 3.9.41------\n" +
+                    "JECC - BaseDataPlugin - initial commit\n" +
+                    "JECC - Charts - 15-minute value aggregation doesn't work\n" +
+                    "JECC - Charts - Title for table charts isn't showing\n" +
+                    "JECC - Charts - TableChart - added sums for columns and rows\n" +
+                    "JECC - Charts/Dashboards - showing secondary y-axis even though not needed\n" +
+                    "JECC - ConfigurationPlugin - Added option for moving timestamps of samples\n" +
+                    "JECC - DashboardPlugin - ValueWidget - content should be default aligned right\n" +
+                    "JECC - RolesExtension - initial commit\n" +
+                    "JECC - SampleEditor - SamplingRateUI - added translation for monthly\n" +
+                    "JECC - SampleGraphExtension - fixed null pointer\n" +
+                    "\n" +
+                    "JECommons - AbstractCliApp - limited service status history\n" +
+                    "JECommons - AbstractCliApp - fixes\n" +
+                    "JECommons - AbstractCliApp - increased reconnect to 2 minutes\n" +
+                    "JECommons - AbstractCliApp - removed old queue pool, fixed service timeout\n" +
+                    "JECommons - AbstractCliApp - added datetime to process maps for auto timeout\n" +
+                    "JECommons - AbstractCliApp - added reconnect feature\n" +
+                    "JECommons - AbstractCliApp - fixed some problems with connection loss\n" +
+                    "JECommons - TaskPrinter - fixed some error for no step processes\n" +
+                    "\n" +
+                    "JEAPI-WS - Add sql reconnect function\n" +
+                    "JEAPI-WS - JEVisDataSourceWS - fixed broken attributes message for invalid objects\n" +
+                    "JEAPI-WS - HTTPConnection - set read timeout to standard 2 minutes\n" +
+                    "JEAPI-WS - JEVisDataSourceWS - optimized logging messages\n" +
+                    "JEAPI-WS - JEVisDataSourceWS - fixed multiple null pointer\n" +
+                    "\n" +
+                    "JECalc - CalcJobFactory - fixed incomplete input readout\n" +
+                    "JECalc - CalcLauncher - fixed task list\n" +
+                    "\n" +
+                    "JEDataProcessor - CleanDataObject - added error message for no new raw samples to improve performance\n" +
+                    "JEDataProcessor - TaskPrinter - fixed process time from incorrect display\n" +
+                    "JEDataProcessor - fixed null pointer\n" +
+                    "\n" +
+                    "JEWebservice - Add User Notes and User Values rule exception handling.\n" +
+                    "JEWebservice - Add batch sample request, 10000 samples per request\n" +
+                    "\n" +
+                    "AppLauncher - fixed some errors\n" +
+                    "Improved logger message performance\n" +
+                    "Minor logging changes\n" +
+                    "Removed useless debug messages.\n" +
+                    "\n" +
+                    "Classes - added missing base data plugin class\n" +
+                    "Classes - Updated roll classes\n" +
+                    "Classes - added base data classes\n" +
+                    "Classes - Permission templates\n\n" +
+                    "------Version 3.9.40------\n" +
                     "JECC - Charts - TableChart - improved performance \n" +
                     "JECC - Charts - TableChart - added date formats for different periods\n" +
                     "JECC - Charts - fixed a null pointer in preview settings on empty data rows\n" +

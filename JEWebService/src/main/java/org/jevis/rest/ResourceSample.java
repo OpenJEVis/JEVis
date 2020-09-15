@@ -139,7 +139,7 @@ public class ResourceSample {
             return Response.status(200).build();
 
         } catch (AuthenticationException ex) {
-            logger.error("Auth errror: {}", ex);
+            logger.error("Auth error: {}", ex);
             return Response.status(Response.Status.UNAUTHORIZED).build();
 //            return Response.status(Response.Status.UNAUTHORIZED).entity(ex.getMessage()).build();
 
@@ -361,7 +361,7 @@ public class ResourceSample {
         if (input != null && input.length() > 0) {
             try {
                 ds = new SQLDataSource(httpHeaders, request, url);
-                logger.error("Post: {}-{}  input: {}", id, attribute, input);
+                logger.debug("Post: {}-{}  input: {}", id, attribute, input);
                 JsonObject object = ds.getObject(id);
                 boolean canExecute = false;
                 boolean canWrite = false;
@@ -408,10 +408,11 @@ public class ResourceSample {
                         // If user can write -> OK
                         // If user can execute and only Note changed -> OK
                         int result = 0;
-                        if (canWrite) {
+                        if (canWrite || (canExecute &&
+                                (object.getJevisClass().equals("Data Notes") || object.getJevisClass().equals("User Data")))) {
                             logger.debug("canWrite import");
                             result = ds.setSamples(id, attribute, type.getPrimitiveType(), samples);
-                        } else if (canExecute) {
+                        } else if (canExecute && object.getJevisClass().equals(this.executeUpdateExceptions.get(2))) {
                             /** update notes but not samples **/
                             logger.debug("canExecute Sample: {}-{} for: {}", id, att, ds.getCurrentUser().getAccountName());
                             for (JsonSample jsonSample : samples) {
@@ -486,6 +487,10 @@ public class ResourceSample {
             if (object.getJevisClass().equals("User") && object.getId() == ds.getCurrentUser().getUserID()) {
                 if (attribute.equals("Enabled") || attribute.equals("Sys Admin")) {
                     throw new JEVisException("permission denied", 3022);
+                }
+            } else if (object.getJevisClass().equals("Data Notes") || object.getJevisClass().equals("User Data")) {
+                if (!ds.getUserManager().canExecuteWOE(object)) {
+                    ds.getUserManager().canDelete(object);
                 }
             } else {
                 ds.getUserManager().canDelete(object);
