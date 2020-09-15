@@ -361,7 +361,7 @@ public class ResourceSample {
         if (input != null && input.length() > 0) {
             try {
                 ds = new SQLDataSource(httpHeaders, request, url);
-                logger.error("Post: {}-{}  input: {}", id, attribute, input);
+                logger.debug("Post: {}-{}  input: {}", id, attribute, input);
                 JsonObject object = ds.getObject(id);
                 boolean canExecute = false;
                 boolean canWrite = false;
