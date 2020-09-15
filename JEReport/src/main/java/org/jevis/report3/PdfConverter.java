@@ -7,11 +7,10 @@ package org.jevis.report3;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jodconverter.LocalConverter;
-import org.jodconverter.office.InstalledOfficeManagerHolder;
-import org.jodconverter.office.LocalOfficeManager;
-import org.jodconverter.office.OfficeException;
-import org.jodconverter.office.OfficeUtils;
+import org.jodconverter.core.office.OfficeException;
+import org.jodconverter.core.office.OfficeUtils;
+import org.jodconverter.local.JodConverter;
+import org.jodconverter.local.office.LocalOfficeManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,14 +48,15 @@ public class PdfConverter {
     public File runPdfConverter() {
 
         final LocalOfficeManager officeManager = LocalOfficeManager.builder()
-                .processTimeout(600000L)
-                .taskExecutionTimeout(600000L)
-                .taskQueueTimeout(900000L)
+                .processTimeout(900000L)
+                .taskExecutionTimeout(900000L)
+                .taskQueueTimeout(1200000L)
+                .install()
                 .build();
-        InstalledOfficeManagerHolder.setInstance(officeManager);
+
         try {
             officeManager.start();
-            LocalConverter.make()
+            JodConverter
                     .convert(xlsFile)
                     .to(pdfFile)
                     .execute();

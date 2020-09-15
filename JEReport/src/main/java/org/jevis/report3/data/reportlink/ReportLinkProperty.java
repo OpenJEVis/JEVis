@@ -185,21 +185,25 @@ public class ReportLinkProperty implements ReportData {
                                     attribute = dataObject.getAttribute(attributeProperty.getAttributeName());
                                     ds = dataObject.getDataSource();
                                 } catch (JEVisException ex) {
-                                    logger.error(ex);
+                                    logger.error("Could not get attribute or datasource with name {} of object {}:{}", attributeProperty.getAttributeName(), dataObject.getName(), dataObject.getID(), ex);
                                 }
 
                                 String aggregationName = null;
                                 String manipulationName = null;
                                 try {
-                                    aggregationName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION).getLatestSample().getValueAsString();
+                                    if (periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION).hasSample()) {
+                                        aggregationName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION).getLatestSample().getValueAsString();
+                                    }
                                 } catch (Exception ex) {
-                                    logger.error(ex);
+                                    logger.error("Could not get aggregation name", ex);
                                 }
 
                                 try {
-                                    manipulationName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.MANIPULATION).getLatestSample().getValueAsString();
+                                    if (periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.MANIPULATION).hasSample()) {
+                                        manipulationName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.MANIPULATION).getLatestSample().getValueAsString();
+                                    }
                                 } catch (Exception ex) {
-                                    logger.error(ex);
+                                    logger.error("Could not get manipulation name", ex);
                                 }
 
                                 AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
@@ -211,7 +215,7 @@ public class ReportLinkProperty implements ReportData {
 
                                 ManipulationMode manipulationMode = ManipulationMode.NONE;
                                 if (manipulationName != null) {
-                                    manipulationMode = ManipulationMode.get(manipulationName.toUpperCase());
+                                    manipulationMode = ManipulationMode.parseManipulation(manipulationName.toUpperCase());
                                 } else if (aggregationName != null) {
                                     manipulationMode = ManipulationMode.get(aggregationName.toUpperCase());
                                 }
@@ -343,7 +347,7 @@ public class ReportLinkProperty implements ReportData {
 //                                }
 
                                 linkMap.putAll(ProcessHelper.getAttributeSamples(attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString()), attribute, property.getTimeZone()));
-                                logger.info("added link map {} to attribute map", linkMap.entrySet());
+                                logger.debug("added link map {} to attribute map", linkMap.entrySet());
                             }
                             break;
                             case SpecificValue:
@@ -351,7 +355,7 @@ public class ReportLinkProperty implements ReportData {
 
                                 try {
                                     linkMap.putAll(sampleGenerator.work(linkProperty, attributeProperty, property));
-                                    logger.info("added link map {}  to attribute map", linkMap.entrySet());
+                                    logger.debug("added link map {}  to attribute map", linkMap.entrySet());
                                 } catch (JEVisException e) {
                                     logger.error(e);
                                 }
