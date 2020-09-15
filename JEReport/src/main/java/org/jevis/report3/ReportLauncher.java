@@ -60,7 +60,7 @@ public class ReportLauncher extends AbstractCliApp {
 
     private void executeReports(List<JEVisObject> reportObjects) {
 
-        logger.info("Number of Reports: " + reportObjects.size());
+        logger.info("Number of Reports: {}", reportObjects.size());
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         reportObjects.forEach(reportObject -> {
@@ -74,7 +74,7 @@ public class ReportLauncher extends AbstractCliApp {
                         LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.STARTED);
 
                         logger.info("---------------------------------------------------------------------");
-                        logger.info("current report object: " + reportObject.getName() + " with id: " + reportObject.getID());
+                        logger.info("current report object: {} with id: {}", reportObject.getName(), reportObject.getID());
                         //check if the report is enabled
                         ReportPolicy reportPolicy = new ReportPolicy(); //Todo inject in constructor
                         Boolean reportEnabled = reportPolicy.isReportEnabled(reportObject);
@@ -90,14 +90,14 @@ public class ReportLauncher extends AbstractCliApp {
                         LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FAILED);
                         removeJob(reportObject);
 
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
 
                         checkLastJob();
                     } finally {
                         LogTaskManager.getInstance().getTask(reportObject.getID()).setStatus(Task.Status.FINISHED);
                         removeJob(reportObject);
 
-                        logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
+                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
 
                         checkLastJob();
                     }
@@ -132,10 +132,10 @@ public class ReportLauncher extends AbstractCliApp {
             JEVisObject reportObject = null;
 
             try {
-                logger.info("Try adding Single Mode for ID " + id);
+                logger.info("Try adding Single Mode for ID {}", id);
                 reportObject = ds.getObject(id);
             } catch (Exception ex) {
-                logger.error("Could not find Object with id: " + id);
+                logger.error("Could not find Object with id: {}", id);
             }
 
             if (reportObject != null) {
@@ -167,7 +167,7 @@ public class ReportLauncher extends AbstractCliApp {
                     List<JEVisObject> reports = getEnabledReports();
                     executeReports(reports);
 
-                    logger.info("Queued all report objects, entering sleep mode for " + cycleTime + " ms.");
+                    logger.info("Queued all report objects, entering sleep mode for {} ms", cycleTime);
 
                 } else {
                     logger.info("Service was disabled.");

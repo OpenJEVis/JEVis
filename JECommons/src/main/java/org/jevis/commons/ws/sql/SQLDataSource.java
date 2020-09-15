@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.ws.sql;
+package org.jevis.commons.ws.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
@@ -17,9 +17,7 @@ import org.jevis.api.JEVisRelationship;
 import org.jevis.commons.JEVisFileImp;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.ws.json.*;
-import org.jevis.rest.Config;
-import org.jevis.rest.ErrorBuilder;
-import org.jevis.ws.sql.tables.*;
+import org.jevis.commons.ws.sql.tables.*;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
@@ -45,8 +43,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SQLDataSource {
 
-    private static final Logger logger = LogManager.getLogger(org.jevis.ws.sql.SQLDataSource.class);
-    private Connection dbConn;
+    private static final Logger logger = LogManager.getLogger(SQLDataSource.class);
+    private final Connection dbConn;
     private JEVisUserNew user;
 
     private LoginTable lTable;

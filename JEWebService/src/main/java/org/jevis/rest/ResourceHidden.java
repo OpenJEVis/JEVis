@@ -22,8 +22,9 @@ package org.jevis.rest;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jevis.api.JEVisException;
-import org.jevis.ws.sql.SQLDataSource;
-import org.jevis.ws.sql.tables.Service;
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.tables.Service;
 
 import javax.security.sasl.AuthenticationException;
 import javax.ws.rs.GET;

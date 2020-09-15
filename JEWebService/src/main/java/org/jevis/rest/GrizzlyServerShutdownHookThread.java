@@ -33,10 +33,10 @@ public class GrizzlyServerShutdownHookThread extends Thread {
         GrizzlyFuture<HttpServer> future = server.shutdown();
 
         try {
-            logger.info("Waiting for server to shut down... Grace period is " + GRACE_PERIOD + GRACE_PERIOD_TIME_UNIT);
+            logger.info("Waiting for server to shut down... Grace period is {} {}", GRACE_PERIOD, GRACE_PERIOD_TIME_UNIT);
             future.get();
         } catch (InterruptedException | ExecutionException e) {
-            logger.info("Error while shutting down server. " + e);
+            logger.info("Error while shutting down server. ", e);
         }
 
         logger.info("Server stopped.");

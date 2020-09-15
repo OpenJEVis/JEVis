@@ -17,20 +17,19 @@
   JEAPI-SQL is part of the OpenJEVis project, further project information are
   published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.ws.sql.tables;
+package org.jevis.commons.ws.sql.tables;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisExceptionCodes;
-import org.jevis.ws.sql.JEVisUserNew;
-import org.jevis.ws.sql.PasswordHash;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.JEVisUserNew;
+import org.jevis.commons.ws.sql.PasswordHash;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,7 +45,7 @@ public class LoginTable {
     public final static String COLUMN_ENABLED = "enabled";
     public final static String COLUMN_SYS_ADMIN = "sysadmin";
     private static final Logger logger = LogManager.getLogger(LoginTable.class);
-    private SQLDataSource _connection;
+    private final SQLDataSource _connection;
 
     public LoginTable(SQLDataSource ds) {
         _connection = ds;

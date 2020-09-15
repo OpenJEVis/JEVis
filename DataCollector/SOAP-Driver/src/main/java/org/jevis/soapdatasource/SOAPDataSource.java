@@ -84,7 +84,7 @@ public class SOAPDataSource {
             if (_ssl) {
                 uri = uri.replace("http", "https");
             }
-            logger.info("SOAP Uri: " + uri);
+            logger.info("SOAP Uri: {}", uri);
             URL serverURL = new URL(new URL(uri),
                     "",
                     new URLStreamHandler() {
@@ -175,7 +175,7 @@ public class SOAPDataSource {
             soapPart.setContent(new DOMSource(doc));
 
         } catch (Exception ex) {
-            logger.error("Host: " + _host);
+            logger.error("Host: {}", _host);
             logger.error(ex);
         }
 

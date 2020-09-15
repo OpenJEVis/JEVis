@@ -83,7 +83,7 @@ public class ReportExecutor {
         for (ReportData curData : reportLinks) {
             ReportData.LinkStatus reportLinkStatus = curData.getReportLinkStatus(end);
             if (!reportLinkStatus.isSanityCheck()) {
-                logger.error("Report " + this.reportObject.getName() + ":" + this.reportObject.getID() + " - " + reportLinkStatus.getMessage());
+                logger.error("Report {}:{} - {}", this.reportObject.getName(), this.reportObject.getID(), reportLinkStatus.getMessage());
                 isDataAvailable.set(false);
             }
         }
@@ -102,7 +102,7 @@ public class ReportExecutor {
 
         Report report = new Report(property, contextMap);
 
-        logger.info("Built context. " + contextMap.size());
+        logger.info("Built context. {}", contextMap.size());
 
         if (isPeriodicReport(reportObject) && !isPeriodicConditionReached(reportObject, new SampleHandler())) {
             logger.info("condition not reached");
@@ -139,7 +139,7 @@ public class ReportExecutor {
                 JEVisFile jeVisFilePDFImp = new JEVisFileImp(reportName + ".pdf", pdfFile);
                 lastReportPDFAttribute.buildSample(new DateTime(), jeVisFilePDFImp).commit();
             } catch (Exception e) {
-                logger.error("Could not initialize pdf converter. " + e);
+                logger.error("Could not initialize pdf converter. ", e);
             }
             if (property.getToPdf() && pdfFile != null) {
                 fileForNotification = new JEVisFileImp(reportName + ".pdf", pdfFile);

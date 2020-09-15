@@ -98,7 +98,7 @@ public class XYChartSerie {
                     setTimeStampFromLastSample(samples.get(samples.size() - 1).getTimestamp());
 
             } catch (Exception e) {
-                logger.error("Couldn't get timestamps from samples. " + e);
+                logger.error("Couldn't get timestamps from samples. ", e);
             }
         }
 

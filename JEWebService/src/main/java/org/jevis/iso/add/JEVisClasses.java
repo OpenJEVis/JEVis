@@ -6,7 +6,7 @@
 package org.jevis.iso.add;
 
 import org.jevis.commons.ws.json.JsonJEVisClass;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 /**
  * @author <gerrit.schutz@envidatec.com>Gerrit Schutz</gerrit.schutz@envidatec.com>

@@ -4,7 +4,7 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonClassRelationship;
 import org.jevis.commons.ws.json.JsonObject;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +18,9 @@ public class JEVisObjectTree {
 
     private final String closeElement = "</li>";
     private String _bauth = "";
-    private SQLDataSource _ds;
+    private final SQLDataSource _ds;
     private Long id = 0L;
-    private JsonObject parent;
+    private final JsonObject parent;
     private String output = "";
     private List<JsonObject> list = new ArrayList<>();
     private List<JsonClassRelationship> listCRel = new ArrayList<>();

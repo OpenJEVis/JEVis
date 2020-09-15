@@ -24,7 +24,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonAttribute;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 import javax.annotation.PostConstruct;
 import javax.security.sasl.AuthenticationException;

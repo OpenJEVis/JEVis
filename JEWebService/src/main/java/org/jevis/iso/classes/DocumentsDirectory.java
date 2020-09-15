@@ -7,8 +7,8 @@ package org.jevis.iso.classes;
 
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.iso.add.Snippets;
-import org.jevis.ws.sql.SQLDataSource;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -29,22 +29,22 @@ public class DocumentsDirectory {
 
     private EnergyManager energymanager;
     private List<ActionPlan> ActionPlans;
-    private List<Long> ActionPlansYears;
+    private final List<Long> ActionPlansYears;
     private List<Announcement> Announcements;
-    private List<Long> AnnouncementsYears;
+    private final List<Long> AnnouncementsYears;
     private List<EnergyTeamMember> EnergyTeamMember;
     private List<ExternalAudit> ExternalAudits;
-    private List<Long> ExternalAuditsYears;
+    private final List<Long> ExternalAuditsYears;
     private List<InternalAudit> InternalAudits;
-    private List<Long> InternalAuditsYears;
+    private final List<Long> InternalAuditsYears;
     private List<LegalRegulation> LegalRegulations;
     private ManagementManualDirectory managementManualDirectory;
     private List<ManagementReview> ManagementReviews;
-    private List<Long> ManagementReviewsYears;
+    private final List<Long> ManagementReviewsYears;
     private List<ProceduralDocument> ProceduralDocuments;
     private List<TrainingCourse> TrainingCourses;
     private List<Training> Trainings;
-    private List<Long> TrainingsYears;
+    private final List<Long> TrainingsYears;
 
     private String actionPlansName;
     private long actionPlansDirID;
@@ -276,7 +276,7 @@ public class DocumentsDirectory {
                             DateTimeFormatter format = DateTimeFormat.forPattern("dd.MM.yyyy");
                             if (!"".equals(s)) {
                                 DateTime dt = format.parseDateTime(s);
-                                long now = ((long) dt.getYear());
+                                long now = dt.getYear();
                                 if (Objects.equals(now, Year)) {
                                     ap = new ActionPlan(getDs(), m);
                                 }

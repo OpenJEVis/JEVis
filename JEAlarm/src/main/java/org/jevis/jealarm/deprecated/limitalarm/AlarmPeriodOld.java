@@ -19,9 +19,9 @@ public class AlarmPeriodOld {
     private static final Logger logger = LogManager.getLogger(AlarmPeriodOld.class);
 
     private DateTime alarmRaist;
-    private List<Double> sollValues = new ArrayList<>();
+    private final List<Double> sollValues = new ArrayList<>();
     private double tolerance = 0;
-    private List<Double> istValues = new ArrayList<>();
+    private final List<Double> istValues = new ArrayList<>();
     private DateTime lastAlarm;
 
     public AlarmPeriodOld() {
@@ -34,7 +34,7 @@ public class AlarmPeriodOld {
             alarmRaist = date;
         }
         lastAlarm = date;
-        logger.info("---Add to period: " + alarmRaist + "   new end: " + lastAlarm);
+        logger.info("---Add to period: {} new end: {}", alarmRaist, lastAlarm);
     }
 
     public void setTolerance(Double tol) {

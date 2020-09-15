@@ -36,7 +36,7 @@ public class UserRightManager {
     private static final Logger logger = LogManager.getLogger(UserRightManager.class);
     private final JEVisUser user;
     private List<JEVisRelationship> permissions = new ArrayList<>();
-    private JEVisDataSource ds;
+    private final JEVisDataSource ds;
     private List<Long> readGIDS;
     private List<Long> createGIDS;
     private List<Long> deleteGIDS;
@@ -65,9 +65,7 @@ public class UserRightManager {
     private boolean isRuleException(long objectID) {
         try {
             if (canRead(objectID)) {
-                if (ds.getObject(objectID).getJEVisClassName().equals("Data Notes")) {
-                    return true;
-                }
+                return ds.getObject(objectID).getJEVisClassName().equals("Data Notes");
             }
             return false;
 
@@ -202,13 +200,13 @@ public class UserRightManager {
             deleteGIDS = new ArrayList<Long>();
             exeGIDS = new ArrayList<Long>();
 
-            logger.info("UserID: " + user.getUserID());
+            logger.info("UserID: {}", user.getUserID());
             for (JEVisRelationship or : permissions) {
 
                 try {
-                    logger.info("Type: " + or.getType());
+                    logger.info("Type: {}", or.getType());
                     if (or.getType() >= JEVisConstants.ObjectRelationship.MEMBER_READ || or.getStartID() == user.getUserID()) {
-                        logger.info("Membership: " + or);
+                        logger.info("Membership: {}", or);
                     }
 
 

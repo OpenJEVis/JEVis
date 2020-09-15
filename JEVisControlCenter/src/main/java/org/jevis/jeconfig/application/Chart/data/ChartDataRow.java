@@ -11,7 +11,10 @@ import org.jevis.commons.constants.AlarmConstants;
 import org.jevis.commons.constants.NoteConstants;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
-import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.dataprocessing.AggregationPeriod;
+import org.jevis.commons.dataprocessing.CleanDataObject;
+import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
@@ -277,19 +280,20 @@ public class ChartDataRow {
                 if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                     try {
                         if (!isEnPI || (aggregationPeriod.equals(AggregationPeriod.NONE) && !absolute)) {
-                            SampleGenerator sg = new SampleGenerator(
-                                    attribute.getDataSource(),
-                                    attribute.getObject(),
-                                    attribute,
-                                    selectedStart, selectedEnd,
-                                    customWorkDay,
-                                    manipulationMode,
-                                    aggregationPeriod);
-
+//                            SampleGenerator sg = new SampleGenerator(
+//                                    attribute.getDataSource(),
+//                                    attribute.getObject(),
+//                                    attribute,
+//                                    selectedStart, selectedEnd,
+//                                    customWorkDay,
+//                                    manipulationMode,
+//                                    aggregationPeriod);
                             if (!isStringData) {
-                                samples = factorizeSamples(sg.getAggregatedSamples());
+//                                samples = factorizeSamples(sg.getAggregatedSamples());
+                                samples = factorizeSamples(attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString()));
                             } else {
-                                samples = sg.getAggregatedSamples();
+//                                samples = sg.getAggregatedSamples();
+                                samples = attribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString());
                             }
 
                         } else {
@@ -409,15 +413,7 @@ public class ChartDataRow {
             }
             if (getSelectedStart().isBefore(getSelectedEnd()) || getSelectedStart().equals(getSelectedEnd())) {
                 try {
-
-                    SampleGenerator sg = new SampleGenerator(forecastDataAttribute.getDataSource(),
-                            forecastDataAttribute.getObject(),
-                            forecastDataAttribute,
-                            selectedStart, selectedEnd,
-                            customWorkDay,
-                            manipulationMode, aggregationPeriod);
-
-                    samples = sg.getAggregatedSamples();
+                    samples = forecastDataAttribute.getSamples(selectedStart, selectedEnd, customWorkDay, aggregationPeriod.toString(), manipulationMode.toString());
 
                     if (!isStringData) {
                         samples = factorizeSamples(samples);

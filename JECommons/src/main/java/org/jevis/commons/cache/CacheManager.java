@@ -49,10 +49,10 @@ public class CacheManager {
     public void addObject(JEVisObject obj) {
         synchronized (objects) {
             if (!objects.containsKey(obj.getID())) {
-                logger.info("==add object to cache: " + obj.getID());
+                logger.info("==add object to cache: {}", obj.getID());
                 objects.put(obj.getID(), obj);
             } else {
-                logger.info("==object is already in cache: " + obj.getID());
+                logger.info("==object is already in cache: {}", obj.getID());
             }
         }
     }
@@ -64,7 +64,7 @@ public class CacheManager {
     }
 
     public boolean containsObject(Long id) {
-        logger.info("==cache size: " + objects.size());
+        logger.info("==cache size: {}", objects.size());
         synchronized (objects) {
             return objects.containsKey(id);
         }

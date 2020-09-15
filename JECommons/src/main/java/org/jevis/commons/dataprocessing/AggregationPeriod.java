@@ -22,19 +22,29 @@ public enum AggregationPeriod {
     public static AggregationPeriod parseAggregation(String aggregation) {
         switch (aggregation) {
             case ("Quarter Hourly"):
+            case ("Quarterly Hourly"):
+            case ("QUARTER_HOURLY"):
+            case ("QUARTERLY_HOURLY"):
                 return QUARTER_HOURLY;
+            case ("HOURLY"):
             case ("Hourly"):
                 return HOURLY;
+            case ("DAILY"):
             case ("Daily"):
                 return DAILY;
+            case ("WEEKLY"):
             case ("Weekly"):
                 return WEEKLY;
+            case ("MONTHLY"):
             case ("Monthly"):
                 return MONTHLY;
+            case ("QUARTERLY"):
             case ("Quarterly"):
                 return QUARTERLY;
+            case ("YEARLY"):
             case ("Yearly"):
                 return YEARLY;
+            case ("NONE"):
             case ("None"):
             default:
                 return NONE;

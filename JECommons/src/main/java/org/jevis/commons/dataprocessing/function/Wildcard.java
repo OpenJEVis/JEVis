@@ -32,13 +32,13 @@ public class Wildcard {
     private static final Logger logger = LogManager.getLogger(Wildcard.class);
 
     //example  <userselect:'name of var'>
-    private static String REGEX = "[<].[a-zA-Z]*[:.]['.][a-zA-Z ]*['.][>.]";
+    private static final String REGEX = "[<].[a-zA-Z]*[:.]['.][a-zA-Z ]*['.][>.]";
     private JEVisOption option;
     private String type = "";
     private String name = "";
 
     public Wildcard(JEVisOption option) {
-        logger.info("is wildcard: " + isWildcard(option.getValue()));
+        logger.info("is wildcard: {}", isWildcard(option.getValue()));
         parseWildcard(option.getValue());
     }
 
@@ -49,8 +49,8 @@ public class Wildcard {
 
         type = text.substring(startIndex + 1, middelIndex);
         name = text.substring(middelIndex + 1, endIndex).replace("'", "");
-        logger.info("type: " + type);
-        logger.info("name: " + name);
+        logger.info("type: {}", type);
+        logger.info("name: {}", name);
 
     }
 

@@ -72,10 +72,10 @@ public class VirtualSumData {
 
     public void initData(JEVisDataSource ds, JsonVirtualCalc json) {
         logger.info("VirtualSumData");
-        logger.info("json.getOperator(): " + json.getOperator());
+        logger.info("json.getOperator(): {}", json.getOperator());
 
         _operator = json.getOperatorAsEnum();
-        logger.info("Operator parsed: " + _operator.name());
+        logger.info("Operator parsed: {}", _operator.name());
 
         _version = json.getVersion();
 
@@ -145,7 +145,7 @@ public class VirtualSumData {
             }
 
             for (String name : DataProcessing.GetConfiguredWorkflowNames(in.getAttribute())) {
-                logger.info("has Workflow: " + name);
+                logger.info("has Workflow: {}", name);
             }
 
 //            DataWorkflow dw = DataProcessing.GetConfiguredWorkflow(in.getAttribute(), in.getWorkflowID());

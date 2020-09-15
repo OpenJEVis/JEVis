@@ -75,12 +75,12 @@ public class StaticLimitAlarm extends LimitAlarm {
     @Override
     public void checkAlarm() throws JEVisException {
         if (!_enabled) {
-            logger.info("Alarm " + alarmObj.getName() + " is disabled");
+            logger.info("Alarm {} is disabled", alarmObj.getName());
             return;
         }
 
         DateTime lastUpdate = getLastUpdate();
-        logger.info("Last Update: " + lastUpdate);
+        logger.info("Last Update: {}", lastUpdate);
         Map<DateTime, JEVisSample> leftSamples = getLeftSamples(alarmObj, "Value", lastUpdate);
         Map<DateTime, JEVisSample> limitSamples = getRightSamples(alarmObj, leftSamples);
 
@@ -140,7 +140,7 @@ public class StaticLimitAlarm extends LimitAlarm {
         }
 
         if (!alarms.isEmpty()) {
-            logger.info("Found " + alarms.size() + " alarms");
+            logger.info("Found {} alarms", alarms.size());
             logAlarms(_log, alarms);
             setStatus(lastTS, "Updated");
 
@@ -182,7 +182,7 @@ public class StaticLimitAlarm extends LimitAlarm {
         JEVisAttribute att = dataPoint.getAttribute(attribute);
 //        logger.info("Attribute: " + att);
         List<JEVisSample> samples = att.getSamples(lastUpdate, null);
-        logger.info("Samples to check: " + samples.size());
+        logger.info("Samples to check: {}", samples.size());
         return listToMap(samples);
     }
 
@@ -192,7 +192,7 @@ public class StaticLimitAlarm extends LimitAlarm {
             try {
                 map.put(sample.getTimestamp(), sample);
             } catch (Exception ex) {
-                logger.info("Waring, Cannot read sample");
+                logger.info("Warning, Cannot read sample");
             }
         }
         return map;

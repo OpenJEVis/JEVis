@@ -17,9 +17,8 @@
   JECommons is part of the OpenJEVis project, further project information are
   published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.ws.sql;
+package org.jevis.commons.ws.sql;
 
-import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisConstants;
@@ -27,10 +26,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonRelationship;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author fs
@@ -38,12 +34,12 @@ import java.util.List;
 public class UserRightManagerForWS {
 
     private final JEVisUserNew user;
-    private SQLDataSource ds;
-    private List<Long> readGIDS = new ArrayList<>();
-    private List<Long> createGIDS = new ArrayList<>();
-    private List<Long> deleteGIDS = new ArrayList<>();
-    private List<Long> exeGIDS = new ArrayList<>();
-    private List<Long> writeGIDS = new ArrayList<>();
+    private final SQLDataSource ds;
+    private final List<Long> readGIDS = new ArrayList<>();
+    private final List<Long> createGIDS = new ArrayList<>();
+    private final List<Long> deleteGIDS = new ArrayList<>();
+    private final List<Long> exeGIDS = new ArrayList<>();
+    private final List<Long> writeGIDS = new ArrayList<>();
     private static final Logger logger = LogManager.getLogger(UserRightManagerForWS.class);
 
     public UserRightManagerForWS(SQLDataSource ds) {
@@ -293,6 +289,16 @@ public class UserRightManagerForWS {
         }
     }
 
+    public final List<String> exceptionClass = Arrays.asList("Data Notes", "User Data");
+
+    public boolean canCreateWOE(JsonObject object, String jevisclass) {
+        try {
+            return canCreate(object, jevisclass);
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     public boolean canWrite(JsonObject object) throws JEVisException {
         //Sys Admin can read it all
         if (isSysAdmin()) {
@@ -307,26 +313,16 @@ public class UserRightManagerForWS {
         }
 
         /**
-        if (object.getJevisClass().equals("Data Notes") && canRead(object)) {
-            logger.error("Can write because special rule");
-            return true;
-        }
+         if (object.getJevisClass().equals("Data Notes") && canRead(object)) {
+         logger.error("Can write because special rule");
+         return true;
+         }
          **/
 
         //no permission
         throw new JEVisException("permission denied", 3021);
 
     }
-
-    public boolean canCreateWOE(JsonObject object, String jevisclass) {
-        try {
-            return canCreate(object, jevisclass);
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
-    public final List<String> exceptionClass = Lists.newArrayList(new String[]{"Data Notes","User Data"});
 
     public boolean canCreate(JsonObject object, String jevisClass) throws JEVisException {
         logger.error("canCreate: {} ,'{}'", object, jevisClass);

@@ -50,7 +50,7 @@ public class DateEditor implements AttributeEditor {
     private final JEVisAttribute att;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
     private JEVisDataSource ds;
-    private JEVisSample originalSample;
+    private final JEVisSample originalSample;
 
     public DateEditor(JEVisAttribute att) {
         this.att = att;
@@ -114,7 +114,7 @@ public class DateEditor implements AttributeEditor {
 
 
         pickerDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            logger.info("///// Value changed: " + newValue);
+            logger.info("///// Value changed: {}", newValue);
             if (!newValue.equals(oldValue)) {
                 _changed.setValue(Boolean.TRUE);
             }

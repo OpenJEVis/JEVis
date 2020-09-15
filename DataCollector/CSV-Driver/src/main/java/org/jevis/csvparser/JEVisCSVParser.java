@@ -140,7 +140,7 @@ public class JEVisCSVParser implements Parser {
                 try {
                     target = Long.parseLong(Objects.requireNonNull(targetString));
                 } catch (Exception ex) {
-                    logger.info("DataPoint target error: " + ex.getMessage());
+                    logger.info("DataPoint target error: {}", ex.getMessage());
 //                    ex.printStackTrace();
                 }
                 String valueString = null;
@@ -150,7 +150,7 @@ public class JEVisCSVParser implements Parser {
                     valueIndex = Integer.parseInt(Objects.requireNonNull(valueString));
                     valueIndex--;
                 } catch (Exception ex) {
-                    logger.info("DataPoint ValueIdentifier error: " + ex.getMessage());
+                    logger.info("DataPoint ValueIdentifier error: {}", ex.getMessage());
 //                    ex.printStackTrace();
                 }
                 DataPoint csvdp = new DataPoint();
@@ -199,7 +199,7 @@ public class JEVisCSVParser implements Parser {
 
     @Override
     public void initialize(JEVisObject parserObject) {
-        logger.info("Initialize JEVisCSVParser build: " + VERSION);
+        logger.info("Initialize JEVisCSVParser build: {}", VERSION);
 
         initializeAttributes(parserObject);
 

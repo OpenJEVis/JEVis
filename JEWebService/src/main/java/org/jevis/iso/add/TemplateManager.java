@@ -8,7 +8,7 @@ package org.jevis.iso.add;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
-import org.jevis.rest.Config;
+import org.jevis.commons.ws.sql.Config;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 public class TemplateManager {
 
-    private Configuration cfg = new Configuration();
+    private final Configuration cfg = new Configuration();
 
     public void setPath(File dir) throws IOException {
         cfg.setDirectoryForTemplateLoading(Config.getFreemarkerDir());

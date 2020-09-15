@@ -82,6 +82,7 @@ import org.jevis.jeconfig.dialog.*;
 import org.jevis.jeconfig.plugin.AnalysisRequest;
 import org.joda.time.DateTime;
 
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -933,6 +934,9 @@ public class GraphPluginView implements Plugin {
                         @Override
                         public void handle(MouseEvent t) {
                             Node node = (Node) t.getSource();
+                            NumberFormat nf = NumberFormat.getInstance(I18n.getInstance().getLocale());
+                            nf.setMinimumFractionDigits(2);
+                            nf.setMaximumFractionDigits(2);
                             for (Node node1 : finalMatrixHeatMap.getMatrix().getChildren()) {
                                 if (node1 instanceof Canvas) {
                                     Canvas canvas = (Canvas) node1;
@@ -968,8 +972,10 @@ public class GraphPluginView implements Plugin {
 
                                                     if (value != null) {
                                                         Double finalValue = value;
-                                                        Platform.runLater(() -> tp.setText(finalValue.toString() + " " + chart.getUnit()));
-                                                        Platform.runLater(() -> tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY()));
+                                                        Platform.runLater(() -> {
+                                                            tp.setText(nf.format(finalValue) + " " + chart.getUnit());
+                                                            tp.show(node, finalMatrixHeatMap.getScene().getWindow().getX() + t.getSceneX(), finalMatrixHeatMap.getScene().getWindow().getY() + t.getSceneY());
+                                                        });
                                                     }
                                                 }
                                             }

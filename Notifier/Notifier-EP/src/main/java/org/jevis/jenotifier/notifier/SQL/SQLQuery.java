@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author jb
  */
 public class SQLQuery {
@@ -99,11 +98,11 @@ public class SQLQuery {
                                     datapoint.setDataPointObject(dp);
                                     _datapoints.add(datapoint);
                                 } else {
-                                    logger.info(dp + "is null .");
+                                    logger.info("{} is null .", dp);
                                 }
                             }
                         } else {
-                            logger.info(_datapoints + "is null or empty.");
+                            logger.info("{} is null or empty.", _datapoints);
                         }
                     } else if (name.equalsIgnoreCase("Variable Directory")) {
                         List<JEVisObject> variables = child.getChildren();
@@ -206,7 +205,7 @@ public class SQLQuery {
     /**
      * To get the value of the attribute of a JEVisObject.
      *
-     * @param obj the JEVis Object
+     * @param obj     the JEVis Object
      * @param attName the name of the attribute
      * @return the value of the attribute
      * @throws JEVisException

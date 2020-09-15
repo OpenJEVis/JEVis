@@ -82,7 +82,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
-    /** Amount of Sample in one request **/
+    /** Amount of Samples in one request **/
     private final int SAMPLE_REQUEST_SIZE=10000;
     private HTTPConnection.Trust sslTrustMode = HTTPConnection.Trust.SYSTEM;
 
@@ -872,9 +872,77 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return this.con;
     }
 
+    public List<JEVisSample> getSamples(JEVisAttribute att, DateTime from, DateTime until, boolean customWorkDay, String aggregationPeriod, String manipulationMode) {
+        logger.debug("Get  getSamples: {} {}-{} with agreggation {} and manipulation {}", att.getName(), from, until, aggregationPeriod, manipulationMode);
+
+        List<JEVisSample> samples = new ArrayList<>();
+        String resource = REQUEST.API_PATH_V1
+                + REQUEST.OBJECTS.PATH
+                + att.getObjectID() + "/"
+                + REQUEST.OBJECTS.ATTRIBUTES.PATH
+                + att.getName() + "/"
+                + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.PATH;
+
+        boolean isfirst = true;
+        if (from != null) {
+
+            resource += "?" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.FROM + HTTPConnection.FMT.print(from);
+            isfirst = false;
+        }
+        if (until != null) {
+            if (!isfirst) {
+                resource += "&";
+            } else {
+                resource += "?";
+            }
+            resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL + HTTPConnection.FMT.print(until);
+        }
+
+        if (aggregationPeriod != null && manipulationMode != null) {
+            resource += "&";
+            resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.customWorkDay + customWorkDay;
+            resource += "&";
+            resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.aggregationPeriod + aggregationPeriod;
+            resource += "&";
+            resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.manipulationMode + manipulationMode;
+        }
+
+        List<JsonSample> jsons = new ArrayList<>();
+        try {
+            InputStream inputStream = this.con.getInputStreamRequest(resource);
+            if (inputStream != null) {
+                jsons = new ArrayList<>(Arrays.asList(this.objectMapper.readValue(inputStream, JsonSample[].class)));
+                inputStream.close();
+            }
+        } catch (IllegalArgumentException ex) {
+            logger.error("Illegal argument exception. Error in getting samples.", ex);
+            return new ArrayList<>();
+        } catch (JsonParseException ex) {
+            logger.error("Json parse exception. Error in getting samples.", ex);
+            return new ArrayList<>();
+        } catch (JsonMappingException ex) {
+            logger.error("Json mapping exception. Error in getting samples.", ex);
+            return new ArrayList<>();
+        } catch (IOException ex) {
+            logger.error("IO exception. Error in getting samples.", ex);
+            return new ArrayList<>();
+        } catch (InterruptedException e) {
+            logger.error("Interrupted exception. Error in getting samples.", e);
+        }
+
+        for (JsonSample sample : jsons) {
+            try {
+                samples.add(new JEVisSampleWS(this, sample, att));
+            } catch (Exception ex) {
+                logger.error("Error parsing sample {} of attribute {}:{}", sample.toString(), att.getObject().getID(), att.getName());
+            }
+        }
+
+        return samples;
+    }
+
     public List<JEVisSample> getSamples(JEVisAttribute att, DateTime from, DateTime until) {
         logger.debug("Get  getSamples: {} {}-{}", att.getName(), from, until);
-        //TODO: throw exception?! so the other function can handel it?
 
         List<JEVisSample> samples = new ArrayList<>();
         String resource = REQUEST.API_PATH_V1
@@ -903,7 +971,6 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             prefix = "?";
         }
         resource += prefix+REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.LIMIT+"="+SAMPLE_REQUEST_SIZE;
-
 
         List<JsonSample> jsons = new ArrayList<>();
         try {

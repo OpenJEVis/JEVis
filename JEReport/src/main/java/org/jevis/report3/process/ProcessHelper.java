@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- *
  * @author broder
  */
 public class ProcessHelper {
@@ -93,12 +92,12 @@ public class ProcessHelper {
             if (displayUnit != null) {
                 valueMap.put("unit", displayUnit.toString());
             } else {
-                logger.warn("No display unit for attribute name: " + attribute.getName());
+                logger.warn("No display unit for attribute name: {}", attribute.getName());
             }
             valueMap.put("value", value);
             valueMap.put("timestamp", timestamp);
         } catch (JEVisException ex) {
-            logger.warn("Cant collect samples for attribute: " + attribute.getName(), ex);
+            logger.warn("Cant collect samples for attribute: {}", attribute.getName(), ex);
         }
         return valueMap;
 

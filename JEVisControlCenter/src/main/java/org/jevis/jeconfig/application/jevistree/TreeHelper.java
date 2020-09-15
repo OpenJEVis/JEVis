@@ -47,6 +47,7 @@ import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.export.ExportMaster;
 import org.jevis.commons.i18n.I18n;
+import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
@@ -59,6 +60,7 @@ import org.jevis.jeconfig.application.jevistree.methods.CommonMethods;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
 import org.jevis.jeconfig.dialog.*;
+import org.jevis.jeconfig.plugin.object.attribute.GapFillingEditor;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
@@ -127,7 +129,6 @@ public class TreeHelper {
                                                 item.getParent().getChildren().remove(item);
                                             }
                                         }
-
                                     } catch (Exception ex) {
                                         logger.catching(ex);
                                         CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
@@ -588,7 +589,7 @@ public class TreeHelper {
                                     @Override
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            DataMethods.setAllMultiplierAndDifferential(item.getValue().getJEVisObject(), multiplierValue, differentialValue, dateTime);
+                                            DataMethods.setAllMultiplierAndDifferential(pForm, item.getValue().getJEVisObject(), multiplierValue, differentialValue, dateTime);
                                         }
 
                                         return null;
@@ -698,7 +699,7 @@ public class TreeHelper {
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
                                             try {
-                                                DataMethods.setUnitAndPeriod(items.get(0).getValue().getJEVisObject(), unit, unitUI, period, periodUI);
+                                                DataMethods.setUnitAndPeriod(pForm, items.get(0).getValue().getJEVisObject(), unit, unitUI, period, periodUI);
                                             } catch (JEVisException e) {
                                                 e.printStackTrace();
                                             }
@@ -816,7 +817,89 @@ public class TreeHelper {
                                     @Override
                                     protected Void call() {
                                         for (TreeItem<JEVisTreeRow> item : items) {
-                                            DataMethods.setLimits(item.getValue().getJEVisObject(), list);
+                                            DataMethods.setLimits(pForm, item.getValue().getJEVisObject(), list);
+                                        }
+
+                                        return null;
+                                    }
+                                };
+                                set.setOnSucceeded(event -> pForm.getDialogStage().close());
+
+                                set.setOnCancelled(event -> {
+                                    logger.debug("Setting all limits cancelled");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                set.setOnFailed(event -> {
+                                    logger.debug("Setting all limits failed");
+                                    pForm.getDialogStage().hide();
+                                });
+
+                                pForm.activateProgressBar(set);
+                                pForm.getDialogStage().show();
+
+                                new Thread(set).start();
+
+                            } catch (Exception ex) {
+                                logger.catching(ex);
+                                CommonDialogs.showError(I18n.getInstance().getString("jevistree.dialog.delete.error.title"),
+                                        I18n.getInstance().getString("jevistree.dialog.delete.error.message"), null, ex);
+                            }
+                        } else {
+                            // ... user chose CANCEL or closed the dialog
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> {
+                        Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
+                        alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
+                        alert1.showAndWait();
+                    });
+
+                }
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not get JEVis data source.", e);
+        }
+    }
+
+    public static void EventSetSubstitutionSettingsRecursive(JEVisTree tree) {
+        logger.debug("EventSetSubstitutionSettingsRecursive");
+        try {
+            if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
+                ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
+
+
+                if (tree.getJEVisDataSource().getCurrentUser().canWrite(items.get(0).getValue().getJEVisObject().getID())) {
+
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle(I18n.getInstance().getString("jevistree.dialog.setSubstitutionSettingsRecursive.title"));
+                    alert.setHeaderText(null);
+
+                    TabPane tabPane = new TabPane();
+                    tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+
+                    List<JsonGapFillingConfig> defaultConfig = GapFillingEditor.createDefaultConfig();
+
+                    for (JsonGapFillingConfig config : defaultConfig) {
+                        Tab newTab = new Tab(config.getName());
+                        tabPane.getTabs().add(newTab);
+                        GapFillingEditor.fillTab(newTab, config);
+                    }
+
+                    alert.getDialogPane().setContent(tabPane);
+
+                    alert.showAndWait().ifPresent(buttonType -> {
+                        if (buttonType.equals(ButtonType.OK)) {
+                            try {
+
+                                final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title") + "...");
+
+                                Task<Void> set = new Task<Void>() {
+                                    @Override
+                                    protected Void call() {
+                                        for (TreeItem<JEVisTreeRow> item : items) {
+                                            DataMethods.setSubstitutionSettings(pForm, item.getValue().getJEVisObject(), defaultConfig);
                                         }
 
                                         return null;

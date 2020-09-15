@@ -59,7 +59,7 @@ public class Launcher extends AbstractCliApp {
      */
     private void executeDataSources(List<JEVisObject> dataSources) {
 
-        logger.info("Number of Requests: " + dataSources.size());
+        logger.info("Number of Requests: {}", dataSources.size());
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
         dataSources.forEach(object -> {

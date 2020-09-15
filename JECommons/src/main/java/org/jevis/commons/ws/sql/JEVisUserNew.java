@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.ws.sql;
+package org.jevis.commons.ws.sql;
 
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.JsonObject;

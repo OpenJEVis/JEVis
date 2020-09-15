@@ -69,7 +69,7 @@ public class SCADAAnalysis {
 
                 ScadaAnalysisData jsonData = JsonTools.prettyObjectMapper().readValue(dmSample.getValueAsString(), ScadaAnalysisData.class);
                 jsonData.getElements().forEach(scadaElementData -> {
-                    logger.info("Add element: " + scadaElementData.getType());
+                    logger.info("Add element: {}", scadaElementData.getType());
                     elements.add(getElement(scadaElementData));
                 });
             }

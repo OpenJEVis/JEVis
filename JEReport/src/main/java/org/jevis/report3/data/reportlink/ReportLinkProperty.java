@@ -20,7 +20,7 @@ import org.jevis.report3.data.attribute.*;
 import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportProperty;
 import org.jevis.report3.process.LastSampleGenerator;
-import org.jevis.report3.process.PeriodSampleGenerator;
+import org.jevis.report3.process.ProcessHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -43,8 +43,8 @@ public class ReportLinkProperty implements ReportData {
     private JEVisObject dataObject;
     private final List<ReportAttributeProperty> attributeProperties = new ArrayList<>();
     private final List<ReportAttributeProperty> defaultAttributeProperties = new ArrayList<>();
-    private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
-    private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
+    private final LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
+    private final LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
 
     //    private DateTime latestTimestamp;
     public static ReportLinkProperty buildFromJEVisObject(JEVisObject reportLinkObject) {
@@ -207,7 +207,7 @@ public class ReportLinkProperty implements ReportData {
                                 if (aggregationName != null) {
                                     aggregationPeriod = AggregationPeriod.get(aggregationName.toUpperCase());
                                 }
-                                logger.info("aggregationPeriod: " + aggregationPeriod.toString());
+                                logger.info("aggregationPeriod: {}", aggregationPeriod.toString());
 
                                 ManipulationMode manipulationMode = ManipulationMode.NONE;
                                 if (manipulationName != null) {
@@ -215,7 +215,7 @@ public class ReportLinkProperty implements ReportData {
                                 } else if (aggregationName != null) {
                                     manipulationMode = ManipulationMode.get(aggregationName.toUpperCase());
                                 }
-                                logger.info("manipulationMode: " + manipulationMode.toString());
+                                logger.info("manipulationMode: {}", manipulationMode.toString());
 
                                 Interval interval = null;
                                 PeriodMode mode = null;
@@ -238,7 +238,7 @@ public class ReportLinkProperty implements ReportData {
                                         interval = intervalCalc.getInterval(name);
                                     }
 
-                                    logger.info("interval: " + interval);
+                                    logger.info("interval: {}", interval);
 
                                 } catch (JEVisException ex) {
                                     logger.error(ex);
@@ -342,14 +342,8 @@ public class ReportLinkProperty implements ReportData {
 //                                    interval = new Interval(start, end);
 //                                }
 
-                                PeriodSampleGenerator gen = new PeriodSampleGenerator(ds, dataObject, attribute, interval, manipulationMode, aggregationPeriod);
-
-                                try {
-                                    linkMap.putAll(gen.work(linkProperty, attributeProperty, property));
-                                    logger.info("added link map " + linkMap.entrySet() + " to attribute map");
-                                } catch (JEVisException e) {
-                                    logger.error(e);
-                                }
+                                linkMap.putAll(ProcessHelper.getAttributeSamples(attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString()), attribute, property.getTimeZone()));
+                                logger.info("added link map {} to attribute map", linkMap.entrySet());
                             }
                             break;
                             case SpecificValue:
@@ -357,7 +351,7 @@ public class ReportLinkProperty implements ReportData {
 
                                 try {
                                     linkMap.putAll(sampleGenerator.work(linkProperty, attributeProperty, property));
-                                    logger.info("added link map " + linkMap.entrySet() + " to attribute map");
+                                    logger.info("added link map {}  to attribute map", linkMap.entrySet());
                                 } catch (JEVisException e) {
                                     logger.error(e);
                                 }

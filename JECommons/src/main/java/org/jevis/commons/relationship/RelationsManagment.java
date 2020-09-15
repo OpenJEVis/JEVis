@@ -101,11 +101,11 @@ public class RelationsManagment {
         try {
             return user.getDataSource().getCurrentUser().isSysAdmin();
         } catch (Exception ex) {
-            logger.info("Error while checking Sys Admin status:  " + ex);
+            logger.info("Error while checking Sys Admin status:  ", ex);
             logger.error("Error while checking Sys Admin status:  {}", ex.getMessage());//ToDO there is some error here
         }
 
-        logger.debug("checkMembershipForType: user: " + user.getID() + " object: " + object.getID() + " type: " + type);
+        logger.debug("checkMembershipForType: user: {} object: {} type: {}", user.getID(), object.getID(), type);
         try {
             List<JEVisRelationship> userMemberships = getMembershipsRel(user);
 

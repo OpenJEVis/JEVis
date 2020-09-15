@@ -39,10 +39,10 @@ public class ForecastDataObject {
     private static final Logger logger = LogManager.getLogger(ForecastDataObject.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final JEVisObject forecastDataObject;
-    private JEVisObject parentDataObject;
+    private final JEVisObject parentDataObject;
     private Boolean enabled;
     //additional attributes
-    private SampleHandler sampleHandler;
+    private final SampleHandler sampleHandler;
     private JEVisAttribute inputAttribute;
 
     private JEVisAttribute valueAttribute;
@@ -352,7 +352,7 @@ public class ForecastDataObject {
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source last run time: " + e);
+            logger.error("Could not get data source last run time: ", e);
         }
 
         return dateTime;
@@ -371,7 +371,7 @@ public class ForecastDataObject {
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source cycle time: " + e);
+            logger.error("Could not get data source cycle time: ", e);
         }
 
         return aLong;
@@ -389,7 +389,7 @@ public class ForecastDataObject {
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source last run time: " + e);
+            logger.error("Could not get data source last run time: ", e);
         }
     }
 
