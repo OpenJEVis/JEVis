@@ -1,0 +1,37 @@
+{
+  "name": "OPC UA Server",
+  "description": "The Loytec XML-DL Driver supports LINX Automation Server and LIOB Controller devices.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "OPC UA Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "OPC UA Server Server",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "guiType": "Dynamic Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "OPC UA Server"
+    },
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Password",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "OPC UA Server"
+    }
+  ]
+}

@@ -14,7 +14,6 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
@@ -727,7 +726,7 @@ public class DashboardControl {
             @Override
             protected Object call() throws Exception {
                 try {
-                    logger.error("addWidgetUpdateTask: " + widget);
+                    logger.debug("addWidgetUpdateTask: " + widget);
                     Platform.runLater(()->this.updateTitle("Updating Widget ["+widget.typeID()+""+widget.getConfig().getUuid()+"] "+widget.getConfig().getTitle()+"'"));
 
                     if (!widget.isStatic()) {
@@ -737,7 +736,7 @@ public class DashboardControl {
                     }
 
                     this.succeeded();
-                    logger.error("task done: " + widget);
+                    logger.debug("task done: " + widget);
                 } catch (Exception ex) {
                     this.failed();
                     logger.error("Widget update error: [{}]", widget.getConfig().getUuid(), ex);

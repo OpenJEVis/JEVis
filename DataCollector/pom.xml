@@ -27,6 +27,7 @@
         <module>sFTP-Driver</module>
         <module>SOAP-Driver</module>
         <module>XML-Driver</module>
+        <module>OPCUA-Driver</module>
     </modules>
    
 </project>

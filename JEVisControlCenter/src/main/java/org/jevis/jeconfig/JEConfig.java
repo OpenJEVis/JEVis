@@ -41,10 +41,7 @@ import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
@@ -60,7 +57,6 @@ import org.joda.time.DateTime;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -313,6 +309,8 @@ public class JEConfig extends Application {
         PROGRAM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
         PROGRAM_INFO.addLibrary(org.jevis.jeapi.ws.Info.INFO);
 
+        //Sandbox opctest = new Sandbox();
+        //opctest.connect();
     }
 
 
@@ -386,6 +384,11 @@ public class JEConfig extends Application {
                     _mainDS.preload();
                     logger.error("done preloading");
 //                    logger.error("-------test\n {}", _mainDS.getObject(9485l).getChildren());
+
+                    JEVisObject obj = _mainDS.getObject(7576l);
+                    JEVisAttribute att = obj.getAttribute("Value");
+                    JEVisSample s = att.getLatestSample();
+                    System.out.println("s: "+s);
 
                     Holidays.setDataSource(_mainDS);
                 } catch (Exception ex) {

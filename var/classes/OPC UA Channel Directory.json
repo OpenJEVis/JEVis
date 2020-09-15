@@ -1,0 +1,22 @@
+{
+  "name": "OPC UA Channel Directory",
+  "description": "The OPC UA Channel Directory contains OPC UA Channels of the specified technology type.\n\n- Technology: dpal, bacnet (default: dpal)",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "OPC UA Channel Directory",
+      "end": "Channel Directory",
+      "type": 0
+    },
+    {
+      "start": "OPC UA Channel Directory",
+      "end": "OPC UA Channel Directory",
+      "type": 3
+    },
+    {
+      "start": "OPC UA Channel Directory",
+      "end": "OPC UA Server",
+      "type": 3
+    }
+  ]
+}
