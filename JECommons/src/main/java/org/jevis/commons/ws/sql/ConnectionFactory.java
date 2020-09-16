@@ -34,7 +34,7 @@ public class ConnectionFactory {
 //                    + "user=" + dbUser + "&password=" + dbPW;
 
             ds = new BasicDataSource();
-            ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
+            ds.setDriverClassName("com.mysql.jdbc.Driver");
             ds.setUrl(conSring);
             ds.setUsername(dbUser);
             ds.setPassword(dbPW);
