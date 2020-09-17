@@ -14,6 +14,8 @@
     <file url="file://$PROJECT_DIR$/DataCollector/SOAP-Driver/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DataCollector/XML-Driver" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DataCollector/XML-Driver/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DataCollector/envidatec-vida/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/DataCollector/loytec-xml-dl/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DataCollector/sFTP-Driver" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DataCollector/sFTP-Driver/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/JEAPI" charset="UTF-8" />
