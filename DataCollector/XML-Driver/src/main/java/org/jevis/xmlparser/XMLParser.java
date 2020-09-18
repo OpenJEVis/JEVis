@@ -107,7 +107,7 @@ public class XMLParser {
 
 //                Long datapointID = dp.getID();
 //                String mappingIdentifier = DatabaseHelper.getObjectAsString(dp, mappingIdentifierType);
-                Long target = dp.getTarget();
+                String target = dp.getTargetStr();
 
                 String valueIdentifier = dp.getValueIdentifier();
 

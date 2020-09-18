@@ -12,7 +12,7 @@ public class DataPoint {
 
     private String mappingIdentifier;
     private String valueIdentifier;
-    private Long target;
+    private String target;
 
     public String getMappingIdentifier() {
         return mappingIdentifier;
@@ -30,11 +30,11 @@ public class DataPoint {
         this.valueIdentifier = valueIdentifier;
     }
 
-    public Long getTarget() {
+    public String getTargetStr() {
         return target;
     }
 
-    public void setTarget(Long target) {
+    public void setTargetStr(String target) {
         this.target = target;
     }
 

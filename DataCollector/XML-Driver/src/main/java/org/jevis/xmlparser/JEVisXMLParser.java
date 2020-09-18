@@ -13,6 +13,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTimeZone;
 
 import java.io.InputStream;
@@ -113,17 +114,19 @@ public class JEVisXMLParser implements Parser {
                 Long datapointID = dp.getID();
                 String mappingIdentifier = DatabaseHelper.getObjectAsString(dp, mappingIdentifierType);
                 String targetString = DatabaseHelper.getObjectAsString(dp, targetType);
-                Long target = null;
-                try {
-                    target = Long.parseLong(targetString);
-                } catch (Exception ex) {
-                    logger.error(ex);
+                String target = null;
+                TargetHelper targetHelper = new TargetHelper(dp.getDataSource(), targetString);
+                if (targetHelper.isValid() && targetHelper.targetAccessible()) {
+                    target = targetString;
+                } else {
+                    logger.info("DataPoint target error: {}", datapointID);
+                    continue;
                 }
                 String valueIdent = DatabaseHelper.getObjectAsString(dp, valueIdentifierType);
 
                 DataPoint xmldp = new DataPoint();
                 xmldp.setMappingIdentifier(mappingIdentifier);
-                xmldp.setTarget(target);
+                xmldp.setTargetStr(target);
                 xmldp.setValueIdentifier(valueIdent);
                 xmldatapoints.add(xmldp);
             }
