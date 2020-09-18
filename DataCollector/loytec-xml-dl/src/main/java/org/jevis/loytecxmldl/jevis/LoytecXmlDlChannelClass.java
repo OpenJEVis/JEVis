@@ -4,6 +4,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.joda.time.DateTime;
+import org.joda.time.format.*;
 
 /**
  * JEVis Class: Loytec XML-DL Channel

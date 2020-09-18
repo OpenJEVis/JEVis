@@ -26,6 +26,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -98,71 +99,77 @@ public class JEVisImporter implements Importer {
 
             int errorImport = 0;
 
-            Map<Long, JEVisAttribute> targets = new HashMap<>();
-            List<Long> targetErrors = new ArrayList<>();
+            Map<String, JEVisAttribute> targets = new HashMap<>();
+            List<String> targetErrors = new ArrayList<>();
 
             //create an access map for the configured target once
             for (Result s : results) {
                 try {
-                    if (s == null || s.getOnlineID() == null) {
+                    if (s == null || s.getTargetStr() == null) {
                         continue;
                     }
 
 //                    Logger.getLogger(JEVisImporter.class.getName()).log(Level.DEBUG, "Target Sample.getID: " + s.getOnlineID());
                     //logger.info("Target Sample.getID: " + s.getOnlineID());
-                    if (targets.containsKey(s.getOnlineID())) {
+                    if (targets.containsKey(s.getTargetStr())) {
                         continue;
                     }
-                    if (targetErrors.contains(s.getOnlineID())) {
+                    if (targetErrors.contains(s.getTargetStr())) {
 //                        errorImport++;
                         continue;
                     }
 
-                    //Check the Object existens
-                    JEVisObject onlineData = _client.getObject(s.getOnlineID());
+                    //Check the Object exists
+                    TargetHelper targetHelper = new TargetHelper(dataSource.getDataSource(), s.getTargetStr());
+                    JEVisObject onlineData = targetHelper.getObject().get(0);
                     if (onlineData == null) {
-                        logger.error("Target Object not found: " + s.getOnlineID());
-                        targetErrors.add(s.getOnlineID());//invalid Object, be keep it so the other with the smae id need not check again
+                        logger.error("Target Object not found: " + s.getTargetStr());
+                        targetErrors.add(s.getTargetStr());//invalid Object, be keep it so the other with the smae id need not check again
                         errorImport++;
                         continue;
                     }
 
-//                    JEVisAttribute valueAtt = onlineData.getAttribute("Value");
-                    JEVisAttribute valueAtt = onlineData.getAttribute(s.getAttribute());
+                    JEVisAttribute valueAtt = null;
+                    if (targetHelper.getAttribute().isEmpty()) {
+                        valueAtt = onlineData.getAttribute("Value");
+                    } else {
+                        valueAtt = targetHelper.getAttribute().get(0);
+                    }
+
                     if (valueAtt == null) {
                         logger.error("Target has no Attribute 'Value'");
-                        targetErrors.add(s.getOnlineID());
+                        targetErrors.add(s.getTargetStr());
                         errorImport++;
                         continue;
                     }
 
-                    targets.put(s.getOnlineID(), valueAtt);
+                    targets.put(s.getTargetStr(), valueAtt);
                 } catch (Exception ex) {
                     logger.fatal("Unexpected error while sample creation: " + ex);
-                    targetErrors.add(s.getOnlineID());
+                    targetErrors.add(s.getTargetStr());
                 }
             }
 
             StringBuilder errorIDs = new StringBuilder();
-            for (Long targetError : targetErrors) {
+            for (String targetError : targetErrors) {
                 errorIDs.append(targetError).append(",");
-                logger.info("Erroneously target configurations for: [" + errorIDs + "]");
             }
+            logger.info("Erroneously target configurations for: [" + errorIDs + "]");
 
             StringBuilder okIDs = new StringBuilder();
-            for (Map.Entry<Long, JEVisAttribute> entrySet : targets.entrySet()) {
-                Long key = entrySet.getKey();
+            for (Map.Entry<String, JEVisAttribute> entrySet : targets.entrySet()) {
+                String key = entrySet.getKey();
                 JEVisAttribute value = entrySet.getValue();
                 okIDs.append(key).append(",");
-                logger.info("Failed target configurations for: [" + okIDs + "]");
             }
+            logger.info("ok target configurations for: [" + okIDs + "]");
 
             //build the Samples per attribute so we can bulk import them
             Map<JEVisAttribute, List<JEVisSample>> toImportList = new HashMap<>();
             for (Result s : results) {
                 try {
                     //how can there to invalied samples....
-                    if (s == null || s.getOnlineID() == null) {
+                    if (s == null || s.getTargetStr() == null) {
                         continue;
                     }
 
@@ -182,7 +189,7 @@ public class JEVisImporter implements Importer {
                         logger.error("Error: Could not convert Date");
                         continue;
                     }
-                    JEVisAttribute target = targets.get(s.getOnlineID());
+                    JEVisAttribute target = targets.get(s.getTargetStr());
                     if (!toImportList.containsKey(target)) {
                         toImportList.put(target, new ArrayList<JEVisSample>());
                     }
@@ -193,7 +200,7 @@ public class JEVisImporter implements Importer {
                     sList.add(sample);
                 } catch (Exception ex) {
                     errorImport++;
-                    logger.fatal("Unexpected error while sample creation: " + ex);
+                    logger.fatal("Unexpected error while sample creation: ", ex);
                 }
 
             }

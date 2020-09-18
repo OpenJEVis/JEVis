@@ -127,7 +127,7 @@ public class VIDA350DataSource implements DataSource {
             JEVisType targetType = channelClass.getType(VIDA350ChannelTypes.TARGET);
             String target = DatabaseHelper.getObjectAsString(channel, targetType);
             DataPoint csvDataPoint = new DataPoint();
-            csvDataPoint.setTarget(Long.parseLong(target));
+            csvDataPoint.setTarget(target);
             csvDataPoint.setValueIndex(0);
             csvdatapoints.add(csvDataPoint);
 

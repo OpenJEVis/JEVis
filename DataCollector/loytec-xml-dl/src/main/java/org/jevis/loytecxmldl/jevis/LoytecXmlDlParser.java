@@ -3,10 +3,13 @@ package org.jevis.loytecxmldl.jevis;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.driver.Result;
 import org.jevis.commons.driver.TimeConverter;
 import org.jevis.commons.driver.inputHandler.GenericConverter;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.xmlparser.DataPoint;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -61,13 +64,18 @@ public class LoytecXmlDlParser {
 
     public void initChannel(LoytecXmlDlChannel channel) {
 
-        Long target = channel.getTarget().getObjectID();
+        TargetHelper targetHelper = null;
+        try {
+            targetHelper = new TargetHelper(channel.getJeVisObject().getDataSource(), channel.getTarget());
 
-        DataPoint dp = new DataPoint();
-        dp.setTarget(target);
-        dataPoints.add(dp);
-        //dp.setValueIdentifier("Value");
-        this.valueElement = channel.getTarget().getName();
+            DataPoint dp = new DataPoint();
+            dp.setTargetStr(targetHelper.getSourceString());
+            dataPoints.add(dp);
+            //dp.setValueIdentifier("Value");
+            this.valueElement = channel.getTarget().getName();
+        } catch (JEVisException e) {
+            logger.error("Could not initialize channel", e);
+        }
     }
 
     public List<Result> parseStream(List<InputStream> input, DateTimeZone timezone) {
@@ -135,7 +143,7 @@ public class LoytecXmlDlParser {
 
 //                Long datapointID = dp.getID();
 //                String mappingIdentifier = DatabaseHelper.getObjectAsString(dp, mappingIdentifierType);
-                Long target = dp.getTarget();
+                String target = dp.getTargetStr();
 
                 String valueIdentifier = dp.getValueIdentifier();
 
