@@ -113,12 +113,12 @@ public class ExportMaster {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 //        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        logger.info("Export object count: " + metaObjects.size());
+        logger.info("Export object count: {}", metaObjects.size());
         for (Map.Entry<String, MetaObject> mo : metaObjects.entrySet()) {
             MetaObject metaObject = mo.getValue();
 //            File newFile = new File(tmpDir.getAbsolutePath() + File.pathSeparator + mo.getKey() + ".json");
             File newFile = new File(outputfile.getAbsolutePath() + File.separatorChar + mo.getKey() + ".json");
-            logger.info("write File: " + newFile);
+            logger.info("write File: {}", newFile);
             try (Writer writer = new FileWriter(newFile)) {
 //                Gson gson = new GsonBuilder().create();
                 objectMapper.writeValue(writer, mo.getValue());
@@ -139,7 +139,7 @@ public class ExportMaster {
 
 
         for (String key : structure) {
-            logger.info("Rel: " + key);
+            logger.info("Rel: {}", key);
         }
 
 
@@ -151,7 +151,7 @@ public class ExportMaster {
         root.forEach(rootID -> {
 
             MetaObject mo = metaObjects.get(rootID.toString());
-            logger.info("Build: " + mo.getObject().getName());
+            logger.info("Build: {}", mo.getObject().getName());
 
             buildChildren(mo.getObject().getId() + "");
 
@@ -198,7 +198,7 @@ public class ExportMaster {
             String[] keys = key.split(":");
             if (keys[1].equals(parentID)) {
                 MetaObject mo = metaObjects.get(keys[0]);
-                logger.info("--> Build child: " + mo.getObject().getName());
+                logger.info("--> Build child: {}", mo.getObject().getName());
                 buildChildren(mo.getKey());
             }
 
@@ -220,16 +220,16 @@ public class ExportMaster {
                 if (metaObjects.containsKey(keys[0])) {
 //                    logger.info("Key: " + keys[0] + " is OK");
                 } else {
-                    logger.info("Key: " + keys[0] + " is NOK");
+                    logger.info("Key: {} is NOK", keys[0]);
                 }
 
                 if (metaObjects.containsKey(keys[1])) {
 //                    logger.info("Key: " + keys[1] + " is OK");
                 } else {
-                    logger.info("Key: " + keys[1] + " is NOK");
+                    logger.info("Key: {} is NOK", keys[1]);
                 }
             } catch (Exception ex) {
-                logger.info("Key error: " + key);
+                logger.info("Key error: {}", key);
                 logger.fatal(ex);
             }
 

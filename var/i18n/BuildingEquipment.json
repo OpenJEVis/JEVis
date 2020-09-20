@@ -2,117 +2,238 @@
   "jevisclass": "Building Equipment",
   "names": {
     "de": "Gebäudeausrüstung",
-    "ru": "Building Equipment",
-    "en": "Building Equipment"
+    "ru": "Строительное оборудование",
+    "en": "Building Equipment",
+    "th": "อุปกรณ์อาคาร",
+    "uk": "Будівельне обладнання"
   },
   "descriptions": {
-    "de": "The class Building Equipment represents a none-specific directory for the structuring of the system. The class Building Equipment is only used for the inheritance of specific equipment types.",
-    "ru": "The class Building Equipment represents a none-specific directory for the structuring of the system. The class Building Equipment is only used for the inheritance of specific equipment types.",
-    "en": "The class Building Equipment represents a none-specific directory for the structuring of the system. The class Building Equipment is only used for the inheritance of specific equipment types."
+    "de": "Die Klasse Gebäudeausrüstung repräsentiert ein unspezifisches Verzeichnis für die Strukturierung des Systems. Die Klasse Gebäudeausrüstung wird nur für die Vererbung bestimmter Gerätetypen verwendet.",
+    "ru": "Класс строительного оборудования представляет собой неопределенный каталог для структурирования системы. Класс строительного оборудования используется только для наследования определенных типов устройств.",
+    "en": "The class Building Equipment represents a none-specific directory for the structuring of the system. The class Building Equipment is only used for the inheritance of specific equipment types.",
+    "th": "คลาสอุปกรณ์ก่อสร้างหมายถึงไดเรกทอรีที่ไม่จำเพาะสำหรับการจัดโครงสร้างระบบ คลาสอุปกรณ์ก่อสร้างใช้สำหรับการสืบทอดของอุปกรณ์บางชนิดเท่านั้น",
+    "uk": "Клас будівельного обладнання являє собою неспецифічний каталог для структурування системи. Клас будівельного обладнання використовується лише для успадкування певних типів пристроїв."
   },
   "types": [
     {
-      "type": "Daily Operating Hours",
+      "type": "Type",
       "descriptions": {
-        "de": "Daily Operating Hours description",
-        "ru": "Daily Operating Hours description",
-        "en": "Daily Operating Hours description"
+        "de": "Typ",
+        "ru": "Тип",
+        "en": "Type",
+        "th": "ชนิด",
+        "uk": "Тип"
       },
       "names": {
-        "de": "Daily Operating Hours",
-        "ru": "Daily Operating Hours",
-        "en": "Daily Operating Hours"
+        "de": "Typ",
+        "ru": "Тип",
+        "en": "Type",
+        "th": "ชนิด",
+        "uk": "Тип"
+      }
+    },
+    {
+      "type": "Year of Construction",
+      "descriptions": {
+        "de": "Baujahr",
+        "ru": "Год постройки",
+        "en": "Year of Construction",
+        "th": "ปีก่อสร้าง",
+        "uk": "Рік будівництва"
+      },
+      "names": {
+        "de": "Baujahr",
+        "ru": "Год постройки",
+        "en": "Year of Construction",
+        "th": "ปีก่อสร้าง",
+        "uk": "Рік будівництва"
+      }
+    },
+    {
+      "type": "Number",
+      "descriptions": {
+        "de": "Anzahl",
+        "ru": "число",
+        "en": "Number",
+        "th": "จำนวน",
+        "uk": "число"
+      },
+      "names": {
+        "de": "Anzahl",
+        "ru": "число",
+        "en": "Number",
+        "th": "จำนวน",
+        "uk": "число"
+      }
+    },
+    {
+      "type": "Standby Consumption",
+      "descriptions": {
+        "de": "Ruheleistung",
+        "ru": "Спокойное пособие",
+        "en": "Standby power",
+        "th": "ผลประโยชน์เงียบสงบ",
+        "uk": "Вигода у спокої"
+      },
+      "names": {
+        "de": "Ruheleistung",
+        "ru": "Спокойное пособие",
+        "en": "Standby power",
+        "th": "ผลประโยชน์เงียบสงบ",
+        "uk": "Вигода у спокої"
+      }
+    },
+    {
+      "type": "Daily Operating Hours",
+      "descriptions": {
+        "de": "Tägliche Betriebsstunden der Anlage",
+        "ru": "Ежедневные часы работы системы",
+        "en": "Daily Operating Hours of the Equipment",
+        "th": "เวลาทำงานรายวันของระบบ",
+        "uk": "Щоденні години роботи системи"
+      },
+      "names": {
+        "de": "Tägliche Betriebsstunden",
+        "ru": "Ежедневные часы работы",
+        "en": "Daily Operating Hours",
+        "th": "เวลาทำการทุกวัน",
+        "uk": "Щоденні години роботи"
       }
     },
     {
       "type": "Energy Source",
       "descriptions": {
-        "de": "Energy Source description",
-        "ru": "Energy Source description",
-        "en": "Energy Source description"
+        "de": "Energieträger mit denen die Anlage betrieben wird",
+        "ru": "Источники энергии, с которыми работает система",
+        "en": "Energy source which is used to power the equipment",
+        "th": "แหล่งพลังงานที่ระบบทำงาน",
+        "uk": "Джерела енергії, з якими працює система"
       },
       "names": {
-        "de": "Energy Source",
-        "ru": "Energy Source",
-        "en": "Energy Source"
+        "de": "Energieträger",
+        "ru": "Источник энергии",
+        "en": "Energy Source",
+        "th": "แหล่งพลังงาน",
+        "uk": "Джерело енергії"
       }
     },
     {
       "type": "Manufacturer",
       "descriptions": {
-        "de": "Manufacturer description",
-        "ru": "Manufacturer description",
-        "en": "Manufacturer description"
+        "de": "Hersteller der Anlage",
+        "ru": "Производитель системы",
+        "en": "Manufacturer of the equipment",
+        "th": "ผู้ผลิตระบบ",
+        "uk": "Виробник системи"
       },
       "names": {
-        "de": "Manufacturer",
-        "ru": "Manufacturer",
-        "en": "Manufacturer"
+        "de": "Hersteller",
+        "ru": "производитель",
+        "en": "Manufacturer",
+        "th": "ผู้ผลิต",
+        "uk": "Виробник"
       }
     },
     {
       "type": "Measuring Point",
       "descriptions": {
-        "de": "Measuring Point description",
-        "ru": "Measuring Point description",
-        "en": "Measuring Point description"
+        "de": "Messstelle, die zu dieser Anlage gehört",
+        "ru": "Измерительная точка, принадлежащая этой системе",
+        "en": "Measuring Point which is linked to this equipment",
+        "th": "จุดวัดที่เป็นของระบบนี้",
+        "uk": "Точка вимірювання, що належить цій системі"
       },
       "names": {
-        "de": "Measuring Point",
-        "ru": "Measuring Point",
-        "en": "Measuring Point"
+        "de": "Messstelle",
+        "ru": "Точка измерения",
+        "en": "Measuring Point",
+        "th": "จุดวัด",
+        "uk": "Точка вимірювання"
       }
     },
     {
       "type": "Nominal Power",
       "descriptions": {
-        "de": "Nominal Power description",
-        "ru": "Nominal Power description",
-        "en": "Nominal Power description"
+        "de": "die Nennleistung der Anlage",
+        "ru": "номинальная мощность системы",
+        "en": "Nominal Power of the equipment",
+        "th": "พลังงานน้อยของระบบ",
+        "uk": "номінальна потужність системи"
       },
       "names": {
-        "de": "Nominal Power",
-        "ru": "Nominal Power",
-        "en": "Nominal Power"
+        "de": "Nennleistung",
+        "ru": "номинальная мощность",
+        "en": "Nominal Power",
+        "th": "จัดอันดับความจุ",
+        "uk": "номінальна потужність"
+      }
+    },
+    {
+      "type": "Productivity",
+      "descriptions": {
+        "de": "Produktivität",
+        "ru": "производительность",
+        "en": "Productivity",
+        "th": "ผลผลิต",
+        "uk": "продуктивність"
+      },
+      "names": {
+        "de": "Produktivität",
+        "ru": "производительность",
+        "en": "Productivity",
+        "th": "ผลผลิต",
+        "uk": "продуктивність"
       }
     },
     {
       "type": "Weighting Factor",
       "descriptions": {
-        "de": "Weighting Factor description",
-        "ru": "Weighting Factor description",
-        "en": "Weighting Factor description"
+        "de": "Gewichtsfaktor zur Auslastungauslegung und Jahresverbrauchsbestimmung",
+        "ru": "Весовой коэффициент для расчета использования и определения годового потребления",
+        "en": "Weighting factor for utilization design and annual consumption determination",
+        "th": "ปัจจัยถ่วงน้ำหนักสำหรับการออกแบบการใช้ประโยชน์และการกำหนดปริมาณการใช้ประจำปี",
+        "uk": "Ваговий коефіцієнт для проектування використання та визначення річного споживання"
       },
       "names": {
-        "de": "Weighting Factor",
-        "ru": "Weighting Factor",
-        "en": "Weighting Factor"
+        "de": "Gewichtsfaktor",
+        "ru": "Весовой коэффициент",
+        "en": "Weighting Factor",
+        "th": "น้ำหนักตัว",
+        "uk": "Ваговий коефіцієнт"
       }
     },
     {
       "type": "Work Weeks",
       "descriptions": {
-        "de": "Work Weeks description",
-        "ru": "Work Weeks description",
-        "en": "Work Weeks description"
+        "de": "Wochen, in denen im Jahr gearbeitet wird",
+        "ru": "Недели, в течение которых работа проводится в течение года",
+        "en": "Weeks in which is work done in a year",
+        "th": "สัปดาห์ที่ทำงานเสร็จในปี",
+        "uk": "Тижні, в яких робиться робота за рік"
       },
       "names": {
-        "de": "Work Weeks",
-        "ru": "Work Weeks",
-        "en": "Work Weeks"
+        "de": "Arbeitswochen",
+        "ru": "Рабочие недели",
+        "en": "Work Weeks",
+        "th": "สัปดาห์ทำงาน",
+        "uk": "Робочі тижні"
       }
     },
     {
       "type": "Working Days",
       "descriptions": {
-        "de": "Working Days description",
-        "ru": "Working Days description",
-        "en": "Working Days description"
+        "de": "Tage an denen unter der Woche gearbeitet wird",
+        "ru": "Дни, которые работают в течение недели",
+        "en": "Days on which work is done during a week",
+        "th": "วันที่ทำงานระหว่างสัปดาห์",
+        "uk": "Дні, які відпрацьовуються протягом тижня"
       },
       "names": {
-        "de": "Working Days",
-        "ru": "Working Days",
-        "en": "Working Days"
+        "de": "Arbeitstage",
+        "ru": "Рабочие дни",
+        "en": "Working Days",
+        "th": "วันทำงาน",
+        "uk": "Робочі дні"
       }
     }
   ]

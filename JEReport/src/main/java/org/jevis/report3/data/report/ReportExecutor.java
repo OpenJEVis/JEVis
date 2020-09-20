@@ -14,6 +14,7 @@ import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.datetime.Period;
 import org.jevis.commons.datetime.PeriodHelper;
 import org.jevis.commons.report.PeriodMode;
+import org.jevis.commons.report.ReportName;
 import org.jevis.jenotifier.mode.SendNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotification;
 import org.jevis.jenotifier.notifier.Email.EmailNotificationDriver;
@@ -82,9 +83,8 @@ public class ReportExecutor {
         for (ReportData curData : reportLinks) {
             ReportData.LinkStatus reportLinkStatus = curData.getReportLinkStatus(end);
             if (!reportLinkStatus.isSanityCheck()) {
-                logger.error("Report " + this.reportObject.getName() + ":" + this.reportObject.getID() + " - " + reportLinkStatus.getMessage());
+                logger.error("Report {}:{} - {}", this.reportObject.getName(), this.reportObject.getID(), reportLinkStatus.getMessage());
                 isDataAvailable.set(false);
-                break;
             }
         }
         logger.info("Created report link stati.");
@@ -102,7 +102,7 @@ public class ReportExecutor {
 
         Report report = new Report(property, contextMap);
 
-        logger.info("Built context. " + contextMap.size());
+        logger.info("Built context. {}", contextMap.size());
 
         if (isPeriodicReport(reportObject) && !isPeriodicConditionReached(reportObject, new SampleHandler())) {
             logger.info("condition not reached");
@@ -115,9 +115,11 @@ public class ReportExecutor {
             byte[] outputBytes = report.getReportFile();
 
             DateTime start = new DateTime(reportObject.getAttribute(ReportAttributes.START_RECORD).getLatestSample().getValueAsString());
-            String startDate = start.toString(DateTimeFormat.forPattern("yyyyMMdd"));
 
-            String reportName = reportObject.getName().replaceAll("\\s", "") + "_" + startDate;
+            String prefix = ReportName.getPrefix(reportObject, start);
+            String startDate = new DateTime().toString(DateTimeFormat.forPattern("yyyyMMdd"));
+
+            String reportName = prefix + reportObject.getName().replaceAll("\\s", "_") + "_" + startDate;
             JEVisFile jeVisFileImp = new JEVisFileImp(reportName + ".xlsx", outputBytes);
             JEVisAttribute lastReportAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT);
             JEVisAttribute lastReportPDFAttribute = reportObject.getAttribute(ReportAttributes.LAST_REPORT_PDF);
@@ -137,7 +139,7 @@ public class ReportExecutor {
                 JEVisFile jeVisFilePDFImp = new JEVisFileImp(reportName + ".pdf", pdfFile);
                 lastReportPDFAttribute.buildSample(new DateTime(), jeVisFilePDFImp).commit();
             } catch (Exception e) {
-                logger.error("Could not initialize pdf converter. " + e);
+                logger.error("Could not initialize pdf converter. ", e);
             }
             if (property.getToPdf() && pdfFile != null) {
                 fileForNotification = new JEVisFileImp(reportName + ".pdf", pdfFile);

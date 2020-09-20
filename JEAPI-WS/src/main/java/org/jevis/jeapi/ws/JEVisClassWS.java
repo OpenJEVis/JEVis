@@ -82,7 +82,7 @@ public class JEVisClassWS implements JEVisClass {
         try {
             return new Image(JEVisClassWS.class.getResourceAsStream("/" + icon));
         } catch (Exception ex) {
-            logger.info("Could not load icon: " + "/icons/   " + icon);
+            logger.info("Could not load icon: /icons/{}", icon);
             return new Image(JEVisClassWS.class.getResourceAsStream("/icons/1393355905_image-missing.png"));
         }
     }
@@ -173,13 +173,13 @@ public class JEVisClassWS implements JEVisClass {
                 types.add(new JEVisTypeWS(ds, t, getName()));
             }
 
-            types.sort(Comparator.comparing(jeVisType -> {
+            types.sort(Comparator.comparingInt(jeVisType -> {
                 try {
-                    return jeVisType.getGUIDisplayType();
+                    return jeVisType.getGUIPosition();
                 } catch (JEVisException e) {
                     e.printStackTrace();
                 }
-                return null;
+                return 0;
             }));
         }
         if (types == null) {
@@ -416,7 +416,7 @@ public class JEVisClassWS implements JEVisClass {
             }
 //
             int responseCode = connection.getResponseCode();
-            logger.error("commit icon: " + responseCode);
+            logger.error("commit icon: {}", responseCode);
 
         } catch (Exception ex) {
             ex.printStackTrace();

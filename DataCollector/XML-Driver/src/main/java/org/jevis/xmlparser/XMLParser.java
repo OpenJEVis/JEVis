@@ -38,6 +38,8 @@ public class XMLParser {
 
     private DateTimeZone timeZone;
 
+    private final List<Result> _results = new ArrayList<Result>();
+
     public void parse(List<InputStream> input, DateTimeZone timeZone) {
         this.timeZone = timeZone;
         for (InputStream inputStream : input) {
@@ -57,9 +59,9 @@ public class XMLParser {
                     transformer = tf.newTransformer();
                     transformer.transform(domSource, result);
                 } catch (TransformerConfigurationException ex) {
-                    logger.fatal("Error in transformer configuration: " + ex);
+                    logger.fatal("Error in transformer configuration: {}", ex.getMessage(), ex);
                 } catch (TransformerException ex) {
-                    logger.fatal("Error while transforming: " + ex);
+                    logger.fatal("Error while transforming: {}", ex.getMessage(), ex);
                 }
 
                 //iterate over all nodes with the element name
@@ -80,6 +82,24 @@ public class XMLParser {
         }
     }
 
+    // member variables
+//        private List<XMLDatapointParser> _datapointParsers = new ArrayList<XMLDatapointParser>();
+    private String _dateFormat;
+    private String _timeFormat;
+    private String _decimalSeperator;
+    private String _thousandSeperator;
+    private String _mainElement;
+    private String _mainAttribute;
+    private String _valueElement;
+    private String _valueAtribute;
+    private Boolean _valueInElement;
+    private String _dateElement;
+    private String _dateAttribute;
+    private Boolean _dateInElement;
+    private Charset charset;
+
+    private List<DataPoint> _dataPoints = new ArrayList<DataPoint>();
+
     private void parseNode(Node currentNode, Node mainAttributeNode) {
 
         for (DataPoint dp : _dataPoints) {
@@ -87,7 +107,7 @@ public class XMLParser {
 
 //                Long datapointID = dp.getID();
 //                String mappingIdentifier = DatabaseHelper.getObjectAsString(dp, mappingIdentifierType);
-                Long target = dp.getTarget();
+                String target = dp.getTargetStr();
 
                 String valueIdentifier = dp.getValueIdentifier();
 
@@ -158,29 +178,10 @@ public class XMLParser {
                 if (doubleValue != null) _results.add(new Result(target, doubleValue, dateTime));
                 else _results.add(new Result(target, objectValue, dateTime));
             } catch (Exception ex) {
-                logger.error("Could not parse Node: " + currentNode.toString() + " from main Attribute Node: " + mainAttributeNode);
+                logger.error("Could not parse Node: {} from main Attribute Node: {}", currentNode.toString(), mainAttributeNode);
             }
         }
     }
-
-    // member variables
-//        private List<XMLDatapointParser> _datapointParsers = new ArrayList<XMLDatapointParser>();
-    private String _dateFormat;
-    private String _timeFormat;
-    private String _decimalSeperator;
-    private String _thousandSeperator;
-    private String _mainElement;
-    private String _mainAttribute;
-    private String _valueElement;
-    private String _valueAtribute;
-    private Boolean _valueInElement;
-    private String _dateElement;
-    private String _dateAttribute;
-    private Boolean _dateInElement;
-    private Charset charset;
-
-    private List<DataPoint> _dataPoints = new ArrayList<DataPoint>();
-    private List<Result> _results = new ArrayList<Result>();
     private Converter _converter;
 
     public void setCharset(Charset charset) {

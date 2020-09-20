@@ -45,12 +45,13 @@ import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ChartTypeComboBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ColorMappingBox;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.OrientationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.ChartNameTextField;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeFactory;
 import org.jevis.jeconfig.application.jevistree.TreePlugin;
@@ -58,6 +59,7 @@ import org.jevis.jeconfig.application.jevistree.UserSelection;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.plugin.ChartPluginTree;
 import org.jevis.jeconfig.tool.NumberSpinner;
+import org.jevis.jeconfig.tool.ScreenSize;
 import org.jevis.jeconfig.tool.ToggleSwitchPlus;
 
 import java.math.BigDecimal;
@@ -74,7 +76,7 @@ public class ChartSelectionDialog {
     private Response _response = Response.CANCEL;
     private AnalysisDataModel data;
     private Stage stage;
-    private boolean init = true;
+    private final boolean init = true;
     private JEVisTree tree;
     //    private ObservableList<String> chartsList = FXCollections.observableArrayList();
     private ChartPluginTree chartPlugin = null;
@@ -114,7 +116,8 @@ public class ChartSelectionDialog {
         double maxScreenWidth = Screen.getPrimary().getBounds().getMaxX();
         stage.setWidth(maxScreenWidth - 20);
 
-        stage.setHeight(768);
+        stage.setHeight(ScreenSize.fitScreenHeight(768));
+        stage.setWidth(ScreenSize.fitScreenWidth(1980));
         stage.setResizable(true);
 
         TabPane mainTabPane = new TabPane();
@@ -199,7 +202,7 @@ public class ChartSelectionDialog {
 
         if (data != null && data.getSelectedData() != null && !data.getSelectedData().isEmpty()) {
             List<UserSelection> listUS = new ArrayList<>();
-            for (ChartDataModel cdm : data.getSelectedData()) {
+            for (ChartDataRow cdm : data.getSelectedData()) {
                 for (int i : cdm.getSelectedcharts()) {
                     for (ChartSetting set : data.getCharts().getListSettings()) {
                         if (set.getId() == i)
@@ -313,7 +316,7 @@ public class ChartSelectionDialog {
     }
 
     private Tab createChartTab(ChartSetting cset) {
-        Tab newTab = new Tab(cset.getId().toString());
+        Tab newTab = new Tab(I18n.getInstance().getString("graph.table.selectchart") + cset.getId() + 1);
         newTab.setClosable(false);
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -324,7 +327,7 @@ public class ChartSelectionDialog {
         gridPane.setVgap(7);
         gridPane.setPadding(new Insets(4, 4, 4, 4));
 
-        List<ChartDataModel> correspondingDataModels = new ArrayList<>();
+        List<ChartDataRow> correspondingDataModels = new ArrayList<>();
         data.getSelectedData().forEach(chartDataModel -> {
             if (chartDataModel.getSelectedcharts().contains(cset.getId())) correspondingDataModels.add(chartDataModel);
         });
@@ -342,11 +345,30 @@ public class ChartSelectionDialog {
         final Label labelChartType = new Label(I18n.getInstance().getString("graph.tabs.tab.charttype"));
         final ChartTypeComboBox chartTypeComboBox = new ChartTypeComboBox(cset);
 
+        final Label labelGroupingInterval = new Label(I18n.getInstance().getString("graph.tabs.tab.groupinginterval"));
+        Long gi = cset.getGroupingInterval();
+        if (gi == null) {
+            gi = 30L;
+        }
+        final NumberSpinner groupingInterval = new NumberSpinner(new BigDecimal(gi), new BigDecimal(1));
+        groupingInterval.numberProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.equals(oldValue)) {
+                cset.setGroupingInterval(newValue.longValue());
+            }
+        });
+
         Label labelColorMapping = null;
         ColorMappingBox colorMappingBox = null;
         if (cset.getChartType() == ChartType.HEAT_MAP) {
-            labelColorMapping = new Label("graph.tabs.tab.colormapping");
+            labelColorMapping = new Label(I18n.getInstance().getString("plugin.graph.tabs.tab.colormapping"));
             colorMappingBox = new ColorMappingBox(cset);
+        }
+
+        Label orientationLabel = null;
+        OrientationBox orientationBox = null;
+        if (cset.getChartType() == ChartType.TABLE) {
+            orientationLabel = new Label(I18n.getInstance().getString("plugin.graph.tabs.tab.orientation"));
+            orientationBox = new OrientationBox(cset);
         }
 
         final Label startText = new Label(I18n.getInstance().getString("plugin.graph.changedate.startdate") + "  ");
@@ -355,7 +377,7 @@ public class ChartSelectionDialog {
 
         FlowPane flowPane = new FlowPane();
         flowPane.setPadding(new Insets(4, 4, 4, 4));
-        for (ChartDataModel model : correspondingDataModels) {
+        for (ChartDataRow model : correspondingDataModels) {
             GridPane gp = new GridPane();
             gp.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.THIN)));
             gp.setHgap(4);
@@ -420,6 +442,18 @@ public class ChartSelectionDialog {
             row++;
         }
 
+        if (cset.getChartType() == ChartType.TABLE) {
+            gridPane.add(orientationLabel, 0, row);
+            gridPane.add(orientationBox, 1, row);
+            row++;
+        }
+
+        if (cset.getChartType() == ChartType.BUBBLE) {
+            gridPane.add(labelGroupingInterval, 0, row);
+            gridPane.add(groupingInterval, 1, row);
+            row++;
+        }
+
         gridPane.add(startText, 0, row);
         gridPane.add(pickerTimeStart, 1, row);
         gridPane.add(pickerDateStart, 2, row);
@@ -456,7 +490,7 @@ public class ChartSelectionDialog {
         return chartPlugin;
     }
 
-    private HBox getTargetSelector(String value, ChartDataModel model) {
+    private HBox getTargetSelector(String value, ChartDataRow model) {
         HBox limitDataBox = new HBox();
         Button treeButton = new Button(I18n
                 .getInstance().getString("plugin.object.attribute.target.button"),

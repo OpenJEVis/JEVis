@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public enum ChartType {
-    AREA, LOGICAL, LINE, BAR, COLUMN, BUBBLE, SCATTER, PIE, TABLE, HEAT_MAP;
+    AREA, LOGICAL, LINE, BAR, COLUMN, BUBBLE, SCATTER, PIE, TABLE, HEAT_MAP, DEFAULT;
 
     public static ChartType parseChartType(Integer chartTypeIndex) {
         switch (chartTypeIndex) {
@@ -32,15 +32,15 @@ public enum ChartType {
                 return TABLE;
             case (9):
                 return HEAT_MAP;
+            case (10):
+                return DEFAULT;
             default:
-                return AREA;
+                return LINE;
         }
     }
 
     public static ChartType parseChartType(String chartType) {
         switch (chartType) {
-            case ("AREA"):
-                return AREA;
             case ("LOGICAL"):
                 return LOGICAL;
             case ("LINE"):
@@ -59,37 +59,44 @@ public enum ChartType {
                 return TABLE;
             case ("HEAT_MAP"):
                 return HEAT_MAP;
-            default:
+            case ("DEFAULT"):
+                return DEFAULT;
+            case ("AREA"):
                 return AREA;
+            default:
+                return LINE;
         }
     }
 
     public static Integer parseChartIndex(ChartType chartType) {
-
-        switch (chartType.toString()) {
-            case ("AREA"):
-                return 0;
-            case ("LOGICAL"):
-                return 1;
-            case ("LINE"):
-                return 2;
-            case ("BAR"):
-                return 3;
-            case ("COLUMN"):
-                return 4;
-            case ("BUBBLE"):
-                return 5;
-            case ("SCATTER"):
-                return 6;
-            case ("PIE"):
-                return 7;
-            case ("TABLE"):
-                return 8;
-            case ("HEAT_MAP"):
-                return 9;
-            default:
-                return 0;
-        }
+        if (chartType != null) {
+            switch (chartType.toString()) {
+                case ("AREA"):
+                    return 0;
+                case ("LOGICAL"):
+                    return 1;
+                case ("LINE"):
+                    return 2;
+                case ("BAR"):
+                    return 3;
+                case ("COLUMN"):
+                    return 4;
+                case ("BUBBLE"):
+                    return 5;
+                case ("SCATTER"):
+                    return 6;
+                case ("PIE"):
+                    return 7;
+                case ("TABLE"):
+                    return 8;
+                case ("HEAT_MAP"):
+                    return 9;
+                case ("DEFAULT"):
+                    return 10;
+                default:
+                    return 2;
+            }
+        } else return 2;
     }
 
     public static ObservableList<String> getlistNamesChartTypes() {
@@ -125,6 +132,10 @@ public enum ChartType {
                     break;
                 case ("HEAT_MAP"):
                     tempList.add(I18n.getInstance().getString("plugin.graph.charttype.heatmap.name"));
+                    break;
+                case ("DEFAULT"):
+                    tempList.add(I18n.getInstance().getString("plugin.graph.charttype.default.name"));
+                    break;
                 default:
                     break;
             }

@@ -8,6 +8,7 @@ package org.jevis.commons.calculation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.VirtualSample;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
@@ -15,7 +16,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- *
  * @author broder
  */
 public class SampleMerger {
@@ -24,32 +24,39 @@ public class SampleMerger {
     private final List<List<Sample>> allSamples = new ArrayList<>();
     private final List<Sample> constants = new ArrayList<>();
     private final List<List<Sample>> periodConstants = new ArrayList<>();
+    private int noOfAsyncVariables = 0;
+    private final List<String> asyncVariables = new ArrayList<>();
 
-    private void addSamples(List<JEVisSample> jevisSamples, String variable) {
-        List<Sample> samples = jevisSamples.stream().map(currentSample -> new Sample(currentSample, variable)).collect(Collectors.toList());
+    private void addPeriodic(List<JEVisSample> jevisSamples, String variable, CalcInputType calcInputType) {
+        List<Sample> samples = jevisSamples.stream().map(currentSample -> new Sample(currentSample, variable, calcInputType)).collect(Collectors.toList());
         allSamples.add(samples);
     }
 
-    private void addConstant(JEVisSample constant, String variable) {
-        Sample sample = new Sample(constant, variable);
+    private void addConstant(JEVisSample constant, String variable, CalcInputType calcInputType) {
+        Sample sample = new Sample(constant, variable, calcInputType);
         constants.add(sample);
     }
 
-    private void addPeriodConstant(List<JEVisSample> jevisSamples, String variable) {
-        List<Sample> samples = jevisSamples.stream().map(currentSample -> new Sample(currentSample, variable)).collect(Collectors.toList());
+    private void addPeriodConstant(List<JEVisSample> jevisSamples, String variable, CalcInputType calcInputType) {
+        List<Sample> samples = jevisSamples.stream().map(currentSample -> new Sample(currentSample, variable, calcInputType)).collect(Collectors.toList());
         periodConstants.add(samples);
     }
 
     public void addSamples(List<JEVisSample> jevisSamples, String variable, CalcInputType inputType) {
         switch (inputType) {
             case PERIODIC:
-                addSamples(jevisSamples, variable);
+                addPeriodic(jevisSamples, variable, inputType);
+                break;
+            case ASYNC:
+                noOfAsyncVariables++;
+                asyncVariables.add(variable);
+                addPeriodic(jevisSamples, variable, inputType);
                 break;
             case STATIC:
-                addConstant(jevisSamples.get(0), variable);
+                addConstant(jevisSamples.get(0), variable, inputType);
                 break;
             case NON_PERIODIC:
-                addPeriodConstant(jevisSamples, variable);
+                addPeriodConstant(jevisSamples, variable, inputType);
                 break;
         }
     }
@@ -64,7 +71,38 @@ public class SampleMerger {
         insertPeriodicConstants(sampleMap); //value changed for specific periods
 
         int variableSize = allSamples.size() + constants.size() + periodConstants.size();
-        Set<DateTime> removableKeys = sampleMap.entrySet().stream().filter(sampleEntry -> sampleEntry.getValue().size() != variableSize).map(Map.Entry::getKey).collect(Collectors.toSet());
+
+        if (noOfAsyncVariables > 0) {
+            for (Map.Entry<DateTime, List<Sample>> entry : sampleMap.entrySet()) {
+                DateTime sampleTime = entry.getKey();
+                List<Sample> sampleList = entry.getValue();
+
+                if (sampleList.size() < variableSize) {
+                    List<String> usedAsyncVariables = new ArrayList<>();
+                    sampleList.forEach(sample -> {
+                        if (sample.getCalcInputType() == CalcInputType.ASYNC) {
+                            usedAsyncVariables.add(sample.getVariable());
+                        }
+                    });
+
+                    for (String variable : asyncVariables) {
+                        if (!usedAsyncVariables.contains(variable)) {
+                            VirtualSample virtualSample = new VirtualSample(sampleTime, 0.0);
+                            Sample smp = new Sample(virtualSample, variable, CalcInputType.ASYNC);
+                            sampleList.add(smp);
+                        }
+                    }
+                }
+            }
+        }
+
+        Set<DateTime> removableKeys = new HashSet<>();
+        for (Map.Entry<DateTime, List<Sample>> sampleEntry : sampleMap.entrySet()) {
+            if (sampleEntry.getValue().size() + noOfAsyncVariables < variableSize) {
+                DateTime dateTimeListEntryKey = sampleEntry.getKey();
+                removableKeys.add(dateTimeListEntryKey);
+            }
+        }
 
         removableKeys.forEach(key -> {
             logger.debug("not every input data with datetime {}, will delete this datetime from calculation", key.toString(DateTimeFormat.fullDateTime()));
@@ -86,16 +124,21 @@ public class SampleMerger {
     }
 
     private void insertPeriodicConstants(Map<DateTime, List<Sample>> sampleMap) {
-        periodConstants.forEach(currentSamples -> currentSamples.forEach(sample -> {
-            sampleMap.computeIfAbsent(sample.getDate(), k -> new ArrayList<>());
-        }));
 
-        sampleMap.forEach((currentSampleTime, value) -> {
+//        periodConstants.forEach(currentSamples -> currentSamples.forEach(sample -> {
+//            if (sample.getCalcInputType().equals(CalcInputType.ASYNC)) {
+//                sampleMap.computeIfAbsent(sample.getDate(), k -> new ArrayList<>());
+//            }
+//        }));
+
+        for (Map.Entry<DateTime, List<Sample>> entry : sampleMap.entrySet()) {
+            DateTime currentSampleTime = entry.getKey();
+            List<Sample> value = entry.getValue();
             for (List<Sample> periodicConstants : periodConstants) {
                 Sample validConstant = null;
                 for (Sample periodicConstant : periodicConstants) {
                     DateTime startDate = periodicConstant.getDate();
-                    if (startDate.isBefore(currentSampleTime) || startDate.isEqual(currentSampleTime)) {
+                    if (periodicConstant.getCalcInputType() != CalcInputType.ASYNC && (startDate.isBefore(currentSampleTime) || startDate.isEqual(currentSampleTime))) {
                         validConstant = periodicConstant;
                     } else if (startDate.isAfter(currentSampleTime)) {
                         break;
@@ -105,9 +148,8 @@ public class SampleMerger {
                     value.add(validConstant);
                 }
             }
-        });
+        }
     }
-
 
 
 }

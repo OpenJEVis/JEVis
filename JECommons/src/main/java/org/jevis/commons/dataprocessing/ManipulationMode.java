@@ -21,24 +21,42 @@ public enum ManipulationMode {
 
     public static ManipulationMode parseManipulation(String manipulation) {
         switch (manipulation) {
+            case ("NONE"):
             case ("None"):
                 return NONE;
+            case ("AVERAGE"):
             case ("Average"):
                 return AVERAGE;
+            case ("MIN"):
             case ("Min"):
                 return MIN;
+            case ("MAX"):
             case ("Max"):
                 return MAX;
+            case ("MEDIAN"):
             case ("Median"):
                 return MEDIAN;
+            case ("RUNNING MEAN"):
+            case ("RUNNING_MEAN"):
+            case ("Running_Mean"):
             case ("Running Mean"):
                 return RUNNING_MEAN;
+            case ("CENTRIC RUNNING MEAN"):
+            case ("CENTRIC_RUNNING_MEAN"):
+            case ("Centric_Running_Mean"):
             case ("Centric Running Mean"):
                 return CENTRIC_RUNNING_MEAN;
+            case ("SORTED MIN"):
+            case ("SORTED_MIN"):
             case ("Sorted Min"):
+            case ("Sorted_Min"):
                 return SORTED_MIN;
+            case ("SORTED MAX"):
+            case ("SORTED_MAX"):
             case ("Sorted Max"):
+            case ("Sorted_Max"):
                 return SORTED_MAX;
+            case ("CUMULATE"):
             case ("Cumulate"):
                 return CUMULATE;
             default:

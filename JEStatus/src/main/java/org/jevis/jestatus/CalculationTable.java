@@ -6,19 +6,18 @@ import org.jevis.commons.alarm.AlarmTable;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 
 import java.util.*;
 
 public class CalculationTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(CalculationTable.class);
     private final List<JEVisObject> dataServerObjects;
-    private final DateTime furthestReported;
     private final DateTime latestReported;
 
-    public CalculationTable(JEVisDataSource ds, DateTime furthestReported, DateTime latestReported, List<JEVisObject> dataServerObjects) {
+    public CalculationTable(JEVisDataSource ds, DateTime latestReported, List<JEVisObject> dataServerObjects) {
         super(ds);
         this.dataServerObjects = dataServerObjects;
-        this.furthestReported = furthestReported;
         this.latestReported = latestReported;
 
         try {
@@ -89,7 +88,7 @@ public class CalculationTable extends AlarmTable {
                                 if (resultAtt.hasSample()) {
                                     JEVisSample lastSample = resultAtt.getLatestSample();
                                     if (lastSample != null) {
-                                        if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
+                                        if (lastSample.getTimestamp().isBefore(latestReported)) {
                                             outOfBounds.add(calculation);
                                         }
                                     }
@@ -135,6 +134,19 @@ public class CalculationTable extends AlarmTable {
                 outOfBounds.remove(allInputs.get(dataServerObject));
             }
         }
+
+        List<JEVisObject> asyncTargets = new ArrayList<>();
+        for (JEVisObject calculation : outOfBounds) {
+            JEVisObject target = calcAndResult.get(calculation);
+            if (target != null) {
+                JEVisAttribute attribute = target.getAttribute(VALUE_ATTRIBUTE_NAME);
+                if (attribute.getInputSampleRate().equals(Period.ZERO)) {
+                    asyncTargets.add(calculation);
+                }
+            }
+        }
+
+        outOfBounds.removeAll(asyncTargets);
 
         outOfBounds.sort(new Comparator<JEVisObject>() {
             @Override
@@ -249,6 +261,28 @@ public class CalculationTable extends AlarmTable {
     }
 
     private List<JEVisObject> getCalcObjects() throws JEVisException {
-        return new ArrayList<>(ds.getObjects(getCalculationClass(), false));
+        List<JEVisObject> calcObjects = new ArrayList<>(ds.getObjects(getCalculationClass(), false));
+        List<JEVisObject> disabledObject = new ArrayList<>();
+        calcObjects.forEach(jeVisObject -> {
+            JEVisAttribute enabledAtt = null;
+            try {
+                enabledAtt = jeVisObject.getAttribute("Enabled");
+                if (enabledAtt != null && enabledAtt.hasSample()) {
+                    JEVisSample latestSample = enabledAtt.getLatestSample();
+                    if (latestSample != null) {
+                        if (!latestSample.getValueAsBoolean()) {
+                            disabledObject.add(jeVisObject);
+                        }
+                    }
+                } else {
+                    disabledObject.add(jeVisObject);
+                }
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+        });
+
+        calcObjects.removeAll(disabledObject);
+        return calcObjects;
     }
 }

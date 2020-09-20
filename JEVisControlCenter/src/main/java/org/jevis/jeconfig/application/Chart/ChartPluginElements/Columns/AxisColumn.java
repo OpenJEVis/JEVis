@@ -12,7 +12,7 @@ import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AxisBox;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 
@@ -51,7 +51,7 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
 
         column.setCellValueFactory(param -> {
 
-            ChartDataModel data = getData(param.getValue().getValue());
+            ChartDataRow data = getData(param.getValue().getValue());
 
             return new ReadOnlyObjectWrapper<>(data.getAxis());
         });
@@ -81,7 +81,7 @@ public class AxisColumn extends TreeTableColumn<JEVisTreeRow, Integer> implement
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    ChartDataRow data = getData(getTreeTableRow().getItem());
 
                                     AxisBox axisBox = new AxisBox(data);
 

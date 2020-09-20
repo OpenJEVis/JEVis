@@ -56,8 +56,14 @@ public class PeriodAlignmentStep implements ProcessStep {
             long start = rawInterval.getInterval().getStartMillis();
             long end = rawInterval.getInterval().getEndMillis();
             long halfDiff = (end - start) / 2;
-            snapToGridStart = date.minus(halfDiff);
-            snapToGridEnd = date.plus(halfDiff);
+
+            if (cleanDataObject.getIsPeriodAligned()) {
+                snapToGridStart = date.minus(halfDiff);
+                snapToGridEnd = date.plus(halfDiff);
+            } else {
+                snapToGridStart = rawInterval.getInterval().getStart();
+                snapToGridEnd = rawInterval.getInterval().getEnd();
+            }
 
             while (samplesInInterval && currentSamplePointer < rawSamples.size()) {
                 JEVisSample rawSample = rawSamples.get(currentSamplePointer);
@@ -129,7 +135,11 @@ public class PeriodAlignmentStep implements ProcessStep {
                     try {
                         if (!cleanDataObject.getIsPeriodAligned()) { //no alignment
                             for (JEVisSample sample : currentRawSamples) {
-                                sample.setNote("alignment(no)");
+                                if (sample.getNote() != null && !sample.getNote().equals("")) {
+                                    sample.setNote(sample.getNote() + "," + "alignment(no)");
+                                } else {
+                                    sample.setNote("alignment(no)");
+                                }
                                 if (userDataMap.containsKey(sample.getTimestamp())) {
                                     sample.setNote(sample.getNote() + "," + USER_VALUE);
                                 }
@@ -182,7 +192,43 @@ public class PeriodAlignmentStep implements ProcessStep {
                             sample.setNote(note);
                             currentInterval.addTmpSample(sample);
                         } else if (sum) {
-                            Double currentValue = calcSumSample(currentRawSamples);
+                            Double currentValue = null;
+
+                            int currentIntervalIndex = rawIntervals.indexOf(currentInterval);
+                            if (periodRawData.equals(Period.ZERO) && periodCleanData.equals(Period.minutes(15))
+                                    && currentIntervalIndex > 0) {
+                                int lastIntervalWithSamples = 0;
+                                int noOfIntermittentIntervals = 0;
+                                for (int j = currentIntervalIndex - 1; j > -1; j--) {
+                                    if (rawIntervals.get(j).getRawSamples().isEmpty()) {
+                                        noOfIntermittentIntervals++;
+                                    } else {
+                                        lastIntervalWithSamples = j;
+                                        break;
+                                    }
+                                }
+
+                                currentValue = calcSumSample(currentRawSamples);
+                                noOfIntermittentIntervals++;
+                                if (currentValue != 0 && noOfIntermittentIntervals != 0) {
+                                    currentValue = currentValue / noOfIntermittentIntervals;
+                                }
+
+                                for (int j = currentIntervalIndex - 1; j > lastIntervalWithSamples; j--) {
+                                    CleanInterval cleanIntervalBack = rawIntervals.get(j);
+                                    DateTime date = cleanIntervalBack.getDate();
+                                    JEVisSample sample = new VirtualSample(date, currentValue);
+                                    String note = "alignment(yes,sum)";
+                                    if (userDataMap.containsKey(sample.getTimestamp())) {
+                                        note += "," + USER_VALUE;
+                                    }
+                                    sample.setNote(note);
+                                    cleanIntervalBack.addTmpSample(sample);
+                                }
+                            } else {
+                                currentValue = calcSumSample(currentRawSamples);
+                            }
+
                             DateTime date = currentInterval.getDate();
                             JEVisSample sample = new VirtualSample(date, currentValue);
                             String note = "";

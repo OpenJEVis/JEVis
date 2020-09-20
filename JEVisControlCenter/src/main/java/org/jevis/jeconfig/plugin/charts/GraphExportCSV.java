@@ -25,8 +25,9 @@ import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeComparator;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -62,12 +63,12 @@ public class GraphExportCSV {
     private final DateTime maxDate;
     private Boolean multiAnalyses = false;
     private final ObservableList<Locale> choices = FXCollections.observableArrayList(Locale.getAvailableLocales());
-    private List<ChartSetting> charts;
+    private final List<ChartSetting> charts;
     private Locale selectedLocale;
     private NumberFormat numberFormat;
     private Boolean withUserNotes = false;
-    private final List<ChartDataModel> selectedData;
-    private AlphanumComparator ac = new AlphanumComparator();
+    private final List<ChartDataRow> selectedData;
+    private final AlphanumComparator ac = new AlphanumComparator();
 
     public GraphExportCSV(JEVisDataSource ds, AnalysisDataModel model, DateTime xAxisLowerBound, DateTime xAxisUpperBound) {
         this.NAME = I18n.getInstance().getString("plugin.graph.export.text.name");
@@ -177,12 +178,20 @@ public class GraphExportCSV {
                 fileChooser.getExtensionFilters().addAll(csvFilter, xlsxFilter);
                 fileChooser.setSelectedExtensionFilter(csvFilter);
 
-                fileChooser.setInitialFileName(formattedName + I18n.getInstance().getString("plugin.graph.dialog.export.from")
-                        + fmtDate.print(minDate) + I18n.getInstance().getString("plugin.graph.dialog.export.to")
-                        + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()));
+                fileChooser.setInitialFileName(
+                        formattedName + "_"
+                                + I18n.getInstance().getString("plugin.graph.dialog.export.from") + "_"
+                                + fmtDate.print(minDate) + "_" + I18n.getInstance().getString("plugin.graph.dialog.export.to") + "_"
+                                + fmtDate.print(maxDate) + "_" + I18n.getInstance().getString("plugin.graph.dialog.export.created") + "_"
+                                + fmtDate.print(new DateTime()));
                 File file = fileChooser.showSaveDialog(JEConfig.getStage());
                 if (file != null) {
-                    destinationFile = new File(file + fileChooser.getSelectedExtensionFilter().getExtensions().get(0));
+                    String fileExtension = fileChooser.getSelectedExtensionFilter().getExtensions().get(0);
+                    if (!file.getAbsolutePath().contains(fileExtension)) {
+                        destinationFile = new File(file + fileExtension);
+                    } else {
+                        destinationFile = file;
+                    }
                     if (fileChooser.getSelectedExtensionFilter().equals(xlsxFilter)) {
                         xlsx = true;
                     }
@@ -206,7 +215,7 @@ public class GraphExportCSV {
     }
 
     private void setDates() {
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             DateTime startNow = mdl.getSelectedStart();
             DateTime endNow = mdl.getSelectedEnd();
 //            if (minDate == null || startNow.isBefore(minDate)) minDate = startNow;
@@ -254,7 +263,7 @@ public class GraphExportCSV {
             nameHeaderCell.setCellValue(NAME);
             columnIndex++;
 
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     String modelTitle = mdl.getTitle();
 
@@ -274,7 +283,7 @@ public class GraphExportCSV {
             Cell idHeaderCell = getOrCreateCell(sheet, 1, columnIndex);
             idHeaderCell.setCellValue(ID);
             columnIndex++;
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     Cell idHeader = getOrCreateCell(sheet, 1, columnIndex);
                     if (mdl.getDataProcessor() != null) {
@@ -296,7 +305,7 @@ public class GraphExportCSV {
             Cell unitCell = getOrCreateCell(sheet, 3, columnIndex);
             unitCell.setCellValue(UNIT);
             columnIndex++;
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     Cell unitHeader = getOrCreateCell(sheet, 3, columnIndex);
                     String currentUnit = UnitManager.getInstance().format(mdl.getUnit());
@@ -334,7 +343,7 @@ public class GraphExportCSV {
             }
             columnIndex++;
 
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     for (int i = 0; i < 4; i++) {
                         Cell valueCell = getOrCreateCell(sheet, i + 4, columnIndex);
@@ -367,7 +376,7 @@ public class GraphExportCSV {
             Cell dateHeaderCell = getOrCreateCell(sheet, 9, columnIndex);
             dateHeaderCell.setCellValue(DATE);
             columnIndex++;
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     columnIndex++;
 
@@ -384,7 +393,7 @@ public class GraphExportCSV {
         for (ChartSetting cset : charts) {
             DateTime currentStart = null;
             DateTime currentEnd = null;
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (currentStart == null) currentStart = mdl.getSelectedStart();
                 else mdl.setSelectedStart(currentStart);
                 if (currentEnd == null) currentEnd = mdl.getSelectedEnd();
@@ -413,7 +422,7 @@ public class GraphExportCSV {
         for (ChartSetting cset : charts) {
             Map<String, Map<DateTime, JEVisSample>> mapNotes = new HashMap<>();
             Map<String, List<JEVisSample>> map = new HashMap<>();
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     List<JEVisSample> filteredSamples = new ArrayList<>();
                     for (JEVisSample jeVisSample : mdl.getSamples()) {
@@ -462,7 +471,7 @@ public class GraphExportCSV {
             }
             columnIndex++;
 
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 String modelName = mdl.getTitle();
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     List<JEVisSample> jeVisSamples = listMaps.get(cset.getName()).get(modelName);
@@ -498,8 +507,10 @@ public class GraphExportCSV {
         }
 
         try {
-            workbook.write(new FileOutputStream(destinationFile));
+            FileOutputStream fileOutputStream = new FileOutputStream(destinationFile);
+            workbook.write(fileOutputStream);
             workbook.close();
+            fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -535,7 +546,7 @@ public class GraphExportCSV {
         nameHeaderCell.setCellValue(NAME);
 
         int columnIndex = 1;
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
 
             String modelTitle = mdl.getTitle();
             Cell nameHeader = getOrCreateCell(sheet, 0, columnIndex);
@@ -551,7 +562,7 @@ public class GraphExportCSV {
         Cell idHeaderCell = getOrCreateCell(sheet, 1, columnIndex);
         idHeaderCell.setCellValue(ID);
         columnIndex++;
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             Cell idHeader = getOrCreateCell(sheet, 1, columnIndex);
             if (mdl.getDataProcessor() != null) {
                 idHeader.setCellValue(mdl.getDataProcessor().getID());
@@ -569,11 +580,15 @@ public class GraphExportCSV {
         Cell unitCell = getOrCreateCell(sheet, 3, columnIndex);
         unitCell.setCellValue(UNIT);
         columnIndex++;
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             Cell unitHeader = getOrCreateCell(sheet, 3, columnIndex);
             String currentUnit = UnitManager.getInstance().format(mdl.getUnit());
             if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
-                currentUnit = mdl.getUnit().getLabel();
+                try {
+                    currentUnit = mdl.getUnit().getLabel();
+                } catch (Exception e) {
+                    logger.error("Could not get unit.", e);
+                }
             }
             unitHeader.setCellValue(currentUnit);
             columnIndex++;
@@ -602,7 +617,7 @@ public class GraphExportCSV {
             }
         }
 
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             for (int i = 0; i < 4; i++) {
                 Cell valueCell = getOrCreateCell(sheet, i + 4, columnIndex);
                 switch (i) {
@@ -630,7 +645,7 @@ public class GraphExportCSV {
         Cell dateHeaderCell = getOrCreateCell(sheet, 9, 0);
         dateHeaderCell.setCellValue(DATE);
         columnIndex = 1;
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             columnIndex++;
             if (withUserNotes) {
                 Cell noteHeader = getOrCreateCell(sheet, 9, columnIndex);
@@ -640,27 +655,29 @@ public class GraphExportCSV {
         }
 
         List<String> dateColumn = new ArrayList<>();
+        List<DateTime> dates = new ArrayList<>();
         Map<DateTime, Long> dateTimes = new HashMap<>();
-        boolean firstSet = true;
         long dateCounter = 0;
-        for (ChartDataModel mdl : selectedData) {
-            if (firstSet) {
-                for (JEVisSample sample : mdl.getSamples()) {
-                    if (sample.getTimestamp().equals(minDate)
-                            || (sample.getTimestamp().isAfter(minDate) && sample.getTimestamp().isBefore(maxDate))
-                            || sample.getTimestamp().equals(maxDate)) {
-                        dateColumn.add(standard.print(sample.getTimestamp()));
-                        dateTimes.put(sample.getTimestamp(), dateCounter);
-                        dateCounter++;
-                    }
+        for (ChartDataRow mdl : selectedData) {
+            for (JEVisSample sample : mdl.getSamples()) {
+                if (!dates.contains(sample.getTimestamp()) && (sample.getTimestamp().equals(minDate)
+                        || (sample.getTimestamp().isAfter(minDate) && sample.getTimestamp().isBefore(maxDate))
+                        || sample.getTimestamp().equals(maxDate))) {
+                    dates.add(sample.getTimestamp());
                 }
-                firstSet = false;
             }
+        }
+
+        dates.sort(DateTimeComparator.getInstance());
+        for (DateTime dateTime : dates) {
+            dateColumn.add(standard.print(dateTime));
+            dateTimes.put(dateTime, dateCounter);
+            dateCounter++;
         }
 
         Map<String, Map<DateTime, JEVisSample>> mapNotes = new HashMap<>();
         Map<String, List<JEVisSample>> map = new HashMap<>();
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             List<JEVisSample> filteredSamples = new ArrayList<>();
             for (JEVisSample jeVisSample : mdl.getSamples()) {
                 if (jeVisSample.getTimestamp().equals(minDate)
@@ -701,13 +718,17 @@ public class GraphExportCSV {
             dateCell.setCellStyle(cellStyleDateTime);
         }
 
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             String modelTitle = mdl.getTitle();
             List<JEVisSample> jeVisSamples = map.get(modelTitle);
             for (JEVisSample sample : jeVisSamples) {
                 DateTime timeStamp = sample.getTimestamp();
                 Cell valueCell = getOrCreateCell(sheet, dateTimes.get(timeStamp).intValue() + 10, columnIndex);
-                valueCell.setCellValue(sample.getValueAsDouble());
+                if (!mdl.isStringData()) {
+                    valueCell.setCellValue(sample.getValueAsDouble());
+                } else {
+                    valueCell.setCellValue(sample.getValueAsString());
+                }
                 valueCell.setCellStyle(cellStyleValues);
             }
             columnIndex++;
@@ -727,8 +748,10 @@ public class GraphExportCSV {
         }
 
         try {
-            workbook.write(new FileOutputStream(destinationFile));
+            FileOutputStream fileOutputStream = new FileOutputStream(destinationFile);
+            workbook.write(fileOutputStream);
             workbook.close();
+            fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -748,7 +771,7 @@ public class GraphExportCSV {
          * Building the header
          */
         StringBuilder header = new StringBuilder(NAME);
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             String modelTitle = mdl.getTitle();
 
             header.append(COL_SEP).append(modelTitle);
@@ -764,7 +787,7 @@ public class GraphExportCSV {
         header.append(ID);
         header.append(COL_SEP);
 
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             if (mdl.getDataProcessor() != null) {
                 header.append(mdl.getDataProcessor().getID());
             } else {
@@ -783,7 +806,7 @@ public class GraphExportCSV {
         header.append(UNIT);
         header.append(COL_SEP);
 
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             String currentUnit = UnitManager.getInstance().format(mdl.getUnit());
             if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
                 currentUnit = mdl.getUnit().getLabel();
@@ -816,7 +839,7 @@ public class GraphExportCSV {
                     header.append(COL_SEP);
                     break;
             }
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 switch (i) {
                     case 0:
                         header.append(numberFormat.format(mdl.getMin()));
@@ -847,7 +870,7 @@ public class GraphExportCSV {
         sb.append(System.getProperty(LINE_SEPARATOR));
         sb.append(DATE);
         sb.append(COL_SEP);
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             sb.append(COL_SEP);
             if (withUserNotes) {
                 sb.append(NOTE);
@@ -862,7 +885,7 @@ public class GraphExportCSV {
 
         List<String> dateColumn = new ArrayList<>();
         boolean firstSet = true;
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             if (firstSet) {
                 for (JEVisSample sample : mdl.getSamples()) {
                     if (sample.getTimestamp().equals(minDate)
@@ -880,7 +903,7 @@ public class GraphExportCSV {
          */
         Map<String, Map<DateTime, JEVisSample>> mapNotes = new HashMap<>();
         Map<String, List<JEVisSample>> map = new HashMap<>();
-        for (ChartDataModel mdl : selectedData) {
+        for (ChartDataRow mdl : selectedData) {
             List<JEVisSample> filteredSamples = new ArrayList<>();
             for (JEVisSample jeVisSample : mdl.getSamples()) {
                 if (jeVisSample.getTimestamp().equals(minDate)
@@ -921,14 +944,20 @@ public class GraphExportCSV {
             StringBuilder s = new StringBuilder();
             s.append(dateColumn.get(i)).append(COL_SEP);
 
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 String modelTitle = mdl.getTitle();
                 List<JEVisSample> jeVisSamples = map.get(modelTitle);
                 DateTime timeStamp = null;
                 if (i < jeVisSamples.size()) {
                     JEVisSample sample = jeVisSamples.get(i);
                     timeStamp = sample.getTimestamp();
-                    String formattedValue = numberFormat.format(sample.getValueAsDouble());
+                    String formattedValue;
+                    if (!mdl.isStringData()) {
+                        formattedValue = numberFormat.format(sample.getValueAsDouble());
+                    } else {
+                        formattedValue = sample.getValueAsString();
+                    }
+
                     s.append(formattedValue);
                 }
                 s.append(COL_SEP);
@@ -955,7 +984,7 @@ public class GraphExportCSV {
 
         for (ChartSetting cset : charts) {
             StringBuilder header = new StringBuilder(NAME);
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     String modelTitle = mdl.getTitle();
 
@@ -976,7 +1005,7 @@ public class GraphExportCSV {
             sb.append(ID);
             sb.append(COL_SEP);
 
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     if (mdl.getDataProcessor() != null) {
                         sb.append(mdl.getDataProcessor().getID());
@@ -999,7 +1028,7 @@ public class GraphExportCSV {
             sb.append(UNIT);
             sb.append(COL_SEP);
 
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     String currentUnit = UnitManager.getInstance().format(mdl.getUnit());
                     if (currentUnit.equals("") || currentUnit.equals(Unit.ONE.toString())) {
@@ -1037,7 +1066,7 @@ public class GraphExportCSV {
                         row.append(COL_SEP);
                         break;
                 }
-                for (ChartDataModel mdl : selectedData) {
+                for (ChartDataRow mdl : selectedData) {
                     if (mdl.getSelectedcharts().contains(cset.getId())) {
                         switch (i) {
                             case 0:
@@ -1072,7 +1101,7 @@ public class GraphExportCSV {
         for (ChartSetting cset : charts) {
             StringBuilder dateHeader = new StringBuilder(DATE);
             dateHeader.append(COL_SEP);
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     dateHeader.append(COL_SEP);
 
@@ -1090,7 +1119,7 @@ public class GraphExportCSV {
         for (ChartSetting cset : charts) {
             DateTime currentStart = null;
             DateTime currentEnd = null;
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (currentStart == null) currentStart = mdl.getSelectedStart();
                 else mdl.setSelectedStart(currentStart);
                 if (currentEnd == null) currentEnd = mdl.getSelectedEnd();
@@ -1119,7 +1148,7 @@ public class GraphExportCSV {
         for (ChartSetting cset : charts) {
             Map<String, Map<DateTime, JEVisSample>> mapNotes = new HashMap<>();
             Map<String, Map<DateTime, JEVisSample>> map = new HashMap<>();
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (mdl.getSelectedcharts().contains(cset.getId())) {
                     Map<DateTime, JEVisSample> filteredSamples = new HashMap<>();
                     for (JEVisSample jeVisSample : mdl.getSamples()) {
@@ -1164,7 +1193,7 @@ public class GraphExportCSV {
 
                 str.append(standard.print(ts)).append(COL_SEP);
 
-                for (ChartDataModel mdl : selectedData) {
+                for (ChartDataRow mdl : selectedData) {
                     String modelTitle = mdl.getTitle();
                     if (mdl.getSelectedcharts().contains(cset.getId())) {
                         JEVisSample sample1 = listMaps.get(cset.getName()).get(modelTitle).get(ts);

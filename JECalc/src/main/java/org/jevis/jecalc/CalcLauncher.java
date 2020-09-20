@@ -16,10 +16,11 @@ import org.jevis.commons.cli.AbstractCliApp;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.task.LogTaskManager;
 import org.jevis.commons.task.Task;
-import org.jevis.commons.task.TaskPrinter;
+import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.FutureTask;
 
 /**
  * @author broder
@@ -29,7 +30,8 @@ public class CalcLauncher extends AbstractCliApp {
     private static final Logger logger = LogManager.getLogger(CalcLauncher.class);
     private final Command commands = new Command();
     private static final String APP_INFO = "JECalc";
-    private final String APP_SERVICE_CLASS_NAME = "JECalc";
+
+    private boolean firstRun = true;
 
     public CalcLauncher(String[] args, String appname) {
         super(args, appname);
@@ -46,50 +48,51 @@ public class CalcLauncher extends AbstractCliApp {
 
     @Override
     protected void runServiceHelp() {
-        if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-            try {
-                ds.clearCache();
-                ds.preload();
+
+        if (checkConnection()) {
+
+            checkForTimeout();
+
+            if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
+                if (!firstRun) {
+                    try {
+                        ds.clearCache();
+                        ds.preload();
+                    } catch (JEVisException e) {
+                        logger.error(e);
+                    }
+                } else firstRun = false;
+
                 getCycleTimeFromService(APP_SERVICE_CLASS_NAME);
-            } catch (JEVisException e) {
-                logger.error(e);
-            }
 
-            if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
-                logger.info("Service is enabled.");
-                List<JEVisObject> dataSources = getEnabledCalcObjects();
-                this.executeCalcJobs(dataSources);
+                if (checkServiceStatus(APP_SERVICE_CLASS_NAME)) {
+                    logger.info("Service is enabled.");
+                    List<JEVisObject> dataSources = getEnabledCalcObjects();
+                    this.executeCalcJobs(dataSources);
+                } else {
+                    logger.info("Service is disabled.");
+                }
             } else {
-                logger.info("Service is disabled.");
+                logger.info("Still running queue. Going to sleep again.");
             }
-        } else {
-            logger.info("Still running queue. Going to sleep again.");
         }
 
-        try {
-            logger.info("Entering sleep mode for " + cycleTime + " ms.");
-            Thread.sleep(cycleTime);
-
-            TaskPrinter.printJobStatus(LogTaskManager.getInstance());
-            runServiceHelp();
-        } catch (InterruptedException e) {
-            logger.error("Interrupted sleep: ", e);
-        }
+        sleep();
     }
+
 
     private void executeCalcJobs(List<JEVisObject> enabledCalcObject) {
 
-        logger.info("Number of Calc Jobs: " + enabledCalcObject.size());
+        logger.info("Number of Calc Jobs: {}", enabledCalcObject.size());
         setServiceStatus(APP_SERVICE_CLASS_NAME, 2L);
 
-        enabledCalcObject.parallelStream().forEach(object -> {
-            forkJoinPool.submit(() -> {
-                if (!runningJobs.containsKey(object.getID())) {
-
-                    Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
-                    runningJobs.put(object.getID(), "true");
-
+        enabledCalcObject.forEach(object -> {
+            if (!runningJobs.containsKey(object.getID())) {
+                Runnable runnable = () -> {
                     try {
+                        Thread.currentThread().setName(object.getName() + ":" + object.getID().toString());
+                        runningJobs.put(object.getID(), new DateTime());
+
                         LogTaskManager.getInstance().buildNewTask(object.getID(), object.getName());
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.STARTED);
 
@@ -101,29 +104,30 @@ public class CalcLauncher extends AbstractCliApp {
                         } while (!calcJob.hasProcessedAllInputSamples());
 
                     } catch (Exception e) {
-                        logger.debug(e);
                         LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FAILED);
+                        removeJob(object);
+
+                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
+
+                        checkLastJob();
+                    } finally {
+                        LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
+                        removeJob(object);
+
+                        logger.info("Planned Jobs: {} running Jobs: {}", plannedJobs.size(), runningJobs.size());
+
+                        checkLastJob();
                     }
+                };
 
-                    LogTaskManager.getInstance().getTask(object.getID()).setStatus(Task.Status.FINISHED);
-                    runningJobs.remove(object.getID());
-                    plannedJobs.remove(object.getID());
+                FutureTask<?> ft = new FutureTask<Void>(runnable, null);
 
-                    logger.info("Planned Jobs: " + plannedJobs.size() + " running Jobs: " + runningJobs.size());
-
-                    if (plannedJobs.size() == 0 && runningJobs.size() == 0) {
-                        logger.info("Last job. Clearing cache.");
-                        setServiceStatus(APP_SERVICE_CLASS_NAME, 1L);
-                        ds.clearCache();
-                    }
-
-                } else {
-                    logger.error("Still processing Calc Object " + object.getName() + ":" + object.getID());
-                }
-            });
+                runnables.put(object.getID(), ft);
+                executor.submit(ft);
+            } else {
+                logger.info("Still processing Job {}:{}", object.getName(), object.getID());
+            }
         });
-
-        logger.info("---------------------finish------------------------");
     }
 
     private List<JEVisObject> getEnabledCalcObjects() {
@@ -144,7 +148,7 @@ public class CalcLauncher extends AbstractCliApp {
             if (valueAsBoolean) {
                 enabledObjects.add(curObj);
                 if (!plannedJobs.containsKey(curObj.getID())) {
-                    plannedJobs.put(curObj.getID(), "true");
+                    plannedJobs.put(curObj.getID(), new DateTime());
                 }
             }
         }
@@ -158,28 +162,31 @@ public class CalcLauncher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
+        APP_SERVICE_CLASS_NAME = "JECalc";
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
     }
 
     @Override
-    protected void runSingle(Long id) {
+    protected void runSingle(List<Long> ids) {
         logger.info("Start Single Mode");
-        try {
-            JEVisObject calcObject = ds.getObject(id);
-
+        for (Long id : ids) {
             try {
-                CalcJob calcJob;
-                CalcJobFactory calcJobCreator = new CalcJobFactory();
-                do {
-                    calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, calcObject);
-                    calcJob.execute();
-                } while (!calcJob.hasProcessedAllInputSamples());
+                JEVisObject calcObject = ds.getObject(id);
 
-            } catch (Exception e) {
-                logger.error(e);
+                try {
+                    CalcJob calcJob;
+                    CalcJobFactory calcJobCreator = new CalcJobFactory();
+                    do {
+                        calcJob = calcJobCreator.getCurrentCalcJob(new SampleHandler(), ds, calcObject);
+                        calcJob.execute();
+                    } while (!calcJob.hasProcessedAllInputSamples());
+
+                } catch (Exception e) {
+                    logger.error(e);
+                }
+            } catch (Exception ex) {
+                logger.error("JECalc: Single mode failed", ex);
             }
-        } catch (Exception ex) {
-            logger.error("JECalc: Single mode failed", ex);
         }
     }
 

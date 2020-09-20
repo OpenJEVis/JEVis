@@ -1,24 +1,27 @@
 package org.jevis.jeconfig.plugin.reports;
 
+import javafx.application.Platform;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
@@ -29,11 +32,14 @@ import org.controlsfx.dialog.ProgressDialog;
 import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
+import org.jevis.commons.report.JEVisFileWithSample;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.application.resource.PDFModel;
+import org.jevis.jeconfig.dialog.PDFViewerDialog;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -42,7 +48,10 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ReportPlugin implements Plugin {
     private static final Logger logger = LogManager.getLogger(ReportPlugin.class);
@@ -55,27 +64,64 @@ public class ReportPlugin implements Plugin {
     private final ObjectRelations objectRelations;
     private final ToolBar toolBar = new ToolBar();
     private boolean initialized = false;
-    private ListView<JEVisObject> listView = new ListView<>();
-    private WebView web = new WebView();
-    private ComboBox<DateTime> dateTimeComboBox;
+    private final ListView<JEVisObject> listView = new ListView<>();
+    private final Pagination pagination = new Pagination();
+    private final ComboBox<JEVisFileWithSample> fileComboBox = new ComboBox<>(FXCollections.observableArrayList());
+    private final Map<JEVisFile, JEVisSample> sampleMap = new HashMap<>();
     private List<JEVisObject> disabledItemList;
-    private WebEngine engine = web.getEngine();
-    private HBox hBox = new HBox();
-    private TextField filterInput = new TextField();
+    private final TextField filterInput = new TextField();
     private final int iconSize = 20;
     private boolean multipleDirectories;
+    private final PDFModel model = new PDFModel();
+    private final SimpleDoubleProperty zoomFactor = new SimpleDoubleProperty(0.3);
+    private final ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
+    private final ImageView leftImage = JEConfig.getImage("left.png", 20, 20);
+    private boolean newReport = false;
 
     public ReportPlugin(JEVisDataSource ds, String title) {
         this.ds = ds;
         this.title = title;
 
-        this.hBox.setPadding(new Insets(4, 4, 4, 4));
-        this.hBox.setSpacing(4);
         this.filterInput.setPromptText(I18n.getInstance().getString("searchbar.filterinput.prompttext"));
 
-        BorderPane view = new BorderPane();
-        view.setTop(hBox);
-        view.setCenter(web);
+        VBox view = new VBox(pagination);
+        view.setFillWidth(true);
+        VBox.setVgrow(pagination, Priority.ALWAYS);
+        view.widthProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.doubleValue() != oldValue.doubleValue()) {
+                pagination.setPrefWidth(newValue.doubleValue());
+            }
+        });
+
+        pagination.setOnScroll(new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent event) {
+                if (event.isControlDown()) {
+                    double deltaY = event.getDeltaY();
+
+                    if (deltaY < 0 && zoomFactor.get() - 0.05 > 0) {
+                        zoomFactor.set(zoomFactor.get() - 0.05);
+                    } else {
+                        zoomFactor.set(zoomFactor.get() + 0.05);
+                    }
+                    event.consume();
+                }
+            }
+        });
+
+        zoomFactor.addListener((observable, oldValue, newValue) -> {
+            if (!newReport && !newValue.equals(oldValue)) {
+                int currentPageIndex = pagination.getCurrentPageIndex();
+                pagination.setPageFactory((Integer pageIndex) -> {
+                    if (pageIndex >= model.numPages()) {
+                        return null;
+                    } else {
+                        return createPage(pageIndex);
+                    }
+                });
+                Platform.runLater(() -> pagination.setCurrentPageIndex(currentPageIndex));
+            }
+        });
 
         SplitPane sp = new SplitPane();
         sp.setOrientation(Orientation.HORIZONTAL);
@@ -94,13 +140,23 @@ public class ReportPlugin implements Plugin {
 
         this.objectRelations = new ObjectRelations(ds);
 
-        String url = JEConfig.class.getResource("/web/viewer.html").toExternalForm();
+    }
 
-        // connect CSS styles to customize pdf.js appearance
-        this.engine.setUserStyleSheetLocation(JEConfig.class.getResource("/web/web.css").toExternalForm());
+    public HBox createPage(int pageIndex) {
+        HBox hBox = new HBox();
+        hBox.setAlignment(Pos.CENTER);
+        VBox vBox = new VBox();
+        vBox.setAlignment(Pos.CENTER);
 
-        this.engine.setJavaScriptEnabled(true);
-        this.engine.load(url);
+        ImageView image = model.getImage(pageIndex, zoomFactor.get());
+        Group group = new Group(image);
+        BorderPane bp = new BorderPane(group);
+        bp.setPadding(new Insets(20));
+        ScrollPane scrollPane = new ScrollPane(bp);
+        vBox.getChildren().add(scrollPane);
+        hBox.getChildren().add(vBox);
+
+        return hBox;
     }
 
     private void initToolBar() {
@@ -163,11 +219,8 @@ public class ReportPlugin implements Plugin {
             if (file != null) {
                 File destinationFile = new File(file + fileChooser.getSelectedExtensionFilter().getExtensions().get(0));
                 try {
-                    JEVisAttribute last_report_pdf = selectedItem.getAttribute("Last Report PDF");
-                    DateTime dateTime = dateTimeComboBox.getSelectionModel().getSelectedItem();
-                    List<JEVisSample> samples = last_report_pdf.getSamples(dateTime, dateTime);
-                    samples.get(0).getValueAsFile().saveToFile(destinationFile);
-                } catch (JEVisException | IOException e) {
+                    fileComboBox.getSelectionModel().getSelectedItem().getJeVisFile().saveToFile(destinationFile);
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -193,7 +246,7 @@ public class ReportPlugin implements Plugin {
                 File destinationFile = new File(file + fileChooser.getSelectedExtensionFilter().getExtensions().get(0));
                 try {
                     JEVisAttribute last_report_pdf = selectedItem.getAttribute("Last Report");
-                    DateTime dateTime = dateTimeComboBox.getSelectionModel().getSelectedItem();
+                    DateTime dateTime = fileComboBox.getSelectionModel().getSelectedItem().getJeVisSample().getTimestamp();
                     List<JEVisSample> samples = last_report_pdf.getSamples(dateTime.minusMinutes(1), dateTime.plusMinutes(1));
                     samples.get(0).getValueAsFile().saveToFile(destinationFile);
                 } catch (JEVisException | IOException e) {
@@ -212,21 +265,87 @@ public class ReportPlugin implements Plugin {
         printButton.setOnAction(event -> {
             PrinterJob printerJob = PrinterJob.getPrinterJob();
             try {
-                JEVisObject selectedItem = listView.getSelectionModel().getSelectedItem();
-                JEVisAttribute last_report_pdf = selectedItem.getAttribute("Last Report PDF");
-                DateTime dateTime = dateTimeComboBox.getSelectionModel().getSelectedItem();
-                List<JEVisSample> samples = last_report_pdf.getSamples(dateTime, dateTime);
-                PDDocument document = PDDocument.load(samples.get(0).getValueAsFile().getBytes());
+                PDDocument document = PDDocument.load(fileComboBox.getSelectionModel().getSelectedItem().getJeVisFile().getBytes());
                 printerJob.setPageable(new PDFPageable(document));
                 if (printerJob.printDialog()) {
                     printerJob.print();
                 }
-            } catch (IOException | JEVisException | PrinterException e) {
+            } catch (IOException | PrinterException e) {
                 e.printStackTrace();
             }
         });
 
-        toolBar.getItems().setAll(reload, sep1, pdfButton, xlsxButton, sep2, printButton);
+        Separator sep3 = new Separator(Orientation.VERTICAL);
+
+        ToggleButton zoomIn = new ToggleButton("", JEConfig.getImage("zoomIn_32.png", this.iconSize, this.iconSize));
+        ToggleButton zoomOut = new ToggleButton("", JEConfig.getImage("zoomOut_32.png", this.iconSize, this.iconSize));
+
+        zoomIn.setOnAction(event -> zoomFactor.set(zoomFactor.get() + 0.05));
+        zoomOut.setOnAction(event -> zoomFactor.set(zoomFactor.get() - 0.05));
+
+        Separator sep4 = new Separator(Orientation.VERTICAL);
+        Separator sep5 = new Separator(Orientation.VERTICAL);
+        Separator sep6 = new Separator(Orientation.VERTICAL);
+
+        Label labelDateTimeComboBox = new Label(I18n.getInstance().getString("plugin.reports.selectionbox.label"));
+        labelDateTimeComboBox.setAlignment(Pos.CENTER_LEFT);
+
+        Callback<ListView<JEVisFileWithSample>, ListCell<JEVisFileWithSample>> cellFactory = new Callback<ListView<JEVisFileWithSample>, ListCell<JEVisFileWithSample>>() {
+            @Override
+            public ListCell<JEVisFileWithSample> call(ListView<JEVisFileWithSample> param) {
+                return new ListCell<JEVisFileWithSample>() {
+                    @Override
+                    protected void updateItem(JEVisFileWithSample obj, boolean empty) {
+                        super.updateItem(obj, empty);
+                        if (obj == null || empty) {
+                            setGraphic(null);
+                            setText(null);
+                        } else {
+                            setText(obj.getJeVisFile().getFilename());
+                        }
+                    }
+                };
+            }
+        };
+
+        fileComboBox.setCellFactory(cellFactory);
+        fileComboBox.setButtonCell(cellFactory.call(null));
+
+        leftImage.setOnMouseClicked(event -> {
+            int i = fileComboBox.getSelectionModel().getSelectedIndex();
+            if (i > 0) {
+                fileComboBox.getSelectionModel().select(i - 1);
+            }
+        });
+
+        rightImage.setOnMouseClicked(event -> {
+            int i = fileComboBox.getSelectionModel().getSelectedIndex();
+            if (i < sampleMap.size()) {
+                fileComboBox.getSelectionModel().select(i + 1);
+            }
+        });
+
+        fileComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (oldValue != null && newValue != null && !newValue.equals(oldValue)) {
+                try {
+                    byte[] bytesFromSampleMap = newValue.getJeVisFile().getBytes();
+                    model.setBytes(bytesFromSampleMap);
+                    pagination.setPageCount(model.numPages());
+                    zoomFactor.set(0.3);
+                    pagination.setPageFactory((Integer pageIndex) -> {
+                        if (pageIndex >= model.numPages()) {
+                            return null;
+                        } else {
+                            return createPage(pageIndex);
+                        }
+                    });
+                } catch (Exception e) {
+                    logger.error("Could not load report for ts {}", newValue.toString(), e);
+                }
+            }
+        });
+
+        toolBar.getItems().setAll(reload, sep1, pdfButton, xlsxButton, sep2, printButton, sep3, zoomIn, zoomOut, sep4, labelDateTimeComboBox, leftImage, sep5, fileComboBox, sep6, rightImage);
     }
 
     @Override
@@ -384,112 +503,78 @@ public class ReportPlugin implements Plugin {
     }
 
     private void loadReport(JEVisObject reportObject) {
-        JEVisAttribute lastReportPDFAttribute = null;
-        try {
-            lastReportPDFAttribute = reportObject.getAttribute("Last Report PDF");
-        } catch (JEVisException e) {
-            logger.error("Could not get 'Last Report' Attribute from object {}:{}", reportObject.getName(), reportObject.getID(), e);
-        }
 
-        if (lastReportPDFAttribute != null) {
-            List<JEVisSample> allSamples = lastReportPDFAttribute.getAllSamples();
-            if (allSamples.size() > 0) {
-                JEVisSample lastSample = allSamples.get(allSamples.size() - 1);
-                Map<DateTime, JEVisSample> sampleMap = new HashMap<>();
-                List<DateTime> dateTimeList = new ArrayList<>();
-                for (JEVisSample jeVisSample : allSamples) {
+        Task loadOtherFilesInBackground = new Task() {
+            @Override
+            protected Object call() throws Exception {
+                try {
+                    JEVisAttribute lastReportPDFAttribute = null;
                     try {
-                        dateTimeList.add(jeVisSample.getTimestamp());
-                        sampleMap.put(jeVisSample.getTimestamp(), jeVisSample);
+                        lastReportPDFAttribute = reportObject.getAttribute("Last Report PDF");
                     } catch (JEVisException e) {
-                        logger.error("Could not add date to dat list.");
+                        logger.error("Could not get 'Last Report' Attribute from object {}:{}", reportObject.getName(), reportObject.getID(), e);
                     }
-                }
-                dateTimeComboBox = new ComboBox<>(FXCollections.observableList(dateTimeList));
-                Callback<ListView<DateTime>, ListCell<DateTime>> cellFactory = new Callback<ListView<DateTime>, ListCell<DateTime>>() {
-                    @Override
-                    public ListCell<DateTime> call(ListView<DateTime> param) {
-                        return new ListCell<DateTime>() {
-                            @Override
-                            protected void updateItem(DateTime obj, boolean empty) {
-                                super.updateItem(obj, empty);
-                                if (obj == null || empty) {
-                                    setGraphic(null);
-                                    setText(null);
-                                } else {
-                                    setText(obj.toString("yyyy-MM-dd HH:mm"));
+
+                    if (lastReportPDFAttribute != null) {
+                        sampleMap.clear();
+                        Platform.runLater(() -> fileComboBox.getItems().clear());
+                        List<JEVisSample> allSamples = lastReportPDFAttribute.getAllSamples();
+                        if (allSamples.size() > 0) {
+                            JEVisFile lastSampleValueAsFile = allSamples.get(allSamples.size() - 1).getValueAsFile();
+                            Task loadLastReport = new Task() {
+                                @Override
+                                protected Object call() throws Exception {
+                                    try {
+                                        newReport = true;
+                                        byte[] bytes = lastSampleValueAsFile.getBytes();
+                                        model.setBytes(bytes);
+
+                                        Platform.runLater(() -> {
+                                            pagination.setPageCount(model.numPages());
+                                            zoomFactor.set(0.3);
+                                            pagination.setPageFactory((Integer pageIndex) -> {
+                                                if (pageIndex >= model.numPages()) {
+                                                    return null;
+                                                } else {
+                                                    return createPage(pageIndex);
+                                                }
+                                            });
+                                        });
+                                        newReport = false;
+                                    } catch (Exception e) {
+                                        logger.error("Could not load latest report for {}:{}", reportObject.getName(), reportObject.getID(), e);
+                                    }
+                                    return null;
+                                }
+                            };
+                            JEConfig.getStatusBar().addTask(ReportPlugin.class.getName(), loadLastReport, ReportPlugin.this.getIcon().getImage(), true);
+
+                            for (JEVisSample jeVisSample : allSamples) {
+                                try {
+                                    JEVisFile valueAsFile = jeVisSample.getValueAsFile();
+                                    Platform.runLater(() -> fileComboBox.getItems().add(new JEVisFileWithSample(jeVisSample, valueAsFile)));
+                                    sampleMap.put(valueAsFile, jeVisSample);
+
+                                } catch (JEVisException e) {
+                                    logger.error("Could not add date to date list.");
                                 }
                             }
-                        };
-                    }
-                };
-
-                dateTimeComboBox.setCellFactory(cellFactory);
-                dateTimeComboBox.setButtonCell(cellFactory.call(null));
-
-                try {
-                    dateTimeComboBox.getSelectionModel().select(lastSample.getTimestamp());
-                } catch (JEVisException e) {
-                    logger.error("Could not get Time Stamp of last sample.");
-                    dateTimeComboBox.getSelectionModel().select(dateTimeList.size() - 1);
-                }
-
-                ImageView leftImage = JEConfig.getImage("left.png", 20, 20);
-                ImageView rightImage = JEConfig.getImage("right.png", 20, 20);
-
-                leftImage.setOnMouseClicked(event -> {
-                    int i = dateTimeComboBox.getSelectionModel().getSelectedIndex();
-                    if (i > 0) {
-                        dateTimeComboBox.getSelectionModel().select(i - 1);
-                    }
-                });
-
-                rightImage.setOnMouseClicked(event -> {
-                    int i = dateTimeComboBox.getSelectionModel().getSelectedIndex();
-                    if (i < sampleMap.size()) {
-                        dateTimeComboBox.getSelectionModel().select(i + 1);
-                    }
-                });
-
-                Separator sep1 = new Separator(Orientation.VERTICAL);
-                Separator sep2 = new Separator(Orientation.VERTICAL);
-
-                Label labelDateTimeComboBox = new Label(I18n.getInstance().getString("plugin.reports.selectionbox.label"));
-                labelDateTimeComboBox.setAlignment(Pos.CENTER_LEFT);
-
-                hBox.getChildren().setAll(labelDateTimeComboBox, leftImage, sep1, dateTimeComboBox, sep2, rightImage);
-                hBox.setAlignment(Pos.CENTER);
-
-                dateTimeComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                    if (!newValue.equals(oldValue)) {
-                        try {
-                            byte[] bytes = sampleMap.get(newValue).getValueAsFile().getBytes();
-                            String base64 = Base64.getEncoder().encodeToString(bytes);
-                            engine.executeScript("openFileFromBase64('" + base64 + "')");
-                        } catch (Exception e) {
-                            logger.error("Could not load report for {}:{} for ts {}", reportObject.getName(), reportObject.getID(), newValue.toString(), e);
                         }
                     }
-                });
-
-//                engine.getLoadWorker()
-//                        .stateProperty()
-//                        .addListener((observable, oldValue, newValue) -> {
-//                            if (newValue == Worker.State.SUCCEEDED) {
-                try {
-
-                    byte[] bytes = sampleMap.get(lastSample.getTimestamp()).getValueAsFile().getBytes();
-                    String base64 = Base64.getEncoder().encodeToString(bytes);
-                    // call JS function from Java code
-                    engine.executeScript("openFileFromBase64('" + base64 + "')");
                 } catch (Exception e) {
-                    logger.error("Could not load latest report for {}:{}", reportObject.getName(), reportObject.getID(), e);
+                    failed();
+                } finally {
+                    succeeded();
                 }
-//                            }
-//                        });
+                return null;
             }
-        }
+        };
+
+        loadOtherFilesInBackground.setOnSucceeded(event -> Platform.runLater(() -> fileComboBox.getSelectionModel().selectLast()));
+
+        JEConfig.getStatusBar().addTask(PDFViewerDialog.class.getName(), loadOtherFilesInBackground, this.getIcon().getImage(), true);
     }
+
 
     private void setupCellFactory(ListView<JEVisObject> listView) {
         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {

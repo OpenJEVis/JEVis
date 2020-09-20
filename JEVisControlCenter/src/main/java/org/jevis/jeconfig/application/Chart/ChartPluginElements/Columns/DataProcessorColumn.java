@@ -12,7 +12,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ProcessorBox;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 
@@ -53,7 +53,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
         column.setId(COLUMN_ID);
 
         column.setCellValueFactory(param -> {
-            ChartDataModel data = getData(param.getValue().getValue());
+            ChartDataRow data = getData(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(data.getDataProcessor());
         });
 
@@ -68,7 +68,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
                     public void commitEdit(JEVisObject newValue) {
                         super.commitEdit(newValue);
 
-                        ChartDataModel data = getData(getTreeTableRow().getItem());
+                        ChartDataRow data = getData(getTreeTableRow().getItem());
                         if (newValue.equals(data.getObject())) {
                             data.setDataProcessor(null);
                         } else {
@@ -89,7 +89,7 @@ public class DataProcessorColumn extends TreeTableColumn<JEVisTreeRow, JEVisObje
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    ChartDataRow data = getData(getTreeTableRow().getItem());
                                     ProcessorBox box = new ProcessorBox(data.getObject(), data.getDataProcessor());
 
                                     box.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> commitEdit(newValue));

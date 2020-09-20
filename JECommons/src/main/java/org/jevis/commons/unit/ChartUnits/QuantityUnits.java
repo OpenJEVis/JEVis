@@ -1,8 +1,15 @@
 package org.jevis.commons.unit.ChartUnits;
 
-import org.jevis.api.JEVisUnit;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jevis.api.*;
+import org.jevis.commons.dataprocessing.CleanDataObject;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.commons.unit.UnitManager;
+import org.jevis.commons.ws.json.JsonAttribute;
+import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jscience.economics.money.Currency;
 
 import javax.measure.unit.NonSI;
@@ -13,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class QuantityUnits {
+    private static final Logger logger = LogManager.getLogger(QuantityUnits.class);
 
     private final Unit _mg = SI.GRAM.divide(1000);
     private final JEVisUnit mg = new JEVisUnitImp(_mg);
@@ -203,5 +211,51 @@ public class QuantityUnits {
         } else if (unit.equals(t)) {
             return t;
         } else return null;
+    }
+
+    public boolean isQuantityIfCleanData(JEVisAttribute attribute, boolean isQuantity) {
+        if (attribute != null) {
+            JEVisObject object = attribute.getObject();
+            if (object != null) {
+                try {
+                    if (object.getJEVisClassName().equals(CleanDataObject.CLASS_NAME)) {
+                        JEVisAttribute quantityAttribute = object.getAttribute(CleanDataObject.AttributeName.VALUE_QUANTITY.getAttributeName());
+                        if (quantityAttribute != null && quantityAttribute.hasSample()) {
+                            JEVisSample latestSample = quantityAttribute.getLatestSample();
+                            if (latestSample != null) {
+                                isQuantity = latestSample.getValueAsBoolean();
+                            }
+                        }
+                    }
+                } catch (JEVisException e) {
+                    logger.error(e);
+                }
+            }
+        }
+        return isQuantity;
+    }
+
+    public boolean isQuantityIfCleanData(SQLDataSource sqlDataSource, JsonAttribute attribute, boolean isQuantity) {
+        if (attribute != null) {
+            JsonObject object = null;
+            try {
+                object = sqlDataSource.getObject(attribute.getObjectID());
+            } catch (JEVisException e) {
+                e.printStackTrace();
+            }
+            if (object != null) {
+                if (object.getJevisClass().equals(CleanDataObject.CLASS_NAME)) {
+                    for (JsonAttribute jsonAttribute : object.getAttributes()) {
+                        if (jsonAttribute.getType().equals(CleanDataObject.AttributeName.VALUE_QUANTITY.getAttributeName())) {
+                            if (jsonAttribute.getLatestValue() != null) {
+                                JsonSample latestSample = jsonAttribute.getLatestValue();
+                                isQuantity = Boolean.parseBoolean(latestSample.getValue());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return isQuantity;
     }
 }

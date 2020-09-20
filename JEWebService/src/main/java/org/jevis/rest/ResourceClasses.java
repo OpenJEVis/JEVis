@@ -26,8 +26,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.json.JsonTools;
 import org.jevis.commons.ws.json.JsonJEVisClass;
-import org.jevis.ws.sql.JEVisClassHelper;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
@@ -36,9 +36,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class handel all the JEVIsObjects related requests
@@ -265,36 +262,6 @@ public class ResourceClasses {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
         }
-    }
-
-    public ConcurrentHashMap<String, JsonJEVisClass> loadJsonClasses() {
-//        Gson gson = new GsonBuilder().create();
-        ConcurrentHashMap<String, JsonJEVisClass> classMap = new ConcurrentHashMap<>();
-
-        File classDir = Config.getClassDir();
-
-        if (classDir.exists()) {
-            FileFilter jsonFilter = new FileFilter() {
-                @Override
-                public boolean accept(File pathname) {
-                    return pathname.getName().endsWith(".json");
-                }
-            };
-            Arrays.stream(Objects.requireNonNull(classDir.listFiles(jsonFilter))).parallel().forEach(jsonFile -> {
-                try {
-//                    JsonReader reader = new JsonReader(new FileReader(jsonFile));
-//                    JsonJEVisClass data = gson.fromJson(reader, JsonJEVisClass.class);
-                    JsonJEVisClass data = objectMapper.readValue(jsonFile, JsonJEVisClass.class);
-                    classMap.put(data.getName(), data);
-
-                } catch (Exception ex) {
-                    logger.error("Error while loading Classfile: " + jsonFile.getName(), ex);
-                }
-            });
-        }
-
-        JEVisClassHelper.completeClasses(classMap);
-        return classMap;
     }
 
 

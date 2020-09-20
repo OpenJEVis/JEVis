@@ -7,6 +7,8 @@ package org.jevis.ftpdatasource;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPSClient;
+import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -16,7 +18,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
 import java.io.*;
-import java.net.SocketException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +38,7 @@ public class FTPDataSource implements DataSource {
     private DateTimeZone _timezone;
     private Parser _parser;
     private Importer _importer;
-    private List<JEVisObject> _channels = new ArrayList<>();
+    private final List<JEVisObject> _channels = new ArrayList<>();
     private List<Result> _result;
 
     @Override
@@ -64,22 +66,43 @@ public class FTPDataSource implements DataSource {
                 logger.debug("Parser.initialize");
 
                 logger.debug("sending request");
-                List<InputStream> input = this.sendSampleRequest(channel);
 
-                logger.debug("sending request - done");
-                if (!input.isEmpty()) {
-                    logger.debug("input is not empty: {}, start parsing", input.size());
-                    this.parse(input);
-                    logger.debug("parsing - done");
-                }
+                try {
+                    List<InputStream> input = this.sendSampleRequest(channel);
 
-                if (!_result.isEmpty()) {
-                    logger.debug("result is not empty {}, start import", _result.size());
+                    logger.debug("sending request - done");
+                    if (!input.isEmpty()) {
+                        logger.debug("input is not empty: {}, start parsing", input.size());
+                        this.parse(input);
+                        logger.debug("parsing - done");
+                    }
+
+                    if (!_result.isEmpty()) {
+                        logger.debug("result is not empty {}, start import", _result.size());
 //                    this.importResult();
 //
 //                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
-                    JEVisImporterAdapter.importResults(_result, _importer, channel);
-                    logger.debug("import done");
+                        JEVisImporterAdapter.importResults(_result, _importer, channel);
+                        logger.debug("import done");
+                    }
+                } catch (
+                        MalformedURLException ex) {
+                    logger.error("MalformedURLException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("MalformedURLException. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                } catch (
+                        ClientProtocolException ex) {
+                    logger.error("Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                } catch (
+                        IOException ex) {
+                    logger.error("IO Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("IO Exception. For channel {}:{}.", channel.getID(), channel.getName(), ex);
+                } catch (
+                        ParseException ex) {
+                    logger.error("Parse Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("Parse Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                } catch (Exception ex) {
+                    logger.error("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
                 }
             } catch (Exception ex) {
                 logger.error(ex);
@@ -105,78 +128,65 @@ public class FTPDataSource implements DataSource {
     }
 
     @Override
-    public List<InputStream> sendSampleRequest(JEVisObject channel) {
+    public List<InputStream> sendSampleRequest(JEVisObject channel) throws JEVisException, IOException {
         List<InputStream> answerList = new ArrayList<InputStream>();
-        try {
-            FTPClient _fc;
-            if (_ssl) {
-                logger.info("ftps connection");
-                _fc = new FTPSClient();
-            } else {
-                _fc = new FTPClient();
-            }
+        FTPClient _fc;
+        if (_ssl) {
+            logger.info("ftps connection");
+            _fc = new FTPSClient();
+        } else {
+            _fc = new FTPClient();
+        }
 //            _fc.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out), true));
 
-            if (_connectionTimeout != 0) {
-                _fc.setConnectTimeout(_connectionTimeout * 1000);
-            }
-            if (_readTimeout != 0) {
-                _fc.setDataTimeout(_readTimeout * 1000);
-            }
+        if (_connectionTimeout != 0) {
+            _fc.setConnectTimeout(_connectionTimeout * 1000);
+        }
+        if (_readTimeout != 0) {
+            _fc.setDataTimeout(_readTimeout * 1000);
+        }
 
-            _fc.connect(_serverURL, _port);
+        _fc.connect(_serverURL, _port);
 //            _fc.setFileType(FTP.BINARY_FILE_TYPE, FTP.BINARY_FILE_TYPE);
 
-            if (!_fc.login(_userName, _password)) {
-                logger.error("No Login possible");
+        if (!_fc.login(_userName, _password)) {
+            logger.error("No Login possible");
 //                throw new FetchingException(_id, FetchingExceptionType.CONNECTION_ERROR);
-            }
+        }
 
 //            _fc.setFileType(FTP.BINARY_FILE_TYPE);
 //            _fc.setFileTransferMode(FTP.COMPRESSED_TRANSFER_MODE);
-            _fc.setBufferSize(1024000);
+        _fc.setBufferSize(1024000);
 
-            _fc.setUseEPSVwithIPv4(false);
-            _fc.enterLocalPassiveMode();
+        _fc.setUseEPSVwithIPv4(false);
+        _fc.enterLocalPassiveMode();
 
-            InputStream answer = null;
-            JEVisClass channelClass = channel.getJEVisClass();
-            JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.PATH);
-            String filePath = DatabaseHelper.getObjectAsString(channel, pathType);
-            JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
-            DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
+        InputStream answer = null;
+        JEVisClass channelClass = channel.getJEVisClass();
+        JEVisType pathType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.PATH);
+        String filePath = DatabaseHelper.getObjectAsString(channel, pathType);
+        JEVisType readoutType = channelClass.getType(DataCollectorTypes.Channel.FTPChannel.LAST_READOUT);
+        DateTime lastReadout = DatabaseHelper.getObjectAsDate(channel, readoutType);
 
 //            String filePath = dp.getFilePath();
-            logger.info("SendSampleRequest2");
-            List<String> fileNames = DataSourceHelper.getFTPMatchedFileNames(_fc, lastReadout, filePath);
+        logger.info("SendSampleRequest2");
+        List<String> fileNames = DataSourceHelper.getFTPMatchedFileNames(_fc, lastReadout, _timezone, filePath);
 //        String currentFilePath = Paths.get(filePath).getParent().toString();
-            logger.info("Nr of Matched Files " + fileNames.size());
-            for (String fileName : fileNames) {
-                logger.info("FileInputName: " + fileName);
+        logger.info("Nr of Matched Files " + fileNames.size());
+        for (String fileName : fileNames) {
+            logger.info("FileInputName: " + fileName);
 
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
 //                String query = Paths.get(fileName);
-                logger.info("FTPQuery " + fileName);
-                boolean retrieveFile = _fc.retrieveFile(fileName, out);
-                logger.info("Request status: " + retrieveFile);
-                InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
-                answer = new BufferedInputStream(inputStream);
+            logger.info("FTPQuery " + fileName);
+            boolean retrieveFile = _fc.retrieveFile(fileName, out);
+            logger.info("Request status: " + retrieveFile);
+            InputStream inputStream = new ByteArrayInputStream(out.toByteArray());
+            answer = new BufferedInputStream(inputStream);
 //                InputHandler inputConverter = InputHandlerFactory.getInputConverter(answer);
 //                inputConverter.setFilePath(fileName);
-                answerList.add(answer);
+            answerList.add(answer);
 
-            }
-        } catch (JEVisException ex) {
-            logger.error("JEVis Exception. From the device {}:{}. {}", channel.getName(), channel.getID(), ex.getMessage());
-            logger.debug("JEVis Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
-        } catch (SocketException ex) {
-            logger.error("Socket Exception. From the device {}:{}. {}", channel.getName(), channel.getID(), ex.getMessage());
-            logger.debug("Socket Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
-        } catch (IOException ex) {
-            logger.error("IO Exception. From the device {}:{}. {}", channel.getName(), channel.getID(), ex.getMessage());
-            logger.debug("IO Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
-        } catch (Exception ex) {
-            logger.error("Exception. From the device {}:{}", channel.getName(), channel.getID(), ex);
         }
 
         return answerList;
@@ -193,10 +203,10 @@ public class FTPDataSource implements DataSource {
             JEVisType userType = ftpType.getType(DataCollectorTypes.DataSource.DataServer.FTP.USER);
             JEVisType passwordType = ftpType.getType(DataCollectorTypes.DataSource.DataServer.FTP.PASSWORD);
             JEVisType timezoneType = ftpType.getType(DataCollectorTypes.DataSource.DataServer.FTP.TIMEZONE);
-            JEVisType enableType = ftpType.getType(DataCollectorTypes.DataSource.DataServer.ENABLE);
+//            JEVisType enableType = ftpType.getType(DataCollectorTypes.DataSource.DataServer.ENABLE);
 
-            String _name = ftpObject.getName();
-            Long _id = ftpObject.getID();
+//            String _name = ftpObject.getName();
+//            Long _id = ftpObject.getID();
             _ssl = DatabaseHelper.getObjectAsBoolean(ftpObject, sslType);
             _serverURL = DatabaseHelper.getObjectAsString(ftpObject, serverType);
             _port = DatabaseHelper.getObjectAsInteger(ftpObject, portType);
@@ -207,14 +217,14 @@ public class FTPDataSource implements DataSource {
             _readTimeout = DatabaseHelper.getObjectAsInteger(ftpObject, readTimeoutType);
 
             JEVisAttribute userAttr = ftpObject.getAttribute(userType);
-            if (!userAttr.hasSample()) {
+            if (userAttr == null || !userAttr.hasSample()) {
                 _userName = "";
             } else {
                 _userName = DatabaseHelper.getObjectAsString(ftpObject, userType);
             }
 
             JEVisAttribute passAttr = ftpObject.getAttribute(passwordType);
-            if (!passAttr.hasSample()) {
+            if (passAttr == null || !passAttr.hasSample()) {
                 _password = "";
             } else {
                 _password = DatabaseHelper.getObjectAsString(ftpObject, passwordType);
@@ -225,7 +235,7 @@ public class FTPDataSource implements DataSource {
             } else {
                 _timezone = DateTimeZone.UTC;
             }
-            Boolean _enabled = DatabaseHelper.getObjectAsBoolean(ftpObject, enableType);
+//            Boolean _enabled = DatabaseHelper.getObjectAsBoolean(ftpObject, enableType);
 
         } catch (JEVisException ex) {
             logger.error(ex);

@@ -16,55 +16,10 @@
   ],
   "types": [
     {
-      "name": "Measurement",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Office Equipment"
-    },
-    {
-      "name": "Name",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Office Equipment"
-    },
-    {
-      "name": "Number",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Office Equipment"
-    },
-    {
-      "name": "Power",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Office Equipment"
-    },
-    {
       "name": "Sector",
       "primitiveType": 0,
       "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Office Equipment"
-    },
-    {
-      "name": "Standby Consumption",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 0,
+      "guiposition": 10,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Office Equipment"

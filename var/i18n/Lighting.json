@@ -2,221 +2,102 @@
   "jevisclass": "Lighting",
   "names": {
     "de": "Beleuchtung",
-    "ru": "Lighting",
-    "en": "Lighting"
+    "ru": "освещение",
+    "en": "Lighting",
+    "th": "แสง",
+    "uk": "освітлення"
   },
   "descriptions": {
-    "de": "The class Lighting contains data of the building equipment lightning. Attributes of the class include a complete description of the specific energy data of the lighting. ",
-    "ru": "The class Lighting contains data of the building equipment lightning. Attributes of the class include a complete description of the specific energy data of the lighting. ",
-    "en": "The class Lighting contains data of the building equipment lightning. Attributes of the class include a complete description of the specific energy data of the lighting. "
+    "de": "Die Klasse Beleuchtung enthält Daten der Gebäudeausrüstung Beleuchtung. Zu den Attributen der Klasse gehört eine vollständige Beschreibung der spezifischen Energiedaten der Beleuchtung.",
+    "ru": "Класс освещения содержит данные по освещению строительного оборудования. Атрибуты класса включают в себя полное описание конкретных энергетических данных освещения.",
+    "en": "The class Lighting contains data of the building equipment lightning. Attributes of the class include a complete description of the specific energy data of the lighting.",
+    "th": "ระดับแสงมีข้อมูลเกี่ยวกับแสงอุปกรณ์อาคาร คุณสมบัติของชั้นเรียนรวมถึงคำอธิบายที่สมบูรณ์ของข้อมูลพลังงานเฉพาะของแสง",
+    "uk": "Клас освітлення містить дані про освітлення будівельного обладнання. Атрибути класу включають повний опис конкретних енергетичних даних освітлення."
   },
   "types": [
     {
       "type": "Ballast Power",
       "descriptions": {
-        "de": "Ballast Power description",
-        "ru": "Ballast Power description",
-        "en": "Ballast Power description"
+        "de": "Anschlussleistung Vorschaltgerät",
+        "ru": "Подключенный нагрузочный балласт",
+        "en": "Ballast Power",
+        "th": "โหลดบัลลาสต์ที่เชื่อมต่อ",
+        "uk": "Підключений навантажувальний баласт"
       },
       "names": {
-        "de": "Ballast Power",
-        "ru": "Ballast Power",
-        "en": "Ballast Power"
+        "de": "Anschlussleistung Vorschaltgerät",
+        "ru": "Подключенный нагрузочный балласт",
+        "en": "Ballast Power",
+        "th": "โหลดบัลลาสต์ที่เชื่อมต่อ",
+        "uk": "Підключений навантажувальний баласт"
       }
     },
     {
       "type": "Bulbs per Lamp",
       "descriptions": {
-        "de": "Bulbs per Lamp description",
-        "ru": "Bulbs per Lamp description",
-        "en": "Bulbs per Lamp description"
+        "de": "Leuchtmittel je Lampe",
+        "ru": "Освещенность на лампу",
+        "en": "Bulbs per Lamp",
+        "th": "ส่องสว่างต่อหลอด",
+        "uk": "Освітлювальна лампа"
       },
       "names": {
-        "de": "Bulbs per Lamp",
-        "ru": "Bulbs per Lamp",
-        "en": "Bulbs per Lamp"
-      }
-    },
-    {
-      "type": "Daily Operating Hours",
-      "descriptions": {
-        "de": "Daily Operating Hours description",
-        "ru": "Daily Operating Hours description",
-        "en": "Daily Operating Hours description"
-      },
-      "names": {
-        "de": "Daily Operating Hours",
-        "ru": "Daily Operating Hours",
-        "en": "Daily Operating Hours"
+        "de": "Leuchtmittel je Lampe",
+        "ru": "Освещенность на лампу",
+        "en": "Bulbs per Lamp",
+        "th": "ส่องสว่างต่อหลอด",
+        "uk": "Освітлювальна лампа"
       }
     },
     {
       "type": "Domain",
       "descriptions": {
-        "de": "Domain description",
-        "ru": "Domain description",
-        "en": "Domain description"
+        "de": "der Bereich, den die Wärmeerzeugungsanlage mit Wärme versorgt",
+        "ru": "область, которую теплогенератор снабжает теплом",
+        "en": "Domain, which is served heat by the heat generator",
+        "th": "บริเวณที่เครื่องกำเนิดความร้อนมีความร้อน",
+        "uk": "область, яку теплогенератор постачає теплом"
       },
       "names": {
-        "de": "Domain",
-        "ru": "Domain",
-        "en": "Domain"
-      }
-    },
-    {
-      "type": "Energy Source",
-      "descriptions": {
-        "de": "Energy Source description",
-        "ru": "Energy Source description",
-        "en": "Energy Source description"
-      },
-      "names": {
-        "de": "Energy Source",
-        "ru": "Energy Source",
-        "en": "Energy Source"
+        "de": "Bereich",
+        "ru": "область",
+        "en": "Domain",
+        "th": "พื้นที่",
+        "uk": "область"
       }
     },
     {
       "type": "Lamp Power",
       "descriptions": {
-        "de": "Lamp Power description",
-        "ru": "Lamp Power description",
-        "en": "Lamp Power description"
+        "de": "Leistung Leuchtmittel",
+        "ru": "Электрические лампочки",
+        "en": "Lamp Power",
+        "th": "หลอดไฟ",
+        "uk": "Лампочки живлення"
       },
       "names": {
-        "de": "Lamp Power",
-        "ru": "Lamp Power",
-        "en": "Lamp Power"
-      }
-    },
-    {
-      "type": "Manufacturer",
-      "descriptions": {
-        "de": "Manufacturer description",
-        "ru": "Manufacturer description",
-        "en": "Manufacturer description"
-      },
-      "names": {
-        "de": "Manufacturer",
-        "ru": "Manufacturer",
-        "en": "Manufacturer"
-      }
-    },
-    {
-      "type": "Measurement",
-      "descriptions": {
-        "de": "Measurement description",
-        "ru": "Measurement description",
-        "en": "Measurement description"
-      },
-      "names": {
-        "de": "Measurement",
-        "ru": "Measurement",
-        "en": "Measurement"
-      }
-    },
-    {
-      "type": "Measuring Point",
-      "descriptions": {
-        "de": "Measuring Point description",
-        "ru": "Measuring Point description",
-        "en": "Measuring Point description"
-      },
-      "names": {
-        "de": "Measuring Point",
-        "ru": "Measuring Point",
-        "en": "Measuring Point"
-      }
-    },
-    {
-      "type": "Nominal Power",
-      "descriptions": {
-        "de": "Nominal Power description",
-        "ru": "Nominal Power description",
-        "en": "Nominal Power description"
-      },
-      "names": {
-        "de": "Nominal Power",
-        "ru": "Nominal Power",
-        "en": "Nominal Power"
+        "de": "Leistung Leuchtmittel",
+        "ru": "Электрические лампочки",
+        "en": "Lamp Power",
+        "th": "หลอดไฟ",
+        "uk": "Лампочки живлення"
       }
     },
     {
       "type": "Number of Lamps",
       "descriptions": {
-        "de": "Number of Lamps description",
-        "ru": "Number of Lamps description",
-        "en": "Number of Lamps description"
+        "de": "Anzahl der Leuchten",
+        "ru": "Количество лампочек",
+        "en": "Number of Lights",
+        "th": "จำนวนไฟ",
+        "uk": "Кількість вогнів"
       },
       "names": {
-        "de": "Number of Lamps",
-        "ru": "Number of Lamps",
-        "en": "Number of Lamps"
-      }
-    },
-    {
-      "type": "Standby Consumption",
-      "descriptions": {
-        "de": "Standby Consumption description",
-        "ru": "Standby Consumption description",
-        "en": "Standby Consumption description"
-      },
-      "names": {
-        "de": "Standby Consumption",
-        "ru": "Standby Consumption",
-        "en": "Standby Consumption"
-      }
-    },
-    {
-      "type": "Type",
-      "descriptions": {
-        "de": "Type description",
-        "ru": "Type description",
-        "en": "Type description"
-      },
-      "names": {
-        "de": "Type",
-        "ru": "Type",
-        "en": "Type"
-      }
-    },
-    {
-      "type": "Weighting Factor",
-      "descriptions": {
-        "de": "Weighting Factor description",
-        "ru": "Weighting Factor description",
-        "en": "Weighting Factor description"
-      },
-      "names": {
-        "de": "Weighting Factor",
-        "ru": "Weighting Factor",
-        "en": "Weighting Factor"
-      }
-    },
-    {
-      "type": "Work Weeks",
-      "descriptions": {
-        "de": "Work Weeks description",
-        "ru": "Work Weeks description",
-        "en": "Work Weeks description"
-      },
-      "names": {
-        "de": "Work Weeks",
-        "ru": "Work Weeks",
-        "en": "Work Weeks"
-      }
-    },
-    {
-      "type": "Working Days",
-      "descriptions": {
-        "de": "Working Days description",
-        "ru": "Working Days description",
-        "en": "Working Days description"
-      },
-      "names": {
-        "de": "Working Days",
-        "ru": "Working Days",
-        "en": "Working Days"
+        "de": "Anzahl der Leuchten",
+        "ru": "Количество лампочек",
+        "en": "Number of Lights",
+        "th": "จำนวนไฟ",
+        "uk": "Кількість вогнів"
       }
     }
   ]

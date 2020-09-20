@@ -1,196 +1,52 @@
 {
   "jevisclass": "Recooler or Condenser",
   "names": {
-    "de": "Recooler or Condenser",
-    "ru": "Recooler or Condenser",
-    "en": "Recooler or Condenser"
+    "de": "Rückkühler oder Kondensator",
+    "ru": "Переохладитель или конденсатор",
+    "en": "Recooler or Condenser",
+    "th": "Recooler หรือคอนเดนเซอร์",
+    "uk": "Рекулер або конденсатор"
   },
   "descriptions": {
-    "de": "The class Recooler or Condenser contains data of the building equipment recooler or condenser. Attributes of the class include a complete description of the specific energy data of the recooler or condenser. ",
-    "ru": "The class Recooler or Condenser contains data of the building equipment recooler or condenser. Attributes of the class include a complete description of the specific energy data of the recooler or condenser. ",
-    "en": "The class Recooler or Condenser contains data of the building equipment recooler or condenser. Attributes of the class include a complete description of the specific energy data of the recooler or condenser. "
+    "de": "Die Klasse Rückkühler oder Kondensator enthält Daten des Rückkühler oder Kondensator der Gebäudeausrüstung. Zu den Attributen der Klasse gehört eine vollständige Beschreibung der spezifischen Energiedaten des Rückkühler oder Kondensator.",
+    "ru": "Класс переохладителя или конденсатора содержит данные о переохладителе или конденсаторе строительного оборудования. Атрибуты класса включают в себя полное описание конкретных энергетических данных переохладителя или конденсатора.",
+    "en": "The class Recooler or Condenser contains data of the building equipment recooler or condenser. Attributes of the class include a complete description of the specific energy data of the recooler or condenser.",
+    "th": "คลาสของตัวจัดคิวหรือคอนเดนเซอร์มีข้อมูลของตัวจัดคิวหรือคอนเดนเซอร์ของอุปกรณ์ในอาคาร คุณลักษณะของคลาสรวมถึงคำอธิบายแบบเต็มของข้อมูลพลังงานเฉพาะของ recooler หรือคอนเดนเซอร์",
+    "uk": "Клас переохолоджувача або конденсатора містить дані рекулера або конденсатора будівельного обладнання. Атрибути класу включають повний опис конкретних даних про енергію переохолоджувача або конденсатора."
   },
   "types": [
     {
-      "type": "Daily Operating Hours",
-      "descriptions": {
-        "de": "Daily Operating Hours description",
-        "ru": "Daily Operating Hours description",
-        "en": "Daily Operating Hours description"
-      },
-      "names": {
-        "de": "Daily Operating Hours",
-        "ru": "Daily Operating Hours",
-        "en": "Daily Operating Hours"
-      }
-    },
-    {
-      "type": "Drive Power",
-      "descriptions": {
-        "de": "Drive Power description",
-        "ru": "Drive Power description",
-        "en": "Drive Power description"
-      },
-      "names": {
-        "de": "Drive Power",
-        "ru": "Drive Power",
-        "en": "Drive Power"
-      }
-    },
-    {
-      "type": "Energy Source",
-      "descriptions": {
-        "de": "Energy Source description",
-        "ru": "Energy Source description",
-        "en": "Energy Source description"
-      },
-      "names": {
-        "de": "Energy Source",
-        "ru": "Energy Source",
-        "en": "Energy Source"
-      }
-    },
-    {
-      "type": "Manufacturer",
-      "descriptions": {
-        "de": "Manufacturer description",
-        "ru": "Manufacturer description",
-        "en": "Manufacturer description"
-      },
-      "names": {
-        "de": "Manufacturer",
-        "ru": "Manufacturer",
-        "en": "Manufacturer"
-      }
-    },
-    {
-      "type": "Measuring Point",
-      "descriptions": {
-        "de": "Measuring Point description",
-        "ru": "Measuring Point description",
-        "en": "Measuring Point description"
-      },
-      "names": {
-        "de": "Measuring Point",
-        "ru": "Measuring Point",
-        "en": "Measuring Point"
-      }
-    },
-    {
-      "type": "Nominal Power",
-      "descriptions": {
-        "de": "Nominal Power description",
-        "ru": "Nominal Power description",
-        "en": "Nominal Power description"
-      },
-      "names": {
-        "de": "Nominal Power",
-        "ru": "Nominal Power",
-        "en": "Nominal Power"
-      }
-    },
-    {
       "type": "Recooling Capacity",
       "descriptions": {
-        "de": "Recooling Capacity description",
-        "ru": "Recooling Capacity description",
-        "en": "Recooling Capacity description"
+        "de": "Rückkühlleistung",
+        "ru": "Производительность переохлаждения",
+        "en": "Recooling Capacity",
+        "th": "กำลังการโหลดซ้ำ",
+        "uk": "Відновлення ємності"
       },
       "names": {
-        "de": "Recooling Capacity",
-        "ru": "Recooling Capacity",
-        "en": "Recooling Capacity"
+        "de": "Rückkühlleistung",
+        "ru": "Производительность переохлаждения",
+        "en": "Recooling Capacity",
+        "th": "กำลังการโหลดซ้ำ",
+        "uk": "Відновлення ємності"
       }
     },
     {
       "type": "Remark",
       "descriptions": {
-        "de": "Remark description",
-        "ru": "Remark description",
-        "en": "Remark description"
+        "de": "Anmerkung",
+        "ru": "аннотирование",
+        "en": "Remark",
+        "th": "คำอธิบายประกอบ",
+        "uk": "анотація"
       },
       "names": {
-        "de": "Remark",
-        "ru": "Remark",
-        "en": "Remark"
-      }
-    },
-    {
-      "type": "Standby Consumption",
-      "descriptions": {
-        "de": "Standby Consumption description",
-        "ru": "Standby Consumption description",
-        "en": "Standby Consumption description"
-      },
-      "names": {
-        "de": "Standby Consumption",
-        "ru": "Standby Consumption",
-        "en": "Standby Consumption"
-      }
-    },
-    {
-      "type": "Type",
-      "descriptions": {
-        "de": "Type description",
-        "ru": "Type description",
-        "en": "Type description"
-      },
-      "names": {
-        "de": "Type",
-        "ru": "Type",
-        "en": "Type"
-      }
-    },
-    {
-      "type": "Weighting Factor",
-      "descriptions": {
-        "de": "Weighting Factor description",
-        "ru": "Weighting Factor description",
-        "en": "Weighting Factor description"
-      },
-      "names": {
-        "de": "Weighting Factor",
-        "ru": "Weighting Factor",
-        "en": "Weighting Factor"
-      }
-    },
-    {
-      "type": "Work Weeks",
-      "descriptions": {
-        "de": "Work Weeks description",
-        "ru": "Work Weeks description",
-        "en": "Work Weeks description"
-      },
-      "names": {
-        "de": "Work Weeks",
-        "ru": "Work Weeks",
-        "en": "Work Weeks"
-      }
-    },
-    {
-      "type": "Working Days",
-      "descriptions": {
-        "de": "Working Days description",
-        "ru": "Working Days description",
-        "en": "Working Days description"
-      },
-      "names": {
-        "de": "Working Days",
-        "ru": "Working Days",
-        "en": "Working Days"
-      }
-    },
-    {
-      "type": "Year of Construction and Serial Number",
-      "descriptions": {
-        "de": "Year of Construction and Serial Number description",
-        "ru": "Year of Construction and Serial Number description",
-        "en": "Year of Construction and Serial Number description"
-      },
-      "names": {
-        "de": "Year of Construction and Serial Number",
-        "ru": "Year of Construction and Serial Number",
-        "en": "Year of Construction and Serial Number"
+        "de": "Anmerkung",
+        "ru": "аннотирование",
+        "en": "Remark",
+        "th": "คำอธิบายประกอบ",
+        "uk": "анотація"
       }
     }
   ]

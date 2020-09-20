@@ -19,50 +19,50 @@
  */
 package org.jevis.commons.driver;
 
-import java.util.Objects;
 import org.joda.time.DateTime;
 
+import java.util.Objects;
+
 /**
- *
  * @author broder
  */
 public class Result {
 
-    private final Object _value;
-    private final DateTime _date;
-    private final Long _datapoint;
-    private final String _attribute;
+    private final Object value;
+    private final DateTime date;
+    private final String targetString;
+    private final String attribute;
 
-    public Result(Long datapoint, Object val, DateTime date) {
-        _datapoint = datapoint;
-        _value = val;
-        _date = date;
-        _attribute = "Value";//fallback
+    public Result(String datapoint, Object val, DateTime date) {
+        targetString = datapoint;
+        value = val;
+        this.date = date;
+        attribute = "Value";//fallback
     }
 
-    public Result(Long datapoint, String attribute, Object val, DateTime date) {
-        _datapoint = datapoint;
-        _value = val;
-        _date = date;
-        _attribute = attribute;//fallback
+    public Result(String datapoint, String attribute, Object val, DateTime date) {
+        targetString = datapoint;
+        value = val;
+        this.date = date;
+        this.attribute = attribute;//fallback
     }
 
     public Object getValue() {
-        return _value;
+        return value;
     }
 
     public DateTime getDate() {
-        return _date;
+        return date;
     }
 
-    public Long getOnlineID() {
-        return _datapoint;
+    public String getTargetStr() {
+        return targetString;
     }
 
     public String getAttribute() {
-        return _attribute;
+        return attribute;
     }
-    
+
 
 //    /**
 //     * 
@@ -86,8 +86,8 @@ public class Result {
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 67 * hash + Objects.hashCode(this._value);
-        hash = 67 * hash + Objects.hashCode(this._date);
+        hash = 67 * hash + Objects.hashCode(this.value);
+        hash = 67 * hash + Objects.hashCode(this.date);
         return hash;
     }
 
@@ -109,13 +109,10 @@ public class Result {
             return false;
         }
         final Result other = (Result) obj;
-        if (!Objects.equals(this._value, other._value)) {
+        if (!Objects.equals(this.value, other.value)) {
             return false;
         }
-        if (!Objects.equals(this._date, other._date)) {
-            return false;
-        }
-        return true;
+        return Objects.equals(this.date, other.date);
     }
 
 }

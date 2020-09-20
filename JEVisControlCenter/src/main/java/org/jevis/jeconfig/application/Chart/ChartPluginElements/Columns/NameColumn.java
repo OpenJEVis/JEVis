@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 
@@ -53,7 +53,7 @@ public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> imple
         column.setId(COLUMN_ID);
 
         column.setCellValueFactory(param -> {
-            ChartDataModel data = getData(param.getValue().getValue());
+            ChartDataRow data = getData(param.getValue().getValue());
             return new ReadOnlyObjectWrapper<>(data.getTitle());
         });
 
@@ -68,7 +68,7 @@ public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> imple
                     public void commitEdit(String newValue) {
                         super.commitEdit(newValue);
 
-                        ChartDataModel data = getData(getTreeTableRow().getItem());
+                        ChartDataRow data = getData(getTreeTableRow().getItem());
                         data.setTitle(newValue);
 
                     }
@@ -86,7 +86,7 @@ public class NameColumn extends TreeTableColumn<JEVisTreeRow, JEVisObject> imple
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    ChartDataRow data = getData(getTreeTableRow().getItem());
                                     TextField nameField = new TextField();
                                     if (data.getTitle() != null) {
                                         nameField.setText(data.getTitle());

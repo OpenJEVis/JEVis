@@ -20,7 +20,6 @@
  */
 package org.jevis.jeconfig.application.statusbar;
 
-import com.google.inject.internal.util.$AsynchronousComputationException;
 import com.jfoenix.controls.JFXPopup;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -28,7 +27,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
-import javafx.collections.WeakListChangeListener;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.geometry.Insets;
@@ -56,7 +54,10 @@ import org.jevis.jeconfig.dialog.HiddenConfig;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -73,27 +74,32 @@ public class Statusbar extends ToolBar {
     private final int WAIT_TIME = 3000;//60000;//MSEC
     private final int RETRY_COUNT = 720;//count
     public BooleanProperty connectedProperty = new SimpleBooleanProperty(true);
-    private Label userName = new Label("");
-    private Label onlineInfo = new Label("Online");
-    private Label versionLabel = new Label(I18n.getInstance().getString("statusbar.version"));
-    private HBox conBox = new HBox();
-    private ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
-    private ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
+    private final Label userName = new Label("");
+    private final Label onlineInfo = new Label("Online");
+    private final Label versionLabel = new Label(I18n.getInstance().getString("statusbar.version"));
+    private final HBox conBox = new HBox();
+    private final ImageView connectIcon = ResourceLoader.getImage("network-connected.png", this.ICON_SIZE, this.ICON_SIZE);
+    private final ImageView notConnectIcon = ResourceLoader.getImage("network-disconnected.png", this.ICON_SIZE, this.ICON_SIZE);
     private JEVisDataSource _ds;
-    private Tooltip tt = new Tooltip("Warning:\nConnection to server lost. Trying to reconnect...  ");
+    private final Tooltip tt = new Tooltip("Warning:\nConnection to server lost. Trying to reconnect...  ");
     private int retryCount = 0;
-    private ProgressBar progressBar = new ProgressBar();
-    private HBox progressbox = new HBox();
-    private Label messageBox = new Label();
-    private TaskProgressView taskProgressView = new TaskProgressView();
-    private JFXPopup popup = new JFXPopup();
-    private Button showTaskViewButton = new Button("",JEConfig.getImage("TaskList.png",15,15));
-    private Map<String, Image> imageList = new HashMap<>();
+    private final ProgressBar progressBar = new ProgressBar();
+    private final HBox progressbox = new HBox();
+    private final Label messageBox = new Label();
+    private final TaskProgressView taskProgressView = new TaskProgressView();
+    private final JFXPopup popup = new JFXPopup();
+    private final Button showTaskViewButton = new Button("", JEConfig.getImage("TaskList.png", 15, 15));
+    private final Map<String, Image> imageList = new HashMap<>();
     private boolean hideTaskList = false;
-    private Label titleLabel = new Label(I18n.getInstance().getString("statusbar.taskmon.title"));
-    private Region spacer = new Region();
-    private ExecutorService executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
-    private HashMap<Task, String> taskList = new HashMap<>();
+    private final Label titleLabel = new Label(I18n.getInstance().getString("statusbar.taskmon.title"));
+    private final Region spacer = new Region();
+    private final ExecutorService executor = Executors.newFixedThreadPool(HiddenConfig.DASH_THREADS);
+    private final ConcurrentHashMap<Task, String> taskList = new ConcurrentHashMap<>();
+    private final StackPane stackpane = new StackPane();
+    /**
+     * This pane will hide the 'No task message' which we have no access to
+     **/
+    private final Pane hideTaskListPane = new Pane();
 
     private class Job {
         public double total = 0;
@@ -105,16 +111,20 @@ public class Statusbar extends ToolBar {
         }
     }
 
-    private HashMap<String, Job> jobList = new HashMap<>();
+    private final HashMap<String, Job> jobList = new HashMap<>();
 
     public Statusbar() {
         super();
-        BorderPane anchorPane = new BorderPane(taskProgressView);
-        ToggleButton hideButton = new ToggleButton("", JEConfig.getImage("Hide.png",12,12));
-        HBox hBox = new HBox(titleLabel,spacer,hideButton);
+
+        hideTaskListPane.setStyle("-fx-background-color: #ffffff;");
+        stackpane.getChildren().addAll(taskProgressView, hideTaskListPane);
+
+        BorderPane anchorPane = new BorderPane(stackpane);//taskProgressView);
+        ToggleButton hideButton = new ToggleButton("", JEConfig.getImage("Hide.png", 12, 12));
+        HBox hBox = new HBox(titleLabel, spacer, hideButton);
         hBox.setPadding(new Insets(8));
         hBox.setAlignment(Pos.TOP_RIGHT);
-        HBox.setHgrow(spacer,Priority.ALWAYS);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         anchorPane.setTop(hBox);
 
         popup.setPopupContent(anchorPane);
@@ -125,17 +135,18 @@ public class Statusbar extends ToolBar {
         showTaskViewButton.setOnAction(event -> {
             if (popup.isShowing()) {
                 popup.hide();
-            }else{
+            } else {
                 popup.show(onlineInfo);
             }
 
         });
+
         taskProgressView.setGraphicFactory(new Callback() {
             @Override
             public Object call(Object param) {
 
-                if(param!=null){
-                    if(imageList.containsKey(param.toString())){
+                if (param != null) {
+                    if (imageList.containsKey(param.toString())) {
                         ImageView imageView = new ImageView(imageList.get(param.toString()));
                         imageView.setPreserveRatio(true);
                         imageView.fitHeightProperty().set(25);
@@ -152,36 +163,41 @@ public class Statusbar extends ToolBar {
         taskProgressView.getTasks().addListener(new ListChangeListener() {
             @Override
             public void onChanged(Change c) {
-                while (c.next()){
-
-                    if(c.getRemovedSize()==taskProgressView.getTasks().size()){
-                        try {
-                            Platform.runLater(() ->  popup.hide());
-                        }catch ( Exception ex){
-                        }
-                    }
-                    if(c.wasAdded()){
-                        try {
+                while (c.next()) {
+                    if (c.wasRemoved()) {
+                        if (taskProgressView.getTasks().isEmpty()) {
                             Platform.runLater(() -> {
-                                if(!hideTaskList && !popup.isShowing()){
-                                    popup.show(onlineInfo);
-                                }
+                                hideTaskListPane.setVisible(true);
+                                popup.hide();
+                                progressBar.setVisible(false);
                             });
-
-                        }catch (Exception ex) {
                         }
                     }
+
+                    if (c.wasAdded() && c.getAddedSize() > 0) {
+                        Platform.runLater(() -> {
+                            try {
+                                hideTaskListPane.setVisible(false);
+                                if (!hideTaskList && !popup.isShowing()) {
+                                    popup.show(onlineInfo);
+                                    progressBar.setVisible(true);
+                                }
+
+                            } catch (Exception ex) {
+                            }
+                        });
+                    }
+
                 }
 
             }
         });
-
         hideButton.setSelected(hideTaskList);
         hideButton.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                hideTaskList=newValue;
-                if(newValue){
+                hideTaskList = newValue;
+                if (newValue) {
                     popup.hide();
                 }
             }
@@ -191,6 +207,7 @@ public class Statusbar extends ToolBar {
 
     /**
      * Display an message in the shared status bar.
+     *
      * @param jobID
      * @param totalJobs
      * @param message
@@ -204,44 +221,46 @@ public class Statusbar extends ToolBar {
 
     /**
      * NOTE: Add the task monitor support.
+     *
      * @param owner
      * @param futureTask
      * @param image
      * @param autoStart
      */
-    public void addTask(String owner, FutureTask futureTask, Image image, boolean autoStart){
-        logger.debug("Starting new FutureTask: {}",futureTask);
+    public void addTask(String owner, FutureTask futureTask, Image image, boolean autoStart) {
+        logger.debug("Starting new FutureTask: {}", futureTask);
 
-        if(autoStart)executor.execute(futureTask);
+        if (autoStart) executor.execute(futureTask);
     }
 
     /**
      * Add an new task to the process monitor.
      *
-     * @param owner id of the function to start the task, used to stop the task if needed
-     * @param task task
-     * @param image image for this task in the process monitor
+     * @param owner     id of the function to start the task, used to stop the task if needed
+     * @param task      task
+     * @param image     image for this task in the process monitor
      * @param autoStart if ture the shared executor will start the task.
      */
-    public void addTask(String owner, Task task,Image image, boolean autoStart){
-        logger.debug("Starting new Task: {}",task);
-        imageList.put(task.toString(),image);
+    public void addTask(String owner, Task task, Image image, boolean autoStart) {
+        logger.debug("Starting new Task: {}", task);
+        imageList.put(task.toString(), image);
         task.stateProperty().addListener((observable, oldValue, newValue) -> {
             try {
-                if (newValue.equals(Worker.State.CANCELLED) || newValue.equals(Worker.State.FAILED) || newValue.equals(Worker.State.SUCCEEDED)) {
+                //System.out.println("task state: "+newValue+ " for "+task);
+                if (!newValue.equals(Worker.State.RUNNING) && !newValue.equals(Worker.State.SCHEDULED) && !newValue.equals(Worker.State.READY)) {
                     taskList.remove(task);
                     imageList.remove(task.toString());
                 }
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
         Platform.runLater(() -> {
             taskProgressView.getTasks().add(task);
-            taskList.put(task,owner);
         });
+        taskList.put(task, owner);
 
-        if(autoStart)executor.submit(task);
+        if (autoStart) executor.submit(task);
     }
 
     /**
@@ -249,13 +268,13 @@ public class Statusbar extends ToolBar {
      *
      * @param owner
      */
-    public void stopTasks(String owner){
+    public void stopTasks(String owner) {
 
         taskList.forEach((task, s) -> {
-            if(s.equals(owner)){
+            if (s.equals(owner)) {
                 try {
                     task.cancel(true);
-                }catch (Exception ex){
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
@@ -312,13 +331,13 @@ public class Statusbar extends ToolBar {
         double procent = (((100 / totalJobs) * doneJobs) / 100);
         Platform.runLater(() -> {
             progressBar.setProgress(procent);
-            if (doneJobs >= totalJobs ) {
+            if (doneJobs >= totalJobs) {
                 progressBar.setProgress(0);
                 //progressbox.setVisible(false);
                 //messageBox.setVisible(false);
             } else {
-               // progressbox.setVisible(true);
-               // messageBox.setVisible(true);
+                // progressbox.setVisible(true);
+                // messageBox.setVisible(true);
             }
 
         });
@@ -366,7 +385,7 @@ public class Statusbar extends ToolBar {
 
         progressbox.setAlignment(Pos.CENTER_RIGHT);
         progressbox.setSpacing(8);
-        progressbox.getChildren().setAll(messageBox, sep1, loadStatus, progressBar,showTaskViewButton);
+        progressbox.getChildren().setAll(messageBox, sep1, loadStatus, showTaskViewButton, progressBar);
         //TODO implement notification
         root.getChildren().setAll(userIcon, this.userName, spacerLeft, progressbox, spacer, versionLabel, versionNumber, spacer2, this.conBox, this.onlineInfo);
 
@@ -501,5 +520,13 @@ public class Statusbar extends ToolBar {
         reConn.start();
     }
 
-// TODO implement status bar for JEVis applications
+    public ConcurrentHashMap<Task, String> getTaskList() {
+        return taskList;
+    }
+
+    public JFXPopup getPopup() {
+        return popup;
+    }
+
+    // TODO implement status bar for JEVis applications
 }

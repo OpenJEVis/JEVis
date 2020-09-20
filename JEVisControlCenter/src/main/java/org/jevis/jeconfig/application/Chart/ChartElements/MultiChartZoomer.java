@@ -4,7 +4,6 @@ import de.gsi.chart.Chart;
 import de.gsi.chart.XYChart;
 import de.gsi.chart.axes.Axis;
 import de.gsi.chart.axes.AxisMode;
-import de.gsi.chart.axes.spi.Axes;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import de.gsi.chart.plugins.ChartPlugin;
 import de.gsi.chart.plugins.MouseEventsHelper;
@@ -269,26 +268,6 @@ public class MultiChartZoomer extends ChartPlugin {
         zoomRectangle.getStyleClass().add(STYLE_CLASS_ZOOM_RECT);
         getChartChildren().add(zoomRectangle);
         registerMouseHandlers();
-
-        chartProperty().addListener((change, o, n) -> {
-            if (o != null) {
-                o.getToolBar().getChildren().remove(zoomButtons);
-                o.getPlotArea().setBottom(null);
-                xRangeSlider.prefWidthProperty().unbind();
-            }
-            if (n != null) {
-                if (isAddButtonsToToolBar()) {
-                    n.getToolBar().getChildren().add(zoomButtons);
-                }
-                /* always create the slider, even if not visible at first */
-                final ZoomRangeSlider slider = new ZoomRangeSlider(n);
-                if (isSliderVisible()) {
-                    n.getPlotArea().setBottom(slider);
-                    xRangeSlider.prefWidthProperty().bind(n.getCanvasForeground().widthProperty());
-                }
-
-            }
-        });
     }
 
     /**
@@ -363,19 +342,6 @@ public class MultiChartZoomer extends ChartPlugin {
         if (currentChart != null && isHorizontal) {
 
             currentChart.updateTableZoom(lowerBound, higherBound);
-//
-//            if (!followUpZoom) {
-//                notActive.forEach(chart -> {
-//                    chart.getChart().getPlugins().forEach(naChartPlugin -> {
-//                        if (naChartPlugin instanceof MultiChartZoomer) {
-//                            MultiChartZoomer zoomer = (MultiChartZoomer) naChartPlugin;
-//                            zoomer.setFollowUpZoom(true);
-//                            zoomOnAxis(lowerBound, higherBound);
-//                            zoomer.setFollowUpZoom(false);
-//                        }
-//                    });
-//                });
-//            }
         }
     }
 
@@ -1019,6 +985,16 @@ public class MultiChartZoomer extends ChartPlugin {
         zoomRectangle.setVisible(false);
     }
 
+    protected static boolean hasBoundedRange(Axis axis) {
+        return axis.minProperty().isBound() || axis.maxProperty().isBound();
+    }
+
+    private void panDragged(final MouseEvent event) {
+        final Point2D mouseLocation = getLocationInPlotArea(event);
+        panChart(getChart(), mouseLocation);
+        previousMouseLocation = mouseLocation;
+    }
+
     private void panChart(final Chart chart, final Point2D mouseLocation) {
         if (!(chart instanceof XYChart)) {
             return;
@@ -1043,7 +1019,7 @@ public class MultiChartZoomer extends ChartPlugin {
             final double offset = prevData - newData;
 
             final boolean allowsShift = side.isHorizontal() ? getAxisMode().allowsX() : getAxisMode().allowsY();
-            if (!Axes.hasBoundedRange(axis) && allowsShift) {
+            if (!hasBoundedRange(axis) && allowsShift) {
                 axis.setAutoRanging(false);
                 // shift bounds
                 axis.set(axis.getMin() + offset, axis.getMax() + offset);
@@ -1052,10 +1028,17 @@ public class MultiChartZoomer extends ChartPlugin {
         previousMouseLocation = mouseLocation;
     }
 
-    private void panDragged(final MouseEvent event) {
-        final Point2D mouseLocation = getLocationInPlotArea(event);
-        panChart(getChart(), mouseLocation);
-        previousMouseLocation = mouseLocation;
+    private boolean panOngoing() {
+        return previousMouseLocation != null;
+    }
+
+    private void panStarted(final MouseEvent event) {
+        previousMouseLocation = getLocationInPlotArea(event);
+        panShiftX = 0.0;
+        panShiftY = 0.0;
+        installDragCursor();
+        clearZoomStackIfAxisAutoRangingIsEnabled();
+        pushCurrentZoomWindows();
     }
 
     private void panEnded() {
@@ -1071,7 +1054,7 @@ public class MultiChartZoomer extends ChartPlugin {
             final Side side = axis.getSide();
 
             final boolean allowsShift = side.isHorizontal() ? getAxisMode().allowsX() : getAxisMode().allowsY();
-            if (!Axes.hasBoundedRange(axis) && allowsShift) {
+            if (!hasBoundedRange(axis) && allowsShift) {
                 axis.setAutoRanging(false);
             }
         }
@@ -1080,19 +1063,6 @@ public class MultiChartZoomer extends ChartPlugin {
         panShiftY = 0.0;
         previousMouseLocation = null;
         uninstallCursor();
-    }
-
-    private boolean panOngoing() {
-        return previousMouseLocation != null;
-    }
-
-    private void panStarted(final MouseEvent event) {
-        previousMouseLocation = getLocationInPlotArea(event);
-        panShiftX = 0.0;
-        panShiftY = 0.0;
-        installDragCursor();
-        clearZoomStackIfAxisAutoRangingIsEnabled();
-        pushCurrentZoomWindows();
     }
 
     private void performZoom(Entry<Axis, ZoomState> zoomStateEntry, final boolean isZoomIn) {
@@ -1112,7 +1082,7 @@ public class MultiChartZoomer extends ChartPlugin {
         }
 
         if (isAnimated()) {
-            if (!Axes.hasBoundedRange(axis)) {
+            if (!hasBoundedRange(axis)) {
                 final Timeline xZoomAnimation = new Timeline();
                 xZoomAnimation.getKeyFrames().setAll(
                         new KeyFrame(Duration.ZERO, new KeyValue(axis.minProperty(), axis.getMin()),
@@ -1122,7 +1092,7 @@ public class MultiChartZoomer extends ChartPlugin {
                 xZoomAnimation.play();
             }
         } else {
-            if (!Axes.hasBoundedRange(axis)) {
+            if (!hasBoundedRange(axis)) {
                 // only update if this axis is not bound to another (e.g. auto-range) managed axis)
                 axis.set(zoomState.zoomRangeMin, zoomState.zoomRangeMax);
             }
@@ -1263,38 +1233,42 @@ public class MultiChartZoomer extends ChartPlugin {
         uninstallCursor();
         getGraphPluginView().setZoomed(true);
 
-        double min = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMin();
-        double max = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMax();
-        graphPluginView.setxAxisLowerBound(min);
-        graphPluginView.setxAxisUpperBound(max);
+        if (zoomRectangle.getHeight() != 0 && zoomRectangle.getWidth() != 0) {
+
+            double min = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMin();
+            double max = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) currentChart).getDateAxis().getMax();
+            graphPluginView.setxAxisLowerBound(min);
+            graphPluginView.setxAxisUpperBound(max);
 
 
-        if (!followUpZoom) {
-            notActive.forEach(chart -> {
-                if (chart instanceof org.jevis.jeconfig.application.Chart.Charts.XYChart) {
-                    double displayPositionLeftX = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) chart).getDateAxis().getDisplayPosition(valueForDisplayLeft);
-                    double displayPositionRightX = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) chart).getDateAxis().getDisplayPosition(valueForDisplayRight);
-                    double width = displayPositionRightX - displayPositionLeftX;
-                    chart.updateTableZoom(valueForDisplayLeft, valueForDisplayRight);
+            if (!followUpZoom) {
+                notActive.forEach(chart -> {
+                    if (chart instanceof org.jevis.jeconfig.application.Chart.Charts.XYChart) {
+                        double displayPositionLeftX = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) chart).getDateAxis().getDisplayPosition(valueForDisplayLeft);
+                        double displayPositionRightX = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) chart).getDateAxis().getDisplayPosition(valueForDisplayRight);
+                        double width = displayPositionRightX - displayPositionLeftX;
+                        chart.updateTableZoom(valueForDisplayLeft, valueForDisplayRight);
+                        double height = ((org.jevis.jeconfig.application.Chart.Charts.XYChart) chart).getY1Axis().getHeight();
 
-                    chart.getChart().getPlugins().forEach(naChartPlugin -> {
-                        if (naChartPlugin instanceof MultiChartZoomer) {
-                            MultiChartZoomer zoomer = (MultiChartZoomer) naChartPlugin;
-                            zoomer.setFollowUpZoom(true);
-                            zoomer.getZoomRectangle().setX(displayPositionLeftX);
-                            zoomer.getZoomRectangle().setY(zoomRectangle.getY());
-                            zoomer.getZoomRectangle().setHeight(zoomRectangle.getHeight());
-                            zoomer.getZoomRectangle().setWidth(width);
-                            zoomer.getZoomRectangle().setArcHeight(zoomRectangle.getArcHeight());
-                            zoomer.getZoomRectangle().setArcWidth(zoomRectangle.getArcWidth());
-                            zoomer.zoomInEnded();
-                            zoomer.setFollowUpZoom(false);
-                        }
-                    });
-                } else if (chart instanceof PieChart) {
-                    chart.updateTableZoom(valueForDisplayLeft, valueForDisplayRight);
-                }
-            });
+                        chart.getChart().getPlugins().forEach(naChartPlugin -> {
+                            if (naChartPlugin instanceof MultiChartZoomer) {
+                                MultiChartZoomer zoomer = (MultiChartZoomer) naChartPlugin;
+                                zoomer.setFollowUpZoom(true);
+                                zoomer.getZoomRectangle().setX(displayPositionLeftX);
+                                zoomer.getZoomRectangle().setY(0d);
+                                zoomer.getZoomRectangle().setHeight(height);
+                                zoomer.getZoomRectangle().setWidth(width);
+                                zoomer.getZoomRectangle().setArcHeight(zoomRectangle.getArcHeight());
+                                zoomer.getZoomRectangle().setArcWidth(zoomRectangle.getArcWidth());
+                                zoomer.zoomInEnded();
+                                zoomer.setFollowUpZoom(false);
+                            }
+                        });
+                    } else if (chart instanceof PieChart) {
+                        chart.updateTableZoom(valueForDisplayLeft, valueForDisplayRight);
+                    }
+                });
+            }
         }
     }
 

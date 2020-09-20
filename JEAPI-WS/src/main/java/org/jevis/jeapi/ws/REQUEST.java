@@ -62,7 +62,11 @@ public interface REQUEST {
 
                     String FROM = "from=";
                     String UNTIL = "until=";
-                    String LASTEST = "onlyLatest=";
+                    String LATEST = "onlyLatest=";
+                    String customWorkDay = "cwd=";
+                    String aggregationPeriod = "ap=";
+                    String manipulationMode = "mm=";
+                    String LIMIT = "limit";
                 }
 
                 interface FILES {

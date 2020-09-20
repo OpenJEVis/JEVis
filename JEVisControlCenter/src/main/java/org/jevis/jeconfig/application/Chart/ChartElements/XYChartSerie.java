@@ -3,9 +3,11 @@ package org.jevis.jeconfig.application.Chart.ChartElements;
 
 import de.gsi.dataset.spi.DoubleDataSet;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
@@ -16,10 +18,9 @@ import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.Charts.XYChart;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.PeriodFormat;
@@ -31,23 +32,24 @@ import java.util.TreeMap;
 
 public class XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYChartSerie.class);
-    private final boolean forecast;
+    final boolean forecast;
     public final String FINISHED_SERIE;
     Integer yAxis;
     DoubleDataSet valueDataSet;
     DoubleDataSet noteDataSet;
     TableEntry tableEntry;
-    ChartDataModel singleRow;
+    ChartDataRow singleRow;
     Boolean showIcons;
     TreeMap<DateTime, JEVisSample> sampleMap;
     DateTime timeStampFromFirstSample = DateTime.now();
     DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
     Double minValue = Double.MAX_VALUE;
     Double maxValue = -Double.MAX_VALUE;
+    private double sortCriteria;
 
-    public XYChartSerie(ChartDataModel singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
+    public XYChartSerie(ChartDataRow singleRow, Boolean showIcons, boolean forecast) throws JEVisException {
         this.singleRow = singleRow;
-        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + singleRow.getTitle();
+        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + " " + singleRow.getTitle();
         this.yAxis = singleRow.getAxis();
         this.showIcons = showIcons;
         this.valueDataSet = new DoubleDataSet(singleRow.getTitle());
@@ -96,7 +98,7 @@ public class XYChartSerie {
                     setTimeStampFromLastSample(samples.get(samples.size() - 1).getTimestamp());
 
             } catch (Exception e) {
-                logger.error("Couldn't get timestamps from samples. " + e);
+                logger.error("Couldn't get timestamps from samples. ", e);
             }
         }
 
@@ -148,9 +150,9 @@ public class XYChartSerie {
             sum = max;
         }
 
-        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
-
         updateTableEntry(samples, unit, min, max, avg, sum, zeroCount);
+
+        JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
     }
 
     public void updateTableEntry(List<JEVisSample> samples, JEVisUnit unit, double min, double max, double avg, Double sum, long zeroCount) throws JEVisException {
@@ -169,7 +171,25 @@ public class XYChartSerie {
         if (firstTS != null && secondTS != null) {
             DateTime finalFirstTS = firstTS;
             DateTime finalSecondTS = secondTS;
-            Platform.runLater(() -> tableEntry.setPeriod(new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()))));
+            try {
+                String s = "";
+                try {
+                    JEVisAttribute attribute = samples.get(0).getAttribute();
+                    if (attribute != null && !attribute.getInputSampleRate().equals(Period.ZERO)) {
+                        s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                    } else if (attribute != null && attribute.getInputSampleRate().equals(Period.ZERO)) {
+                        s = I18n.getInstance().getString("plugin.unit.samplingrate.async");
+                    } else if (attribute == null) {
+                        s = new Period(finalFirstTS, finalSecondTS).toString(PeriodFormat.wordBased().withLocale(I18n.getInstance().getLocale()));
+                    }
+                } catch (Exception e) {
+                    s = "-";
+                }
+                String finalS = s;
+                Platform.runLater(() -> tableEntry.setPeriod(finalS));
+            } catch (Exception e) {
+                logger.error("Couldn't calculate period word-based");
+            }
         }
 
         QuantityUnits qu = new QuantityUnits();
@@ -177,6 +197,7 @@ public class XYChartSerie {
 
         if (!singleRow.getManipulationMode().equals(ManipulationMode.CUMULATE) && samples.size() > 0) {
             avg = sum / (samples.size() - zeroCount);
+            sortCriteria = avg;
         }
 
         NumberFormat nf_out = NumberFormat.getNumberInstance();
@@ -203,60 +224,51 @@ public class XYChartSerie {
                 double finalAvg = avg;
                 Platform.runLater(() -> tableEntry.setAvg(nf_out.format(finalAvg) + " " + getUnit()));
             } else {
-                CalcJobFactory calcJobCreator = new CalcJobFactory();
-
-                CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), singleRow.getObject().getDataSource(), singleRow.getCalculationObject(),
-                        firstTS, lastTS, true);
-                List<JEVisSample> results = calcJob.getResults();
-
-                if (results.size() == 1) {
-                    Platform.runLater(() -> {
+                DateTime finalFirstTS1 = firstTS;
+                DateTime finalLastTS = lastTS;
+                double finalAvg2 = avg;
+                Task task = new Task() {
+                    @Override
+                    protected Object call() throws Exception {
                         try {
-                            tableEntry.setAvg(nf_out.format(results.get(0).getValueAsDouble()) + " " + getUnit());
-                        } catch (JEVisException e) {
-                            e.printStackTrace();
+                            CalcJobFactory calcJobCreator = new CalcJobFactory();
+
+                            CalcJob calcJob = calcJobCreator.getCalcJobForTimeFrame(new SampleHandler(), singleRow.getObject().getDataSource(), singleRow.getCalculationObject(),
+                                    finalFirstTS1, finalLastTS, true);
+                            List<JEVisSample> results = calcJob.getResults();
+
+                            if (results.size() == 1) {
+                                Platform.runLater(() -> {
+                                    try {
+                                        tableEntry.setAvg(nf_out.format(results.get(0).getValueAsDouble()) + " " + getUnit());
+                                    } catch (JEVisException e) {
+                                        logger.error("Couldn't get calculation result");
+                                    }
+                                });
+                            } else {
+                                Platform.runLater(() -> tableEntry.setAvg("- " + getUnit()));
+                            }
+                            double finalAvg1 = finalAvg2;
+                            Platform.runLater(() -> tableEntry.setEnpi(nf_out.format(finalAvg1) + " " + getUnit()));
+                        } catch (Exception e) {
+                            failed();
+                        } finally {
+                            succeeded();
                         }
-                    });
-                } else {
-                    Platform.runLater(() -> tableEntry.setAvg("- " + getUnit()));
-                }
-                double finalAvg1 = avg;
-                Platform.runLater(() -> tableEntry.setEnpi(nf_out.format(finalAvg1) + " " + getUnit()));
+                        return null;
+                    }
+                };
+                JEConfig.getStatusBar().addTask(XYChart.class.getName(), task, XYChart.taskImage, true);
             }
             if (isQuantity) {
-//                tableEntry.setSum(nf_out.format(sum / singleRow.getScaleFactor() / singleRow.getTimeFactor()) + " " + getUnit());
                 Double finalSum = sum;
                 Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum) + " " + getUnit()));
             } else {
                 if (qu.isSumCalculable(unit) && singleRow.getManipulationMode().equals(ManipulationMode.NONE)) {
                     try {
-                        Period period = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
-                        if (period.getMonths() < 1 && period.getYears() < 1) {
-                            long periodMillis = period.toStandardDuration().getMillis();
-                            long hourMillis = Period.hours(1).toStandardDuration().getMillis();
-                            Double factor = (double) hourMillis / (double) periodMillis;
-//                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
-                            sum = sum / singleRow.getScaleFactor() / singleRow.getTimeFactor();
-                            Double finalSum1 = sum;
-                            Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum1) + " " + qu.getSumUnit(unit)));
-                        } else {
-                            double periodMillis = 0.0;
-
-                            if (period.getMonths() == 1) {
-                                periodMillis = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375;
-                            } else if (period.getMonths() == 3) {
-                                periodMillis = (double) Period.days(1).toStandardDuration().getMillis() * 30.4375 * 3;
-                            } else if (period.getYears() == 1) {
-                                periodMillis = (double) Period.days(1).toStandardDuration().getMillis() * 365.25;
-                            }
-
-                            long hourMillis = Period.hours(1).toStandardDuration().getMillis();
-                            Double factor = (double) hourMillis / periodMillis;
-//                            tableEntry.setSum(nf_out.format(sum / factor) + " " + qu.getSumUnit(unit));
-                            sum = sum / singleRow.getScaleFactor() / singleRow.getTimeFactor();
-                            Double finalSum2 = sum;
-                            Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum2) + " " + qu.getSumUnit(unit)));
-                        }
+                        sum = sum / singleRow.getScaleFactor();
+                        Double finalSum1 = sum;
+                        Platform.runLater(() -> tableEntry.setSum(nf_out.format(finalSum1) + " " + qu.getSumUnit(unit)));
                     } catch (Exception e) {
                         logger.error("Couldn't calculate periods");
                         Platform.runLater(() -> tableEntry.setSum("- " + getUnit()));
@@ -271,14 +283,6 @@ public class XYChartSerie {
         singleRow.setMax(max);
         singleRow.setAvg(avg);
         singleRow.setSum(sum);
-    }
-
-
-    public void setDataNodeColor(MultiAxisChart.Data<Number, Number> data) {
-        if (data.getNode() != null) {
-            String hexColor = singleRow.getColor();
-            data.getNode().setStyle("-fx-background-color: " + hexColor + ";");
-        }
     }
 
     public String generateNote(JEVisSample sample) throws JEVisException {
@@ -322,11 +326,11 @@ public class XYChartSerie {
         this.timeStampFromLastSample = timeStampFromLastSample;
     }
 
-    public ChartDataModel getSingleRow() {
+    public ChartDataRow getSingleRow() {
         return singleRow;
     }
 
-    public void setSingleRow(ChartDataModel singleRow) {
+    public void setSingleRow(ChartDataRow singleRow) {
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
     }
@@ -378,5 +382,9 @@ public class XYChartSerie {
 
     public Integer getyAxis() {
         return yAxis;
+    }
+
+    public double getSortCriteria() {
+        return sortCriteria;
     }
 }

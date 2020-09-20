@@ -24,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.ws.json.JsonSample;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
@@ -38,8 +39,8 @@ public class NullFunction implements ProcessFunction {
     private static final Logger logger = LogManager.getLogger(NullFunction.class);
 
     public static final String NAME = "Null Function";
-    private AggregationPeriod aggregationPeriod;
-    private ManipulationMode mode;
+    private final AggregationPeriod aggregationPeriod;
+    private final ManipulationMode mode;
 
     public NullFunction(ManipulationMode mode, AggregationPeriod aggregationPeriod) {
         this.mode = mode;
@@ -75,6 +76,9 @@ public class NullFunction implements ProcessFunction {
             aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, Boolean.toString(isCustomWorkDay)));
 
             switch (aggregationPeriod) {
+                case QUARTER_HOURLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.minutes(15).toString()));
+                    break;
                 case DAILY:
                     aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
                     break;
@@ -116,6 +120,66 @@ public class NullFunction implements ProcessFunction {
         List<ProcessOption> options = new ArrayList<>();
 
         return options;
+    }
+
+    @Override
+    public List<JsonSample> getJsonResult(BasicProcess mainTask) {
+        logger.info("Warning no Processor is set");
+
+        List<JsonSample> allSamples = new ArrayList<>();
+        for (Process task : mainTask.getSubProcesses()) {
+            allSamples.addAll(task.getJsonResult());
+            //logger.info("Add input result: " + allSamples.size());
+        }
+
+        boolean isCustomWorkDay = true;
+        for (ProcessOption option : mainTask.getOptions()) {
+            if (option.getKey().equals(CUSTOM)) {
+                isCustomWorkDay = Boolean.parseBoolean(option.getValue());
+                break;
+            }
+        }
+
+        if (aggregationPeriod != AggregationPeriod.NONE) {
+            BasicProcess aggregationProcess = new BasicProcess();
+            aggregationProcess.setSQLDataSource(mainTask.getSqlDataSource());
+            aggregationProcess.setJsonObject(mainTask.getJsonObject());
+            aggregationProcess.setJsonAttribute(mainTask.getJsonAttribute());
+            aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.CUSTOM, Boolean.toString(isCustomWorkDay)));
+
+            switch (aggregationPeriod) {
+                case QUARTER_HOURLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.minutes(15).toString()));
+                    break;
+                case DAILY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.days(1).toString()));
+                    break;
+                case HOURLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.hours(1).toString()));
+                    break;
+                case WEEKLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.weeks(1).toString()));
+                    break;
+                case MONTHLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(1).toString()));
+                    break;
+                case QUARTERLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.months(3).toString()));
+                    break;
+                case YEARLY:
+                    aggregationProcess.getOptions().add(new BasicProcessOption(ProcessOptions.PERIOD, Period.years(1).toString()));
+                    break;
+                default:
+            }
+            aggregationProcess.setFunction(new AggregatorFunction());
+            aggregationProcess.setID("Aggregation");
+
+            aggregationProcess.setSubProcesses(mainTask.getSubProcesses());
+
+            allSamples = aggregationProcess.getJsonResult();
+        }
+
+        return allSamples;
     }
 
 }

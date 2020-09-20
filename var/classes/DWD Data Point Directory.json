@@ -17,6 +17,11 @@
       "start": "DWD Data Point Directory",
       "end": "DWD Parser",
       "type": 3
+    },
+    {
+      "start": "DWD Data Point Directory",
+      "end": "DWD HDD Parser",
+      "type": 3
     }
   ]
 }

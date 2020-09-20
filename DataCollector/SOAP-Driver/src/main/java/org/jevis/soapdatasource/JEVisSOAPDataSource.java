@@ -5,6 +5,8 @@
  */
 package org.jevis.soapdatasource;
 
+import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -13,7 +15,9 @@ import org.jevis.commons.driver.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +29,7 @@ public class JEVisSOAPDataSource implements DataSource {
 
     private Parser _parser;
     private Importer _importer;
-    private List<JEVisObject> _channels = new ArrayList<>();
+    private final List<JEVisObject> _channels = new ArrayList<>();
     private List<Result> _result;
 
     private JEVisObject _dataSource;
@@ -40,45 +44,64 @@ public class JEVisSOAPDataSource implements DataSource {
 
     @Override
     public void run() {
-        logger.info("Nr channels: " + _channels.size() + " for datasource: " + _dataSource.getID());
+        logger.info("Nr channels: {} for datasource: {}", _channels.size(), _dataSource.getID());
 
         for (JEVisObject channel : _channels) {
 
             try {
                 _result = new ArrayList<Result>();
 
-                List<InputStream> input = this.sendSampleRequest(channel);
+                try {
+                    List<InputStream> input = this.sendSampleRequest(channel);
 
-                if (!input.isEmpty()) {
-                    JEVisClass parserJevisClass = channel.getDataSource().getJEVisClass(DataCollectorTypes.Parser.NAME);
-                    JEVisObject parser = channel.getChildren(parserJevisClass, true).get(0);
+                    if (!input.isEmpty()) {
+                        JEVisClass parserJevisClass = channel.getDataSource().getJEVisClass(DataCollectorTypes.Parser.NAME);
+                        JEVisObject parser = channel.getChildren(parserJevisClass, true).get(0);
 
-                    _parser = ParserFactory.getParser(parser);
-                    _parser.initialize(parser);
-                    this.parse(input);
-                } else {
-                    logger.error("no connection results for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
-                    continue;
-                }
+                        _parser = ParserFactory.getParser(parser);
+                        _parser.initialize(parser);
+                        this.parse(input);
+                    } else {
+                        logger.error("no connection results for channel: {} and datasource: {}", channel.getID(), _dataSource.getID());
+                        continue;
+                    }
 
-                if (!_result.isEmpty()) {
+                    if (!_result.isEmpty()) {
 
 //                    this.importResult();
 //
 //                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
-                    JEVisImporterAdapter.importResults(_result, _importer, channel);
+                        JEVisImporterAdapter.importResults(_result, _importer, channel);
 
-                    for (InputStream inputStream : input) {
-                        try {
-                            inputStream.close();
-                        } catch (Exception ex) {
-                            logger.warn("could not close input stream: {}", ex.getMessage());
+                        for (InputStream inputStream : input) {
+                            try {
+                                inputStream.close();
+                            } catch (Exception ex) {
+                                logger.warn("could not close input stream: {}", ex.getMessage());
+                            }
                         }
-                    }
-                    logger.info("import results: " + _result.size() + " for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
+                        logger.info("import results: {} for channel: {} and datasource: {}", _result.size(), channel.getID(), _dataSource.getID());
 
-                } else {
-                    logger.error("no parsing results for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
+                    } else {
+                        logger.error("no parsing results for channel: {} and datasource: {}", channel.getID(), _dataSource.getID());
+                    }
+                } catch (
+                        MalformedURLException ex) {
+                    logger.error("MalformedURLException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("MalformedURLException. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                } catch (
+                        ClientProtocolException ex) {
+                    logger.error("Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                } catch (
+                        IOException ex) {
+                    logger.error("IO Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("IO Exception. For channel {}:{}.", channel.getID(), channel.getName(), ex);
+                } catch (ParseException ex) {
+                    logger.error("Parse Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                    logger.debug("Parse Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                } catch (Exception ex) {
+                    logger.error("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
                 }
             } catch (Exception ex) {
                 logger.error("error for channel: " + channel.getID() + " and datasource: " + _dataSource.getID());
@@ -109,7 +132,7 @@ public class JEVisSOAPDataSource implements DataSource {
     }
 
     @Override
-    public List<InputStream> sendSampleRequest(JEVisObject channel) {
+    public List<InputStream> sendSampleRequest(JEVisObject channel) throws Exception {
         Channel soapChannel = new Channel();
 
         try {

@@ -66,7 +66,7 @@ public class BasicSettings {
 
     private static final String DESC_JEVISID = "JEVis Object ID";
     @Parameter(names = {"--jevisid", "-jid"}, required = false, description = DESC_JEVISID)
-    public Long jevisid;
+    public String jevisid;
 
 
     private static final String CYCLE_TIME = "Cycle Time";

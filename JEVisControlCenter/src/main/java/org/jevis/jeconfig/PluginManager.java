@@ -40,9 +40,11 @@ import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.map.MapViewPlugin;
 import org.jevis.jeconfig.plugin.alarms.AlarmPlugin;
+import org.jevis.jeconfig.plugin.basedata.BaseDataPlugin;
 import org.jevis.jeconfig.plugin.browser.ISO50001Browser;
 import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
+import org.jevis.jeconfig.plugin.equipment.EquipmentPlugin;
 import org.jevis.jeconfig.plugin.meters.MeterPlugin;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 import org.jevis.jeconfig.plugin.reports.ReportPlugin;
@@ -57,15 +59,15 @@ import java.util.*;
 public class PluginManager {
 
     private static final Logger logger = LogManager.getLogger(PluginManager.class);
-    private List<Plugin> _plugins = new ArrayList<>();
-    private JEVisDataSource _ds;
-    private Plugin _selectedPlugin = null;
-    private Number _tabPos = 0;
-    private Number _tabPosOld = 0;
-    private AnchorPane toolbar = new AnchorPane();
-    private SimpleObjectProperty selectedPluginProperty = new SimpleObjectProperty();
+    private final List<Plugin> _plugins = new ArrayList<>();
+    private final JEVisDataSource _ds;
+    private final Plugin _selectedPlugin = null;
+    private final Number _tabPos = 0;
+    private final Number _tabPosOld = 0;
+    private final AnchorPane toolbar = new AnchorPane();
+    private final SimpleObjectProperty selectedPluginProperty = new SimpleObjectProperty();
     private TopMenu menu;
-    private TabPane tabPane = new TabPane();
+    private final TabPane tabPane = new TabPane();
 
     public PluginManager(JEVisDataSource _ds) {
         this._ds = _ds;
@@ -97,6 +99,8 @@ public class PluginManager {
         plugins.add(new ReportPlugin(this._ds, I18n.getInstance().getString("plugin.reports.title")));
         plugins.add(new AlarmPlugin(this._ds, I18n.getInstance().getString("plugin.alarms.title")));
         plugins.add(new MeterPlugin(this._ds, I18n.getInstance().getString("plugin.meters.title")));
+        plugins.add(new BaseDataPlugin(this._ds, I18n.getInstance().getString("plugin.basedata.title")));
+        plugins.add(new EquipmentPlugin(this._ds, I18n.getInstance().getString("plugin.equipment.title")));
         plugins.add(new DashBordPlugIn(this._ds, I18n.getInstance().getString("plugin.dashboard.title")));
 
 //        plugins.add(new SCADAPlugin(_ds));
@@ -199,9 +203,21 @@ public class PluginManager {
                                                     continue;
                                                 }
                                             } else if (plugObj.getJEVisClassName().equals(MeterPlugin.PLUGIN_NAME)) {
-                                                JEVisClass alarmClass = this._ds.getJEVisClass(MeterPlugin.MEASUREMENT_INSTRUMENT_CLASS);
-                                                List<JEVisObject> allAlarms = this._ds.getObjects(alarmClass, true);
-                                                if (allAlarms.size() == 0) {
+                                                JEVisClass measurementInstrumentClass = this._ds.getJEVisClass(MeterPlugin.MEASUREMENT_INSTRUMENT_CLASS);
+                                                List<JEVisObject> allMeasurementInstruments = this._ds.getObjects(measurementInstrumentClass, true);
+                                                if (allMeasurementInstruments.size() == 0) {
+                                                    continue;
+                                                }
+                                            } else if (plugObj.getJEVisClassName().equals(BaseDataPlugin.PLUGIN_NAME)) {
+                                                JEVisClass baseDataClass = this._ds.getJEVisClass(BaseDataPlugin.BASE_DATA_CLASS);
+                                                List<JEVisObject> allBaseData = this._ds.getObjects(baseDataClass, true);
+                                                if (allBaseData.size() == 0) {
+                                                    continue;
+                                                }
+                                            } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {
+                                                JEVisClass equipmentClass = this._ds.getJEVisClass(EquipmentPlugin.EQUIPMENT_CLASS);
+                                                List<JEVisObject> allEquipment = this._ds.getObjects(equipmentClass, true);
+                                                if (allEquipment.size() == 0) {
                                                     continue;
                                                 }
                                             }
@@ -297,6 +313,15 @@ public class PluginManager {
                             }
                         });
                     });
+                    /** Start Loading Alarms in the background after an delay **/
+                    Timer updateTimer = new Timer(true);
+                    updateTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            Platform.runLater(() -> plugin.setHasFocus());
+                        }
+                    }, 4000);
+
                 }
 
                 this.tabPane.getTabs().add(pluginTab);
@@ -308,14 +333,6 @@ public class PluginManager {
 
                 pluginTab.setGraphic(plugin.getIcon());
 
-                /** Start Loading Alarms in the background after an delay **/
-                Timer updateTimer = new Timer(true);
-                updateTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        Platform.runLater(() -> plugin.setHasFocus());
-                    }
-                }, 4000);
 
             } catch (Exception ex) {
                 ex.printStackTrace();

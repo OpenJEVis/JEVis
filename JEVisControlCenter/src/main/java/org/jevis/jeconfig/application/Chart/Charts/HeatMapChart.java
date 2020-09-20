@@ -20,6 +20,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
@@ -28,7 +30,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.Holidays;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -41,13 +43,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class HeatMapChart implements Chart {
-
+    private static final Logger logger = LogManager.getLogger(HeatMapChart.class);
     private final Integer chartId;
     private final WorkDays workDays;
     private final ColorMapping colorMapping;
-    private List<ChartDataModel> chartDataModels;
-    private String chartTitle;
-    private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
+    private final List<ChartDataRow> chartDataRows;
+    private final String chartTitle;
+    private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Long ROWS;
     private Long COLS;
 
@@ -56,20 +58,21 @@ public class HeatMapChart implements Chart {
     private String Y_FORMAT;
     private String Y2_FORMAT;
     private double maxValue;
-    private Map<MatrixXY, Double> matrixData = new HashMap<>();
+    private final Map<MatrixXY, Double> matrixData = new HashMap<>();
     private String unit;
-    private org.jevis.jeconfig.application.Chart.ChartType chartType = org.jevis.jeconfig.application.Chart.ChartType.HEAT_MAP;
+    private final org.jevis.jeconfig.application.Chart.ChartType chartType = org.jevis.jeconfig.application.Chart.ChartType.HEAT_MAP;
     private List<DateTime> xAxisList;
     private List<DateTime> yAxisList;
+    private Period period;
 
-    public HeatMapChart(List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
-        this.chartDataModels = chartDataModels;
+    public HeatMapChart(List<ChartDataRow> chartDataRows, ChartSetting chartSetting) {
+        this.chartDataRows = chartDataRows;
         this.chartId = chartSetting.getId();
         this.chartTitle = chartSetting.getName();
         this.colorMapping = chartSetting.getColorMapping();
         this.ROWS = 24L;
         this.COLS = 4L;
-        this.workDays = new WorkDays(chartDataModels.get(0).getObject());
+        this.workDays = new WorkDays(chartDataRows.get(0).getObject());
 
         init();
     }
@@ -77,10 +80,10 @@ public class HeatMapChart implements Chart {
     private void init() {
         List<MatrixChartItem> matrixData1 = new ArrayList<>();
 
-        ChartDataModel chartDataModel = chartDataModels.get(0);
-        unit = UnitManager.getInstance().format(chartDataModel.getUnit());
-        Period period = new Period(chartDataModel.getSelectedStart(), chartDataModel.getSelectedEnd());
-        Period inputSampleRate = chartDataModel.getAttribute().getInputSampleRate();
+        ChartDataRow chartDataRow = chartDataRows.get(0);
+        unit = UnitManager.getInstance().format(chartDataRow.getUnit());
+        Period period = new Period(chartDataRow.getSelectedStart(), chartDataRow.getSelectedEnd());
+        Period inputSampleRate = chartDataRow.getAttribute().getInputSampleRate();
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
         numberFormat.setMinimumFractionDigits(2);
         numberFormat.setMaximumFractionDigits(2);
@@ -91,14 +94,19 @@ public class HeatMapChart implements Chart {
         X_FORMAT = heatMapXY.getX_FORMAT();
         Y_FORMAT = heatMapXY.getY_FORMAT();
         Y2_FORMAT = heatMapXY.getY2_FORMAT();
-        chartDataModel.setAggregationPeriod(heatMapXY.getAggregationPeriod());
+        chartDataRow.setAggregationPeriod(heatMapXY.getAggregationPeriod());
 
-        List<JEVisSample> samples = chartDataModel.getSamples();
-        try {
-            inputSampleRate = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
+        List<JEVisSample> samples = chartDataRow.getSamples();
+        if (samples.size() > 1) {
+            try {
+                inputSampleRate = new Period(samples.get(0).getTimestamp(), samples.get(1).getTimestamp());
 
-        } catch (JEVisException e) {
-            e.printStackTrace();
+            } catch (JEVisException e) {
+                logger.error("Error while getting input sample rate", e);
+            }
+        } else {
+            logger.warn("Only got {} samples, aborting", samples.size());
+            return;
         }
 
         HashMap<DateTime, JEVisSample> sampleHashMap = new HashMap<>();
@@ -106,14 +114,14 @@ public class HeatMapChart implements Chart {
             try {
                 sampleHashMap.put(jeVisSample.getTimestamp(), jeVisSample);
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Error while getting sample timestamp of sample {}", jeVisSample, e);
             }
         });
         DateTime currentTS = null;
         try {
             currentTS = samples.get(0).getTimestamp();
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Could not get current time stamp while getting time stamp of sample {}", samples.get(0), e);
         }
 
         double minValue = Double.MAX_VALUE;
@@ -132,7 +140,7 @@ public class HeatMapChart implements Chart {
                     isCustomStart = true;
                 }
             } catch (JEVisException e) {
-                e.printStackTrace();
+                logger.error("Error while getting custom work day start and end", e);
             }
         }
 
@@ -170,7 +178,7 @@ public class HeatMapChart implements Chart {
                         xCell++;
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error("Error while processing sample {}", sampleHashMap.get(currentTS), e);
                 }
 
                 currentTS = currentTS.plus(inputSampleRate);
@@ -182,7 +190,7 @@ public class HeatMapChart implements Chart {
             yAxisList.removeAll(yAxisList.stream().filter(dateTime -> dateTime.isAfter(lastTs)).collect(Collectors.toList()));
             ROWS = (long) yAxisList.size();
         } catch (JEVisException e) {
-            e.printStackTrace();
+            logger.error("Error while getting row length of heat map", e);
         }
 
         this.maxValue = maxValue;
@@ -372,8 +380,8 @@ public class HeatMapChart implements Chart {
     }
 
     @Override
-    public List<ChartDataModel> getChartDataModels() {
-        return chartDataModels;
+    public List<ChartDataRow> getChartDataRows() {
+        return chartDataRows;
     }
 
     @Override
@@ -384,6 +392,11 @@ public class HeatMapChart implements Chart {
     @Override
     public Period getPeriod() {
         return null;
+    }
+
+    @Override
+    public void setPeriod(Period period) {
+        this.period = period;
     }
 
     private HeatMapXY getHeatMapXY(Period period, Period inputSampleRate) {

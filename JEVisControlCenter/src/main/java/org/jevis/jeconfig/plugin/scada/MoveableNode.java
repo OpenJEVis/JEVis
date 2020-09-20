@@ -36,7 +36,7 @@ public class MoveableNode extends StackPane {// implements SelectableNode {
     public static BooleanProperty movingProperty = new SimpleBooleanProperty(false);
     public Pane parent;
     public Node content;
-    private Region ddOverlay = new Region();
+    private final Region ddOverlay = new Region();
     private Cursor cursor = null;
     private SCADAElement scadaElement;
 
@@ -50,7 +50,7 @@ public class MoveableNode extends StackPane {// implements SelectableNode {
         if (parent == null) {
             return 0;
         }
-        logger.info("relX: parentW: " + parent.widthProperty().getValue() + " this.X: " + getLayoutX());
+        logger.info("relX: parentW: {} this.X {}", parent.widthProperty().getValue(), getLayoutX());
         return (100 / this.parent.widthProperty().getValue()) * this.getLayoutX();
     }
 
@@ -121,17 +121,13 @@ public class MoveableNode extends StackPane {// implements SelectableNode {
 
         movableProperty.addListener((observable, oldValue, newValue) -> {
             logger.info("movableProperty in label: " + newValue);
-            if (newValue) {
-//                this.setBorder(new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-                ddOverlay.setVisible(true);
-//                head.setVisible(true);
-//                getChildren().add(ddOverlay);
-            } else {
-//                this.setBorder(null);
-                ddOverlay.setVisible(false);
-//                head.setVisible(false);
-//                getChildren().remove(ddOverlay);
-            }
+            //                this.setBorder(new Border(new BorderStroke(Color.BLUE, BorderStrokeStyle.DASHED, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+            //                head.setVisible(true);
+            //                getChildren().add(ddOverlay);
+            //                this.setBorder(null);
+            //                head.setVisible(false);
+            //                getChildren().remove(ddOverlay);
+            ddOverlay.setVisible(newValue);
         });
 //        movableProperty.setValue(true);
 //        close.setOnAction(event -> {

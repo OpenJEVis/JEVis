@@ -7,7 +7,7 @@ package org.jevis.iso.classes;
 
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 import java.util.ArrayList;
 import java.util.List;

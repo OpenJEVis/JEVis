@@ -16,15 +16,12 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.dialog.EnterDataDialog;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
-import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
-import org.jevis.jeconfig.plugin.dashboard.config2.Limit;
-import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
-import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
+import org.jevis.jeconfig.plugin.dashboard.config2.*;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelWidget;
 import org.joda.time.DateTime;
@@ -43,17 +40,17 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
     public static String WIDGET_ID = "Value Editor";
     private final TextField labelValue = new TextField();
     private final Label labelTimeStamp = new Label();
-    private NumberFormat nf = NumberFormat.getInstance();
+    private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
     private DataModelDataHandler sampleHandler;
-    private DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
-    private ImageView imageView = JEConfig.getImage("add_table.png",18,18);
+    private final NumberFormat nf = NumberFormat.getInstance();
+    private final DoubleProperty displayedSample = new SimpleDoubleProperty(Double.NaN);
     private Limit limit;
     private Interval lastInterval = null;
-    private EnterDataDialog enterDataDialog=null;
-    private Button addButton = new Button("",JEConfig.getImage("AddValue.png",34,34));
-    private static DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm");
-    private boolean forceLastValue=true;
-    private JEVisSample lastSample=null;
+    private EnterDataDialog enterDataDialog = null;
+    private final ImageView imageView = JEConfig.getImage("add_table.png", 18, 18);
+    private final Button addButton = new Button("", JEConfig.getImage("AddValue.png", 34, 34));
+    private final boolean forceLastValue = true;
+    private JEVisSample lastSample = null;
 
 
     public ValueEditWidget(DashboardControl control, WidgetPojo config) {
@@ -69,6 +66,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.newname"));
         widgetPojo.setType(typeID());
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*1,control.getActiveDashboard().xGridInterval*6));
 
 
         return widgetPojo;
@@ -114,7 +112,7 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
                 this.sampleHandler.setAutoAggregation(true);
                 this.sampleHandler.update();
                 if (!this.sampleHandler.getDataModel().isEmpty()) {
-                    ChartDataModel dataModel = this.sampleHandler.getDataModel().get(0);
+                    ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
                     List<JEVisSample> results = dataModel.getSamples();
                     lastSample = results.get(results.size()-1);
                 }
@@ -272,8 +270,6 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
         this.sampleHandler.setMultiSelect(false);
         enterDataDialog = new EnterDataDialog(getDataSource());
         enterDataDialog.getNewSampleProperty().addListener((observable, oldValue, newValue) -> {
-            //control.updateWidget(this);
-            System.out.println("update sample:"+newValue);
             this.updateData(lastInterval);
         });
 
@@ -288,9 +284,8 @@ public class ValueEditWidget extends Widget implements DataModelWidget {
 
 
         labelValue.setOnMouseClicked(event -> {
-            System.out.println("event: " + event);
             if (event.getButton() == MouseButton.PRIMARY) {
-                enterDataDialog.showPopup(labelTimeStamp);
+                enterDataDialog.showPopup(labelTimeStamp, this.getConfig().getTitle());
             }
 
         });

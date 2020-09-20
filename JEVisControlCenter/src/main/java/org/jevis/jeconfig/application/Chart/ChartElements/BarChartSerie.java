@@ -12,9 +12,8 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
@@ -22,6 +21,7 @@ import java.util.List;
 
 public class BarChartSerie {
     private static final Logger logger = LogManager.getLogger(BarChartSerie.class);
+    private final String FINISHED_SERIE;
     private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
 
     private TableEntry tableEntry;
@@ -29,7 +29,8 @@ public class BarChartSerie {
     private DateTime timeStampFromLastSample = new DateTime(2001, 1, 1, 0, 0, 0);
     private final XYChart.Data<Number, String> data;
 
-    public BarChartSerie(ChartDataModel singleRow, Boolean lastValue) throws JEVisException {
+    public BarChartSerie(ChartDataRow singleRow, Boolean lastValue) throws JEVisException {
+        this.FINISHED_SERIE = I18n.getInstance().getString("graph.progress.finishedserie") + " " + singleRow.getTitle();
         String unit = UnitManager.getInstance().format(singleRow.getUnit());
         if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
 
@@ -77,7 +78,7 @@ public class BarChartSerie {
 
         data = new XYChart.Data<>(result, dataName);
 
-        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, "Finished Serie");
+        JEConfig.getStatusBar().progressProgressJob(org.jevis.jeconfig.application.Chart.Charts.XYChart.JOB_NAME, 1, FINISHED_SERIE);
 
     }
 

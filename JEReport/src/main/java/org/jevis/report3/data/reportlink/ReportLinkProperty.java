@@ -14,14 +14,13 @@ import org.jevis.commons.database.JEVisSampleDAO;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.FixedPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.report.PeriodMode;
 import org.jevis.report3.data.DataHelper;
 import org.jevis.report3.data.attribute.*;
 import org.jevis.report3.data.report.IntervalCalculator;
 import org.jevis.report3.data.report.ReportProperty;
 import org.jevis.report3.process.LastSampleGenerator;
-import org.jevis.report3.process.PeriodSampleGenerator;
+import org.jevis.report3.process.ProcessHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 
@@ -44,8 +43,8 @@ public class ReportLinkProperty implements ReportData {
     private JEVisObject dataObject;
     private final List<ReportAttributeProperty> attributeProperties = new ArrayList<>();
     private final List<ReportAttributeProperty> defaultAttributeProperties = new ArrayList<>();
-    private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
-    private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
+    private final LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
+    private final LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
 
     //    private DateTime latestTimestamp;
     public static ReportLinkProperty buildFromJEVisObject(JEVisObject reportLinkObject) {
@@ -186,21 +185,25 @@ public class ReportLinkProperty implements ReportData {
                                     attribute = dataObject.getAttribute(attributeProperty.getAttributeName());
                                     ds = dataObject.getDataSource();
                                 } catch (JEVisException ex) {
-                                    logger.error(ex);
+                                    logger.error("Could not get attribute or datasource with name {} of object {}:{}", attributeProperty.getAttributeName(), dataObject.getName(), dataObject.getID(), ex);
                                 }
 
                                 String aggregationName = null;
                                 String manipulationName = null;
                                 try {
-                                    aggregationName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION).getLatestSample().getValueAsString();
+                                    if (periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION).hasSample()) {
+                                        aggregationName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.AGGREGATION).getLatestSample().getValueAsString();
+                                    }
                                 } catch (Exception ex) {
-                                    logger.error(ex);
+                                    logger.error("Could not get aggregation name", ex);
                                 }
 
                                 try {
-                                    manipulationName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.MANIPULATION).getLatestSample().getValueAsString();
+                                    if (periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.MANIPULATION).hasSample()) {
+                                        manipulationName = periodConfiguration.getAttribute(ReportAttributeConfiguration.ReportAttributePeriodConfiguration.MANIPULATION).getLatestSample().getValueAsString();
+                                    }
                                 } catch (Exception ex) {
-                                    logger.error(ex);
+                                    logger.error("Could not get manipulation name", ex);
                                 }
 
                                 AggregationPeriod aggregationPeriod = AggregationPeriod.NONE;
@@ -208,15 +211,15 @@ public class ReportLinkProperty implements ReportData {
                                 if (aggregationName != null) {
                                     aggregationPeriod = AggregationPeriod.get(aggregationName.toUpperCase());
                                 }
-                                logger.info("aggregationPeriod: " + aggregationPeriod.toString());
+                                logger.info("aggregationPeriod: {}", aggregationPeriod.toString());
 
                                 ManipulationMode manipulationMode = ManipulationMode.NONE;
                                 if (manipulationName != null) {
-                                    manipulationMode = ManipulationMode.get(manipulationName.toUpperCase());
+                                    manipulationMode = ManipulationMode.parseManipulation(manipulationName.toUpperCase());
                                 } else if (aggregationName != null) {
                                     manipulationMode = ManipulationMode.get(aggregationName.toUpperCase());
                                 }
-                                logger.info("manipulationMode: " + manipulationMode.toString());
+                                logger.info("manipulationMode: {}", manipulationMode.toString());
 
                                 Interval interval = null;
                                 PeriodMode mode = null;
@@ -239,13 +242,13 @@ public class ReportLinkProperty implements ReportData {
                                         interval = intervalCalc.getInterval(name);
                                     }
 
-                                    logger.info("interval: " + interval);
+                                    logger.info("interval: {}", interval);
 
                                 } catch (JEVisException ex) {
                                     logger.error(ex);
                                 }
 
-                                if (interval != null) {
+                                if (interval != null && !workdayEnd.isBefore(workdayStart)) {
                                     long duration = 0;
                                     duration = interval.toDurationMillis();
 
@@ -326,31 +329,25 @@ public class ReportLinkProperty implements ReportData {
                                     }
                                 }
 
-                                WorkDays wd = new WorkDays(dataObject);
-                                if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
-                                if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
+//                                WorkDays wd = new WorkDays(dataObject);
+//                                if (wd.getWorkdayStart() != null) workdayStart = wd.getWorkdayStart();
+//                                if (wd.getWorkdayEnd() != null) workdayEnd = wd.getWorkdayEnd();
+//
+//                                if (interval != null) {
+//                                    DateTime start = new DateTime(interval.getStart().getYear(), interval.getStart().getMonthOfYear(), interval.getStart().getDayOfMonth(),
+//                                            workdayStart.getHour(), workdayStart.getMinute(), workdayStart.getSecond());
+//                                    DateTime end = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(),
+//                                            workdayEnd.getHour(), workdayEnd.getMinute(), workdayEnd.getSecond(), workdayEnd.getNano() / 1000000);
+//
+//                                    if (workdayStart.isAfter(workdayEnd)) {
+//                                        start = start.minusDays(1);
+//                                    }
+//
+//                                    interval = new Interval(start, end);
+//                                }
 
-                                if (interval != null) {
-                                    DateTime start = new DateTime(interval.getStart().getYear(), interval.getStart().getMonthOfYear(), interval.getStart().getDayOfMonth(),
-                                            workdayStart.getHour(), workdayStart.getMinute(), workdayStart.getSecond());
-                                    DateTime end = new DateTime(interval.getEnd().getYear(), interval.getEnd().getMonthOfYear(), interval.getEnd().getDayOfMonth(),
-                                            workdayEnd.getHour(), workdayEnd.getMinute(), workdayEnd.getSecond(), workdayEnd.getNano() / 1000000);
-
-                                    if (workdayStart.isAfter(workdayEnd)) {
-                                        start = start.minusDays(1);
-                                    }
-
-                                    interval = new Interval(start, end);
-                                }
-
-                                PeriodSampleGenerator gen = new PeriodSampleGenerator(ds, dataObject, attribute, interval, manipulationMode, aggregationPeriod);
-
-                                try {
-                                    linkMap.putAll(gen.work(linkProperty, attributeProperty, property));
-                                    logger.info("added link map " + linkMap.entrySet() + " to attribute map");
-                                } catch (JEVisException e) {
-                                    logger.error(e);
-                                }
+                                linkMap.putAll(ProcessHelper.getAttributeSamples(attribute.getSamples(interval.getStart(), interval.getEnd(), true, aggregationPeriod.toString(), manipulationMode.toString()), attribute, property.getTimeZone()));
+                                logger.debug("added link map {} to attribute map", linkMap.entrySet());
                             }
                             break;
                             case SpecificValue:
@@ -358,7 +355,7 @@ public class ReportLinkProperty implements ReportData {
 
                                 try {
                                     linkMap.putAll(sampleGenerator.work(linkProperty, attributeProperty, property));
-                                    logger.info("added link map " + linkMap.entrySet() + " to attribute map");
+                                    logger.debug("added link map {}  to attribute map", linkMap.entrySet());
                                 } catch (JEVisException e) {
                                     logger.error(e);
                                 }

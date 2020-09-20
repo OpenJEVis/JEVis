@@ -36,7 +36,7 @@ public abstract class LimitAlarm implements ILimitAlarm {
     JEVisAttribute _status;
     boolean _enabled = false;
     JEVisAttribute _log;
-    private List<UsageSchedule> up = new ArrayList<>();
+    private final List<UsageSchedule> up = new ArrayList<>();
 
     @Override
     abstract public void checkAlarm() throws JEVisException;
@@ -56,7 +56,7 @@ public abstract class LimitAlarm implements ILimitAlarm {
             _status = alarmObj.getAttribute(STATUS);
             _enabled = isEnabled(alarmObj);
             for (JEVisAttribute att : alarmObj.getAttributes()) {
-                logger.info("   Attribute: " + att);
+                logger.info("Attribute: {}", att);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -163,7 +163,7 @@ public abstract class LimitAlarm implements ILimitAlarm {
     @SuppressWarnings("unused")
     private void printAlarms(List<AlarmData> alarms) {
         for (AlarmData alarm : alarms) {
-            logger.info("Alarm: " + alarm.getMessage());
+            logger.info("Alarm: {}", alarm.getMessage());
         }
     }
 

@@ -28,6 +28,10 @@
 -fx-background-color: rgba(0, 100, 100, 0.5);
 }
 
+.pagination { -fx-rotate:180; }
+.pagination .pagination-control { -fx-rotate:180; }
+.pagination .page { -fx-rotate:180; }
+
 /*******************************************************************************
  *                                                                             *
  * TreeView and TreeCell                                                       *

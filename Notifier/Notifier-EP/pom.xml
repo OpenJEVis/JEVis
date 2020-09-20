@@ -52,7 +52,7 @@
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
-            <version>1.9.2</version>
+            <version>1.9.4</version>
         </dependency>
         <!--<dependency>-->
         <!--<groupId>commons-lang</groupId>-->
@@ -63,7 +63,7 @@
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
-            <version>3.2.1</version>
+            <version>3.2.2</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -87,8 +87,8 @@
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-            <version>1.6.0</version>
+            <artifactId>jakarta.mail</artifactId>
+            <version>1.6.5</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>

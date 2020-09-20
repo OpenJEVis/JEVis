@@ -160,7 +160,7 @@ public interface JEVisDataSource {
     /**
      * Returns all relationships for and Object ID
      *
-     * @param startobjectID
+     * @param objectID
      * @return
      * @throws JEVisException
      */

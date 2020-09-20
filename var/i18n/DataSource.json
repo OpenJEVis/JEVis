@@ -84,23 +84,6 @@
       }
     },
     {
-      "type": "Furthest reported",
-      "descriptions": {
-        "de": "Dieses Feld definiert ab wann ein Datenpunkt nicht mehr gelistet wird. Angegeben in Stunden.",
-        "ru": "Это поле определяет, когда точка данных больше не отображается в списке. Указано в часах.",
-        "uk": "Це поле визначає, коли точку даних більше не вказано. Вказано в годинах.",
-        "th": "ฟิลด์นี้กำหนดว่าเมื่อใดที่ข้อมูลไม่ได้อยู่ในรายการ ระบุเป็นชั่วโมง",
-        "en": "This field defines when a data point is no longer listed. Specified in hours."
-      },
-      "names": {
-        "de": "Am weitesten zurückliegend berichtet",
-        "ru": "Самый дальний из тех, кто сообщал.",
-        "uk": "Останні повідомлення",
-        "th": "รายงานล่าสุด",
-        "en": "Furthest back reported"
-      }
-    },
-    {
       "type": "Latest reported",
       "descriptions": {
         "de": "Dieses Feld definiert ab wann ein Datenpunkt gelistet wird. Angegeben in Stunden.",

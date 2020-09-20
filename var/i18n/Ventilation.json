@@ -1,326 +1,103 @@
 {
   "jevisclass": "Ventilation",
   "names": {
-    "de": "Belüftung",
-    "ru": "Ventilation",
-    "en": "Ventilation"
+    "de": "Lüftung",
+    "ru": "вентиляция",
+    "en": "Ventilation",
+    "th": "การระบายอากาศ",
+    "uk": "вентиляція"
   },
   "descriptions": {
-    "de": "The class Ventilation contains data of the building equipment ventilation. Attributes of the class include a complete description of the specific energy data of the ventilation. ",
-    "ru": "The class Ventilation contains data of the building equipment ventilation. Attributes of the class include a complete description of the specific energy data of the ventilation. ",
-    "en": "The class Ventilation contains data of the building equipment ventilation. Attributes of the class include a complete description of the specific energy data of the ventilation. "
+    "de": "Die Klasse Lüftung enthält Daten zur Lüftung der Gebäudeausrüstung. Zu den Attributen der Klasse gehört eine vollständige Beschreibung der spezifischen Energiedaten der Lüftung.",
+    "ru": "Класс вентиляции содержит данные о вентиляции строительного оборудования. Атрибуты класса включают в себя полное описание конкретных энергетических данных вентиляции.",
+    "en": "The class Ventilation contains data of the building equipment ventilation. Attributes of the class include a complete description of the specific energy data of the ventilation.",
+    "th": "คลาสการระบายอากาศมีข้อมูลเกี่ยวกับการระบายอากาศของอุปกรณ์ในอาคาร คุณลักษณะของคลาสรวมถึงคำอธิบายที่สมบูรณ์ของข้อมูลพลังงานเฉพาะของการระบายอากาศ",
+    "uk": "Клас вентиляції містить дані про вентиляцію будівельного обладнання. Атрибути класу включають повний опис конкретних енергетичних даних вентиляції."
   },
   "types": [
     {
       "type": "Air Exchange Rate",
       "descriptions": {
-        "de": "Air Exchange Rate description",
-        "ru": "Air Exchange Rate description",
-        "en": "Air Exchange Rate description"
+        "de": "Luftwechselrate",
+        "ru": "Обменный курс",
+        "en": "Air Exchange Rate",
+        "th": "อัตราแลกเปลี่ยนอากาศ",
+        "uk": "Обмінний курс"
       },
       "names": {
-        "de": "Air Exchange Rate",
-        "ru": "Air Exchange Rate",
-        "en": "Air Exchange Rate"
-      }
-    },
-    {
-      "type": "Controling Air Conditioning System with Time manually and Temperature",
-      "descriptions": {
-        "de": "Controling Air Conditioning System with Time manually and Temperature description",
-        "ru": "Controling Air Conditioning System with Time manually and Temperature description",
-        "en": "Controling Air Conditioning System with Time manually and Temperature description"
-      },
-      "names": {
-        "de": "Controling Air Conditioning System with Time manually and Temperature",
-        "ru": "Controling Air Conditioning System with Time manually and Temperature",
-        "en": "Controling Air Conditioning System with Time manually and Temperature"
-      }
-    },
-    {
-      "type": "Daily Operating Hours",
-      "descriptions": {
-        "de": "Daily Operating Hours description",
-        "ru": "Daily Operating Hours description",
-        "en": "Daily Operating Hours description"
-      },
-      "names": {
-        "de": "Daily Operating Hours",
-        "ru": "Daily Operating Hours",
-        "en": "Daily Operating Hours"
-      }
-    },
-    {
-      "type": "Ducted Airflow",
-      "descriptions": {
-        "de": "Ducted Airflow description",
-        "ru": "Ducted Airflow description",
-        "en": "Ducted Airflow description"
-      },
-      "names": {
-        "de": "Ducted Airflow",
-        "ru": "Ducted Airflow",
-        "en": "Ducted Airflow"
-      }
-    },
-    {
-      "type": "Energy Source",
-      "descriptions": {
-        "de": "Energy Source description",
-        "ru": "Energy Source description",
-        "en": "Energy Source description"
-      },
-      "names": {
-        "de": "Energy Source",
-        "ru": "Energy Source",
-        "en": "Energy Source"
+        "de": "Luftwechselrate",
+        "ru": "Обменный курс",
+        "en": "Air Exchange Rate",
+        "th": "อัตราแลกเปลี่ยนอากาศ",
+        "uk": "Обмінний курс"
       }
     },
     {
       "type": "Engine Power FROM",
       "descriptions": {
-        "de": "Engine Power FROM description",
-        "ru": "Engine Power FROM description",
-        "en": "Engine Power FROM description"
+        "de": "Motorleistung VON",
+        "ru": "Мощность двигателя ОТ",
+        "en": "Engine Power FROM",
+        "th": "กำลังเครื่องยนต์จาก",
+        "uk": "Потужність двигуна ВІД"
       },
       "names": {
-        "de": "Engine Power FROM",
-        "ru": "Engine Power FROM",
-        "en": "Engine Power FROM"
+        "de": "Motorleistung VON",
+        "ru": "Мощность двигателя ОТ",
+        "en": "Engine Power FROM",
+        "th": "กำลังเครื่องยนต์จาก",
+        "uk": "Потужність двигуна ВІД"
       }
     },
     {
       "type": "Engine Power TO",
       "descriptions": {
-        "de": "Engine Power TO description",
-        "ru": "Engine Power TO description",
-        "en": "Engine Power TO description"
+        "de": "Motorleistung ZU",
+        "ru": "Мощность мотора ЗАКРЫТА",
+        "en": "Engine Power TO",
+        "th": "กำลังมอเตอร์ปิด",
+        "uk": "Потужність двигуна ЗАКРІТНА"
       },
       "names": {
-        "de": "Engine Power TO",
-        "ru": "Engine Power TO",
-        "en": "Engine Power TO"
-      }
-    },
-    {
-      "type": "Heat Recovery",
-      "descriptions": {
-        "de": "Heat Recovery description",
-        "ru": "Heat Recovery description",
-        "en": "Heat Recovery description"
-      },
-      "names": {
-        "de": "Heat Recovery",
-        "ru": "Heat Recovery",
-        "en": "Heat Recovery"
-      }
-    },
-    {
-      "type": "Manufacturer",
-      "descriptions": {
-        "de": "Manufacturer description",
-        "ru": "Manufacturer description",
-        "en": "Manufacturer description"
-      },
-      "names": {
-        "de": "Manufacturer",
-        "ru": "Manufacturer",
-        "en": "Manufacturer"
-      }
-    },
-    {
-      "type": "Measuring Point",
-      "descriptions": {
-        "de": "Measuring Point description",
-        "ru": "Measuring Point description",
-        "en": "Measuring Point description"
-      },
-      "names": {
-        "de": "Measuring Point",
-        "ru": "Measuring Point",
-        "en": "Measuring Point"
-      }
-    },
-    {
-      "type": "Nominal Power",
-      "descriptions": {
-        "de": "Nominal Power description",
-        "ru": "Nominal Power description",
-        "en": "Nominal Power description"
-      },
-      "names": {
-        "de": "Nominal Power",
-        "ru": "Nominal Power",
-        "en": "Nominal Power"
-      }
-    },
-    {
-      "type": "Power Condenser",
-      "descriptions": {
-        "de": "Power Condenser description",
-        "ru": "Power Condenser description",
-        "en": "Power Condenser description"
-      },
-      "names": {
-        "de": "Power Condenser",
-        "ru": "Power Condenser",
-        "en": "Power Condenser"
-      }
-    },
-    {
-      "type": "Power Preheater",
-      "descriptions": {
-        "de": "Power Preheater description",
-        "ru": "Power Preheater description",
-        "en": "Power Preheater description"
-      },
-      "names": {
-        "de": "Power Preheater",
-        "ru": "Power Preheater",
-        "en": "Power Preheater"
-      }
-    },
-    {
-      "type": "Power Reheater",
-      "descriptions": {
-        "de": "Power Reheater description",
-        "ru": "Power Reheater description",
-        "en": "Power Reheater description"
-      },
-      "names": {
-        "de": "Power Reheater",
-        "ru": "Power Reheater",
-        "en": "Power Reheater"
-      }
-    },
-    {
-      "type": "Proportion of Recirculated Air",
-      "descriptions": {
-        "de": "Proportion of Recirculated Air description",
-        "ru": "Proportion of Recirculated Air description",
-        "en": "Proportion of Recirculated Air description"
-      },
-      "names": {
-        "de": "Proportion of Recirculated Air",
-        "ru": "Proportion of Recirculated Air",
-        "en": "Proportion of Recirculated Air"
+        "de": "Motorleistung ZU",
+        "ru": "Мощность мотора ЗАКРЫТА",
+        "en": "Engine Power TO",
+        "th": "กำลังมอเตอร์ปิด",
+        "uk": "Потужність двигуна ЗАКРІТНА"
       }
     },
     {
       "type": "Remark",
       "descriptions": {
-        "de": "Remark description",
-        "ru": "Remark description",
-        "en": "Remark description"
+        "de": "Anmerkung",
+        "ru": "аннотирование",
+        "en": "Remark",
+        "th": "คำอธิบายประกอบ",
+        "uk": "анотація"
       },
       "names": {
-        "de": "Remark",
-        "ru": "Remark",
-        "en": "Remark"
-      }
-    },
-    {
-      "type": "Standby Consumption",
-      "descriptions": {
-        "de": "Standby Consumption description",
-        "ru": "Standby Consumption description",
-        "en": "Standby Consumption description"
-      },
-      "names": {
-        "de": "Standby Consumption",
-        "ru": "Standby Consumption",
-        "en": "Standby Consumption"
-      }
-    },
-    {
-      "type": "Supply Air Volume Flow",
-      "descriptions": {
-        "de": "Supply Air Volume Flow description",
-        "ru": "Supply Air Volume Flow description",
-        "en": "Supply Air Volume Flow description"
-      },
-      "names": {
-        "de": "Supply Air Volume Flow",
-        "ru": "Supply Air Volume Flow",
-        "en": "Supply Air Volume Flow"
+        "de": "Anmerkung",
+        "ru": "аннотирование",
+        "en": "Remark",
+        "th": "คำอธิบายประกอบ",
+        "uk": "анотація"
       }
     },
     {
       "type": "Supply Area",
       "descriptions": {
-        "de": "Supply Area description",
-        "ru": "Supply Area description",
-        "en": "Supply Area description"
+        "de": "Versorgungsbereich",
+        "ru": "Зона покрытия",
+        "en": "Supply Area",
+        "th": "พื้นที่ครอบคลุม",
+        "uk": "Площа покриття"
       },
       "names": {
-        "de": "Supply Area",
-        "ru": "Supply Area",
-        "en": "Supply Area"
-      }
-    },
-    {
-      "type": "Type of Control",
-      "descriptions": {
-        "de": "Type of Control description",
-        "ru": "Type of Control description",
-        "en": "Type of Control description"
-      },
-      "names": {
-        "de": "Type of Control",
-        "ru": "Type of Control",
-        "en": "Type of Control"
-      }
-    },
-    {
-      "type": "Uptime",
-      "descriptions": {
-        "de": "Uptime description",
-        "ru": "Uptime description",
-        "en": "Uptime description"
-      },
-      "names": {
-        "de": "Uptime",
-        "ru": "Uptime",
-        "en": "Uptime"
-      }
-    },
-    {
-      "type": "Weighting Factor",
-      "descriptions": {
-        "de": "Weighting Factor description",
-        "ru": "Weighting Factor description",
-        "en": "Weighting Factor description"
-      },
-      "names": {
-        "de": "Weighting Factor",
-        "ru": "Weighting Factor",
-        "en": "Weighting Factor"
-      }
-    },
-    {
-      "type": "Work Weeks",
-      "descriptions": {
-        "de": "Work Weeks description",
-        "ru": "Work Weeks description",
-        "en": "Work Weeks description"
-      },
-      "names": {
-        "de": "Work Weeks",
-        "ru": "Work Weeks",
-        "en": "Work Weeks"
-      }
-    },
-    {
-      "type": "Working Days",
-      "descriptions": {
-        "de": "Working Days description",
-        "ru": "Working Days description",
-        "en": "Working Days description"
-      },
-      "names": {
-        "de": "Working Days",
-        "ru": "Working Days",
-        "en": "Working Days"
+        "de": "Versorgungsbereich",
+        "ru": "Зона покрытия",
+        "en": "Supply Area",
+        "th": "พื้นที่ครอบคลุม",
+        "uk": "Площа покриття"
       }
     }
   ]

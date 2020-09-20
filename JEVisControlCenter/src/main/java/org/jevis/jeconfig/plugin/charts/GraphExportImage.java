@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -48,9 +48,12 @@ public class GraphExportImage {
             }
         }
 
-        fileChooser.setInitialFileName(formattedName + I18n.getInstance().getString("plugin.graph.dialog.export.from")
-                + fmtDate.print(minDate) + I18n.getInstance().getString("plugin.graph.dialog.export.to")
-                + fmtDate.print(maxDate) + "_" + fmtDate.print(new DateTime()));
+        fileChooser.setInitialFileName(
+                formattedName + "_"
+                        + I18n.getInstance().getString("plugin.graph.dialog.export.from") + "_"
+                        + fmtDate.print(minDate) + "_" + I18n.getInstance().getString("plugin.graph.dialog.export.to") + "_"
+                        + fmtDate.print(maxDate) + "_" + I18n.getInstance().getString("plugin.graph.dialog.export.created") + "_"
+                        + fmtDate.print(new DateTime()));
 
         FileChooser.ExtensionFilter pngFilter = new FileChooser.ExtensionFilter("Portable Network Graphics Files (*.png)", ".png");
         FileChooser.ExtensionFilter jpgFilter = new FileChooser.ExtensionFilter("Joint Photographic Experts Group Files (*.jpg)", ".jpg");
@@ -60,7 +63,11 @@ public class GraphExportImage {
         File file = fileChooser.showSaveDialog(JEConfig.getStage());
         if (file != null) {
             String fileExtension = fileChooser.getSelectedExtensionFilter().getExtensions().get(0);
-            destinationFile = new File(file + fileExtension);
+            if (!file.getAbsolutePath().contains(fileExtension)) {
+                destinationFile = new File(file + fileExtension);
+            } else {
+                destinationFile = file;
+            }
             formatName = fileExtension;
             JEConfig.setLastPath(file);
         }
@@ -98,11 +105,21 @@ public class GraphExportImage {
             } catch (IOException | InterruptedException e) {
                 logger.error("Error: could not export to file.", e);
             }
+
+            Platform.runLater(() -> {
+                JEConfig.getStage().setMaximized(true);
+//                double height = JEConfig.getStage().getHeight();
+//                double width = JEConfig.getStage().getWidth();
+//                JEConfig.getStage().setWidth(0);
+//                JEConfig.getStage().setHeight(0);
+//                JEConfig.getStage().setHeight(height);
+//                JEConfig.getStage().setWidth(width);
+            });
         });
     }
 
     private void setDates() {
-        for (ChartDataModel mdl : model.getSelectedData()) {
+        for (ChartDataRow mdl : model.getSelectedData()) {
             DateTime startNow = mdl.getSelectedStart();
             DateTime endNow = mdl.getSelectedEnd();
             if (minDate == null || startNow.isBefore(minDate)) minDate = startNow;

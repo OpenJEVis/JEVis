@@ -24,7 +24,7 @@
       "name": "U Value Ground",
       "primitiveType": 1,
       "guiType": "Number",
-      "guiposition": 0,
+      "guiposition": 10,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Facade"
@@ -33,7 +33,7 @@
       "name": "U Value Outerwall",
       "primitiveType": 1,
       "guiType": "Number",
-      "guiposition": 0,
+      "guiposition": 11,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Facade"
@@ -42,7 +42,7 @@
       "name": "U Value Roof",
       "primitiveType": 1,
       "guiType": "Number",
-      "guiposition": 0,
+      "guiposition": 12,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Facade"

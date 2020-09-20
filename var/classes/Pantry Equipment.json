@@ -16,64 +16,10 @@
   ],
   "types": [
     {
-      "name": "Measurement Type",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
-      "name": "Measurment Type",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
-      "name": "Number",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
-      "name": "Power",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
       "name": "Remark",
       "primitiveType": 0,
       "guiType": "Text Area",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
-      "name": "Standby Consumption",
-      "primitiveType": 1,
-      "guiType": "Number with Unit",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Pantry Equipment"
-    },
-    {
-      "name": "Type or Name",
-      "primitiveType": 0,
-      "guiType": "Text",
-      "guiposition": 0,
+      "guiposition": 10,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Pantry Equipment"

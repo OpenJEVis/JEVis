@@ -108,7 +108,7 @@ public class LoadPane {
 //                    animation.interrupt();
 //                }
                     _view.getChildren().removeAll(content, pi);
-                    logger.info("view.content: " + _view.getChildren().size());
+                    logger.info("view.content: {}", _view.getChildren().size());
                     _view.getChildren().add(content);
 
                 }

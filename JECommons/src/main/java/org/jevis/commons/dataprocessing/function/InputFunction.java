@@ -24,6 +24,11 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.dataprocessing.Process;
 import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.ws.json.JsonAttribute;
+import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.json.JsonRelationship;
+import org.jevis.commons.ws.json.JsonSample;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -42,7 +47,9 @@ public class InputFunction implements ProcessFunction {
     public final static String NAME = "Input";
     public final static String OBJECT_ID = "object-id";
     public final static String ATTRIBUTE_ID = "attribute-id";
+    public static final int LIMIT = 1000000;
     private List<JEVisSample> _result = null;
+    private List<JsonSample> _jsonResult = null;
 
     public InputFunction() {
     }
@@ -82,7 +89,7 @@ public class InputFunction implements ProcessFunction {
             if (object != null && ProcessOptions.ContainsOption(task, ATTRIBUTE_ID)) {
 
                 try {
-                    logger.info("Parent object: " + object);
+                    logger.info("Parent object: {}", object);
 //                    long oid = Long.valueOf(task.getOptions().get(OBJECT_ID));
 //                    JEVisObject object = task.getJEVisDataSource().getObject(oid);
 
@@ -102,7 +109,7 @@ public class InputFunction implements ProcessFunction {
                     }
 
                     DateTime[] startEnd = ProcessOptions.getStartAndEnd(task);
-                    logger.info("start: " + startEnd[0] + " end: " + startEnd[1]);
+                    logger.info("start: {} end: {}", startEnd[0], startEnd[1]);
 
                     if (foundUserDataObject) {
                         SortedMap<DateTime, JEVisSample> map = new TreeMap<>();
@@ -115,7 +122,7 @@ public class InputFunction implements ProcessFunction {
 
                         for (JEVisSample userValue : userValues) {
                             String note = map.get(userValue.getTimestamp()).getNote();
-                            VirtualSample virtualSample = new VirtualSample(userValue.getTimestamp(), userValue.getValueAsDouble());
+                            VirtualSample virtualSample = new VirtualSample(userValue.getTimestamp(), userValue.getValueAsDouble(), att.getDisplayUnit());
                             virtualSample.setNote(note + "," + USER_VALUE);
                             virtualSample.setAttribute(map.get(userValue.getTimestamp()).getAttribute());
 
@@ -128,12 +135,12 @@ public class InputFunction implements ProcessFunction {
                         _result = att.getSamples(startEnd[0], startEnd[1]);
                     }
 
-                    logger.info("Input result: " + _result.size());
+                    logger.info("Input result: {}", _result.size());
                 } catch (JEVisException ex) {
                     logger.fatal(ex);
                 }
             } else {
-                logger.warn("Missing options " + OBJECT_ID + " and " + ATTRIBUTE_ID);
+                logger.warn("Missing options {} and {}", OBJECT_ID, ATTRIBUTE_ID);
             }
         }
         return _result;
@@ -153,5 +160,110 @@ public class InputFunction implements ProcessFunction {
         options.add(new BasicProcessOption("Workflow"));
 
         return options;
+    }
+
+    @Override
+    public List<JsonSample> getJsonResult(BasicProcess task) {
+        if (_jsonResult != null) {
+            return _jsonResult;
+        } else {
+            _jsonResult = new ArrayList<>();
+
+            JsonObject object = null;
+            SQLDataSource sql = task.getSqlDataSource();
+            if (ProcessOptions.ContainsOption(task, OBJECT_ID)) {
+                long oid = Long.parseLong((ProcessOptions.GetLatestOption(task, OBJECT_ID, new BasicProcessOption(OBJECT_ID, "")).getValue()));
+                try {
+                    object = sql.getObject(oid);
+                } catch (JEVisException ex) {
+                    logger.fatal(ex);
+                }
+            } else if (task.getObject() != null) {
+                try {
+                    for (JsonRelationship rel : task.getJsonObject().getRelationships()) {
+                        if (rel.getType() == 1) {
+                            object = sql.getObject(rel.getTo());//TODO make save
+                        }
+                    }
+                } catch (JEVisException ex) {
+                    logger.error(ex);
+                }
+            }
+
+            if (object != null && ProcessOptions.ContainsOption(task, ATTRIBUTE_ID)) {
+
+                try {
+                    logger.info("Parent object: {}", object);
+//                    long oid = Long.valueOf(task.getOptions().get(OBJECT_ID));
+//                    JEVisObject object = task.getJEVisDataSource().getObject(oid);
+
+                    JsonAttribute att = null;
+                    for (JsonAttribute attribute : sql.getAttributes(object.getId())) {
+                        if (attribute.getType().equals(ProcessOptions.GetLatestOption(task, ATTRIBUTE_ID, new BasicProcessOption(ATTRIBUTE_ID, "")).getValue())) {
+                            att = attribute;
+                        }
+                    }
+
+                    JsonObject correspondingUserDataObject = null;
+                    boolean foundUserDataObject = false;
+
+                    for (JsonRelationship rel : sql.getRelationships(object.getId())) {
+                        if (rel.getType() == 1) {
+                            JsonObject parent = sql.getObject(rel.getTo());
+                            for (JsonRelationship pRel : sql.getRelationships(parent.getId())) {
+                                if (rel.getType() == 1) {
+                                    JsonObject child = sql.getObject(pRel.getFrom());
+                                    if (child.getJevisClass().equals("User Data")) {
+                                        correspondingUserDataObject = child;
+                                        foundUserDataObject = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    DateTime[] startEnd = ProcessOptions.getStartAndEnd(task);
+                    logger.info("start: {} end: {}", startEnd[0], startEnd[1]);
+
+                    if (foundUserDataObject && att != null) {
+                        SortedMap<DateTime, JsonSample> map = new TreeMap<>();
+                        for (JsonSample jeVisSample : sql.getSamples(object.getId(), att.getType(), startEnd[0], startEnd[1], LIMIT)) {
+                            map.put(new DateTime(jeVisSample.getTs()), jeVisSample);
+                        }
+
+                        JsonAttribute userDataValueAttribute = null;
+                        for (JsonAttribute attribute : sql.getAttributes(correspondingUserDataObject.getId())) {
+                            if (attribute.getType().equals("Value")) {
+                                userDataValueAttribute = attribute;
+                            }
+                        }
+                        List<JsonSample> userValues = sql.getSamples(correspondingUserDataObject.getId(), userDataValueAttribute.getType(), startEnd[0], startEnd[1], LIMIT);
+
+                        for (JsonSample userValue : userValues) {
+                            String note = map.get(new DateTime(userValue.getTs())).getNote();
+                            JsonSample jsonSample = new JsonSample();
+                            jsonSample.setTs(userValue.getTs());
+                            jsonSample.setValue(userValue.getValue());
+                            jsonSample.setNote(note + "," + USER_VALUE);
+
+                            map.remove(new DateTime(userValue.getTs()));
+                            map.put(new DateTime(jsonSample.getTs()), jsonSample);
+                        }
+
+                        _jsonResult = new ArrayList<>(map.values());
+                    } else {
+                        _jsonResult = sql.getSamples(object.getId(), att.getType(), startEnd[0], startEnd[1], LIMIT);
+                    }
+
+                    logger.info("Input result: {}", _jsonResult.size());
+                } catch (JEVisException ex) {
+                    logger.fatal(ex);
+                }
+            } else {
+                logger.warn("Missing options {} and {}", OBJECT_ID, ATTRIBUTE_ID);
+            }
+        }
+        return _jsonResult;
     }
 }

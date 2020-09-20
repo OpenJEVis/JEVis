@@ -8,7 +8,10 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -22,7 +25,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
-import org.jevis.commons.dataprocessing.SampleGenerator;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
@@ -39,7 +41,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -47,31 +48,31 @@ public class ControlPane extends GridPane {
 
     private static final Logger logger = LogManager.getLogger(ControlPane.class);
     private final Button ok = new Button(I18n.getInstance().getString("attribute.editor.save"));
-    private JFXDatePicker startDate = new JFXDatePicker();
-    private JFXDatePicker endDate = new JFXDatePicker();
-    private Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
+    private final JFXDatePicker startDate = new JFXDatePicker();
+    private final JFXDatePicker endDate = new JFXDatePicker();
+    private final Button cancel = new Button(I18n.getInstance().getString("attribute.editor.cancel"));
 
-    private Button reloadButton = new Button("", JEConfig.getImage("1403018303_Refresh.png", 12, 12));
-    private Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
-    private Label timeHeader = new Label(I18n.getInstance().getString("attribute.editor.timerange"));
-    private Label processorHeader = new Label(I18n.getInstance().getString("attribute.editor.dataprocessing"));
-    private Label dataProcessorLabel = new Label(I18n.getInstance().getString("attribute.editor.processor"));
-    private Label aggregationLabel = new Label(I18n.getInstance().getString("attribute.editor.aggregate"));
-    private Label endLabel = new Label(I18n.getInstance().getString("attribute.editor.until"));
-    private Label startLabel = new Label(I18n.getInstance().getString("attribute.editor.from"));
-    private Label tzLabel = new Label(I18n.getInstance().getString("attribute.editor.tz"));
-    private Label reloadLabel = new Label(I18n.getInstance().getString("attribute.editor.reload"));
-    private AggregationBox aggregationField = new AggregationBox(AggregationPeriod.NONE);
-    private ProcessorBox processorField;
-   // private RangeSlider dateSlider = new RangeSlider(0, 100, 10, 90);
-    private Region spacer2 = new Region();
-    private HBox buttonPanel = new HBox();
-    private Region spacer = new Region();
-    private Region spacerRow = new Region();
-    private Region spacerRow2 = new Region();
-    private TimeZoneBox timeZoneBox = new TimeZoneBox();
+    private final Button reloadButton = new Button("", JEConfig.getImage("1403018303_Refresh.png", 12, 12));
+    private final Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.alarms.reload.progress.tooltip"));
+    private final Label timeHeader = new Label(I18n.getInstance().getString("attribute.editor.timerange"));
+    private final Label processorHeader = new Label(I18n.getInstance().getString("attribute.editor.dataprocessing"));
+    private final Label dataProcessorLabel = new Label(I18n.getInstance().getString("attribute.editor.processor"));
+    private final Label aggregationLabel = new Label(I18n.getInstance().getString("attribute.editor.aggregate"));
+    private final Label endLabel = new Label(I18n.getInstance().getString("attribute.editor.until"));
+    private final Label startLabel = new Label(I18n.getInstance().getString("attribute.editor.from"));
+    private final Label tzLabel = new Label(I18n.getInstance().getString("attribute.editor.tz"));
+    private final Label reloadLabel = new Label(I18n.getInstance().getString("attribute.editor.reload"));
+    private final AggregationBox aggregationField = new AggregationBox(AggregationPeriod.NONE);
+    private final ProcessorBox processorField;
+    // private RangeSlider dateSlider = new RangeSlider(0, 100, 10, 90);
+    private final Region spacer2 = new Region();
+    private final HBox buttonPanel = new HBox();
+    private final Region spacer = new Region();
+    private final Region spacerRow = new Region();
+    private final Region spacerRow2 = new Region();
+    private final TimeZoneBox timeZoneBox = new TimeZoneBox();
     private DateTimeZone dateTimeZone = DateTimeZone.getDefault();
-    private DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(dateTimeZone);
+    private final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd").withZone(dateTimeZone);
     private LocalTime workdayStart = LocalTime.of(0, 0, 0, 0);
     private LocalTime workdayEnd = LocalTime.of(23, 59, 59, 999999999);
     private JEVisAttribute attribute;
@@ -79,7 +80,7 @@ public class ControlPane extends GridPane {
     private EventHandler<ActionEvent> okEvent;
     private EventHandler<ActionEvent> cancelEvent;
     private final AtomicBoolean updateing = new AtomicBoolean(false);
-    private Separator separator = new Separator(Orientation.HORIZONTAL);
+    private final Separator separator = new Separator(Orientation.HORIZONTAL);
     private DateTime from = null;
     private DateTime until = null;
     private EventHandler<ActionEvent> timeChangeEvent = new EventHandler<ActionEvent>() {
@@ -103,7 +104,7 @@ public class ControlPane extends GridPane {
 //        HBox reloadBox = new HBox(reloadLabel,reloadButton);
 //        reloadBox.setAlignment(Pos.BASELINE_LEFT);
 
-        setPadding(new Insets(8,8,12,8));
+        setPadding(new Insets(8, 8, 12, 8));
         setHgap(5);
         setVgap(5);
 
@@ -136,7 +137,6 @@ public class ControlPane extends GridPane {
 
         add(separator, 0, 4, 8, 1);
         add(buttonPanel, 0, 5, 8, 1);
-
 
 
         buttonPanel.getChildren().addAll(spacer, cancel, ok);
@@ -200,7 +200,6 @@ public class ControlPane extends GridPane {
     }
 
 
-
     private void updateView() {
         updateing.set(true);
         if (from != null && until != null) {
@@ -229,7 +228,7 @@ public class ControlPane extends GridPane {
 //
 //                dateSlider.setLowValue(from.getMillis());
 //                dateSlider.setHighValue(until.getMillis());
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
@@ -241,7 +240,7 @@ public class ControlPane extends GridPane {
 
     public void setOnTimeRangeChange(EventHandler<ActionEvent> event) {
         //timeChanged(new ActionEvent());
-        timeChangeEvent=event;
+        timeChangeEvent = event;
     }
 
     public void setOnOK(EventHandler<ActionEvent> value) {
@@ -255,17 +254,19 @@ public class ControlPane extends GridPane {
     /**
      * TODO: Sider != DateFields
      * Maybe add date to this functions
+     *
      * @param event
      */
     private void timeChanged(ActionEvent event) {
-        logger.debug("timeChanged: {},updateing: {}",event,updateing.get());
+        logger.debug("timeChanged: {},updateing: {}", event, updateing.get());
         if (!updateing.get()) {
-            logger.debug("Is not updating: {}",timeChangeEvent);
+            logger.debug("Is not updating: {}", timeChangeEvent);
 
             if (timeChangeEvent != null) timeChangeEvent.handle(event);
 
             updateView();
-        }{
+        }
+        {
             logger.debug("Is updating");
         }
     }
@@ -286,10 +287,8 @@ public class ControlPane extends GridPane {
                             fromDate = fromDate.minusDays(1);
                         }
 
-                        SampleGenerator sg = new SampleGenerator(ControlPane.this.attribute.getDataSource(), attribute.getObject(), attribute, fromDate, untilDate, ManipulationMode.NONE, period);
-
-                        return sg.getAggregatedSamples();
-                    }catch (Exception ex){
+                        return ControlPane.this.attribute.getSamples(fromDate, untilDate, true, period.toString(), ManipulationMode.NONE.toString());
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                     }
 
@@ -297,7 +296,7 @@ public class ControlPane extends GridPane {
                 }
             });
 
-            JEConfig.getStatusBar().addTask(this.getClass().getName(),futureTask,JEConfig.getImage("1415314386_Graph.png"),true);
+            JEConfig.getStatusBar().addTask(this.getClass().getName(), futureTask, JEConfig.getImage("1415314386_Graph.png"), true);
             try {
                 sampleList = futureTask.get();
             } catch (Exception ex) {
@@ -305,7 +304,7 @@ public class ControlPane extends GridPane {
             }
             //logger.error("Generate Samples: object: {} attribute: '{}' from/until: {}/{} period: {}", attribute.getObject(),attribute,fromDate,untilDate,period);
 
-            logger.error("Samples: {}",sampleList.size());
+            logger.error("Samples: {}", sampleList.size());
 
         } catch (Exception ex) {
             logger.error(ex);
@@ -350,10 +349,10 @@ public class ControlPane extends GridPane {
 //    }
 
 
-    public void initTimeRange(DateTime from, DateTime until){
-        this.from=from;
-        this.until=until;
-        ActionEvent actionEvent = new ActionEvent(this,this);
+    public void initTimeRange(DateTime from, DateTime until) {
+        this.from = from;
+        this.until = until;
+        ActionEvent actionEvent = new ActionEvent(this, this);
         timeChanged(actionEvent);
     }
 
@@ -370,26 +369,26 @@ public class ControlPane extends GridPane {
 //        return LocalDate.of(date.getYear(), date.getMonth(), date.getDayOfMonth());
 //    }
 
-    public void setFromDate(DateTime from){
+    public void setFromDate(DateTime from) {
 
 
         updateing.set(true);
-        this.from=from;
+        this.from = from;
 
         //new DateTime(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 0, 0).withZone(dateTimeZone);
 
         LocalDate localDate = LocalDate.of(from.getYear(), from.getMonthOfYear(), from.getDayOfMonth());
-        startDate.setValue( localDate);
+        startDate.setValue(localDate);
 //        dateSlider.setLowValue(from.getMillis());
 
         updateing.set(false);
     }
 
-    public void setUntilDate(DateTime until){
+    public void setUntilDate(DateTime until) {
         updateing.set(true);
-        this.until=until;
+        this.until = until;
         LocalDate localDate = LocalDate.of(until.getYear(), until.getMonthOfYear(), until.getDayOfMonth());
-        endDate.setValue( localDate);
+        endDate.setValue(localDate);
 //        dateSlider.setHighValue(until.getMillis());
         updateing.set(false);
 
@@ -406,31 +405,32 @@ public class ControlPane extends GridPane {
 
         timeZoneBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             dateTimeZone = newValue;
+            timeChangeEvent.handle(new ActionEvent());
         });
 
         startDate.valueProperty().addListener((observable, oldValue, newValue) -> {
             logger.error("startDate event");
-            if(!updateing.get()){
+            if (!updateing.get()) {
                 DateTime fromDate = new DateTime(
                         startDate.getValue().getYear(),
                         startDate.getValue().getMonth().getValue(),
                         startDate.getValue().getDayOfMonth(), 0, 0).withZone(dateTimeZone);
                 setFromDate(fromDate);
 
-                ActionEvent actionEvent = new ActionEvent(startDate,null);
+                ActionEvent actionEvent = new ActionEvent(startDate, null);
                 timeChanged(actionEvent);
             }
 
         });
         endDate.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if(!updateing.get()){
+            if (!updateing.get()) {
                 DateTime untilDate = new DateTime(
                         endDate.getValue().getYear(),
                         endDate.getValue().getMonth().getValue(),
                         endDate.getValue().getDayOfMonth(), 23, 59, 59, 999).withZone(dateTimeZone);
                 setUntilDate(untilDate);
 
-                ActionEvent actionEvent = new ActionEvent(endDate,null);
+                ActionEvent actionEvent = new ActionEvent(endDate, null);
                 timeChanged(actionEvent);
             }
 
@@ -448,7 +448,7 @@ public class ControlPane extends GridPane {
                             updateMessage(loading);
                             try {
                                 attribute.getDataSource().reloadAttribute(attribute);
-                                ActionEvent actionEvent = new ActionEvent(reloadButton,null);
+                                ActionEvent actionEvent = new ActionEvent(reloadButton, null);
                                 timeChanged(actionEvent);
                             } catch (Exception e) {
                                 e.printStackTrace();

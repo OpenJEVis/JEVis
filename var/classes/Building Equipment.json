@@ -39,7 +39,7 @@
       "type": 0
     },
     {
-      "start": "Heater",
+      "start": "Heat Generation",
       "end": "Building Equipment",
       "type": 0
     },
@@ -96,24 +96,6 @@
   ],
   "types": [
     {
-      "name": "Daily Operating Hours",
-      "primitiveType": 1,
-      "guiType": "Number",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Building Equipment"
-    },
-    {
-      "name": "Energy Source",
-      "primitiveType": 0,
-      "guiType": "Object Target",
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "Building Equipment"
-    },
-    {
       "name": "Manufacturer",
       "primitiveType": 0,
       "guiType": "Text",
@@ -123,19 +105,73 @@
       "jevisClass": "Building Equipment"
     },
     {
-      "name": "Measuring Point",
+      "name": "Type",
       "primitiveType": 0,
-      "guiType": "Object Target",
-      "guiposition": 0,
+      "guiType": "Text",
+      "guiposition": 1,
       "validity": 0,
       "inherited": false,
-      "jevisClass": "Building Equipment"
+      "jevisClass": "Heat Generation"
+    },
+    {
+      "name": "Year of Construction",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 2,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Heat Generation"
+    },
+    {
+      "name": "Number",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "guiposition": 3,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Office Equipment"
     },
     {
       "name": "Nominal Power",
       "primitiveType": 1,
       "guiType": "Number with Unit",
-      "guiposition": 0,
+      "guiposition": 4,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    },
+    {
+      "name": "Standby Consumption",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 5,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Heat Generation"
+    },
+    {
+      "name": "Energy Source",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 6,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    },
+    {
+      "name": "Productivity",
+      "primitiveType": 1,
+      "guiType": "Number with Unit",
+      "guiposition": 7,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    },
+    {
+      "name": "Measuring Point",
+      "primitiveType": 0,
+      "guiType": "Object Target",
+      "guiposition": 8,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building Equipment"
@@ -144,16 +180,16 @@
       "name": "Weighting Factor",
       "primitiveType": 1,
       "guiType": "Number",
-      "guiposition": 0,
+      "guiposition": 9,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building Equipment"
     },
     {
-      "name": "Work Weeks",
+      "name": "Daily Operating Hours",
       "primitiveType": 1,
       "guiType": "Number",
-      "guiposition": 0,
+      "guiposition": 97,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building Equipment"
@@ -162,7 +198,16 @@
       "name": "Working Days",
       "primitiveType": 2,
       "guiType": "Number",
-      "guiposition": 0,
+      "guiposition": 98,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Building Equipment"
+    },
+    {
+      "name": "Work Weeks",
+      "primitiveType": 1,
+      "guiType": "Number",
+      "guiposition": 99,
       "validity": 0,
       "inherited": false,
       "jevisClass": "Building Equipment"

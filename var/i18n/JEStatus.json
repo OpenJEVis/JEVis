@@ -116,19 +116,6 @@
       }
     },
     {
-      "type": "Furthest reported",
-      "descriptions": {
-        "de": "Dieses Feld definiert ab wann ein Datenpunkt nicht mehr gelistet wird. Angegeben in Stunden.",
-        "ru": "Это поле определяет, когда точка данных больше не отображается в списке. Указано в часах.",
-        "en": "This field defines when a data point is no longer listed. Specified in hours."
-      },
-      "names": {
-        "de": "Am weitesten zurückliegend berichtet",
-        "ru": "Самый дальний из тех, кто сообщал.",
-        "en": "Furthest back reported"
-      }
-    },
-    {
       "type": "Latest reported",
       "descriptions": {
         "de": "Dieses Feld definiert ab wann ein Datepunkt gelistet wird. Angegeben in Stunden.",

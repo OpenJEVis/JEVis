@@ -78,8 +78,10 @@ public class JEVisTreeFactory {
         final KeyCombination deleteAllCleanAndRaw = new KeyCodeCombination(KeyCode.DELETE, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination deleteAllCalculations = new KeyCodeCombination(KeyCode.J, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 //        final KeyCombination deleteBrokenTS = new KeyCodeCombination(KeyCode.T, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+                final KeyCombination moveToDiffTS = new KeyCodeCombination(KeyCode.T, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination createMultiplierAndDifferential = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination setLimitsRecursive = new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+        final KeyCombination setSubstitutionSettingsRecursive = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination enableAll = new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination disableAll = new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
         final KeyCombination setUnitAndPeriod = new KeyCodeCombination(KeyCode.U, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
@@ -120,21 +122,22 @@ public class JEVisTreeFactory {
                     t.consume();
 //                } else if (deleteBrokenTS.match(t) && JEConfig.getExpert()) {
 //                    TreeHelper.EventDeleteBrokenTS(tree);
+                } else if (moveToDiffTS.match(t) && JEConfig.getExpert()) {
+                    TreeHelper.EventMoveAllToDiffCleanTS(tree);
                 } else if (createMultiplierAndDifferential.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventCreateMultiplierAndDifferential(tree);
                     t.consume();
                 } else if (setLimitsRecursive.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventSetLimitsRecursive(tree);
                     t.consume();
+                } else if (setSubstitutionSettingsRecursive.match(t) && JEConfig.getExpert()) {
+                    TreeHelper.EventSetSubstitutionSettingsRecursive(tree);
+                    t.consume();
                 } else if (setUnitAndPeriod.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventSetUnitAndPeriodRecursive(tree);
                     t.consume();
                 } else if ((enableAll.match(t) || disableAll.match(t)) && JEConfig.getExpert()) {
-                    if (enableAll.match(t)) {
-                        TreeHelper.EventSetEnableAll(tree, true);
-                    } else {
-                        TreeHelper.EventSetEnableAll(tree, false);
-                    }
+                    TreeHelper.EventSetEnableAll(tree, enableAll.match(t));
                     t.consume();
                 } else if (copyObj.match(t)) {
                     tree.setCopyObject(selectedObj.getValue().getJEVisObject(), false);
@@ -284,6 +287,7 @@ public class JEVisTreeFactory {
 
         cellFilter.addFilter(WidgetTreePlugin.COLUMN, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_SELECTED, dataFilter);
+        cellFilter.addFilter(WidgetTreePlugin.COLUMN_CHART_TYPE, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_COLOR, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_MANIPULATION, dataFilter);
         cellFilter.addFilter(WidgetTreePlugin.COLUMN_AGGREGATION, dataFilter);
@@ -330,6 +334,7 @@ public class JEVisTreeFactory {
         dataBasicFilter.addItemFilter(stringDataObjectFilter);
 
         dataBasicFilter.addFilter(SelectionColumn.COLUMN_ID, dataObjectFilter);
+        dataBasicFilter.addFilter(ChartTypeColumn.COLUMN_ID, dataObjectFilter);
         dataBasicFilter.addFilter(NameColumn.COLUMN_ID, dataObjectFilter);
         dataBasicFilter.addFilter(UnitColumn.COLUMN_ID, dataObjectFilter);
         dataBasicFilter.addFilter(DateColumn.COLUMN_ID, dataObjectFilter);
@@ -339,6 +344,7 @@ public class JEVisTreeFactory {
         dataBasicFilter.addFilter(AxisColumn.COLUMN_ID, dataObjectFilter);
 
         dataBasicFilter.addFilter(SelectionColumn.COLUMN_ID, stringDataObjectFilter);
+        dataBasicFilter.addFilter(ChartTypeColumn.COLUMN_ID, stringDataObjectFilter);
         dataBasicFilter.addFilter(NameColumn.COLUMN_ID, stringDataObjectFilter);
         dataBasicFilter.addFilter(UnitColumn.COLUMN_ID, stringDataObjectFilter);
         dataBasicFilter.addFilter(DateColumn.COLUMN_ID, stringDataObjectFilter);

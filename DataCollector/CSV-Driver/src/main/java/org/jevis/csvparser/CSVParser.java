@@ -51,15 +51,15 @@ public class CSVParser {
     private Integer _dpIndex;
     private String _dateFormat;
     private String _timeFormat;
-    private String _decimalSeperator;
-    private String _thousandSeperator;
+    private String _decimalSeparator;
+    private String _thousandSeparator;
     private Integer _currLineIndex;
     private Charset charset;
 
-    private List<Result> _results = new ArrayList<Result>();
+    private final List<Result> _results = new ArrayList<Result>();
     private List<DataPoint> _dataPoints = new ArrayList<DataPoint>();
     private Converter _converter;
-    private CSVReport _report = new CSVReport();
+    private final CSVReport _report = new CSVReport();
 
     private void calculateColumns(String stringArrayInput) {
         String[] line = stringArrayInput.split(String.valueOf(_delim), -1);
@@ -86,7 +86,7 @@ public class CSVParser {
                 sb.append(',').append(' ');
             }
         }
-        logger.info("MAP: " + sb.toString());
+        logger.info("MAP: {}", sb.toString());
 
 
         for (DataPoint dp : _dataPoints) {
@@ -94,7 +94,72 @@ public class CSVParser {
             //VERY VERY VERY DIRTY CODE, PLEASE DONT USE IT
             Integer column = null;
             if (mappingIdentifier != null) {
-                column = getColumnByIdentifier(mappingIdentifier, columnMap);
+                column = getIntByIdentifier(mappingIdentifier, columnMap);
+            }
+
+            dp.setValueIndex(column);
+        }
+    }
+
+    private void calculateColumnsColumn(String[] stringArrayInput) {
+
+        List<String> columns = new ArrayList<>();
+        for (String s : stringArrayInput) {
+            String[] line = s.split(String.valueOf(_delim), -1);
+            for (int i = 0, lineLength = line.length; i < lineLength; i++) {
+                String lineSub = line[i];
+
+                if (columns.size() > i) {
+                    String s1 = columns.get(i);
+                    s1 += _delim + lineSub;
+                    columns.set(i, s1);
+                } else {
+                    columns.add(lineSub);
+                }
+
+            }
+        }
+
+        if (_quote != null) {
+            List<String> columnsWOQuotes = new ArrayList<>();
+            for (String s : columns) {
+                String newStr = s.replaceAll(_quote, "");
+                columnsWOQuotes.add(newStr);
+            }
+
+            columns = columnsWOQuotes;
+        }
+
+        Map<String, Integer> columnMap = new HashMap<>();
+        for (int i = 0; i < columns.size(); i++) {
+            String curString = columns.get(i).trim();
+            if (!curString.isEmpty()) {
+                columnMap.put(curString, i);
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        Iterator<Entry<String, Integer>> iter = columnMap.entrySet().iterator();
+        while (iter.hasNext()) {
+            Entry<String, Integer> entry = iter.next();
+            sb.append(entry.getKey());
+            sb.append('=').append('"');
+            sb.append(entry.getValue());
+            sb.append('"');
+            if (iter.hasNext()) {
+                sb.append(',').append(' ');
+            }
+        }
+        logger.info("MAP: {}", sb.toString());
+
+
+        for (DataPoint dp : _dataPoints) {
+            String mappingIdentifier = dp.getMappingIdentifier();
+            Integer column = null;
+            if (mappingIdentifier != null) {
+                column = getIntByIdentifier(mappingIdentifier, columnMap);
+            } else {
+                column = _dpIndex;
             }
 
             dp.setValueIndex(column);
@@ -102,11 +167,22 @@ public class CSVParser {
     }
 
     //KRUCKE
-    private Integer getColumnByIdentifier(String mapIdent, Map<String, Integer> columnMap) {
+    private Integer getIntByIdentifier(String mapIdent, Map<String, Integer> columnMap) {
         Integer result;
+        for (Map.Entry<String, Integer> entry : columnMap.entrySet()) {
+            String[] line = entry.getKey().split(String.valueOf(_delim), -1);
+            if (_quote != null) {
+                line = removeQuotes(line);
+            }
+            for (int i = 0; i < line.length; i++) {
+                if (line[i].equals(mapIdent)) {
+                    return i;
+                }
+            }
+        }
         result = columnMap.get(mapIdent);
         if (result == null) {
-            logger.info("FIND MAP failed: " + mapIdent);
+            logger.info("FIND MAP failed: {}", mapIdent);
             mapIdent = mapIdent.replace("ä", "?");
             mapIdent = mapIdent.replace("Ä", "?");
             mapIdent = mapIdent.replace("ü", "?");
@@ -114,9 +190,9 @@ public class CSVParser {
             mapIdent = mapIdent.replace("ö", "?");
             mapIdent = mapIdent.replace("Ö", "?");
             mapIdent = mapIdent.replace("ß", "?");
-            logger.info("FIND MAP replaced: " + mapIdent);
+            logger.info("FIND MAP replaced: {}", mapIdent);
             result = columnMap.get(mapIdent);
-            logger.info("FIND MAP result: " + result);
+            logger.info("FIND MAP result: {}", result);
         }
         return result;
     }
@@ -133,27 +209,27 @@ public class CSVParser {
             try {
                 String mappingIdentifier = dp.getMappingIdentifier();
                 Integer valueIndex = dp.getValueIndex();
-                Long target = dp.getTarget();
+                String target = dp.getTarget();
 
                 Boolean mappingError = false;
-                try {
-                    String currentMappingValue = null;
-
-                    if (_dpIndex != null) {
-                        if (dpType.equals("COLUMN")) {
-                            currentMappingValue = line[_dpIndex];
-                        }
-                    }
-
-                    if (mappingIdentifier != null && !currentMappingValue.equals(mappingIdentifier)) {
-                        mappingError = true;
-                        _report.addError(new LineError(_currLineIndex, valueIndex, null, "Mapping Error"));
-                        continue;
-                    }
-                } catch (Exception ex) {
-                    _report.addError(new LineError(_currLineIndex, valueIndex, ex, "Mapping Exception"));
-                    logger.warn("This line in the file is not valid: " + _currLineIndex);
-                }
+//                try {
+//                    String currentMappingValue = null;
+//
+//                    if (_dpIndex != null) {
+//                        if (dpType.equals("COLUMN")) {
+//                            currentMappingValue = line[_dpIndex];
+//                        }
+//                    }
+//
+//                    if (mappingIdentifier != null && currentMappingValue != null && !mappingIdentifier.equals(currentMappingValue)) {
+//                        mappingError = true;
+//                        _report.addError(new LineError(_currLineIndex, valueIndex, null, "Mapping Error"));
+//                        continue;
+//                    }
+//                } catch (Exception ex) {
+//                    _report.addError(new LineError(_currLineIndex, valueIndex, ex, "Mapping Exception"));
+//                    logger.warn("This line in the file is not valid: {}", _currLineIndex);
+//                }
 
                 Boolean valueValid = false;
                 String sVal = null;
@@ -168,10 +244,10 @@ public class CSVParser {
 //                }
 
                 //todo bind locale to language or location?? ad thousands separator without regex
-                if (_decimalSeperator == null || _decimalSeperator.equals(",")) {
+                if (_decimalSeparator == null || _decimalSeparator.equals(",")) {
                     NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
                     value = nf_in.parse(sVal).doubleValue();
-                } else if (_decimalSeperator.equals(".")) {
+                } else if (_decimalSeparator.equals(".")) {
                     NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
                     value = nf_out.parse(sVal).doubleValue();
                 }
@@ -215,29 +291,90 @@ public class CSVParser {
 
             _converter.convertInput(inputStream, charset);
             String[] stringArrayInput = (String[]) _converter.getConvertedInput(String[].class);
-            logger.info("Total count of lines " + stringArrayInput.length);
+            logger.info("Total count of lines {}", stringArrayInput.length);
             if (dpType != null && dpType.equals("ROW")) {
                 calculateColumns(stringArrayInput[_dpIndex]);
+            } else {
+                calculateColumnsColumn(stringArrayInput);
             }
 
-            for (int i = _headerLines; i < stringArrayInput.length; i++) {
-                _currLineIndex = i;
-                try {
-                    //TODO 1,"1,1",1 is not working yet
-                    String[] line = stringArrayInput[i].split(String.valueOf(_delim), -1);
-                    if (_quote != null) {
-                        line = removeQuotes(line);
-                    }
+            if (dpType != null && dpType.equals("ROW")) {
+                for (int i = _headerLines; i < stringArrayInput.length; i++) {
+                    _currLineIndex = i;
+                    try {
+                        //TODO 1,"1,1",1 is not working yet
+                        String[] line = stringArrayInput[i].split(String.valueOf(_delim), -1);
+                        if (_quote != null) {
+                            line = removeQuotes(line);
+                        }
 
-                    parseLine(line);
-                } catch (Exception e) {
-                    _report.addError(new LineError(_currLineIndex, -2, e, "Detect a Problem in the Parsing Process"));
-//                    Logger.getLogger(this.getClass().getName()).log(Level.WARN, "Detect a Problem in the Parsing Process");
+                        parseLine(line);
+                    } catch (Exception e) {
+                        _report.addError(new LineError(_currLineIndex, -2, e, "Detect a Problem in the Parsing Process"));
+                        //                    Logger.getLogger(this.getClass().getName()).log(Level.WARN, "Detect a Problem in the Parsing Process");
+                    }
+                }
+            } else {
+                for (int i = _headerLines; i < stringArrayInput.length; i++) {
+                    _currLineIndex = i;
+                    try {
+
+                        String[] line;
+                        if (_quote != null) {
+                            line = stringArrayInput[i].split(_delim + "(?=(?:[^" + _quote + "]*" + _quote + "[^" + _quote + "]*" + _quote + ")*[^" + _quote + "]*$)");
+                            line = removeQuotes(line);
+                        } else {
+                            line = stringArrayInput[i].split(String.valueOf(_delim), -1);
+                        }
+
+                        DateTime dateTime = getDateTime(line);
+
+                        if (dateTime == null) {
+                            _report.addError(new LineError(-3, -2, null, "Date Error"));
+                            return;
+                        }
+
+                        DataPoint currentDP = null;
+                        for (DataPoint dp : _dataPoints) {
+                            for (String s : line) {
+                                if (s.contains(dp.getMappingIdentifier())) {
+                                    currentDP = dp;
+                                    break;
+                                }
+                            }
+                        }
+
+                        try {
+                            String mappingIdentifier = currentDP.getMappingIdentifier();
+                            Integer valueIndex = currentDP.getValueIndex();
+                            String target = currentDP.getTarget();
+
+                            String sVal = null;
+                            Double value = null;
+                            sVal = line[_dpIndex];
+                            //todo bind locale to language or location?? ad thousands separator without regex
+                            if (_decimalSeparator == null || _decimalSeparator.equals(",")) {
+                                NumberFormat nf_in = NumberFormat.getNumberInstance(Locale.GERMANY);
+                                value = nf_in.parse(sVal).doubleValue();
+                            } else if (_decimalSeparator.equals(".")) {
+                                NumberFormat nf_out = NumberFormat.getNumberInstance(Locale.UK);
+                                value = nf_out.parse(sVal).doubleValue();
+                            }
+                            Result tempResult = new Result(target, value, dateTime);
+                            _results.add(tempResult);
+                            _report.addSuccess(_currLineIndex, _dpIndex);
+                        } catch (Exception ex) {
+                            _report.addError(new LineError(_currLineIndex, -2, ex, "Unexpected Exception"));
+                        }
+                    } catch (Exception e) {
+                        _report.addError(new LineError(_currLineIndex, -2, e, "Detect a Problem in the Parsing Process"));
+                        //                    Logger.getLogger(this.getClass().getName()).log(Level.WARN, "Detect a Problem in the Parsing Process");
+                    }
                 }
             }
 //        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Number of Results: " + _results.size());
             if (!_results.isEmpty()) {
-                logger.info("LastResult (Date,Target,Value): " + _results.get(_results.size() - 1).getDate() + "," + _results.get(_results.size() - 1).getOnlineID() + "," + _results.get(_results.size() - 1).getValue());
+                logger.info("LastResult (Date,Target,Value): " + _results.get(_results.size() - 1).getDate() + "," + _results.get(_results.size() - 1).getTargetStr() + "," + _results.get(_results.size() - 1).getValue());
             } else {
                 logger.error("Cant parse or cant find any parsable data");
             }
@@ -276,13 +413,13 @@ public class CSVParser {
 
             return TimeConverter.parserDateTime(input, pattern, timeZone);
         } catch (Exception ex) {
-            logger.warn("Date not parsable: " + input);
-            logger.warn("LINE not parsable: " + Arrays.toString(line));
-            logger.warn("DateFormat: " + _dateFormat);
-            logger.warn("DateIndex: " + _dateIndex);
-            logger.warn("TimeFormat: " + _timeFormat);
-            logger.warn("TimeIndex: " + _timeIndex);
-            logger.warn("Exception: " + ex);
+            logger.warn("Date not parsable: {}", input);
+            logger.warn("LINE not parsable: {}", Arrays.toString(line));
+            logger.warn("DateFormat: {}", _dateFormat);
+            logger.warn("DateIndex: {}", _dateIndex);
+            logger.warn("TimeFormat: {}", _timeFormat);
+            logger.warn("TimeIndex: {}", _timeIndex);
+            logger.warn("Exception: ", ex);
             return null;
         }
 
@@ -325,11 +462,11 @@ public class CSVParser {
     }
 
     public void setDecimalSeperator(String _decimalSeperator) {
-        this._decimalSeperator = _decimalSeperator;
+        this._decimalSeparator = _decimalSeperator;
     }
 
     public void setThousandSeperator(String _thousandSeperator) {
-        this._thousandSeperator = _thousandSeperator;
+        this._thousandSeparator = _thousandSeperator;
     }
 
     public void setDataPoints(List<DataPoint> _dataPoints) {

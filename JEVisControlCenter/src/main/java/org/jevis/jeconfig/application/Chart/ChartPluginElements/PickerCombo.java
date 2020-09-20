@@ -20,7 +20,7 @@ import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.TimeFrame;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
 
 import java.time.LocalDate;
@@ -43,32 +43,32 @@ public class PickerCombo {
     private JFXTimePicker endTimePicker = new JFXTimePicker();
 
     private AnalysisDataModel analysisDataModel;
-    private List<ChartDataModel> chartDataModels;
+    private List<ChartDataRow> chartDataRows;
 
 
     private DateHelper dateHelper;
     private LocalDate minDate;
     private LocalDate maxDate;
 
-    public PickerCombo(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, boolean withCustom) {
+    public PickerCombo(AnalysisDataModel analysisDataModel, List<ChartDataRow> chartDataRows, boolean withCustom) {
 
         this.analysisDataModel = analysisDataModel;
         try {
-            for (ChartDataModel chartDataModel : analysisDataModel.getSelectedData()) {
-                this.ds = chartDataModel.getObject().getDataSource();
+            for (ChartDataRow chartDataRow : analysisDataModel.getSelectedData()) {
+                this.ds = chartDataRow.getObject().getDataSource();
                 break;
             }
         } catch (Exception e) {
             try {
-                for (ChartDataModel chartDataModel : chartDataModels) {
-                    this.ds = chartDataModel.getObject().getDataSource();
+                for (ChartDataRow chartDataRow : chartDataRows) {
+                    this.ds = chartDataRow.getObject().getDataSource();
                     break;
                 }
             } catch (Exception e1) {
                 logger.error("Could not find data source", e1);
             }
         }
-        this.chartDataModels = chartDataModels;
+        this.chartDataRows = chartDataRows;
 
         this.dateHelper = new DateHelper();
 
@@ -226,10 +226,10 @@ public class PickerCombo {
         endTimePicker.set24HourView(true);
         endTimePicker.setConverter(new LocalTimeStringConverter(FormatStyle.SHORT));
 
-        if (chartDataModels != null && !chartDataModels.isEmpty()) {
+        if (chartDataRows != null && !chartDataRows.isEmpty()) {
             if (analysisDataModel != null && !analysisDataModel.getCharts().getListSettings().isEmpty()) {
                 analysisDataModel.getCharts().getListSettings().forEach(chartSettings -> {
-                    for (ChartDataModel model : chartDataModels) {
+                    for (ChartDataRow model : chartDataRows) {
                         if (model.getSelectedcharts().contains(chartSettings.getId())) {
                             analysisTimeFrameList.stream().filter(timeFrame -> timeFrame.getTimeFrame() == chartSettings.getAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == chartSettings.getAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
 
@@ -252,7 +252,7 @@ public class PickerCombo {
 
             } else {
                 analysisDataModel.getCharts().getListSettings().forEach(chartSettings -> {
-                    for (ChartDataModel model : analysisDataModel.getSelectedData()) {
+                    for (ChartDataRow model : analysisDataModel.getSelectedData()) {
                         if (model.getSelectedcharts().contains(chartSettings.getId())) {
                             analysisTimeFrameList.stream().filter(timeFrame -> timeFrame.getTimeFrame() == chartSettings.getAnalysisTimeFrame().getTimeFrame()).filter(timeFrame -> timeFrame.getTimeFrame() != CUSTOM_START_END || timeFrame.getId() == chartSettings.getAnalysisTimeFrame().getId()).findFirst().ifPresent(timeFrame -> presetDateBox.getSelectionModel().select(timeFrame));
 
@@ -347,13 +347,13 @@ public class PickerCombo {
     public void addListener() {
         presetDateBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
-                if (chartDataModels == null && analysisDataModel != null) {
+                if (chartDataRows == null && analysisDataModel != null) {
                     if (newValue.getTimeFrame() != TimeFrame.CUSTOM) {
                         analysisDataModel.setAnalysisTimeFrameForAllModels(newValue);
                     }
-                } else if (analysisDataModel != null && chartDataModels != null) {
+                } else if (analysisDataModel != null && chartDataRows != null) {
                     if (newValue.getTimeFrame() != TimeFrame.CUSTOM) {
-                        analysisDataModel.setAnalysisTimeFrameForModels(chartDataModels, new DateHelper(), newValue);
+                        analysisDataModel.setAnalysisTimeFrameForModels(chartDataRows, new DateHelper(), newValue);
                     }
                 }
             }
@@ -361,7 +361,7 @@ public class PickerCombo {
 
         startDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
-                if (chartDataModels == null && analysisDataModel != null) {
+                if (chartDataRows == null && analysisDataModel != null) {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     DateTime startDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
                             analysisDataModel.getGlobalAnalysisTimeFrame().getStart().getHourOfDay(), analysisDataModel.getGlobalAnalysisTimeFrame().getStart().getMinuteOfHour(),
@@ -371,7 +371,7 @@ public class PickerCombo {
 
                     analysisDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
-                } else if (analysisDataModel != null && chartDataModels != null) {
+                } else if (analysisDataModel != null && chartDataRows != null) {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     DateTime startDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
                             analysisDataModel.getGlobalAnalysisTimeFrame().getStart().getHourOfDay(), analysisDataModel.getGlobalAnalysisTimeFrame().getStart().getMinuteOfHour(),
@@ -379,7 +379,7 @@ public class PickerCombo {
                     analysisTimeFrame.setStart(startDate);
                     analysisTimeFrame.setEnd(analysisDataModel.getGlobalAnalysisTimeFrame().getEnd());
 
-                    analysisDataModel.setAnalysisTimeFrameForModels(chartDataModels, new DateHelper(), analysisTimeFrame);
+                    analysisDataModel.setAnalysisTimeFrameForModels(chartDataRows, new DateHelper(), analysisTimeFrame);
 
                 }
             }
@@ -387,7 +387,7 @@ public class PickerCombo {
 
         endDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
-                if (chartDataModels == null && analysisDataModel != null) {
+                if (chartDataRows == null && analysisDataModel != null) {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     DateTime endDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
                             analysisDataModel.getGlobalAnalysisTimeFrame().getEnd().getHourOfDay(), analysisDataModel.getGlobalAnalysisTimeFrame().getEnd().getMinuteOfHour(),
@@ -397,7 +397,7 @@ public class PickerCombo {
 
                     analysisDataModel.setAnalysisTimeFrameForAllModels(analysisTimeFrame);
 
-                } else if (analysisDataModel != null && chartDataModels != null) {
+                } else if (analysisDataModel != null && chartDataRows != null) {
                     AnalysisTimeFrame analysisTimeFrame = new AnalysisTimeFrame(TimeFrame.CUSTOM);
                     DateTime endDate = new DateTime(newValue.getYear(), newValue.getMonthValue(), newValue.getDayOfMonth(),
                             analysisDataModel.getGlobalAnalysisTimeFrame().getEnd().getHourOfDay(), analysisDataModel.getGlobalAnalysisTimeFrame().getEnd().getMinuteOfHour(),
@@ -405,7 +405,7 @@ public class PickerCombo {
                     analysisTimeFrame.setStart(analysisDataModel.getGlobalAnalysisTimeFrame().getStart());
                     analysisTimeFrame.setEnd(endDate);
 
-                    analysisDataModel.setAnalysisTimeFrameForModels(chartDataModels, new DateHelper(), analysisTimeFrame);
+                    analysisDataModel.setAnalysisTimeFrameForModels(chartDataRows, new DateHelper(), analysisTimeFrame);
 
                 }
             }
@@ -417,8 +417,8 @@ public class PickerCombo {
         minDate = null;
         maxDate = null;
 
-        if (chartDataModels == null) {
-            for (ChartDataModel mdl : analysisDataModel.getSelectedData()) {
+        if (chartDataRows == null) {
+            for (ChartDataRow mdl : analysisDataModel.getSelectedData()) {
                 if (!mdl.getSelectedcharts().isEmpty()) {
                     JEVisAttribute att = mdl.getAttribute();
                     setMinMax(att);
@@ -429,7 +429,7 @@ public class PickerCombo {
                 }
             }
         } else {
-            for (ChartDataModel model : chartDataModels) {
+            for (ChartDataRow model : chartDataRows) {
                 JEVisAttribute att = model.getAttribute();
                 setMinMax(att);
                 if (model.hasForecastData()) {
@@ -509,12 +509,12 @@ public class PickerCombo {
         this.analysisDataModel = analysisDataModel;
     }
 
-    public List<ChartDataModel> getChartDataModels() {
-        return chartDataModels;
+    public List<ChartDataRow> getChartDataRows() {
+        return chartDataRows;
     }
 
-    public void setChartDataModels(List<ChartDataModel> chartDataModels) {
-        this.chartDataModels = chartDataModels;
+    public void setChartDataRows(List<ChartDataRow> chartDataRows) {
+        this.chartDataRows = chartDataRows;
     }
 
     public JFXDatePicker getStartDatePicker() {
@@ -538,14 +538,14 @@ public class PickerCombo {
     }
 
     private void setSelectedStart(DateTime selectedStart) {
-        if (chartDataModels == null || chartDataModels.isEmpty()) {
+        if (chartDataRows == null || chartDataRows.isEmpty()) {
             analysisDataModel.getSelectedData().forEach(dataModel -> {
                 dataModel.setSelectedStart(selectedStart);
                 dataModel.setSomethingChanged(true);
 
             });
         } else {
-            chartDataModels.forEach(dataModel -> {
+            chartDataRows.forEach(dataModel -> {
                 dataModel.setSelectedStart(selectedStart);
                 dataModel.setSomethingChanged(true);
             });
@@ -553,13 +553,13 @@ public class PickerCombo {
     }
 
     private void setSelectedEnd(DateTime selectedEnd) {
-        if (chartDataModels == null || chartDataModels.isEmpty()) {
+        if (chartDataRows == null || chartDataRows.isEmpty()) {
             analysisDataModel.getSelectedData().forEach(dataModel -> {
                 dataModel.setSelectedEnd(selectedEnd);
                 dataModel.setSomethingChanged(true);
             });
         } else {
-            chartDataModels.forEach(model -> {
+            chartDataRows.forEach(model -> {
                 model.setSelectedEnd(selectedEnd);
                 model.setSomethingChanged(true);
             });

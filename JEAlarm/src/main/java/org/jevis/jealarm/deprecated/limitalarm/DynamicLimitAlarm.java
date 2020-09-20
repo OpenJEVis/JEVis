@@ -73,12 +73,12 @@ public class DynamicLimitAlarm extends LimitAlarm {
      */
     public List<AlarmPeriodOld> makeAlarmReport(DateTime from, DateTime until) throws JEVisException {
         if (!_enabled) {
-            logger.info("Alarm " + alarmObj.getName() + " is disabled");
+            logger.info("Alarm {} is disabled", alarmObj.getName());
             return new ArrayList<>();
         }
 
         DateTime lastUpdate = getLastUpdate();
-        logger.info("Last Update: " + lastUpdate);
+        logger.info("Last Update: {}", lastUpdate);
         Map<DateTime, JEVisSample> leftSamples = getLeftSamples(alarmObj, "Value", from, until);
         Map<DateTime, JEVisSample> rightSamples = getRightSamples(alarmObj, "Value", leftSamples);
         List<JEVisSample> offsets = getOffsets(_offset);
@@ -96,7 +96,7 @@ public class DynamicLimitAlarm extends LimitAlarm {
         List<AlarmPeriodOld> alarmPeriods = new ArrayList<>();
 
         for (Map.Entry<DateTime, JEVisSample> entry : leftSamples.entrySet()) {
-            logger.info("Date: " + entry.getKey());
+            logger.info("Date: {}", entry.getKey());
         }
 
         for (Map.Entry<DateTime, JEVisSample> entry : leftSamples.entrySet()) {
@@ -139,7 +139,7 @@ public class DynamicLimitAlarm extends LimitAlarm {
                     case BIGGER:
                         if (valueSoll.getValueAsDouble() > valueWithOffset) {
                             alarmRaised = true;
-                            logger.info("----Alarm at: " + key);
+                            logger.info("----Alarm at: {}", key);
                         }
                         break;
                     case EQUALS:
@@ -194,14 +194,14 @@ public class DynamicLimitAlarm extends LimitAlarm {
 
         if (firstTS != null) {
             JEVisAttribute att = alarm.getAttribute(COMPERATOR_DR);
-            logger.info("Refferrenz Data Point: " + att);
+            logger.info("Reference Data Point: {}", att);
             Long id = att.getLatestSample().getValueAsLong();
-            logger.info("ID: " + id);
+            logger.info("ID: {}", id);
             JEVisObject rightObj = alarm.getDataSource().getObject(id);
-            logger.info("rightObj: " + rightObj);
+            logger.info("rightObj: {}", rightObj);
 
             JEVisAttribute valueAtt = rightObj.getAttribute(attribute);
-            logger.info("valueAtt: " + valueAtt);
+            logger.info("valueAtt: {}", valueAtt);
             List<JEVisSample> samples = valueAtt.getSamples(firstTS, lastTs);
             return listToMap(samples);
         } else {
@@ -218,7 +218,7 @@ public class DynamicLimitAlarm extends LimitAlarm {
         JEVisAttribute att = dataPoint.getAttribute(attribute);
 //        logger.info("Attribute: " + att);
         List<JEVisSample> samples = att.getSamples(from, until);
-        logger.info("Samples to check: " + samples.size());
+        logger.info("Samples to check: {}", samples.size());
         return listToMap(samples);
     }
 

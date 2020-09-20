@@ -17,7 +17,7 @@ import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartSettings;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.plugin.charts.ToolBarView;
 import org.joda.time.DateTime;
 
@@ -32,8 +32,8 @@ public class SaveAnalysisDialog {
     private final AnalysisDataModel model;
     private final ObjectRelations objectRelations;
     private final ToolBarView toolBarView;
-    private PickerCombo pickerCombo;
-    private ComboBox<JEVisObject> listAnalysesComboBox;
+    private final PickerCombo pickerCombo;
+    private final ComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean changed;
     private JEVisObject currentAnalysisDirectory = null;
 
@@ -207,7 +207,7 @@ public class SaveAnalysisDialog {
                 });
     }
 
-    private void saveDataModel(JEVisObject analysis, Set<ChartDataModel> selectedData, ChartSettings chartSettings) {
+    private void saveDataModel(JEVisObject analysis, Set<ChartDataRow> selectedData, ChartSettings chartSettings) {
         try {
             JEVisAttribute dataModel = analysis.getAttribute("Data Model");
             JEVisAttribute charts = analysis.getAttribute("Charts");
@@ -223,7 +223,7 @@ public class SaveAnalysisDialog {
 
             JsonChartDataModel jsonChartDataModel = new JsonChartDataModel();
             List<JsonAnalysisDataRow> jsonDataModels = new ArrayList<>();
-            for (ChartDataModel mdl : selectedData) {
+            for (ChartDataRow mdl : selectedData) {
                 if (!mdl.getSelectedcharts().isEmpty()) {
                     JsonAnalysisDataRow json = new JsonAnalysisDataRow();
                     json.setName(mdl.getTitle());
@@ -241,6 +241,11 @@ public class SaveAnalysisDialog {
                     if (mdl.getBubbleType() != null) {
                         json.setBubbleType(mdl.getBubbleType().toString());
                     }
+
+                    if (mdl.getChartType() != null) {
+                        json.setChartType(mdl.getChartType().toString());
+                    }
+
                     jsonDataModels.add(json);
                 }
             }
@@ -258,6 +263,8 @@ public class SaveAnalysisDialog {
                 if (cset.getName() != null) set.setName(cset.getName());
                 if (cset.getChartType() != null) set.setChartType(cset.getChartType().toString());
                 if (cset.getColorMapping() != null) set.setColorMapping(cset.getColorMapping().toString());
+                if (cset.getOrientation() != null) set.setOrientation(cset.getOrientation().toString());
+                if (cset.getGroupingInterval() != null) set.setGroupingInterval(cset.getGroupingInterval().toString());
                 if (cset.getHeight() != null) set.setHeight(cset.getHeight().toString());
 
                 JsonChartTimeFrame jctf = new JsonChartTimeFrame();
@@ -294,7 +301,8 @@ public class SaveAnalysisDialog {
                     smp5.commit();
                 }
 
-                changed = false;
+                this.changed = false;
+                this.toolBarView.setChanged(false);
                 this.model.setTemporary(false);
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR, I18n.getInstance().getString("plugin.graph.alert.toolong"));

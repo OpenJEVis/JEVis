@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.9.20</version>
+    <version>3.9.41</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -29,6 +29,11 @@
         <version>3.4</version>
     </parent>
     <dependencies>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>2.0.19</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-artifact</artifactId>
@@ -78,7 +83,7 @@
         <dependency>
             <groupId>de.gsi.chart</groupId>
             <artifactId>chartfx-chart</artifactId>
-            <version>8.1.1</version>
+            <version>8.1.5</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -131,11 +136,6 @@
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
             <version>64.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>2.0.16</version>
         </dependency>
         <dependency>
             <groupId>de.jollyday</groupId>

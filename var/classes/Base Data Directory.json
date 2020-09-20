@@ -1,0 +1,42 @@
+{
+  "name": "Base Data Directory",
+  "description": "The class Base Data Directory represents a specific directory for the management of metering data.\n\nThe class is unique, which means that it is not possible to create a object of this class in parallel to an already existing object of the same class.",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Base Data",
+      "end": "Base Data Directory",
+      "type": 3
+    },
+    {
+      "start": "String Data",
+      "end": "Base Data Directory",
+      "type": 3
+    },
+    {
+      "start": "Base Data Directory",
+      "end": "Building",
+      "type": 3
+    },
+    {
+      "start": "Base Data Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Base Data Directory",
+      "end": "Base Data Directory",
+      "type": 3
+    },
+    {
+      "start": "Base Data Directory",
+      "end": "Directory",
+      "type": 0
+    },
+    {
+      "start": "Base Data Directory",
+      "end": "Monitored Object",
+      "type": 3
+    }
+  ]
+}

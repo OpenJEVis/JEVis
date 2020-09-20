@@ -8,7 +8,7 @@ package org.jevis.iso.classes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.ws.json.JsonObject;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 import java.util.ArrayList;
 import java.util.List;

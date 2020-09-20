@@ -39,13 +39,12 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
-import org.jevis.api.JEVisSample;
+import org.jevis.api.*;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.dialog.DialogHeader;
 import org.jevis.jeconfig.tool.ScreenSize;
+import org.joda.time.DateTime;
 import org.joda.time.Period;
 
 import java.util.ArrayList;
@@ -64,8 +63,8 @@ public class SampleEditor {
     private final List<SampleEditorExtension> extensions = new ArrayList<>();
     private JEVisAttribute _attribute;
     private Response response = Response.CANCEL;
-    private BooleanProperty disableEditing = new SimpleBooleanProperty(false);
-    Node header = DialogHeader.getDialogHeader(ICON, I18n.getInstance().getString("attribute.editor.title"));//new Separator(Orientation.HORIZONTAL),
+    private final BooleanProperty disableEditing = new SimpleBooleanProperty(false);
+    Node header;//new Separator(Orientation.HORIZONTAL),
 
     private SampleEditorExtension activExtensions;
 
@@ -85,6 +84,20 @@ public class SampleEditor {
             logger.error("Update failed", ex);
         }
 
+//        String headerString = I18n.getInstance().getString("attribute.editor.title");
+        String headerString = "";
+        try {
+            JEVisClass objectClass = attribute.getObject().getJEVisClass();
+            if (objectClass.getName().equals("Clean Data")) {
+                headerString += attribute.getObject().getParents().get(0).getName() + " / " + attribute.getObject().getName();
+            } else {
+                headerString += attribute.getObject().getName();
+            }
+        } catch (JEVisException e) {
+            logger.error("Could not get class", e);
+        }
+
+        header = DialogHeader.getDialogHeader(ICON, headerString);
 
         stage.setTitle(I18n.getInstance().getString("attribute.editor.title"));
         stage.initModality(Modality.NONE);
@@ -102,11 +115,8 @@ public class SampleEditor {
         stage.setResizable(true);
 
 
-
         HBox bottomBox = new HBox();
         bottomBox.setPadding(new Insets(10));
-
-
 
 
         /** ------------------------------------------- Processor -------------------------------------------------**/
@@ -179,12 +189,12 @@ public class SampleEditor {
         });
 
         controlPane.setOnTimeRangeChange(event -> {
-            List<JEVisSample> samples =  controlPane.getSamples();
+            List<JEVisSample> samples = controlPane.getSamples();
             for (SampleEditorExtension extension : extensions) {
                 Platform.runLater(() -> {
                     try {
                         extension.setDateTimeZone(controlPane.getDateTimeZone());
-                        extension.setSamples(controlPane.getAttribute(),samples);
+                        extension.setSamples(controlPane.getAttribute(), samples);
                     } catch (Exception excp) {
                         logger.error(extension);
                     }
@@ -207,7 +217,29 @@ public class SampleEditor {
         });
 
         if (attribute.hasSample()) {
-            controlPane.initTimeRange(attribute.getTimestampFromLastSample().minus(Period.days(7)), attribute.getTimestampFromLastSample());
+
+            DateTime start = attribute.getTimestampFromLastSample().minus(Period.days(7));
+            DateTime end = attribute.getTimestampFromLastSample();
+
+            Period displaySampleRate = attribute.getDisplaySampleRate();
+
+            if (displaySampleRate.equals(Period.years(1))) {
+                start = attribute.getTimestampFromLastSample().minusYears(10);
+            } else if (displaySampleRate.equals(Period.months(1))) {
+                start = attribute.getTimestampFromLastSample().minusMonths(12);
+            } else if (displaySampleRate.equals(Period.weeks(1))) {
+                start = attribute.getTimestampFromLastSample().minusWeeks(10);
+            } else if (displaySampleRate.equals(Period.days(1))) {
+                start = attribute.getTimestampFromLastSample().minusDays(14);
+            } else if (displaySampleRate.equals(Period.hours(1))) {
+                start = attribute.getTimestampFromLastSample().minusDays(2);
+            } else if (displaySampleRate.equals(Period.minutes(15))) {
+                start = attribute.getTimestampFromLastSample().minusHours(24);
+            } else if (displaySampleRate.equals(Period.minutes(1))) {
+                start = attribute.getTimestampFromLastSample().minusHours(6);
+            }
+
+            controlPane.initTimeRange(start, end);
         }
 
         stage.showAndWait();
@@ -218,8 +250,6 @@ public class SampleEditor {
     private void disableEditing(boolean disable) {
         disableEditing.setValue(true);
     }
-
-
 
 
     public enum Response {

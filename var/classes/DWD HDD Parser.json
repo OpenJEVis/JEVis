@@ -1,0 +1,31 @@
+{
+  "name": "DWD HDD Parser",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "DWD Data Point Directory",
+      "end": "DWD HDD Parser",
+      "type": 3
+    },
+    {
+      "start": "DWD HDD Parser",
+      "end": "Parser",
+      "type": 0
+    },
+    {
+      "start": "DWD HDD Parser",
+      "end": "FTP Channel",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Charset",
+      "primitiveType": 0,
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "DWD HDD Parser"
+    }
+  ]
+}

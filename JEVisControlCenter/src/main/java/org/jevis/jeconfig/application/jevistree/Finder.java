@@ -13,10 +13,10 @@ public class Finder {
     private final ObservableList<JEVisObject> objects;
     private final JEVisTree tree;
     private JEVisObject selected;
-    private int lastIndex = 0;
+    private final int lastIndex = 0;
 
     public Finder(JEVisTree jevisTree) {
-        this.objects = jevisTree.getHighlighterList();
+        this.objects = jevisTree.getVisibleObjects();
         this.tree = jevisTree;
     }
 
@@ -45,7 +45,6 @@ public class Finder {
     public void showObject(JEVisObject obj) {
         Platform.runLater(() -> {
             try {
-                System.out.println("showFind: " + obj);
                 JEVisTreeItem item = tree.getItemForObject(obj);
                 if (item != null) {
                     tree.getSelectionModel().clearSelection();

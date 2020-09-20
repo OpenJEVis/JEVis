@@ -53,18 +53,25 @@
             "en" : "Periodic"
           }
         },
-        "STATIC" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Statisch",
-            "en" : "Static"
+        "STATIC": {
+          "descriptions": null,
+          "names": {
+            "de": "Statisch",
+            "en": "Static"
           }
         },
-        "NON_PERIODIC" : {
-          "descriptions" : null,
-          "names" : {
-            "de" : "Nicht Periodisch",
-            "en" : "Non periodic"
+        "NON_PERIODIC": {
+          "descriptions": null,
+          "names": {
+            "de": "Nicht Periodisch",
+            "en": "Non periodic"
+          }
+        },
+        "ASYNC": {
+          "descriptions": null,
+          "names": {
+            "de": "Asynchron",
+            "en": "Asynchronous"
           }
         }
       }

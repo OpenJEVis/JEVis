@@ -58,8 +58,8 @@ public class ServiceStatus extends AlarmTable {
         DateTime contactAlarm = null;
         Long statusAlarm = null;
 
-        if (!dataCollectors.isEmpty()) {
-            JEVisAttribute statusAttribute = dataCollectors.get(0).getAttribute("Status");
+        if (!alarms.isEmpty()) {
+            JEVisAttribute statusAttribute = alarms.get(0).getAttribute("Status");
             if (statusAttribute != null) {
                 JEVisSample latestSample = statusAttribute.getLatestSample();
                 if (latestSample != null) {

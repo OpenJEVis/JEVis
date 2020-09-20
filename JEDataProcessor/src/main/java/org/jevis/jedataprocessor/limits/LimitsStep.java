@@ -197,7 +197,7 @@ public class LimitsStep implements ProcessStep {
                                 }
                             } else {
                                 if (currentLimitBreak != null) {
-                                    logger.info("Limit Break on: " + currentLimitBreak.getIntervals().get(0).getDate() + " to: " +
+                                    logger.info("Limit Break on: {} to: {}", currentLimitBreak.getIntervals().get(0).getDate(),
                                             currentLimitBreak.getIntervals().get(currentLimitBreak.getIntervals().size() - 1).getDate());
                                     currentLimitBreak.setLastValue(sampleValue);
                                     limitBreaks.add(currentLimitBreak);

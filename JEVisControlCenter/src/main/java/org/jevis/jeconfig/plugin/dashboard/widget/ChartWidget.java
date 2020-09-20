@@ -3,7 +3,6 @@ package org.jevis.jeconfig.plugin.dashboard.widget;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.gsi.chart.axes.spi.DefaultNumericAxis;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
@@ -18,8 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
-import org.jevis.jeconfig.application.Chart.ChartType;
-import org.jevis.jeconfig.application.Chart.Charts.LineChart;
+import org.jevis.jeconfig.application.Chart.Charts.XYChart;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
@@ -43,15 +41,16 @@ public class ChartWidget extends Widget {
     private static final Logger logger = LogManager.getLogger(ChartWidget.class);
     public static String WIDGET_ID = "Chart";
 
-    private LineChart lineChart;
+    private XYChart xyChart;
     private DataModelDataHandler sampleHandler;
-    private WidgetLegend legend = new WidgetLegend();
-    private BorderPane borderPane = new BorderPane();
+    private final WidgetLegend legend = new WidgetLegend();
+    private final BorderPane borderPane = new BorderPane();
     private Interval lastInterval = null;
-    private BorderPane bottomBorderPane = new BorderPane();
+    private final BorderPane bottomBorderPane = new BorderPane();
 
     public ChartWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
+        setId(WIDGET_ID);
     }
 
     public ChartWidget(DashboardControl control) {
@@ -68,6 +67,7 @@ public class ChartWidget extends Widget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle("new Chart Widget");
         widgetPojo.setType(typeID());
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*12,control.getActiveDashboard().xGridInterval*20));
 
         return widgetPojo;
     }
@@ -76,6 +76,7 @@ public class ChartWidget extends Widget {
     public void updateData(Interval interval) {
         logger.debug("Chart.Update: {}", interval);
         this.lastInterval = interval;
+
         if (sampleHandler == null) {
             showProgressIndicator(false);
             return;
@@ -89,41 +90,45 @@ public class ChartWidget extends Widget {
         this.sampleHandler.setInterval(interval);
         this.sampleHandler.update();
 
-        Platform.runLater(() -> {
-            try {
-                this.legend.getItems().clear();
-                this.sampleHandler.getDataModel().forEach(chartDataModel -> {
-                    try {
-                        String dataName = chartDataModel.getObject().getName();
-                        this.legend.getItems().add(
-                                this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), ColorHelper.toColor(chartDataModel.getColor()),
-                                        this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
-                                        chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata")));
 
-                    } catch (Exception ex) {
-                        logger.error(ex);
-                    }
-                });
-                /**
-                 * LineChart does not support updateData so we need to create an new one every time;
-                 */
-                AnalysisDataModel model = new AnalysisDataModel(getDataSource(), null);
-                ChartSetting chartSetting = new ChartSetting(0, "");
-                chartSetting.setChartType(ChartType.LINE);
-                model.getCharts().setListSettings(Collections.singletonList(chartSetting));
+        try {
+            Platform.runLater(() -> this.legend.getItems().clear());
+            this.sampleHandler.getDataModel().forEach(chartDataModel -> {
+                try {
+                    String dataName = chartDataModel.getObject().getName();
+                    Platform.runLater(() -> this.legend.getItems().add(
+                            this.legend.buildLegendItem(dataName + " " + chartDataModel.getUnit(), ColorHelper.toColor(chartDataModel.getColor()),
+                                    this.config.getFontColor(), this.config.getFontSize(), chartDataModel.getObject(),
+                                    chartDataModel.getSamples().isEmpty(), I18n.getInstance().getString("plugin.dashboard.alert.nodata"), false)));
+                } catch (Exception ex) {
+                    logger.error(ex);
+                }
+            });
+            /**
+             * LineChart does not support updateData so we need to create an new one every time;
+             */
+            AnalysisDataModel model = new AnalysisDataModel(getDataSource(), null);
+            model.setHideShowIconsNO_EVENT(false);
+            ChartSetting chartSetting = new ChartSetting(0, "");
+            chartSetting.setChartType(null);
+            model.getCharts().setListSettings(Collections.singletonList(chartSetting));
+
+            Platform.runLater(() -> {
                 this.borderPane.setCenter(null);
-                this.lineChart = new LineChart(model, this.sampleHandler.getDataModel(), chartSetting);
-                Size configSize = getConfig().getSize();
-                lineChart.getChart().setPrefSize(configSize.getWidth(), configSize.getHeight() - 20);
-                lineChart.getChart().setMaxHeight(configSize.getHeight() - 20);/** workaround for the legend overlap **/
-                this.borderPane.setCenter(this.lineChart.getChart());
-                updateConfig();/** workaround because we make a new chart every time**/
-            } catch (Exception ex) {
-                logger.error(ex);
-            }
+                this.xyChart = new XYChart();
+                this.xyChart.createChart(model, this.sampleHandler.getDataModel(), chartSetting, true);
 
-            showProgressIndicator(false);
-        });
+                this.borderPane.setCenter(this.xyChart.getChart());
+                Size configSize = getConfig().getSize();
+                xyChart.getChart().setPrefSize(configSize.getWidth() - 20, configSize.getHeight());
+                updateConfig();
+            });
+            /** workaround because we make a new chart every time**/
+        } catch (Exception ex) {
+            logger.error(ex);
+        }
+
+        showProgressIndicator(false);
     }
 
 
@@ -143,21 +148,21 @@ public class ChartWidget extends Widget {
                 this.borderPane.setBackground(bgColor);
 
                 try {
-                    if (lineChart != null) {
+                    if (xyChart != null) {
                         //lineChart.getChart().getPlotBackground().setBackground(bgColor);
                         //lineChart.setBackGround(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
                         String cssBGColor = ColorHelper.toRGBCode(Color.TRANSPARENT);
-                        lineChart.getChart().getPlotBackground().setStyle("-fx-background-color: " + cssBGColor + ";");
+                        xyChart.getChart().getPlotBackground().setStyle("-fx-background-color: " + cssBGColor + ";");
 
-                        lineChart.getChart().setStyle("-fx-background-color: " + cssBGColor + ";");
-                        this.lineChart.getChart().getAxes().forEach(axis -> {
+                        xyChart.getChart().setStyle("-fx-background-color: " + cssBGColor + ";");
+                        this.xyChart.getChart().getAxes().forEach(axis -> {
                             if (axis instanceof DefaultNumericAxis) {
                                 DefaultNumericAxis defaultNumericAxis = (DefaultNumericAxis) axis;
                                 defaultNumericAxis.getAxisLabel().setVisible(false);
                                 defaultNumericAxis.setStyle("-fx-text-color: " + ColorHelper.toRGBCode(this.config.getFontColor()) + ";");
                             }
                         });
-
+                        xyChart.getChart().requestLayout();
                     }
                 } catch (Exception ex) {
                     logger.error(ex);
@@ -210,9 +215,9 @@ public class ChartWidget extends Widget {
         this.legend.setAlignment(Pos.CENTER);
 
 
-        bottomBorderPane.heightProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("bottomBorderPane: " + newValue);
-        });
+//        bottomBorderPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+//            System.out.println("bottomBorderPane: " + newValue);
+//        });
         this.borderPane.setBottom(bottomBorderPane);
         this.borderPane.setBottom(this.legend);
         setGraphic(this.borderPane);

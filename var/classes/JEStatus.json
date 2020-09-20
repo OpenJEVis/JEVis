@@ -98,14 +98,6 @@
       "jevisClass": "JEStatus"
     },
     {
-      "name": "Furthest reported",
-      "primitiveType": 2,
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "JEStatus"
-    },
-    {
       "name": "Latest reported",
       "primitiveType": 2,
       "guiposition": 0,

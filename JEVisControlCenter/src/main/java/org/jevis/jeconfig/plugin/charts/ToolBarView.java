@@ -32,7 +32,7 @@ import org.jevis.jeconfig.application.Chart.AnalysisTimeFrame;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.regression.RegressionType;
+import org.jevis.jeconfig.application.Chart.Charts.regression.RegressionType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
 import org.jevis.jeconfig.dialog.ChartSelectionDialog;
 import org.jevis.jeconfig.dialog.LoadAnalysisDialog;
@@ -57,7 +57,7 @@ public class ToolBarView {
     private final GraphPluginView graphPluginView;
     private final ObjectRelations objectRelations;
     private AnalysisDataModel model;
-    private ComboBox<JEVisObject> listAnalysesComboBox;
+    private final ComboBox<JEVisObject> listAnalysesComboBox;
     private Boolean _initialized = false;
     private ToggleButton save;
     private ToggleButton loadNew;
@@ -75,7 +75,7 @@ public class ToolBarView {
     private JFXTimePicker pickerTimeStart;
     private JFXDatePicker pickerDateEnd;
     private JFXTimePicker pickerTimeEnd;
-    private DateHelper dateHelper = new DateHelper();
+    private final DateHelper dateHelper = new DateHelper();
     private ToolBar toolBar;
     private Boolean changed = false;
 
@@ -93,7 +93,7 @@ public class ToolBarView {
     private ToggleButton showSum;
     private ToggleButton showL1L2;
     private ToggleButton calcRegression;
-    private ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
+    private final ChangeListener<JEVisObject> analysisComboBoxChangeListener = (observable, oldValue, newValue) -> {
         if ((oldValue == null) || (Objects.nonNull(newValue))) {
 
             if (changed) {
@@ -469,17 +469,6 @@ public class ToolBarView {
             if (ge.getDestinationFile() != null) {
 
                 ge.export(graphPluginView.getvBox());
-
-                Platform.runLater(() -> {
-                    JEConfig.getStage().setMaximized(false);
-                    double height = JEConfig.getStage().getHeight();
-                    double width = JEConfig.getStage().getWidth();
-                    JEConfig.getStage().setWidth(0);
-                    JEConfig.getStage().setHeight(0);
-                    JEConfig.getStage().setHeight(height);
-                    JEConfig.getStage().setWidth(width);
-                });
-
             }
 
         });

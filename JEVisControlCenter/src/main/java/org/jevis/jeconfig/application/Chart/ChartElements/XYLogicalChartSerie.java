@@ -5,12 +5,14 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.dataprocessing.VirtualSample;
+import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.Charts.XYChart;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
 import org.joda.time.DateTime;
 
+import javax.measure.unit.Unit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -18,7 +20,7 @@ import java.util.TreeMap;
 public class XYLogicalChartSerie extends XYChartSerie {
     private static final Logger logger = LogManager.getLogger(XYLogicalChartSerie.class);
 
-    public XYLogicalChartSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
+    public XYLogicalChartSerie(ChartDataRow singleRow, Boolean hideShowIcons) throws JEVisException {
         super(singleRow, hideShowIcons, false);
     }
 
@@ -48,7 +50,7 @@ public class XYLogicalChartSerie extends XYChartSerie {
                     setTimeStampFromLastSample(modifiedList.get(modifiedList.size() - 1).getTimestamp());
 
             } catch (Exception e) {
-                logger.error("Couldn't get timestamps from samples. " + e);
+                logger.error("Couldn't get timestamps from samples. ", e);
             }
         }
 
@@ -81,7 +83,10 @@ public class XYLogicalChartSerie extends XYChartSerie {
 
             }
         }
-        JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
+
+        updateTableEntry(modifiedList, new JEVisUnitImp(Unit.ONE), getMinValue(), getMaxValue(), 0.0, 0.0, 0);
+
+        JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
     }
 
     private List<JEVisSample> getModifiedList(List<JEVisSample> samples) throws JEVisException {

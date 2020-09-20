@@ -13,7 +13,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 
@@ -56,7 +56,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
 
         column.setCellValueFactory(param -> {
 
-            ChartDataModel data = getData(param.getValue().getValue());
+            ChartDataRow data = getData(param.getValue().getValue());
 
             return new ReadOnlyObjectWrapper<>(data.getAggregationPeriod());
         });
@@ -72,7 +72,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
                     public void commitEdit(AggregationPeriod newValue) {
                         super.commitEdit(newValue);
 
-                        ChartDataModel data = getData(getTreeTableRow().getItem());
+                        ChartDataRow data = getData(getTreeTableRow().getItem());
 
                         data.setAggregationPeriod(newValue);
                     }
@@ -90,7 +90,7 @@ public class AggregationColumn extends TreeTableColumn<JEVisTreeRow, Aggregation
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    ChartDataRow data = getData(getTreeTableRow().getItem());
 
                                     AggregationBox aggBox = new AggregationBox(data.getAggregationPeriod());
 

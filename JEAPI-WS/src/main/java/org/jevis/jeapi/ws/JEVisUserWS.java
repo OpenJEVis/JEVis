@@ -19,8 +19,11 @@
  */
 package org.jevis.jeapi.ws;
 
+import jersey.repackaged.com.google.common.collect.Lists;
 import org.jevis.api.*;
 import org.jevis.commons.user.UserRightManager;
+
+import java.util.List;
 
 /**
  *
@@ -35,6 +38,8 @@ public class JEVisUserWS implements JEVisUser {
     private JEVisObjectWS obj;
     private boolean enabled = false;
     private UserRightManager urm;
+    /** List of classes which can be updated with special rules **/
+    private final List<String> executeUpdateExceptions = Lists.newArrayList(new String[]{"Data Notes","User Data","Clean Data"});
 
     public JEVisUserWS(JEVisDataSourceWS ds, JEVisObjectWS obj) throws Exception {
         this.ds = ds;
@@ -128,26 +133,42 @@ public class JEVisUserWS implements JEVisUser {
     public boolean canWrite(long objectID) {
 
         try {
-            if (ds.getObject(objectID).getJEVisClassName().equals("Data Notes") && canRead(objectID)) {
+            boolean canWrite = urm.canWrite(objectID);
+
+            if(canWrite){
                 return true;
+            }else{
+                if(executeUpdateExceptions.contains(ds.getObject(objectID).getJEVisClassName()) && canExecute(objectID)){
+                    return true;
+                }
             }
+            return false;
+
+
         }catch (Exception ex){
             ex.printStackTrace();
         }
 
-        return urm.canWrite(objectID);
+        return false;
     }
 
     @Override
     public boolean canCreate(long objectID) {
+
         return urm.canCreate(objectID);
     }
 
     @Override
     public boolean canCreate(long objectID, String jevisClass) {
 
-        if(jevisClass.equals("Data Notes") && canRead(objectID)){
+        boolean canCreate = canCreate(objectID);
+
+        if(canCreate){
             return true;
+        }else{
+            if(executeUpdateExceptions.contains(jevisClass) && canExecute(objectID)){
+                return true;
+            }
         }
 
         return false;

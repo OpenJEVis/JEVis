@@ -7,8 +7,8 @@ package org.jevis.iso.classes;
 
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.iso.add.JEVisClasses;
-import org.jevis.ws.sql.SQLDataSource;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;

@@ -3,12 +3,14 @@ package org.jevis.jeconfig.plugin.dashboard.config;
 import javafx.scene.paint.Color;
 import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
+import org.jevis.jeconfig.application.Chart.ChartType;
 
 public class DataPointNode {
 
     private Long objectID;
     private Long cleanObjectID;
     private String attribute;
+    private ChartType chartType;
     private ManipulationMode manipulationMode;
     private AggregationPeriod aggregationPeriod;
     private Color color;
@@ -98,12 +100,21 @@ public class DataPointNode {
         this.color = color;
     }
 
+    public ChartType getChartType() {
+        return chartType;
+    }
+
+    public void setChartType(ChartType chartType) {
+        this.chartType = chartType;
+    }
+
     @Override
     public String toString() {
         return "DataPointNode{" +
                 "objectID=" + this.objectID +
                 ", cleanObjectID=" + this.cleanObjectID +
                 ", attribute='" + this.attribute + '\'' +
+                ", chartType=" + this.chartType +
                 ", manipulationMode=" + this.manipulationMode +
                 ", aggregationPeriod=" + this.aggregationPeriod +
                 ", color=" + this.color +

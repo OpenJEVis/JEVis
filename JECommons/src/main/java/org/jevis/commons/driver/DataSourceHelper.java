@@ -88,7 +88,7 @@ public class DataSourceHelper {
         HttpsURLConnection.setDefaultHostnameVerifier(hv);
     }
 
-    public static List<String> getFTPMatchedFileNames(FTPClient fc, DateTime lastReadout, String filePath) {
+    public static List<String> getFTPMatchedFileNames(FTPClient fc, DateTime lastReadout, DateTimeZone timeZone, String filePath) {
         filePath = filePath.replace("\\", "/");
         String[] pathStream = getPathTokens(filePath);
 
@@ -121,7 +121,7 @@ public class DataSourceHelper {
                 for (FTPFile file : fc.listFiles()) {
 //                    org.apache.log4j.Logger.getLogger(Launcher.class.getName()).log(org.apache.log4j.Level.ALL, "CurrentFileName: " + fileName);
 //                    fileName = removeFoler(fileName, folder);
-                    DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyyMMddHHmmss");
+                    DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyyMMddHHmmss").withZone(timeZone);
                     String fileName = file.getName();
                     String timePart = fc.getModificationTime(folder + fileName).split(" ")[1].trim();
                     DateTime modificationTime = dateFormat.parseDateTime(timePart);
@@ -287,25 +287,25 @@ public class DataSourceHelper {
         return first + date.toString(dtf.withZone(zone)) + last;
     }
 
-    public static String replaceDateUntil(String template, DateTime date) {
+    public static String replaceDateUntil(String template, DateTime date, DateTimeZone zone) {
         DateTimeFormatter dtf = getUntilDateFormat(template);
         int startindex = template.indexOf("${DU:");
         int endindex = template.indexOf("}") + 1;
         String first = template.substring(0, startindex);
         String last = template.substring(endindex);
-        return first + date.toString(dtf) + last;
+        return first + date.toString(dtf.withZone(zone)) + last;
     }
 
     public static String replaceDateFromUntil(DateTime from, DateTime until, String filePath, DateTimeZone zone) {
 //        String replacedString = null;
-        while (filePath.indexOf("${DF:") != -1 || filePath.indexOf("${DF:") != -1) {
+        while (filePath.contains("${DF:") && filePath.contains("${DU:")) {
             int fromstartindex = filePath.indexOf("${DF:");
             int untilstartindex = filePath.indexOf("${DU:");
             if (fromstartindex < untilstartindex) {
                 filePath = replaceDateFrom(filePath, from, zone);
-                filePath = replaceDateUntil(filePath, until);
+                filePath = replaceDateUntil(filePath, until, zone);
             } else {
-                filePath = replaceDateUntil(filePath, until);
+                filePath = replaceDateUntil(filePath, until, zone);
                 filePath = replaceDateFrom(filePath, from, zone);
             }
 

@@ -15,6 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
@@ -32,7 +33,7 @@ import org.jevis.jeconfig.tool.ScreenSize;
 
 
 public class WidgetNavigator {
-    private double iconSize = 16;
+    private final double iconSize = 16;
     final ImageView lockIcon = JEConfig.getImage("eye_visible.png", this.iconSize, this.iconSize);
     final ImageView unlockIcon = JEConfig.getImage("eye_hidden.png", this.iconSize, this.iconSize);
 
@@ -89,7 +90,7 @@ public class WidgetNavigator {
             stage.hide();
         });
         stage.setOnHiding(event -> {
-            this.control.enableHightlightGlow(false);
+            this.control.enableHighlightGlow(false);
         });
 
 
@@ -250,6 +251,34 @@ public class WidgetNavigator {
         modeList.addAll(BackgroundMode.defaultMode,BackgroundMode.repeat,BackgroundMode.stretch);
         ComboBox<String> comboBox = new ComboBox<>(modeList);
         comboBox.setValue(control.getActiveDashboard().backgroundMode);
+
+
+        Callback<ListView<String>, ListCell<String>> factory = new Callback<ListView<String>, ListCell<String>>() {
+            @Override
+            public ListCell<String> call(ListView<String> param) {
+                return new ListCell<String>() {
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        String text = item;
+
+                        if (item ==BackgroundMode.defaultMode) {
+                            text=I18n.getInstance().getString("dashboard.navigator.bgmode.default");
+                        }else if(item ==BackgroundMode.repeat) {
+                            text=I18n.getInstance().getString("dashboard.navigator.bgmode.repeat");
+                        }else if(item ==BackgroundMode.stretch) {
+                            text=I18n.getInstance().getString("dashboard.navigator.bgmode.stretch");
+                        }
+
+                        setText(text);
+
+                    }
+                };
+            }
+        };
+        comboBox.setCellFactory(factory);
+        comboBox.setButtonCell(factory.call(null));
+
         return comboBox;
 
     }
@@ -261,7 +290,7 @@ public class WidgetNavigator {
         ToggleButton highlightButton = new ToggleButton("", this.unlockIcon);
 //        highlightButton.selectedProperty().bindBidirectional(this.control.highlightProperty);
         highlightButton.setOnAction(event -> {
-            control.enableHightlightGlow(highlightButton.isSelected());
+            control.enableHighlightGlow(highlightButton.isSelected());
         });
 
         highlightButton.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -287,7 +316,7 @@ public class WidgetNavigator {
             control.addWidget(newWidget);
             newWidget.setEditable(true);
 //            newWidget.updateConfig();
-            table.getSelectionModel().select(newWidget);
+            table.getSelectionModel().clearAndSelect(table.getItems().size()-1);
             table.scrollTo(newWidget);
             this.control.requestViewUpdate(newWidget);
         });

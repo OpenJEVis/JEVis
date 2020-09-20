@@ -1,0 +1,33 @@
+{
+  "name": "Heat Generation",
+  "description": "The class Heat Generation contains data of the building equipment heating. Attributes of the class include a complete description of the specific energy data of the heating. ",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "Heat Generation",
+      "end": "Building Equipment",
+      "type": 0
+    },
+    {
+      "start": "Heat Generation",
+      "end": "Floor",
+      "type": 3
+    },
+    {
+      "start": "Heat Generation",
+      "end": "Heating Equipment Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Domain",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 10,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "Heat Generation"
+    }
+  ]
+}

@@ -24,11 +24,12 @@ import org.jevis.commons.unit.ChartUnits.ChartUnits;
 import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.commons.utils.AlphanumComparator;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartElements.TableEntry;
 import org.jevis.jeconfig.application.Chart.ChartSetting;
 import org.jevis.jeconfig.application.Chart.ChartType;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -45,34 +46,48 @@ public class PieChart implements Chart {
     private final Boolean showSum;
     private String chartName;
     private String unit;
-    private AnalysisDataModel analysisDataModel;
-    private List<ChartDataModel> chartDataModels;
-    private Boolean hideShowIcons;
+    private final AnalysisDataModel analysisDataModel;
+    private final List<ChartDataRow> chartDataRows;
+    private final Boolean hideShowIcons;
     private List<javafx.scene.chart.PieChart.Data> series = new ArrayList<>();
     private PieChartExtended pieChart;
-    private List<Color> hexColors = new ArrayList<>();
+    private final List<Color> hexColors = new ArrayList<>();
     private DateTime valueForDisplay;
-    private ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
+    private final ObservableList<TableEntry> tableData = FXCollections.observableArrayList();
     private Region pieChartRegion;
     private Period period;
-    private ChartType chartType = ChartType.PIE;
+    private final ChartType chartType = ChartType.PIE;
     private boolean legendMode = false;
-    private ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
+
+    private final ChartSettingsFunction chartSettingsFunction = new ChartSettingsFunction() {
         @Override
         public void applySetting(javafx.scene.chart.Chart chart) {
 
         }
     };
-    private List<String> seriesNames = new ArrayList<>();
+    private final List<String> seriesNames = new ArrayList<>();
 
-    public PieChart(AnalysisDataModel analysisDataModel, List<ChartDataModel> chartDataModels, ChartSetting chartSetting) {
+    public PieChart(AnalysisDataModel analysisDataModel, List<ChartDataRow> chartDataRows, ChartSetting chartSetting) {
         this.analysisDataModel = analysisDataModel;
-        this.chartDataModels = chartDataModels;
+        this.chartDataRows = chartDataRows;
         this.showRawData = analysisDataModel.getShowRawData();
         this.showSum = analysisDataModel.getShowSum();
         this.hideShowIcons = analysisDataModel.getShowIcons();
         this.chartName = chartSetting.getName();
         this.chartId = chartSetting.getId();
+
+        double totalJob = chartDataRows.size();
+
+        if (showRawData) {
+            totalJob *= 4;
+        }
+
+        if (showSum) {
+            totalJob += 1;
+        }
+
+        JEConfig.getStatusBar().startProgressJob(XYChart.JOB_NAME, totalJob, I18n.getInstance().getString("plugin.graph.message.startupdate"));
+
         init();
     }
 
@@ -80,17 +95,17 @@ public class PieChart implements Chart {
         List<Double> listSumsPiePieces = new ArrayList<>();
         List<String> listTableEntryNames = new ArrayList<>();
 
-        if (chartDataModels != null && chartDataModels.size() > 0) {
-            unit = UnitManager.getInstance().format(chartDataModels.get(0).getUnit());
+        if (chartDataRows != null && chartDataRows.size() > 0) {
+            unit = UnitManager.getInstance().format(chartDataRows.get(0).getUnit());
             if (unit.equals("")) unit = I18n.getInstance().getString("plugin.graph.chart.valueaxis.nounit");
-            period = chartDataModels.get(0).getAttribute().getDisplaySampleRate();
+            period = chartDataRows.get(0).getAttribute().getDisplaySampleRate();
         }
 
         hexColors.clear();
-        if (chartDataModels != null) {
-            for (ChartDataModel singleRow : chartDataModels) {
+        if (chartDataRows != null) {
+            for (ChartDataRow singleRow : chartDataRows) {
                 if (!singleRow.getSelectedcharts().isEmpty()) {
-                    ChartDataModel clonedModel = singleRow.clone();
+                    ChartDataRow clonedModel = singleRow.clone();
                     clonedModel.setAggregationPeriod(AggregationPeriod.NONE);
                     Double sumPiePiece = 0d;
                     QuantityUnits qu = new QuantityUnits();
@@ -151,7 +166,7 @@ public class PieChart implements Chart {
                     } else if (!listTableEntryNames.contains(clonedModel.getObject().getName()) && singleRow.hasForecastData()) {
                         listTableEntryNames.add(clonedModel.getObject().getName() + " - " + I18n.getInstance().getString("plugin.graph.chart.forecast.title"));
                     } else {
-                        listTableEntryNames.add(clonedModel.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
+                        listTableEntryNames.add(clonedModel.getObject().getName() + " " + chartDataRows.indexOf(singleRow));
                     }
                     if (!singleRow.hasForecastData()) {
                         hexColors.add(ColorHelper.toColor(clonedModel.getColor()));
@@ -180,7 +195,7 @@ public class PieChart implements Chart {
         seriesNames.clear();
         for (String name : listTableEntryNames) {
             QuantityUnits qu = new QuantityUnits();
-            JEVisUnit currentUnit = chartDataModels.get(listTableEntryNames.indexOf(name)).getUnit();
+            JEVisUnit currentUnit = chartDataRows.get(listTableEntryNames.indexOf(name)).getUnit();
             String currentUnitString = "";
             if (qu.isQuantityUnit(currentUnit)) currentUnitString = getUnit(currentUnit);
             else currentUnitString = getUnit(qu.getSumUnit(currentUnit));
@@ -192,6 +207,8 @@ public class PieChart implements Chart {
             javafx.scene.chart.PieChart.Data data = new javafx.scene.chart.PieChart.Data(seriesName, listSumsPiePieces.get(listTableEntryNames.indexOf(name)));
             series.add(data);
             seriesNames.add(name);
+
+            JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, I18n.getInstance().getString("graph.progress.finishedserie") + " " + name);
         }
 
         if (pieChart == null) {
@@ -237,8 +254,8 @@ public class PieChart implements Chart {
     }
 
     @Override
-    public List<ChartDataModel> getChartDataModels() {
-        return chartDataModels;
+    public List<ChartDataRow> getChartDataRows() {
+        return chartDataRows;
     }
 
     @Override
@@ -267,11 +284,11 @@ public class PieChart implements Chart {
         Double ub = upperBound * 1000d;
         DateTime start = new DateTime(lb.longValue());
         DateTime end = new DateTime(ub.longValue());
-        if (chartDataModels != null) {
+        if (chartDataRows != null) {
             List<Double> listSumsPiePieces = new ArrayList<>();
             List<String> listTableEntryNames = new ArrayList<>();
 
-            for (ChartDataModel singleRow : chartDataModels) {
+            for (ChartDataRow singleRow : chartDataRows) {
                 if (!singleRow.getSelectedcharts().isEmpty()) {
                     singleRow.setSelectedStart(start);
                     singleRow.setSelectedEnd(end);
@@ -324,7 +341,7 @@ public class PieChart implements Chart {
                     if (!listTableEntryNames.contains(singleRow.getObject().getName())) {
                         listTableEntryNames.add(singleRow.getObject().getName());
                     } else {
-                        listTableEntryNames.add(singleRow.getObject().getName() + " " + chartDataModels.indexOf(singleRow));
+                        listTableEntryNames.add(singleRow.getObject().getName() + " " + chartDataRows.indexOf(singleRow));
                     }
                 }
 
@@ -338,7 +355,7 @@ public class PieChart implements Chart {
 
                 for (String name : listTableEntryNames) {
                     QuantityUnits qu = new QuantityUnits();
-                    JEVisUnit currentUnit = chartDataModels.get(listTableEntryNames.indexOf(name)).getUnit();
+                    JEVisUnit currentUnit = chartDataRows.get(listTableEntryNames.indexOf(name)).getUnit();
                     String currentUnitString = "";
                     if (qu.isQuantityUnit(currentUnit)) currentUnitString = getUnit(currentUnit);
                     else currentUnitString = getUnit(qu.getSumUnit(currentUnit));
@@ -402,6 +419,11 @@ public class PieChart implements Chart {
     @Override
     public Period getPeriod() {
         return period;
+    }
+
+    @Override
+    public void setPeriod(Period period) {
+        this.period = period;
     }
 
     @Override

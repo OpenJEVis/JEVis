@@ -47,6 +47,16 @@
       "start": "View Directory",
       "end": "Organization",
       "type": 3
+    },
+    {
+      "start": "Data Directory",
+      "end": "Organization",
+      "type": 3
+    },
+    {
+      "start": "Calculation Directory",
+      "end": "Organization",
+      "type": 3
     }
   ],
   "types": [

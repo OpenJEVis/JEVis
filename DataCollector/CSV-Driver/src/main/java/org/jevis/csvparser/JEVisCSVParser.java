@@ -29,16 +29,12 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
-import org.jevis.commons.driver.inputHandler.GenericConverter;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,61 +45,6 @@ public class JEVisCSVParser implements Parser {
     private static final Logger logger = LogManager.getLogger(JEVisCSVParser.class);
     private DateTimeZone timeZone;
     public static final String VERSION = "Version 1.2.1 2017-08-28";
-
-    public static void main(String[] args) throws FileNotFoundException {
-        InputStream is = new FileInputStream("/home/bi/Downloads/CineStar_Kundenexport_senkrecht_5Tage_2017.08.28_093043.CSV");
-        CSVParser parser = new CSVParser();
-        parser.setConverter(new GenericConverter());
-        DataPoint dp2 = new DataPoint();
-        dp2.setMappingIdentifier("B03(2)-Wirkleistung");
-        dp2.setTarget(10l);
-        parser.setDataPoints(Collections.singletonList(dp2));
-        parser.setDateFormat("dd.MM.yyyy");
-        parser.setDateIndex(0);
-        parser.setTimeFormat("HH:mm");
-        parser.setTimeIndex(1);
-        parser.setDelim(";");
-        parser.setDpIndex(5);
-        parser.setDpType("ROW");
-        parser.setHeaderLines(10);
-        parser.setDecimalSeperator(",");
-        parser.parse(Collections.singletonList(is), DateTimeZone.forID("Europe/Berlin"));
-        List<Result> result = parser.getResult();
-        for (Result r : result) {
-            Long onlineID = r.getOnlineID();
-            Object value = r.getValue();
-            String toString = r.getDate().toString(DateTimeFormat.fullDateTime());
-            if (onlineID != null && onlineID == 10) {
-            }
-        }
-
-        InputStream is2 = new FileInputStream("/home/bi/Downloads/CineStar_Kundenexport_senkrecht_5Tage_2017.08.24_093055.CSV");
-        CSVParser np = new CSVParser();
-        np.setConverter(new GenericConverter());
-
-        DataPoint dpy = new DataPoint();
-        dpy.setValueIndex(7);
-        dpy.setTarget(10l);
-        np.setDataPoints(Collections.singletonList(dpy));
-        np.setDateFormat("dd.MM.yyyy");
-        np.setDateIndex(0);
-        np.setTimeFormat("HH:mm");
-        np.setTimeIndex(1);
-        np.setDelim(";");
-        np.setHeaderLines(10);
-        np.setDecimalSeperator(",");
-
-        np.parse(Collections.singletonList(is2), DateTimeZone.forID("Europe/Berlin"));
-        List<Result> otherResult = np.getResult();
-        for (Result r : otherResult) {
-            Long onlineID = r.getOnlineID();
-            Object value = r.getValue();
-            String toString = r.getDate().toString(DateTimeFormat.fullDateTime());
-            if (onlineID != null && onlineID == 10) {
-            }
-        }
-
-    }
 
     private void initializeAttributes(JEVisObject parserObject) {
         try {
@@ -196,20 +137,24 @@ public class JEVisCSVParser implements Parser {
                 Long datapointID = dp.getID();
                 String mappingIdentifier = DatabaseHelper.getObjectAsString(dp, mappingIdentifierType);
                 String targetString = DatabaseHelper.getObjectAsString(dp, targetType);
-                Long target = null;
-                try {
-                    target = Long.parseLong(Objects.requireNonNull(targetString));
-                } catch (Exception ex) {
-                    logger.info("DataPoint target error: " + ex.getMessage());
-//                    ex.printStackTrace();
+                String target = null;
+
+                TargetHelper targetHelper = new TargetHelper(dp.getDataSource(), targetString);
+                if (targetHelper.isValid() && targetHelper.targetAccessible()) {
+                    target = targetString;
+                } else {
+                    logger.info("DataPoint target error: {}", datapointID);
+                    continue;
                 }
-                String valueString = DatabaseHelper.getObjectAsString(dp, valueIdentifierType);
+
+                String valueString = null;
                 Integer valueIndex = null;
                 try {
+                    valueString = DatabaseHelper.getObjectAsString(dp, valueIdentifierType);
                     valueIndex = Integer.parseInt(Objects.requireNonNull(valueString));
                     valueIndex--;
                 } catch (Exception ex) {
-                    logger.info("DataPoint ValueIdentifier error: " + ex.getMessage());
+                    logger.info("DataPoint ValueIdentifier error: {}", ex.getMessage());
 //                    ex.printStackTrace();
                 }
                 DataPoint csvdp = new DataPoint();
@@ -258,7 +203,7 @@ public class JEVisCSVParser implements Parser {
 
     @Override
     public void initialize(JEVisObject parserObject) {
-        logger.info("Initialize JEVisCSVParser build: " + VERSION);
+        logger.info("Initialize JEVisCSVParser build: {}", VERSION);
 
         initializeAttributes(parserObject);
 

@@ -23,11 +23,11 @@ public class ReportLinkFactory {
     public List<ReportData> getReportLinks(JEVisObject reportObject) {
 
         List<JEVisObject> reportLinkObjects = new ArrayList<>(initializeReportLinkObjects(reportObject));
-        logger.info("Found " + reportLinkObjects.size() + " Report Links.");
+        logger.info("Found {} report links", reportLinkObjects.size());
 
         List<JEVisObject> alarmLinkObjects = new ArrayList<>(initializeAlarmLinkObjects(reportObject));
 
-        logger.info("Found " + alarmLinkObjects.size() + " Alarm Links.");
+        logger.info("Found {} alarm links", alarmLinkObjects.size());
 
         List<JEVisObject> listLinks = new ArrayList<>();
         listLinks.addAll(reportLinkObjects);

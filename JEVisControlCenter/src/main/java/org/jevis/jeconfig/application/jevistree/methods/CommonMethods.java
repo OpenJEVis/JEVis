@@ -15,6 +15,17 @@ import java.util.List;
 public class CommonMethods {
     private static final Logger logger = LogManager.getLogger(CommonMethods.class);
 
+    public static JEVisObject getFirstParentalDataObject(JEVisObject jeVisObject) throws JEVisException {
+        for (JEVisObject object : jeVisObject.getParents()) {
+            if (object.getJEVisClassName().equals("Data")) {
+                return object;
+            } else {
+                return getFirstParentalDataObject(object);
+            }
+        }
+        return jeVisObject;
+    }
+
     public static JEVisObject getFirstCleanObject(JEVisObject jeVisObject) throws JEVisException {
         for (JEVisObject object : jeVisObject.getChildren()) {
             if (object.getJEVisClassName().equals("Data") || object.getJEVisClassName().equals("Clean data")) {
@@ -26,19 +37,20 @@ public class CommonMethods {
         return jeVisObject;
     }
 
-    public static void setEnabled(JEVisObject object, String selectedClass, boolean b) {
+    public static void setEnabled(ProgressForm pForm, JEVisObject object, String selectedClass, boolean b) {
         try {
-            JEVisAttribute enabled = object.getAttribute("Enabled");
-            if (enabled != null) {
-                if (object.getJEVisClassName().equals(selectedClass) || selectedClass.equals("All")) {
+            if (object.getJEVisClassName().equals(selectedClass) || selectedClass.equals("All")) {
+                JEVisAttribute enabled = object.getAttribute("Enabled");
+                if (enabled != null) {
                     JEVisSample sample = enabled.buildSample(new DateTime(), b);
                     sample.commit();
+                    pForm.addMessage("Set enabled attribute of object " + object.getName() + ":" + object.getID() + " to " + b);
                 }
             }
             for (JEVisObject child : object.getChildren()) {
-                setEnabled(child, selectedClass, b);
+                setEnabled(pForm, child, selectedClass, b);
             }
-        } catch (JEVisException e) {
+        } catch (Exception e) {
             logger.error("Could not set enabled for {}:{}", object.getName(), object.getID());
         }
     }
@@ -48,7 +60,7 @@ public class CommonMethods {
             JEVisAttribute valueAtt = null;
             try {
                 valueAtt = object.getAttribute("Value");
-            } catch (JEVisException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             if (valueAtt != null) {
@@ -56,7 +68,7 @@ public class CommonMethods {
                     try {
                         pForm.addMessage("Deleting all samples of object " + object.getName() + ":" + object.getID());
                         valueAtt.deleteAllSample();
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else if (from != null && to != null) {
@@ -64,7 +76,7 @@ public class CommonMethods {
                         pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
                                 + " from " + from.toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
                         valueAtt.deleteSamplesBetween(from, to);
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else if (from != null) {
@@ -72,7 +84,7 @@ public class CommonMethods {
                         pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
                                 + " from " + from.toString("YYYY-MM-dd HH:mm:ss") + " to " + new DateTime().toString("YYYY-MM-dd HH:mm:ss"));
                         valueAtt.deleteSamplesBetween(from, new DateTime());
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else {
@@ -80,7 +92,7 @@ public class CommonMethods {
                         pForm.addMessage("Deleting samples of object " + object.getName() + ":" + object.getID()
                                 + " from " + new DateTime(2001, 1, 1, 0, 0, 0).toString("YYYY-MM-dd HH:mm:ss") + " to " + to.toString("YYYY-MM-dd HH:mm:ss"));
                         valueAtt.deleteSamplesBetween(new DateTime(2001, 1, 1, 0, 0, 0), to);
-                    } catch (JEVisException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }

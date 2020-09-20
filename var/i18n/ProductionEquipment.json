@@ -2,208 +2,34 @@
   "jevisclass": "Production Equipment",
   "names": {
     "de": "Produktionsanlage",
-    "ru": "Production Equipment",
-    "en": "Production Equipment"
+    "ru": "Производственная база",
+    "en": "Production Equipment",
+    "th": "โรงงานผลิต",
+    "uk": "Виробниче приміщення"
   },
   "descriptions": {
-    "de": "The class Production Equipment contains data of the building equipment for production. Attributes of the class include a complete description of the specific energy data of the production equipment. ",
-    "ru": "The class Production Equipment contains data of the building equipment for production. Attributes of the class include a complete description of the specific energy data of the production equipment. ",
-    "en": "The class Production Equipment contains data of the building equipment for production. Attributes of the class include a complete description of the specific energy data of the production equipment. "
+    "de": "Die Klasse Produktionsanlage enthält Daten der Gebäudeausrüstung für die Produktion. Zu den Attributen der Klasse gehört eine vollständige Beschreibung der spezifischen Energiedaten der Produktionsanlage.",
+    "ru": "Производственный цех класса содержит данные о строительном оборудовании для производства. Атрибуты класса включают в себя полное описание конкретных энергетических данных производственного предприятия.",
+    "en": "The class Production Equipment contains data of the building equipment for production. Attributes of the class include a complete description of the specific energy data of the production equipment.",
+    "th": "โรงงานผลิตระดับมีข้อมูลของอุปกรณ์ก่อสร้างสำหรับการผลิต คุณลักษณะของคลาสรวมถึงคำอธิบายที่สมบูรณ์ของข้อมูลพลังงานเฉพาะของโรงงานผลิต",
+    "uk": "Завод класового виробництва містить дані будівельного обладнання для виробництва. Атрибути класу включають повний опис конкретних даних про енергію виробничого заводу."
   },
   "types": [
     {
-      "type": "Consumption",
-      "descriptions": {
-        "de": "Consumption description",
-        "ru": "Consumption description",
-        "en": "Consumption description"
-      },
-      "names": {
-        "de": "Consumption",
-        "ru": "Consumption",
-        "en": "Consumption"
-      }
-    },
-    {
-      "type": "Daily Operating Hours",
-      "descriptions": {
-        "de": "Daily Operating Hours description",
-        "ru": "Daily Operating Hours description",
-        "en": "Daily Operating Hours description"
-      },
-      "names": {
-        "de": "Daily Operating Hours",
-        "ru": "Daily Operating Hours",
-        "en": "Daily Operating Hours"
-      }
-    },
-    {
-      "type": "Energy Source",
-      "descriptions": {
-        "de": "Energy Source description",
-        "ru": "Energy Source description",
-        "en": "Energy Source description"
-      },
-      "names": {
-        "de": "Energy Source",
-        "ru": "Energy Source",
-        "en": "Energy Source"
-      }
-    },
-    {
-      "type": "Manufacturer",
-      "descriptions": {
-        "de": "Manufacturer description",
-        "ru": "Manufacturer description",
-        "en": "Manufacturer description"
-      },
-      "names": {
-        "de": "Manufacturer",
-        "ru": "Manufacturer",
-        "en": "Manufacturer"
-      }
-    },
-    {
-      "type": "Measurement",
-      "descriptions": {
-        "de": "Measurement description",
-        "ru": "Measurement description",
-        "en": "Measurement description"
-      },
-      "names": {
-        "de": "Measurement",
-        "ru": "Measurement",
-        "en": "Measurement"
-      }
-    },
-    {
-      "type": "Measuring Point",
-      "descriptions": {
-        "de": "Measuring Point description",
-        "ru": "Measuring Point description",
-        "en": "Measuring Point description"
-      },
-      "names": {
-        "de": "Measuring Point",
-        "ru": "Measuring Point",
-        "en": "Measuring Point"
-      }
-    },
-    {
-      "type": "Nominal Power",
-      "descriptions": {
-        "de": "Nominal Power description",
-        "ru": "Nominal Power description",
-        "en": "Nominal Power description"
-      },
-      "names": {
-        "de": "Nominal Power",
-        "ru": "Nominal Power",
-        "en": "Nominal Power"
-      }
-    },
-    {
-      "type": "Number",
-      "descriptions": {
-        "de": "Number description",
-        "ru": "Number description",
-        "en": "Number description"
-      },
-      "names": {
-        "de": "Number",
-        "ru": "Number",
-        "en": "Number"
-      }
-    },
-    {
-      "type": "Power",
-      "descriptions": {
-        "de": "Power description",
-        "ru": "Power description",
-        "en": "Power description"
-      },
-      "names": {
-        "de": "Power",
-        "ru": "Power",
-        "en": "Power"
-      }
-    },
-    {
       "type": "Sector",
       "descriptions": {
-        "de": "Sector description",
-        "ru": "Sector description",
-        "en": "Sector description"
+        "de": "Bereich",
+        "ru": "Площадь",
+        "en": "Sector",
+        "th": "พื้นที่",
+        "uk": "Площа"
       },
       "names": {
-        "de": "Sector",
-        "ru": "Sector",
-        "en": "Sector"
-      }
-    },
-    {
-      "type": "Standby Consumption",
-      "descriptions": {
-        "de": "Standby Consumption description",
-        "ru": "Standby Consumption description",
-        "en": "Standby Consumption description"
-      },
-      "names": {
-        "de": "Standby Consumption",
-        "ru": "Standby Consumption",
-        "en": "Standby Consumption"
-      }
-    },
-    {
-      "type": "Type",
-      "descriptions": {
-        "de": "Type description",
-        "ru": "Type description",
-        "en": "Type description"
-      },
-      "names": {
-        "de": "Type",
-        "ru": "Type",
-        "en": "Type"
-      }
-    },
-    {
-      "type": "Weighting Factor",
-      "descriptions": {
-        "de": "Weighting Factor description",
-        "ru": "Weighting Factor description",
-        "en": "Weighting Factor description"
-      },
-      "names": {
-        "de": "Weighting Factor",
-        "ru": "Weighting Factor",
-        "en": "Weighting Factor"
-      }
-    },
-    {
-      "type": "Work Weeks",
-      "descriptions": {
-        "de": "Work Weeks description",
-        "ru": "Work Weeks description",
-        "en": "Work Weeks description"
-      },
-      "names": {
-        "de": "Work Weeks",
-        "ru": "Work Weeks",
-        "en": "Work Weeks"
-      }
-    },
-    {
-      "type": "Working Days",
-      "descriptions": {
-        "de": "Working Days description",
-        "ru": "Working Days description",
-        "en": "Working Days description"
-      },
-      "names": {
-        "de": "Working Days",
-        "ru": "Working Days",
-        "en": "Working Days"
+        "de": "Bereich",
+        "ru": "Площадь",
+        "en": "Sector",
+        "th": "พื้นที่",
+        "uk": "Площа"
       }
     }
   ]

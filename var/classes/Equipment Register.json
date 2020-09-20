@@ -24,11 +24,26 @@
     },
     {
       "start": "Equipment Register",
+      "end": "Building",
+      "type": 3
+    },
+    {
+      "start": "Equipment Register",
       "end": "Register",
       "type": 0
     },
     {
       "start": "Heating Equipment Directory",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
+      "start": "Facade",
+      "end": "Equipment Register",
+      "type": 3
+    },
+    {
+      "start": "Floor",
       "end": "Equipment Register",
       "type": 3
     },

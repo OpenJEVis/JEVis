@@ -36,6 +36,8 @@ public class JsonChartSetting {
     private String chartType;
     private String height;
     private String colorMapping;
+    private String orientation;
+    private String groupingInterval;
     private JsonChartTimeFrame analysisTimeFrame;
 
     public JsonChartSetting() {
@@ -84,6 +86,24 @@ public class JsonChartSetting {
 
     public void setColorMapping(String colorMapping) {
         this.colorMapping = colorMapping;
+    }
+
+    @XmlElement(name = "orientation")
+    public String getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(String orientation) {
+        this.orientation = orientation;
+    }
+
+    @XmlElement(name = "groupingInterval")
+    public String getGroupingInterval() {
+        return groupingInterval;
+    }
+
+    public void setGroupingInterval(String groupingInterval) {
+        this.groupingInterval = groupingInterval;
     }
 
     @XmlElement(name = "analysisTimeFrame")

@@ -18,13 +18,11 @@ import java.util.Map;
 public class DataServerTable extends AlarmTable {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(DataServerTable.class);
     private final JEVisDataSource ds;
-    private final DateTime furthestReported;
     private final DateTime latestReported;
 
-    public DataServerTable(JEVisDataSource ds, DateTime furthestReported, DateTime latestReported) {
+    public DataServerTable(JEVisDataSource ds, DateTime latestReported) {
         super(ds);
         this.ds = ds;
-        this.furthestReported = furthestReported;
         this.latestReported = latestReported;
 
         try {
@@ -69,7 +67,6 @@ public class DataServerTable extends AlarmTable {
             JEVisSample lastSampleTarget = null;
             JEVisAttribute lastReadoutAtt = null;
             DateTime lr = latestReported;
-            DateTime fr = furthestReported;
 
             JEVisObject dataSource = getCorrespondingDataSource(channel);
             if (dataSource != null) {
@@ -91,21 +88,12 @@ public class DataServerTable extends AlarmTable {
 
             try {
                 JEVisAttribute channelLRAtt = dataSource.getAttribute(LATEST_REPORTED);
-                JEVisAttribute channelFRAtt = dataSource.getAttribute(FURTHEST_REPORTED);
 
                 if (channelLRAtt.hasSample()) {
                     JEVisSample latestSample = channelLRAtt.getLatestSample();
                     if (latestSample != null) {
                         Long valueAsLong = latestSample.getValueAsLong();
                         lr = DateTime.now().minus(Period.hours(valueAsLong.intValue()));
-                    }
-                }
-
-                if (channelFRAtt.hasSample()) {
-                    JEVisSample latestSample = channelFRAtt.getLatestSample();
-                    if (latestSample != null) {
-                        Long valueAsLong = latestSample.getValueAsLong();
-                        fr = DateTime.now().minus(Period.hours(valueAsLong.intValue()));
                     }
                 }
             } catch (Exception e) {
@@ -129,7 +117,7 @@ public class DataServerTable extends AlarmTable {
 
                             }
                         }
-                        if (ts != null && ts.isBefore(lr) && ts.isAfter(fr)) {
+                        if (ts != null && ts.isBefore(lr)) {
                             if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
                         }
                     }
@@ -163,7 +151,7 @@ public class DataServerTable extends AlarmTable {
                                 if (resultAtt.hasSample()) {
                                     JEVisSample lastSample = resultAtt.getLatestSample();
                                     if (lastSample != null) {
-                                        if (lastSample.getTimestamp().isBefore(lr) && lastSample.getTimestamp().isAfter(fr)) {
+                                        if (lastSample.getTimestamp().isBefore(lr)) {
                                             if (!outOfBounds.contains(channel)) outOfBounds.add(channel);
                                         }
                                     }
@@ -173,7 +161,7 @@ public class DataServerTable extends AlarmTable {
                     }
                 }
             } else {
-                getOtherChannelsTarget(channel, channelAndTarget, outOfBounds, lr, fr);
+                getOtherChannelsTarget(channel, channelAndTarget, outOfBounds, lr);
             }
         }
 
@@ -331,7 +319,7 @@ public class DataServerTable extends AlarmTable {
     }
 
     private void getOtherChannelsTarget(JEVisObject channel, Map<JEVisObject, JEVisObject> channelAndTarget,
-                                        List<JEVisObject> outOfBounds, DateTime latestReported, DateTime furthestReported) throws JEVisException {
+                                        List<JEVisObject> outOfBounds, DateTime latestReported) throws JEVisException {
         List<JEVisObject> dps = new ArrayList<>();
 
         final JEVisClass channelClass = channel.getJEVisClass();
@@ -381,7 +369,7 @@ public class DataServerTable extends AlarmTable {
                             if (resultAtt.hasSample()) {
                                 JEVisSample lastSample = resultAtt.getLatestSample();
                                 if (lastSample != null) {
-                                    if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
+                                    if (lastSample.getTimestamp().isBefore(latestReported)) {
                                         if (!outOfBounds.contains(target)) outOfBounds.add(target);
                                     }
                                 }
@@ -437,7 +425,7 @@ public class DataServerTable extends AlarmTable {
                             if (resultAtt.hasSample()) {
                                 JEVisSample lastSample = resultAtt.getLatestSample();
                                 if (lastSample != null) {
-                                    if (lastSample.getTimestamp().isBefore(latestReported) && lastSample.getTimestamp().isAfter(furthestReported)) {
+                                    if (lastSample.getTimestamp().isBefore(latestReported)) {
                                         if (!outOfBounds.contains(target)) outOfBounds.add(target);
                                     }
                                 }

@@ -62,7 +62,7 @@ public interface DataSource {
      * @param channel
      * @return
      */
-    List<InputStream> sendSampleRequest(JEVisObject channel);
+    List<InputStream> sendSampleRequest(JEVisObject channel) throws Exception;
 
     /**
      * Parse the data from the input from the data source query. There
@@ -114,7 +114,7 @@ public interface DataSource {
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source last run time: " + e);
+            logger.error("Could not get data source last run time: ", e);
         }
 
         return dateTime;
@@ -133,7 +133,7 @@ public interface DataSource {
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source cycle time: " + e);
+            logger.error("Could not get data source cycle time: ", e);
         }
 
         return aLong;
@@ -151,7 +151,7 @@ public interface DataSource {
             }
 
         } catch (JEVisException e) {
-            logger.error("Could not get data source last run time: " + e);
+            logger.error("Could not get data source last run time: ", e);
         }
     }
 }

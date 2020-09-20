@@ -14,10 +14,12 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.database.ObjectHandler;
 import org.jevis.commons.database.SampleHandler;
+import org.jevis.commons.datetime.PeriodArithmetic;
 import org.jevis.commons.json.JsonGapFillingConfig;
 import org.jevis.commons.json.JsonLimitsConfig;
 import org.jevis.commons.task.LogTaskManager;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.Period;
 
 import java.io.IOException;
@@ -35,7 +37,7 @@ public class CleanDataObject {
     private static final Logger logger = LogManager.getLogger(CleanDataObject.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final JEVisObject cleanObject;
-    private JEVisObject rawDataObject;
+    private final JEVisObject rawDataObject;
     //attributes
     private Period periodCleanData;
     private Period periodRawData;
@@ -52,7 +54,7 @@ public class CleanDataObject {
     private DateTime lastDate;
     private List<JEVisSample> rawSamplesDown;
     private List<JEVisSample> rawSamplesUp;
-    private SampleHandler sampleHandler;
+    private final SampleHandler sampleHandler;
 
     private List<JsonGapFillingConfig> jsonGapFillingConfig;
 
@@ -62,7 +64,7 @@ public class CleanDataObject {
     private List<JEVisSample> counterOverflow;
     private Double lastDiffValue;
     private Double lastCleanValue;
-    private boolean isFirstRunPeriod = true;
+    private final boolean isFirstRunPeriod = true;
     private JEVisAttribute rawAttribute;
 
     private JEVisAttribute valueAttribute;
@@ -92,9 +94,15 @@ public class CleanDataObject {
 
     /**
      * Check if the configuration is valid. Returns false if configuration is not valid.
-     *
      */
     public boolean checkConfig() {
+
+        try {
+            reloadAttributes();
+        } catch (JEVisException e) {
+            logger.error("Could not reload attributes. ", e);
+        }
+
         List<String> errors = new ArrayList<>();
         if (getLimitsEnabled() && getLimitsConfig().isEmpty()) {
             errors.add("Missing Limit configuration");
@@ -121,8 +129,11 @@ public class CleanDataObject {
 
             JEVisAttribute rawAtt = getRawAttribute();
             JEVisSample latestRawSample = null;
-            if (rawAtt.hasSample())
+            if (rawAtt.hasSample()) {
                 latestRawSample = rawAtt.getLatestSample();
+            } else {
+                errors.add(("No raw samples"));
+            }
             DateTime timestampLatestRawSample = null;
             if (latestRawSample != null)
                 timestampLatestRawSample = latestRawSample.getTimestamp();
@@ -141,12 +152,12 @@ public class CleanDataObject {
         if (!errors.isEmpty()) {
             StringBuilder stringBuilder = new StringBuilder();
             errors.forEach(s -> {
-                stringBuilder.append(" -");
+                if (errors.indexOf(s) > 0) {
+                    stringBuilder.append("-");
+                }
                 stringBuilder.append(s);
-                stringBuilder.append("\n");
             });
-            String exception = String.format("[%s] Error in configuration, stopping: %s", getCleanObject().getID(), stringBuilder.toString().replace("\n", ""));
-            LogTaskManager.getInstance().getTask(getCleanObject().getID()).setException(new Exception(exception));
+            LogTaskManager.getInstance().getTask(getCleanObject().getID()).setException(new Exception(stringBuilder.toString()));
 
             return false;
         }
@@ -208,22 +219,76 @@ public class CleanDataObject {
 
     public void reloadAttributes() throws JEVisException {
 
-        getCleanObject().getDataSource().reloadAttribute(conversionToDifferentialAttribute);
-        getCleanObject().getDataSource().reloadAttribute(enabledAttribute);
-        getCleanObject().getDataSource().reloadAttribute(limitsEnabledAttribute);
-        getCleanObject().getDataSource().reloadAttribute(limitsConfigurationAttribute);
-        getCleanObject().getDataSource().reloadAttribute(gapFillingEnabledAttribute);
-        getCleanObject().getDataSource().reloadAttribute(gapFillingConfigAttribute);
-        getCleanObject().getDataSource().reloadAttribute(alarmEnabledAttribute);
-        getCleanObject().getDataSource().reloadAttribute(alarmConfigAttribute);
-        getCleanObject().getDataSource().reloadAttribute(alarmLogAttribute);
-        getCleanObject().getDataSource().reloadAttribute(periodAlignmentAttribute);
-        getCleanObject().getDataSource().reloadAttribute(periodOffsetAttribute);
-        getCleanObject().getDataSource().reloadAttribute(valueIsAQuantityAttribute);
-        getCleanObject().getDataSource().reloadAttribute(valueMultiplierAttribute);
-        getCleanObject().getDataSource().reloadAttribute(valueOffsetAttribute);
-        getCleanObject().getDataSource().reloadAttribute(counterOverflowAttribute);
-        getCleanObject().getDataSource().reloadAttribute(valueAttribute);
+        if (conversionToDifferentialAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(conversionToDifferentialAttribute);
+            conversionDifferential = null;
+        }
+
+        if (enabledAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(enabledAttribute);
+            enabled = null;
+        }
+
+        if (limitsEnabledAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(limitsEnabledAttribute);
+            limitsEnabled = null;
+        }
+        if (limitsConfigurationAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(limitsConfigurationAttribute);
+            jsonLimitsConfig = null;
+        }
+        if (gapFillingEnabledAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(gapFillingEnabledAttribute);
+            gapFillingEnabled = null;
+        }
+        if (gapFillingConfigAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(gapFillingConfigAttribute);
+            jsonGapFillingConfig = null;
+        }
+        if (alarmEnabledAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(alarmEnabledAttribute);
+        }
+        if (alarmConfigAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(alarmConfigAttribute);
+        }
+        if (alarmLogAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(alarmLogAttribute);
+        }
+        if (periodAlignmentAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(periodAlignmentAttribute);
+            isPeriodAligned = null;
+        }
+        if (periodOffsetAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(periodOffsetAttribute);
+            periodOffset = null;
+        }
+        if (valueIsAQuantityAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(valueIsAQuantityAttribute);
+            valueIsQuantity = null;
+        }
+        if (valueMultiplierAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(valueMultiplierAttribute);
+            multiplier = null;
+        }
+        if (valueOffsetAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(valueOffsetAttribute);
+            offset = null;
+        }
+        if (counterOverflowAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(counterOverflowAttribute);
+            counterOverflow = null;
+        }
+        if (valueAttribute != null) {
+            getCleanObject().getDataSource().reloadAttribute(valueAttribute);
+        }
+
+        periodRawData = null;
+        periodCleanData = null;
+        firstDate = null;
+        lastDate = null;
+        rawSamplesDown = null;
+        rawSamplesUp = null;
+        lastCleanValue = null;
     }
 
     public Boolean getEnabled() {
@@ -346,8 +411,11 @@ public class CleanDataObject {
     public DateTime getMaxEndDate() {
         if (lastDate == null) {
             try {
-                int indexLastRawSample = getRawSamplesDown().size() - 1;
-                lastDate = rawSamplesDown.get(indexLastRawSample).getTimestamp().plus(getCleanDataPeriodAlignment());
+                List<JEVisSample> rawSamplesDown = getRawSamplesDown();
+                if (!rawSamplesDown.isEmpty()) {
+                    int indexLastRawSample = rawSamplesDown.size() - 1;
+                    lastDate = this.rawSamplesDown.get(indexLastRawSample).getTimestamp().plus(getCleanDataPeriodAlignment());
+                }
                 //lastDate = sampleHandler.getTimeStampFromLastSample(rawDataObject, VALUE_ATTRIBUTE_NAME).plus(getCleanDataPeriodAlignment());
             } catch (JEVisException e) {
                 logger.error("Could not get timestamp of last Raw sample.");
@@ -410,15 +478,22 @@ public class CleanDataObject {
                     .minus(getCleanDataPeriodAlignment())
                     .minus(getCleanDataPeriodAlignment())
                     .minus(getCleanDataPeriodAlignment());
+
+            DateTime lastDate = getLastRawDate();
+            Period rawDataPeriod = getRawDataPeriodAlignment();
+
+            long l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), rawDataPeriod);
+
+            while (l > processingSize) {
+                lastDate = lastDate.minus(rawDataPeriod);
+                l = PeriodArithmetic.periodsInAnInterval(new Interval(firstDate, lastDate), rawDataPeriod);
+            }
+
             rawSamplesDown = sampleHandler.getSamplesInPeriod(
                     rawDataObject,
                     VALUE_ATTRIBUTE_NAME,
                     firstDate,
-                    getLastRawDate());
-
-            if (rawSamplesDown.size() > processingSize) {
-                rawSamplesDown = rawSamplesDown.subList(0, processingSize);
-            }
+                    lastDate);
         }
         return rawSamplesDown;
     }

@@ -22,8 +22,9 @@ public class Sample {
     private DateTime date;
     private BigDecimal value;
     private final String variable;
+    private final CalcInputType calcInputType;
 
-    Sample(JEVisSample currentSample, String variable) {
+    Sample(JEVisSample currentSample, String variable, CalcInputType calcInputType) {
         try {
             this.date = currentSample.getTimestamp();
             this.value = new BigDecimal(currentSample.getValueAsDouble());
@@ -31,6 +32,7 @@ public class Sample {
             logger.fatal(ex);
         }
         this.variable = variable;
+        this.calcInputType = calcInputType;
     }
 
     public DateTime getDate() {
@@ -45,5 +47,7 @@ public class Sample {
         return variable;
     }
 
-
+    public CalcInputType getCalcInputType() {
+        return calcInputType;
+    }
 }

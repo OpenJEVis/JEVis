@@ -260,7 +260,7 @@ public class PushNotification implements Notification {
                     if (!_receivers.contains(rec)) { // repetitive receivers sre not allowed
                         _receivers.add(rec);
                     } else {
-                        logger.info("Repetitive Receivers: " + rec + " is not allowed");
+                        logger.info("Repetitive Receivers: {} is not allowed", rec);
 //                        logger.info("Repetitive Receivers: " + rec + " is not allowed");
                     }
                 }
@@ -294,7 +294,7 @@ public class PushNotification implements Notification {
                     if (!_bundleIDs.contains(buID)) { // repetitive Bundle IDs sre not allowed
                         _bundleIDs.add(buID);
                     } else {
-                        logger.info("Bundle IDs: " + buID + " is not allowed");
+                        logger.info("Bundle IDs: {} is not allowed", buID);
 //                        logger.info("Repetitive Receivers: " + buID + " is not allowed");
                     }
                 }
@@ -375,7 +375,7 @@ public class PushNotification implements Notification {
                     if (!imports.contains(strs[i])) { // repetitive ID is not allowed
                         imports.add(strs[i]);
                     } else {
-                        logger.info("Repetitive ID: " + strs[i] + " is not allowed");
+                        logger.info("Repetitive ID: {} is not allowed", strs[i]);
 //                        logger.info("Repetitive ID: " + strs[i] + " is not allowed");
                     }
                 }
@@ -482,7 +482,7 @@ public class PushNotification implements Notification {
                 logger.error(ex);
             }
         } else {
-            logger.info(notiObj + " is not suitable for Push Notification");
+            logger.info("{} is not suitable for Push Notification", notiObj);
         }
     }
 
@@ -546,7 +546,7 @@ public class PushNotification implements Notification {
                     sendDate.add(t.getTimestamp());
                 }
             } else {
-                logger.info("The attribute " + SENT_TIME + " of " + getJEVisObjectNoti().getID() + " does not exist.");
+                logger.info("The attribute {} of {} does not exist.", SENT_TIME, getJEVisObjectNoti().getID());
             }
         } catch (JEVisException ex) {
             logger.error(ex);

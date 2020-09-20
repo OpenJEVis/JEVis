@@ -45,7 +45,7 @@ public class JEVisAttributeWS implements JEVisAttribute {
 
     public static final DateTimeFormatter attDTF = ISODateTimeFormat.dateTime();
     private static final Logger logger = LogManager.getLogger(JEVisAttributeWS.class);
-    private JEVisDataSourceWS ds;
+    private final JEVisDataSourceWS ds;
     private JsonAttribute json;
 
     public JEVisAttributeWS(JEVisDataSourceWS ds, JsonAttribute json, Long obj) {
@@ -102,6 +102,11 @@ public class JEVisAttributeWS implements JEVisAttribute {
     @Override
     public List<JEVisSample> getSamples(DateTime from, DateTime to) {
         return ds.getSamples(this, from, to);
+    }
+
+    @Override
+    public List<JEVisSample> getSamples(DateTime from, DateTime to, boolean customWorkDay, String aggregationPeriod, String manipulationPeriod) {
+        return ds.getSamples(this, from, to, customWorkDay, aggregationPeriod, manipulationPeriod);
     }
 
     @Override

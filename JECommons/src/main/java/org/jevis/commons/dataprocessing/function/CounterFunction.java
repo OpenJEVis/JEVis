@@ -23,14 +23,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.*;
 import org.jevis.commons.dataprocessing.Process;
+import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.ws.json.JsonSample;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class CounterFunction implements ProcessFunction {
@@ -39,6 +39,7 @@ public class CounterFunction implements ProcessFunction {
     public static final String NAME = "Counter Processor";
 
     private List<JEVisSample> _result;
+    private List<JsonSample> _jsonResult;
 
     public enum TS_MODE {
 
@@ -110,6 +111,53 @@ public class CounterFunction implements ProcessFunction {
         options.add(new BasicProcessOption("Counter Start"));
 
         return options;
+    }
+
+    @Override
+    public List<JsonSample> getJsonResult(BasicProcess task) {
+        if (_jsonResult != null) {
+            return _jsonResult;
+        } else {
+            _jsonResult = new ArrayList<>();
+
+            if (task.getSubProcesses().size() != 1) {
+                logger.warn("Waring Counter processor can only handel one input. using first only!");
+            }
+
+            JsonSample lastSample = null;
+
+            TS_MODE mode = TS_MODE.BEGINNING;//TODO get from options
+
+            for (JsonSample sample : task.getSubProcesses().get(0).getJsonResult()) {
+
+                if (lastSample == null) {
+                    lastSample = sample;
+                } else {
+                    double diff = 0;
+                    if (Double.parseDouble(sample.getValue()) >= Double.parseDouble(lastSample.getValue())) {
+
+                        diff = Double.parseDouble(sample.getValue()) - Double.parseDouble(lastSample.getValue());
+//                            logger.info("pV: " + lastSample.getValueAsDouble() + "  nV:" + sample.getValueAsDouble() + "  diff:" + diff);
+                        JsonSample jsonSample = new JsonSample();
+                        if (mode == TS_MODE.BEGINNING) {
+                            jsonSample.setTs(lastSample.getTs());
+                            jsonSample.setValue(Double.toString(diff));
+                        } else {
+                            jsonSample.setTs(sample.getTs());
+                            jsonSample.setValue(Double.toString(diff));
+                        }
+                        _jsonResult.add(jsonSample);
+
+                    } else {
+                        logger.error("Error counter is smaler the the previsus. maybe an counter overflow?");
+                    }
+                    lastSample = sample;
+                }
+
+            }
+        }
+
+        return _jsonResult;
     }
 
 }

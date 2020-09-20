@@ -11,8 +11,8 @@ import org.joda.time.format.DateTimeFormat;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 /**
- *
  * @author broder
  */
 public class DataHelper {
@@ -33,7 +33,7 @@ public class DataHelper {
         try {
             Period.valueOf(scheduleString.toUpperCase());
         } catch (IllegalArgumentException ex) {
-            logger.error("Schedule string is invalid: " + scheduleString, ex);
+            logger.error("Schedule string is invalid: {}", scheduleString, ex);
             return false;
         }
         return true;
@@ -43,7 +43,7 @@ public class DataHelper {
         try {
             DateTimeFormat.forPattern(ReportConfiguration.DATE_FORMAT).parseDateTime(startRecordString);
         } catch (IllegalArgumentException ex) {
-            logger.error("Start record has non valid format: " + startRecordString, ex);
+            logger.error("Start record has non valid format: {}", startRecordString, ex);
             return false;
         }
         return true;

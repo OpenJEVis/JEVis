@@ -67,7 +67,7 @@ public class SQLNotificationDriver implements NotificationDriver {
             }
         } else {
             logger.info("This Notification is not the SQLNotification.");
-            logger.info("This Notification is" + jenoti.getType() + ".");
+            logger.info("This Notification is {}.", jenoti.getType());
         }
         return successful;
     }
@@ -151,7 +151,7 @@ public class SQLNotificationDriver implements NotificationDriver {
         if (notiObj.getJEVisClass().getName().equals(_type)) {
             _jeDri = notiObj;
         } else {
-            logger.info(notiObj + " is not suitable for SQL Notification Driver");
+            logger.info("{} is not suitable for SQL Notification Driver", notiObj);
         }
     }
 
@@ -175,7 +175,7 @@ public class SQLNotificationDriver implements NotificationDriver {
                     recorder.addSamples(ts);
                     re = true;
                 } else {
-                    logger.info("The attribute of the Notification " + noti.getJEVisObjectNoti().getID() + " does not exist.");
+                    logger.info("The attribute of the Notification {} does not exist.", noti.getJEVisObjectNoti().getID());
                 }
             } catch (JEVisException ex) {
                 logger.error(ex);

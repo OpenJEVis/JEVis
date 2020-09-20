@@ -53,7 +53,7 @@ import java.util.prefs.Preferences;
 public class TopMenu extends MenuBar {
     private static final Logger logger = LogManager.getLogger(TopMenu.class);
 
-    private List<MenuItem> items = new ArrayList<>();
+    private final List<MenuItem> items = new ArrayList<>();
     private Plugin activePlugin;
 
     public TopMenu() {
@@ -206,6 +206,9 @@ public class TopMenu extends MenuBar {
             MenuItem setLimits = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title"));
             setLimits.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
+            MenuItem setSubstitutionSettings = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setSubstitutionSettingsRecursive.title"));
+            setSubstitutionSettings.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+
             MenuItem setUnitsAndPeriods = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setUnitAndPeriodRecursive.title"));
             setUnitsAndPeriods.setAccelerator(new KeyCodeCombination(KeyCode.U, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
@@ -218,7 +221,7 @@ public class TopMenu extends MenuBar {
             MenuItem resetCalculation = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.resetcalc"));
             resetCalculation.setAccelerator(new KeyCodeCombination(KeyCode.J, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
 
-            menuEdit.getItems().addAll(replace, deleteAllCleanAndRaw, setLimits, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation);
+            menuEdit.getItems().addAll(replace, deleteAllCleanAndRaw, setLimits, setSubstitutionSettings, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation);
         }
 
 //        menuEdit.getItems().addAll(copie, delete, rename);

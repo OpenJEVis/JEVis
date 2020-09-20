@@ -32,7 +32,8 @@ import org.jevis.commons.utils.Benchmark;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
 import org.jevis.commons.ws.json.JsonSample;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
@@ -60,7 +61,7 @@ public class ResourceVirtualSample {
     private static final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
     private SQLDataSource ds = null;
     private List<JsonSample> list;
-    private DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
+    private final DateTimeFormatter sampleDTF = ISODateTimeFormat.dateTime();
 
     /**
      * Get the samples from an object/Attribute
@@ -240,6 +241,12 @@ public class ResourceVirtualSample {
 
             @Override
             public List<JEVisSample> getSamples(DateTime from, DateTime to) {
+                return samples;
+            }
+
+            @Override
+            public List<JEVisSample> getSamples(DateTime from, DateTime to, boolean customWorkDay, String aggregationPeriod, String manipulationMode) {
+                //TODO: check??
                 return samples;
             }
 

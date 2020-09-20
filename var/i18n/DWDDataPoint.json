@@ -201,6 +201,32 @@
         "ru": "Squall",
         "en": "Squall"
       }
+    },
+    {
+      "type": "Station",
+      "descriptions": {
+        "de": "Station Description",
+        "ru": "Station Description",
+        "en": "Station Description"
+      },
+      "names": {
+        "de": "Station",
+        "ru": "Station",
+        "en": "Station"
+      }
+    },
+    {
+      "type": "Heating Degree Days Target",
+      "descriptions": {
+        "de": "Heating Degree Days Target Description",
+        "ru": "Heating Degree Days Target Description",
+        "en": "Heating Degree Days Target Description"
+      },
+      "names": {
+        "de": "Heigradtage Ziel",
+        "ru": "Heating Degree Days Target",
+        "en": "Heating Degree Days Target"
+      }
     }
   ]
 }

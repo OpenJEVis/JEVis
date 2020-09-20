@@ -21,6 +21,7 @@ import org.jevis.jeconfig.application.tools.ColorHelper;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.config.WidgetConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.JsonNames;
+import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
 import org.jevis.jeconfig.plugin.dashboard.datahandler.DataModelDataHandler;
 import org.joda.time.DateTime;
@@ -66,6 +67,7 @@ public class WebPieWidget extends Widget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle("new WebPie Widget");
         widgetPojo.setType(typeID());
+        widgetPojo.setSize(new Size(control.getActiveDashboard().xGridInterval*12,control.getActiveDashboard().yGridInterval*12));
 
 
         return widgetPojo;

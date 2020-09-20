@@ -130,7 +130,12 @@ public class AttributeValueChange {
         this.attribute = attribute;
     }
 
+    public JEVisAttribute getAttribute(){
+        return this.attribute;
+    }
+
     public void commit(DateTime dateTime) throws JEVisException {
+        System.out.println("Commit attribute: "+primitiveType+" "+attribute.getName());
         switch (primitiveType) {
             case JEVisConstants.PrimitiveType.LONG:
                 JEVisSample longSample = attribute.buildSample(dateTime, longValue);
@@ -164,6 +169,7 @@ public class AttributeValueChange {
 
                 break;
         }
+        System.out.println("->done");
     }
 
     @Override

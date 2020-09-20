@@ -19,13 +19,13 @@
  */
 package org.jevis.commons.dataprocessing.function;
 
+import org.jevis.api.JEVisSample;
+import org.jevis.commons.dataprocessing.Process;
+import org.jevis.commons.dataprocessing.*;
+import org.jevis.commons.ws.json.JsonSample;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.ProcessOption;
-import org.jevis.commons.dataprocessing.BasicProcessOption;
-import org.jevis.commons.dataprocessing.ProcessFunction;
-import org.jevis.commons.dataprocessing.Process;
 
 /**
  *
@@ -57,6 +57,11 @@ public class LimitCheckerFunction implements ProcessFunction {
         options.add(new BasicProcessOption("Upper Limit"));
 
         return options;
+    }
+
+    @Override
+    public List<JsonSample> getJsonResult(BasicProcess basicProcess) {
+        return null;
     }
 
 }

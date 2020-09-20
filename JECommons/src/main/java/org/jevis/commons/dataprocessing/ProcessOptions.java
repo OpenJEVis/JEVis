@@ -28,6 +28,7 @@ import org.jevis.api.JEVisSample;
 import org.jevis.commons.config.Options;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.utils.JEVisDates;
+import org.jevis.commons.ws.json.JsonSample;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -148,10 +149,10 @@ public class ProcessOptions {
                 result[0] = new DateTime(GetLatestOption(task, TS_START, new BasicProcessOption(TS_START, "")).getValue());
 //                result[0] = DateTime.parse(task.getOptions().get(TS_START), DateTimeFormat.forPattern(TS_PATTERN));
             } catch (Exception e) {
-                logger.error("error while parsing " + TS_START + " option");
+                logger.error("error while parsing {} option", TS_START);
             }
         } else {
-            logger.info("No " + TS_START + " option is missing");
+            logger.info("No {} option is missing", TS_START);
         }
 
         if (ContainsOption(task, TS_END)) {
@@ -159,10 +160,10 @@ public class ProcessOptions {
                 result[1] = new DateTime(GetLatestOption(task, TS_END, new BasicProcessOption(TS_END, "")).getValue());
 //                result[1] = DateTime.parse(task.getOptions().get(TS_END), DateTimeFormat.forPattern(TS_PATTERN));
             } catch (Exception ex) {
-                logger.error("error while parsing " + TS_END + " option");
+                logger.error("error while parsing {} option", TS_END);
             }
         } else {
-            logger.info("No " + TS_END + " option is missing");
+            logger.info("No {} option is missing", TS_END);
         }
 
         return result;
@@ -188,8 +189,8 @@ public class ProcessOptions {
         }
         firstPeriod = firstPeriod.minus(period);
 
-        logger.info("finding date in: " + ((new DateTime()).getMillis() - startD.getMillis()) + "ms");
-        logger.info("first offset date: offset:" + offset + "   for period: " + period + "   input date: " + date + "  fistPeriod: " + firstPeriod);
+        logger.info("finding date in: {} ms", ((new DateTime()).getMillis() - startD.getMillis()));
+        logger.info("first offset date: offset: {} for period: {} input date: {} fistPeriod: {}", offset, period, date, firstPeriod);
         return firstPeriod;
     }
 
@@ -223,7 +224,7 @@ public class ProcessOptions {
             startDate = startDate.plus(period);
             if (startDate.isAfter(lastSample)) {
 //                logger.info("wtf: " + startDate.getMillis() + "     " + lastSample.getMillis());
-//                logger.info("faild Interval: " + startDate + "   is after   " + lastSample);
+//                logger.info("failed Interval: " + startDate + "   is after   " + lastSample);
                 run = false;
             } else {
                 result.add(new Interval(startDate, period));
@@ -231,7 +232,7 @@ public class ProcessOptions {
         }
 
         DateTime benchMarkEnd = new DateTime();
-        logger.info("Time to create Intervals[" + result.size() + "]:  in " + (benchMarkEnd.getMillis() - benchMarkStart.getMillis()) + "ms");
+        logger.info("Time to create Intervals[{}] in {} ms", result.size(), (benchMarkEnd.getMillis() - benchMarkStart.getMillis()));
         return result;
     }
 
@@ -261,6 +262,20 @@ public class ProcessOptions {
         return result;
     }
 
+    public static List<DateTime> getAllJsonTimestamps(List<List<JsonSample>> allSamples) {
+        List<DateTime> result = new ArrayList<>();
+        for (List<JsonSample> samples : allSamples) {
+            for (JsonSample sample : samples) {
+                if (!result.contains(new DateTime(sample.getTs()))) {
+                    result.add(new DateTime(sample.getTs()));
+                }
+            }
+        }
+        Collections.sort(result);
+
+        return result;
+    }
+
     public static List<DateTime> getAllTimestampsSingleList(List<JEVisSample> allSamples) {
         List<DateTime> result = new ArrayList<>();
         for (JEVisSample sample : allSamples) {
@@ -270,6 +285,19 @@ public class ProcessOptions {
                 }
             } catch (JEVisException ex) {
                 logger.fatal(ex);
+            }
+
+        }
+        Collections.sort(result);
+
+        return result;
+    }
+
+    public static List<DateTime> getAllJsonTimestampsSingleList(List<JsonSample> allSamples) {
+        List<DateTime> result = new ArrayList<>();
+        for (JsonSample sample : allSamples) {
+            if (!result.contains(new DateTime(sample.getTs()))) {
+                result.add(new DateTime(sample.getTs()));
             }
 
         }
@@ -295,7 +323,12 @@ public class ProcessOptions {
         }
         if (!ContainsOption(task, OFFSET)) {
             logger.warn("Error missing offset option");
-            WorkDays wd = new WorkDays(task.getObject());
+            WorkDays wd = null;
+            if (task.getObject() != null) {
+                wd = new WorkDays(task.getObject());
+            } else {
+                wd = new WorkDays(task.getSqlDataSource(), task.getJsonObject());
+            }
 
             boolean isCustomWorkDay = true;
             for (ProcessOption option : task.getOptions()) {
@@ -322,12 +355,12 @@ public class ProcessOptions {
         for (ProcessOption option : task.getOptions()) {
             String key = option.getKey();
             String value = option.getValue();
-            logger.info("key: " + key);
+            logger.info("key: {}", key);
             switch (key) {
                 case PERIOD:
-                    logger.info("period string: " + value);
+                    logger.info("period string: {}", value);
                     period = Period.parse(value);
-                    logger.info("parsed period: " + period.toString(PeriodFormat.wordBased()));
+                    logger.info("parsed period: {}", period.toString(PeriodFormat.wordBased()));
                     break;
                 case OFFSET:
                     //TODO check value formats
@@ -380,7 +413,7 @@ public class ProcessOptions {
         if (attribute.getOptions() != null && !attribute.getOptions().isEmpty()) {
             logger.info("Optiones exists");
             for (JEVisOption option : attribute.getOptions()) {
-                logger.info("opt: " + option.getKey());
+                logger.info("opt: {}", option.getKey());
                 if (option.getKey().equalsIgnoreCase(ROOT_OPTION_NAME)) {
 //                    JEVisOption dpOption = option.getOption(ROOT_OPTION_NAME);
 

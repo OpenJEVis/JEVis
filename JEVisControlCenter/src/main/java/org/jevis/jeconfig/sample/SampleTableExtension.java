@@ -29,14 +29,17 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.Chart.ChartPluginElements.DataPointNoteDialog;
 import org.jevis.jeconfig.dialog.ConfirmDialog;
 import org.jevis.jeconfig.dialog.ProgressForm;
 import org.jevis.jeconfig.sample.tableview.SampleTable;
@@ -62,7 +65,7 @@ public class SampleTableExtension implements SampleEditorExtension {
     private JEVisAttribute _att;
     private List<JEVisSample> _samples = new ArrayList<>();
     private boolean _dataChanged = true;
-    private BooleanProperty disableEditing = new SimpleBooleanProperty(false);
+    private final BooleanProperty disableEditing = new SimpleBooleanProperty(false);
 
     public SampleTableExtension(JEVisAttribute att, Window owner) {
         _att = att;
@@ -71,8 +74,14 @@ public class SampleTableExtension implements SampleEditorExtension {
     }
 
     private void buildGui(final JEVisAttribute att, final List<JEVisSample> samples) {
-        HBox box = new HBox(10);
-        box.setAlignment(Pos.CENTER);
+        HBox deleteBox = new HBox(10);
+        deleteBox.setAlignment(Pos.CENTER);
+
+        HBox userBox = new HBox(10);
+        userBox.setAlignment(Pos.CENTER);
+
+        VBox motherBox = new VBox();
+        motherBox.setAlignment(Pos.CENTER);
 
         final SampleTable table = new SampleTable(att, dateTimeZone, samples);
         table.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -215,30 +224,55 @@ public class SampleTableExtension implements SampleEditorExtension {
                 }
         );
 
-//        boolean disableEdit = true;
-        box.getChildren()
-                .setAll(addNewSample, deleteAll, deleteSelected, deleteInBetween, saveButton);
-//
-//        try {
-//            if (att.getObject().getDataSource().getCurrentUser().canWrite(att.getObject().getID())) {
-//                disableEdit = false;
-//
-//            }
-//        } catch (Exception ex) {
-//            logger.error(ex);
-//        }
-//
-//        deleteAll.setDisable(disableEdit);
-//        deleteInBetween.setDisable(disableEdit);
-//        deleteSelected.setDisable(disableEdit);
-//        addNewSample.setDisable(disableEdit);
+        deleteBox.getChildren().setAll(addNewSample, deleteAll, deleteSelected, deleteInBetween, saveButton);
 
+        Button addNewUserValue = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.addnewuservalue.titlelong"));
+        addNewUserValue.setDisable(!table.deleteSelectedProperty().getValue());
+        addNewUserValue.disableProperty().bind(table.deleteSelectedProperty().not());
+
+        addNewUserValue.setOnAction(event -> {
+            try {
+                if (att.getPrimitiveType() == JEVisConstants.PrimitiveType.DOUBLE) {
+                    new DataPointNoteDialog(att, table);
+                }
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        });
+
+        Button addUserValuesInBetween = new Button(I18n.getInstance().getString("sampleeditor.confirmationdialog.adduservalueinbetwen.titlelong"));
+        addUserValuesInBetween.setDisable(table.deleteInBetweenProperty().getValue());
+        addUserValuesInBetween.disableProperty().bind(table.deleteInBetweenProperty().not());
+
+        addUserValuesInBetween.setOnAction(event -> {
+            DateTime[] minMax = table.findSelectedMinMaxDate();
+            DateTime firstDate = minMax[0];
+            DateTime endDate = minMax[1];
+            try {
+                new DataPointNoteDialog(att, minMax);
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        });
+
+        userBox.getChildren().setAll(addNewUserValue, addUserValuesInBetween);
 
         _view.setPadding(new Insets(10, 0, 10, 0));
-        box.setPadding(new Insets(10, 0, 10, 0));
+        deleteBox.setPadding(new Insets(10, 0, 10, 0));
+        userBox.setPadding(new Insets(10, 0, 10, 0));
+
+        try {
+            if (att.getObject().getJEVisClassName().equals("Data") || att.getObject().getJEVisClassName().equals("Clean Data")) {
+                motherBox.getChildren().setAll(deleteBox, userBox);
+            } else {
+                motherBox.getChildren().setAll(deleteBox);
+            }
+        } catch (JEVisException e) {
+            e.printStackTrace();
+        }
 
         _view.setCenter(table);
-        _view.setBottom(box);
+        _view.setBottom(motherBox);
     }
 
     public void taskWithAnimation(Task<Void> task) {

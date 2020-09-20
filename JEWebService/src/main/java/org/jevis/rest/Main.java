@@ -12,11 +12,11 @@ import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.EncodingFilter;
 import org.jevis.api.JEVisException;
-import org.jevis.ws.sql.ConnectionFactory;
+import org.jevis.commons.ws.sql.Config;
+import org.jevis.commons.ws.sql.ConnectionFactory;
 
 import javax.security.sasl.AuthenticationException;
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -25,7 +25,7 @@ import java.sql.SQLException;
  * Main class.
  */
 public class Main {
-    public static final String VERSION = "JEWebService Version 1.9.0 2019-11-12";
+    public static final String VERSION = "JEWebService Version 1.9.2 2020-09-09";
     private static final Logger logger = LogManager.getLogger(Main.class);
 
     /**
@@ -60,11 +60,7 @@ public class Main {
 //
 //            // }
 //        }
-        logger.info("DBHost: " + Config.getDBHost()
-                + "\nDBPort: " + Config.getDBPort()
-                + "\nDBSchema: " + Config.getSchema()
-                + "\nDBUSer: " + Config.getDBUser()
-                + "\nDBPW: " + Config.getDBPW());
+        logger.info("DBHost: {}\nDBPort: {}\nDBSchema: {}\nDBUSer: {}\nDBPW: {}", Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
         ConnectionFactory.getInstance().registerMySQLDriver(Config.getDBHost(), Config.getDBPort(), Config.getSchema(), Config.getDBUser(), Config.getDBPW());
 
         Connection dbConn = ConnectionFactory.getInstance().getConnection();
@@ -114,13 +110,18 @@ public class Main {
         // run
         try {
             server.start();
-        } catch (IOException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Server error: {}",e);
             throw new RuntimeException(e);
         }
         try {
+            logger.info("{} is now running",VERSION);
             logger.info("Press CTRL^C to exit..");
             Thread.currentThread().join();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Server error: {}",e);
             throw new RuntimeException(e);
         }
     }

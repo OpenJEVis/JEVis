@@ -27,6 +27,7 @@ public interface JsonNames {
 
         String UUID = "uuid";
         String TITLE = "title";
+        String TOOLTIP = "tooltip";
         String TITLE_POSITION = "Title Position";
         String TYPE = "WidgetType";
         String BACKGROUND_COLOR = "Background Color";

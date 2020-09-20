@@ -8,8 +8,8 @@ package org.jevis.iso.rest;
 import org.apache.commons.io.IOUtils;
 import org.jevis.commons.ws.json.JsonAttribute;
 import org.jevis.commons.ws.json.JsonObject;
+import org.jevis.commons.ws.sql.SQLDataSource;
 import org.jevis.iso.classes.ISO50001;
-import org.jevis.ws.sql.SQLDataSource;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -187,7 +187,7 @@ public class Resources {
             @DefaultValue("") @QueryParam("org") Boolean org
     ) throws Exception {
         SQLDataSource ds = null;
-        String fileName = new String();
+        String fileName = "";
         InputStream in = null;
         byte[] imageData = null;
 

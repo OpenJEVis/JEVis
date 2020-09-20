@@ -3,7 +3,7 @@ package org.jevis.iso.add;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.commons.ws.json.*;
-import org.jevis.ws.sql.SQLDataSource;
+import org.jevis.commons.ws.sql.SQLDataSource;
 
 import java.util.ArrayList;
 import java.util.List;

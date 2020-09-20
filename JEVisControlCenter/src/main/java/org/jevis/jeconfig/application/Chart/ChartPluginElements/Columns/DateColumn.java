@@ -15,7 +15,7 @@ import javafx.util.Callback;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.PickerCombo;
 import org.jevis.jeconfig.application.Chart.data.AnalysisDataModel;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.jevis.jeconfig.application.jevistree.JEVisTree;
 import org.jevis.jeconfig.application.jevistree.JEVisTreeRow;
 import org.joda.time.DateTime;
@@ -45,7 +45,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
         this.type = type;
     }
 
-    private DatePicker buildDatePicker(ChartDataModel data, DATE_TYPE type) {
+    private DatePicker buildDatePicker(ChartDataRow data, DATE_TYPE type) {
 
         LocalDate ld = null;
 
@@ -68,7 +68,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
         JFXDatePicker datePicker;
         JFXTimePicker timePicker;
 
-        List<ChartDataModel> singletonList = Collections.singletonList(data);
+        List<ChartDataRow> singletonList = Collections.singletonList(data);
 
         PickerCombo pickerCombo = new PickerCombo(getData(), singletonList, false);
 
@@ -100,7 +100,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
         column.setId(COLUMN_ID);
         column.setCellValueFactory(param -> {
             try {
-                ChartDataModel data = getData(param.getValue().getValue());
+                ChartDataRow data = getData(param.getValue().getValue());
                 DateTime date;
                 if (type == DATE_TYPE.START) {
                     date = data.getSelectedStart();
@@ -125,7 +125,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
                     @Override
                     public void commitEdit(DateTime newValue) {
                         super.commitEdit(newValue);
-                        ChartDataModel data = getData(getTreeTableRow().getItem());
+                        ChartDataRow data = getData(getTreeTableRow().getItem());
 
                         if (type == DATE_TYPE.START) {
                             data.setSelectedStart(newValue);
@@ -147,7 +147,7 @@ public class DateColumn extends TreeTableColumn<JEVisTreeRow, DateTime> implemen
                                         && tree.getFilter().showCell(column, getTreeTableRow().getItem())) {
                                     StackPane stackPane = new StackPane();
 
-                                    ChartDataModel data = getData(getTreeTableRow().getItem());
+                                    ChartDataRow data = getData(getTreeTableRow().getItem());
                                     DatePicker dp = buildDatePicker(data, type);
 
                                     ImageView imageMarkAll = new ImageView(imgMarkAll);

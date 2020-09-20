@@ -34,6 +34,7 @@ import org.jevis.commons.utils.Optimization;
 import org.jevis.commons.utils.PrettyError;
 import org.jevis.commons.ws.json.*;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 import javax.net.ssl.SSLHandshakeException;
 import java.awt.image.BufferedImage;
@@ -74,20 +75,22 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private JEVisUser user;
     private List<JEVisOption> config = new ArrayList<>();
     //    private List<JEVisRelationship> objectRelCache = Collections.synchronizedList(new ArrayList<JEVisRelationship>());
-    private ConcurrentHashMap<String, JEVisClass> classCache = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Long, JEVisObject> objectCache = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Long, List<JEVisRelationship>> objectRelMapCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, JEVisClass> classCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, JEVisObject> objectCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, List<JEVisRelationship>> objectRelMapCache = new ConcurrentHashMap<>();
     private boolean allAttributesPreloaded = false;
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
+    /** Amount of Samples in one request **/
+    private final int SAMPLE_REQUEST_SIZE=10000;
     private HTTPConnection.Trust sslTrustMode = HTTPConnection.Trust.SYSTEM;
 
     /**
      * fallback because some old client will call preload but we now a days do per default
      **/
     private boolean hasPreloaded = false;
-    private ConcurrentHashMap<Long, List<JEVisAttribute>> attributeCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, List<JEVisAttribute>> attributeCache = new ConcurrentHashMap<>();
 
     public JEVisDataSourceWS(String host) {
         this.host = host;
@@ -135,6 +138,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             //TODO: throw excption?! so the other function can handel it?
         } catch (IOException ex) {
             logger.error(ex);
+        } catch (InterruptedException e) {
+            logger.error(e);
         }
         return new ArrayList<>();
     }
@@ -348,6 +353,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.error("Json mapping exception. Error getting all objects. ", ex);
         } catch (IOException ex) {
             logger.error("IO exception. Error getting all objects. ", ex);
+        } catch (InterruptedException e) {
+            logger.error("Interrupted exception. Error getting all objects. ", e);
         }
 
         benchmark.printBechmark("reading object input stream done");
@@ -359,7 +366,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 logger.error("Error while parsing object: {}", ex.getMessage());
             }
         });
-        benchmark.printBechmark("updateing object cache done for "+jsonObjects.size()+" objects");
+        benchmark.printBechmark("updateing object cache done for " + jsonObjects.size() + " objects");
     }
 
     @Override
@@ -445,6 +452,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.error("Json mapping exception. Error reloading relationship for {}", id, e);
         } catch (IOException e) {
             logger.error("IO exception. Error reloading relationship for {}", id, e);
+        } catch (InterruptedException e) {
+            logger.error("Interrupted exception. Error reloading relationship for {}", id, e);
         }
     }
 
@@ -513,6 +522,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.error("Json mapping exception. Error getting relationships. ", ex);
         } catch (IOException ex) {
             logger.error("IO exception. Error getting relationships. ", ex);
+        } catch (InterruptedException e) {
+            logger.error("Interrupted exception. Error getting relationships. ", e);
         }
 
         for (JsonRelationship jsonRelationship : jsons) {
@@ -584,17 +595,20 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 //
 
             InputStream inputStream = this.con.getInputStreamRequest(resource);
-            JsonAttribute[] jsons = this.objectMapper.readValue(inputStream, JsonAttribute[].class);
-            inputStream.close();
-            for (JsonAttribute att : jsons) {
-                try {
-                    attributes.add(updateAttributeCache(att));
-                } catch (Exception ex) {
-                    logger.error(ex);
+            if (inputStream != null) {
+                JsonAttribute[] jsons = this.objectMapper.readValue(inputStream, JsonAttribute[].class);
+                inputStream.close();
+                for (JsonAttribute att : jsons) {
+                    try {
+                        attributes.add(updateAttributeCache(att));
+                    } catch (Exception ex) {
+                        logger.error(ex);
+                    }
                 }
+                fixMissingAttributes(getObject(objectID), attributes);
+            } else {
+                logger.warn("Could not get attributes for object with id {}", objectID);
             }
-            fixMissingAttributes(getObject(objectID), attributes);
-
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -605,33 +619,33 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     private void fixMissingAttributes(JEVisObject object, List<JEVisAttribute> attributes) {
         try {
+            if (object != null) {
+                JEVisClass oClass = object.getJEVisClass();
 
-            JEVisClass oClass = object.getJEVisClass();
+                if (oClass != null && oClass.getTypes() != null) {
+                    oClass.getTypes().forEach(jeVisType -> {
+                        boolean exists = false;
+                        try {
+                            for (JEVisAttribute att : attributes) {
+                                if (att.getName().equals(jeVisType.getName())) exists = true;
+                            }
+                            if (!exists) {
+                                JsonAttribute json = new JsonAttribute();
+                                json.setObjectID(object.getID());
+                                json.setType(jeVisType.getName());
+                                json.setPrimitiveType(jeVisType.getPrimitiveType());
+                                json.setSampleCount(0);
 
-            if (oClass != null && oClass.getTypes() != null) {
-                oClass.getTypes().forEach(jeVisType -> {
-                    boolean exists = false;
-                    try {
-                        for (JEVisAttribute att : attributes) {
-                            if (att.getName().equals(jeVisType.getName())) exists = true;
+                                JEVisAttribute newAttribute = new JEVisAttributeWS(this, json);
+                                attributes.add(newAttribute);
+                            }
+                        } catch (Exception ex) {
+                            logger.error(ex);
                         }
-                        if (!exists) {
-                            JsonAttribute json = new JsonAttribute();
-                            json.setObjectID(object.getID());
-                            json.setType(jeVisType.getName());
-                            json.setPrimitiveType(jeVisType.getPrimitiveType());
-                            json.setSampleCount(0);
 
-                            JEVisAttribute newAttribute = new JEVisAttributeWS(this, json);
-                            attributes.add(newAttribute);
-                        }
-                    } catch (Exception ex) {
-                        logger.error(ex);
-                    }
-
-                });
+                    });
+                }
             }
-
         } catch (Exception ex) {
             logger.error(ex);
         }
@@ -658,7 +672,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
         JEVisAttributeWS newAttribute = new JEVisAttributeWS(this, jSonAttribute);
         this.attributeCache.get(jSonAttribute.getObjectID()).add(newAttribute);
-        logger.debug("add new attribute: {}.{}", jSonAttribute.getObjectID(), jSonAttribute.getType());
+//        logger.debug("add new attribute: {}.{}", jSonAttribute.getObjectID(), jSonAttribute.getType());
 
         return newAttribute;
 
@@ -858,9 +872,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return this.con;
     }
 
-    public List<JEVisSample> getSamples(JEVisAttribute att, DateTime from, DateTime until) {
-        logger.debug("Get  getSamples: {} {}-{}", att.getName(), from, until);
-        //TODO: throw exception?! so the other function can handel it?
+    public List<JEVisSample> getSamples(JEVisAttribute att, DateTime from, DateTime until, boolean customWorkDay, String aggregationPeriod, String manipulationMode) {
+        logger.debug("Get  getSamples: {} {}-{} with agreggation {} and manipulation {}", att.getName(), from, until, aggregationPeriod, manipulationMode);
 
         List<JEVisSample> samples = new ArrayList<>();
         String resource = REQUEST.API_PATH_V1
@@ -885,18 +898,25 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL + HTTPConnection.FMT.print(until);
         }
 
-//            StringBuffer response = con.getRequest(resource);
-//
-//            Type listType = new TypeToken<List<JsonSample>>() {
-//            }.getType();
-//            List<JsonSample> jsons = gson.fromJson(response.toString(), listType);
+        if (aggregationPeriod != null && manipulationMode != null) {
+            resource += "&";
+            resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.customWorkDay + customWorkDay;
+            resource += "&";
+            resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.aggregationPeriod + aggregationPeriod;
+            resource += "&";
+            resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.manipulationMode + manipulationMode;
+        }
 
-        //            ObjectMapper objectMapper = new ObjectMapper();
         List<JsonSample> jsons = new ArrayList<>();
         try {
             InputStream inputStream = this.con.getInputStreamRequest(resource);
-            jsons = new ArrayList<>(Arrays.asList(this.objectMapper.readValue(inputStream, JsonSample[].class)));
-            inputStream.close();
+            if (inputStream != null) {
+                jsons = new ArrayList<>(Arrays.asList(this.objectMapper.readValue(inputStream, JsonSample[].class)));
+                inputStream.close();
+            }
+        } catch (IllegalArgumentException ex) {
+            logger.error("Illegal argument exception. Error in getting samples.", ex);
+            return new ArrayList<>();
         } catch (JsonParseException ex) {
             logger.error("Json parse exception. Error in getting samples.", ex);
             return new ArrayList<>();
@@ -906,6 +926,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         } catch (IOException ex) {
             logger.error("IO exception. Error in getting samples.", ex);
             return new ArrayList<>();
+        } catch (InterruptedException e) {
+            logger.error("Interrupted exception. Error in getting samples.", e);
         }
 
         for (JsonSample sample : jsons) {
@@ -916,6 +938,83 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
         }
 
+        return samples;
+    }
+
+    public List<JEVisSample> getSamples(JEVisAttribute att, DateTime from, DateTime until) {
+        logger.debug("Get  getSamples: {} {}-{}", att.getName(), from, until);
+
+        List<JEVisSample> samples = new ArrayList<>();
+        String resource = REQUEST.API_PATH_V1
+                + REQUEST.OBJECTS.PATH
+                + att.getObjectID() + "/"
+                + REQUEST.OBJECTS.ATTRIBUTES.PATH
+                + att.getName() + "/"
+                + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.PATH;
+
+        boolean isfirst = true;
+        if (from != null) {
+
+            resource += "?" + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.FROM + HTTPConnection.FMT.print(from);
+            isfirst = false;
+        }
+        if (until != null) {
+            if (!isfirst) {
+                resource += "&";
+            } else {
+                resource += "?";
+            }
+            resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL + HTTPConnection.FMT.print(until);
+        }
+        String prefix ="&";
+        if (!resource.contains("?")){
+            prefix = "?";
+        }
+        resource += prefix+REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.LIMIT+"="+SAMPLE_REQUEST_SIZE;
+
+        List<JsonSample> jsons = new ArrayList<>();
+        try {
+            InputStream inputStream = this.con.getInputStreamRequest(resource);
+            if (inputStream != null) {
+                jsons = new ArrayList<>(Arrays.asList(this.objectMapper.readValue(inputStream, JsonSample[].class)));
+                inputStream.close();
+            }
+        } catch (IllegalArgumentException ex) {
+            logger.error("Illegal argument exception. Error in getting samples.", ex);
+            return new ArrayList<>();
+        } catch (JsonParseException ex) {
+            logger.error("Json parse exception. Error in getting samples.", ex);
+            return new ArrayList<>();
+        } catch (JsonMappingException ex) {
+            logger.error("Json mapping exception. Error in getting samples.", ex);
+            return new ArrayList<>();
+        } catch (IOException ex) {
+            logger.error("IO exception. Error in getting samples.", ex);
+            return new ArrayList<>();
+        } catch (InterruptedException e) {
+            logger.error("Interrupted exception. Error in getting samples.", e);
+        }
+
+        for (JsonSample sample : jsons) {
+            try {
+                samples.add(new JEVisSampleWS(this, sample, att));
+            } catch (Exception ex) {
+                logger.error("Error parsing sample {} of attribute {}:{}", sample.toString(), att.getObject().getID(), att.getName());
+            }
+        }
+
+        if(!samples.isEmpty() && samples.size()==SAMPLE_REQUEST_SIZE){
+            JEVisSample lastInList= samples.get(samples.size()-1);
+            try {
+                List<JEVisSample> nextList = getSamples(att, lastInList.getTimestamp().plus(Duration.standardSeconds(1)), until);
+                logger.debug("Add additonal samples: {}",nextList.size());
+                samples.addAll(nextList);
+            }catch (Exception ex){
+                logger.error(ex);
+            }
+        }
+
+        //logger.error("GetSamples: {} total: {} from/until {}....{}",att,samples.size(),from,until);
         return samples;
     }
 
@@ -1009,6 +1108,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.fatal(ex);
         } catch (IOException ex) {
             logger.fatal(ex);
+        } catch (InterruptedException e) {
+            logger.fatal(e);
         }
         return new ArrayList<>();
     }
@@ -1081,6 +1182,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.fatal(ex);
         } catch (IOException ex) {
             logger.fatal(ex);
+        } catch (InterruptedException e) {
+            logger.fatal(e);
         }
         return new ArrayList<>();
     }
@@ -1242,11 +1345,13 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             return new JEVisClassWS(this, json);
 
         } catch (JsonParseException ex) {
-            logger.error("Json parse excpetion. Error getting jevis {} class from ws.", name, ex);
+            logger.error("Json parse exception. Error getting jevis {} class from ws.", name, ex);
         } catch (JsonMappingException ex) {
-            logger.error("Json mapping excpetion. Error getting jevis {} class from ws.", name, ex);
+            logger.error("Json mapping exception. Error getting jevis {} class from ws.", name, ex);
         } catch (IOException ex) {
-            logger.error("IO excpetion. Error getting jevis {} class from ws.", name, ex);
+            logger.error("IO exception. Error getting jevis {} class from ws.", name, ex);
+        } catch (InterruptedException e) {
+            logger.error("Interrupted exception. Error getting jevis {} class from ws.", name, e);
         }
         return null;
     }
@@ -1285,6 +1390,8 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             logger.error("Json mapping exception. Error getting classes from ws.", ex);
         } catch (IOException ex) {
             logger.error("IO exception. Error getting classes from ws.", ex);
+        } catch (InterruptedException e) {
+            logger.error("Interrupted exception. Error getting classes from ws.", e);
         }
 
         for (JsonJEVisClass jc : jsons) {
@@ -1330,7 +1437,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
 
     @Override
     public boolean connect(String username, String password) throws JEVisException {
-        logger.error("Connect with user {} to: {}", username, this.host);
+        logger.debug("Connect with user {} to: {}", username, this.host);
 
         this.con = new HTTPConnection(this.host, username, password, sslTrustMode);
 
@@ -1355,7 +1462,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 this.preload();
 
                 this.user = new JEVisUserWS(this, new JEVisObjectWS(this, json));
-                logger.trace("User.object: " + this.user.getUserObject());
+                logger.debug("User.object: " + this.user.getUserObject());
                 return true;
             } else {
                 logger.error("Login failed: [{}] {}", conn.getResponseCode(), conn.getResponseMessage());

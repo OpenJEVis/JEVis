@@ -8,9 +8,8 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.Chart.Charts.MultiAxis.MultiAxisChart;
-import org.jevis.jeconfig.application.Chart.data.ChartDataModel;
-import org.jevis.jeconfig.plugin.charts.GraphPluginView;
+import org.jevis.jeconfig.application.Chart.Charts.XYChart;
+import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
 import org.joda.time.DateTime;
 
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.TreeMap;
 public class TableSerie extends XYChartSerie {
     private static final Logger logger = LogManager.getLogger(TableSerie.class);
 
-    public TableSerie(ChartDataModel singleRow, Boolean hideShowIcons) throws JEVisException {
+    public TableSerie(ChartDataRow singleRow, Boolean hideShowIcons) throws JEVisException {
         super(singleRow, hideShowIcons, false);
     }
 
@@ -64,12 +63,9 @@ public class TableSerie extends XYChartSerie {
         }
 
         Platform.runLater(() -> {
-            JEConfig.getStatusBar().progressProgressJob(GraphPluginView.JOB_NAME, 1, FINISHED_SERIE);
+            JEConfig.getStatusBar().progressProgressJob(XYChart.JOB_NAME, 1, FINISHED_SERIE);
         });
 
-    }
-
-    public void setDataNodeColor(MultiAxisChart.Data<Number, Number> data) {
     }
 
     public String generateNote(JEVisSample sample) throws JEVisException {
@@ -101,11 +97,11 @@ public class TableSerie extends XYChartSerie {
         this.timeStampFromLastSample = timeStampFromLastSample;
     }
 
-    public ChartDataModel getSingleRow() {
+    public ChartDataRow getSingleRow() {
         return singleRow;
     }
 
-    public void setSingleRow(ChartDataModel singleRow) {
+    public void setSingleRow(ChartDataRow singleRow) {
         this.singleRow = singleRow;
         this.yAxis = singleRow.getAxis();
     }
