@@ -1815,9 +1815,10 @@ public class TreeHelper {
         info.setWidth(600);
 
         TextField textField = new TextField();
-        Label message = new Label("You really sure you know what you're doing?");
+        Label message = new Label("You really sure you know what you're doing? Move all data/clean data samples their period x field");
+        CheckBox correctUTC = new CheckBox("Correct UTC diff");
 
-        VBox vBox = new VBox(message, textField);
+        VBox vBox = new VBox(message, textField, correctUTC);
         warning.getDialogPane().setContent(vBox);
 
         TextArea textArea = new TextArea();
@@ -1834,66 +1835,109 @@ public class TreeHelper {
                 try {
                     JEVisClass dataClass = ds.getJEVisClass("Data");
                     JEVisClass cleanDataClass = ds.getJEVisClass("Clean Data");
-                    Integer periodIncrease = Integer.parseInt(textField.getText());
 
-                    List<JEVisObject> dataObjects = CalculationMethods.getAllRawDataRec(items.get(0).getValue().getJEVisObject(), dataClass);
-                    List<JEVisObject> ctdObjects = new ArrayList<>();
-                    for (JEVisObject dataObject : dataObjects) {
-                        JEVisAttribute valueAttribute = dataObject.getAttribute("Value");
-                        Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " Check"));
+                    if (!correctUTC.isSelected()) {
 
-                        List<JEVisObject> cleanDataChildren = dataObject.getChildren(cleanDataClass, false);
-                        if (!cleanDataChildren.isEmpty() && valueAttribute != null) {
-                            JEVisObject cleanDataObject = cleanDataChildren.get(0);
-                            JEVisAttribute ctdAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
-                            if (ctdAttribute != null) {
-                                JEVisSample latestSample = ctdAttribute.getLatestSample();
-                                if (latestSample != null && latestSample.getValueAsBoolean()) {
-                                    ctdObjects.add(dataObject);
-                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " added to list"));
+                        Integer periodIncrease = Integer.parseInt(textField.getText());
+                        List<JEVisObject> dataObjects = CalculationMethods.getAllRawDataRec(items.get(0).getValue().getJEVisObject(), dataClass);
+                        List<JEVisObject> ctdObjects = new ArrayList<>();
+                        for (JEVisObject dataObject : dataObjects) {
+                            JEVisAttribute valueAttribute = dataObject.getAttribute("Value");
+                            Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " Check"));
+
+                            List<JEVisObject> cleanDataChildren = dataObject.getChildren(cleanDataClass, false);
+                            if (!cleanDataChildren.isEmpty() && valueAttribute != null) {
+                                JEVisObject cleanDataObject = cleanDataChildren.get(0);
+                                JEVisAttribute ctdAttribute = cleanDataObject.getAttribute(CleanDataObject.AttributeName.CONVERSION_DIFFERENTIAL.getAttributeName());
+                                if (ctdAttribute != null) {
+                                    JEVisSample latestSample = ctdAttribute.getLatestSample();
+                                    if (latestSample != null && latestSample.getValueAsBoolean()) {
+                                        ctdObjects.add(dataObject);
+                                        Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " added to list"));
+                                    }
+                                }
+                            }
+                        }
+
+                        final String formatStr = "yyyy-MM-dd HH:mm:ss";
+                        for (JEVisObject dataObject : ctdObjects) {
+                            Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " moving samples"));
+
+                            JEVisAttribute value = dataObject.getAttribute("Value");
+                            if (value != null) {
+                                List<JEVisSample> allSamples = value.getAllSamples();
+                                List<JEVisSample> virtualSamples = new ArrayList<>();
+
+                                for (JEVisSample sample : allSamples) {
+                                    DateTime oldTS = sample.getTimestamp();
+                                    DateTime movedTimeStamp = null;
+
+                                    if (value.getInputSampleRate().equals(Period.years(1))) {
+                                        movedTimeStamp = oldTS.plusYears(periodIncrease).withMonthOfYear(oldTS.getMonthOfYear()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                    } else if (value.getInputSampleRate().equals(Period.months(1))) {
+                                        movedTimeStamp = oldTS.plusMonths(periodIncrease).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
+                                    } else {
+                                        movedTimeStamp = oldTS.plusMillis(Math.toIntExact(value.getInputSampleRate().toStandardDuration().getMillis() * periodIncrease));
+                                    }
+
+                                    JEVisSample virtualSample = new VirtualSample(movedTimeStamp, sample.getValueAsDouble());
+                                    virtualSample.setNote(sample.getNote());
+                                    DateTime finalMovedTimeStamp = movedTimeStamp;
+                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr)));
+                                    virtualSamples.add(virtualSample);
+                                }
+
+                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found " + allSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
+
+                                if (allSamples.size() == virtualSamples.size()) {
+                                    value.deleteAllSample();
+                                    value.addSamples(virtualSamples);
+                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " finished moving samples"));
+                                }
+                            }
+                        }
+                    } else {
+                        List<JEVisObject> allDataObjects = ds.getObjects(dataClass, true);
+                        for (JEVisObject object : allDataObjects) {
+                            final String formatStr = "yyyy-MM-dd HH:mm:ss";
+                            Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " moving samples"));
+
+                            JEVisAttribute value = object.getAttribute("Value");
+                            if (value != null) {
+                                List<JEVisSample> allSamples = value.getAllSamples();
+                                List<JEVisSample> virtualSamples = new ArrayList<>();
+
+                                for (JEVisSample sample : allSamples) {
+                                    DateTime oldTS = sample.getTimestamp();
+                                    DateTime movedTimeStamp = null;
+
+                                    if (oldTS.getHourOfDay() == 20) {
+                                        movedTimeStamp = oldTS.plusHours(4);
+                                    } else if (oldTS.getHourOfDay() == 21) {
+                                        movedTimeStamp = oldTS.plusHours(3);
+                                    } else if (oldTS.getHourOfDay() == 22) {
+                                        movedTimeStamp = oldTS.plusHours(2);
+                                    } else if (oldTS.getHourOfDay() == 23) {
+                                        movedTimeStamp = oldTS.plusHours(1);
+                                    }
+
+                                    JEVisSample virtualSample = new VirtualSample(movedTimeStamp, sample.getValueAsDouble());
+                                    virtualSample.setNote(sample.getNote());
+                                    DateTime finalMovedTimeStamp = movedTimeStamp;
+                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr)));
+                                    virtualSamples.add(virtualSample);
+                                }
+
+                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " found " + allSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
+
+                                if (allSamples.size() == virtualSamples.size()) {
+                                    value.deleteAllSample();
+                                    value.addSamples(virtualSamples);
+                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " finished moving samples"));
                                 }
                             }
                         }
                     }
-
-                    final String formatStr = "yyyy-MM-dd HH:mm:ss";
-                    for (JEVisObject dataObject : ctdObjects) {
-                        Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " moving samples"));
-
-                        JEVisAttribute value = dataObject.getAttribute("Value");
-                        if (value != null) {
-                            List<JEVisSample> allSamples = value.getAllSamples();
-                            List<JEVisSample> virtualSamples = new ArrayList<>();
-
-                            for (JEVisSample sample : allSamples) {
-                                DateTime oldTS = sample.getTimestamp();
-                                DateTime movedTimeStamp = null;
-
-                                if (value.getInputSampleRate().equals(Period.years(1))) {
-                                    movedTimeStamp = oldTS.plusYears(periodIncrease).withMonthOfYear(oldTS.getMonthOfYear()).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
-                                } else if (value.getInputSampleRate().equals(Period.months(1))) {
-                                    movedTimeStamp = oldTS.plusMonths(periodIncrease).withDayOfMonth(oldTS.getDayOfMonth()).withHourOfDay(oldTS.getHourOfDay()).withMinuteOfHour(oldTS.getMinuteOfHour()).withSecondOfMinute(oldTS.getSecondOfMinute()).withMillisOfSecond(oldTS.getMillisOfSecond());
-                                } else {
-                                    movedTimeStamp = oldTS.plusMillis(Math.toIntExact(value.getInputSampleRate().toStandardDuration().getMillis() * periodIncrease));
-                                }
-
-                                JEVisSample virtualSample = new VirtualSample(movedTimeStamp, sample.getValueAsDouble());
-                                virtualSample.setNote(sample.getNote());
-                                DateTime finalMovedTimeStamp = movedTimeStamp;
-                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr)));
-                                virtualSamples.add(virtualSample);
-                            }
-
-                            Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " found " + allSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
-
-                            if (allSamples.size() == virtualSamples.size()) {
-                                value.deleteAllSample();
-                                value.addSamples(virtualSamples);
-                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + dataObject.getName() + ":" + dataObject.getID() + " finished moving samples"));
-                            }
-                        }
-                    }
-
 
                 } catch (JEVisException e) {
                     e.printStackTrace();

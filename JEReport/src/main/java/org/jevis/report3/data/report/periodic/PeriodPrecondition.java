@@ -87,6 +87,6 @@ public class PeriodPrecondition implements Precondition {
             }
         }
 
-        return ((endRecord != null && endRecord.isBefore(new DateTime())) && (isFulfilled));
+        return ((endRecord != null) && (isFulfilled));
     }
 }

@@ -5,6 +5,7 @@
 package org.jevis.jenotifier.notifier.Email;
 
 
+import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
@@ -21,8 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author gf
@@ -540,10 +539,12 @@ public class EmailNotification implements Notification {
      */
     public boolean isEmailAddressLegal(String emailAddress) {
         boolean isEmail;
-        Pattern pattern = Pattern.compile("^([a-z0-9A-Z]+[-|\\.|_]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$");
+        EmailValidator emailValidator = EmailValidator.getInstance(true);
+//        Pattern pattern = Pattern.compile("^([a-z0-9A-Z]+[-|\\.|_]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$");
         if (emailAddress != null) {
-            Matcher matcher = pattern.matcher(emailAddress);
-            isEmail = matcher.matches();
+//            Matcher matcher = pattern.matcher(emailAddress);
+//            isEmail = matcher.matches();
+            isEmail = emailValidator.isValid(emailAddress);
         } else {
             isEmail = false;
         }

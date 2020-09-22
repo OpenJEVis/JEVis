@@ -40,7 +40,9 @@
         <module>sFTP-Driver</module>
         <module>SOAP-Driver</module>
         <module>XML-Driver</module>
+        <module>envidatec-vida</module>
+        <module>loytec-xml-dl</module>
         <module>OPCUA-Driver</module>
     </modules>
-
+   
 </project>

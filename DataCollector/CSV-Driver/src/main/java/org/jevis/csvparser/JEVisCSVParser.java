@@ -29,6 +29,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisType;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.driver.*;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTimeZone;
 
 import java.io.InputStream;
@@ -136,13 +137,16 @@ public class JEVisCSVParser implements Parser {
                 Long datapointID = dp.getID();
                 String mappingIdentifier = DatabaseHelper.getObjectAsString(dp, mappingIdentifierType);
                 String targetString = DatabaseHelper.getObjectAsString(dp, targetType);
-                Long target = null;
-                try {
-                    target = Long.parseLong(Objects.requireNonNull(targetString));
-                } catch (Exception ex) {
-                    logger.info("DataPoint target error: {}", ex.getMessage());
-//                    ex.printStackTrace();
+                String target = null;
+
+                TargetHelper targetHelper = new TargetHelper(dp.getDataSource(), targetString);
+                if (targetHelper.isValid() && targetHelper.targetAccessible()) {
+                    target = targetString;
+                } else {
+                    logger.info("DataPoint target error: {}", datapointID);
+                    continue;
                 }
+
                 String valueString = null;
                 Integer valueIndex = null;
                 try {
