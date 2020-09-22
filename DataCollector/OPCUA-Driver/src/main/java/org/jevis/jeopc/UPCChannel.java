@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
+import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 
 /**
@@ -25,7 +26,9 @@ public class UPCChannel {
     private String name;
     private String nodeId;
     private DateTime lastReadout;
+    private JEVisAttribute targetAtt;
     private JEVisAttribute statusLog;
+    private JEVisObject targetObj;
     private final Helper helper = new Helper();
     private String targetString;
 
@@ -38,7 +41,7 @@ public class UPCChannel {
 
         this.update();
 
-        log.error("UPC Channel: {}",toString());
+        log.error("UPC Channel: {}", toString());
 
     }
 
@@ -47,6 +50,10 @@ public class UPCChannel {
 
         NodeId nodeIdName = NodeId.parse(nodeId); //20100
         return nodeIdName;
+    }
+
+    public JEVisAttribute getTarget() {
+        return targetAtt;
     }
 
     private void update() throws JEVisException {
@@ -63,6 +70,13 @@ public class UPCChannel {
             targetString = latestSample.getValueAsString();
         }
 
+        TargetHelper th = new TargetHelper(channelObject.getDataSource(), channelTargetAtt);
+        if (!th.getAttribute().isEmpty()) {
+            targetAtt = th.getAttribute().get(0);
+        }
+        targetObj = targetAtt.getObject();
+        targetObj.getID();
+
         log.debug("Getting channel last read out");
 
         JEVisClass channelClass = channelObject.getJEVisClass();
@@ -70,6 +84,10 @@ public class UPCChannel {
         lastReadout = DatabaseHelper.getObjectAsDate(channelObject, readoutType);
         JEVisType statusLogType = channelClass.getType(STATUS_LOG);
         statusLog = channelObject.getAttribute(statusLogType);
+    }
+
+    public String getTargetAttribute() {
+        return targetAtt.getName();
     }
 
     public String getTargetString() {
@@ -82,6 +100,10 @@ public class UPCChannel {
 
     public String getNodeId() {
         return nodeId;
+    }
+
+    public Long getTargetId() {
+        return targetAtt.getObjectID();
     }
 
     public DateTime getLastReadout() {
