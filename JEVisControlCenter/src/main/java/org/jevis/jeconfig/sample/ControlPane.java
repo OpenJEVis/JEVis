@@ -303,7 +303,7 @@ public class ControlPane extends GridPane {
             try {
                 Benchmark benchmark = new Benchmark();
                 sampleList = futureTask.get();
-                benchmark.printBechmark("For loaading samples: "+sampleList.size());
+                benchmark.printBechmark("For loading samples: " + sampleList.size());
             } catch (Exception ex) {
                 logger.error(ex);
             }
