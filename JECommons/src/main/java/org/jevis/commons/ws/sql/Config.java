@@ -214,7 +214,7 @@ public class Config {
                     _keyFile = getParameter(config, "webservice.keystore", homeDir + "/etc/keystore.jks");
                     _keyFilePW = getParameter(config, "webservice.keystorepw", "jevispw");
 
-                    _jeccVersion = getParameter(config, "webservice.jeccversion", "jevispw");
+                    _jeccVersion = getParameter(config, "webservice.jeccversion", "0");
 
 
                     _i18nDir = new File(getParameter(config, "webservice.i18ndir", homeDir + "/jevis/var/i18n/").replaceAll("%$", ""));
