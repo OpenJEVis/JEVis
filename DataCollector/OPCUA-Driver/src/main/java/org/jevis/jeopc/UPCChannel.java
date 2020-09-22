@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
-import org.jevis.commons.object.plugin.TargetHelper;
 import org.joda.time.DateTime;
 
 /**
@@ -22,14 +21,13 @@ public class UPCChannel {
     private final static String STATUS_LOG = "Status Log";
 
 
-    private JEVisObject channelObject;
+    private final JEVisObject channelObject;
     private String name;
     private String nodeId;
     private DateTime lastReadout;
-    private JEVisAttribute targetAtt;
     private JEVisAttribute statusLog;
-    private JEVisObject targetObj;
-    private Helper helper = new Helper();
+    private final Helper helper = new Helper();
+    private String targetString;
 
     //private DateTime lastSampleTimeStamp = DateTime.now();
 
@@ -51,10 +49,6 @@ public class UPCChannel {
         return nodeIdName;
     }
 
-    public JEVisAttribute getTarget() {
-        return targetAtt;
-    }
-
     private void update() throws JEVisException {
         log.debug("Getting channel name");
         name = channelObject.getName();
@@ -64,13 +58,10 @@ public class UPCChannel {
 
 
         JEVisAttribute channelTargetAtt = channelObject.getAttribute(TARGET_ID);
-        TargetHelper th = new TargetHelper(channelObject.getDataSource(), channelTargetAtt);
-        if (!th.getAttribute().isEmpty()) {
-            targetAtt = th.getAttribute().get(0);
+        JEVisSample latestSample = channelTargetAtt.getLatestSample();
+        if (latestSample != null) {
+            targetString = latestSample.getValueAsString();
         }
-        targetObj = targetAtt.getObject();
-        targetObj.getID();
-
 
         log.debug("Getting channel last read out");
 
@@ -81,8 +72,8 @@ public class UPCChannel {
         statusLog = channelObject.getAttribute(statusLogType);
     }
 
-    public String getTargetAttribute(){
-        return targetAtt.getName();
+    public String getTargetString() {
+        return targetString;
     }
 
     public String getName() {
@@ -91,10 +82,6 @@ public class UPCChannel {
 
     public String getNodeId() {
         return nodeId;
-    }
-
-    public Long getTargetId() {
-        return targetAtt.getObjectID();
     }
 
     public DateTime getLastReadout() {
@@ -116,7 +103,7 @@ public class UPCChannel {
                 ", name='" + name + '\'' +
                 ", nodeId='" + nodeId + '\'' +
                 ", lastReadout=" + lastReadout +
-                ", targetAtt=" + targetAtt.getName() +
+                ", targetStr=" + targetString +
                 ", statusLog=" + statusLog +
                 '}';
     }

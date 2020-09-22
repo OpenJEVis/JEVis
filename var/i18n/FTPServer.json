@@ -123,6 +123,19 @@
         "ru": "User",
         "en": "User"
       }
+    },
+    {
+      "type": "Delete File on successful parsing",
+      "descriptions": {
+        "de": "Delete File on successful parsing description",
+        "ru": "Delete File on successful parsing description",
+        "en": "Delete File on successful parsing description"
+      },
+      "names": {
+        "de": "Datei nach erfolgreichem parsen löschen",
+        "ru": "Delete File on successful parsing",
+        "en": "Delete File on successful parsing"
+      }
     }
   ]
 }

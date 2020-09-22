@@ -41,9 +41,10 @@ import java.util.Map;
 public class JEVisImporter implements Importer {
     private static final Logger logger = LogManager.getLogger(JEVisImporter.class);
 
-    private JEVisDataSource _client = null;
+    private JEVisDataSource client = null;
     private JEVisObject dataSource;
-    private DateTimeZone _timezone;
+    private DateTimeZone timezone;
+    private Boolean overwrite = false;
 //    private DateTime _latestDateTime;
 
     public static void main(String[] args) {
@@ -57,23 +58,31 @@ public class JEVisImporter implements Importer {
     public void initialize(JEVisObject dataSource) {
         try {
             this.dataSource = dataSource;
-            _client = dataSource.getDataSource();
+            client = dataSource.getDataSource();
             JEVisAttribute timezoneAttribute = dataSource.getAttribute(DataCollectorTypes.DataSource.TIMEZONE);
-            _timezone = DateTimeZone.UTC;
+            timezone = DateTimeZone.UTC;
             if (timezoneAttribute != null) {
                 JEVisSample lastSample = timezoneAttribute.getLatestSample();
                 if (lastSample != null) {
                     try {
                         DateTimeZone dateTimeZone = DateTimeZone.forID(lastSample.getValueAsString());
                         if (dateTimeZone != null)
-                            _timezone = dateTimeZone;
+                            timezone = dateTimeZone;
                     } catch (IllegalArgumentException e) {
                         logger.error("Timezone readout failed, falling back to UTC");
                     }
                 }
             }
+
+            JEVisAttribute overwriteAttribute = dataSource.getAttribute(DataCollectorTypes.DataSource.OVERWRITE);
+            if (overwriteAttribute != null) {
+                JEVisSample lastSample = overwriteAttribute.getLatestSample();
+                if (lastSample != null) {
+                    overwrite = lastSample.getValueAsBoolean();
+                }
+            }
         } catch (Exception ex) {
-            logger.fatal("Timezone setup in Importer failed", ex);
+            logger.fatal("Datasource initializing in Importer failed", ex);
         }
     }
 
@@ -87,7 +96,6 @@ public class JEVisImporter implements Importer {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    //TODO: support other attributes then "Value"
     @Override
     public DateTime importResult(List<Result> results) {
         logger.debug("--Starting SampleImport v2.5  --");
@@ -183,7 +191,7 @@ public class JEVisImporter implements Importer {
                         continue;
                     }
 
-                    DateTime convertedDate = TimeConverter.convertTime(_timezone, s.getDate());
+                    DateTime convertedDate = TimeConverter.convertTime(timezone, s.getDate());
 
                     if (convertedDate == null) {
                         logger.error("Error: Could not convert Date");
@@ -195,6 +203,10 @@ public class JEVisImporter implements Importer {
                     }
 
                     List<JEVisSample> sList = toImportList.get(target);
+
+                    if (overwrite) {
+                        target.deleteSamplesBetween(convertedDate, convertedDate);
+                    }
 
                     JEVisSample sample = target.buildSample(convertedDate, s.getValue());
                     sList.add(sample);
@@ -232,7 +244,7 @@ public class JEVisImporter implements Importer {
                 }
             }
             if (lastTSTotal != null) {
-                return lastTSTotal.withZone(_timezone);
+                return lastTSTotal.withZone(timezone);
             }
 
         } catch (Exception ex) {
