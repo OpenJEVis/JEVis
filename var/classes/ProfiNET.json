@@ -1,0 +1,36 @@
+{
+  "name": "ProfiNET",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "ProfiNET",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "ProfiNET",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "guiType": "Dynamic Enum",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "ProfiNET"
+    },
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Password",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "ProfiNET"
+    }
+  ]
+}
