@@ -298,9 +298,9 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         String resource = "/jecc/version";
         String version = "0";
         try {
-            this.con.getInputStreamRequest(resource);
             StringBuffer stringBuffer = this.con.getRequest(resource);
             version = stringBuffer.toString();
+            System.out.println("Version: "+version);
         } catch (SSLHandshakeException sslex) {
             logger.error("SSl Exception: {}", sslex);
         } catch (Exception ex) {

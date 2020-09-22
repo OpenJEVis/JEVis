@@ -53,7 +53,7 @@ public class HTTPConnection {
     public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
     private static final Logger logger = LogManager.getLogger(HTTPConnection.class);
     private static final long RETRY_DELAY_MS = 5000;
-    private static final int RETRIES = 10;
+    private static final int RETRIES = 3;
 
     /**
      *
@@ -189,12 +189,12 @@ public class HTTPConnection {
             conn.disconnect();
 
             retry++;
-            logger.warn("Failed retry " + retry + "/" + RETRIES);
+            logger.error("Failed retry {} for '{}'",RETRIES,resource);
             delay = true;
 
         } while (retry < RETRIES);
 
-        logger.fatal("Aborting download of input stream.");
+        logger.fatal("Aborting download of input stream. '{}'",resource);
         return null;
     }
 
