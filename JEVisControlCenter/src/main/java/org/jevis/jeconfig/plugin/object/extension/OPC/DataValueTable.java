@@ -160,21 +160,25 @@ public class DataValueTable {
         Platform.runLater(()->{
             filteredList.clear();
 
-            for (DataValueRow p : list) {
-                boolean isFilerMatch = matchesFilter(p);
-                if (filterTrends.isSelected()) {
-                    //filteredList.add(p);
+            try {
+                for (DataValueRow p : list) {
+                    boolean isFilerMatch = matchesFilter(p);
+                    if (filterTrends.isSelected()) {
+                        //filteredList.add(p);
 
-                    if (isFilerMatch ) {
+                        if (isFilerMatch) {
+                            filteredList.add(p);
+                        }
+
+                    } else if (isFilerMatch) {
                         filteredList.add(p);
                     }
 
-                } else if (isFilerMatch) {
-                    filteredList.add(p);
                 }
 
+            }catch (Exception ex){
+                /** todo: fix ConcurrentModificationException **/
             }
-
             // Must re-sort table after items changed
             reapplyTableSortOrder();
         });

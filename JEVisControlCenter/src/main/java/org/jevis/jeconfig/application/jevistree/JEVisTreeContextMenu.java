@@ -80,7 +80,7 @@ public class JEVisTreeContextMenu extends ContextMenu {
             if (obj.getJEVisClassName().equals("Calculation")) {
                 getItems().add(new SeparatorMenuItem());
                 getItems().add(buildMenuAddInput());
-            } else if(obj.getJEVisClassName().equals("Loytec XML-DL Server")){
+            } else if(obj.getJEVisClassName().equals("OPC Server")){
                 getItems().add(new SeparatorMenuItem());
                 getItems().add(buildOCP());
             }

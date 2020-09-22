@@ -898,7 +898,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL + HTTPConnection.FMT.print(until);
         }
 
-        if (aggregationPeriod != null && manipulationMode != null) {
+        if (from != null && aggregationPeriod != null && manipulationMode != null) {
             resource += "&";
             resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.customWorkDay + customWorkDay;
             resource += "&";

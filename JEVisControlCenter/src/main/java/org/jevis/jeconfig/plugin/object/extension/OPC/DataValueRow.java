@@ -16,7 +16,7 @@ public class DataValueRow {
     public DataValueRow(DataValue dataValue) {
         this.dateValueroperty = new SimpleObjectProperty<>(dataValue);
 
-        tsProperty =new SimpleStringProperty(dateValueroperty.getValue().getServerTime().getJavaDate().toString());
+        tsProperty =new SimpleStringProperty(dateValueroperty.getValue().getSourceTime().toString());
         valueProperty = new SimpleStringProperty(dateValueroperty.getValue().getValue().getValue().toString());
         qualityProperty = new SimpleStringProperty(dateValueroperty.getValue().getStatusCode().toString());
     }

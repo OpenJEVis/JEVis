@@ -1,6 +1,7 @@
 package org.jevis.jeopc;
 
 import com.google.common.collect.Lists;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
@@ -54,6 +55,7 @@ public class OPCClient {
         uaStackClient = client.getStackClient();
         uaclient = client.connect().get();
     }
+
     public void close(){
         try{
             uaclient.disconnect();
@@ -63,6 +65,8 @@ public class OPCClient {
             ex.printStackTrace();
         }
     }
+
+
 
 
     public List<EndpointDescription> getEndpoints() throws ExecutionException, InterruptedException {
@@ -114,14 +118,19 @@ public class OPCClient {
     }
 
     public List<DataValue> getDateValues(HistoryReadResult result){
+        logger.error("result.getStatusCode(): {}",result.getStatusCode());
         HistoryData historyData = (HistoryData) result.getHistoryData().decode(
                 client.getSerializationContext()
         );
+        logger.error("historyData: {}",historyData.getTypeId());
+        logger.error("historyData: {}",historyData.getXmlEncodingId());
+
 
         return Lists.newArrayList(historyData.getDataValues());
     }
 
     public HistoryReadResult getHistory(NodeId nodeId, org.joda.time.DateTime from, org.joda.time.DateTime until) throws ExecutionException, InterruptedException {
+        int samplesPerCall =10;
         List<HistoryReadValueId> ids = new ArrayList<>();
         List<DataValue> dataValues = new ArrayList<>();
 
@@ -129,17 +138,15 @@ public class OPCClient {
         DateTime untilTS = new DateTime(until.toDate());
 
         HistoryReadValueId id = new HistoryReadValueId(nodeId, 20100 + "", null, null);
-
         ids.add(id);
 
         CompletableFuture<HistoryReadResponse> historyRead = client.historyRead(
-                new ReadRawModifiedDetails(false, fromTS, untilTS, uint(1000), true),
-                TimestampsToReturn.Server, false, ids);
+                new ReadRawModifiedDetails(false, fromTS, untilTS, uint(0), true),
+                TimestampsToReturn.Both, false, ids);
 
         HistoryReadResponse response = historyRead.get();
 
         System.out.println("Size: " + response.getResults().length);
-
 
         if (response.getResults().length > 0) {
             return response.getResults()[0];
@@ -222,7 +229,10 @@ public class OPCClient {
                 logger.error("Add to Map: {}-{}",xpath,rd);
                 PathReferenceDescription pathReferenceDescription = new PathReferenceDescription(rd,xpath);
 
-                list.add(pathReferenceDescription);
+                Platform.runLater(() -> {
+                    list.add(pathReferenceDescription);
+                });
+
                 browseTree(list,xpath+"/"+rd.getBrowseName().getName(),nodeId);
             }
         } catch (NullPointerException ex){

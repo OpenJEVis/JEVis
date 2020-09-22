@@ -9,7 +9,7 @@
       "type": 0
     },
     {
-      "start": "OPC UA Server Server",
+      "start": "OPC UA Server",
       "end": "Data Source Directory",
       "type": 3
     }

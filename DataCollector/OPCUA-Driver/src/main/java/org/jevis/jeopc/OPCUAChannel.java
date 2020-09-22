@@ -1,33 +1,21 @@
-package loytecxmldl.jevis;
+package org.jevis.jeopc;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisSample;
-import org.jevis.commons.dataprocessing.VirtualSample;
 import org.jevis.commons.driver.Result;
-import org.jevis.commons.driver.TimeConverter;
 import org.jevis.commons.driver.inputHandler.GenericConverter;
-import org.jevis.xmlparser.DataPoint;
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoytecXmlDlParser {
+public class OPCUAChannel {
 
-    private final static Logger logger = LogManager.getLogger(LoytecXmlDlParser.class.getName());
+    private final static Logger logger = LogManager.getLogger(OPCUAChannel.class.getName());
     private final GenericConverter converter = new GenericConverter();
     private final Charset charset = StandardCharsets.UTF_8;
     private final String mainElement = "Items";
@@ -38,35 +26,23 @@ public class LoytecXmlDlParser {
     private String valueElement;
     private String valueAttribute;
     private String statusLogAttribute = "Status Log";
-    private List<DataPoint> dataPoints = new ArrayList<>();
+    // List<DataPoint> dataPoints = new ArrayList<>();
     private List<Result> results = new ArrayList<>();
     private List<JEVisSample> statusResults = new ArrayList<>();
     private String mainAttribute;
     private DateTimeZone timeZone;
 
-    public LoytecXmlDlParser() {
+    public OPCUAChannel() {
     }
 
-    public static void printDocument(Document doc, OutputStream out) throws IOException, TransformerException {
-        TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer transformer = tf.newTransformer();
-        transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-        transformer.transform(new DOMSource(doc),
-                new StreamResult(new OutputStreamWriter(out, StandardCharsets.UTF_8)));
-    }
 
     public void initChannel(UPCChannel channel) {
 
         Long target = channel.getTarget().getObjectID();
 
-        DataPoint dp = new DataPoint();
-        dp.setTarget(target);
-        dataPoints.add(dp);
+        //      DataPoint dp = new DataPoint();
+        //     dp.setTarget(target);
+        //     dataPoints.add(dp);
         //dp.setValueIdentifier("Value");
         this.valueElement = channel.getTarget().getName();
     }
@@ -79,56 +55,59 @@ public class LoytecXmlDlParser {
     private void parse(List<InputStream> input, DateTimeZone timeZone) {
         this.timeZone = timeZone;
         for (InputStream inputStream : input) {
-
+            System.out.println("inputStream; " + input);
             converter.convertInput(inputStream, charset);
-            List<Document> documents = (List<Document>) converter.getConvertedInput(Document.class);
+            /**
+             List<Document> documents = (List<Document>) converter.getConvertedInput(Document.class);
 
-            for (Document d : documents) {
-                if (logger.getLevel().equals(Level.DEBUG)) {
-                    try {
-                        printDocument(d, System.out);
+             for (Document d : documents) {
+             if (logger.getLevel().equals(Level.DEBUG)) {
+             try {
+             printDocument(d, System.out);
 
-                    } catch (TransformerException | IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+             } catch (TransformerException | IOException e) {
+             e.printStackTrace();
+             }
+             }
 
-                NodeList elementsByTagName = d.getElementsByTagName(mainElement);
+             NodeList elementsByTagName = d.getElementsByTagName(mainElement);
 
-                DOMSource domSource = new DOMSource(d);
-                StringWriter writer = new StringWriter();
-                StreamResult result = new StreamResult(writer);
-                TransformerFactory tf = TransformerFactory.newInstance();
-                Transformer transformer;
-                try {
-                    transformer = tf.newTransformer();
-                    transformer.transform(domSource, result);
-                } catch (TransformerConfigurationException ex) {
-                    logger.fatal("Error in transformer configuration: " + ex);
-                } catch (TransformerException ex) {
-                    logger.fatal("Error while transforming: " + ex);
-                }
+             DOMSource domSource = new DOMSource(d);
+             StringWriter writer = new StringWriter();
+             StreamResult result = new StreamResult(writer);
+             TransformerFactory tf = TransformerFactory.newInstance();
+             Transformer transformer;
+             try {
+             transformer = tf.newTransformer();
+             transformer.transform(domSource, result);
+             } catch (TransformerConfigurationException ex) {
+             logger.fatal("Error in transformer configuration: " + ex);
+             } catch (TransformerException ex) {
+             logger.fatal("Error while transforming: " + ex);
+             }
 
-                //iterate over all nodes with the element name
-                for (int i = 0; i < elementsByTagName.getLength(); i++) {
-                    Node currentNode = elementsByTagName.item(i);
-                    Node mainAttributeNode = null;
-                    if (mainAttribute != null) {
-                        NamedNodeMap attributes = currentNode.getAttributes();
-                        mainAttributeNode = attributes.getNamedItem(mainAttribute);
-                        if (mainAttributeNode == null) {
-                            continue;
-                        }
-                    }
-                    parseNode(currentNode, mainAttributeNode);
+             //iterate over all nodes with the element name
+             for (int i = 0; i < elementsByTagName.getLength(); i++) {
+             Node currentNode = elementsByTagName.item(i);
+             Node mainAttributeNode = null;
+             if (mainAttribute != null) {
+             NamedNodeMap attributes = currentNode.getAttributes();
+             mainAttributeNode = attributes.getNamedItem(mainAttribute);
+             if (mainAttributeNode == null) {
+             continue;
+             }
+             }
+             parseNode(currentNode, mainAttributeNode);
 
-                }
+             }
 
 
-            }
+             }
+             **/
         }
     }
 
+    /**
     private void parseNode(Node currentNode, Node mainAttributeNode) {
 
         for (DataPoint dp : dataPoints) {
@@ -236,7 +215,7 @@ public class LoytecXmlDlParser {
             }
         }
     }
-
+**/
     public List<JEVisSample> getStatusResults() {
         return statusResults;
     }

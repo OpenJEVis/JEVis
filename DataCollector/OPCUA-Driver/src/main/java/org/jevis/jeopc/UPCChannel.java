@@ -1,7 +1,8 @@
-package loytecxmldl.jevis;
+package org.jevis.jeopc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.jevis.api.*;
 import org.jevis.commons.DatabaseHelper;
 import org.jevis.commons.object.plugin.TargetHelper;
@@ -10,13 +11,20 @@ import org.joda.time.DateTime;
 /**
  * This implements the channel and related functions
  */
-public class UPCChannel implements LoytecXmlDlChannelClass {
+public class UPCChannel {
 
+    public final static String JEVIS_CLASS = "OPC UA Channel";
+    public final static String DIR_JEVIS_CLASS = "OPC UA Channel Directory";
     private final static Logger log = LogManager.getLogger(UPCChannel.class.getName());
+    private final static String NODE_ID = "Node ID";
+    private final static String TARGET_ID = "Target ID";
+    private final static String LAST_READOUT = "Last Readout";
+    private final static String STATUS_LOG = "Status Log";
+
 
     private JEVisObject channelObject;
     private String name;
-    private String trendId;
+    private String nodeId;
     private DateTime lastReadout;
     private JEVisAttribute targetAtt;
     private JEVisAttribute statusLog;
@@ -26,16 +34,23 @@ public class UPCChannel implements LoytecXmlDlChannelClass {
     //private DateTime lastSampleTimeStamp = DateTime.now();
 
     public UPCChannel(JEVisObject channelObject) throws JEVisException {
+        log.error("UPCChannel init: {}", channelObject);
 
         this.channelObject = channelObject;
 
         this.update();
 
-        log.debug("Init UPCChannel: " + name + " TID: " + trendId + " Tar: " + targetObj.getName() + ":" + targetObj.getID() + "  LastR: " + lastReadout);
+        log.error("UPC Channel: {}",toString());
 
     }
 
-    @Override
+    public NodeId getOPCNodeId() {
+        //NodeId nodeIdNumeric = new NodeId(1, 20100);
+
+        NodeId nodeIdName = NodeId.parse(nodeId); //20100
+        return nodeIdName;
+    }
+
     public JEVisAttribute getTarget() {
         return targetAtt;
     }
@@ -44,7 +59,7 @@ public class UPCChannel implements LoytecXmlDlChannelClass {
         log.debug("Getting channel name");
         name = channelObject.getName();
         log.debug("Getting channel trend id");
-        trendId = helper.getValue(channelObject, TREND_ID);
+        nodeId = helper.getValue(channelObject, NODE_ID);
         log.debug("Getting channel target id");
 
 
@@ -59,50 +74,50 @@ public class UPCChannel implements LoytecXmlDlChannelClass {
 
         log.debug("Getting channel last read out");
 
-        //JEVisAttribute lastReadOut = channelObject.getAttribute(LAST_READOUT);
-        //channelObject.getDataSource().reloadAttribute(lastReadOut);
         JEVisClass channelClass = channelObject.getJEVisClass();
         JEVisType readoutType = channelClass.getType(LAST_READOUT);
         lastReadout = DatabaseHelper.getObjectAsDate(channelObject, readoutType);
-
-        //targetObj.getDataSource().reloadAttribute(targetAtt);
-        //lastSampleTimeStamp = targetAtt.getLatestSample().getTimestamp();
-
         JEVisType statusLogType = channelClass.getType(STATUS_LOG);
         statusLog = channelObject.getAttribute(statusLogType);
     }
 
-    @Override
+    public String getTargetAttribute(){
+        return targetAtt.getName();
+    }
+
     public String getName() {
         return name;
     }
 
-    @Override
-    public String getTrendId() {
-        return trendId;
+    public String getNodeId() {
+        return nodeId;
     }
 
-    @Override
     public Long getTargetId() {
         return targetAtt.getObjectID();
     }
 
-    @Override
     public DateTime getLastReadout() {
         return lastReadout;
     }
 
-    @Override
     public JEVisObject getJeVisObject() {
         return channelObject;
     }
 
-    @Override
     public JEVisAttribute getStatusLog() {
         return statusLog;
     }
 
-    //    public DateTime getLastSampleTimeStamp() {
-//        return lastSampleTimeStamp;
-//    }
+    @Override
+    public String toString() {
+        return "UPCChannel{" +
+                "channelObject=" + channelObject +
+                ", name='" + name + '\'' +
+                ", nodeId='" + nodeId + '\'' +
+                ", lastReadout=" + lastReadout +
+                ", targetAtt=" + targetAtt.getName() +
+                ", statusLog=" + statusLog +
+                '}';
+    }
 }
