@@ -288,7 +288,9 @@ public class ControlPane extends GridPane {
                             fromDate = fromDate.minusDays(1);
                         }
 
-                        return ControlPane.this.attribute.getSamples(fromDate, untilDate, true, period.toString(), ManipulationMode.NONE.toString());
+                        if (fromDate.isBefore(untilDate)) {
+                            return ControlPane.this.attribute.getSamples(fromDate, untilDate, true, period.toString(), ManipulationMode.NONE.toString());
+                        }
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -301,7 +303,7 @@ public class ControlPane extends GridPane {
             try {
                 Benchmark benchmark = new Benchmark();
                 sampleList = futureTask.get();
-                benchmark.printBechmark("For loaading samples: "+sampleList.size());
+                benchmark.printBechmark("For loading samples: " + sampleList.size());
             } catch (Exception ex) {
                 logger.error(ex);
             }

@@ -189,12 +189,12 @@ public class HTTPConnection {
             conn.disconnect();
 
             retry++;
-            logger.error("Failed retry {} for '{}'",RETRIES,resource);
+            logger.error("Failed retry {} for '{}'", retry, resource);
             delay = true;
 
         } while (retry < RETRIES);
 
-        logger.fatal("Aborting download of input stream. '{}'",resource);
+        logger.fatal("Aborting download of input stream. '{}'", resource);
         return null;
     }
 

@@ -82,8 +82,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
-    /** Amount of Samples in one request **/
-    private final int SAMPLE_REQUEST_SIZE=10000;
+    /**
+     * Amount of Samples in one request
+     **/
+    private final int SAMPLE_REQUEST_SIZE = 10000;
     private HTTPConnection.Trust sslTrustMode = HTTPConnection.Trust.SYSTEM;
 
     /**
@@ -300,15 +302,14 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         try {
             StringBuffer stringBuffer = this.con.getRequest(resource);
             version = stringBuffer.toString();
-            System.out.println("Version: "+version);
+            logger.info("Version: {}", version);
         } catch (SSLHandshakeException sslex) {
-            logger.error("SSl Exception: {}", sslex);
+            logger.error("SSl Exception: ", sslex);
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
         }
 
-        logger.error("getJEVisCCVersion(): {}", version);
         return version;
     }
 
@@ -966,11 +967,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
             resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL + HTTPConnection.FMT.print(until);
         }
-        String prefix ="&";
-        if (!resource.contains("?")){
+        String prefix = "&";
+        if (!resource.contains("?")) {
             prefix = "?";
         }
-        resource += prefix+REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.LIMIT+"="+SAMPLE_REQUEST_SIZE;
+        resource += prefix + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.LIMIT + "=" + SAMPLE_REQUEST_SIZE;
 
         List<JsonSample> jsons = new ArrayList<>();
         try {
@@ -1003,13 +1004,13 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
         }
 
-        if(!samples.isEmpty() && samples.size()==SAMPLE_REQUEST_SIZE){
-            JEVisSample lastInList= samples.get(samples.size()-1);
+        if (!samples.isEmpty() && samples.size() == SAMPLE_REQUEST_SIZE) {
+            JEVisSample lastInList = samples.get(samples.size() - 1);
             try {
                 List<JEVisSample> nextList = getSamples(att, lastInList.getTimestamp().plus(Duration.standardSeconds(1)), until);
-                logger.debug("Add additonal samples: {}",nextList.size());
+                logger.debug("Add additonal samples: {}", nextList.size());
                 samples.addAll(nextList);
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 logger.error(ex);
             }
         }
