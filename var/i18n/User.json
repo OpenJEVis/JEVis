@@ -2,7 +2,8 @@
   "jevisclass": "User",
   "names": {
     "de": "Benutzer",
-    "ru": "User",
+    "ru": "Пользователь",
+    "uk": "Користувач",
     "en": "User"
   },
   "descriptions": {

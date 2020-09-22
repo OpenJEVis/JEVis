@@ -2,7 +2,8 @@
   "jevisclass": "Data Server",
   "names": {
     "de": "Datenserver",
-    "ru": "Data Server",
+    "ru": "Сервер даних",
+    "uk": "Cервер данных",
     "en": "Data Server"
   },
   "descriptions": {

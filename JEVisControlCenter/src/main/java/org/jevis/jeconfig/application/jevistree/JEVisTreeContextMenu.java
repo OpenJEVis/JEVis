@@ -37,6 +37,7 @@ import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.jevis.jeconfig.application.tools.ImageConverter;
 import org.jevis.jeconfig.dialog.JsonExportDialog;
 import org.jevis.jeconfig.dialog.LocalNameDialog;
+import org.jevis.jeconfig.plugin.object.extension.OPC.OPCBrowser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -79,10 +80,25 @@ public class JEVisTreeContextMenu extends ContextMenu {
             if (obj.getJEVisClassName().equals("Calculation")) {
                 getItems().add(new SeparatorMenuItem());
                 getItems().add(buildMenuAddInput());
+            } else if(obj.getJEVisClassName().equals("OPC Server")){
+                getItems().add(new SeparatorMenuItem());
+                getItems().add(buildOCP());
             }
+
+
         } catch (Exception ex) {
             logger.fatal(ex);
         }
+    }
+
+    private MenuItem buildOCP(){
+        MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.opc"), ResourceLoader.getImage("17_Paste_48x48.png", 20, 20));
+
+        menu.setOnAction(t -> {
+            OPCBrowser opcEditor = new OPCBrowser(obj);
+        }
+        );
+        return menu;
     }
 
     private MenuItem buildPaste() {
