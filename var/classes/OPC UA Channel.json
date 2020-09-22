@@ -1,0 +1,46 @@
+{
+  "name": "OPC UA Channel",
+  "description": "The Channel defines how to access a trend object from LINX Automation Server or OPC Controller.\n\n- Target ID: JEVis Data target ID\n- Trend ID: 4 digit hex identifier\n",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "OPC UA Channel",
+      "end": "Channel",
+      "type": 0
+    },
+    {
+      "start": "OPC UA Channel",
+      "end": "OPC UA Channel Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "Target ID",
+      "primitiveType": 0,
+      "guiType": "Attribute Target",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "OPC UA Channel"
+    },
+    {
+      "name": "Node ID",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "OPC UA Channel"
+    },
+    {
+      "name": "Status Log",
+      "primitiveType": 2,
+      "guiType": "Number",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "OPC UA Channel"
+    }
+  ]
+}

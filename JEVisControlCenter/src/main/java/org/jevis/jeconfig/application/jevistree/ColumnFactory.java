@@ -69,7 +69,7 @@ public class ColumnFactory {
     private static AlphanumComparator alphanumComparator = new AlphanumComparator();
 
     public static TreeTableColumn<JEVisTreeRow, JEVisTreeRow> buildName() {
-        TreeTableColumn<JEVisTreeRow, JEVisTreeRow> column = new TreeTableColumn<>(OBJECT_NAME);
+        TreeTableColumn<JEVisTreeRow, JEVisTreeRow> column = new TreeTableColumn<>(I18n.getInstance().getString("jevistree.header.name"));
         column.setId(OBJECT_NAME);
         column.setPrefWidth(460);
         column.setCellValueFactory((TreeTableColumn.CellDataFeatures<JEVisTreeRow, JEVisTreeRow> p) -> {

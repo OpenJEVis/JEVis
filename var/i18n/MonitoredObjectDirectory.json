@@ -2,7 +2,8 @@
   "jevisclass": "Monitored Object Directory",
   "names": {
     "de": "Monitoring",
-    "ru": "Monitoring Directory",
+    "ru": "Папка объект мониторинга",
+    "uk": "Папка об'єкт моніторингу",
     "en": "Monitoring Directory"
   },
   "descriptions": {
