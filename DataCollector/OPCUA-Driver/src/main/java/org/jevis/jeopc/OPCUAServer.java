@@ -34,22 +34,22 @@ public class OPCUAServer {
     String DEFAULT_CONNECTION_TIMEOUT = "30";
     String DEFAULT_READ_TIMEOUT = "60";
 
-    private String host;
-    private Integer port;
-    private Integer connectionTimeout;
-    private Integer readTimeout;
-    private Boolean ssl;
+    private final String host;
+    private final Integer port;
+    private final Integer connectionTimeout;
+    private final Integer readTimeout;
+    private final Boolean ssl;
     private String name;
-    private String user;
-    private String password;
+    private final String user;
+    private final String password;
     private String logHandleBasePath;
-    private DateTimeZone timezone;
-    private List<UPCChannel> channelDirectories = new ArrayList<>();
-    private JEVisObject dataSourceObject;
+    private final DateTimeZone timezone;
+    private final List<UPCChannel> channelDirectories = new ArrayList<>();
+    private final JEVisObject dataSourceObject;
 
     public OPCUAServer(JEVisObject dataSourceObject) {
-        logger.error("Init: {}",dataSourceObject);
-        this.dataSourceObject=dataSourceObject;
+        logger.error("Init: {}", dataSourceObject);
+        this.dataSourceObject = dataSourceObject;
 
         Helper helper = new Helper();
         host = helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.HOST);
@@ -180,7 +180,7 @@ public class OPCUAServer {
                         //logger.error("dataValue.getValue(): {} -> {}",dataValue.getValue(),dataValue.getValue().getDataType());
 
                         if(dataValue.getStatusCode().isGood()){
-                            results.add(new Result(upcChannel.getJeVisObject().getID(),upcChannel.getTargetAttribute(),value,ts));
+                            results.add(new Result(upcChannel.getTargetString(), value, ts));
                         }else{
                             logger.error("Error status for value: {}",dataValue);
                         }
