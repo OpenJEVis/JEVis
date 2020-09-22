@@ -1,4 +1,4 @@
-package org.jevis.loytecxmldl.jevis;
+package org.jevis.loytecxmldl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +21,7 @@ public class LoytecXmlDlChannel implements LoytecXmlDlChannelClass {
     private DateTime lastReadout;
     private JEVisAttribute targetAtt;
     private JEVisAttribute statusLog;
+    private String targetString;
     private JEVisObject targetObj;
 
     //private DateTime lastSampleTimeStamp = DateTime.now();
@@ -49,6 +50,12 @@ public class LoytecXmlDlChannel implements LoytecXmlDlChannelClass {
 
 
         JEVisAttribute channelTargetAtt = channelObject.getAttribute(TARGET_ID);
+
+        JEVisSample sample = channelTargetAtt.getLatestSample();
+        if (sample != null) {
+            targetString = sample.getValueAsString();
+        }
+
         TargetHelper th = new TargetHelper(channelObject.getDataSource(), channelTargetAtt);
         if (!th.getAttribute().isEmpty()) {
             targetAtt = th.getAttribute().get(0);
@@ -70,6 +77,11 @@ public class LoytecXmlDlChannel implements LoytecXmlDlChannelClass {
 
         JEVisType statusLogType = channelClass.getType(STATUS_LOG);
         statusLog = channelObject.getAttribute(statusLogType);
+    }
+
+    @Override
+    public String getTargetString() {
+        return targetString;
     }
 
     @Override

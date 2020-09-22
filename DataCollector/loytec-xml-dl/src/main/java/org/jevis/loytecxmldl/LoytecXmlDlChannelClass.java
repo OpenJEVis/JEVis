@@ -1,4 +1,4 @@
-package org.jevis.loytecxmldl.jevis;
+package org.jevis.loytecxmldl;
 
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisObject;
@@ -46,6 +46,8 @@ public interface LoytecXmlDlChannelClass extends DataCollectorTypes.Channel {
     JEVisObject getJeVisObject();
 
     JEVisAttribute getTarget();
+
+    String getTargetString();
 
     JEVisAttribute getStatusLog();
 }

@@ -1,4 +1,4 @@
-package org.jevis.loytecxmldl.jevis;
+package org.jevis.loytecxmldl;
 
 // TODO: 18.11.16 Integrate into specialized directory logic and rename? 
 public interface LoytecXmlDlGenericChannelDirectoryClass {
