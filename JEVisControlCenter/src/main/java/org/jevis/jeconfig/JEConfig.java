@@ -383,12 +383,6 @@ public class JEConfig extends Application {
                 try {
                     _mainDS.preload();
                     logger.error("done preloading");
-//                    logger.error("-------test\n {}", _mainDS.getObject(9485l).getChildren());
-
-                    JEVisObject obj = _mainDS.getObject(7576l);
-                    JEVisAttribute att = obj.getAttribute("Value");
-                    JEVisSample s = att.getLatestSample();
-                    System.out.println("s: "+s);
 
                     Holidays.setDataSource(_mainDS);
                 } catch (Exception ex) {
