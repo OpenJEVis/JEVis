@@ -1,4 +1,4 @@
-package org.jevis.loytecxmldl.jevis;
+package org.jevis.loytecxmldl;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,9 +10,9 @@ import org.jevis.api.JEVisObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.jevis.loytecxmldl.jevis.LoytecXmlDlGenericChannelDirectoryClass.NAME_GENERIC;
-import static org.jevis.loytecxmldl.jevis.LoytecXmlDlGenericChannelDirectoryClass.TECHNOLOGY;
-import static org.jevis.loytecxmldl.jevis.LoytecXmlDlSpecializedChannelDirectoryClass.LOYTEC_XML_DL_SPECIALIZED_CHANNEL_DIRECTORIES;
+import static org.jevis.loytecxmldl.LoytecXmlDlGenericChannelDirectoryClass.NAME_GENERIC;
+import static org.jevis.loytecxmldl.LoytecXmlDlGenericChannelDirectoryClass.TECHNOLOGY;
+import static org.jevis.loytecxmldl.LoytecXmlDlSpecializedChannelDirectoryClass.LOYTEC_XML_DL_SPECIALIZED_CHANNEL_DIRECTORIES;
 
 /**
  * This implements the channel directory and related functions

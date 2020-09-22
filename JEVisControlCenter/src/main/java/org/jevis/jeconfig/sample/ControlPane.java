@@ -27,7 +27,6 @@ import org.jevis.commons.dataprocessing.AggregationPeriod;
 import org.jevis.commons.dataprocessing.ManipulationMode;
 import org.jevis.commons.datetime.WorkDays;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.utils.Benchmark;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.AggregationBox;
 import org.jevis.jeconfig.application.Chart.ChartPluginElements.Boxes.ProcessorBox;
@@ -301,9 +300,7 @@ public class ControlPane extends GridPane {
 
             JEConfig.getStatusBar().addTask(this.getClass().getName(), futureTask, JEConfig.getImage("1415314386_Graph.png"), true);
             try {
-                Benchmark benchmark = new Benchmark();
                 sampleList = futureTask.get();
-                benchmark.printBechmark("For loading samples: " + sampleList.size());
             } catch (Exception ex) {
                 logger.error(ex);
             }

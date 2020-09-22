@@ -129,7 +129,12 @@ public class JEVisImporter implements Importer {
 
                     //Check the Object exists
                     TargetHelper targetHelper = new TargetHelper(dataSource.getDataSource(), s.getTargetStr());
-                    JEVisObject onlineData = targetHelper.getObject().get(0);
+
+                    JEVisObject onlineData = null;
+                    if (!targetHelper.getObject().isEmpty()) {
+                        onlineData = targetHelper.getObject().get(0);
+                    }
+
                     if (onlineData == null) {
                         logger.error("Target Object not found: " + s.getTargetStr());
                         targetErrors.add(s.getTargetStr());//invalid Object, be keep it so the other with the smae id need not check again
