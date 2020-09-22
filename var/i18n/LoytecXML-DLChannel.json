@@ -49,6 +49,19 @@
         "ru": "Trend ID",
         "en": "Trend ID"
       }
+    },
+    {
+      "type": "Status Log",
+      "descriptions": {
+        "de": "Status Log description",
+        "ru": "Status Log description",
+        "en": "Status Log description"
+      },
+      "names": {
+        "de": "Status Log",
+        "ru": "Status Log",
+        "en": "Status Log"
+      }
     }
   ]
 }

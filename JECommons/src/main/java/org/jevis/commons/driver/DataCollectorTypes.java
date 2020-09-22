@@ -119,7 +119,9 @@ public interface DataCollectorTypes {
 
         String NAME = "Data Source";
         String TIMEZONE = "Timezone";
+        String DELETE_ON_SUCCESS = "Delete File on successful parsing";
         String ENABLE = "Enabled";
+        String OVERWRITE = "Overwrite";
         String MANUAL_TRIGGER = "Manual Trigger";
 
         interface DataServer extends DataSource {
