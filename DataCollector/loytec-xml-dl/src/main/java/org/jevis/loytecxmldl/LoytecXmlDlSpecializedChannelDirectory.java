@@ -1,4 +1,4 @@
-package org.jevis.loytecxmldl.jevis;
+package org.jevis.loytecxmldl;
 
 /**
  * Container for specialized JEVis Loytec XML-DL Channel Directory information
