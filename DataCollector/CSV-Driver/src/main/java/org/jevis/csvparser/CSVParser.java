@@ -95,9 +95,8 @@ public class CSVParser {
             Integer column = null;
             if (mappingIdentifier != null) {
                 column = getIntByIdentifier(mappingIdentifier, columnMap);
+                dp.setValueIndex(column);
             }
-
-            dp.setValueIndex(column);
         }
     }
 
