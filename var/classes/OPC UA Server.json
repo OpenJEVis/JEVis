@@ -32,6 +32,15 @@
       "validity": 0,
       "inherited": false,
       "jevisClass": "OPC UA Server"
+    },
+    {
+      "name": "Protocol",
+      "primitiveType": 0,
+      "guiType": "OPC Protocol",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "OPC UA Server"
     }
   ]
 }

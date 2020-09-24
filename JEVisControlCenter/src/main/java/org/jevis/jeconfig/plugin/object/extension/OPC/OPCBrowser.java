@@ -9,15 +9,19 @@ import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeopc.OPCClient;
+import org.jevis.jeopc.OPCUAServer;
 
 public class OPCBrowser {
 
-    public OPCBrowser(JEVisObject server) {
+    private JEVisObject opcServerObj = null;
 
+    public OPCBrowser(JEVisObject server) {
+        this.opcServerObj = server;
         final Stage stage = new Stage();
 
+
         stage.setTitle("");
-        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initModality(Modality.NONE);
         stage.initOwner(JEConfig.getStage());
 
         BorderPane borderPane = new BorderPane();
@@ -29,24 +33,9 @@ public class OPCBrowser {
         stage.setResizable(true);
         stage.setWidth(365);
         stage.setHeight(500);
-        //Workaround to set a dynamic size
-//        stage.setHeight(460 + ((gy - 3) * 17));
 
-
-
-
-        /**
-        Dialog<ButtonType> dialog = new Dialog();
-        dialog.initOwner(JEConfig.getStage());
-        dialog.setTitle(I18n.getInstance().getString("jevistree.dialog.new.title"));
-        dialog.setHeaderText(I18n.getInstance().getString("jevistree.dialog.new.header"));
-        dialog.getDialogPane().getButtonTypes().setAll();
-        dialog.setResizable(true);
-        String ICON = "1403104602_brick_add.png";
-        dialog.setGraphic(ResourceLoader.getImage(ICON, 50, 50));
-
-*/
-        OPCClient opcClient = new OPCClient("opc.tcp://10.1.2.128:4840");
+        OPCUAServer opcuaServer = new OPCUAServer(opcServerObj);
+        OPCClient opcClient = new OPCClient(opcuaServer.getURL());//"opc.tcp://10.1.2.128:4840");
         try {
 
             EndpointDescription endpointDescription = opcClient.autoSelectEndpoint();
@@ -61,18 +50,12 @@ public class OPCBrowser {
             borderPane.setRight(dataValueTable.getView());
             //borderPane.setStyle("-fx-background-color:blue;");
             //opcClient.close();
-        }catch ( Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             //opcClient.close();
         }
 
         stage.sizeToScene();
         stage.showAndWait();
-        /**
-        dialog.onCloseRequestProperty().addListener(observable -> dialog.close());
-        dialog.getDialogPane().setContent(borderPane);
-
-        dialog.show();
-         **/
     }
 }

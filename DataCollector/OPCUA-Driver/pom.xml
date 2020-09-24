@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <milo.version>0.4.2</milo.version>
+        <milo.version>0.4.3</milo.version>
     </properties>
 
     <artifactId>OPCUA</artifactId>
@@ -61,14 +61,13 @@
     </build>
 
 
-
     <dependencies>
-
         <dependency>
             <groupId>org.eclipse.milo</groupId>
             <artifactId>sdk-client</artifactId>
             <version>${milo.version}</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.eclipse.milo</groupId>
             <artifactId>stack-client</artifactId>
@@ -84,7 +83,7 @@
             <artifactId>sdk-core</artifactId>
             <version>${milo.version}</version>
         </dependency>
-
+-->
         <!--
         <dependency>
             <groupId>com.google.guava</groupId>
