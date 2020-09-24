@@ -41,12 +41,12 @@ public class OPCClient {
     private UaClient uaclient;
 
 
-
     public OPCClient(String endpoint) {
-        logger.error("Init OPCClient with url: {}",endpoint);
+        logger.error("Init OPCClient with url: {}", endpoint);
         this.endpointURL = endpoint;
 
     }
+
     public void connect() throws UaException, ExecutionException, InterruptedException {
         OpcUaClientConfigBuilder cfg = new OpcUaClientConfigBuilder();
         cfg.setEndpoint(endpointDescription);
@@ -56,21 +56,19 @@ public class OPCClient {
         uaclient = client.connect().get();
     }
 
-    public void close(){
-        try{
+    public void close() {
+        try {
             uaclient.disconnect();
             uaStackClient.disconnect();
             client.disconnect();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
 
-
-
     public List<EndpointDescription> getEndpoints() throws ExecutionException, InterruptedException {
-        logger.error("Discover Endpoint for: {}",endpointURL);
+        logger.error("Discover Endpoint for: {}", endpointURL);
         List<EndpointDescription> endpointDescriptions = DiscoveryClient.getEndpoints(endpointURL).get();
         endpointDescriptions.forEach(endpointDescription -> {
             try {
@@ -108,7 +106,6 @@ public class OPCClient {
     }
 
 
-
     public NodeId toNodeID(ReferenceDescription referenceDescription) {
         NodeId nodeId = new NodeId(referenceDescription.getNodeId().getNamespaceIndex(), (UInteger) referenceDescription.getNodeId().getIdentifier());
         System.out.println("r1: " + read(client, referenceDescription.getReferenceTypeId()));
@@ -117,27 +114,39 @@ public class OPCClient {
 
     }
 
-    public List<DataValue> getDateValues(HistoryReadResult result){
-        logger.error("result.getStatusCode(): {}",result.getStatusCode());
+    public List<DataValue> getDateValues(HistoryReadResult result) {
+        logger.error("result.getStatusCode(): {}", result.getStatusCode());
         HistoryData historyData = (HistoryData) result.getHistoryData().decode(
                 client.getSerializationContext()
         );
-        logger.error("historyData: {}",historyData.getTypeId());
-        logger.error("historyData: {}",historyData.getXmlEncodingId());
+
+        if (result.getStatusCode().isGood()) {
+            logger.error("Data are good");
+            if (historyData.getDataValues() != null) {
+                return Lists.newArrayList(historyData.getDataValues());
+            } else {
+                return new ArrayList<>();
+            }
+        } else {
+            logger.error("Data are bad");
+            return new ArrayList<>();
+        }
 
 
-        return Lists.newArrayList(historyData.getDataValues());
     }
 
     public HistoryReadResult getHistory(NodeId nodeId, org.joda.time.DateTime from, org.joda.time.DateTime until) throws ExecutionException, InterruptedException {
-        int samplesPerCall =10;
+        int samplesPerCall = 10;
         List<HistoryReadValueId> ids = new ArrayList<>();
         List<DataValue> dataValues = new ArrayList<>();
 
         DateTime fromTS = new DateTime(from.toDate());
         DateTime untilTS = new DateTime(until.toDate());
 
-        HistoryReadValueId id = new HistoryReadValueId(nodeId, 20100 + "", null, null);
+        /**
+         * IndexRange: is the List of index ranges. Can be used to identify the whole array, a single element of a structure or an array, or a single range of indexes for arrays.
+         */
+        HistoryReadValueId id = new HistoryReadValueId(nodeId, "0:10", null, null);
         ids.add(id);
 
         CompletableFuture<HistoryReadResponse> historyRead = client.historyRead(
@@ -167,15 +176,15 @@ public class OPCClient {
          **/
     }
 
-    public HashMap<String,ReferenceDescription> browse(){
-        HashMap<String,ReferenceDescription> map = new HashMap<>();
+    public HashMap<String, ReferenceDescription> browse() {
+        HashMap<String, ReferenceDescription> map = new HashMap<>();
 
-        browseTree(map,"",Identifiers.RootFolder);
+        browseTree(map, "", Identifiers.RootFolder);
 
         return map;
     }
 
-    private void browseTree(HashMap<String,ReferenceDescription> hashMap,String xpathParent,NodeId browseRoot){
+    private void browseTree(HashMap<String, ReferenceDescription> hashMap, String xpathParent, NodeId browseRoot) {
         BrowseDescription browse = new BrowseDescription(
                 browseRoot,
                 BrowseDirection.Forward,
@@ -191,24 +200,24 @@ public class OPCClient {
             List<ReferenceDescription> references = toList(browseResult.getReferences());
 
             for (ReferenceDescription rd : references) {
-                logger.error("rd: "+rd);
-                String xpath=xpathParent+"/"+rd.getBrowseName().getName();
+                logger.error("rd: " + rd);
+                String xpath = xpathParent + "/" + rd.getBrowseName().getName();
                 NodeId nodeId = new NodeId(rd.getNodeId().getNamespaceIndex(), (UInteger) rd.getNodeId().getIdentifier());
-                logger.error("Add to Map: {}-{}",xpath,rd);
-                hashMap.put(xpath,rd);
-                browseTree(hashMap,xpath,nodeId);
+                logger.error("Add to Map: {}-{}", xpath, rd);
+                hashMap.put(xpath, rd);
+                browseTree(hashMap, xpath, nodeId);
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public void browse(ObservableList<PathReferenceDescription> list){
-        browseTree(list,"",Identifiers.RootFolder);
+    public void browse(ObservableList<PathReferenceDescription> list) {
+        browseTree(list, "", Identifiers.RootFolder);
 
     }
 
-    private void browseTree(ObservableList<PathReferenceDescription> list, String xpathParent, NodeId browseRoot){
+    private void browseTree(ObservableList<PathReferenceDescription> list, String xpathParent, NodeId browseRoot) {
         BrowseDescription browse = new BrowseDescription(
                 browseRoot,
                 BrowseDirection.Forward,
@@ -224,24 +233,24 @@ public class OPCClient {
             List<ReferenceDescription> references = toList(browseResult.getReferences());
 
             for (ReferenceDescription rd : references) {
-                String xpath=xpathParent;
+                String xpath = xpathParent;
                 NodeId nodeId = new NodeId(rd.getNodeId().getNamespaceIndex(), (UInteger) rd.getNodeId().getIdentifier());
-                logger.error("Add to Map: {}-{}",xpath,rd);
-                PathReferenceDescription pathReferenceDescription = new PathReferenceDescription(rd,xpath);
+                logger.error("Add to Map: {}-{}", xpath, rd);
+                PathReferenceDescription pathReferenceDescription = new PathReferenceDescription(rd, xpath);
 
                 Platform.runLater(() -> {
                     list.add(pathReferenceDescription);
                 });
 
-                browseTree(list,xpath+"/"+rd.getBrowseName().getName(),nodeId);
+                browseTree(list, xpath + "/" + rd.getBrowseName().getName(), nodeId);
             }
-        } catch (NullPointerException ex){
+        } catch (NullPointerException ex) {
             ex.printStackTrace();
         } catch (InterruptedException e) {
-            logger.error("InterruptedException: {}",e);
+            logger.error("InterruptedException: {}", e);
             e.printStackTrace();
         } catch (ExecutionException e) {
-            logger.error("ExecutionException: {}",e);
+            logger.error("ExecutionException: {}", e);
             e.printStackTrace();
         }
     }
@@ -286,7 +295,6 @@ public class OPCClient {
             ex.printStackTrace();
         }
     }
-
 
 
     public String read(OpcUaClient client, NodeId nodeId) {
