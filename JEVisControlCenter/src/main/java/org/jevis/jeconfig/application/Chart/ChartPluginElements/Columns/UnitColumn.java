@@ -35,8 +35,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
     public static String COLUMN_ID = "UnitColumn";
     private TreeTableColumn<JEVisTreeRow, JEVisUnit> unitColumn;
     private AnalysisDataModel data;
-    private JEVisTree tree;
-    private String columnName;
+    private final JEVisTree tree;
+    private final String columnName;
     private final JEVisDataSource dataSource;
 
     public UnitColumn(JEVisTree tree, JEVisDataSource dataSource, String columnName) {
@@ -180,11 +180,8 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
         });
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, JEVisUnit>, TreeTableCell<JEVisTreeRow, JEVisUnit>>() {
-
-
             @Override
             public TreeTableCell<JEVisTreeRow, JEVisUnit> call(TreeTableColumn<JEVisTreeRow, JEVisUnit> param) {
-
 
                 TreeTableCell<JEVisTreeRow, JEVisUnit> cell = new TreeTableCell<JEVisTreeRow, JEVisUnit>() {
                     @Override
