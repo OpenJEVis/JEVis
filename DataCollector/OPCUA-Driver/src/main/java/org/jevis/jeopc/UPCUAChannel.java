@@ -11,11 +11,11 @@ import org.joda.time.DateTime;
 /**
  * This implements the channel and related functions
  */
-public class UPCChannel {
+public class UPCUAChannel {
 
     public final static String JEVIS_CLASS = "OPC UA Channel";
     public final static String DIR_JEVIS_CLASS = "OPC UA Channel Directory";
-    private final static Logger log = LogManager.getLogger(UPCChannel.class.getName());
+    private final static Logger log = LogManager.getLogger(UPCUAChannel.class.getName());
     private final static String NODE_ID = "Node ID";
     private final static String TARGET_ID = "Target ID";
     private final static String LAST_READOUT = "Last Readout";
@@ -34,8 +34,8 @@ public class UPCChannel {
 
     //private DateTime lastSampleTimeStamp = DateTime.now();
 
-    public UPCChannel(JEVisObject channelObject) throws JEVisException {
-        log.error("UPCChannel init: {}", channelObject);
+    public UPCUAChannel(JEVisObject channelObject) throws JEVisException {
+        log.error("UPCUAChannel init: {}", channelObject);
 
         this.channelObject = channelObject;
 
@@ -120,7 +120,7 @@ public class UPCChannel {
 
     @Override
     public String toString() {
-        return "UPCChannel{" +
+        return "UPCUAChannel{" +
                 "channelObject=" + channelObject +
                 ", name='" + name + '\'' +
                 ", nodeId='" + nodeId + '\'' +

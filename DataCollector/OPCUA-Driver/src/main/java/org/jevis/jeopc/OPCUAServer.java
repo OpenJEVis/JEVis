@@ -18,57 +18,74 @@ import java.util.List;
 
 import static org.jevis.commons.driver.DataCollectorTypes.DataSource.TIMEZONE;
 
+/**
+ * OPC UA Server Driver for the JEDataCollector
+ *
+ * @author florian.simon@envidatec.com
+ */
 public class OPCUAServer {
 
     private final static Logger logger = LogManager.getLogger(OPCUAServer.class.getName());
 
-    String USER = "User";
-    String PASSWORD = "Password";
-    String SSL = "SSL";
-    String PROTOCOL = "Protocol";
 
-    String DEFAULT_PROTOCOL = "opc.tcp";
-    String USER_DEFAULT = "operator";
-    String DEFAULT_PASSWORD = "loytec4u";
-    String DEFAULT_SSL = "false";
-    String DEFAULT_PORT = "80";
-    String DEFAULT_CONNECTION_TIMEOUT = "30";
-    String DEFAULT_READ_TIMEOUT = "60";
-    int DAYS_PER_Request = 30;
+    /**
+     * The default value is {@value}.
+     */
+    public final String DEFAULT_PROTOCOL = "opc.tcp";
+    /**
+     * The default value is {@value}.
+     */
+    public final String USER_DEFAULT = "operator";
+    /**
+     * The default value is {@value}.
+     */
+    public final String DEFAULT_PASSWORD = "loytec4u";
+    /**
+     * The default value is {@value}.
+     */
+    public final String DEFAULT_PORT = "4840";
+    /**
+     * The default value is {@value}.
+     */
+    public final String DEFAULT_CONNECTION_TIMEOUT = "30";
+    /**
+     * The default value is {@value}.
+     */
+    public final String DEFAULT_READ_TIMEOUT = "60";
 
+    private int DAYS_PER_Request = 30;
     private final String host;
     private final Integer port;
     private final String protocol;
     private final Integer connectionTimeout;
     private final Integer readTimeout;
-    private final Boolean ssl;
     private final String user;
     private final String password;
     private final DateTimeZone timezone;
-    private final List<UPCChannel> channelDirectories = new ArrayList<>();
+    private final List<UPCUAChannel> channelDirectories = new ArrayList<>();
     private final JEVisObject dataSourceObject;
 
+    /**
+     * Default constructor
+     * <p>
+     * TODO: support different protocol
+     * TODO: select endpoint
+     * TODO: setTimeouts
+     *
+     * @param dataSourceObject
+     */
     public OPCUAServer(JEVisObject dataSourceObject) {
-        logger.error("Init: {}", dataSourceObject);
+        logger.info("Init: {}", dataSourceObject);
         this.dataSourceObject = dataSourceObject;
 
         Helper helper = new Helper();
         host = helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.HOST);
-        logger.debug("OPCUAServer - Host: {}", host);
         port = Integer.parseInt(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.PORT, DEFAULT_PORT));
-        logger.debug("OPCUAServer - Port: {}", port);
         connectionTimeout = Integer.parseInt(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.CONNECTION_TIMEOUT, DEFAULT_CONNECTION_TIMEOUT));
-        logger.debug("OPCUAServer - Connection Timeout: {}", connectionTimeout);
         readTimeout = Integer.parseInt(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.READ_TIMEOUT, DEFAULT_READ_TIMEOUT));
-        logger.debug("OPCUAServer - Read Timeout: {}", readTimeout);
-        user = helper.getValue(dataSourceObject, USER, USER_DEFAULT);
-        logger.debug("OPCUAServer - User: {}", user);
-        password = helper.getValue(dataSourceObject, PASSWORD, DEFAULT_PASSWORD);
-        logger.debug("OPCUAServer - Password: {}", password);
-        ssl = Boolean.valueOf(helper.getValue(dataSourceObject, SSL, DEFAULT_SSL));
-        logger.debug("OPCUAServer - Ssl: {}", ssl);
-        protocol = String.valueOf(helper.getValue(dataSourceObject, PROTOCOL, DEFAULT_PROTOCOL));
-        logger.debug("OPCUAServer - protocol: {}", protocol);
+        user = helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.NAME, USER_DEFAULT);
+        password = helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.PASSWORD, DEFAULT_PASSWORD);
+        protocol = String.valueOf(helper.getValue(dataSourceObject, DataCollectorTypes.DataSource.DataServer.OPCUA.PROTOCOL, DEFAULT_PROTOCOL));
 
         JEVisClass opcServerJClass = null;
         try {
@@ -100,8 +117,8 @@ public class OPCUAServer {
         // Get all data channel directories
         try {
             // Get channel directory class
-            JEVisClass dirJClass = dataSourceObject.getDataSource().getJEVisClass(UPCChannel.DIR_JEVIS_CLASS);
-            JEVisClass channelJClass = dataSourceObject.getDataSource().getJEVisClass(UPCChannel.JEVIS_CLASS);
+            JEVisClass dirJClass = dataSourceObject.getDataSource().getJEVisClass(UPCUAChannel.DIR_JEVIS_CLASS);
+            JEVisClass channelJClass = dataSourceObject.getDataSource().getJEVisClass(UPCUAChannel.JEVIS_CLASS);
 
             getChannelRecursive(dataSourceObject, channelJClass, dirJClass, channelDirectories);
             logger.info("Found {} channel directories.", channelDirectories.size());
@@ -112,60 +129,72 @@ public class OPCUAServer {
         }
     }
 
+    /**
+     * Return the configured URL
+     *
+     * @return
+     */
+    public String getURL() {
+        return protocol + "://" + host + ":" + port;
+    }
+
+    /**
+     * Start the readout process
+     *
+     * @see org.jevis.jedatacollector.Launcher
+     */
     public void run() {
 
         OPCClient opcClient = null;
         try {
-            logger.error("Start Readout");
-            //opc.tcp://10.1.2.128:4840
-            /**
-             * todo: support different protocol
-             * TODO: select endpoint
-             * TODO: setTimeouts
-             * **/
-
-
-            String deviceAddress = protocol + "://" + host + ":" + port;
-            logger.error("Endpoint: {}", deviceAddress);
+            logger.info("Start Readout");
+            /** example: opc.tcp://10.1.2.128:4840 **/
+            String deviceAddress = getURL();
+            logger.info("Endpoint: {}", deviceAddress);
             opcClient = new OPCClient(deviceAddress);
 
             EndpointDescription endpointDescription = opcClient.autoSelectEndpoint();
             opcClient.setEndpoints(endpointDescription);
-            logger.error("Call connect");
+            logger.info("Call connect");
             opcClient.connect();
-            logger.error("Connection done start readout");
+            logger.info("Connection done start readout");
 
-            DateTime endOfToday = new DateTime().withHourOfDay(23).withMinuteOfHour(59);
-            Importer importer = ImporterFactory.getImporter(dataSourceObject);
+            Importer importer = new JEVisImporter();
+            importer.initialize(dataSourceObject);
 
 
-            for (UPCChannel upcChannel : channelDirectories) {
+            for (UPCUAChannel UPCUAChannel : channelDirectories) {
                 try {
-                    logger.error("Start readout for channel: {}", upcChannel);
+                    logger.info("Start readout for channel: {}", UPCUAChannel);
 
                     boolean reachedEnd = false;
-                    DateTime starttime = upcChannel.getLastReadout();
+                    DateTime starttime = UPCUAChannel.getLastReadout();
 
                     while (!reachedEnd) {
-                        System.out.println("-- start --");
-                        DateTime endtime = calculateEndDate(starttime);
+                        DateTime endTime = calculateEndDate(starttime);
                         List<JEVisSample> statusResults = new ArrayList<>();
 
-                        List<Result> results = readChannel(opcClient, upcChannel, starttime, endtime, statusResults);
+                        List<Result> results = readChannel(opcClient, UPCUAChannel, starttime, endTime, statusResults);
 
-                        logger.error("read end: {} {}", results.isEmpty(), endtime.isAfter(new DateTime()));
-                        if (results.isEmpty() && endtime.isAfter(new DateTime())) {
+                        logger.debug("read end: {} {}", results.isEmpty(), endTime.isAfter(new DateTime()));
+                        if (results.isEmpty() && endTime.isAfter(new DateTime())) {
                             reachedEnd = true;
                         } else {
-                            starttime = endtime;
+                            starttime = endTime;
                         }
 
-                        logger.error("Import samples into: {} sample: {} status: {}", upcChannel.getJeVisObject(), results.size(), statusResults.size());
-                        System.out.println("-- end --");
-                        JEVisImporterAdapter.importResults(results, statusResults, importer, upcChannel.getJeVisObject());
+                        if (!results.isEmpty() || !statusResults.isEmpty()) {
+                            logger.info("Import samples into: {} sample: {} status: {}", UPCUAChannel.getJeVisObject(), results.size(), statusResults.size());
+
+                            JEVisImporterAdapter.importResults(results, statusResults, importer, UPCUAChannel.getJeVisObject());
+                        } else {
+                            logger.info("No Data to import for {}", UPCUAChannel.getJeVisObject());
+                        }
+
+
                     }
                 } catch (Exception ex) {
-                    logger.error("Error while reading channel {}", upcChannel, ex);
+                    logger.error("Error while reading channel {}", UPCUAChannel, ex);
                 }
 
             }
@@ -182,23 +211,38 @@ public class OPCUAServer {
         }
     }
 
+    /**
+     * Calculates the enddate for a data call based on the last date plus the DAYS_PER_Request setting.
+     *
+     * @param date last date to start from
+     * @return
+     */
     private DateTime calculateEndDate(DateTime date) {
-        logger.error("calculateEndDate: date: {} d2: {} bool: {}", date, date.plusDays(DAYS_PER_Request), date.plusDays(DAYS_PER_Request).isBeforeNow());
+        logger.debug("calculateEndDate: date: {} d2: {} bool: {}", date, date.plusDays(DAYS_PER_Request), date.plusDays(DAYS_PER_Request).isBeforeNow());
         if (date.plusDays(DAYS_PER_Request).isBeforeNow()) {
-            System.out.println("1");
             return date.plusDays(DAYS_PER_Request).withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59);
         } else {
-            System.out.println("2");
             return DateTime.now().withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59);
         }
     }
 
 
-    private List<Result> readChannel(OPCClient opcClient, UPCChannel upcChannel, DateTime startDate, DateTime endTime, List<JEVisSample> statusResults) throws Exception {
-        logger.error("Start readout for channel: {} from: {} until: {}", upcChannel.getJeVisObject(), startDate, endTime);
+    /**
+     * Read the data from the given channel.
+     *
+     * @param opcClient
+     * @param UPCUAChannel
+     * @param startDate
+     * @param endTime
+     * @param statusResults
+     * @return List of Result samples
+     * @throws Exception
+     */
+    private List<Result> readChannel(OPCClient opcClient, UPCUAChannel UPCUAChannel, DateTime startDate, DateTime endTime, List<JEVisSample> statusResults) throws Exception {
+        logger.error("Start readout for channel: {} from: {} until: {}", UPCUAChannel.getJeVisObject(), startDate, endTime);
 
 
-        HistoryReadResult historyReadResult = opcClient.getHistory(upcChannel.getOPCNodeId(), startDate, endTime);
+        HistoryReadResult historyReadResult = opcClient.getHistory(UPCUAChannel.getOPCNodeId(), startDate, endTime);
         List<DataValue> valueList = opcClient.getDateValues(historyReadResult);
         List<Result> results = new ArrayList<>();
 
@@ -233,10 +277,10 @@ public class OPCUAServer {
                         }
 
                     }
-                    logger.error(" TS: {} -> v: {} ", ts, value);
+                    logger.debug(" Target: {} TS: {} -> v: {} ", UPCUAChannel.getTargetId(), ts, value);
 
                     if (dataValue.getStatusCode().isGood()) {
-                        results.add(new Result(upcChannel.getTargetString(), value, ts));
+                        results.add(new Result(UPCUAChannel.getTargetString(), value, ts));
                     } else {
                         statusResults.add(new VirtualSample(ts, -1l));
                         logger.error("Error status for value: {}", dataValue);
@@ -254,13 +298,22 @@ public class OPCUAServer {
     }
 
 
-    private void getChannelRecursive(JEVisObject parent, JEVisClass channelClass, JEVisClass dirClass, List<UPCChannel> children) throws JEVisException {
+    /**
+     * Fetch all channel setting in for the given OPC Server in the jevistree
+     *
+     * @param parent
+     * @param channelClass
+     * @param dirClass
+     * @param children
+     * @throws JEVisException
+     */
+    private void getChannelRecursive(JEVisObject parent, JEVisClass channelClass, JEVisClass dirClass, List<UPCUAChannel> children) throws JEVisException {
         parent.getChildren().forEach(jeVisObject -> {
             try {
 
                 if (jeVisObject.getJEVisClassName().equals(channelClass.getName())) {
                     try {
-                        children.add(new UPCChannel(jeVisObject));
+                        children.add(new UPCUAChannel(jeVisObject));
                     } catch (Exception ex) {
                         logger.error("Error in channel: {}", jeVisObject);
                     }
