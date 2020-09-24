@@ -58,66 +58,76 @@ public class FTPDataSource implements DataSource {
                 result = new ArrayList<Result>();
 
                 JEVisClass parserJevisClass = channel.getDataSource().getJEVisClass(DataCollectorTypes.Parser.NAME);
-                logger.debug("parser.class: ", parserJevisClass.getName());
-                JEVisObject parser = channel.getChildren(parserJevisClass, true).get(0);
-                logger.debug("parser.object: ", parser.getID());
+                logger.debug("parser.class: {}", parserJevisClass.getName());
+                List<JEVisObject> parserList = channel.getChildren(parserJevisClass, true);
 
-                this.parser = ParserFactory.getParser(parser);
-                this.parser.initialize(parser);
+                boolean successful = true;
+                for (JEVisObject parser : parserList) {
+                    logger.debug("parser.object: {}", parser.getID());
 
-                logger.debug("Parser.initialize");
+                    this.parser = ParserFactory.getParser(parser);
+                    this.parser.initialize(parser);
 
-                logger.debug("sending request");
+                    logger.debug("Parser.initialize");
 
-                try {
-                    List<InputStream> input = this.sendSampleRequest(channel);
+                    logger.debug("sending request");
 
-                    logger.debug("sending request - done");
-                    if (!input.isEmpty()) {
-                        logger.debug("input is not empty: {}, start parsing", input.size());
-                        this.parse(input);
-                        logger.debug("parsing - done");
-                    }
+                    try {
+                        List<InputStream> input = this.sendSampleRequest(channel);
 
-                    if (!result.isEmpty()) {
-                        logger.debug("result is not empty {}, start import", result.size());
+                        logger.debug("sending request - done");
+                        if (!input.isEmpty()) {
+                            logger.debug("input is not empty: {}, start parsing", input.size());
+                            this.parse(input);
+                            logger.debug("parsing - done");
+                        }
+
+                        if (!result.isEmpty()) {
+                            logger.debug("result is not empty {}, start import", result.size());
 //                    this.importResult();
 //
 //                    DataSourceHelper.setLastReadout(channel, _importer.getLatestDatapoint());
-                        JEVisImporterAdapter.importResults(result, importer, channel);
-                        logger.debug("import done");
-
-                        if (result.size() == fileNames.size() && deleteOnSuccess) {
-                            FTPClient ftpClient = initFTPClient();
-                            try {
-                                for (String fileName : fileNames) {
-                                    ftpClient.deleteFile(fileName);
-                                }
-                            } catch (Exception e) {
-                                logger.error("Error while deleting files from ftp server", e);
-                            } finally {
-                                ftpClient.disconnect();
-                            }
+                            JEVisImporterAdapter.importResults(result, importer, channel);
+                            logger.debug("import done");
                         }
+                    } catch (
+                            MalformedURLException ex) {
+                        logger.error("MalformedURLException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                        logger.debug("MalformedURLException. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                        successful = false;
+                    } catch (
+                            ClientProtocolException ex) {
+                        logger.error("Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                        logger.debug("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                        successful = false;
+                    } catch (
+                            IOException ex) {
+                        logger.error("IO Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                        logger.debug("IO Exception. For channel {}:{}.", channel.getID(), channel.getName(), ex);
+                        successful = false;
+                    } catch (
+                            ParseException ex) {
+                        logger.error("Parse Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
+                        logger.debug("Parse Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                        successful = false;
+                    } catch (Exception ex) {
+                        logger.error("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                        successful = false;
                     }
-                } catch (
-                        MalformedURLException ex) {
-                    logger.error("MalformedURLException. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("MalformedURLException. For channel {}:{}", channel.getID(), channel.getName(), ex);
-                } catch (
-                        ClientProtocolException ex) {
-                    logger.error("Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
-                } catch (
-                        IOException ex) {
-                    logger.error("IO Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("IO Exception. For channel {}:{}.", channel.getID(), channel.getName(), ex);
-                } catch (
-                        ParseException ex) {
-                    logger.error("Parse Exception. For channel {}:{}. {}", channel.getID(), channel.getName(), ex.getMessage());
-                    logger.debug("Parse Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
-                } catch (Exception ex) {
-                    logger.error("Exception. For channel {}:{}", channel.getID(), channel.getName(), ex);
+                }
+
+                if (successful && deleteOnSuccess) {
+                    FTPClient ftpClient = initFTPClient();
+                    try {
+                        for (String fileName : fileNames) {
+                            logger.debug("Deleting file {} from ftp server", fileName);
+                            ftpClient.deleteFile(fileName);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Error while deleting files from ftp server", e);
+                    } finally {
+                        ftpClient.disconnect();
+                    }
                 }
             } catch (Exception ex) {
                 logger.error(ex);
@@ -156,7 +166,8 @@ public class FTPDataSource implements DataSource {
 
 //            String filePath = dp.getFilePath();
         logger.info("SendSampleRequest2");
-        fileNames.addAll(DataSourceHelper.getFTPMatchedFileNames(_fc, lastReadout, timezone, filePath));
+        fileNames.clear();
+        fileNames.addAll(DataSourceHelper.getFTPMatchedFileNames(_fc, lastReadout, timezone, filePath, importer.getOverwrite()));
 //        String currentFilePath = Paths.get(filePath).getParent().toString();
         logger.info("Nr of Matched Files " + fileNames.size());
         for (String fileName : fileNames) {

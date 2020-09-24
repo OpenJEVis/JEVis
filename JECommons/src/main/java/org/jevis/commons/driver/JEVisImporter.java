@@ -97,6 +97,11 @@ public class JEVisImporter implements Importer {
     }
 
     @Override
+    public boolean getOverwrite() {
+        return overwrite;
+    }
+
+    @Override
     public DateTime importResult(List<Result> results) {
         logger.debug("--Starting SampleImport v2.5  --");
         try {
