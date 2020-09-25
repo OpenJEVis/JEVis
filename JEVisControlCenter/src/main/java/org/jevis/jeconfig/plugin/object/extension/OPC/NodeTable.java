@@ -11,6 +11,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -37,14 +39,14 @@ public class NodeTable {
     private ObservableList<Node> list = FXCollections.observableArrayList();
     private ObservableList<Node> filteredList = FXCollections.observableArrayList();
     private CheckBox filterTrends = new CheckBox();
-    private TextField filterFieldGroup= new TextField();
+    private TextField filterFieldGroup = new TextField();
     private ObservableList<Node> nodeObservableList = FXCollections.observableArrayList();
     private final Image taskIcon = JEConfig.getImage("if_dashboard_46791.png");
     private DataValueTable dataValueTable;
 
 
     public NodeTable(OPCClient opcClient) {
-        this.opcClient= opcClient;
+        this.opcClient = opcClient;
         filterFieldGroup.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         filterFieldGroup.textProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -68,25 +70,26 @@ public class NodeTable {
         pathCol.setPrefWidth(400);
         nodeIDCol.setPrefWidth(100);
 
+        filterTrends.setText("Trend Filter");
 
-        tableView.getColumns().addAll(pathCol,idCol,nodeIDCol,nodeClassCol);
+        tableView.getColumns().addAll(pathCol, idCol, nodeIDCol, nodeClassCol);
         //tableView.setPrefSize(Double.MAX_VALUE,Double.MAX_VALUE);
         tableView.getSortOrder().add(pathCol);
-        tableView.setMinSize(1200,900);
-        tableView.setMaxSize(Double.MAX_VALUE,Double.MAX_VALUE);
+        tableView.setMinSize(1200, 900);
+        tableView.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         tableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
         //hiddenSidesPane.setContent(tableView);
-        view.addRow(0,filterTrends,filterFieldGroup);
+        view.addRow(0, filterTrends, filterFieldGroup);
         //view.setStyle("-fx-background-color:orangered;");
 
 
         //view.setGridLinesVisible(true);
         view.setPadding(new Insets(8));
         view.setHgap(8);
-        view.add(tableView,0,1,3,1);
-        GridPane.setFillWidth(tableView,true);
-        GridPane.setFillHeight(tableView,true);
+        view.add(tableView, 0, 1, 3, 1);
+        GridPane.setFillWidth(tableView, true);
+        GridPane.setFillHeight(tableView, true);
         //_view.setPinnedSide(Side.RIGHT)
         //_view.setRight(help);
 
@@ -94,16 +97,16 @@ public class NodeTable {
         //readCol.setCellFactory(param -> new CheckBoxTableCell<>());
 
 
-
-        try{
+        try {
             ObservableList<PathReferenceDescription> testList = FXCollections.observableArrayList();
             testList.addListener(new ListChangeListener<PathReferenceDescription>() {
                 @Override
                 public void onChanged(Change<? extends PathReferenceDescription> c) {
                     while (c.next()) {
-                        if(c.wasAdded()){
+                        if (c.wasAdded()) {
                             c.getAddedSubList().forEach(o -> {
-                                list.add(new Node(o.getReferenceDescription(),o.getPath()));
+                                list.add(new Node(o.getReferenceDescription(), o.getPath()));
+                                updateFilteredData();
                                 //System.out.println("New Des: "+o.getPath()+"  -> "+o.getReferenceDescription().getBrowseName().getName());
                             });
 
@@ -121,66 +124,59 @@ public class NodeTable {
                     return null;
                 }
             };
-            JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(),task, taskIcon,true);
+            JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), task, taskIcon, true);
 
             /**
-            HashMap<String,ReferenceDescription> map = opcClient.browse();
-            System.out.println("Mapsize: "+map.size());
-            map.forEach((xpath, referenceDescription) -> {
-                Node newNode = new Node(referenceDescription,xpath);
-                list.add(newNode);
-            });
+             HashMap<String,ReferenceDescription> map = opcClient.browse();
+             System.out.println("Mapsize: "+map.size());
+             map.forEach((xpath, referenceDescription) -> {
+             Node newNode = new Node(referenceDescription,xpath);
+             list.add(newNode);
+             });
              **/
-            System.out.println("List: "+list.size());
-        }catch (Exception ex){
-            logger.error("error while browsing Client: {}",ex);
+            System.out.println("List: " + list.size());
+        } catch (Exception ex) {
+            logger.error("error while browsing Client: {}", ex);
         }
 
         filteredList.addAll(list);
-        System.out.println("filteredList; "+filteredList.size());
+        list.addListener((ListChangeListener<Node>) change -> updateFilteredData());
+        System.out.println("filteredList; " + filteredList.size());
 
         tableView.setItems(filteredList);
-        /**
-        tableView.setRowFactory(param -> {
-            TableRow<Node> row = new TableRow<>();
-
-            row.setOnMouseClicked(event -> {
-                System.out.println("Row clicked: "+event);
-                if(event.getClickCount()==2 && dataValueTable!=null){
-                    System.out.println("is double: "+row.getItem());
-                    dataValueTable.updateTable(row.getItem().getNodeIdProperty());
-                }
-            });
-            return row;
-        });
-**/
-
         ContextMenu contextMenu = new ContextMenu();
         MenuItem menuItem = new MenuItem("Show History");
-        contextMenu.getItems().add(menuItem);
+        MenuItem copyNodeID = new MenuItem("Copy NodeID");
+        contextMenu.getItems().addAll(menuItem, copyNodeID);
         menuItem.setOnAction(event -> {
             TableView.TableViewSelectionModel model = tableView.getSelectionModel();
-            System.out.println("model: "+model);
-            System.out.println("index: "+model.getSelectedIndex());
-            System.out.println("getSelectedItem: "+tableView.getSelectionModel().getSelectedItem());
-            System.out.println("Selected Row: "+tableView.getSelectionModel().getSelectedItem().nodeIdProperty.get());
+            System.out.println("model: " + model);
+            System.out.println("index: " + model.getSelectedIndex());
+            System.out.println("getSelectedItem: " + tableView.getSelectionModel().getSelectedItem());
+            System.out.println("Selected Row: " + tableView.getSelectionModel().getSelectedItem().nodeIdProperty.get());
             dataValueTable.updateTable(tableView.getSelectionModel().getSelectedItem().nodeIdProperty.get());
+        });
+        copyNodeID.setOnAction(event -> {
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(tableView.getSelectionModel().getSelectedItem().nodeIdProperty.get().toParseableString());
+            clipboard.setContent(content);
         });
 
         tableView.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                if(event.getButton()== MouseButton.SECONDARY){
-                    contextMenu.show(tableView, event.getScreenX(),event.getScreenY());
-                    System.out.println("event.getSource(): "+event.getSource());
+                if (event.getButton() == MouseButton.SECONDARY) {
+                    contextMenu.show(tableView, event.getScreenX(), event.getScreenY());
+                    System.out.println("event.getSource(): " + event.getSource());
                 }
             }
         });
 
-        list.addListener((ListChangeListener<Node>) change -> updateFilteredData());
 
-
-        filterTrends.selectedProperty().addListener((observable, oldValue, newValue) -> {updateFilteredData();});
+        filterTrends.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            updateFilteredData();
+        });
         filterTrends.setSelected(true);
 
 
@@ -188,12 +184,16 @@ public class NodeTable {
 
     }
 
-    public GridPane getView(){
+    public GridPane getView() {
         return view;
     }
 
-    public void setDataValueTable(DataValueTable dataValueTable){
-        this.dataValueTable=dataValueTable;
+    public void setDataValueTable(DataValueTable dataValueTable) {
+        this.dataValueTable = dataValueTable;
+    }
+
+    private boolean isLoytecTrend(Node p) {
+        return p.idStringProperty.get().toLowerCase().indexOf("(trend") != -1 && p.descriptionProperty.get().getNodeClass().equals(NodeClass.Variable);
     }
 
     private void updateFilteredData() {
@@ -203,16 +203,12 @@ public class NodeTable {
             boolean isFilerMatch = matchesFilter(p);
             ReferenceDescription ref = p.descriptionProperty.get();
 
-            if (filterTrends.isSelected() &&( ref.getNodeClass().equals(NodeClass.Variable)
-                    &&( p.idStringProperty.get().toLowerCase().indexOf("(trend") != -1 || p.pathProperty.get().toLowerCase().indexOf("(trend") != -1   ))) {
+            //System.out.println("updateFilteredData: s:" + filterTrends.isSelected() + "  l:" + isLoytecTrend(p) + "  f:" + isFilerMatch);
+            if (filterTrends.isSelected() && isLoytecTrend(p) && isFilerMatch) {
                 filteredList.add(p);
+            }
 
-                /**
-                if (isFilerMatch  ) {
-                    filteredList.add(p);
-                }**/
-
-            } else if (isFilerMatch) {
+            if (!filterTrends.isSelected() && isFilerMatch) {
                 filteredList.add(p);
             }
 
@@ -241,7 +237,7 @@ public class NodeTable {
             return true;
         } else if (node.pathProperty.get().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
             return true;
-        }else if (node.stringNodeID.toString().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
+        } else if (node.stringNodeID.toString().toLowerCase().indexOf(lowerCaseFilterString) != -1) {
             return true;
         }
 
@@ -249,7 +245,7 @@ public class NodeTable {
         return false; // Does not match
     }
 
-    public void setData(){
+    public void setData() {
 
     }
 

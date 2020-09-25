@@ -14,7 +14,7 @@ public class Helper {
     /**
      * Returns the last value of a JEVis object attribute. Invalid values are set to null.
      *
-     * @param jevisObject JEVis Object used for getting attribute values
+     * @param jevisObject   JEVis Object used for getting attribute values
      * @param attributeName Name of the attribute
      * @return The attributes last value
      */
@@ -25,9 +25,9 @@ public class Helper {
     /**
      * Returns the last value of a JEVis object attribute. Invalid sample values are replaced with default.
      *
-     * @param jevisObject JEVis Object used for getting attribute values
+     * @param jevisObject   JEVis Object used for getting attribute values
      * @param attributeName Name of the attribute
-     * @param defaultValue Optional default value
+     * @param defaultValue  Optional default value
      * @return The attributes last value
      */
     public String getValue(JEVisObject jevisObject, String attributeName, String defaultValue) {
@@ -37,9 +37,9 @@ public class Helper {
     /**
      * Returns the last value of a JEVis object attribute
      *
-     * @param jevisObject JEVis Object used for getting attribute values
-     * @param attributeName Name of the attribute
-     * @param defaultValue Optional default value
+     * @param jevisObject       JEVis Object used for getting attribute values
+     * @param attributeName     Name of the attribute
+     * @param defaultValue      Optional default value
      * @param replaceEmptyValue Optional replace the value with default if sample value is invalid
      * @return The attributes last value
      */
@@ -74,6 +74,8 @@ public class Helper {
             log.error("Error while getting attribute value " + attributeName + " from " + jevisObject.getName());
             log.debug(ex.getMessage());
         }
+        log.debug("Config Device: {} Attribute: '{}' Value: '{}' Default: '{}'", jevisObject.getID(), attributeName, value, defaultValue);
+
         return value;
     }
 }

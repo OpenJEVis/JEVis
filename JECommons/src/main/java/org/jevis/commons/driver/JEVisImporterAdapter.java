@@ -39,6 +39,8 @@ public class JEVisImporterAdapter {
     }
 
     public synchronized static void importResults(List<Result> results, List<JEVisSample> statusResults, Importer importer, JEVisObject channel) {
+        if (results.isEmpty() && statusResults.isEmpty()) return;
+
         DateTime date = importer.importResult(results);
         DateTime statusDate = null;
         if (!statusResults.isEmpty()) {
