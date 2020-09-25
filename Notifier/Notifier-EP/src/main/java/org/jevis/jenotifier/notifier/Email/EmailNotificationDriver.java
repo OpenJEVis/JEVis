@@ -439,7 +439,7 @@ public class EmailNotificationDriver implements NotificationDriver {
             Transport.send(message);
             logger.debug("Sent message.");
 
-            emnoti.setSuccessfulSend(true, new DateTime(new Date()));//set the send time
+            emnoti.setSuccessfulSend(true, new DateTime());//set the send time
             return true;
         } catch (MessagingException mex) {
             logger.error(mex);
@@ -674,7 +674,7 @@ public class EmailNotificationDriver implements NotificationDriver {
                 JEVisAttribute recorder = noti.getJEVisObjectNoti().getAttribute(Notification.SENT_TIME);
                 if (recorder != null) {
                     for (DateTime time : noti.getSendTime()) {
-                        JEVisSample t = recorder.buildSample(time, noti.getJEVisObjectNoti().getID(), "Sent by Driver" + getJEVisObjectDriver().getID()); //
+                        JEVisSample t = recorder.buildSample(time, time.toString("yyyy-MM-dd HH:mm:ss"), "Sent by Driver" + getJEVisObjectDriver().getID()); //
                         ts.add(t);
                     }
                     recorder.addSamples(ts);
