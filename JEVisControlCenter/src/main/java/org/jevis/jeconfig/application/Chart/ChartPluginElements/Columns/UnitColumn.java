@@ -68,7 +68,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                 for (EnergyUnit eu : EnergyUnit.values()) {
                     if (eu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
                         isEnergyUnit = true;
-                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(eu.toString())) {
+                    } else if (currentUnit != null && UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(eu.toString())) {
                         isEnergyUnit = true;
                     }
                 }
@@ -79,7 +79,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                 for (VolumeUnit vu : VolumeUnit.values()) {
                     if (vu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
                         isVolumeUnit = true;
-                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(vu.toString())) {
+                    } else if (currentUnit != null && UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(vu.toString())) {
                         isEnergyUnit = true;
                     }
                 }
@@ -90,7 +90,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                 for (MassUnit mu : MassUnit.values()) {
                     if (mu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
                         isMassUnit = true;
-                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(mu.toString())) {
+                    } else if (currentUnit != null && UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(mu.toString())) {
                         isEnergyUnit = true;
                     }
                 }
@@ -101,7 +101,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                 for (PressureUnit pu : PressureUnit.values()) {
                     if (pu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
                         isPressureUnit = true;
-                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(pu.toString())) {
+                    } else if (currentUnit != null && UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(pu.toString())) {
                         isEnergyUnit = true;
                     }
                 }
@@ -112,7 +112,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                 for (VolumeFlowUnit vfu : VolumeFlowUnit.values()) {
                     if (vfu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
                         isVolumeFlowUnit = true;
-                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(vfu.toString())) {
+                    } else if (currentUnit != null && UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(vfu.toString())) {
                         isEnergyUnit = true;
                     }
                 }
@@ -130,7 +130,7 @@ public class UnitColumn extends TreeTableColumn<JEVisTreeRow, JEVisUnit> impleme
                 for (MoneyUnit mu : MoneyUnit.values()) {
                     if (mu.toString().equals(UnitManager.getInstance().format(currentUnit).replace("·", ""))) {
                         isMoneyUnit = true;
-                    } else if (UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(mu.toString())) {
+                    } else if (currentUnit != null && UnitManager.getInstance().format(currentUnit).equals("") && currentUnit.getLabel().equals(mu.toString())) {
                         isMoneyUnit = true;
                     }
                 }

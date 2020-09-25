@@ -2,6 +2,7 @@ package org.jevis.jeconfig.application.Chart.ChartPluginElements.Columns;
 
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
+import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -32,7 +33,8 @@ public interface ChartPluginColumn {
             ChartDataRow newData = new ChartDataRow(getDataSource());
             newData.setObject(row.getJEVisObject());
             try {
-                List<JEVisObject> children = row.getJEVisObject().getChildren();
+                JEVisClass cleanData = getDataSource().getJEVisClass("Clean Data");
+                List<JEVisObject> children = row.getJEVisObject().getChildren(cleanData, false);
                 AlphanumComparator ac = new AlphanumComparator();
                 children.sort((o1, o2) -> ac.compare(o1.getName(), o2.getName()));
                 List<String> cleanNames = new ArrayList<>();
@@ -55,8 +57,21 @@ public interface ChartPluginColumn {
                     }
                 }
 
-                if(newData.getDataProcessor() == null && !children.isEmpty()){
-                    newData.setDataProcessor(children.get(0));
+                if (newData.getDataProcessor() == null && !children.isEmpty()) {
+                    JEVisObject firstCleanDataObject = null;
+                    for (JEVisObject processor : children) {
+                        try {
+                            if (processor.getJEVisClassName().equals("Clean Data")) {
+                                firstCleanDataObject = processor;
+                                break;
+                            }
+                        } catch (JEVisException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (firstCleanDataObject != null) {
+                        newData.setDataProcessor(firstCleanDataObject);
+                    }
                 }
 
             } catch (Exception e) {
