@@ -70,7 +70,22 @@ public class ProcessorBox extends ComboBox<JEVisObject> {
 
         if (selectedObject != null) getSelectionModel().select(selectedObject);
         else {
-            getSelectionModel().selectFirst();
+            JEVisObject firstCleanDataObject = null;
+            for (JEVisObject processor : dataProcessors) {
+                try {
+                    if (processor.getJEVisClassName().equals("Clean Data")) {
+                        firstCleanDataObject = processor;
+                        break;
+                    }
+                } catch (JEVisException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (firstCleanDataObject != null) {
+                getSelectionModel().select(firstCleanDataObject);
+            } else {
+                getSelectionModel().select(object);
+            }
         }
     }
 

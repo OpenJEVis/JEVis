@@ -604,11 +604,13 @@ public class ChartDataRow {
                         this.attribute = getDataProcessor().getAttribute("Value");
                     }
 
-                    JEVisClass forecastData = this.dataSource.getJEVisClass("Forecast Data");
-                    List<JEVisObject> children = this.attribute.getObject().getChildren(forecastData, false);
-                    if (!children.isEmpty()) {
-                        this.hasForecastData = true;
-                        this.forecastDataAttribute = children.get(0).getAttribute("Value");
+                    if (this.attribute != null) {
+                        JEVisClass forecastData = this.dataSource.getJEVisClass("Forecast Data");
+                        List<JEVisObject> children = this.attribute.getObject().getChildren(forecastData, false);
+                        if (!children.isEmpty()) {
+                            this.hasForecastData = true;
+                            this.forecastDataAttribute = children.get(0).getAttribute("Value");
+                        }
                     }
 
                     if (jevisClassName.equals("String Data")) {

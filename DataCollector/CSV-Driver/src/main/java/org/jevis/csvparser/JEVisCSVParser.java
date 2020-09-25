@@ -76,6 +76,9 @@ public class JEVisCSVParser implements Parser {
             }
 
             String dpType = DatabaseHelper.getObjectAsString(parserObject, dpTypeType);
+            if (dpType == null) {
+                dpType = "ROW";
+            }
 
             Integer dateIndex = DatabaseHelper.getObjectAsInteger(parserObject, dateIndexType);
             if (dateIndex != null) {
