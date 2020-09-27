@@ -13,10 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * @author fs
  * @deprecated This class is an temporary solution and maybe not used in the
  * futures
- *
- * @author fs
  */
 public class GUIConstants {
 
@@ -46,6 +45,7 @@ public class GUIConstants {
     public static DisplayType ALARM_CONFIG = new DisplayType("Alarm Config", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType CALENDAR = new DisplayType("Calendar", JEVisConstants.PrimitiveType.STRING);
     public static DisplayType WEB_VIEW = new DisplayType("Web View", JEVisConstants.PrimitiveType.STRING);
+    public static DisplayType OPC_PROTOCOL = new DisplayType("OPC Protocol", JEVisConstants.PrimitiveType.STRING);
 
     private static final Logger logger = LogManager.getLogger(GUIConstants.class);
 
@@ -76,14 +76,14 @@ public class GUIConstants {
             add(ALARM_CONFIG);
             add(CALENDAR);
             add(WEB_VIEW);
+            add(OPC_PROTOCOL);
         }
     };
 
     /**
-     *
      * @param primitiveType
-     * @see JEVisConstants.PrimitiveType
      * @return
+     * @see JEVisConstants.PrimitiveType
      */
     public static List<DisplayType> getALL(int primitiveType) {
         List<DisplayType> all = new ArrayList<DisplayType>();
