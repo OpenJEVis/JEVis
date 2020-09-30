@@ -151,9 +151,9 @@ public class Launcher extends AbstractCliApp {
 
     @Override
     protected void handleAdditionalCommands() {
+        APP_SERVICE_CLASS_NAME = "JEDataCollector";
         initializeThreadPool(APP_SERVICE_CLASS_NAME);
         DriverHelper.loadDriver(ds, commands.driverFolder);
-        APP_SERVICE_CLASS_NAME = "JEDataCollector";
     }
 
     @Override
