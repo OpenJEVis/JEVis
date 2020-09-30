@@ -64,7 +64,7 @@ public abstract class AbstractCliApp {
     protected int cycleTime = 900000;
     protected final ConcurrentHashMap<Long, DateTime> plannedJobs = new ConcurrentHashMap<>();
     protected final ConcurrentHashMap<Long, FutureTask<?>> runnables = new ConcurrentHashMap<>();
-    protected String APP_SERVICE_CLASS_NAME;
+    protected static final String APP_SERVICE_CLASS_NAME = "Max Number Threads";
     private int threadCount = 4;
     private String emergency_config;
 
@@ -315,7 +315,7 @@ public abstract class AbstractCliApp {
         try {
             JEVisClass serviceClass = ds.getJEVisClass(serviceClassName);
             List<JEVisObject> listServices = ds.getObjects(serviceClass, false);
-            threadCount = listServices.get(0).getAttribute("Max Number Threads").getLatestSample().getValueAsLong().intValue();
+            threadCount = listServices.get(0).getAttribute(APP_SERVICE_CLASS_NAME).getLatestSample().getValueAsLong().intValue();
             logger.info("Set Thread count to: " + threadCount);
         } catch (Exception e) {
             logger.error("Couldn't get Service thread count from the JEVis System");
