@@ -702,19 +702,41 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return getJEVisClass(className).getTypes();
     }
 
+    private void removeObjectFromRelationshipsCache(long objectID) {
+        for (Map.Entry<Long, List<JEVisRelationship>> entry : objectRelMapCache.entrySet()) {
+            List<JEVisRelationship> jeVisRelationships = entry.getValue();
+            List<JEVisRelationship> toDelete = new ArrayList<>();
+            for (JEVisRelationship jeVisRelationship : jeVisRelationships) {
+                if (jeVisRelationship.getStartID() == objectID || jeVisRelationship.getEndID() == objectID) {
+                    toDelete.add(jeVisRelationship);
+                }
+            }
+
+
+            if (!toDelete.isEmpty()) jeVisRelationships.removeAll(toDelete);
+        }
+        if (objectRelMapCache.contains(objectID)) objectRelMapCache.remove(objectID);
+
+    }
+
     private void removeObjectFromCache(long objectID) {
         try {
-            this.objectCache.remove(objectID);
 
-            JEVisObject object = getObject(objectID);
-            List<Long> ids = new ArrayList<>();
-            for (JEVisObject c : object.getChildren()) {
-                ids.add(c.getID());
+            JEVisObject object = this.objectCache.get(objectID);
+            if (object != null) {
+                List<Long> ids = new ArrayList<>();
+                for (JEVisObject c : object.getChildren()) {
+                    ids.add(c.getID());
+                }
+                for (Long id : ids) {
+                    removeObjectFromCache(id);
+                }
+
+                this.objectCache.remove(objectID);
+                removeObjectFromRelationshipsCache(objectID);
             }
-            for (Long id : ids) {
-                removeObjectFromCache(id);
-            }
-            reloadRelationships();//takes 30ms
+
+            //reloadRelationships();//save but takes  a lot of time
 
         } catch (JEVisException | NullPointerException ne) {
             logger.error(ne);
@@ -745,7 +767,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 HttpURLConnection response = getHTTPConnection().getDeleteConnection(resource);
                 if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
-                    reloadRelationships();
+                    // reloadRelationships();
                     removeObjectFromCache(objectID);
 
                     object.getParents().forEach(parent -> {
