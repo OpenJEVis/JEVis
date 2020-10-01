@@ -143,6 +143,14 @@ public class HTTPConnection {
         conn.setRequestProperty("Authorization", "Basic " + auth);
     }
 
+    /**
+     * TODO: this function need an rework. The error handling a retry function are suboptimal
+     *
+     * @param resource
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public InputStream getInputStreamRequest(String resource) throws IOException, InterruptedException {
         int retry = 0;
         boolean delay = false;
@@ -169,6 +177,9 @@ public class HTTPConnection {
             logger.debug("HTTP request {}", conn.getURL());
 
             switch (conn.getResponseCode()) {
+                case HttpURLConnection.HTTP_NOT_FOUND:
+                case HttpURLConnection.HTTP_FORBIDDEN:
+                    return null;
                 case HttpURLConnection.HTTP_OK:
                     if ("gzip".equals(conn.getContentEncoding())) {
                         return new GZIPInputStream(conn.getInputStream());
