@@ -39,14 +39,6 @@
     {
       "name": "Connection Timeout",
       "primitiveType": 2,
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "sFTP Server"
-    },
-    {
-      "name": "Connection Timeout",
-      "primitiveType": 2,
       "guiType": "Number",
       "guiposition": 0,
       "validity": 0,
