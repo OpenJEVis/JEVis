@@ -31,6 +31,7 @@
     {
       "name": "User",
       "primitiveType": 0,
+      "guiType": "Text",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,

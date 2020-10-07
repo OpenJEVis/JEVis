@@ -112,6 +112,7 @@ public class OPCClient {
      * - .....
      */
     public EndpointDescription autoSelectEndpoint() throws ExecutionException, InterruptedException {
+        logger.error("Autoselect Endpoint: {}", getEndpoints().get(0));
         return getEndpoints().get(0);
     }
 
