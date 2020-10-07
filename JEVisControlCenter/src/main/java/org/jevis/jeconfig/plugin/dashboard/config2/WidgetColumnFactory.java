@@ -388,7 +388,7 @@ public class WidgetColumnFactory {
 //                            });
 
                             setGraphic(textField);
-                        }else{
+                        } else {
                             setGraphic(null);
                         }
 
@@ -443,7 +443,7 @@ public class WidgetColumnFactory {
 //                            addFocusRefreshListener(colorPicker);
 
                             setGraphic(colorPicker);
-                        }else{
+                        } else {
                             setGraphic(null);
                         }
 
@@ -501,7 +501,7 @@ public class WidgetColumnFactory {
 
 //                            addFocusRefreshListener(colorPicker);
 //                            setGraphic(colorPicker);
-                        }else {
+                        } else {
                             setGraphic(null);
                         }
 
@@ -555,7 +555,7 @@ public class WidgetColumnFactory {
 
                             addFocusRefreshListener(textField);
                             setGraphic(textField);
-                        }else{
+                        } else {
                             setGraphic(null);
                         }
                     }
@@ -668,7 +668,7 @@ public class WidgetColumnFactory {
 
 
                             setGraphic(textField);
-                        }else{
+                        } else {
                             setGraphic(null);
                         }
                     }
@@ -721,12 +721,13 @@ public class WidgetColumnFactory {
 
         if (this.table.getSelectionModel().getSelectedItems().contains(srcWidget)) {
             this.table.getSelectionModel().getSelectedItems().forEach(widget -> {
-                srcWidget.getConfig().setFontColor(color);
+                widget.getConfig().setFontColor(color);
                 WidgetColumnFactory.this.control.requestViewUpdate(widget);
+
             });
         }
+        this.table.refresh();
 
-//        this.table.refresh();
     }
 
     private void setWidgetBGColor(Color color, Widget srcWidget) {
@@ -735,12 +736,12 @@ public class WidgetColumnFactory {
 
         if (this.table.getSelectionModel().getSelectedItems().contains(srcWidget)) {
             this.table.getSelectionModel().getSelectedItems().forEach(widget -> {
-                srcWidget.getConfig().setBackgroundColor(color);
+                widget.getConfig().setBackgroundColor(color);
                 WidgetColumnFactory.this.control.requestViewUpdate(widget);
             });
+            this.table.requestLayout();
         }
-
-//        this.table.refresh();
+        this.table.refresh();
     }
 
     private void setWidgetXPosition(TextField textField, Widget srcWidget) {
@@ -837,7 +838,7 @@ public class WidgetColumnFactory {
                             addFocusRefreshListener(textField);
 
                             setGraphic(textField);
-                        }else{
+                        } else {
                             setGraphic(null);
                         }
                     }

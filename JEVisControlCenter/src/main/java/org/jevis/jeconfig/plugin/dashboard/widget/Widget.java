@@ -173,7 +173,9 @@ public abstract class Widget extends Region {
         }
 
         try {
+            setBackgroundColor(this.config.getBackgroundColor());
             updateConfig();
+
         } catch (Exception ex) {
             logger.debug(ex);
         }
