@@ -16,7 +16,7 @@ public class DashboardPojo {
     public static String WIDGET_SETTINGS_NODE = "extra";
 
     public String version = "1.0";
-    private String name = "";
+    //private String name = "";
     public BorderWidths borderSize = new BorderWidths(0.2);
     public Color fontColor = Color.WHITE;
     public Color fontColorSecondary = Color.DODGERBLUE;
@@ -52,7 +52,7 @@ public class DashboardPojo {
 
         @Override
         public Interval getInterval(DateTime dateTime) {
-            return new Interval(dateTime,dateTime);
+            return new Interval(dateTime, dateTime);
         }
 
         @Override
@@ -85,13 +85,15 @@ public class DashboardPojo {
     public DashboardPojo() {
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    /**
+     * public String getName() {
+     * return this.name;
+     * }
+     * <p>
+     * public void setName(String name) {
+     * this.name = name;
+     * }
+     **/
 
     public Boolean getNew() {
         return this.isNew;

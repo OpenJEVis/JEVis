@@ -6,27 +6,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
-import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.*;
 import org.jevis.commons.JEVisFileImp;
-import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.application.control.SaveUnderDialog;
 import org.jevis.jeconfig.plugin.dashboard.DashBordPlugIn;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
 import org.jevis.jeconfig.plugin.dashboard.common.WidgetIDs;
@@ -46,8 +40,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.jevis.jeconfig.plugin.dashboard.config2.JsonNames.Dashboard.*;
 
@@ -71,12 +63,12 @@ public class ConfigManager {
 
     }
 
-    public JsonNode readDashboardFile(JEVisObject dashboardObject) throws Exception{
-            this.dashboardObject = dashboardObject;
-            JEVisSample lastConfigSample = dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
-            JEVisFile file = lastConfigSample.getValueAsFile();
-            JsonNode jsonNode = this.mapper.readTree(file.getBytes());
-            return jsonNode;
+    public JsonNode readDashboardFile(JEVisObject dashboardObject) throws Exception {
+        this.dashboardObject = dashboardObject;
+        JEVisSample lastConfigSample = dashboardObject.getAttribute(DashBordPlugIn.ATTRIBUTE_DATA_MODEL_FILE).getLatestSample();
+        JEVisFile file = lastConfigSample.getValueAsFile();
+        JsonNode jsonNode = this.mapper.readTree(file.getBytes());
+        return jsonNode;
     }
 
     public ObjectMapper getMapper() {
@@ -84,22 +76,25 @@ public class ConfigManager {
     }
 
 
+    public void saveDashboard(DashboardPojo dashboardPojo, List<Widget> widgets, String filename, java.io.File wallpaper) throws IOException, JEVisException {
 
-    public void saveDashboard(DashboardPojo dashboardPojo, List<Widget> widgets, String filename, JEVisObject parent, java.io.File wallpaper) throws IOException, JEVisException {
-
-        JEVisClass dashboardClass = jeVisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
+        //JEVisClass dashboardClass = jeVisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
         ObjectNode dashboardNode = toJson(dashboardPojo, widgets);
-        JEVisObject dashboardObject;
-        if (dashboardPojo.getDashboardObject() != null) {
-            dashboardObject = this.dashboardObject;
-            dashboardObject.setName(filename);
-            dashboardObject.commit();
-        } else {
-            dashboardObject = parent.buildObject(filename, dashboardClass);
-            dashboardObject.commit();
-            parent.getDataSource().reloadAttribute(dashboardObject);
-            dashboardPojo.setJevisObject(dashboardObject);
-        }
+
+
+        JEVisObject dashboardObject = dashboardPojo.getDashboardObject();
+        /**
+         if (dashboardPojo.getDashboardObject() != null) {
+         dashboardObject = this.dashboardObject;
+         dashboardObject.setName(filename);
+         dashboardObject.commit();
+         } else {
+         dashboardObject = parent.buildObject(filename, dashboardClass);
+         dashboardObject.commit();
+         parent.getDataSource().reloadAttribute(dashboardObject);
+         dashboardPojo.setJevisObject(dashboardObject);
+         }
+         **/
 
 
         logger.debug("---------\n {} \n-----------------", this.mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dashboardNode));
@@ -348,32 +343,32 @@ public class ConfigManager {
 //        logger.debug("getBackgroundImage: {}", analysisObject.getID());
 
 
-            Task<Image> imageLoadTask = new Task<Image>() {
-                @Override
-                public Image call() throws InterruptedException {
-                    try {
+        Task<Image> imageLoadTask = new Task<Image>() {
+            @Override
+            public Image call() throws InterruptedException {
+                try {
 //                    logger.error("getBackgroundImage: {}", analysisObject);
 //                    if (analysisObject == null) {
 //                        return JEConfig.getImage("transPixel.png");
 //                    }
-                        JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
-                        if (bgFile != null && bgFile.hasSample()) {
-                            JEVisSample backgroundImage = bgFile.getLatestSample();
-                            if (backgroundImage != null) {
-                                JEVisFile imageFile = backgroundImage.getValueAsFile();
-                                InputStream in = new ByteArrayInputStream(imageFile.getBytes());
-                                return new Image(in);
-                            }
+                    JEVisAttribute bgFile = analysisObject.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
+                    if (bgFile != null && bgFile.hasSample()) {
+                        JEVisSample backgroundImage = bgFile.getLatestSample();
+                        if (backgroundImage != null) {
+                            JEVisFile imageFile = backgroundImage.getValueAsFile();
+                            InputStream in = new ByteArrayInputStream(imageFile.getBytes());
+                            return new Image(in);
                         }
-                    } catch (Exception ex) {
-                        logger.error("Could not load background image: {}", ex, ex);
                     }
-                    throw new InterruptedException("could not load background image");
+                } catch (Exception ex) {
+                    logger.error("Could not load background image: {}", ex, ex);
                 }
-            };
+                throw new InterruptedException("could not load background image");
+            }
+        };
 
-            imageLoadTask.setOnSucceeded(e -> imageBoardBackground.setValue(imageLoadTask.getValue()));
-            new Thread(imageLoadTask).start();
+        imageLoadTask.setOnSucceeded(e -> imageBoardBackground.setValue(imageLoadTask.getValue()));
+        new Thread(imageLoadTask).start();
 
         return imageBoardBackground;
     }
@@ -390,146 +385,192 @@ public class ConfigManager {
 
 
     public void openSaveUnder(DashboardPojo dashboardPojo, ObservableList<Widget> widgetList, File wallpaper) {
-        Dialog<ButtonType> newAnalysis = new Dialog<>();
-        newAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
-        Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
-        Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
-        TextField name = new TextField();
-
-        JEVisClass analysesDirectory = null;
-        List<JEVisObject> listAnalysesDirectories = null;
-        AtomicBoolean hasMultitDirs = new AtomicBoolean(false);
         try {
-            analysesDirectory = jeVisDataSource.getJEVisClass("Analyses Directory");
-            listAnalysesDirectories = jeVisDataSource.getObjects(analysesDirectory, false);
-            hasMultitDirs.set(listAnalysesDirectories.size() > 1);
+            logger.error("openSaveUnder: {},{},{},{}", dashboardPojo, wallpaper);
+            JEVisClass dashboardClass = jeVisDataSource.getJEVisClass(DashBordPlugIn.CLASS_ANALYSIS);
 
-        } catch (JEVisException e) {
-            e.printStackTrace();
-        }
 
-        ObjectProperty<JEVisObject> currentAnalysisDirectory = new SimpleObjectProperty<>(null);
-        ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
+            SaveUnderDialog.saveUnderAnalysis(jeVisDataSource, dashboardPojo.getDashboardObject(), dashboardClass, dashboardPojo.getTitle(), (target, sameObject) -> {
+                logger.error("Start save");
+                try {
 
-        Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
-            @Override
-            public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
-                return new ListCell<JEVisObject>() {
-                    @Override
-                    protected void updateItem(JEVisObject obj, boolean empty) {
-                        super.updateItem(obj, empty);
-                        if (empty || obj == null || obj.getName() == null) {
-                            setText("");
-                        } else {
-                            if (!hasMultitDirs.get())
-                                setText(obj.getName());
-                            else {
-                                String prefix = objectRelations.getObjectPath(obj);
-
-                                setText(prefix + obj.getName());
-                            }
-                        }
-
+                    JEVisAttribute bgFile = null;
+                    if (dashboardPojo != null && dashboardPojo.getDashboardObject() != null) {
+                        bgFile = dashboardPojo.getDashboardObject().getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND);
                     }
-                };
-            }
-        };
-        parentsDirectories.setCellFactory(cellFactory);
-        parentsDirectories.setButtonCell(cellFactory.call(null));
 
-        parentsDirectories.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue != oldValue) {
-                currentAnalysisDirectory.setValue(newValue);
-            }
-        });
-        parentsDirectories.getSelectionModel().selectFirst();
-
-
-        if (dashboardPojo != null) {
-            try {
-                if (dashboardPojo.getDashboardObject().getParents() != null) {
-                    JEVisObject parenObj = dashboardPojo.getDashboardObject().getParents().get(0);
-                    parentsDirectories.getSelectionModel().select(parenObj);
+                    logger.error("Wallpaper: {},{},{}", sameObject, wallpaper, bgFile);
+                    if (!sameObject && wallpaper == null && bgFile != null && bgFile.hasSample()) {
+                        JEVisSample wallPaperCopy = target.getAttribute(DashBordPlugIn.ATTRIBUTE_BACKGROUND).buildSample(new DateTime(), bgFile.getLatestSample().getValueAsFile());
+                        wallPaperCopy.commit();
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
-            } catch (Exception e) {
-                logger.error("Couldn't select current Analysis Directory: " + e);
-            }
 
-            name.setText(dashboardPojo.getName());
+                dashboardPojo.setTitle(target.getName());
+                dashboardPojo.setJevisObject(target);
 
+                try {
+                    saveDashboard(dashboardPojo, widgetList, target.getName(), wallpaper);
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                return true;
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
-        name.focusedProperty().addListener((ov, t, t1) -> Platform.runLater(() -> {
-            if (name.isFocused() && !name.getText().isEmpty()) {
-                name.selectAll();
-            }
-        }));
+        /**
 
-        final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), ButtonBar.ButtonData.OK_DONE);
-        final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+         Dialog<ButtonType> newAnalysis = new Dialog<>();
+         newAnalysis.setTitle(I18n.getInstance().getString("plugin.graph.dialog.new.title"));
+         Label newText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.name"));
+         Label directoryText = new Label(I18n.getInstance().getString("plugin.graph.dialog.new.directory"));
+         TextField name = new TextField();
 
-        GridPane gridLayout = new GridPane();
-        gridLayout.setPadding(new Insets(10, 10, 10, 10));
-        gridLayout.setVgap(10);
+         JEVisClass analysesDirectory = null;
+         List<JEVisObject> listAnalysesDirectories = null;
+         AtomicBoolean hasMultiDirs = new AtomicBoolean(false);
+         try {
+         analysesDirectory = jeVisDataSource.getJEVisClass("Analyses Directory");
+         listAnalysesDirectories = jeVisDataSource.getObjects(analysesDirectory, false);
+         hasMultiDirs.set(listAnalysesDirectories.size() > 1);
 
-        gridLayout.add(directoryText, 0, 0);
-        gridLayout.add(parentsDirectories, 0, 1, 2, 1);
-        GridPane.setFillWidth(parentsDirectories, true);
-        parentsDirectories.setMinWidth(200);
-        gridLayout.add(newText, 0, 2);
-        gridLayout.add(name, 0, 3, 2, 1);
-        GridPane.setFillWidth(name, true);
-        name.setMinWidth(200);
+         } catch (JEVisException e) {
+         e.printStackTrace();
+         }
 
-        newAnalysis.getDialogPane().setContent(gridLayout);
-        newAnalysis.getDialogPane().getButtonTypes().addAll(ok, cancel);
-        newAnalysis.getDialogPane().setPrefWidth(450d);
-        newAnalysis.initOwner(JEConfig.getStage());
+         ObjectProperty<JEVisObject> currentAnalysisDirectory = new SimpleObjectProperty<>(null);
+         ComboBox<JEVisObject> parentsDirectories = new ComboBox<>(FXCollections.observableArrayList(listAnalysesDirectories));
 
-        newAnalysis.showAndWait()
-                .ifPresent(response -> {
-                    if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
-                        List<String> check = new ArrayList<>();
-                        AtomicReference<JEVisObject> currentAnalysis = new AtomicReference<>();
-                        try {
-                            currentAnalysisDirectory.getValue().getChildren().forEach(jeVisObject -> {
-                                if (!check.contains(jeVisObject.getName())) {
-                                    check.add(jeVisObject.getName());
-                                }
-                            });
-                            currentAnalysisDirectory.getValue().getChildren().forEach(jeVisObject -> {
-                                if (jeVisObject.getName().equals(name.getText())) currentAnalysis.set(jeVisObject);
-                            });
-                        } catch (JEVisException e) {
-                            logger.error("Error in current analysis directory: " + e);
-                        }
+         Callback<ListView<JEVisObject>, ListCell<JEVisObject>> cellFactory = new Callback<ListView<JEVisObject>, ListCell<JEVisObject>>() {
+        @Override public ListCell<JEVisObject> call(ListView<JEVisObject> param) {
+        return new ListCell<JEVisObject>() {
+        @Override protected void updateItem(JEVisObject obj, boolean empty) {
+        super.updateItem(obj, empty);
+        if (empty || obj == null || obj.getName() == null) {
+        setText("");
+        } else {
+        if (!hasMultiDirs.get())
+        setText(obj.getName());
+        else {
+        String prefix = objectRelations.getObjectPath(obj);
+
+        setText(prefix + obj.getName());
+        }
+        }
+
+        }
+        };
+        }
+        };
+         parentsDirectories.setCellFactory(cellFactory);
+         parentsDirectories.setButtonCell(cellFactory.call(null));
+
+         parentsDirectories.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+         if (newValue != null && newValue != oldValue) {
+         currentAnalysisDirectory.setValue(newValue);
+         }
+         });
+         parentsDirectories.getSelectionModel().selectFirst();
 
 
-                        if (check.contains(name.getText())) {
-                            Dialog<ButtonType> dialogOverwrite = new Dialog<>();
-                            dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
-                            dialogOverwrite.getDialogPane().setContentText(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
-                            final ButtonType overwrite_ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), ButtonBar.ButtonData.OK_DONE);
-                            final ButtonType overwrite_cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+         if (dashboardPojo != null) {
+         try {
+         if (dashboardPojo.getDashboardObject().getParents() != null) {
+         JEVisObject parenObj = dashboardPojo.getDashboardObject().getParents().get(0);
+         parentsDirectories.getSelectionModel().select(parenObj);
+         }
+         } catch (Exception e) {
+         logger.error("Couldn't select current Analysis Directory: " + e);
+         }
 
-                            dialogOverwrite.getDialogPane().getButtonTypes().addAll(overwrite_ok, overwrite_cancel);
+         name.setText(dashboardPojo.getName());
 
-                            dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
-                                if (overwrite_response.getButtonData().getTypeCode() != ButtonType.OK.getButtonData().getTypeCode()) {
-                                    return;
-                                }
-                            });
-                        }
+         }
 
-                        try {
-                            dashboardPojo.setName(name.getText());
-                            dashboardPojo.setTitle(name.getText());
-                            saveDashboard(dashboardPojo, widgetList, name.getText(), currentAnalysisDirectory.getValue(), wallpaper);
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
+         name.focusedProperty().addListener((ov, t, t1) -> Platform.runLater(() -> {
+         if (name.isFocused() && !name.getText().isEmpty()) {
+         name.selectAll();
+         }
+         }));
 
-                    }
-                });
+         final ButtonType ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.ok"), ButtonBar.ButtonData.OK_DONE);
+         final ButtonType cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.new.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+         GridPane gridLayout = new GridPane();
+         gridLayout.setPadding(new Insets(10, 10, 10, 10));
+         gridLayout.setVgap(10);
+
+         gridLayout.add(directoryText, 0, 0);
+         gridLayout.add(parentsDirectories, 0, 1, 2, 1);
+         GridPane.setFillWidth(parentsDirectories, true);
+         parentsDirectories.setMinWidth(200);
+         gridLayout.add(newText, 0, 2);
+         gridLayout.add(name, 0, 3, 2, 1);
+         GridPane.setFillWidth(name, true);
+         name.setMinWidth(200);
+
+         newAnalysis.getDialogPane().setContent(gridLayout);
+         newAnalysis.getDialogPane().getButtonTypes().addAll(ok, cancel);
+         newAnalysis.getDialogPane().setPrefWidth(450d);
+         newAnalysis.initOwner(JEConfig.getStage());
+
+         /**
+         *
+         */
+
+        /**
+         newAnalysis.showAndWait()
+         .ifPresent(response -> {
+         if (response.getButtonData().getTypeCode() == ButtonType.OK.getButtonData().getTypeCode()) {
+         List<String> check = new ArrayList<>();
+         AtomicReference<JEVisObject> currentAnalysis = new AtomicReference<>();
+         try {
+         currentAnalysisDirectory.getValue().getChildren().forEach(jeVisObject -> {
+         if (!check.contains(jeVisObject.getName())) {
+         check.add(jeVisObject.getName());
+         }
+         });
+         currentAnalysisDirectory.getValue().getChildren().forEach(jeVisObject -> {
+         if (jeVisObject.getName().equals(name.getText())) currentAnalysis.set(jeVisObject);
+         });
+         } catch (JEVisException e) {
+         logger.error("Error in current analysis directory: " + e);
+         }
+
+
+         if (check.contains(name.getText())) {
+         Dialog<ButtonType> dialogOverwrite = new Dialog<>();
+         dialogOverwrite.setTitle(I18n.getInstance().getString("plugin.graph.dialog.overwrite.title"));
+         dialogOverwrite.getDialogPane().setContentText(I18n.getInstance().getString("plugin.graph.dialog.overwrite.message"));
+         final ButtonType overwrite_ok = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.ok"), ButtonBar.ButtonData.OK_DONE);
+         final ButtonType overwrite_cancel = new ButtonType(I18n.getInstance().getString("plugin.graph.dialog.overwrite.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+
+         dialogOverwrite.getDialogPane().getButtonTypes().addAll(overwrite_ok, overwrite_cancel);
+
+         dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
+         if (overwrite_response.getButtonData().getTypeCode() != ButtonType.OK.getButtonData().getTypeCode()) {
+         return;
+         }
+         });
+         }
+
+         try {
+         dashboardPojo.setName(name.getText());
+         dashboardPojo.setTitle(name.getText());
+         saveDashboard(dashboardPojo, widgetList, name.getText(), currentAnalysisDirectory.getValue(), wallpaper);
+         } catch (Exception ex) {
+         ex.printStackTrace();
+         }
+
+         }
+         });
+         **/
     }
+
+
 }

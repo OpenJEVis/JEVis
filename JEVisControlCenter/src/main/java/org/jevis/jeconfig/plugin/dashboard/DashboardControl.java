@@ -109,16 +109,16 @@ public class DashboardControl {
     }
 
     /**
-    public ExecutorService getExecutor() {
-        return executor;
-    }
+     * public ExecutorService getExecutor() {
+     * return executor;
+     * }
      **/
 
-    public void executeTask(Task task){
-        JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(),task,widgetTaskIcon,true);
+    public void executeTask(Task task) {
+        JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), task, widgetTaskIcon, true);
     }
 
-    public void updateWidget(Widget widget){
+    public void updateWidget(Widget widget) {
         Task task = new Task() {
             @Override
             protected Object call() throws Exception {
@@ -128,7 +128,7 @@ public class DashboardControl {
                 return null;
             }
         };
-        JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(),task,widgetTaskIcon,true);
+        JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), task, widgetTaskIcon, true);
     }
 
     private void initTimeFrameFactory() {
@@ -202,15 +202,15 @@ public class DashboardControl {
     }
 
     public void setSnapToGrid(boolean snapToGrid) {
-        logger.error("setSnapToGrid: "+snapToGrid);
+        logger.error("setSnapToGrid: " + snapToGrid);
         snapToGridProperty.setValue(snapToGrid);
         toolBar.updateView(activeDashboard);
         /**
-        if (snapToGrid != showGridProperty.getValue()) {
-            this.showGridProperty.setValue(snapToGrid);
-            toolBar.updateView(activeDashboard);
-//            dashboardPane.updateView();
-        }
+         if (snapToGrid != showGridProperty.getValue()) {
+         this.showGridProperty.setValue(snapToGrid);
+         toolBar.updateView(activeDashboard);
+         //            dashboardPane.updateView();
+         }
          **/
     }
 
@@ -220,7 +220,7 @@ public class DashboardControl {
 
         try {
             Widget maxIDWidget = getWidgetList().stream().max(comp).get();
-            return maxIDWidget.getConfig().getUuid()+1;
+            return maxIDWidget.getConfig().getUuid() + 1;
         } catch (Exception ex) {
             return 1;
         }
@@ -288,10 +288,10 @@ public class DashboardControl {
     public void setZoomFactor(double zoom) {
         /** check if the zoomMode is fine **/
         if (zoom != fitToScreen && zoom != fitToHeight && zoom != fitToWidth) {
-            zoom = Precision.round(zoom,2);
+            zoom = Precision.round(zoom, 2);
             if (this.zoomFactor < MIN_ZOOM) {
                 zoom = MIN_ZOOM;
-            } else if (zoom>90) { /** fix zoomFactor(to-screen etc) beginn at 90 **/
+            } else if (zoom > 90) { /** fix zoomFactor(to-screen etc) beginn at 90 **/
                 zoom = MAX_ZOOM;
             } else if (zoom > MAX_ZOOM) {
                 zoom = MAX_ZOOM;
@@ -303,8 +303,8 @@ public class DashboardControl {
         double relWidthDiff = parentSize.getWidth() / dashboardPane.getWidth();
         double relHeightDiff = parentSize.getHeight() / dashboardPane.getHeight();
 
-        logger.debug("SetZoom: Factor:{}\nparent: {}/{}\ndashboard: {}/{}\nrel: {}/{}",zoomFactor,parentSize.getWidth(),zoomFactor,parentSize.getHeight(),dashboardPane.getWidth(),dashboardPane.getHeight(),relWidthDiff,relHeightDiff);
-        logger.debug("Dashboard in bounds: {}/{}",dashboardPane.getBoundsInParent().getWidth(),dashboardPane.getBoundsInParent().getHeight());
+        logger.debug("SetZoom: Factor:{}\nparent: {}/{}\ndashboard: {}/{}\nrel: {}/{}", zoomFactor, parentSize.getWidth(), zoomFactor, parentSize.getHeight(), dashboardPane.getWidth(), dashboardPane.getHeight(), relWidthDiff, relHeightDiff);
+        logger.debug("Dashboard in bounds: {}/{}", dashboardPane.getBoundsInParent().getWidth(), dashboardPane.getBoundsInParent().getHeight());
 
         //        if(dashboardPane.getHeight()<dashboardPane.getBoundsInParent().getHeight() || dashboardPane.getWidth()<dashboardPane.getBoundsInParent().getWidth()){
 //            Size size= new Size( dashboardPane.getBoundsInParent().getHeight(),dashboardPane.getBoundsInParent().getWidth());
@@ -321,7 +321,7 @@ public class DashboardControl {
             dashboardPane.setZoom(zoomFactor);
         }
         toolBar.updateZoomLevelView(zoomFactor);
-        logger.debug("Fine Size: dashboard: {}/{}",dashboardPane.getWidth(),dashboardPane.getHeight());
+        logger.debug("Fine Size: dashboard: {}/{}", dashboardPane.getWidth(), dashboardPane.getHeight());
 
     }
 
@@ -402,7 +402,7 @@ public class DashboardControl {
 
             if (object == null) {  /** Create new Dashboard**/
                 this.activeDashboard = new DashboardPojo();
-                this.activeDashboard.setName("Dashboard");
+                this.activeDashboard.setTitle("New Dashboard");
                 this.activeDashboard.setTimeFrame(timeFrames.day());
                 Size pluginSize = dashBordPlugIn.getPluginSize();
                 pluginSize.setHeight(pluginSize.getHeight() - 10);
@@ -414,7 +414,8 @@ public class DashboardControl {
                 } catch (Exception ex) {
                     dashBordPlugIn.showMessage(I18n.getInstance().getString("plugin.dashboard.load.error.file.content"));
                 }
-                this.activeDashboard.setName(object.getName());
+                //this.activeDashboard.setName(object.getName());
+                this.activeDashboard.setTitle(object.getName());
             }
 
             this.activeDashboard.setJevisObject(object);
@@ -631,12 +632,12 @@ public class DashboardControl {
 
             JEConfig.getStatusBar().stopTasks(DashBordPlugIn.class.getName());
             /**
-            if (this.updateTask != null) {
-                try {
-                    this.updateTask.cancel();
-                } catch (Exception ex) {
+             if (this.updateTask != null) {
+             try {
+             this.updateTask.cancel();
+             } catch (Exception ex) {
 
-                }
+             }
              }
              this.updateTimer.cancel();
              if (this.executor != null) this.executor.shutdownNow();
@@ -689,7 +690,7 @@ public class DashboardControl {
                             //runningUpdateTaskList.add(updateTask);
                             //JEConfig.getStatusBar().addTask(updateTask,widgetTaskIcon);
                             //executor.submit(updateTask);
-                            JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(),updateTask,widgetTaskIcon,true);
+                            JEConfig.getStatusBar().addTask(DashBordPlugIn.class.getName(), updateTask, widgetTaskIcon, true);
                         }
                     }
 
@@ -711,15 +712,13 @@ public class DashboardControl {
     }
 
 
-
-    private Task<Object> addWidgetUpdateTask(Widget widget, Interval interval){
+    private Task<Object> addWidgetUpdateTask(Widget widget, Interval interval) {
         /**
-        if (widget == null || interval == null) {
-            logger.error("widget is null, this should not happen");
-            return;
-        }
+         if (widget == null || interval == null) {
+         logger.error("widget is null, this should not happen");
+         return;
+         }
          **/
-
 
 
         Task<Object> updateTask = new Task<Object>() {
@@ -727,7 +726,7 @@ public class DashboardControl {
             protected Object call() throws Exception {
                 try {
                     logger.debug("addWidgetUpdateTask: " + widget);
-                    Platform.runLater(()->this.updateTitle("Updating Widget ["+widget.typeID()+""+widget.getConfig().getUuid()+"] "+widget.getConfig().getTitle()+"'"));
+                    Platform.runLater(() -> this.updateTitle("Updating Widget [" + widget.typeID() + "" + widget.getConfig().getUuid() + "] " + widget.getConfig().getTitle() + "'"));
 
                     if (!widget.isStatic()) {
                         widget.updateData(interval);
@@ -752,12 +751,12 @@ public class DashboardControl {
         return updateTask;
     }
 
-    private synchronized boolean allJobsDone( List<Task> futures){
-        boolean allDone=true;
+    private synchronized boolean allJobsDone(List<Task> futures) {
+        boolean allDone = true;
         Iterator<Task> itr = futures.iterator();
         while (itr.hasNext()) {
-            if (!itr.next().isDone()){
-                allDone=false;
+            if (!itr.next().isDone()) {
+                allDone = false;
             }
         }
 
@@ -911,13 +910,13 @@ public class DashboardControl {
 
     public void toPNG() {
         DashboardExport exporter = new DashboardExport();
-        exporter.toPDF(dashboardPane, activeDashboard.getName() + "_" + intervalToString());
+        exporter.toPDF(dashboardPane, activeDashboard.getTitle() + "_" + intervalToString());
     }
 
 
     public void toPDF() {
         DashboardExport exporter = new DashboardExport();
-        exporter.toPDF(dashboardPane, activeDashboard.getName() + "_" + intervalToString());
+        exporter.toPDF(dashboardPane, activeDashboard.getTitle() + "_" + intervalToString());
     }
 
 

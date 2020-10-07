@@ -132,11 +132,11 @@ public class WidgetNavigator {
         pickerAdv.setValue(control.getActiveDashboard().getBackgroundColor());
         pickerAdv.setMinHeight(backgroundButton.getHeight());
 
-        ComboBox<String> bhModeBox= buildBGMOdeBox();
+        ComboBox<String> bhModeBox = buildBGMOdeBox();
 
         HBox imageBox = new HBox();
         imageBox.setSpacing(5);
-        imageBox.getChildren().addAll( backgroundButton, removeBGIcon,bhModeBox);
+        imageBox.getChildren().addAll(backgroundButton, removeBGIcon, bhModeBox);
 
         listZoomLevel.setMaxWidth(Double.MAX_VALUE);
         defaultZoomLabel.setMaxWidth(Double.MAX_VALUE);
@@ -153,29 +153,29 @@ public class WidgetNavigator {
         gridPane.setVgap(8);
 
         /**
-        ColumnConstraints column1 = new ColumnConstraints();
-        ColumnConstraints column2 = new ColumnConstraints();
-        ColumnConstraints column3 = new ColumnConstraints();
-        ColumnConstraints column4 = new ColumnConstraints();
-        gridPane.getColumnConstraints().addAll(column1,column2,column3,column4);
-        **/
+         ColumnConstraints column1 = new ColumnConstraints();
+         ColumnConstraints column2 = new ColumnConstraints();
+         ColumnConstraints column3 = new ColumnConstraints();
+         ColumnConstraints column4 = new ColumnConstraints();
+         gridPane.getColumnConstraints().addAll(column1,column2,column3,column4);
+         **/
 
-        gridPane.addColumn(0,nameLabel,backgroundColorLabel,backgroundIconLabel);
-        gridPane.addColumn(1,nameField,pickerAdv, imageBox );
-        gridPane.add(new Separator(Orientation.VERTICAL) ,2,0,1,3);
-        gridPane.addColumn(4,sizeLabel,defaultZoomLabel,timeLabel );
-        gridPane.addColumn(5,sizeBox,listZoomLevel,timeFactoryBox );
-        gridPane.addColumn(6,new Region() );
+        gridPane.addColumn(0, nameLabel, backgroundColorLabel, backgroundIconLabel);
+        gridPane.addColumn(1, nameField, pickerAdv, imageBox);
+        gridPane.add(new Separator(Orientation.VERTICAL), 2, 0, 1, 3);
+        gridPane.addColumn(4, sizeLabel, defaultZoomLabel, timeLabel);
+        gridPane.addColumn(5, sizeBox, listZoomLevel, timeFactoryBox);
+        gridPane.addColumn(6, new Region());
 
         //GridPane.setHgrow(listZoomLevel,Priority.SOMETIMES);
         //GridPane.setHgrow(timeFactoryBox,Priority.SOMETIMES);
 
         /**
-        gridPane.addRow(0,nameLabel,nameField);
-        gridPane.addRow(1,sizeLabel,sizeBox);
-        gridPane.addRow(2,backgroundColorLabel,pickerAdv,backgroundIconLabel,imageBox);
-        gridPane.addRow(3,timeLabel,timeFactoryBox,defaultZoomLabel,listZoomLevel);
-**/
+         gridPane.addRow(0,nameLabel,nameField);
+         gridPane.addRow(1,sizeLabel,sizeBox);
+         gridPane.addRow(2,backgroundColorLabel,pickerAdv,backgroundIconLabel,imageBox);
+         gridPane.addRow(3,timeLabel,timeFactoryBox,defaultZoomLabel,listZoomLevel);
+         **/
 
         try {
             nameField.setText(this.control.getActiveDashboard().getTitle());
@@ -219,7 +219,7 @@ public class WidgetNavigator {
 
         listZoomLevel.valueProperty().addListener((observable, oldValue, newValue) -> {
             try {
-               control.setDefaultZoom(newValue);
+                control.setDefaultZoom(newValue);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -227,7 +227,8 @@ public class WidgetNavigator {
 
 
         nameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            this.control.getActiveDashboard().setName(newValue);
+            //this.control.getActiveDashboard().setName(newValue);
+            this.control.getActiveDashboard().setTitle(newValue);
         });
 
         timeFactoryBox.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -246,9 +247,9 @@ public class WidgetNavigator {
     }
 
 
-    private ComboBox<String>buildBGMOdeBox(){
+    private ComboBox<String> buildBGMOdeBox() {
         ObservableList<String> modeList = FXCollections.observableArrayList();
-        modeList.addAll(BackgroundMode.defaultMode,BackgroundMode.repeat,BackgroundMode.stretch);
+        modeList.addAll(BackgroundMode.defaultMode, BackgroundMode.repeat, BackgroundMode.stretch);
         ComboBox<String> comboBox = new ComboBox<>(modeList);
         comboBox.setValue(control.getActiveDashboard().backgroundMode);
 
@@ -262,12 +263,12 @@ public class WidgetNavigator {
                         super.updateItem(item, empty);
                         String text = item;
 
-                        if (item ==BackgroundMode.defaultMode) {
-                            text=I18n.getInstance().getString("dashboard.navigator.bgmode.default");
-                        }else if(item ==BackgroundMode.repeat) {
-                            text=I18n.getInstance().getString("dashboard.navigator.bgmode.repeat");
-                        }else if(item ==BackgroundMode.stretch) {
-                            text=I18n.getInstance().getString("dashboard.navigator.bgmode.stretch");
+                        if (item == BackgroundMode.defaultMode) {
+                            text = I18n.getInstance().getString("dashboard.navigator.bgmode.default");
+                        } else if (item == BackgroundMode.repeat) {
+                            text = I18n.getInstance().getString("dashboard.navigator.bgmode.repeat");
+                        } else if (item == BackgroundMode.stretch) {
+                            text = I18n.getInstance().getString("dashboard.navigator.bgmode.stretch");
                         }
 
                         setText(text);
@@ -316,7 +317,7 @@ public class WidgetNavigator {
             control.addWidget(newWidget);
             newWidget.setEditable(true);
 //            newWidget.updateConfig();
-            table.getSelectionModel().clearAndSelect(table.getItems().size()-1);
+            table.getSelectionModel().clearAndSelect(table.getItems().size() - 1);
             table.scrollTo(newWidget);
             this.control.requestViewUpdate(newWidget);
         });
