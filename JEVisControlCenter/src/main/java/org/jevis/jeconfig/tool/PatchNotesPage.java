@@ -45,13 +45,18 @@ import java.util.prefs.Preferences;
 
 /**
  * The PatchNotesPage is an dialog to show recent release changes for the user.#
- *
- * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.42------\n" +
+            "------Version 3.9.43------\n" +
+                    "JECC - Deleting take to much time\n" +
+                    "JECC - Dashboard - Save name is incorrect\n" +
+                    "JECC - Dashboard - Widget multi select colors\n" +
+                    "JECC - Dashboard - Background color in settings dialog does not respect multi-select\n" +
+                    "JECC - Dashboard - Widget Color changes only after reload\n" +
+                    "JEDataCollector - SFTP - duplicatet attribute\n" +
+                    "------Version 3.9.42------\n" +
                     "JECC - PluginManager - fixed heuristic for derived classes\n" +
                     "JECC - ControlPane - added check for valid timerange\n" +
                     "\n" +
