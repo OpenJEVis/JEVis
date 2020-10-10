@@ -45,13 +45,45 @@ import java.util.prefs.Preferences;
 
 /**
  * The PatchNotesPage is an dialog to show recent release changes for the user.#
- *
- * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
-            "------Version 3.9.41------\n" +
+            "------Version 3.9.43------\n" +
+                    "JECC - Deleting take to much time\n" +
+                    "JECC - Dashboard - Save name is incorrect\n" +
+                    "JECC - Dashboard - Widget multi select colors\n" +
+                    "JECC - Dashboard - Background color in settings dialog does not respect multi-select\n" +
+                    "JECC - Dashboard - Widget Color changes only after reload\n" +
+                    "JEDataCollector - SFTP - duplicatet attribute\n" +
+                    "------Version 3.9.42------\n" +
+                    "JECC - PluginManager - fixed heuristic for derived classes\n" +
+                    "JECC - ControlPane - added check for valid timerange\n" +
+                    "\n" +
+                    "JEAPI-WS - JEVisDataSourceWS - removed system.out\n" +
+                    "JEAPI-WS - JEVisDataSourceWS - Set retries to 3.\n" +
+                    "JEAPI-WS - Add check to new sample request\n" +
+                    "\n" +
+                    "JECommons - JEVisImporter - changed to target string to support different attributes\n" +
+                    "JECommons - ManipulationMode - fixed parsing problem with new style attribute values\n" +
+                    "\n" +
+                    "DataCollector - OPCUAServer - fixed new result class targeting\n" +
+                    "DataCollector - FTPDataSource - added option for deleting files from server\n" +
+                    "DataCollector - JEVisImporter - added option to overwrite existing data\n" +
+                    "DataCollector - OPC-UI initial commit\n" +
+                    "DataCollector - CSVParser - fixed column parsing\n" +
+                    "DataCollector - added LoytecXmlDl driver\n" +
+                    "DataCollector - added vida350 driver\n" +
+                    "\n" +
+                    "JEReport - fixed problem with event precondition\n" +
+                    "JEReport - updated dependencies\n" +
+                    "JEReport - ReportLinkProperty - improved logging\n" +
+                    "\n" +
+                    "Notifier-EP - EmailNotification - changed email validation\n" +
+                    "\n" +
+                    "Classes - Added Ukrainian translations\n" +
+                    "Classes - LoytecXML-DLChannel.json - added translation for status log\n\n" +
+                    "------Version 3.9.41------\n" +
                     "JECC - BaseDataPlugin - initial commit\n" +
                     "JECC - Charts - 15-minute value aggregation doesn't work\n" +
                     "JECC - Charts - Title for table charts isn't showing\n" +

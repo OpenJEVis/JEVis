@@ -1,4 +1,4 @@
-package org.jevis.loytecxmldl.jevis;
+package org.jevis.jeopc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -74,6 +74,8 @@ public class Helper {
             log.error("Error while getting attribute value " + attributeName + " from " + jevisObject.getName());
             log.debug(ex.getMessage());
         }
+        log.debug("Config Device: {} Attribute: '{}' Value: '{}' Default: '{}'", jevisObject.getID(), attributeName, value, defaultValue);
+
         return value;
     }
 }

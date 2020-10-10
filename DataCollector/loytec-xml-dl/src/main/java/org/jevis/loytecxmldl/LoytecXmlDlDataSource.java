@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.driver.*;
-import org.jevis.loytecxmldl.jevis.*;
 import org.jevis.soapdatasource.Channel;
 import org.jevis.soapdatasource.SOAPDataSource;
 
@@ -71,11 +70,11 @@ public class LoytecXmlDlDataSource implements DataSource {
     public void run() {
         log.info("Running");
         // For every channel directory
-        for (LoytecXmlDlChannelDirectory channelDirectory : dataServer.getChannelDirectories()) {
+        ExecutorService executorService = Executors.newFixedThreadPool(15);
+        try {
 
-            ExecutorService executorService = Executors.newFixedThreadPool(15);
+            for (LoytecXmlDlChannelDirectory channelDirectory : dataServer.getChannelDirectories()) {
 
-            try {
                 channelDirectory.getChannels().forEach(channel -> {
                     try {
                         executorService.submit(() -> {
@@ -138,12 +137,12 @@ public class LoytecXmlDlDataSource implements DataSource {
                     }
 
                 });
-            } finally {
-                executorService.shutdown();
             }
-
-            log.info("Run completed");
+        } finally {
+            executorService.shutdown();
         }
+
+        log.info("Run completed");
     }
 
     private List<InputStream> sendSampleRequest(LoytecXmlDlChannelDirectory

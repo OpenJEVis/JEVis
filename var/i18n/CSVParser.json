@@ -29,7 +29,7 @@
       },
       "names": {
         "de": "Datumsformat",
-        "ru": "Date Format",
+        "ru": "Формат даты",
         "en": "Date Format"
       }
     },
@@ -41,9 +41,9 @@
         "en": "Defines the column or row, where the date is stored."
       },
       "names": {
-        "de": "Date Index",
-        "ru": "Date Index",
-        "en": "Datum Index"
+        "de": "Datum Index",
+        "ru": "Индекс даты",
+        "en": "Date Index"
       }
     },
     {
@@ -55,7 +55,7 @@
       },
       "names": {
         "de": "Dezimaltrennzeichen",
-        "ru": "Decimal Separator",
+        "ru": "Десятичный разделитель",
         "en": "Decimal Separator"
       }
     },
@@ -68,7 +68,7 @@
       },
       "names": {
         "de": "Trennzeichen",
-        "ru": "Delimiter",
+        "ru": "Разделитель",
         "en": "Delimiter"
       }
     },
@@ -80,9 +80,9 @@
         "en": "Defines the number of headlines of the CSV file to be ignored."
       },
       "names": {
-        "de": "Number Of Headlines",
-        "ru": "Number Of Headlines",
-        "en": "Anzahl Kopfzeilen"
+        "de": "Anzahl Kopfzeilen",
+        "ru": "Количество заголовков",
+        "en": "Number Of Headlines"
       }
     },
     {
@@ -94,7 +94,7 @@
       },
       "names": {
         "de": "Anführungszeichen",
-        "ru": "Quote",
+        "ru": "Квота",
         "en": "Quote"
       }
     },
@@ -107,7 +107,7 @@
       },
       "names": {
         "de": "Tausender-Trennzeichen",
-        "ru": "Thousand Separator",
+        "ru": "Разделитель тысяч",
         "en": "Thousand Separator"
       }
     },
@@ -127,14 +127,14 @@
     {
       "type": "Time Index",
       "descriptions": {
-        "de": "Time Index description",
-        "ru": "Time Index description",
-        "en": "Time Index description"
+        "de": "Gibt die Spalte bzw. Zeile an, in der die Zeit angegeben wird.",
+        "ru": "Определяет столбец или строку, где хранится время.",
+        "en": "Defines the column or row, where the time is stored."
       },
       "names": {
-        "de": "Gibt die Spalte bzw. Zeile an, in der die Zeit angegeben wird.",
-        "ru": "Time Index",
-        "en": "Defines the column or row, where the time is stored."
+        "de": "Zeitspalte",
+        "ru": "Индекс времени",
+        "en": "Time Index"
       }
     }
   ]

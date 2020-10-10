@@ -1,0 +1,36 @@
+{
+  "name": "OPC DA Server",
+  "unique": false,
+  "relationships": [
+    {
+      "start": "OPC DA Server",
+      "end": "Data Server",
+      "type": 0
+    },
+    {
+      "start": "OPC DA Server",
+      "end": "Data Source Directory",
+      "type": 3
+    }
+  ],
+  "types": [
+    {
+      "name": "User",
+      "primitiveType": 0,
+      "guiType": "Text",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "OPC DA Server"
+    },
+    {
+      "name": "Password",
+      "primitiveType": 0,
+      "guiType": "Password",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "OPC DA Server"
+    }
+  ]
+}

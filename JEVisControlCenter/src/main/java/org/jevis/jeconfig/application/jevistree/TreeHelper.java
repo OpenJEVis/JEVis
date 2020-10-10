@@ -1252,6 +1252,7 @@ public class TreeHelper {
         logger.debug("-> copyObjectUnder ([{}]{}) under ([{}]{})", toCopyObj.getID(), toCopyObj.getName(), newParent.getID(), newParent.getName());
 
         JEVisObject newObject = newParent.buildObject(newName, toCopyObj.getJEVisClass());
+        newObject.setLocalNames(toCopyObj.getLocalNameList());
         newObject.commit();
 
         for (JEVisAttribute originalAtt : toCopyObj.getAttributes()) {

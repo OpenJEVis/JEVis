@@ -31,14 +31,7 @@
     {
       "name": "User",
       "primitiveType": 0,
-      "guiposition": 0,
-      "validity": 0,
-      "inherited": false,
-      "jevisClass": "sFTP Server"
-    },
-    {
-      "name": "Connection Timeout",
-      "primitiveType": 2,
+      "guiType": "Text",
       "guiposition": 0,
       "validity": 0,
       "inherited": false,

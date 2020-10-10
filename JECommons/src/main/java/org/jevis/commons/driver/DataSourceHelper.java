@@ -88,7 +88,7 @@ public class DataSourceHelper {
         HttpsURLConnection.setDefaultHostnameVerifier(hv);
     }
 
-    public static List<String> getFTPMatchedFileNames(FTPClient fc, DateTime lastReadout, DateTimeZone timeZone, String filePath) {
+    public static List<String> getFTPMatchedFileNames(FTPClient fc, DateTime lastReadout, DateTimeZone timeZone, String filePath, boolean overwrite) {
         filePath = filePath.replace("\\", "/");
         String[] pathStream = getPathTokens(filePath);
 
@@ -125,7 +125,7 @@ public class DataSourceHelper {
                     String fileName = file.getName();
                     String timePart = fc.getModificationTime(folder + fileName).split(" ")[1].trim();
                     DateTime modificationTime = dateFormat.parseDateTime(timePart);
-                    if (modificationTime.isBefore(lastReadout)) {
+                    if (modificationTime.isBefore(lastReadout) && !overwrite) {
                         continue;
                     }
                     boolean match = false;

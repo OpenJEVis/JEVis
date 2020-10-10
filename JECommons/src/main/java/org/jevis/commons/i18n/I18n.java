@@ -20,9 +20,9 @@ public class I18n {
     private static I18n i18n;
     private Locale locale = Locale.getDefault();
     private PropertyResourceBundle bundle;
-    private ResourceBundle defaultBundle;
-    private Map<Locale, PropertyResourceBundle> allBundles = new HashMap<>();
-    private List<Locale> availableLang = new ArrayList<>();
+    private final ResourceBundle defaultBundle;
+    private final Map<Locale, PropertyResourceBundle> allBundles = new HashMap<>();
+    private final List<Locale> availableLang = new ArrayList<>();
 
     public static synchronized I18n getInstance() {
         if (i18n == null)
@@ -34,9 +34,9 @@ public class I18n {
         this.defaultBundle = ResourceBundle.getBundle("JEVis", Locale.ENGLISH);
         availableLang.add(UK);
         availableLang.add(GERMANY);
-        availableLang.add(Locale.forLanguageTag("ru"));
-        availableLang.add(Locale.forLanguageTag("uk"));
-        availableLang.add(Locale.forLanguageTag("th"));
+        availableLang.add(new Locale("ru", "RU"));
+        availableLang.add(new Locale("uk", "UA"));
+        availableLang.add(new Locale("th", "TH"));
 
         for (Locale locale : availableLang) {
             try {

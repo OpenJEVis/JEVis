@@ -53,6 +53,15 @@
       "validity": 0,
       "inherited": true,
       "jevisClass": "FTP Server"
+    },
+    {
+      "name": "Delete File on successful parsing",
+      "primitiveType": 4,
+      "guiType": "Check Box",
+      "guiposition": 0,
+      "validity": 0,
+      "inherited": false,
+      "jevisClass": "FTP Server"
     }
   ]
 }

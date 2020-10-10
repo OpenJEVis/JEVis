@@ -287,7 +287,9 @@ public class ControlPane extends GridPane {
                             fromDate = fromDate.minusDays(1);
                         }
 
-                        return ControlPane.this.attribute.getSamples(fromDate, untilDate, true, period.toString(), ManipulationMode.NONE.toString());
+                        if (fromDate.isBefore(untilDate)) {
+                            return ControlPane.this.attribute.getSamples(fromDate, untilDate, true, period.toString(), ManipulationMode.NONE.toString());
+                        }
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }

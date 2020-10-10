@@ -1,4 +1,4 @@
-package org.jevis.loytecxmldl.jevis;
+package org.jevis.loytecxmldl;
 
 import org.jevis.commons.driver.DataCollectorTypes;
 import org.joda.time.DateTimeZone;

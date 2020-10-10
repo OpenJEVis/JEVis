@@ -13,20 +13,28 @@ import org.jevis.commons.utils.AlphanumComparator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class CalendarBox extends ComboBox<CalendarRow> {
 
     public CalendarBox() {
         List<CalendarRow> list = new ArrayList<>();
+        Locale locale = I18n.getInstance().getLocale();
         for (String countryCode : HolidayManager.getSupportedCalendarCodes()) {
             HolidayManager instance = HolidayManager.getInstance(ManagerParameters.create(countryCode));
-            String countryName = instance.getCalendarHierarchy().getDescription(I18n.getInstance().getLocale());
-            for (Map.Entry<String, CalendarHierarchy> entry : instance.getCalendarHierarchy().getChildren().entrySet()) {
-                String stateCode = entry.getKey();
-                CalendarHierarchy calendarHierarchy = entry.getValue();
-                String stateName = calendarHierarchy.getDescription();
-                CalendarRow calendarRow = new CalendarRow(countryCode, countryName, stateCode, stateName);
+            String countryName = instance.getCalendarHierarchy().getDescription(locale);
+
+            if (!instance.getCalendarHierarchy().getChildren().isEmpty()) {
+                for (Map.Entry<String, CalendarHierarchy> entry : instance.getCalendarHierarchy().getChildren().entrySet()) {
+                    String stateCode = entry.getKey();
+                    CalendarHierarchy calendarHierarchy = entry.getValue();
+                    String stateName = calendarHierarchy.getDescription();
+                    CalendarRow calendarRow = new CalendarRow(countryCode, countryName, stateCode, stateName);
+                    list.add(calendarRow);
+                }
+            } else {
+                CalendarRow calendarRow = new CalendarRow(countryCode, countryName);
                 list.add(calendarRow);
             }
         }

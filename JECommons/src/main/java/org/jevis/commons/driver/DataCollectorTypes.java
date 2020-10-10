@@ -1,19 +1,19 @@
 /**
  * Copyright (C) 2015 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JECommons.
- *
+ * <p>
  * JECommons is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JECommons is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JECommons. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JECommons is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
@@ -22,7 +22,6 @@ package org.jevis.commons.driver;
 import org.jevis.api.JEVisObject;
 
 /**
- *
  * @author bf
  */
 public interface DataCollectorTypes {
@@ -119,7 +118,9 @@ public interface DataCollectorTypes {
 
         String NAME = "Data Source";
         String TIMEZONE = "Timezone";
+        String DELETE_ON_SUCCESS = "Delete File on successful parsing";
         String ENABLE = "Enabled";
+        String OVERWRITE = "Overwrite";
         String MANUAL_TRIGGER = "Manual Trigger";
 
         interface DataServer extends DataSource {
@@ -153,6 +154,14 @@ public interface DataCollectorTypes {
                 String SSL = "SSL";
                 String USER = "User";
             }
+
+            interface OPCUA extends DataServer {
+
+                String PASSWORD = "Password";
+                String USER = "User";
+                String PROTOCOL = "Protocol";
+            }
+
         }
     }
 
@@ -179,6 +188,8 @@ public interface DataCollectorTypes {
             String TEMPLATE = "Template";
             String PATH = "Path";
         }
+
+
     }
 
     interface Importer {

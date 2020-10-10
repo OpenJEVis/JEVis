@@ -1,6 +1,5 @@
 package org.jevis.jeconfig.plugin.object.extension;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -27,7 +26,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.relationship.ObjectRelations;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.extension.role.Membership;
 import org.jevis.jeconfig.plugin.object.extension.role.Role;
@@ -59,7 +57,7 @@ public class RoleExtention implements ObjectEditorExtension {
     private RoleManager roleManager;
     private ComboBox<JEVisObject> dashboadList;
     private CheckBox overwriteDashboad;
-    private Long orgaID =0l;
+    private Long orgaID = 0l;
 
     public RoleExtention(JEVisObject obj) {
         this._obj = obj;
@@ -73,7 +71,7 @@ public class RoleExtention implements ObjectEditorExtension {
             try {
                 orgaID = obj.getParents().get(0).getParents().get(0).getID();
 
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 logger.error(ex);
             }
 
@@ -165,7 +163,7 @@ public class RoleExtention implements ObjectEditorExtension {
 
 
         JEVisObject dashboard = dashboadList.getSelectionModel().getSelectedItem();
-        if(dashboard==null){
+        if (dashboard == null) {
             return;
         }
 
@@ -178,20 +176,20 @@ public class RoleExtention implements ObjectEditorExtension {
         }
 
 
-            roleManager.getRole().getUsers().forEach(user -> {
-                try {
-                    boolean hasDashboard = user.getUserObject().getAttribute("Start Dashboard").hasSample();
-                    if (!hasDashboard || overwriteDashboad.isSelected()) {
-                        if(user.memberProperty().getValue()){
-                            JEVisSample newSample = user.getUserObject().getAttribute("Start Dashboard").buildSample(now, dashboard.getID());
-                            newSample.commit();
-                        }
+        roleManager.getRole().getUsers().forEach(user -> {
+            try {
+                boolean hasDashboard = user.getUserObject().getAttribute("Start Dashboard").hasSample();
+                if (!hasDashboard || overwriteDashboad.isSelected()) {
+                    if (user.memberProperty().getValue()) {
+                        JEVisSample newSample = user.getUserObject().getAttribute("Start Dashboard").buildSample(now, dashboard.getID());
+                        newSample.commit();
                     }
-
-                } catch (Exception ex) {
-                    logger.error(ex);
                 }
-            });
+
+            } catch (Exception ex) {
+                logger.error(ex);
+            }
+        });
 
 
     }
@@ -239,13 +237,13 @@ public class RoleExtention implements ObjectEditorExtension {
 
             try {
                 JEVisSample dashboard = _obj.getAttribute("Start Dashboard").getLatestSample();
-                if(dashboard!=null){
+                if (dashboard != null) {
                     JEVisObject dashboardObject = _obj.getDataSource().getObject(dashboard.getValueAsLong());
-                    if(dashboardObject!=null){
+                    if (dashboardObject != null) {
                         view.getSelectionModel().select(dashboardObject);
                     }
                 }
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 logger.error(ex);
             }
 
@@ -256,7 +254,6 @@ public class RoleExtention implements ObjectEditorExtension {
 
         return view;
     }
-
 
 
     private void build(final JEVisObject obj) {
@@ -278,14 +275,13 @@ public class RoleExtention implements ObjectEditorExtension {
         overwriteDashboad = new CheckBox(I18n.getInstance().getString("plugin.object.role.overwritedashboard"));
         filterFieldGroup.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
         filterFieldUser.setPromptText(I18n.getInstance().getString("plugin.object.role.filterprompt"));
-        HBox userFilterBox = new HBox(8,filterUserTable,filterFieldUser);
+        HBox userFilterBox = new HBox(8, filterUserTable, filterFieldUser);
         userFilterBox.setAlignment(Pos.CENTER_RIGHT);
-        HBox groupFilterBox = new HBox(8,filterGroupTable, filterFieldGroup);
+        HBox groupFilterBox = new HBox(8, filterGroupTable, filterFieldGroup);
         groupFilterBox.setAlignment(Pos.CENTER_RIGHT);
 
         Label newUserLabel = new Label(I18n.getInstance().getString("plugin.object.member.addmember"));
         newUserLabel.setPrefHeight(21);
-
 
 
         GridPane gridPane = new GridPane();
@@ -299,14 +295,14 @@ public class RoleExtention implements ObjectEditorExtension {
             buildGroupTable();
             dashboadList = buildDashboardListView();
 
-            int raw=0;
+            int raw = 0;
 
             gridPane.addRow(raw, dashboardLabel, dashboadList, overwriteDashboad);
             gridPane.add(new Separator(Orientation.HORIZONTAL), 0, ++raw, 3, 1);
             gridPane.addRow(++raw, groupTitle);
             gridPane.addRow(++raw, showActiveMember);
             gridPane.add(groupFilterBox, 1, raw, 2, 1);
-            GridPane.setFillWidth(groupFilterBox,true);
+            GridPane.setFillWidth(groupFilterBox, true);
             gridPane.add(groupTableView, 0, ++raw, 3, 1);
             gridPane.add(new Separator(Orientation.HORIZONTAL), 0, ++raw, 3, 1);
             gridPane.addRow(++raw, userTitle);
@@ -339,14 +335,12 @@ public class RoleExtention implements ObjectEditorExtension {
             });
 
         } catch (Exception e) {
-           logger.error(e);
+            logger.error(e);
         }
 
 
         _view.setCenter(gridPane);
     }
-
-
 
 
     private void buildGroupTable() {
@@ -395,7 +389,6 @@ public class RoleExtention implements ObjectEditorExtension {
     }
 
 
-
     private void reapplyTableSortOrderUser() {
         ArrayList<TableColumn<User, ?>> sortOrder = new ArrayList<>(userTableView.getSortOrder());
         userTableView.getSortOrder().clear();
@@ -435,9 +428,9 @@ public class RoleExtention implements ObjectEditorExtension {
         userTableView.setEditable(true);
 
         TableColumn<User, Boolean> memberCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.member"));
-        TableColumn<User,String> userNameCol = new TableColumn("User");
-        TableColumn<User,Number> idCol = new TableColumn("ID");
-        userTableView.getColumns().addAll(memberCol,userNameCol, idCol);
+        TableColumn<User, String> userNameCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.User"));
+        TableColumn<User, Number> idCol = new TableColumn(I18n.getInstance().getString("plugin.object.role.table.ID"));
+        userTableView.getColumns().addAll(memberCol, userNameCol, idCol);
 
         memberCol.setCellValueFactory(param -> param.getValue().memberProperty());
         memberCol.setCellFactory(param -> new CheckBoxTableCell<>());
@@ -452,7 +445,9 @@ public class RoleExtention implements ObjectEditorExtension {
 
         role.getUsers().addListener(new ListChangeListener<User>() {
             @Override
-            public void onChanged(Change<? extends User> c) {updateUserFilteredData();}
+            public void onChanged(Change<? extends User> c) {
+                updateUserFilteredData();
+            }
         });
 
         updateUserFilteredData();
@@ -464,7 +459,7 @@ public class RoleExtention implements ObjectEditorExtension {
         for (Membership p : role.getMemberships()) {
             boolean isFilerMatch = matchesFilter(p);
             if (filterMemberOnlyProperty.getValue()) {
-                if (isFilerMatch && (p.isRead() || p.isCreate() || p.isDelete() || p.isExecute() || p.isWrite() || isInSameOrga(p.getGroupObject()) )) {
+                if (isFilerMatch && (p.isRead() || p.isCreate() || p.isDelete() || p.isExecute() || p.isWrite() || isInSameOrga(p.getGroupObject()))) {
                     filterdMemberships.add(p);
                 }
             } else if (isFilerMatch) {
@@ -477,11 +472,11 @@ public class RoleExtention implements ObjectEditorExtension {
         reapplyTableSortOrder();
     }
 
-    private boolean isInSameOrga(JEVisObject obj){
-        try{
-            if(orgaID.equals(obj.getParents().get(0).getParents().get(0).getID())) return true;
+    private boolean isInSameOrga(JEVisObject obj) {
+        try {
+            if (orgaID.equals(obj.getParents().get(0).getParents().get(0).getID())) return true;
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             logger.error(ex);
         }
         return false;

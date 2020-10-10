@@ -19,9 +19,10 @@
  */
 package org.jevis.commons.driver;
 
-import java.util.List;
 import org.jevis.api.JEVisObject;
 import org.joda.time.DateTime;
+
+import java.util.List;
 
 /**
  * The interface for the Importer. Each Importer object represents an importer
@@ -39,16 +40,18 @@ public interface Importer {
      * @param result
      * @return
      */
-    public DateTime importResult(List<Result> result);
+    DateTime importResult(List<Result> result);
 
     /**
      * Initialize the importer.
      *
      * @param dataSource
      */
-    public void initialize(JEVisObject dataSource);
+    void initialize(JEVisObject dataSource);
 
-    public Object getLatestDatapoint();
+    Object getLatestDatapoint();
+
+    boolean getOverwrite();
 
     /**
      * Gets the date of the latest imported data point. This information is

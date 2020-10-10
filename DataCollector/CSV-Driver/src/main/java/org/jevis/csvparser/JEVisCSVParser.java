@@ -76,6 +76,9 @@ public class JEVisCSVParser implements Parser {
             }
 
             String dpType = DatabaseHelper.getObjectAsString(parserObject, dpTypeType);
+            if (dpType == null) {
+                dpType = "ROW";
+            }
 
             Integer dateIndex = DatabaseHelper.getObjectAsInteger(parserObject, dateIndexType);
             if (dateIndex != null) {
@@ -99,20 +102,20 @@ public class JEVisCSVParser implements Parser {
 
             String timeFormat = DatabaseHelper.getObjectAsString(parserObject, timeFormatType);
 
-            String decimalSeperator = DatabaseHelper.getObjectAsString(parserObject, decimalSeparatorType);
+            String decimalSeparator = DatabaseHelper.getObjectAsString(parserObject, decimalSeparatorType);
 
-            String thousandSeperator = DatabaseHelper.getObjectAsString(parserObject, thousandSeparatorType);
+            String thousandSeparator = DatabaseHelper.getObjectAsString(parserObject, thousandSeparatorType);
 
             _csvParser = new CSVParser();
             _csvParser.setDateFormat(dateFormat);
             _csvParser.setDateIndex(dateIndex);
-            _csvParser.setDecimalSeperator(decimalSeperator);
+            _csvParser.setDecimalSeperator(decimalSeparator);
             _csvParser.setDelim(delim);
             _csvParser.setDpIndex(dpIndex);
             _csvParser.setDpType(dpType);
             _csvParser.setHeaderLines(headerLines);
             _csvParser.setQuote(quote);
-            _csvParser.setThousandSeperator(thousandSeperator);
+            _csvParser.setThousandSeperator(thousandSeparator);
             _csvParser.setTimeFormat(timeFormat);
             _csvParser.setTimeIndex(timeIndex);
             _csvParser.setCharset(cset);

@@ -114,12 +114,13 @@ public class VIDA350DataSource implements DataSource {
             parser.setDateIndex(2);
             parser.setDecimalSeperator(".");
             parser.setDelim(";");
-            parser.setDpIndex(null);
+            parser.setDpIndex(0);
             parser.setHeaderLines(2);
             parser.setQuote(null);
             parser.setThousandSeperator(null);
             parser.setTimeFormat("HH:mm:ss");
             parser.setTimeIndex(1);
+            parser.setDpType("ROW");
             parser.setCharset(StandardCharsets.UTF_8);
 
             List<DataPoint> csvdatapoints = new ArrayList<DataPoint>();

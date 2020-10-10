@@ -17,6 +17,13 @@ public class CalendarRow {
         this.stateName = stateName;
     }
 
+    public CalendarRow(String countryCode, String countryName) {
+        this.countryCode = countryCode;
+        this.countryName = countryName;
+        this.stateCode = "";
+        this.stateName = "";
+    }
+
     public CalendarRow(String value) {
         List<String> tempList = new ArrayList<>(Arrays.asList(value.split(",")));
         if (tempList.size() == 2) {
@@ -45,7 +52,11 @@ public class CalendarRow {
     public boolean equals(Object obj) {
         if (obj instanceof CalendarRow) {
             CalendarRow otherObject = (CalendarRow) obj;
-            return this.getCountryCode().equals(otherObject.getCountryCode()) && this.getStateCode().equals(otherObject.getStateCode());
+            if (this.getCountryCode().equals(otherObject.getCountryCode()) && this.getStateCode() == null && otherObject.getStateCode() == null) {
+                return true;
+            } else {
+                return (this.getCountryCode().equals(otherObject.getCountryCode()) && this.getStateCode().equals(otherObject.getStateCode()));
+            }
         } else return false;
     }
 }

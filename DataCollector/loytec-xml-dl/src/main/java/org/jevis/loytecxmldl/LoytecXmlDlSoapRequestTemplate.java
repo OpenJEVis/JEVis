@@ -1,10 +1,10 @@
-package org.jevis.loytecxmldl.jevis;
+package org.jevis.loytecxmldl;
 
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static org.jevis.loytecxmldl.jevis.LoytecXmlDlServerClass.NUMBER_OF_SAMPLES_PER_REQUEST;
+import static org.jevis.loytecxmldl.LoytecXmlDlServerClass.NUMBER_OF_SAMPLES_PER_REQUEST;
 
 /**
  *

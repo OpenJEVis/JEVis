@@ -5,7 +5,7 @@
 
     <groupId>org.jevis.jeviscc</groupId>
     <artifactId>JEVisControlCenter</artifactId>
-    <version>3.9.41</version>
+    <version>3.9.43</version>
     <packaging>jar</packaging>
 
     <name>JEVisControlCenter</name>
@@ -29,6 +29,21 @@
         <version>3.4</version>
     </parent>
     <dependencies>
+        <dependency>
+            <groupId>org.jevis</groupId>
+            <artifactId>OPCUA</artifactId>
+            <version>3.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.milo</groupId>
+            <artifactId>sdk-client</artifactId>
+            <version>0.4.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.milo</groupId>
+            <artifactId>stack-client</artifactId>
+            <version>0.4.2</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>

@@ -210,13 +210,13 @@ public class PluginManager {
                                                 }
                                             } else if (plugObj.getJEVisClassName().equals(BaseDataPlugin.PLUGIN_NAME)) {
                                                 JEVisClass baseDataClass = this._ds.getJEVisClass(BaseDataPlugin.BASE_DATA_CLASS);
-                                                List<JEVisObject> allBaseData = this._ds.getObjects(baseDataClass, true);
+                                                List<JEVisObject> allBaseData = this._ds.getObjects(baseDataClass, false);
                                                 if (allBaseData.size() == 0) {
                                                     continue;
                                                 }
                                             } else if (plugObj.getJEVisClassName().equals(EquipmentPlugin.PLUGIN_NAME)) {
                                                 JEVisClass equipmentClass = this._ds.getJEVisClass(EquipmentPlugin.EQUIPMENT_CLASS);
-                                                List<JEVisObject> allEquipment = this._ds.getObjects(equipmentClass, true);
+                                                List<JEVisObject> allEquipment = this._ds.getObjects(equipmentClass, false);
                                                 if (allEquipment.size() == 0) {
                                                     continue;
                                                 }

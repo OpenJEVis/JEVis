@@ -82,8 +82,10 @@ public class JEVisDataSourceWS implements JEVisDataSource {
     private boolean classLoaded = false;
     private boolean objectLoaded = false;
     private boolean orLoaded = false;
-    /** Amount of Samples in one request **/
-    private final int SAMPLE_REQUEST_SIZE=10000;
+    /**
+     * Amount of Samples in one request
+     **/
+    private final int SAMPLE_REQUEST_SIZE = 10000;
     private HTTPConnection.Trust sslTrustMode = HTTPConnection.Trust.SYSTEM;
 
     /**
@@ -298,17 +300,16 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         String resource = "/jecc/version";
         String version = "0";
         try {
-            this.con.getInputStreamRequest(resource);
             StringBuffer stringBuffer = this.con.getRequest(resource);
             version = stringBuffer.toString();
+            logger.info("Version: {}", version);
         } catch (SSLHandshakeException sslex) {
-            logger.error("SSl Exception: {}", sslex);
+            logger.error("SSl Exception: ", sslex);
         } catch (Exception ex) {
             logger.error(ex);
             ex.printStackTrace();
         }
 
-        logger.error("getJEVisCCVersion(): {}", version);
         return version;
     }
 
@@ -701,19 +702,41 @@ public class JEVisDataSourceWS implements JEVisDataSource {
         return getJEVisClass(className).getTypes();
     }
 
+    private void removeObjectFromRelationshipsCache(long objectID) {
+        for (Map.Entry<Long, List<JEVisRelationship>> entry : objectRelMapCache.entrySet()) {
+            List<JEVisRelationship> jeVisRelationships = entry.getValue();
+            List<JEVisRelationship> toDelete = new ArrayList<>();
+            for (JEVisRelationship jeVisRelationship : jeVisRelationships) {
+                if (jeVisRelationship.getStartID() == objectID || jeVisRelationship.getEndID() == objectID) {
+                    toDelete.add(jeVisRelationship);
+                }
+            }
+
+
+            if (!toDelete.isEmpty()) jeVisRelationships.removeAll(toDelete);
+        }
+        if (objectRelMapCache.contains(objectID)) objectRelMapCache.remove(objectID);
+
+    }
+
     private void removeObjectFromCache(long objectID) {
         try {
-            this.objectCache.remove(objectID);
 
-            JEVisObject object = getObject(objectID);
-            List<Long> ids = new ArrayList<>();
-            for (JEVisObject c : object.getChildren()) {
-                ids.add(c.getID());
+            JEVisObject object = this.objectCache.get(objectID);
+            if (object != null) {
+                List<Long> ids = new ArrayList<>();
+                for (JEVisObject c : object.getChildren()) {
+                    ids.add(c.getID());
+                }
+                for (Long id : ids) {
+                    removeObjectFromCache(id);
+                }
+
+                this.objectCache.remove(objectID);
+                removeObjectFromRelationshipsCache(objectID);
             }
-            for (Long id : ids) {
-                removeObjectFromCache(id);
-            }
-            reloadRelationships();//takes 30ms
+
+            //reloadRelationships();//save but takes  a lot of time
 
         } catch (JEVisException | NullPointerException ne) {
             logger.error(ne);
@@ -744,7 +767,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
                 HttpURLConnection response = getHTTPConnection().getDeleteConnection(resource);
                 if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
-                    reloadRelationships();
+                    // reloadRelationships();
                     removeObjectFromCache(objectID);
 
                     object.getParents().forEach(parent -> {
@@ -898,7 +921,7 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL + HTTPConnection.FMT.print(until);
         }
 
-        if (aggregationPeriod != null && manipulationMode != null) {
+        if (from != null && aggregationPeriod != null && manipulationMode != null) {
             resource += "&";
             resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.customWorkDay + customWorkDay;
             resource += "&";
@@ -966,11 +989,11 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
             resource += REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.UNTIL + HTTPConnection.FMT.print(until);
         }
-        String prefix ="&";
-        if (!resource.contains("?")){
+        String prefix = "&";
+        if (!resource.contains("?")) {
             prefix = "?";
         }
-        resource += prefix+REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.LIMIT+"="+SAMPLE_REQUEST_SIZE;
+        resource += prefix + REQUEST.OBJECTS.ATTRIBUTES.SAMPLES.OPTIONS.LIMIT + "=" + SAMPLE_REQUEST_SIZE;
 
         List<JsonSample> jsons = new ArrayList<>();
         try {
@@ -1003,13 +1026,13 @@ public class JEVisDataSourceWS implements JEVisDataSource {
             }
         }
 
-        if(!samples.isEmpty() && samples.size()==SAMPLE_REQUEST_SIZE){
-            JEVisSample lastInList= samples.get(samples.size()-1);
+        if (!samples.isEmpty() && samples.size() == SAMPLE_REQUEST_SIZE) {
+            JEVisSample lastInList = samples.get(samples.size() - 1);
             try {
                 List<JEVisSample> nextList = getSamples(att, lastInList.getTimestamp().plus(Duration.standardSeconds(1)), until);
-                logger.debug("Add additonal samples: {}",nextList.size());
+                logger.debug("Add additonal samples: {}", nextList.size());
                 samples.addAll(nextList);
-            }catch (Exception ex){
+            } catch (Exception ex) {
                 logger.error(ex);
             }
         }

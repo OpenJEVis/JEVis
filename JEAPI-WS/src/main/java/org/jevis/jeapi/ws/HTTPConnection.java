@@ -53,7 +53,7 @@ public class HTTPConnection {
     public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("yyyyMMdd'T'HHmmss").withZoneUTC();
     private static final Logger logger = LogManager.getLogger(HTTPConnection.class);
     private static final long RETRY_DELAY_MS = 5000;
-    private static final int RETRIES = 10;
+    private static final int RETRIES = 3;
 
     /**
      *
@@ -143,6 +143,14 @@ public class HTTPConnection {
         conn.setRequestProperty("Authorization", "Basic " + auth);
     }
 
+    /**
+     * TODO: this function need an rework. The error handling a retry function are suboptimal
+     *
+     * @param resource
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public InputStream getInputStreamRequest(String resource) throws IOException, InterruptedException {
         int retry = 0;
         boolean delay = false;
@@ -169,6 +177,9 @@ public class HTTPConnection {
             logger.debug("HTTP request {}", conn.getURL());
 
             switch (conn.getResponseCode()) {
+                case HttpURLConnection.HTTP_NOT_FOUND:
+                case HttpURLConnection.HTTP_FORBIDDEN:
+                    return null;
                 case HttpURLConnection.HTTP_OK:
                     if ("gzip".equals(conn.getContentEncoding())) {
                         return new GZIPInputStream(conn.getInputStream());
@@ -189,12 +200,12 @@ public class HTTPConnection {
             conn.disconnect();
 
             retry++;
-            logger.warn("Failed retry " + retry + "/" + RETRIES);
+            logger.error("Failed retry {} for '{}'", retry, resource);
             delay = true;
 
         } while (retry < RETRIES);
 
-        logger.fatal("Aborting download of input stream.");
+        logger.fatal("Aborting download of input stream. '{}'", resource);
         return null;
     }
 
