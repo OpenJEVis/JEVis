@@ -46,15 +46,18 @@ public class DataSourceFactory extends DriverFactory {
     }
 
     public static DataSource getDataSource(JEVisObject dataSourceJEVis) {
+        logger.debug("getDataSource: {} from {}", dataSourceJEVis, _dataSourceClasses);
         DataSource dataSource = null;
         try {
             String identifier = dataSourceJEVis.getJEVisClass().getName();
-            Class datasourceClass = _dataSourceClasses.get(identifier);
+            logger.debug("class identifier: {}", identifier);
+            Class dataSourceClass = _dataSourceClasses.get(identifier);
             /**
              * cast needs to be removed
              */
-            dataSource = (DataSource) datasourceClass.newInstance();
-        } catch (JEVisException | InstantiationException | IllegalAccessException ex) {
+            dataSource = (DataSource) dataSourceClass.newInstance();
+            logger.debug("done init dataSource");
+        } catch (JEVisException | InstantiationException | NullPointerException | IllegalAccessException ex) {
             logger.fatal("Error creating DataSource", ex);
             ex.printStackTrace();
         }

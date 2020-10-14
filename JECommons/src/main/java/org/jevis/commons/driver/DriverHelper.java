@@ -32,17 +32,20 @@ public class DriverHelper {
     private static String ROOT_FOLDER = null;
 
     public static void loadDriver(JEVisDataSource client, String rootFolder) {
+        logger.info("loadDriver: {}, {}", client, rootFolder);
         Map<String, Class> parserClasses;
         Map<String, Class> dsClasses;
         Map<String, Class> converterClasses;
         Map<String, Class> importerClasses;
         if (rootFolder != null) {
+            logger.info("load config from folder");
             ROOT_FOLDER = rootFolder;
             parserClasses = loadDriverFromFolder(client, DataCollectorTypes.ParserDriverDirectory.NAME, DataCollectorTypes.Driver.ParserDriver.NAME, ROOT_FOLDER + "/jedc_data/driver/parser/", ROOT_FOLDER + "/jedc_data/dev_driver/parser/");
             dsClasses = loadDriverFromFolder(client, DataCollectorTypes.DataSourceDriverDirectory.NAME, DataCollectorTypes.Driver.DataSourceDriver.NAME, ROOT_FOLDER + "/jedc_data/driver/datasource/", ROOT_FOLDER + "/jedc_data/dev_driver/datasource/");
             converterClasses = loadDriverFromFolder(client, DataCollectorTypes.ConverterDriverDirectory.NAME, DataCollectorTypes.Driver.ConverterDriver.NAME, ROOT_FOLDER + "/jedc_data/driver/converter/", ROOT_FOLDER + "/jedc_data/dev_driver/converter/");
             importerClasses = loadDriverFromFolder(client, DataCollectorTypes.ImporterDriverDirectory.NAME, DataCollectorTypes.Driver.ImporterDriver.NAME, ROOT_FOLDER + "/jedc_data/driver/importer/", ROOT_FOLDER + "/jedc_data/dev_driver/importer/");
         } else {
+            logger.info("load config from db");
             parserClasses = loadDriverFromConfig(client, DataCollectorTypes.ParserDriverDirectory.NAME, DataCollectorTypes.Driver.ParserDriver.NAME);
             dsClasses = loadDriverFromConfig(client, DataCollectorTypes.DataSourceDriverDirectory.NAME, DataCollectorTypes.Driver.DataSourceDriver.NAME);
             converterClasses = loadDriverFromConfig(client, DataCollectorTypes.ConverterDriverDirectory.NAME, DataCollectorTypes.Driver.ConverterDriver.NAME);
