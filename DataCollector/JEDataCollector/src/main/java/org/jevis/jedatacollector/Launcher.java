@@ -177,7 +177,7 @@ public class Launcher extends AbstractCliApp {
                 dataSource.initialize(dataSourceObject);
                 dataSource.run();
             } catch (Exception ex) {
-                logger.error(ex);
+                logger.error("Error while loading DataSource", ex);
             }
         }
     }
