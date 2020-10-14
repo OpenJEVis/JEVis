@@ -35,8 +35,7 @@ public class LoytecXmlDlDataSource implements DataSource {
 
     @Override
     public void initialize(JEVisObject dataSourceObject) {
-
-        log.info("initialize called");
+        log.info("initialize called for: {}", dataSourceObject);
 
         dataServer = new LoytecXmlDlServer(dataSourceObject);
         System.setProperty("java.net.useSystemProxies", "true");
