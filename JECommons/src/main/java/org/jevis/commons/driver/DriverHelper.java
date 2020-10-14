@@ -59,6 +59,7 @@ public class DriverHelper {
     }
 
     private static Map<String, Class> loadDriverFromConfig(JEVisDataSource client, String driverDirClassName, String driverClassName) {
+        logger.debug("loadDriverFromConfig: jedb: {}, driverDir: {}, driverDirclass: {}", client, driverDirClassName, driverClassName);
         Set<DriverProperty> parserAttributes = initDriverAttributes(client, driverDirClassName, driverClassName);
         Map<String, Class> classes = new HashMap<String, Class>();
         for (DriverProperty driverProp : parserAttributes) {
@@ -163,27 +164,32 @@ public class DriverHelper {
                 if (driverDirs.size() == 1) {
                     JEVisObject driverDir = driverDirs.get(0);
                     for (JEVisObject driver : driverDir.getChildren(jevisClass, true)) {
+                        logger.debug("init driver: {}", driver);
                         JEVisType enableType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.ENABLED);
                         Boolean enabled = DatabaseHelper.getObjectAsBoolean(driver, enableType);
+                        logger.debug("Driver is enabled: {}", enabled);
                         if (!enabled) {
                             continue;
                         }
 
                         JEVisType fileType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.SOURCE_FILE);
                         DateTime fileDate = driver.getAttribute(fileType).getTimestampFromLastSample();
+                        logger.debug("Driver file date: {}", fileDate);
 
                         JEVisType classType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.MAIN_CLASS);
                         String className = DatabaseHelper.getObjectAsString(driver, classType);
+                        logger.debug("Main Class: {}", className);
 
                         JEVisType jevisType = driver.getJEVisClass().getType(DataCollectorTypes.Driver.JEVIS_CLASS);
                         String jevisName = DatabaseHelper.getObjectAsString(driver, jevisType);
+                        logger.debug("JEVis Class: {}", className);
 
                         driverProperties.add(new DriverProperty(driver, fileDate, className, jevisName, JEVIS_SOURCE));
                     }
                 }
             }
-        } catch (JEVisException ex) {
-            logger.fatal(ex);
+        } catch (Exception ex) {
+            logger.fatal("Error while init driver attributes", ex);
         }
         return driverProperties;
     }
