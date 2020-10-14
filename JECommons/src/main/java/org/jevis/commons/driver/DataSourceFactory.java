@@ -55,7 +55,8 @@ public class DataSourceFactory extends DriverFactory {
              */
             dataSource = (DataSource) datasourceClass.newInstance();
         } catch (JEVisException | InstantiationException | IllegalAccessException ex) {
-            logger.fatal(ex);
+            logger.fatal("Error creating DataSource", ex);
+            ex.printStackTrace();
         }
         return dataSource;
     }
