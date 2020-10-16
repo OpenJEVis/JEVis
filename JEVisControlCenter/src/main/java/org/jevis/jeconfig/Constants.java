@@ -1,26 +1,25 @@
 /**
  * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
- *
+ * <p>
  * This file is part of JEConfig.
- *
+ * <p>
  * JEConfig is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
  * Foundation in version 3.
- *
+ * <p>
  * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
- *
+ * <p>
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig;
 
 /**
- *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public interface Constants {
@@ -47,6 +46,15 @@ public interface Constants {
             int RENAME = 12;
             int FIND_AGAIN = 13;
             int CUT = 14;
+            int REPLACE = 101;
+            int DELETE_ALL_CLEAN_AND_RAW = 102;
+            int CREATE_MULTIPLIER_AND_DIFFERENTIAL = 103;
+            int SET_LIMITS = 104;
+            int SET_SUBSTITUTION_SETTINGS = 105;
+            int SET_UNITS_AND_PERIODS = 106;
+            int ENABLE_ALL = 107;
+            int DISABLE_ALL = 108;
+            int RESET_CALCULATION = 109;
         }
     }
 

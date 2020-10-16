@@ -130,20 +130,14 @@ public class TopMenu extends MenuBar {
         MenuItem findAgain = new MenuItem(I18n.getInstance().getString("menu.edit.findagain"));
         findAgain.setAccelerator(new KeyCodeCombination(KeyCode.F3));
 
-        paste.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                activePlugin.handleRequest(Constants.Plugin.Command.PASTE);
-                event.consume();
-            }
+        paste.setOnAction(event -> {
+            activePlugin.handleRequest(Constants.Plugin.Command.PASTE);
+            event.consume();
         });
 
-        copy.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                activePlugin.handleRequest(Constants.Plugin.Command.COPY);
-                event.consume();
-            }
+        copy.setOnAction(event -> {
+            activePlugin.handleRequest(Constants.Plugin.Command.COPY);
+            event.consume();
         });
 
         reload.setOnAction(event -> {
@@ -151,77 +145,101 @@ public class TopMenu extends MenuBar {
             event.consume();
         });
 
-        cut.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                activePlugin.handleRequest(Constants.Plugin.Command.CUT);
-                event.consume();
-            }
+        cut.setOnAction(event -> {
+            activePlugin.handleRequest(Constants.Plugin.Command.CUT);
+            event.consume();
         });
 
-        delete.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                activePlugin.handleRequest(Constants.Plugin.Command.DELETE);
-                event.consume();
-            }
+        delete.setOnAction(event -> {
+            activePlugin.handleRequest(Constants.Plugin.Command.DELETE);
+            event.consume();
         });
 
-        rename.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                activePlugin.handleRequest(Constants.Plugin.Command.RENAME);
-                event.consume();
-            }
+        rename.setOnAction(event -> {
+            activePlugin.handleRequest(Constants.Plugin.Command.RENAME);
+            event.consume();
         });
 
-        findObject.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                activePlugin.handleRequest(Constants.Plugin.Command.FIND_OBJECT);
-                event.consume();
-            }
+        findObject.setOnAction(event -> {
+            activePlugin.handleRequest(Constants.Plugin.Command.FIND_OBJECT);
+            event.consume();
         });
 
-        findAgain.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                activePlugin.handleRequest(Constants.Plugin.Command.FIND_AGAIN);
-                event.consume();
-            }
+        findAgain.setOnAction(event -> {
+            activePlugin.handleRequest(Constants.Plugin.Command.FIND_AGAIN);
+            event.consume();
         });
 
         menuEdit.getItems().addAll(copy, cut, paste, new SeparatorMenuItem(), delete, rename, new SeparatorMenuItem(), reload, findObject, findAgain);
 
         if (JEConfig.getExpert()) {
-            MenuItem replace = new MenuItem(I18n.getInstance().getString("searchbar.button.replace"));
-            replace.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
+            /** function does not exists...
+             MenuItem replace = new MenuItem(I18n.getInstance().getString("searchbar.button.replace"));
+             replace.setAccelerator(new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN));
+             replace.setOnAction(event -> {
+             activePlugin.handleRequest(Constants.Plugin.Command.);
+             event.consume();
+             });
+             **/
 
             MenuItem deleteAllCleanAndRaw = new MenuItem(I18n.getInstance().getString("jevistree.dialog.deleteCleanAndRaw.title"));
             deleteAllCleanAndRaw.setAccelerator(new KeyCodeCombination(KeyCode.DELETE, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+            deleteAllCleanAndRaw.setOnAction(event -> {
+                activePlugin.handleRequest(Constants.Plugin.Command.DELETE_ALL_CLEAN_AND_RAW);
+                event.consume();
+            });
 
             MenuItem createMultiplierAndDifferential = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setMultiplierAndDifferential.title"));
             createMultiplierAndDifferential.setAccelerator(new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+            createMultiplierAndDifferential.setOnAction(event -> {
+                activePlugin.handleRequest(Constants.Plugin.Command.CREATE_MULTIPLIER_AND_DIFFERENTIAL);
+                event.consume();
+            });
 
             MenuItem setLimits = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setLimitsRecursive.title"));
             setLimits.setAccelerator(new KeyCodeCombination(KeyCode.L, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+            setLimits.setOnAction(event -> {
+                activePlugin.handleRequest(Constants.Plugin.Command.SET_LIMITS);
+                event.consume();
+            });
 
             MenuItem setSubstitutionSettings = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setSubstitutionSettingsRecursive.title"));
             setSubstitutionSettings.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+            setSubstitutionSettings.setOnAction(event -> {
+                activePlugin.handleRequest(Constants.Plugin.Command.SET_SUBSTITUTION_SETTINGS);
+                event.consume();
+            });
 
             MenuItem setUnitsAndPeriods = new MenuItem(I18n.getInstance().getString("jevistree.dialog.setUnitAndPeriodRecursive.title"));
             setUnitsAndPeriods.setAccelerator(new KeyCodeCombination(KeyCode.U, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+            setUnitsAndPeriods.setOnAction(event -> {
+                activePlugin.handleRequest(Constants.Plugin.Command.SET_UNITS_AND_PERIODS);
+                event.consume();
+            });
 
             MenuItem enableAll = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.enable"));
             enableAll.setAccelerator(new KeyCodeCombination(KeyCode.E, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+            enableAll.setOnAction(event -> {
+                activePlugin.handleRequest(Constants.Plugin.Command.ENABLE_ALL);
+                event.consume();
+            });
 
             MenuItem disableAll = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.disable"));
             disableAll.setAccelerator(new KeyCodeCombination(KeyCode.D, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+            disableAll.setOnAction(event -> {
+                activePlugin.handleRequest(Constants.Plugin.Command.DISABLE_ALL);
+                event.consume();
+            });
 
             MenuItem resetCalculation = new MenuItem(I18n.getInstance().getString("jevistree.dialog.enable.title.resetcalc"));
             resetCalculation.setAccelerator(new KeyCodeCombination(KeyCode.J, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN));
+            resetCalculation.setOnAction(event -> {
+                activePlugin.handleRequest(Constants.Plugin.Command.RESET_CALCULATION);
+                event.consume();
+            });
 
-            menuEdit.getItems().addAll(replace, deleteAllCleanAndRaw, setLimits, setSubstitutionSettings, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation);
+
+            menuEdit.getItems().addAll(new SeparatorMenuItem(), deleteAllCleanAndRaw, setLimits, setSubstitutionSettings, createMultiplierAndDifferential, setUnitsAndPeriods, enableAll, disableAll, resetCalculation);
         }
 
 //        menuEdit.getItems().addAll(copie, delete, rename);
@@ -233,32 +251,19 @@ public class TopMenu extends MenuBar {
         final Preferences preview = Preferences.userRoot().node("JEVis.JEConfig.preview");
         CheckMenuItem enablePreview = new CheckMenuItem(I18n.getInstance().getString("menu.options.preview"));
         enablePreview.setSelected(preview.getBoolean("enabled", true));
-        enablePreview.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                preview.putBoolean("enabled", !preview.getBoolean("enabled", true));
-            }
-        });
+        enablePreview.setOnAction(e -> preview.putBoolean("enabled", !preview.getBoolean("enabled", true)));
 
         final Preferences prefWelcome = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
         CheckMenuItem welcome = new CheckMenuItem(I18n.getInstance().getString("menu.options.welcome"));
         welcome.setSelected(prefWelcome.getBoolean("show", true));
-        welcome.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                prefWelcome.putBoolean("show", !prefWelcome.getBoolean("show", false));
-            }
-        });
+        welcome.setOnAction(e -> prefWelcome.putBoolean("show", !prefWelcome.getBoolean("show", false)));
 
         final Preferences patchNotes = Preferences.userRoot().node("JEVis.JEConfig.patchNotes");
         CheckMenuItem showPatchNotes = new CheckMenuItem(I18n.getInstance().getString("menu.options.patchnotes"));
         showPatchNotes.setSelected(prefWelcome.getBoolean("show", true));
-        showPatchNotes.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                patchNotes.put("version", JEConfig.class.getPackage().getImplementationVersion());
-                patchNotes.putBoolean("show", !patchNotes.getBoolean("show", true));
-            }
+        showPatchNotes.setOnAction(e -> {
+            patchNotes.put("version", JEConfig.class.getPackage().getImplementationVersion());
+            patchNotes.putBoolean("show", !patchNotes.getBoolean("show", true));
         });
 
         MenuItem changePassword = new MenuItem(I18n.getInstance().getString("menu.options.changepassword"));
@@ -288,13 +293,10 @@ public class TopMenu extends MenuBar {
         final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
         CheckMenuItem expertMode = new CheckMenuItem(I18n.getInstance().getString("menu.options.expert"));
         expertMode.setSelected(prefExpert.getBoolean("show", false));
-        expertMode.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                prefExpert.putBoolean("show", !prefExpert.getBoolean("show", false));
-                activePlugin.updateToolbar();
-                Platform.runLater(() -> updateLayout());
-            }
+        expertMode.setOnAction(e -> {
+            prefExpert.putBoolean("show", !prefExpert.getBoolean("show", false));
+            activePlugin.updateToolbar();
+            Platform.runLater(() -> updateLayout());
         });
 
         options.getItems().addAll(changePassword, enablePreview, welcome, showPatchNotes, expertMode);
@@ -303,75 +305,68 @@ public class TopMenu extends MenuBar {
 
         MenuItem about = new MenuItem(I18n.getInstance().getString("menu.about"));
         help.getItems().add(about);
-        about.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
+        about.setOnAction(t -> {
 
-                AboutDialog dia = new AboutDialog();
-                dia.show(I18n.getInstance().getString("menu.about.title")
-                        , I18n.getInstance().getString("menu.about.message")
-                        , JEConfig.PROGRAM_INFO, JEConfig.getImage("JEConfig_mac.png"));
+            AboutDialog dia = new AboutDialog();
+            dia.show(I18n.getInstance().getString("menu.about.title")
+                    , I18n.getInstance().getString("menu.about.message")
+                    , JEConfig.PROGRAM_INFO, JEConfig.getImage("JEConfig_mac.png"));
 
-            }
         });
         MenuItem classImport = new MenuItem(I18n.getInstance().getString("menu.system.driver"));
         Menu system = new Menu(I18n.getInstance().getString("menu.system"));
         system.getItems().add(classImport);
 
         //TODO: replace this very simple driver import
-        classImport.setOnAction(new EventHandler<ActionEvent>() {
+        classImport.setOnAction(event -> {
 
-            @Override
-            public void handle(ActionEvent event) {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle(I18n.getInstance().getString("menu.system.driver.open.title"));
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter(I18n.getInstance().getString("menuJEDataProcessor - Gap filling #429.system.driver.open.filter.jevis"), "*.jev"),
+                    new FileChooser.ExtensionFilter(I18n.getInstance().getString("menu.system.driver.open.filter.all"), "*.*"));
 
-                FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle(I18n.getInstance().getString("menu.system.driver.open.title"));
-                fileChooser.getExtensionFilters().addAll(
-                        new FileChooser.ExtensionFilter(I18n.getInstance().getString("menuJEDataProcessor - Gap filling #429.system.driver.open.filter.jevis"), "*.jev"),
-                        new FileChooser.ExtensionFilter(I18n.getInstance().getString("menu.system.driver.open.filter.all"), "*.*"));
+            File selectedFile = fileChooser.showOpenDialog(JEConfig.getStage());
+            if (selectedFile != null) {
+                List<File> files = new ArrayList<>();
+                String tmpdir = System.getProperty("java.io.tmpdir");
+                ClassImporter ci = new ClassImporter(JEConfig.getDataSource());
+                files = ci.unZipIt(tmpdir, selectedFile);
 
-                File selectedFile = fileChooser.showOpenDialog(JEConfig.getStage());
-                if (selectedFile != null) {
-                    List<File> files = new ArrayList<>();
-                    String tmpdir = System.getProperty("java.io.tmpdir");
-                    ClassImporter ci = new ClassImporter(JEConfig.getDataSource());
-                    files = ci.unZipIt(tmpdir, selectedFile);
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle(I18n.getInstance().getString("menu.system.driver.confirm.title"));
+                alert.setHeaderText(I18n.getInstance().getString("menu.system.driver.confirm.header", selectedFile.getName()));
+                alert.setContentText(I18n.getInstance().getString("menu.system.driver.confirm.message"));
 
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle(I18n.getInstance().getString("menu.system.driver.confirm.title"));
-                    alert.setHeaderText(I18n.getInstance().getString("menu.system.driver.confirm.header", selectedFile.getName()));
-                    alert.setContentText(I18n.getInstance().getString("menu.system.driver.confirm.message"));
+                ButtonType updateButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.update"));
+                ButtonType overwriteButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.override"));
+                ButtonType cancelButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
 
-                    ButtonType updateButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.update"));
-                    ButtonType overwriteButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.override"));
-                    ButtonType cancelButton = new ButtonType(I18n.getInstance().getString("menu.system.driver.confirm.cancel"), ButtonBar.ButtonData.CANCEL_CLOSE);
+                alert.getButtonTypes().setAll(updateButton, overwriteButton, cancelButton);
 
-                    alert.getButtonTypes().setAll(updateButton, overwriteButton, cancelButton);
+                Optional<ButtonType> result = alert.showAndWait();
+                boolean success = true;//dirty solution
+                if (result.get() == updateButton) {
+                    ci.setDeleteExisting(false);
+                    ci.importFiles(files);
+                } else if (result.get() == overwriteButton) {
+                    ci.setDeleteExisting(true);
+                    ci.importFiles(files);
+                } else if (result.get() == cancelButton) {
+                    success = false;
+                }
 
-                    Optional<ButtonType> result = alert.showAndWait();
-                    boolean success = true;//dirty solution
-                    if (result.get() == updateButton) {
-                        ci.setDeleteExisting(false);
-                        ci.importFiles(files);
-                    } else if (result.get() == overwriteButton) {
-                        ci.setDeleteExisting(true);
-                        ci.importFiles(files);
-                    } else if (result.get() == cancelButton) {
-                        success = false;
-                    }
+                if (success) {
+                    Alert finish = new Alert(Alert.AlertType.INFORMATION);
+                    finish.setTitle(I18n.getInstance().getString("menu.system.driver.success.title"));
+                    finish.setHeaderText(null);
+                    finish.setContentText(I18n.getInstance().getString("menu.system.driver.success.message"));
 
-                    if (success) {
-                        Alert finish = new Alert(Alert.AlertType.INFORMATION);
-                        finish.setTitle(I18n.getInstance().getString("menu.system.driver.success.title"));
-                        finish.setHeaderText(null);
-                        finish.setContentText(I18n.getInstance().getString("menu.system.driver.success.message"));
-
-                        finish.showAndWait();
-                    }
-
+                    finish.showAndWait();
                 }
 
             }
+
         });
         try {
             classImport.setDisable(!JEConfig.getDataSource().getCurrentUser().isSysAdmin());

@@ -749,7 +749,7 @@ public class TreeHelper {
     }
 
     public static void EventSetLimitsRecursive(JEVisTree tree) {
-        logger.debug("EventSetLimitsRecursive");
+        logger.error("EventSetLimitsRecursive");
         try {
             if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
                 ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
@@ -864,7 +864,7 @@ public class TreeHelper {
     }
 
     public static void EventSetSubstitutionSettingsRecursive(JEVisTree tree) {
-        logger.debug("EventSetSubstitutionSettingsRecursive");
+        logger.error("EventSetSubstitutionSettingsRecursive");
         try {
             if (!tree.getSelectionModel().getSelectedItems().isEmpty()) {
                 ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
@@ -939,6 +939,8 @@ public class TreeHelper {
                     });
 
                 }
+            } else {
+                logger.error("Selection is empty");
             }
         } catch (JEVisException e) {
             logger.error("Could not get JEVis data source.", e);

@@ -369,30 +369,26 @@ public class ObjectPlugin implements Plugin {
     public boolean supportsRequest(int cmdType) {
         switch (cmdType) {
             case Constants.Plugin.Command.SAVE:
-                return true;
             case Constants.Plugin.Command.DELETE:
-                return true;
             case Constants.Plugin.Command.EXPAND:
-                return true;
             case Constants.Plugin.Command.NEW:
-                return true;
             case Constants.Plugin.Command.RELOAD:
-                return true;
             case Constants.Plugin.Command.ADD_TABLE:
-                return true;
             case Constants.Plugin.Command.EDIT_TABLE:
-                return true;
             case Constants.Plugin.Command.CREATE_WIZARD:
-                return true;
             case Constants.Plugin.Command.FIND_OBJECT:
-                return true;
             case Constants.Plugin.Command.PASTE:
-                return true;
             case Constants.Plugin.Command.COPY:
-                return true;
             case Constants.Plugin.Command.CUT:
-                return true;
-            case Constants.Plugin.Command.FIND_AGAIN:
+            case Constants.Plugin.Command.CREATE_MULTIPLIER_AND_DIFFERENTIAL:
+            case Constants.Plugin.Command.DELETE_ALL_CLEAN_AND_RAW:
+            case Constants.Plugin.Command.DISABLE_ALL:
+            case Constants.Plugin.Command.ENABLE_ALL:
+            case Constants.Plugin.Command.REPLACE:
+            case Constants.Plugin.Command.RESET_CALCULATION:
+            case Constants.Plugin.Command.SET_LIMITS:
+            case Constants.Plugin.Command.SET_SUBSTITUTION_SETTINGS:
+            case Constants.Plugin.Command.SET_UNITS_AND_PERIODS:
                 return true;
             default:
                 return false;
@@ -536,11 +532,39 @@ public class ObjectPlugin implements Plugin {
                 case Constants.Plugin.Command.CUT:
                     tree.setCopyObject(selectedObj.getValue().getJEVisObject(), true);
                     break;
+                case Constants.Plugin.Command.CREATE_MULTIPLIER_AND_DIFFERENTIAL:
+                    TreeHelper.EventCreateMultiplierAndDifferential(tree);
+                    break;
+                case Constants.Plugin.Command.DELETE_ALL_CLEAN_AND_RAW:
+                    TreeHelper.EventDeleteAllCleanAndRaw(tree);
+                    break;
+                case Constants.Plugin.Command.DISABLE_ALL:
+                    TreeHelper.EventSetEnableAll(tree, false);
+                    break;
+                case Constants.Plugin.Command.ENABLE_ALL:
+                    TreeHelper.EventSetEnableAll(tree, true);
+                    break;
+                case Constants.Plugin.Command.REPLACE:
+                    break;
+                case Constants.Plugin.Command.RESET_CALCULATION:
+                    TreeHelper.EventDeleteAllCalculations(tree);
+                    break;
+                case Constants.Plugin.Command.SET_LIMITS:
+                    TreeHelper.EventSetLimitsRecursive(tree);
+                    break;
+                case Constants.Plugin.Command.SET_SUBSTITUTION_SETTINGS:
+                    TreeHelper.EventSetSubstitutionSettingsRecursive(tree);
+                    break;
+                case Constants.Plugin.Command.SET_UNITS_AND_PERIODS:
+                    TreeHelper.EventSetUnitAndPeriodRecursive(tree);
+                    break;
                 default:
                     logger.info("Unknown command ignore...");
             }
         } catch (Exception ex) {
-            logger.error("Error running command: {}", cmdType);
+            logger.error("Error running command: {}", cmdType, ex);
+            JEConfig.showError("Unexpected Error", ex);
+
         }
 
     }
