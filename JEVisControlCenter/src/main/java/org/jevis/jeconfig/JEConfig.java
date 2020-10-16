@@ -28,6 +28,8 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.CacheHint;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -41,7 +43,10 @@ import javafx.stage.Stage;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jevis.api.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
 import org.jevis.commons.application.ApplicationInfo;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeapi.ws.JEVisDataSourceWS;
@@ -51,6 +56,7 @@ import org.jevis.jeconfig.application.login.FXLogin;
 import org.jevis.jeconfig.application.statusbar.Statusbar;
 import org.jevis.jeconfig.application.tools.Holidays;
 import org.jevis.jeconfig.dialog.HiddenConfig;
+import org.jevis.jeconfig.tool.Exceptions;
 import org.jevis.jeconfig.tool.PatchNotesPage;
 import org.jevis.jeconfig.tool.WelcomePage;
 import org.joda.time.DateTime;
@@ -91,7 +97,7 @@ public class JEConfig extends Application {
     private static PluginManager pluginManager;
     private static Statusbar statusBar = new Statusbar();
     private TopMenu menu;
-    public static Date startDate= new Date();
+    public static Date startDate = new Date();
 
     public static boolean getExpert() {
         final Preferences prefExpert = Preferences.userRoot().node("JEVis.JEConfig.Expert");
@@ -108,19 +114,19 @@ public class JEConfig extends Application {
         File result;
         boolean lastPathOK = false;
 
-        try{
+        try {
             final Preferences lastPath = Preferences.userRoot().node("JEVis.JEConfig");
             result = new File(lastPath.get("lastPath", System.getProperty("user.home")));
 
-        if (result.canRead()) {
-            if (result.isFile()) {
-                logger.info("Is folder: " + result.getParentFile().getAbsoluteFile());
-                return result.getParentFile();
-            } else {
-                return result;
+            if (result.canRead()) {
+                if (result.isFile()) {
+                    logger.info("Is folder: " + result.getParentFile().getAbsoluteFile());
+                    return result.getParentFile();
+                } else {
+                    return result;
+                }
             }
-        }
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -241,7 +247,7 @@ public class JEConfig extends Application {
         }
     }
 
-    private void checkVersion(JEVisDataSource ds){
+    private void checkVersion(JEVisDataSource ds) {
         /*
         try {
             String serverJECCVersion = ((JEVisDataSourceWS) ds).getJEVisCCVersion();
@@ -314,14 +320,14 @@ public class JEConfig extends Application {
     }
 
 
-    private void checkMemory(){
-        try{
+    private void checkMemory() {
+        try {
             /* This will return Long.MAX_VALUE if there is no preset limit */
             long maxMemory = Runtime.getRuntime().maxMemory();
             /* Maximum amount of memory the JVM will attempt to use */
             System.out.println("Maximum memory (bytes): " +
                     (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory));
-        }catch (Exception ex){
+        } catch (Exception ex) {
             logger.error(ex);
         }
     }
@@ -367,7 +373,7 @@ public class JEConfig extends Application {
 
         login.getLoginStatus().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                startDate= new Date();
+                startDate = new Date();
                 logger.debug("Start JEVis Control Center");
                 _mainDS = login.getDataSource();
                 checkVersion(_mainDS);
@@ -496,22 +502,22 @@ public class JEConfig extends Application {
                     Task preloadCalender = new Task() {
                         @Override
                         protected Object call() throws Exception {
-                            try{
+                            try {
                                 this.updateTitle(I18n.getInstance().getString("preload.holidays"));
                                 for (String countryCode : HolidayManager.getSupportedCalendarCodes()) {
                                     HolidayManager instance = HolidayManager.getInstance(ManagerParameters.create(countryCode));
                                 }
 
                                 succeeded();
-                            }catch (Exception ex){
+                            } catch (Exception ex) {
                                 failed();
-                            }finally {
+                            } finally {
                                 done();
                             }
                             return null;
                         }
                     };
-                    statusBar.addTask("JEVisCC",preloadCalender,getImage("date.png"),true);
+                    statusBar.addTask("JEVisCC", preloadCalender, getImage("date.png"), true);
 
                     logger.info("Time to start: {}ms", ((new Date()).getTime() - start.getTime()));
                 });
@@ -567,6 +573,14 @@ public class JEConfig extends Application {
         });
 
 
+    }
+
+    public static void showError(String message, Exception ex) {
+        Platform.runLater(() -> {
+            String messagePlus = message + "\n" + Exceptions.toString(ex);
+            Alert dialog = new Alert(Alert.AlertType.ERROR, messagePlus, ButtonType.OK);
+            dialog.show();
+        });
     }
 
 

@@ -123,6 +123,7 @@ public class JEVisTreeFactory {
 //                    TreeHelper.EventDeleteBrokenTS(tree);
                 } else if (moveToDiffTS.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventMoveAllToDiffCleanTS(tree);
+                    t.consume();
                 } else if (createMultiplierAndDifferential.match(t) && JEConfig.getExpert()) {
                     TreeHelper.EventCreateMultiplierAndDifferential(tree);
                     t.consume();
