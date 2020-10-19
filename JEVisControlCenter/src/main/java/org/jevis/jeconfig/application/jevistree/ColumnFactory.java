@@ -20,9 +20,7 @@
  */
 package org.jevis.jeconfig.application.jevistree;
 
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -44,7 +42,6 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.application.resource.ResourceLoader;
 import org.joda.time.format.DateTimeFormat;
@@ -62,11 +59,9 @@ public class ColumnFactory {
 
     private static final String OBJECT_NAME = "Name";
     private static final String OBJECT_ID = "ID";
-    private static final String OBJECT_CLASS = "Type";
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:MM");
     private static final Image ATTRIBUTE_ICON = ResourceLoader.getImage("graphic-design.png");
     private static final Map<String, Image> classIconCache = new HashMap<>();
-    private static AlphanumComparator alphanumComparator = new AlphanumComparator();
 
     public static TreeTableColumn<JEVisTreeRow, JEVisTreeRow> buildName() {
         TreeTableColumn<JEVisTreeRow, JEVisTreeRow> column = new TreeTableColumn<>(I18n.getInstance().getString("jevistree.header.name"));
@@ -95,35 +90,20 @@ public class ColumnFactory {
 
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, JEVisTreeRow>, TreeTableCell<JEVisTreeRow, JEVisTreeRow>>() {
 
+
                                   @Override
                                   public TreeTableCell<JEVisTreeRow, JEVisTreeRow> call(TreeTableColumn<JEVisTreeRow, JEVisTreeRow> param) {
 
+
                                       return new TreeTableCell<JEVisTreeRow, JEVisTreeRow>() {
+                                          HBox hbox = new HBox();
+                                          Label nameLabel = new Label();
+                                          Region spaceBetween = new Region();
+                                          Node icon = ResourceLoader.getImage("1393615831_unknown2.png", 18, 18);
 
                                           @Override
                                           public void commitEdit(JEVisTreeRow newValue) {
                                               super.commitEdit(newValue);
-                                          }
-
-                                          private void highlight(ObservableList<JEVisObject> objects, JEVisObject obj, Label node) {
-                                              Platform.runLater(() -> {
-                                                  try {
-                                                      if (objects.contains(obj)) {
-//                                                          System.out.println("+Object event: " + obj);
-                                                          node.setStyle("-fx-background-color: yellow;");
-//                                                          node.setTextFill(Color.valueOf("#6495ED"));
-//                                                          node.setTextFill(Color.valueOf("#248f24"));//green
-
-
-                                                      } else {
-//                                                          node.setStyle("-fx-background-color: transparent;");
-//                                                          System.out.println("-Object event: " + obj);
-//                                                          node.setTextFill(Color.BLACK);
-                                                          node.setStyle("-fx-background-color: transparent;");
-                                                      }
-                                                  } catch (Exception ex) {
-                                                  }
-                                              });
                                           }
 
                                           @Override
@@ -137,22 +117,13 @@ public class ColumnFactory {
                                                       && getTreeTableRow().getTreeItem().getValue() != null
                                                       && getTreeTableRow().getTreeItem().getValue().getJEVisObject() != null) {
 
-
                                                   try {
-
-                                                      JEVisObject jeVisObject = item.getJEVisObject();
-
-                                                      HBox hbox = new HBox();
-                                                      Label nameLabel = new Label();
-                                                      Node icon;
-
-
                                                       hbox.setStyle("-fx-background-color: transparent;");
                                                       nameLabel.setStyle("-fx-background-color: transparent;");
-
                                                       nameLabel.setPadding(new Insets(0, 0, 0, 0));
-                                                      Region spaceBetween = new Region();
                                                       spaceBetween.setMinWidth(8);
+
+                                                      JEVisObject jeVisObject = item.getJEVisObject();
 
                                                       if (item.getType() == JEVisTreeRow.TYPE.OBJECT) {
                                                           nameLabel.setText(jeVisObject.getName());
@@ -175,8 +146,7 @@ public class ColumnFactory {
                                                           icon = image;
                                                       }
 
-                                                      hbox.getChildren().addAll(icon, spaceBetween, nameLabel);
-
+                                                      hbox.getChildren().setAll(icon, spaceBetween, nameLabel);
                                                       setGraphic(hbox);
 
                                                   } catch (Exception ex) {
@@ -320,41 +290,6 @@ public class ColumnFactory {
 
     }
 
-
-    public static TreeTableColumn<JEVisTreeRow, String> buildClass() {
-        TreeTableColumn<JEVisTreeRow, String> column = new TreeTableColumn<>(OBJECT_CLASS);
-        column.setId(OBJECT_CLASS);
-        column.setPrefWidth(190);
-        column.setCellValueFactory((TreeTableColumn.CellDataFeatures<JEVisTreeRow, String> p) -> {
-            try {
-                if (p != null && p.getValue() != null && p.getValue().getValue() != null && p.getValue().getValue().getJEVisObject() != null) {
-                    TreeItem<JEVisTreeRow> item = p.getValue();
-                    JEVisTreeRow selectionObject = item.getValue();
-
-                    if (selectionObject.getType() == JEVisTreeRow.TYPE.OBJECT) {
-//                        JEVisObject obj = selectionObject.getJEVisObject();
-                        return new ReadOnlyObjectWrapper<>(p.getValue().getValue().getJEVisObject().getJEVisClass().getName());
-                    } else if (selectionObject.getType() == JEVisTreeRow.TYPE.ATTRIBUTE) {
-                        JEVisAttribute att = selectionObject.getJEVisAttribute();
-                        return new ReadOnlyObjectWrapper<>(att.getType().getName());
-                    } else {
-                        return new ReadOnlyObjectWrapper<>("");
-                    }
-
-                } else {
-                    return new ReadOnlyObjectWrapper<>("Null");
-                }
-
-            } catch (Exception ex) {
-                logger.info("Error in Column Fatory: " + ex);
-                return new ReadOnlyObjectWrapper<>("Error");
-            }
-
-        });
-        return column;
-
-    }
-
     public static TreeTableColumn<JEVisTreeRow, Long> buildID() {
         TreeTableColumn<JEVisTreeRow, Long> column = new TreeTableColumn<>(OBJECT_ID);
         column.setId(OBJECT_ID);
@@ -385,7 +320,8 @@ public class ColumnFactory {
             public TreeTableCell<JEVisTreeRow, Long> call(TreeTableColumn<JEVisTreeRow, Long> param) {
 
                 return new TreeTableCell<JEVisTreeRow, Long>() {
-
+                    StackPane stackPane = new StackPane();
+                    Label label = new Label();
 
                     @Override
                     public void commitEdit(Long newValue) {
@@ -398,11 +334,12 @@ public class ColumnFactory {
                         setText(null);
                         setGraphic(null);
                         if (!empty) {
-                            StackPane stackPane = new StackPane();
-                            Label label = new Label();
-
-                            stackPane.getChildren().addAll(label);
+                            stackPane.setStyle("-fx-background-color: transparent;");
+                            label.setStyle("-fx-background-color: transparent;");
                             StackPane.setAlignment(stackPane, Pos.CENTER_RIGHT);
+
+                            stackPane.getChildren().setAll(label);
+
                             JEVisTreeRow jeVisTreeRow = getTreeTableRow().getItem();
                             if (jeVisTreeRow != null) {
                                 if (jeVisTreeRow.getType() == JEVisTreeRow.TYPE.OBJECT) {
@@ -412,8 +349,7 @@ public class ColumnFactory {
                                 }
                             }
 
-                            stackPane.setStyle("-fx-background-color: transparent;");
-                            label.setStyle("-fx-background-color: transparent;");
+
                             setGraphic(stackPane);
                         }
                     }
