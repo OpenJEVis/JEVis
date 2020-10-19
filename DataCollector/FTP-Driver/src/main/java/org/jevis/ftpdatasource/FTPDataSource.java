@@ -51,7 +51,7 @@ public class FTPDataSource implements DataSource {
 
     @Override
     public void run() {
-        logger.debug("Run FTp DataSource");
+        logger.debug("Run FTP DataSource");
         for (JEVisObject channel : channels) {
             logger.debug("Start Channel: [{}] {}", channel.getID(), channel.getName());
             try {

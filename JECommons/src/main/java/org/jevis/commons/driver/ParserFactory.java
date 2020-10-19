@@ -22,14 +22,12 @@ package org.jevis.commons.driver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author Broder
  */
 public class ParserFactory extends DriverFactory {
@@ -51,8 +49,8 @@ public class ParserFactory extends DriverFactory {
             Class parserClass = _parserClasses.get(identifier);
             parser = (Parser) parserClass.newInstance();
 
-        } catch (JEVisException | InstantiationException | IllegalAccessException ex) {
-            logger.fatal(ex);
+        } catch (Exception ex) {
+            logger.fatal("Error while loading parser: {}", ex.getMessage(), ex);
         }
         return parser;
     }
