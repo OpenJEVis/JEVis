@@ -53,13 +53,16 @@ import org.jevis.commons.object.plugin.TargetHelper;
 import org.jevis.commons.utils.AlphanumComparator;
 import org.jevis.commons.utils.ObjectHelper;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.application.application.I18nWS;
+import org.jevis.jeconfig.application.jevistree.dialog.NewObject;
 import org.jevis.jeconfig.application.jevistree.filter.JEVisTreeFilter;
 import org.jevis.jeconfig.application.jevistree.methods.CalculationMethods;
 import org.jevis.jeconfig.application.jevistree.methods.CommonMethods;
 import org.jevis.jeconfig.application.jevistree.methods.DataMethods;
 import org.jevis.jeconfig.application.tools.CalculationNameFormatter;
-import org.jevis.jeconfig.dialog.*;
+import org.jevis.jeconfig.dialog.CommonDialogs;
+import org.jevis.jeconfig.dialog.FindDialog;
+import org.jevis.jeconfig.dialog.ProgressForm;
+import org.jevis.jeconfig.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.plugin.object.attribute.GapFillingEditor;
 import org.jevis.jeconfig.plugin.unit.SamplingRateUI;
 import org.jevis.jeconfig.plugin.unit.UnitSelectUI;
@@ -1161,63 +1164,6 @@ public class TreeHelper {
 
     }
 
-    /**
-     * public static void EventRename(final JEVisTree tree, JEVisObject object) {
-     * logger.trace("EventRename");
-     * <p>
-     * NewObjectDialog dia = new NewObjectDialog();
-     * if (object != null) {
-     * try {
-     * if (dia.show(
-     * object.getJEVisClass(),
-     * object,
-     * true,
-     * NewObjectDialog.Type.RENAME,
-     * object.getName()
-     * ) == NewObjectDialog.Response.YES) {
-     * <p>
-     * final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("jevistree.menu.rename") + "...");
-     * <p>
-     * Task<Void> reload = new Task<Void>() {
-     *
-     * @Override protected Void call() {
-     * try {
-     * if (!dia.getCreateName().isEmpty()) {
-     * object.setName(dia.getCreateName());
-     * object.commit();
-     * }
-     * <p>
-     * } catch (JEVisException ex) {
-     * logger.catching(ex);
-     * }
-     * <p>
-     * return null;
-     * }
-     * };
-     * reload.setOnSucceeded(event -> pForm.getDialogStage().close());
-     * <p>
-     * reload.setOnCancelled(event -> {
-     * logger.debug("Rename Cancelled");
-     * pForm.getDialogStage().hide();
-     * });
-     * <p>
-     * reload.setOnFailed(event -> {
-     * logger.debug("Rename failed");
-     * pForm.getDialogStage().hide();
-     * });
-     * <p>
-     * pForm.activateProgressBar(reload);
-     * pForm.getDialogStage().show();
-     * <p>
-     * new Thread(reload).start();
-     * }
-     * } catch (JEVisException ex) {
-     * logger.catching(ex);
-     * }
-     * }
-     * <p>
-     * }
-     **/
     private final static Pattern lastIntPattern = Pattern.compile("[^0-9]+([0-9]+)$");
 
     public static void EventDrop(final JEVisTree tree, JEVisObject dragObj, JEVisObject targetParent, CopyObjectDialog.DefaultAction mode) {
@@ -1374,98 +1320,7 @@ public class TreeHelper {
      * @param parent
      */
     public static void EventNew(final JEVisTree tree, JEVisObject parent) {
-        try {
-            if (parent != null && tree.getJEVisDataSource().getCurrentUser().canCreate(parent.getID())) {
-                NewObjectDialog dia = new NewObjectDialog();
-
-                if (dia.show(null, parent, false, NewObjectDialog.Type.NEW, null) == NewObjectDialog.Response.YES) {
-
-                    final ProgressForm pForm = new ProgressForm(I18n.getInstance().getString("plugin.object.member.create") + "...");
-
-                    Task<Void> upload = new Task<Void>() {
-                        @Override
-                        protected Void call() {
-                            for (int i = 0; i < dia.getCreateCount(); i++) {
-                                try {
-                                    String name = dia.getCreateName();
-                                    if (dia.getCreateCount() > 1) {
-                                        name += " " + (i + 1);
-                                    }
-
-                                    JEVisClass createClass = dia.getCreateClass();
-                                    JEVisObject newObject = parent.buildObject(name, createClass);
-                                    newObject.commit();
-
-                                    JEVisClass dataClass = newObject.getDataSource().getJEVisClass("Data");
-                                    JEVisClass cleanDataClass = newObject.getDataSource().getJEVisClass("Clean Data");
-                                    JEVisClass reportClass = newObject.getDataSource().getJEVisClass("Periodic Report");
-
-                                    if (createClass.equals(dataClass) || createClass.equals(cleanDataClass)) {
-                                        JEVisAttribute valueAttribute = newObject.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
-                                        valueAttribute.setInputSampleRate(Period.minutes(15));
-                                        valueAttribute.setDisplaySampleRate(Period.minutes(15));
-                                        valueAttribute.commit();
-
-                                        if (createClass.equals(dataClass) && dia.isWithCleanData()) {
-                                            JEVisObject newCleanObject = newObject.buildObject(I18nWS.getInstance().getClassName(cleanDataClass), cleanDataClass);
-                                            newCleanObject.commit();
-
-                                            JEVisAttribute cleanDataValueAttribute = newCleanObject.getAttribute(CleanDataObject.AttributeName.VALUE.getAttributeName());
-                                            cleanDataValueAttribute.setInputSampleRate(Period.minutes(15));
-                                            cleanDataValueAttribute.setDisplaySampleRate(Period.minutes(15));
-                                            cleanDataValueAttribute.commit();
-                                        }
-                                        succeeded();
-                                    } else if (createClass.equals(reportClass)) {
-                                        Platform.runLater(() -> new ReportWizardDialog(newObject));
-                                    }
-
-                                } catch (JEVisException ex) {
-                                    logger.catching(ex);
-
-                                    if (ex.getMessage().equals("Can not create User with this name. The User has to be unique on the System")) {
-                                        InfoDialog info = new InfoDialog();
-                                        info.show("Waring", "Could not create user", "Could not create new user because this user exists already.");
-
-                                    } else {
-                                        ExceptionDialog errorDia = new ExceptionDialog();
-                                        errorDia.show("Error", ex.getLocalizedMessage(), ex.getLocalizedMessage(), ex, null);
-
-                                    }
-                                    failed();
-                                }
-                            }
-                            succeeded();
-                            return null;
-                        }
-                    };
-                    upload.setOnSucceeded(event -> pForm.getDialogStage().close());
-
-                    upload.setOnCancelled(event -> {
-                        logger.error(I18n.getInstance().getString("plugin.object.waitsave.canceled"));
-                        pForm.getDialogStage().hide();
-                    });
-
-                    upload.setOnFailed(event -> {
-                        logger.error(I18n.getInstance().getString("plugin.object.waitsave.failed"));
-                        pForm.getDialogStage().hide();
-                    });
-
-                    pForm.activateProgressBar(upload);
-                    pForm.getDialogStage().show();
-
-                    new Thread(upload).start();
-                }
-            } else {
-                Platform.runLater(() -> {
-                    Alert alert1 = new Alert(AlertType.WARNING, I18n.getInstance().getString("dialog.warning.title"));
-                    alert1.setContentText(I18n.getInstance().getString("dialog.warning.notallowed"));
-                    alert1.showAndWait();
-                });
-            }
-        } catch (JEVisException e) {
-            logger.error("Could not get jevis data source.", e);
-        }
+        NewObject.NewObject(tree, parent);
     }
 
     public static void EventExportTree(JEVisObject obj) throws JEVisException {
