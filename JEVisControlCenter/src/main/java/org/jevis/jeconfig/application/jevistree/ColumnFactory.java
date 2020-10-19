@@ -93,8 +93,6 @@ public class ColumnFactory {
 
         column.setComparator(JEVisTreeItem.getComparator());
 
-        final JEVisTreeContextMenu contextMenu = new JEVisTreeContextMenu();
-
         column.setCellFactory(new Callback<TreeTableColumn<JEVisTreeRow, JEVisTreeRow>, TreeTableCell<JEVisTreeRow, JEVisTreeRow>>() {
 
                                   @Override
@@ -148,11 +146,7 @@ public class ColumnFactory {
                                                       Label nameLabel = new Label();
                                                       Node icon;
 
-                                                      setContextMenu(contextMenu);
-                                                      setOnContextMenuRequested(event -> {
-                                                          contextMenu.setItem(getTreeTableRow());
-                                                      });
-//
+
                                                       hbox.setStyle("-fx-background-color: transparent;");
                                                       nameLabel.setStyle("-fx-background-color: transparent;");
 
