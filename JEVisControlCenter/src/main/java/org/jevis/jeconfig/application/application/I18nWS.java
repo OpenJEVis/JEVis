@@ -64,41 +64,24 @@ public class I18nWS {
         }
     }
 
-    public Map<String, Json18nEnum> getEnum(String className, String typeName){
+    public Map<String, Json18nEnum> getEnum(String className, String typeName) {
         try {
             JsonI18nClass json = getJsonClass(className);
-            boolean found = false;
             for (JsonI18nType type : json.getTypes()) {
-                if (type.getType().equalsIgnoreCase(typeName)) {
+                if (type.getEnums() != null && type.getType().equalsIgnoreCase(typeName)
+                        && !type.getEnums().isEmpty()) {
                     return type.getEnums();
-
-                }
-            }
-            if (!found) {
-                JEVisClass inheritanceClass = ds.getJEVisClass(className).getInheritance();
-                List<JsonI18nClass> possibleParents = new ArrayList<>();
-                getPossibleParents(possibleParents, inheritanceClass);
-
-                for (JsonI18nClass jsonI18nClass : possibleParents) {
-                    for (JsonI18nType type : jsonI18nClass.getTypes()) {
-                        if (type.getType().equalsIgnoreCase(typeName)) {
-                            return type.getEnums();
-                        }
-                    }
                 }
             }
 
-            if (!found) {
-                logger.warn("Type name not found: {}-{}", className, typeName);
-            }
             return new HashMap<>();
-        }catch (Exception ex){
-            logger.error("Error while loading Enum form type: {}:{} -> {}",className,typeName,ex.getMessage(),ex);
+        } catch (Exception ex) {
+            logger.error("Error while loading Enum for type: {}:{} -> {}", className, typeName, ex.getMessage(), ex);
             return new HashMap<>();
         }
     }
 
-    public String getLanguage(){
+    public String getLanguage() {
         return locale.getLanguage();
     }
 
@@ -140,7 +123,7 @@ public class I18nWS {
 
             return translatedString;
         } catch (Exception ex) {
-            logger.error("Error while loading Type name: {}.{}: {}",jevisClass,typeName,ex);
+            logger.error("Error while loading Type name: {}.{}: {}", jevisClass, typeName, ex);
         }
 
         return typeName;

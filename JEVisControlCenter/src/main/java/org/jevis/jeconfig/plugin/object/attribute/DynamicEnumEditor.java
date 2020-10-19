@@ -35,12 +35,14 @@ import org.apache.logging.log4j.Logger;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.i18n.I18n;
 import org.jevis.commons.ws.json.Json18nEnum;
 import org.jevis.jeconfig.application.application.I18nWS;
 import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
 import org.joda.time.DateTime;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -52,8 +54,8 @@ public class DynamicEnumEditor implements AttributeEditor {
     private final HBox editor = new HBox();
     private final JEVisAttribute att;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    private JEVisSample originalSample;
-    private ObservableList<String> observableList = FXCollections.observableArrayList();
+    private final JEVisSample originalSample;
+    private final ObservableList<String> observableList = FXCollections.observableArrayList();
     private Map<String, Json18nEnum> json18nEnum = new HashMap<>();
     private JEVisSample newSample = null;
 
@@ -69,7 +71,7 @@ public class DynamicEnumEditor implements AttributeEditor {
         if (att != null) {
             try {
                 json18nEnum = I18nWS.getInstance().getEnum(att.getObject().getJEVisClassName(), att.getName());
-                json18nEnum.keySet().forEach(s -> observableList.add(s));
+                observableList.setAll(json18nEnum.keySet());
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -82,15 +84,31 @@ public class DynamicEnumEditor implements AttributeEditor {
     }
 
     private String getLocalEnumName(String enumName) {
+        String name = I18n.getInstance().getString("plugin.object.attribute.missingname");
+        boolean found = false;
         for (Map.Entry<String, String> entry : json18nEnum.get(enumName).getNames().entrySet()) {
             String s = entry.getKey();
             String s2 = entry.getValue();
             if (s.equals(I18nWS.getInstance().getLanguage())) {
-                return s2;
+                name = s2;
+                found = true;
+                break;
             }
         }
 
-        return enumName;
+        if (!found) {
+            for (Map.Entry<String, String> entry : json18nEnum.get(enumName).getNames().entrySet()) {
+                String s = entry.getKey();
+                String s2 = entry.getValue();
+                if (s.equals(Locale.ENGLISH.getLanguage())) {
+                    name = s2;
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        return name;
     }
 
     @Override
