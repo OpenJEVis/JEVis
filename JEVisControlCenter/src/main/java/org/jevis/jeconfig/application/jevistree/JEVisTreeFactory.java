@@ -184,6 +184,13 @@ public class JEVisTreeFactory {
         return buildBasicDefault(ds, cellFilter, withMinMaxTSColumn);
     }
 
+    private static void addContextMenu(JEVisTree tree) {
+
+        final JEVisTreeContextMenu contextMenu = new JEVisTreeContextMenu();
+        contextMenu.setTree(tree);
+        tree.setContextMenu(contextMenu);
+    }
+
     public static JEVisTree buildBasicDefault(JEVisDataSource ds, JEVisTreeFilter filter, boolean withMinMaxTSColumn) {
 
         TreeTableColumn<JEVisTreeRow, JEVisTreeRow> nameCol = ColumnFactory.buildName();
@@ -271,6 +278,7 @@ public class JEVisTreeFactory {
         }
 
         addDefaultKeys(tree);
+        addContextMenu(tree);
 
         return tree;
     }

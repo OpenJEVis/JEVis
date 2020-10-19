@@ -56,40 +56,45 @@ public class JEVisTreeContextMenu extends ContextMenu {
         super();
     }
 
+    public void setTree(JEVisTree tree) {
+        this.tree = tree;
+        tree.setOnMouseClicked(event -> {
+            obj = getObject();
+            getItems().setAll(
+                    buildNew2(),
+                    buildReload(),
+                    new SeparatorMenuItem(),
+                    buildDelete(),
+                    //buildRename(),
+                    buildMenuLocalize(),
+                    buildCopy(),
+                    buildCut(),
+                    buildPaste(),
+                    new SeparatorMenuItem(),
+                    buildMenuExport(),
+                    buildImport()
+            );
 
-    public void setItem(TreeTableRow<JEVisTreeRow> item) {
-        this.obj = item.getTreeItem().getValue().getJEVisObject();
-        tree = (JEVisTree) item.getTreeTableView();
+            try {
+                if (obj.getJEVisClassName().equals("Calculation")) {
+                    getItems().add(new SeparatorMenuItem());
+                    getItems().add(buildMenuAddInput());
+                } else if (obj.getJEVisClassName().equals("OPC UA Server")) {
+                    getItems().add(new SeparatorMenuItem());
+                    getItems().add(buildOCP());
+                }
 
-        getItems().setAll(
-                buildNew2(),
-                buildReload(),
-                new SeparatorMenuItem(),
-                buildDelete(),
-                //buildRename(),
-                buildMenuLocalize(),
-                buildCopy(),
-                buildCut(),
-                buildPaste(),
-                new SeparatorMenuItem(),
-                buildMenuExport(),
-                buildImport()
-        );
 
-        try {
-            if (obj.getJEVisClassName().equals("Calculation")) {
-                getItems().add(new SeparatorMenuItem());
-                getItems().add(buildMenuAddInput());
-            } else if (obj.getJEVisClassName().equals("OPC UA Server")) {
-                getItems().add(new SeparatorMenuItem());
-                getItems().add(buildOCP());
+            } catch (Exception ex) {
+                logger.fatal(ex);
             }
-
-
-        } catch (Exception ex) {
-            logger.fatal(ex);
-        }
+        });
     }
+
+    private JEVisObject getObject() {
+        return ((JEVisTreeItem) tree.getSelectionModel().getSelectedItem()).getValue().getJEVisObject();
+    }
+
 
     private MenuItem buildOCP() {
         MenuItem menu = new MenuItem(I18n.getInstance().getString("jevistree.menu.opc"), ResourceLoader.getImage("17_Paste_48x48.png", 20, 20));
@@ -186,6 +191,13 @@ public class JEVisTreeContextMenu extends ContextMenu {
     }
 
     public List<MenuItem> buildMenuNewContent() {
+
+        System.out.println("buildMenuNewContent()");
+        Object obj2 = this.getUserData();
+        System.out.println("obj2: " + obj2);
+        Object obj3 = this.getOwnerNode();
+        System.out.println("obj3: " + obj3);
+
         List<MenuItem> newContent = new ArrayList<>();
         try {
             for (JEVisClass jlass : obj.getAllowedChildrenClasses()) {
@@ -303,7 +315,9 @@ public class JEVisTreeContextMenu extends ContextMenu {
         menu.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-
+                Object obj2 = getUserData();
+                System.out.println("userdate: " + obj2);
+                System.out.println("new event");
                 TreeHelper.EventNew(tree, obj);
 
             }
