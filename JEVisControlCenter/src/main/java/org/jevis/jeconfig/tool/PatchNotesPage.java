@@ -50,12 +50,21 @@ public class PatchNotesPage {
     private static final Logger logger = LogManager.getLogger(PatchNotesPage.class);
     private final String versionHistory =
             "------Version 3.9.43------\n" +
-                    "JECC - Deleting take to much time\n" +
-                    "JECC - Dashboard - Save name is incorrect\n" +
-                    "JECC - Dashboard - Widget multi select colors\n" +
-                    "JECC - Dashboard - Background color in settings dialog does not respect multi-select\n" +
-                    "JECC - Dashboard - Widget Color changes only after reload\n" +
-                    "JEDataCollector - SFTP - duplicatet attribute\n" +
+                    "JECC - CalculationExtension - fixed problem with stacked clean data objects\n" +
+                    "JECC - CalculationExtension - all zeros should be default to 0\n" +
+                    "JECC - DashboardPlugin - Save name is incorrect\n" +
+                    "JECC - DashboardPlugin - Widget multi select colors\n" +
+                    "JECC - DashboardPlugin - Background color in settings dialog does not respect multi-select\n" +
+                    "JECC - DashboardPlugin - Widget Color changes only after reload\n" +
+                    "JECC - I18n - Enums - english translation fallback not working\n" +
+                    "JECC - ObjectPlugin - right click does not always work\n" +
+                    "JECC - ObjectPlugin - Deleting takes too much time\n" +
+                    "JECC - SelectTargetDialog - added base data to data filters\n" +
+                    "JECC - TopMenu - Not all entries are working\n" +
+                    "JECC - Minor performance improvements\n" +
+                    "JECC - Added basic error dialog\n\n" +
+                    "JEAlarm - fixed some problem with null tolerance\n\n" +
+                    "DataCollector - SFTP Datasource - duplicated attributes\n\n" +
                     "------Version 3.9.42------\n" +
                     "JECC - PluginManager - fixed heuristic for derived classes\n" +
                     "JECC - ControlPane - added check for valid timerange\n" +
