@@ -20,6 +20,7 @@ import org.jevis.jeconfig.JEConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -160,12 +161,10 @@ public class SaveUnderDialog {
 
                             dialogOverwrite.getDialogPane().getButtonTypes().addAll(overwrite_ok, overwrite_cancel);
 
-                            dialogOverwrite.showAndWait().ifPresent(overwrite_response -> {
-                                if (overwrite_response.getButtonData().getTypeCode() != ButtonType.OK.getButtonData().getTypeCode()) {
-                                    userWantOverwrite.set(true);
-                                    return;
-                                }
-                            });
+                            Optional<ButtonType> result = dialogOverwrite.showAndWait();
+                            if (result.isPresent() && result.get() == overwrite_ok) {
+                                userWantOverwrite.set(true);
+                            }
                         }
 
 
