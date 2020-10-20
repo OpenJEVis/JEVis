@@ -57,16 +57,17 @@ import java.util.List;
  */
 public class SelectTargetDialog {
 
+    public static final String VALUE = "Value";
     private final SelectionMode selectionMode;
     private final JEVisTreeFilter basicFilter;
-    private Button ok = new Button("OK");
-    private String ICON = "1404313956_evolution-tasks.png";
+    private final Button ok = new Button("OK");
+    private final String ICON = "1404313956_evolution-tasks.png";
     private JEVisDataSource _ds;
     private Stage stage;
     private Response _response = Response.CANCEL;
     private JEVisTree tree;
-    private SimpleTargetPlugin simpleTargetPlugin = new SimpleTargetPlugin();
-    private ObservableList<JEVisTreeFilter> filterTypes = FXCollections.observableArrayList();
+    private final SimpleTargetPlugin simpleTargetPlugin = new SimpleTargetPlugin();
+    private final ObservableList<JEVisTreeFilter> filterTypes = FXCollections.observableArrayList();
     private JEVisTreeFilter selectedFilter = null;
 
     private Window dialogOwner = null;
@@ -314,8 +315,10 @@ public class SelectTargetDialog {
         BasicCellFilter onlyData = new BasicCellFilter(I18n.getInstance().getString("tree.filter.dataandcleandata"));
         ObjectAttributeFilter d1 = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
         ObjectAttributeFilter d2 = new ObjectAttributeFilter("Clean Data", ObjectAttributeFilter.NONE);
+        ObjectAttributeFilter d3 = new ObjectAttributeFilter("Base Data", ObjectAttributeFilter.NONE);
         onlyData.addItemFilter(d1);
         onlyData.addItemFilter(d2);
+        onlyData.addItemFilter(d3);
         onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d1);
         onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d2);
 
@@ -325,7 +328,9 @@ public class SelectTargetDialog {
     public static JEVisTreeFilter buildAllDataFilter() {
         BasicCellFilter onlyData = new BasicCellFilter(I18n.getInstance().getString("tree.filter.data"));
         ObjectAttributeFilter d1 = new ObjectAttributeFilter("Data", ObjectAttributeFilter.NONE);
+        ObjectAttributeFilter d2 = new ObjectAttributeFilter("Base Data", ObjectAttributeFilter.NONE);
         onlyData.addItemFilter(d1);
+        onlyData.addItemFilter(d2);
         onlyData.addFilter(SimpleTargetPlugin.TARGET_COLUMN_ID, d1);
 
         return onlyData;
