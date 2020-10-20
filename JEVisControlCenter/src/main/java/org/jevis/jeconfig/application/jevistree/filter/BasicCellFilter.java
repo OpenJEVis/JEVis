@@ -146,7 +146,7 @@ public class BasicCellFilter implements JEVisTreeFilter {
                 if (objectAttributeFilter.showClass(object.getJEVisClassName())) {
                     return true;
                 }
-            } catch (Exception ex) {
+            } catch (Exception ignored) {
             }
         }
         return false;
