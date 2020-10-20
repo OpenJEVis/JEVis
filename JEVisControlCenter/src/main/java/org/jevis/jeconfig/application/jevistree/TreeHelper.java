@@ -1369,7 +1369,7 @@ public class TreeHelper {
         logger.info("Event Create new Input");
 
         List<JEVisTreeFilter> allFilter = new ArrayList<>();
-        JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataFilter();
+        JEVisTreeFilter allDataFilter = SelectTargetDialog.buildAllDataAndCleanDataFilter();
         JEVisTreeFilter allAttributesFilter = SelectTargetDialog.buildAllAttributesFilter();
         allFilter.add(allDataFilter);
         allFilter.add(allAttributesFilter);
@@ -1391,10 +1391,13 @@ public class TreeHelper {
                 openList
         ) == SelectTargetDialog.Response.OK) {
             if (selectTargetDialog.getUserSelection() != null && !selectTargetDialog.getUserSelection().isEmpty()) {
+                JEVisClass cleanDataClass = calcObject.getDataSource().getJEVisClass("Clean Data");
+                JEVisClass dataClass = calcObject.getDataSource().getJEVisClass("Data");
+                JEVisClass baseDataClass = calcObject.getDataSource().getJEVisClass("Base Data");
                 for (UserSelection us : selectTargetDialog.getUserSelection()) {
                     JEVisObject correspondingCleanObject = null;
-                    if (selectTargetDialog.getSelectedFilter().equals(allDataFilter)) {
-                        JEVisClass cleanDataClass = us.getSelectedObject().getDataSource().getJEVisClass("Clean Data");
+                    if (selectTargetDialog.getSelectedFilter().equals(allDataFilter) && (
+                            us.getSelectedObject().getJEVisClass().equals(dataClass) || us.getSelectedObject().getJEVisClass().equals(baseDataClass))) {
                         List<JEVisObject> children = us.getSelectedObject().getChildren(cleanDataClass, false);
                         if (!children.isEmpty()) {
                             correspondingCleanObject = children.get(0);
@@ -1667,27 +1670,21 @@ public class TreeHelper {
 
     public static void EventMoveAllToDiffCleanTS(JEVisTree tree) {
         Alert warning = new Alert(AlertType.WARNING);
-        Alert info = new Alert(AlertType.INFORMATION);
-        info.setResizable(true);
-        info.setHeight(450);
-        info.setWidth(600);
 
         TextField textField = new TextField();
         Label message = new Label("You really sure you know what you're doing? Move all data/clean data samples their period x field");
         CheckBox correctUTC = new CheckBox("Correct UTC diff");
 
-        VBox vBox = new VBox(message, textField, correctUTC);
-        warning.getDialogPane().setContent(vBox);
-
         TextArea textArea = new TextArea();
         textArea.setPrefRowCount(20);
 
-        info.getDialogPane().setContent(textArea);
+        VBox vBox = new VBox(message, textField, correctUTC, textArea);
+        warning.getDialogPane().setContent(vBox);
+
         ObservableList<TreeItem<JEVisTreeRow>> items = tree.getSelectionModel().getSelectedItems();
 
         warning.showAndWait().ifPresent(buttonType -> {
             if (buttonType.equals(ButtonType.OK)) {
-                info.show();
                 JEVisDataSource ds = tree.getJEVisDataSource();
 
                 try {
@@ -1755,10 +1752,12 @@ public class TreeHelper {
                             }
                         }
                     } else {
-                        List<JEVisObject> allDataObjects = ds.getObjects(dataClass, true);
+                        List<JEVisObject> allDataObjects = CalculationMethods.getAllRawDataRec(items.get(0).getValue().getJEVisObject(), dataClass);
+                        allDataObjects.addAll(CalculationMethods.getAllRawDataRec(items.get(0).getValue().getJEVisObject(), cleanDataClass));
                         for (JEVisObject object : allDataObjects) {
                             final String formatStr = "yyyy-MM-dd HH:mm:ss";
-                            Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " moving samples"));
+//                            Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " moving samples"));
+                            logger.info(object.getName() + ":" + object.getID() + " moving samples");
 
                             JEVisAttribute value = object.getAttribute("Value");
                             if (value != null) {
@@ -1782,16 +1781,19 @@ public class TreeHelper {
                                     JEVisSample virtualSample = new VirtualSample(movedTimeStamp, sample.getValueAsDouble());
                                     virtualSample.setNote(sample.getNote());
                                     DateTime finalMovedTimeStamp = movedTimeStamp;
-                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr)));
+//                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr)));
+                                    logger.info(object.getName() + ":" + object.getID() + " found ts: " + oldTS.toString(formatStr) + " new ts: " + finalMovedTimeStamp.toString(formatStr));
                                     virtualSamples.add(virtualSample);
                                 }
 
-                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " found " + allSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
+//                                Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " found " + allSamples.size() + " samples, created " + virtualSamples.size() + " new samples"));
+                                logger.info(object.getName() + ":" + object.getID() + " found " + allSamples.size() + " samples, created " + virtualSamples.size() + " new samples");
 
                                 if (allSamples.size() == virtualSamples.size()) {
                                     value.deleteAllSample();
                                     value.addSamples(virtualSamples);
-                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " finished moving samples"));
+//                                    Platform.runLater(() -> textArea.setText(warning.getContentText() + "\n" + object.getName() + ":" + object.getID() + " finished moving samples"));
+                                    logger.info(object.getName() + ":" + object.getID() + " finished moving samples");
                                 }
                             }
                         }

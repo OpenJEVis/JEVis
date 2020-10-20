@@ -87,8 +87,20 @@ public class AlarmProcess {
             boolean hasData = true;
             for (JEVisObject obj : allCleanDataObjects) {
                 CleanDataObject cleanDataObject = new CleanDataObject(obj, new ObjectHandler(ds));
+                boolean alarmEnabled = false;
+                JEVisAttribute alarmEnabledAttribute = cleanDataObject.getAlarmEnabledAttribute();
+                if (alarmEnabledAttribute != null) {
+                    JEVisSample latestSample = alarmEnabledAttribute.getLatestSample();
+                    if (latestSample != null) {
+                        try {
+                            alarmEnabled = latestSample.getValueAsBoolean();
+                        } catch (JEVisException e) {
+                            logger.error("Error while getting alarm enabled attribute sample", e);
+                        }
+                    }
+                }
                 DateTime lastTS = cleanDataObject.getFirstDate();
-                if (!lastTS.isAfter(end)) {
+                if (alarmEnabled && !lastTS.isAfter(end)) {
                     hasData = false;
                     break;
                 }
@@ -348,12 +360,20 @@ public class AlarmProcess {
                                 }
                             }
 
-                            diff = compareSample.getValueAsDouble() * (tolerance / 100);
+                            if (tolerance != 0d) {
+                                diff = compareSample.getValueAsDouble() * (tolerance / 100);
+                            } else {
+                                diff = 0d;
+                            }
                             lowerValue = compareSample.getValueAsDouble() - diff;
                             upperValue = compareSample.getValueAsDouble() + diff;
                             sampleAlarmType = AlarmType.DYNAMIC;
                         } else {
-                            diff = limit * (tolerance / 100);
+                            if (tolerance != 0d) {
+                                diff = limit * (tolerance / 100);
+                            } else {
+                                diff = 0d;
+                            }
                             lowerValue = limit - diff;
                             upperValue = limit + diff;
                             sampleAlarmType = AlarmType.STATIC;
