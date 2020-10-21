@@ -499,4 +499,7 @@ public abstract class Widget extends Region {
         return null;
     }
 
+    public Tooltip getTt() {
+        return tt;
+    }
 }

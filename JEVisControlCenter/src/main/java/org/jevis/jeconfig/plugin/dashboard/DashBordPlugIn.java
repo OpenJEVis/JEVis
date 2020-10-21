@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
@@ -22,6 +23,7 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
+import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.Layouts;
 
 import java.util.concurrent.Executors;
@@ -34,25 +36,24 @@ public class DashBordPlugIn implements Plugin {
     private static final Logger logger = LogManager.getLogger(DashBordPlugIn.class);
     public static String CLASS_ANALYSIS = "Dashboard Analysis", CLASS_ANALYSIS_DIR = "Analyses Directory", ATTRIBUTE_DATA_MODEL_FILE = "Data Model File", ATTRIBUTE_DATA_MODEL = "Data Model", ATTRIBUTE_BACKGROUND = "Background";
     public static String PLUGIN_NAME = "Dashboard Plugin";
-    private StringProperty nameProperty = new SimpleStringProperty("Dashboard");
-    private StringProperty uuidProperty = new SimpleStringProperty("Dashboard");
+    private static final double scrollBarSize = 18;
+    private final StringProperty nameProperty = new SimpleStringProperty("Dashboard");
     private boolean isInitialized = false;
-    private NotificationPane notificationPane;
-    private AnchorPane rootPane = new AnchorPane();
+    private final StringProperty uuidProperty = new SimpleStringProperty("Dashboard");
+    private final NotificationPane notificationPane;
 
 
     private final DashboardControl dashboardControl;
     private JEVisDataSource jeVisDataSource;
     private final DashBoardPane dashBoardPane;
     private final DashBoardToolbar toolBar;
-    private ScrollPane scrollPane = new ScrollPane();
-    private static double scrollBarSize = 18;
-
+    private final AnchorPane rootPane = new AnchorPane();
+    private final ScrollPane scrollPane = new ScrollPane();
     /**
      * pane which gets the zoomed size of the dashboard so the layout of the ScrollPane is ok
      * Group() is not working because of Chart problems
      */
-    private Pane zoomPane = new Pane();
+    private final Pane zoomPane = new Pane();
 
 
     public DashBordPlugIn(JEVisDataSource ds, String name) {
@@ -109,11 +110,9 @@ public class DashBordPlugIn implements Plugin {
             Platform.runLater(() -> {
                 /** Minus 10pix to account for the common use case of shadows **/
                 //Layouts.setSize(zoomPane,dashBoardPane.getBoundsInParent().getWidth()-10,dashBoardPane.getBoundsInParent().getHeight()-10);
-                Layouts.setSize(zoomPane,dashBoardPane.getBoundsInParent().getWidth(),dashBoardPane.getBoundsInParent().getHeight());
+                Layouts.setSize(zoomPane, dashBoardPane.getBoundsInParent().getWidth(), dashBoardPane.getBoundsInParent().getHeight());
             });
         });
-
-
     }
 
     public Pane getZoomPane() {
@@ -146,9 +145,9 @@ public class DashBordPlugIn implements Plugin {
 
 
     public Size getPluginSize() {
-        logger.debug("getPluginSize in bounds: {}/{}",rootPane.getBoundsInParent().getWidth(),rootPane.getBoundsInParent().getHeight());
+        logger.debug("getPluginSize in bounds: {}/{}", rootPane.getBoundsInParent().getWidth(), rootPane.getBoundsInParent().getHeight());
 
-        return new Size(rootPane.getBoundsInParent().getHeight()-scrollBarSize , rootPane.getBoundsInParent().getWidth()-scrollBarSize );
+        return new Size(rootPane.getBoundsInParent().getHeight() - scrollBarSize, rootPane.getBoundsInParent().getWidth() - scrollBarSize);
     }
 
     public DashBoardToolbar getDashBoardToolbar() {
@@ -259,13 +258,31 @@ public class DashBordPlugIn implements Plugin {
         switch (cmdType) {
             case Constants.Plugin.Command.SAVE:
                 this.dashboardControl.save();
-                return;
+                break;
             case Constants.Plugin.Command.RELOAD:
                 dashboardControl.reload();
-                return;
+                break;
+            case Constants.Plugin.Command.HELP:
+                for (Node node : getDashBoardPane().getChildren()) {
+                    if (node instanceof Widget) {
+                        Widget widget = (Widget) node;
+                        if (!widget.getTt().getText().equals("")) {
+                            if (widget.getTt().isShowing()) Platform.runLater(() -> widget.getTt().hide());
+                            else {
+                                Bounds sceneBounds = widget.localToScene(widget.getBoundsInLocal());
+
+                                double x = sceneBounds.getMinX() + 2;
+                                double y = sceneBounds.getMinY() + 4;
+
+                                Platform.runLater(() -> widget.getTt().show(widget, x, y));
+                            }
+                        }
+                    }
+                }
+                break;
             default:
-                logger.error("unknown PluginCommand: {}" + cmdType);
-                return;
+                logger.error("unknown PluginCommand: {}", cmdType);
+                break;
         }
     }
 
