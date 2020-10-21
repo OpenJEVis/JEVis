@@ -91,11 +91,11 @@ public class JEConfig extends Application {
      */
     public static String userpassword;
     static ApplicationInfo PROGRAM_INFO = new ApplicationInfo("JEVis Control Center", JEConfig.class.getPackage().getImplementationVersion());//can be ignored
-    private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
+    private static final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static Stage _primaryStage;
     private static JEVisDataSource _mainDS;
     private static PluginManager pluginManager;
-    private static Statusbar statusBar = new Statusbar();
+    private static final Statusbar statusBar = new Statusbar();
     private TopMenu menu;
     public static Date startDate = new Date();
 
@@ -437,6 +437,7 @@ public class JEConfig extends Application {
                 final KeyCombination reloadF5 = new KeyCodeCombination(KeyCode.F5);
                 final KeyCombination newCombo = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
                 final KeyCombination hiddenSettings = new KeyCodeCombination(KeyCode.H, KeyCombination.CONTROL_DOWN);
+                final KeyCombination help = new KeyCodeCombination(KeyCode.F1, KeyCodeCombination.CONTROL_DOWN);
                 scene.setOnKeyPressed(ke -> {
 //                    Platform.runLater(() -> pluginManager.getToolbar().requestFocus());//the most attribute will validate if the lose focus so we do
                     if (saveCombo.match(ke)) {
@@ -450,6 +451,9 @@ public class JEConfig extends Application {
                         ke.consume();
                     } else if (newCombo.match(ke)) {
                         pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.NEW);
+                        ke.consume();
+                    } else if (help.match(ke)) {
+                        pluginManager.getSelectedPlugin().handleRequest(Constants.Plugin.Command.HELP);
                         ke.consume();
                     } else if (hiddenSettings.match(ke)) {
                         HiddenConfig.showHiddenConfig();
