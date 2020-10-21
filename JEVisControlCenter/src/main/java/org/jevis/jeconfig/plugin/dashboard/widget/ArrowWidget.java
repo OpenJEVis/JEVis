@@ -4,21 +4,18 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Rotate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jevis.commons.i18n.I18n;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.dashboard.DashboardControl;
+import org.jevis.jeconfig.plugin.dashboard.config2.ArrowConfig;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetConfigDialog;
 import org.jevis.jeconfig.plugin.dashboard.config2.WidgetPojo;
@@ -34,8 +31,17 @@ public class ArrowWidget extends Widget {
 
     private static final Logger logger = LogManager.getLogger(ArrowWidget.class);
     public static String WIDGET_ID = "Arrow";
-    private final Label label = new Label();
     private AnchorPane anchorPane = new AnchorPane();
+    private ArrowConfig arrowConfig;
+    public static String ARROW_NODE_NAME = "arrow";
+
+    public enum ARROW_ORIENTATION {
+        LEFT_RIGHT,
+        RIGHT_LEFT,
+        TOP_BOTTOM,
+        BOTTOM_TOP
+    }
+
 
     public ArrowWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -53,10 +59,11 @@ public class ArrowWidget extends Widget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.titlewidget.newname"));
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 1, control.getActiveDashboard().xGridInterval * 4));
-        widgetPojo.setShowShadow(false);
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 1, control.getActiveDashboard().xGridInterval * 5));
+        widgetPojo.setShowShadow(true);
         widgetPojo.setBackgroundColor(Color.TRANSPARENT);
         widgetPojo.setFontColorSecondary(Color.BLACK);
+        widgetPojo.setBorderSize(BorderWidths.EMPTY);
 
         return widgetPojo;
     }
@@ -90,8 +97,6 @@ public class ArrowWidget extends Widget {
 
                  anchorPane.getChildren().setAll(drawArrowPath(0, 20, 50, 20, 5));
                  **/
-//                anchorPane.setEffect(null);
-//                label.setEffect(null);
             } catch (Exception ex) {
                 logger.error(ex);
             }
@@ -115,14 +120,19 @@ public class ArrowWidget extends Widget {
         anchorPane.setBackground(null);
         setGraphic(anchorPane);
 
+
+        try {
+            this.arrowConfig = new ArrowConfig(this.control, this.config.getConfigNode(ARROW_NODE_NAME));
+        } catch (Exception ex) {
+            logger.error(ex);
+            ex.printStackTrace();
+        }
+        if (arrowConfig == null) {
+            logger.error("Limit is null make new: " + config.getUuid());
+            this.arrowConfig = new ArrowConfig(this.control);
+        }
         anchorPane.heightProperty().addListener(observable -> updateConfig());
         anchorPane.widthProperty().addListener(observable -> updateConfig());
-
-        //Layouts.setAnchor(this.label, 0);
-
-
-//        anchorPane.setEffect(null);
-//        this.setEffect(null);//Workaround
 
     }
 
@@ -131,6 +141,10 @@ public class ArrowWidget extends Widget {
     public void openConfig() {
         WidgetConfigDialog widgetConfigDialog = new WidgetConfigDialog(this);
         widgetConfigDialog.addGeneralTabsDataModel(null);
+
+        if (arrowConfig != null) {
+            widgetConfigDialog.addTab(arrowConfig.getConfigTab());
+        }
 
         Optional<ButtonType> result = widgetConfigDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -153,81 +167,83 @@ public class ArrowWidget extends Widget {
     public ObjectNode toNode() {
 
         ObjectNode dashBoardNode = super.createDefaultNode();
-//        dashBoardNode
-//                .set(JsonNames.Widget.DATA_HANDLER_NODE, this.sampleHandler.toJsonNode());
+        if (arrowConfig != null) {
+            dashBoardNode.set(ARROW_NODE_NAME, arrowConfig.toJSON());
+        }
+
         return dashBoardNode;
     }
 
     @Override
     public ImageView getImagePreview() {
-        return JEConfig.getImage("widget/TitleWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
+        return JEConfig.getImage("widget/ArrowWidget.png", this.previewSize.getHeight(), this.previewSize.getWidth());
     }
 
 
     private void updateArrow() {
         Platform.runLater(() -> {
-            anchorPane.getChildren().setAll(drawArrowPath());
-            //anchorPane.getChildren().setAll(drawArrowPath(0, anchorPane.getHeight() / 4, anchorPane.getWidth() - 5, anchorPane.getHeight() / 4, anchorPane.getHeight()));
+            if (arrowConfig != null) {
+                anchorPane.getChildren().setAll(drawArrowPath(anchorPane.getWidth(), anchorPane.getHeight(), arrowConfig.getOrientation()));
+            }
         });
 
     }
 
-    private Path drawArrowPath() {
-        Path path = new Path();
-        path.strokeProperty().bind(path.fillProperty());
-        path.setFill(this.config.getFontColorSecondary());
 
-        //x = Width
-        //y = Height
+    private Pane drawArrowPath(double parentWidth, double parentHeight, ARROW_ORIENTATION orientation) {
+        if (orientation.equals(ARROW_ORIENTATION.BOTTOM_TOP) || orientation.equals(ARROW_ORIENTATION.TOP_BOTTOM)) {
 
-        double partY = anchorPane.getHeight() / 4;
-        double startX = anchorPane.getWidth();
-        double startY = anchorPane.getHeight() / 2;
-        double Y2 = startY - partY;
-        double x2 = anchorPane.getWidth() - 5;
+            double orgParentHeight = parentHeight;
+            double orgParentWidth = parentWidth;
+            parentWidth = orgParentHeight;
+            parentHeight = orgParentWidth;
+        }
 
-        path.getElements().add(new MoveTo(startX, startY));
-        path.getElements().add(new LineTo(startX, Y2));
-        path.getElements().add(new LineTo(0, Y2));
-        path.getElements().add(new LineTo(0, startY + partY));
-        path.getElements().add(new LineTo(startX, startY + partY));
-        path.getElements().add(new MoveTo(startX, startY));
+        System.out.println("drawArrowPath: " + this.config.getFontColor());
+        double arrowSize = parentHeight;
+        double yQuarter = parentHeight / 4;
+        double xStart = 0;
+        double yStart = yQuarter;
+        double xWidth = parentWidth + 1 - arrowSize;//-1 to remove gap
+        double yHeight = yQuarter * 2;
+        double arrowPeak = parentHeight / 2;
+
+        Rectangle rectangle = new Rectangle(xStart, yStart, xWidth, yHeight);
+        rectangle.setFill(this.config.getFontColor());
+
+        Polygon polygon = new Polygon();
+        polygon.strokeProperty().bind(polygon.fillProperty());
+        polygon.setFill(this.config.getFontColor());
+        polygon.getPoints().addAll(new Double[]{
+                parentWidth, arrowPeak,
+                parentWidth - arrowSize, parentHeight,
+                parentWidth - arrowSize, 0d});
+
+        Pane arrow = new Pane();
+        arrow.getChildren().addAll(rectangle, polygon);
+
+        switch (orientation) {
+            case BOTTOM_TOP:
+                arrow.getTransforms().add(new Rotate(-90));
+                arrow.setTranslateX(0);
+                arrow.setTranslateY(parentWidth);
+                break;
+            case LEFT_RIGHT:
+                //Default
+                break;
+            case RIGHT_LEFT:
+                arrow.getTransforms().add(new Rotate(180));
+                arrow.setTranslateX(parentWidth);
+                arrow.setTranslateY(parentHeight);
+                break;
+            case TOP_BOTTOM:
+                arrow.getTransforms().add(new Rotate(90));
+                arrow.setTranslateX(parentHeight);
+                break;
+        }
 
 
-        return path;
-    }
-
-    private Path drawArrowPath(double startX, double startY, double endX, double endY, double arrowHeadSize) {
-        logger.error("drawArrowPath: {},{},{},{},{}", startX, startY, endX, endY, arrowHeadSize);
-        Path path = new Path();
-
-        path.strokeProperty().bind(path.fillProperty());
-        //Background bgColor = new Background(new BackgroundFill(this.config.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY));
-        path.setFill(this.config.getFontColorSecondary());
-
-        //Line
-        path.getElements().add(new MoveTo(startX, startY));
-        path.getElements().add(new LineTo(endX, endY));
-
-        path.getElements().add(new LineTo(endX + endX, endY));
-        path.getElements().add(new LineTo(startX + startX, startY));
-        path.getElements().add(new LineTo(startX, startY));
-
-        //ArrowHead
-        double angle = Math.atan2((endY - startY), (endX - startX)) - Math.PI / 2.0;
-        double sin = Math.sin(angle);
-        double cos = Math.cos(angle);
-        //point1
-        double x1 = (-1.0 / 2.0 * cos + Math.sqrt(3) / 2 * sin) * arrowHeadSize + endX;
-        double y1 = (-1.0 / 2.0 * sin - Math.sqrt(3) / 2 * cos) * arrowHeadSize + endY;
-        //point2
-        double x2 = (1.0 / 2.0 * cos + Math.sqrt(3) / 2 * sin) * arrowHeadSize + endX;
-        double y2 = (1.0 / 2.0 * sin - Math.sqrt(3) / 2 * cos) * arrowHeadSize + endY;
-
-        path.getElements().add(new LineTo(x1, y1));
-        path.getElements().add(new LineTo(x2, y2));
-        path.getElements().add(new LineTo(endX, endY));
-        return path;
+        return arrow;
     }
 
 }
