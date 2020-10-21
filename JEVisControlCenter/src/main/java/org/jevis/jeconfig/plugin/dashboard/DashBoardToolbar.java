@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXComboBox;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -23,6 +24,7 @@ import org.jevis.jeconfig.plugin.dashboard.timeframe.ToolBarIntervalSelector;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DashBoardToolbar extends ToolBar {
@@ -58,7 +60,11 @@ public class DashBoardToolbar extends ToolBar {
     private ToggleButton reloadButton = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", this.iconSize, this.iconSize));
     private ToggleButton navigator = new ToggleButton("", JEConfig.getImage("Data.png", this.iconSize, this.iconSize));
     private Tooltip reloadTooltip = new Tooltip(I18n.getInstance().getString("plugin.graph.toolbar.tooltip.reload"));
+    private ToggleButton helpButton = GlobalToolBar.buildHelpButton(this.iconSize, this.iconSize);
     private boolean disableEventListener = false;
+
+    private ArrayList<Object> buttonList = new ArrayList();
+
 
     public DashBoardToolbar(DashboardControl dashboardControl) {
         this.dashboardControl = dashboardControl;
@@ -87,7 +93,12 @@ public class DashBoardToolbar extends ToolBar {
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(reloadButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(backgroundButton);
         GlobalToolBar.changeBackgroundOnHoverUsingBinding(navigator);
+        GlobalToolBar.changeBackgroundOnHoverUsingBinding(helpButton);
+        Object[] elements = new Object[]{lockIcon, snapToGridIcon, unlockIcon, pauseIcon, playIcon, backgroundButton
+                , runUpdateButton, unlockButton, snapGridButton, showGridButton, treeButton, settingsButton, save, exportPNG
+                , newButton, delete, zoomIn, zoomOut, enlarge, newB, reloadButton, navigator, reloadTooltip, helpButton};
 
+        buttonList.addAll(Arrays.asList(elements));
 
         reloadButton.setTooltip(reloadTooltip);
 
@@ -126,7 +137,6 @@ public class DashBoardToolbar extends ToolBar {
         save.setOnAction(event -> {
             this.dashboardControl.save();
         });
-
 
         unlockButton.setOnAction(event -> {
             this.dashboardControl.setEditable(unlockButton.isSelected());
@@ -167,6 +177,11 @@ public class DashBoardToolbar extends ToolBar {
             this.dashboardControl.createNewDashboard();
         });
 
+        helpButton.setOnAction(event -> {
+            this.dashboardControl.showTooltips();
+            showAllTooltips(buttonList);
+        });
+
 
         Separator sep1 = new Separator();
         Separator sep2 = new Separator();
@@ -191,7 +206,9 @@ public class DashBoardToolbar extends ToolBar {
                 , sep3, toolBarIntervalSelector
                 , sep1, zoomOut, zoomIn, listZoomLevel, reloadButton
                 , sep4, save, delete, navigator, exportPNG
-                , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton);
+                , sep2, runUpdateButton, unlockButton, showGridButton, snapGridButton
+                , spacerForRightSide, helpButton);
+
 
         updateView(dashboardControl.getActiveDashboard());
     }
@@ -323,9 +340,9 @@ public class DashBoardToolbar extends ToolBar {
         zoomLevel.add(DashboardControl.fitToHeight);
 
         /** ComboBox need all posible values or the buttonCell will not work work in java 1.8 **/
-        double zs=0;
-        for(double d=0;d<=DashboardControl.MAX_ZOOM;d+=DashboardControl.zoomSteps){
-            zs= Precision.round((zs+0.05d),2);
+        double zs = 0;
+        for (double d = 0; d <= DashboardControl.MAX_ZOOM; d += DashboardControl.zoomSteps) {
+            zs = Precision.round((zs + 0.05d), 2);
             zoomLevels.add(zs);
         }
         zoomLevel.addAll(zoomLevels);
@@ -342,7 +359,9 @@ public class DashBoardToolbar extends ToolBar {
                     @Override
                     protected void updateItem(Double item, boolean empty) {
                         super.updateItem(item, empty);
-                        if (empty) {return;}
+                        if (empty) {
+                            return;
+                        }
 
                         if (item != null) {
                             Platform.runLater(() -> {
@@ -353,7 +372,7 @@ public class DashBoardToolbar extends ToolBar {
                                 } else if (item == DashboardControl.fitToHeight) {
                                     setText(I18n.getInstance().getString("plugin.dashboard.zoom.fitheight"));
                                 } else {
-                                    setText(df.format(Precision.round(item*100, 2))+"%");
+                                    setText(df.format(Precision.round(item * 100, 2)) + "%");
                                 }
                             });
                         }
@@ -370,8 +389,39 @@ public class DashBoardToolbar extends ToolBar {
         doubleComboBox.setPrefWidth(150d);
 
 
-
         return doubleComboBox;
+    }
+
+    private void showAllTooltips(List<Object> controls) {
+        for (Object obj : controls) {
+            try {
+                System.out.println("obj :" + obj);
+                if (obj instanceof Control) {
+                    Control control = (Control) obj;
+                    Tooltip tooltip = control.getTooltip();
+                    if (tooltip != null && !tooltip.getText().isEmpty()) {
+                        if (tooltip.isShowing()) Platform.runLater(() -> tooltip.hide());
+                        else {
+                            Bounds sceneBounds = control.localToScene(control.getBoundsInLocal());
+
+                            double x = sceneBounds.getMinX() + 2;
+                            double y = sceneBounds.getMinY() + 4;
+
+                            Platform.runLater(() -> {
+                                try {
+                                    tooltip.show(control, x, y);
+                                } catch (Exception ex) {
+                                }
+                            });
+                        }
+                    }
+                }
+
+            } catch (Exception ex) {
+                logger.error(ex, ex);
+            }
+
+        }
     }
 
 

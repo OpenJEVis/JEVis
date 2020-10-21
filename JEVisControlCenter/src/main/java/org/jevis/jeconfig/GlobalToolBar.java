@@ -25,11 +25,11 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBase;
-import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jevis.commons.i18n.I18n;
 
 /**
  * Temporary solution of an global toolbar.
@@ -42,6 +42,12 @@ public class GlobalToolBar {
     private static final String STANDARD_BUTTON_STYLE = "-fx-background-color: transparent;-fx-background-insets: 0 0 0;";
     private static final String HOVERED_BUTTON_STYLE = "-fx-background-insets: 1 1 1;";
     private final PluginManager pm;
+
+    public static ToggleButton buildHelpButton(double width, double height) {
+        ToggleButton toggleButton = new ToggleButton("", JEConfig.getImage("1404161580_help_blue.png", height, width));
+        toggleButton.setTooltip(new Tooltip(I18n.getInstance().getString("plugin.toolbar.tip.help")));
+        return toggleButton;
+    }
 
     public GlobalToolBar(PluginManager pm) {
         this.pm = pm;
@@ -57,7 +63,6 @@ public class GlobalToolBar {
         });
 
     }
-
 
 
     public static void BuildEventhandler(Plugin plugin, ButtonBase button, final int command) {
