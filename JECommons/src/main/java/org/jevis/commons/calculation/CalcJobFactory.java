@@ -338,7 +338,7 @@ public class CalcJobFactory {
                 JEVisAttribute attribute = child.getAttribute(Calculation.INPUT_TYPE.getName());
                 String inputTypeString = attribute.getLatestSample().getValueAsString();
                 CalcInputType inputType = CalcInputType.valueOf(inputTypeString);
-                if (inputType.equals(PERIODIC) || inputType.equals(ASYNC)) {
+                if (inputType.equals(PERIODIC)) {
                     JEVisAttribute targetAttr = child.getAttribute(Calculation.INPUT_DATA.getName());
                     TargetHelper targetHelper = new TargetHelper(ds, targetAttr);
                     JEVisAttribute valueAttribute = targetHelper.getAttribute().get(0);

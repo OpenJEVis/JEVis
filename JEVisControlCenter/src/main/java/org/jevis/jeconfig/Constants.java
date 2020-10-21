@@ -46,6 +46,7 @@ public interface Constants {
             int RENAME = 12;
             int FIND_AGAIN = 13;
             int CUT = 14;
+            int HELP = 15;
             int REPLACE = 101;
             int DELETE_ALL_CLEAN_AND_RAW = 102;
             int CREATE_MULTIPLIER_AND_DIFFERENTIAL = 103;
