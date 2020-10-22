@@ -115,7 +115,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
             if (!this.sampleHandler.getDataModel().isEmpty()) {
                 ChartDataRow dataModel = this.sampleHandler.getDataModel().get(0);
                 List<JEVisSample> results;
-                boolean isQuantity = false;
+                boolean isQuantity = true;
 
                 String unit = dataModel.getUnitLabel();
 
