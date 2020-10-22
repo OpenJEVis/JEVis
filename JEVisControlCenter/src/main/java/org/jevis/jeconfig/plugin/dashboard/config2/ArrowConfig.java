@@ -121,7 +121,7 @@ public class ArrowConfig {
 
         //------------------------------- shape
 
-        Label shapeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.arrowwidget.orientation"));
+        Label shapeLabel = new Label(I18n.getInstance().getString("plugin.dashboard.arrowwidget.shape"));
 
         ComboBox<SHAPE> shapeBox = new ComboBox<>(FXCollections.observableArrayList(SHAPE.values()));
         Callback<ListView<SHAPE>, ListCell<SHAPE>> shapeCellFactory = new Callback<ListView<SHAPE>, ListCell<SHAPE>>() {
