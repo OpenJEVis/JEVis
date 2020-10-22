@@ -74,7 +74,7 @@ public class ValueWidget extends Widget implements DataModelWidget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.valuewidget.newname"));
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*1,control.getActiveDashboard().xGridInterval*4));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 1, control.getActiveDashboard().xGridInterval * 4));
 
 
         return widgetPojo;
@@ -352,13 +352,17 @@ public class ValueWidget extends Widget implements DataModelWidget {
                                 row++;
                             }
                         } catch (Exception e) {
-
+                            logger.error("Error while loading calculation", e);
                         }
                     }
+
+                }
+                if (!gp.getChildren().isEmpty()) {
+                    alert.getDialogPane().setContent(gp);
+                    alert.showAndWait();
                 }
 
-                alert.getDialogPane().setContent(gp);
-                alert.showAndWait();
+
             }
         });
     }
