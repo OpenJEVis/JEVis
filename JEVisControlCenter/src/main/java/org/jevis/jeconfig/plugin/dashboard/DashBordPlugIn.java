@@ -8,7 +8,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
@@ -23,7 +22,6 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.plugin.dashboard.config2.Size;
-import org.jevis.jeconfig.plugin.dashboard.widget.Widget;
 import org.jevis.jeconfig.tool.Layouts;
 
 import java.util.concurrent.Executors;
@@ -263,22 +261,7 @@ public class DashBordPlugIn implements Plugin {
                 dashboardControl.reload();
                 break;
             case Constants.Plugin.Command.HELP:
-                for (Node node : getDashBoardPane().getChildren()) {
-                    if (node instanceof Widget) {
-                        Widget widget = (Widget) node;
-                        if (!widget.getTt().getText().equals("")) {
-                            if (widget.getTt().isShowing()) Platform.runLater(() -> widget.getTt().hide());
-                            else {
-                                Bounds sceneBounds = widget.localToScene(widget.getBoundsInLocal());
-
-                                double x = sceneBounds.getMinX() + 2;
-                                double y = sceneBounds.getMinY() + 4;
-
-                                Platform.runLater(() -> widget.getTt().show(widget, x, y));
-                            }
-                        }
-                    }
-                }
+                dashboardControl.showTooltips();
                 break;
             default:
                 logger.error("unknown PluginCommand: {}", cmdType);

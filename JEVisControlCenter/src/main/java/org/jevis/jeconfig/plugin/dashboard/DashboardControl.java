@@ -11,6 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -917,6 +918,28 @@ public class DashboardControl {
     public void toPDF() {
         DashboardExport exporter = new DashboardExport();
         exporter.toPDF(dashboardPane, activeDashboard.getTitle() + "_" + intervalToString());
+    }
+
+
+    public void showTooltips() {
+        for (Widget widget : getWidgets()) {
+            try {
+                if (!widget.getTt().getText().equals("")) {
+                    if (widget.getTt().isShowing()) Platform.runLater(() -> widget.getTt().hide());
+                    else {
+                        Bounds sceneBounds = widget.localToScene(widget.getBoundsInLocal());
+
+                        double x = sceneBounds.getMinX() + 2;
+                        double y = sceneBounds.getMinY() + 4;
+
+                        Platform.runLater(() -> widget.getTt().show(widget, x, y));
+                    }
+                }
+            } catch (Exception ex) {
+                logger.error("Error while showing tooltip for: {}", widget);
+            }
+        }
+
     }
 
 

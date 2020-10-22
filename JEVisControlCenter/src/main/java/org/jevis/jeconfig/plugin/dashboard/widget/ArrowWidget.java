@@ -42,6 +42,11 @@ public class ArrowWidget extends Widget {
         BOTTOM_TOP
     }
 
+    public enum SHAPE {
+        ARROW,
+        LINE,
+    }
+
 
     public ArrowWidget(DashboardControl control, WidgetPojo config) {
         super(control, config);
@@ -183,14 +188,14 @@ public class ArrowWidget extends Widget {
     private void updateArrow() {
         Platform.runLater(() -> {
             if (arrowConfig != null) {
-                anchorPane.getChildren().setAll(drawArrowPath(anchorPane.getWidth(), anchorPane.getHeight(), arrowConfig.getOrientation()));
+                anchorPane.getChildren().setAll(drawArrowPath(anchorPane.getWidth(), anchorPane.getHeight(), arrowConfig.getOrientation(), arrowConfig.getShape()));
             }
         });
 
     }
 
 
-    private Pane drawArrowPath(double parentWidth, double parentHeight, ARROW_ORIENTATION orientation) {
+    private Pane drawArrowPath(double parentWidth, double parentHeight, ARROW_ORIENTATION orientation, SHAPE shape) {
         if (orientation.equals(ARROW_ORIENTATION.BOTTOM_TOP) || orientation.equals(ARROW_ORIENTATION.TOP_BOTTOM)) {
 
             double orgParentHeight = parentHeight;
@@ -199,8 +204,9 @@ public class ArrowWidget extends Widget {
             parentHeight = orgParentWidth;
         }
 
-        System.out.println("drawArrowPath: " + this.config.getFontColor());
-        double arrowSize = parentHeight;
+        double arrowSize = shape == SHAPE.ARROW ? parentHeight : 0;
+
+
         double yQuarter = parentHeight / 4;
         double xStart = 0;
         double yStart = yQuarter;
@@ -211,16 +217,25 @@ public class ArrowWidget extends Widget {
         Rectangle rectangle = new Rectangle(xStart, yStart, xWidth, yHeight);
         rectangle.setFill(this.config.getFontColor());
 
-        Polygon polygon = new Polygon();
-        polygon.strokeProperty().bind(polygon.fillProperty());
-        polygon.setFill(this.config.getFontColor());
-        polygon.getPoints().addAll(new Double[]{
-                parentWidth, arrowPeak,
-                parentWidth - arrowSize, parentHeight,
-                parentWidth - arrowSize, 0d});
 
         Pane arrow = new Pane();
-        arrow.getChildren().addAll(rectangle, polygon);
+
+        switch (shape) {
+            case LINE:
+                arrow.getChildren().addAll(rectangle);
+                break;
+            case ARROW:
+                Polygon polygon = new Polygon();
+                polygon.strokeProperty().bind(polygon.fillProperty());
+                polygon.setFill(this.config.getFontColor());
+                polygon.getPoints().addAll(new Double[]{
+                        parentWidth, arrowPeak,
+                        parentWidth - arrowSize, parentHeight,
+                        parentWidth - arrowSize, 0d});
+                arrow.getChildren().addAll(rectangle, polygon);
+        }
+
+        //arrow.getChildren().addAll(rectangle, polygon);
 
         switch (orientation) {
             case BOTTOM_TOP:
