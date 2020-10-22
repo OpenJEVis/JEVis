@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jfoenix.controls.JFXButton;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListCell;
@@ -74,8 +73,8 @@ public class DashboadLinkWidget extends Widget {
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.dashboardlinkerwidget.newname"));
         widgetPojo.setType(typeID());
         widgetPojo.setBorderSize(new BorderWidths(0));
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*1,control.getActiveDashboard().xGridInterval*1));
-        widgetPojo.setBackgroundColor(Color.web("#ffffff",0.0));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 1, control.getActiveDashboard().xGridInterval * 1));
+        widgetPojo.setBackgroundColor(Color.web("#ffffff", 0.0));
 
         return widgetPojo;
     }
@@ -93,9 +92,11 @@ public class DashboadLinkWidget extends Widget {
 //            linkedDashboardObj = getDataSource().getObject(3799l);
 
             linkButton.setOnAction(event -> {
-                control.selectDashboard(linkedDashboardObj);
-                control.setActiveTimeFrame(selectedTimeFrameFactory);
-                control.setInterval(interval);
+                if (linkedDashboardObj != null) {
+                    control.selectDashboard(linkedDashboardObj);
+                    control.setActiveTimeFrame(selectedTimeFrameFactory);
+                    control.setInterval(interval);
+                }
             });
 
 
@@ -125,14 +126,14 @@ public class DashboadLinkWidget extends Widget {
                 this.setBorder(null);
 
                 if (dataModelNode.getDashboardObject() != null
-                        && dataModelNode.getDashboardObject()>0
-                        && getDataSource().getObject(dataModelNode.getDashboardObject())!=null) {
+                        && dataModelNode.getDashboardObject() > 0
+                        && getDataSource().getObject(dataModelNode.getDashboardObject()) != null) {
                     try {
                         linkedDashboardObj = getDataSource().getObject(dataModelNode.getDashboardObject());
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
-                }else{
+                } else {
                     logger.warn("can not find linked object");
                 }
 
