@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ListCell;
@@ -37,7 +36,7 @@ import java.util.*;
 
 public class LinkerWidget extends Widget {
 
-    public static String WIDGET_ID = "Link";
+    public static String WIDGET_ID = "Analyse-Link";
     private GraphAnalysisLinker graphAnalysisLinker;
     private ObjectMapper mapper = new ObjectMapper();
     private static final Logger logger = LogManager.getLogger(LinkerWidget.class);
@@ -67,7 +66,7 @@ public class LinkerWidget extends Widget {
         widgetPojo.setTitle(I18n.getInstance().getString("plugin.dashboard.linkerwidget.newname"));
         widgetPojo.setType(typeID());
         widgetPojo.setBorderSize(new BorderWidths(0));
-        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval*1,control.getActiveDashboard().xGridInterval*1));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().yGridInterval * 1, control.getActiveDashboard().xGridInterval * 1));
 
         return widgetPojo;
     }
@@ -102,7 +101,7 @@ public class LinkerWidget extends Widget {
 
     @Override
     public void updateConfig() {
-        if(!hasInit){
+        if (!hasInit) {
             return;
         }
         Platform.runLater(() -> {
