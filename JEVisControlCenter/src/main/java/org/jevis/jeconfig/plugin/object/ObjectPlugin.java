@@ -806,7 +806,7 @@ public class ObjectPlugin implements Plugin {
             if (_editor.needSave()) {
                 ConfirmDialog dia = new ConfirmDialog();
                 ConfirmDialog.Response re = dia.show(I18n.getInstance().getString("plugin.object.attributes.save"),
-                        I18n.getInstance().getString("plugin.object.attributes.changes"), "plugin.object.attributes.message");
+                        I18n.getInstance().getString("plugin.object.attributes.changes"), I18n.getInstance().getString("plugin.object.attributes.message"));
                 if (re == ConfirmDialog.Response.YES) {
                     _editor.commitAll();
                 } else {
