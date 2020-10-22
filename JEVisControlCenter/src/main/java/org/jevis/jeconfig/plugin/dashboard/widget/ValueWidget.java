@@ -28,7 +28,6 @@ import org.jevis.commons.calculation.CalcJob;
 import org.jevis.commons.calculation.CalcJobFactory;
 import org.jevis.commons.database.SampleHandler;
 import org.jevis.commons.i18n.I18n;
-import org.jevis.commons.unit.ChartUnits.QuantityUnits;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.application.Chart.data.ChartDataRow;
@@ -119,21 +118,9 @@ public class ValueWidget extends Widget implements DataModelWidget {
 
                 String unit = dataModel.getUnitLabel();
 
-                try {
-                    QuantityUnits qu = new QuantityUnits();
-                    isQuantity = qu.isQuantityUnit(dataModel.getUnit());
-                    isQuantity = qu.isQuantityIfCleanData(dataModel.getAttribute(), isQuantity);
-                } catch (Exception ex) {
-                    logger.error("Error in quantity check: {}", ex, ex);
-                }
-
                 results = dataModel.getSamples();
                 if (!results.isEmpty()) {
-                    Double tmpTotal = DataModelDataHandler.getTotal(results);
-                    if (!isQuantity) {
-                        tmpTotal = tmpTotal / results.size();
-                    }
-                    total.set(tmpTotal);
+                    total.set(DataModelDataHandler.getTotal(results, dataModel));
 
                     displayedSample.setValue(total.get());
                     Platform.runLater(() -> {

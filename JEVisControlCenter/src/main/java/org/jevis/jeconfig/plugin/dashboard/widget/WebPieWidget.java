@@ -67,7 +67,7 @@ public class WebPieWidget extends Widget {
         WidgetPojo widgetPojo = new WidgetPojo();
         widgetPojo.setTitle("new WebPie Widget");
         widgetPojo.setType(typeID());
-        widgetPojo.setSize(new Size(control.getActiveDashboard().xGridInterval*12,control.getActiveDashboard().yGridInterval*12));
+        widgetPojo.setSize(new Size(control.getActiveDashboard().xGridInterval * 12, control.getActiveDashboard().yGridInterval * 12));
 
 
         return widgetPojo;
@@ -93,7 +93,7 @@ public class WebPieWidget extends Widget {
         this.sampleHandler.getDataModel().forEach(chartDataModel -> {
             try {
 //                chartDataModel.setAbsolute(true);
-                Double dataModelTotal = DataModelDataHandler.getTotal(chartDataModel.getSamples());
+                Double dataModelTotal = DataModelDataHandler.getTotal(chartDataModel.getSamples(), chartDataModel);
                 total.set(total.get() + dataModelTotal);
 
             } catch (Exception ex) {
@@ -113,7 +113,7 @@ public class WebPieWidget extends Widget {
                 if (!hasNoData) {
                     logger.error("Samples: ({}) {}", dataName, chartDataModel.getSamples());
                     try {
-                        value = DataModelDataHandler.getTotal(chartDataModel.getSamples());
+                        value = DataModelDataHandler.getTotal(chartDataModel.getSamples(), chartDataModel);
                         BigDecimal bd = new BigDecimal(value);
                         bd = bd.setScale(5, RoundingMode.HALF_UP);
 //                        value = bd.doubleValue();
