@@ -107,7 +107,11 @@ public class CopyObjectDialog {
                 return Response.CANCEL;
             }
             //Don't allow recursion if the process failed the recursion check
-            this.recursionAllowed = parentCheck(object, newParent);
+            this.recursionAllowed = !TreeHelper.isOwnParentCheck(object, newParent);
+            if (!recursionAllowed) {
+                this.recursion.setSelected(false);
+            }
+
             this.recursion.setDisable(!this.recursionAllowed);
             this.move.setDisable(!this.recursionAllowed);
 
@@ -249,6 +253,10 @@ public class CopyObjectDialog {
 
                 }
 
+                if (!recursionAllowed) {
+                    CopyObjectDialog.this.recursion.setSelected(false);
+                }
+
             }
         });
 
@@ -256,7 +264,9 @@ public class CopyObjectDialog {
 //            this.link.setDisable(!linkOK);
 
             if (object.isAllowedUnder(newParent)) {
-                this.move.setDisable(false);
+                if (recursionAllowed) {
+                    this.move.setDisable(false);
+                }
                 this.copy.setDisable(false);
 //                clone.setDisable(false);
             } else {
